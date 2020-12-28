@@ -1,0 +1,97 @@
+{% extends "base_template.html" %}
+
+{% block title %}Planillas de Rendicion{% endblock %}
+{% block style %}
+<style>
+ .procesada{
+    background-color: gainsboro;
+}
+.noprocesada{
+    background-color: yellow;
+}
+thead th {
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0px;
+    z-index: 10;
+    background-color: #837e7e;
+    color:white;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div id="app">
+    <h1>Planillas de Cobranza</h1>
+    <table class="table table-sm ">
+        <thead>
+            <tr>
+                <th>Op</th>
+                <th>fecha</th>
+                <th>cobrado</th>
+                <th>comision</th>
+                <th>viatico</th>
+                <th>cntrbos</th>
+                <th>procesado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="planilla in planillas" :class="planilla[1]!=planilla[5]?'noprocesada':'procesada'">
+                <td><button class="btn btn-outline-primary btn-sm" @click="procesarPlanilla(planilla[0],planilla[1],planilla[2],planilla[3])">Procesar</button></td>
+                <td>|planilla[0]|</td>
+                <td>|planilla[1]|</td>
+                <td>|planilla[2]|</td>
+                <td>|planilla[3]|</td>
+                <td>|planilla[4]|</td>
+                <td>|planilla[5]|</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+{% block script %}
+<script>
+const app = new Vue({
+    el:"#app",
+    delimiters:['|','|'],
+    data:{
+        planillas:[],
+    },
+    methods: {
+        getPlanillas(){
+            axios.get('/pagos/getplanillas')
+            .then(res=>{
+                arrayPlanillas = Array.from(res.data.planillas)
+                arrayPlanillas.forEach(row=>{
+                    row[0]=dayjs(row[0]).format('YYYY-MM-DD')
+                })
+                this.planillas = arrayPlanillas
+                //console.log(this.planillas);
+            })
+        },
+        procesarPlanilla(fecha,cobrado,comision,viatico){
+            axios({
+                method:'POST',
+                url:'/pagos/procesarplanilla',
+                data:{
+                    fecha,
+                    cobrado,
+                    comision,
+                    viatico,
+                }
+            })
+            .then(res=>{
+                console.log(res);
+                this.getPlanillas();
+            })
+        },
+    },
+    created: function(){
+        this.getPlanillas();
+    },
+})
+
+</script>
+{% endblock %}

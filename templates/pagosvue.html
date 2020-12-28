@@ -1,0 +1,374 @@
+{% extends "base_template.html" %}
+
+{% block title %}Pasar Pagos{% endblock %}
+{% block style %}
+<style>
+.floated{
+     float:left;
+     margin-right: 5px;
+ }
+.center{
+    text-align:center;
+}
+.normal{
+    background-color:gainsboro;
+}
+.cancelada{
+    background-color:pink;
+}
+.required{
+    border:1px solid red;
+    background-color: lightyellow;
+}
+thead th {
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0px;
+    z-index: 10;
+    background-color: #837e7e;
+    color:white;
+}
+</style>
+{% endblock%}
+{% block content %}
+<div id="app" class="conteiner">
+<div class="row"> 
+    <form v-on:submit.prevent class="form-inline">
+        <input id="fechapago" type="date"  class="form-control" v-model="fechapago">
+        <input id="cobrador" type="text"  class="form-control" placeholder="Cobrador" v-model="cobrador" @keyup.enter="validateCargarPlanilla">
+        <button @click.prevent="validateCargarPlanilla" type="button" class="btn btn-info">Cargar Planilla</button>
+        <input type="text" id="lote" class="form-control" placeholder="Lote Recibos N°" v-model="lote">
+    </form>
+        <input type="text" placeholder="Cuenta o Nombre a buscar" class="form-control mt-1" v-model="cuenta" @keyup.enter="buscaCuenta(cuenta)" @focus="cuenta='';verInputsPagos=false">
+</div>
+
+<div class="row">
+    <div v-for="cliente in clientes" >
+        <!-- [nombre,direccion,dni] -->
+        <button class="btn btn-outline-primary mt-1 floated" @mouseover="cuenta=cliente[1]" @click="buscaCuenta(cliente[2]);obtenerCuentas(cliente[2]);direccion=cuenta" >|cliente[0]|</button>
+    </div>
+    <div v-for="idvta in idvtas">
+        <!-- [N°cuenta,direccion] -->
+        <button class="btn btn-outline-danger mt-1 floated" v-if="cuenta==idvta[1]" @click="traerFicha(idvta[0])">|idvta[0]|</button>
+    </div>
+</div>
+
+<div class="row" v-if="verInputsPagos">
+    <form v-on:submit.prevent class="form-inline">
+    <h3><span class="badge badge-danger mt-3" >|`Saldo ${saldo}`|</span></h3>
+    <h3><span class="badge badge-secondary mt-3" >|`Cuota ${cuota}`|</span></h3>
+    <input id="importe" type="text" placeholder="Importe" class="form-control mt-1 center" v-model="importe" size="6" >
+    <input type="text" placeholder="Recargo" class="form-control mt-1 center" size="6"  v-model="recargo">
+    <input type="text" placeholder="Total" class="form-control mt-1 center" size="6"  :value="+importe+(+recargo)">
+    <input id="recibo" type="text" placeholder="Recibo N°" class="form-control mt-1 center" size="6"  v-model="recibo" @keyup.up="recibo++" @keyup.down="recibo--" @keyup.enter="validatePasarPagos">
+    <button class="btn btn-danger mt-1" type="button"  @click="validatePasarPagos">Pasar</button>
+</form>
+</div>
+
+<div class="row" v-if="cntRbos && !verInputsPagos ">
+    <h2><span class="badge badge-success " >Cnt Rbos |cntRbos|</span></h2>
+    <h2><span class="badge badge-warning"  >Cobrado $|cobrado|</span></h2>
+    <h2><span class="badge badge-info"  >Comision $|comision|</span></h2>
+    <form @submit.prevent class="form-inline  ">
+        <input type="text" placeholder="Viaticos" class="form-control  center" size="6"   v-model="viatico">
+        <button class="btn btn-outline-info"   @click="pasarPlanilla">Guardar Planilla</button>
+        <a href="/pagos/verplanillas" class="btn btn-outline-info" >Ver Planillas</a>
+    </form>
+</div>
+
+<div class="row">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Op</th>
+                <th>Id</th>
+                <th>Rbo</th>
+                <th>Fecha</th>
+                <th>IdVta</th>
+                <th>Imp</th>
+                <th>Rec</th>
+                <th>Total</th>
+                <th>Nombre</th>
+                <th>Direccion</th>
+                <th>Zona</th>
+                <th>Deuda</th>
+                <th>Cobr</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="pago in rbosPagos" :class="pago[10]>0?'normal':'cancelada'">
+                <td><button class="btn btn-outline-primary btn-sm" @click="borrarPago(pago[0])">Borrar</button></td>
+                <td>|pago[0]|</td>
+                <td>|pago[1]|</td>
+                <td style="min-width:100px">|pago[2]|</td>
+                <td>|pago[3]|</td>
+                <td>|pago[4]|</td>
+                <td>|pago[5]|</td>
+                <td>|pago[6]|</td>
+                <td>|pago[7]|</td>
+                <td>|pago[8]|</td>
+                <td>|pago[9]|</td>
+                <td>|pago[10]|</td>
+                <td>|pago[11]|</td>
+                <td>|pago[12]|</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="row">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>fecha</th>
+                <th>cobr</th>
+                <th>cobrado</th>
+                <th>comision</th>
+                <th>viatico</th>
+                <th>cntrbos</th>
+                <th>lote</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="planilla in planillas">
+                <td>|planilla[0]|</td>
+                <td>|planilla[1]|</td>
+                <td>|planilla[2]|</td>
+                <td>|planilla[3]|</td>
+                <td>|planilla[4]|</td>
+                <td>|planilla[5]|</td>
+                <td>|planilla[6]|</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</div>
+
+{% endblock %}
+{% block script %}
+<script>
+Vue.use(Toasted)
+
+const app = new Vue({
+    el:"#app",
+    delimiters:['|','|'],
+    data:{
+        fechapago:'',
+        cobrador: '',
+        lote:'',
+        cuenta:'',
+        clientes:[],
+        idvtas:[],
+        importe:'',
+        cuota:'',
+        saldo:'',
+        direccion:'',
+        idvta:'',
+        recargo:'',
+        recibo:'',
+        verInputsPagos:false,
+        rbosPagos:[],
+        cntRbos:'',
+        cobrado:'',
+        comision:'',
+        viatico:'',
+        planillas:[],
+    },
+    methods: {
+        validateCargarPlanilla(){
+            $fechapago = document.getElementById('fechapago')
+            $cobrador = document.getElementById('cobrador')
+            if(this.fechapago==''){
+                $fechapago.classList.add ('required')
+            }else{
+                $fechapago.classList.remove('required')
+            }
+            if(this.cobrador==''){
+                $cobrador.classList.add ('required')
+            }else{
+                $cobrador.classList.remove('required')
+            }
+            if(this.fechapago!=''&&this.cobrador!=''){
+                this.cargarPlanilla()
+            }else{
+                //alert('corregir faltantes')
+                let toast = this.$toasted.error("Complete los campos faltantes", { 
+                theme: "outline", 
+                position: "top-right", 
+                duration : 3000,
+                fullWidth: true,
+            });
+            }
+
+        },
+        cargarPlanilla(){
+           axios.get('/pagos/planilla/'+this.fechapago+'/'+this.cobrador)
+           .then(res=>{
+                 //console.log(res.data.planilla)
+                 //this.llenarTable(res.data.planilla)
+                 this.lote = res.data.lote
+                 //transformar columna fecha malformada
+                 arrayPagos = Array.from(res.data.planilla)
+                 arrayPagos.forEach(row=>{
+                     row[2]=dayjs(row[2]).format('YYYY-MM-DD')
+                 })
+                 this.rbosPagos = arrayPagos
+                 
+                 this.cntRbos = res.data.planilla.length
+                 let arrayRow = []
+                 this.rbosPagos.forEach(row=>{
+                     arrayRow.push(row[6])
+                 })
+                 this.cobrado = arrayRow.reduce((a,b)=>Number(a)+Number(b),0);
+                 this.comision = this.cobrado * 0.15
+                 this.getPlanillas(this.fechapago);
+           })
+           },
+        buscaCuenta(cuenta){
+            axios.get('/pagos/buscar/'+cuenta)
+            .then(res=>{
+                this.clientes=res.data.clientes;
+                console.log(this.clientes);
+                this.importe='';
+                this.cuota='';
+                this.saldo='';
+            })
+        },
+        obtenerCuentas(dni){
+            axios.get('/pagos/idvtas/'+dni)
+            .then(res=>{
+                this.idvtas=res.data.idvtas;
+                //console.log(res.data.idvtas);
+            })
+        },
+        traerFicha(idvta){
+            axios.get('/pagos/traerficha/'+idvta)
+            .then(res=>{
+                this.ficha=res.data.ficha;
+                //console.log(this.ficha);
+                this.importe=this.ficha[0][1]
+                this.cuota=this.ficha[0][2]
+                this.saldo=this.ficha[0][3]
+                //console.log(this.importe);
+                this.idvta=idvta
+                //visibilizo la fila de inputsPago
+                this.verInputsPagos = true;
+            })
+        },
+        borrarPago(idpago){
+            axios.get('/pagos/borrarpago/'+idpago)
+            .then(res=>{
+                //console.log(res);
+                this.cargarPlanilla();
+            })
+        },
+        validatePasarPagos(){
+            $lote = document.getElementById('lote')
+            $importe = document.getElementById('importe')
+            $recibo = document.getElementById('recibo')
+            $fechapago = document.getElementById('fechapago')
+            $cobrador = document.getElementById('cobrador')
+            if(this.fechapago==''){
+                $fechapago.classList.add ('required')
+            }else{
+                $fechapago.classList.remove('required')
+            }
+            if(this.cobrador==''){
+                $cobrador.classList.add ('required')
+            }else{
+                $cobrador.classList.remove('required')
+            }
+            if(this.lote==''){
+                $lote.classList.add ('required')
+            }else{
+                $lote.classList.remove('required')
+            }
+            if(this.importe==''){
+                $importe.classList.add ('required')
+            }else{
+                $importe.classList.remove('required')
+            }
+            if(this.recibo==''){
+                $recibo.classList.add ('required')
+            }else{
+                $recibo.classList.remove('required')
+            }
+            if(this.lote!=''&&this.importe!=''&&this.recibo!=''&&this.fechapago!=''&&this.cobrador!=''){
+                this.pasarPagos()
+            }else{
+                //alert('corregir campos faltantes')
+                
+            let toast = this.$toasted.error("Complete los campos faltantes", { 
+                theme: "outline", 
+                position: "top-right", 
+                duration : 3000,
+                fullWidth: true,
+            });
+            }
+        },
+        pasarPagos(){
+            axios({
+                method:'POST',
+                url:'/pagos/pasarpagos',
+                data:{
+                    idvta:this.idvta,
+                    imp:this.importe,
+                    rec:this.recargo,
+                    rbo:this.recibo,
+                    cobr:this.cobrador,
+                    lote:this.lote,
+                    fecha:this.fechapago,
+                }
+                })
+            .then(res=>{
+                //console.log(res);
+                //invisibilizo los inputsPago
+                this.verInputsPagos=false;
+                this.cargarPlanilla();
+                this.recibo++
+                let toast = this.$toasted.success("Pago procesado con exito", { 
+                theme: "outline", 
+                position: "top-right", 
+                duration : 3000,
+                fullWidth: true,
+            });
+            })
+        },
+        pasarPlanilla(){
+            axios({
+                method:'POST',
+                url:'/pagos/pasarplanilla',
+                data:{
+                    fecha:this.fechapago,
+                    idcobr:this.cobrador,
+                    idlote:this.lote,
+                    cobrado:this.cobrado,
+                    comision:this.comision,
+                    viatico:this.viatico,
+                    cntrbos:this.cntRbos,
+                }
+            })
+            .then(res=>{
+                //console.log(res)
+                this.getPlanillas(this.fechapago);
+            })
+        },
+        getPlanillas(fecha){
+            axios.get('/pagos/getplanillas/'+fecha)
+            .then(res=>{
+                arrayPlanillas = Array.from(res.data.planillas)
+                arrayPlanillas.forEach(row=>{
+                    row[0]=dayjs(row[0]).format('YYYY-MM-DD')
+                })
+                this.planillas = arrayPlanillas
+                console.log(res.data.planillas);
+            })
+        },
+        
+       
+    },
+
+})
+</script>
+{% endblock %}

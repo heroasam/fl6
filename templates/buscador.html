@@ -1,0 +1,108 @@
+{% extends "base_template.html" %}
+
+{% block title %}Clientes{% endblock %}
+{% block style %}
+<style>
+ .floated{
+     float:left;
+     margin-right: 5px;
+ }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div id="app">
+    
+    <div class="row">
+        <div class="input-group">
+            <input type="search" placeholder="Buscar en Romitex" size="73" class="form-control" v-model="buscar" @keyup.enter="buscarCliente" @focus="buscar='';verCard=false">
+        <div class="input-group-append">
+            <button type="button" @click="buscarCliente" class="btn btn-outline-secondary">Buscar</button>
+        </div>
+        </div>
+    </div>
+    <div class="row" v-if="!verCard">
+        <div v-for="cliente in clientes">
+            <!-- [dni,nombre,direccion] -->
+        <button class="btn btn-outline-primary floated" @mouseover="buscar=cliente[2]" @click="buscaCuentaporDni(cliente[0])">|cliente[1]|</button>
+        </div>
+    </div>
+    <div class="card mt-2" style="width: 52rem;" v-if="verCard">
+        <div class="card-body">
+          <h4 class="card-title">|nombre|  |dni|</h4>
+          <h5 class="card-subtitle mb-2 text-muted">|direccion|  |barrio|  zona:|zona|</h5>
+          <h5 class="card-subtitle mb-2 text-muted">tel:|tel| wapp:|wapp|</h5>
+          <button class="btn btn-primary floated">PmoVto |pmovto|</button>
+          <button class="btn btn-primary floated">Deuda $|deuda|</button>
+          <button class="btn btn-success floated">|sev|</button>
+        </div>
+      </div>
+    
+</div>
+
+{% endblock %}
+{% block script %}
+<script>
+const app = new Vue({
+    el:"#app",
+    delimiters:['|','|'],
+    data:{
+        verCard:false,
+        buscar:'',
+        clientes: [],
+        dni:'',
+        nombre:'',
+        direccion:'',
+        barrio:'',
+        tel:'',
+        wapp:'',
+        zona:'',
+        pmovto:'',
+        deuda:'',
+        sev:'',
+        incobrable:'',
+        gestion:'',
+        subirseven:'',
+        novendermas:'',
+        seguir:'',
+        
+    },
+    methods: {
+        buscarCliente(){
+            axios.get('/buscador/'+this.buscar)
+            .then(res=>{
+                this.clientes = res.data.clientes
+            })
+        },
+        buscaCuentaporDni(dni){
+            axios.get('/buscador/'+dni)
+            .then(res=>{
+                this.clientes = res.data.clientes
+                this.dni = this.clientes[0][0]
+                this.nombre = this.clientes[0][1]
+                this.direccion = this.clientes[0][2]
+                this.barrio = this.clientes[0][3]
+                this.tel = this.clientes[0][4]
+                this.wapp = this.clientes[0][5]
+                this.zona = this.clientes[0][6]
+                this.pmovto = dayjs(this.clientes[0][7]).format('YYYY-MM-DD')
+                this.deuda = this.clientes[0][8]
+                this.sev = this.clientes[0][9]==1?'Seven':''
+                this.incobrable = this.clientes[0][10]
+                this.gestion = this.clientes[0][11]
+                this.subirseven = this.clientes[0][12]
+                this.novendermas = this.clientes[0][13]
+                this.seguir = this.clientes[0][14]
+                
+                this.verCard = true;
+            })
+        },
+        
+        
+    },
+    
+})
+
+</script>
+{% endblock %}
