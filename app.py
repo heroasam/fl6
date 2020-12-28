@@ -179,3 +179,10 @@ def buscar_cuenta(buscar):
         buscar = '%'+buscar.replace(' ','%')+'%'
         clientes = pgdict(con,f"select dni,nombre,calle||' '||num from clientes where nombre||calle||num||barrio ilike '{buscar}'")
     return jsonify(clientes=clientes) 
+
+
+@app.route('/buscador/pedirventas/<string:dni>')
+def buscar_ventas(dni):
+    idcliente = pgonecolumn(con,f"select id from clientes where dni='{dni}'")
+    ventas = pgdict(con,f"select id,fecha,cc,ic::integer,p,idvdor,saldo::integer,pp,pcc,pic::integer,pper from ventas where idcliente={idcliente}")
+    return jsonify(ventas=ventas)

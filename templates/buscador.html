@@ -28,16 +28,47 @@
         <button class="btn btn-outline-primary floated" @mouseover="buscar=cliente[2]" @click="buscaCuentaporDni(cliente[0])">|cliente[1]|</button>
         </div>
     </div>
-    <div class="card mt-2" style="width: 52rem;" v-if="verCard">
-        <div class="card-body">
-          <h4 class="card-title">|nombre|  |dni|</h4>
-          <h5 class="card-subtitle mb-2 text-muted">|direccion|  |barrio|  zona:|zona|</h5>
-          <h5 class="card-subtitle mb-2 text-muted">tel:|tel| wapp:|wapp|</h5>
-          <button class="btn btn-primary floated">PmoVto |pmovto|</button>
-          <button class="btn btn-primary floated">Deuda $|deuda|</button>
-          <button class="btn btn-success floated">|sev|</button>
-        </div>
-      </div>
+    <div class="row">
+        <div class="card mt-2" style="width: 52rem;" v-if="verCard">
+            <div class="card-body">
+              <h4 class="card-title">|nombre|  |dni|</h4>
+              <h5 class="card-subtitle mb-2 text-muted">|direccion|  |barrio|  zona:|zona|</h5>
+              <h5 class="card-subtitle mb-2 text-muted">tel:|tel| wapp:|wapp|</h5>
+              <button class="btn btn-primary floated">PmoVto |pmovto|</button>
+              <button class="btn btn-primary floated">Deuda $|deuda|</button>
+              <button class="btn btn-success floated" v-if="sev">|sev|</button>
+              <button class="btn btn-danger floated" v-if="incobrable">|incobrable|</button>
+              <button class="btn btn-warning floated" v-if="gestion">|gestion|</button>
+              <button class="btn btn-info floated" v-if="subirseven">|subirseven|</button>
+              <button class="btn btn-danger floated" v-if="novendermas">|novendermas|</button>
+              <button class="btn btn-info floated" v-if="seguir">|seguir|</button>
+            </div>
+          </div>
+    </div>
+    <div class="row" v-if="verCard">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                <th>Id</th>
+                <th>fecha</th>
+                <th>plan</th>
+                <th>DEBE</th>
+                <th>vdor</th>
+                <th>info</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="venta in ventas">
+                <td>|venta[0]|</td>
+                <td>|venta[1]|</td>
+                <td>|venta[2]|</td>
+                <td>|venta[3]|</td>
+                <td>|venta[4]|</td>
+                <td><button class="btn btn-danger btn-sm" v-if="venta[5]">|venta[5]|</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
     
 </div>
 
@@ -66,6 +97,8 @@ const app = new Vue({
         subirseven:'',
         novendermas:'',
         seguir:'',
+        ventas:[],
+
         
     },
     methods: {
@@ -88,14 +121,39 @@ const app = new Vue({
                 this.zona = this.clientes[0][6]
                 this.pmovto = dayjs(this.clientes[0][7]).format('YYYY-MM-DD')
                 this.deuda = this.clientes[0][8]
-                this.sev = this.clientes[0][9]==1?'Seven':''
-                this.incobrable = this.clientes[0][10]
-                this.gestion = this.clientes[0][11]
-                this.subirseven = this.clientes[0][12]
-                this.novendermas = this.clientes[0][13]
-                this.seguir = this.clientes[0][14]
+                this.sev = this.clientes[0][9]==1?'Seven':null
+                this.incobrable = this.clientes[0][10]==1?'INCOBRABLE':null
+                this.gestion = this.clientes[0][11]==1?'Gestion':null
+                this.subirseven = this.clientes[0][12]==1?'SUBE':null
+                this.novendermas = this.clientes[0][13]==1?'NV+':null
+                this.seguir = this.clientes[0][14]==1?'Seguir':null
                 
                 this.verCard = true;
+                this.pedirVentas(this.dni)
+            })
+        },
+        pedirVentas(dni){
+            axios.get('/buscador/pedirventas/'+dni)
+            .then(res=>{
+                console.log(res.data.ventas);
+                arrayVentas = Array.from(res.data.ventas)
+                let arrayTblVtas = []
+                arrayVentas.forEach(vta=>{
+                    let array = []
+                    array.push(vta[0])
+                    array.push(dayjs(vta[1]).format('YYYY-MM-DD'))
+                    if(vta[7]==0){
+                        array.push(`${vta[2]} cuotas de $${vta[3]}`)
+                    }else{
+                        array.push(`${vta[8]} cuotas de $${vta[9]}`)
+                    }
+                    array.push(vta[6])
+                    array.push(vta[5])
+                    array.push(vta[7]==1?'PLAN DE PAGO':null)
+                    arrayTblVtas.push(array)
+                })
+                console.log(arrayTblVtas);
+                this.ventas=arrayTblVtas;
             })
         },
         
