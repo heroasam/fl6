@@ -46,9 +46,12 @@
           </div>
     </div>
     <div class="row" v-if="verCard">
+        <button class="btn btn-outline-info btn-sm" @click="verVentas=!verVentas">Ver Ventas</button>
+    </div>
+    <div class="row" v-if="verCard">
         <table class="table table-sm">
-            <thead>
-                <tr>
+            <thead >
+                <tr @click="!verVentas">
                 <th>Id</th>
                 <th>fecha</th>
                 <th>plan</th>
@@ -58,8 +61,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="venta in ventas">
-                <td>|venta[0]|</td>
+                <tr v-for="venta in ventas" v-if="venta[3]||verVentas">
+                <td><button class="btn btn-outline-secondary btn-sm" @click="muestraArt(venta[0])">|venta[0]|</button></td>
                 <td>|venta[1]|</td>
                 <td>|venta[2]|</td>
                 <td>|venta[3]|</td>
@@ -98,6 +101,7 @@ const app = new Vue({
         novendermas:'',
         seguir:'',
         ventas:[],
+        verVentas:false,
 
         
     },
@@ -143,9 +147,9 @@ const app = new Vue({
                     array.push(vta[0])
                     array.push(dayjs(vta[1]).format('YYYY-MM-DD'))
                     if(vta[7]==0){
-                        array.push(`${vta[2]} cuotas de $${vta[3]}`)
+                        array.push(`${vta[2]} cuotas ${vta[4]==1?'MEN':'SEM'} de $${vta[3]}`)
                     }else{
-                        array.push(`${vta[8]} cuotas de $${vta[9]}`)
+                        array.push(`${vta[8]} cuotas ${vta[10]==1?'MEN':'SEM'} de $${vta[9]}`)
                     }
                     array.push(vta[6])
                     array.push(vta[5])
@@ -155,6 +159,17 @@ const app = new Vue({
                 console.log(arrayTblVtas);
                 this.ventas=arrayTblVtas;
             })
+        },
+        muestraArt(idvta){
+            console.log(idvta);
+            let $tbody = document.querySelector('tbody');
+            let rowInd = event.target.parentElement.parentElement.rowIndex;
+            let row = $tbody.insertRow(rowInd)
+            let $cell0 = row.insertCell(0);
+            let $cell1 = row.insertCell(1);
+            $cell1.colSpan = "2"
+            $cell0.innerHTML = "Articulo";
+            
         },
         
         
