@@ -14,8 +14,8 @@ thead th {
     position: -webkit-sticky;
     top: 0px;
     z-index: 10;
-    background-color: #333000;
-    color: white;
+   /*  background-color: #333000;
+    color: white; */
 }
 .selected{
     background-color: orange;
@@ -25,5 +25,9 @@ thead th {
 .subtotal{
     background-color: yellow;
     color: blue;
-    text-weight: bold;
+    font-weight: bold;
+}
+.articulos{
+    background-color: lightyellow;
+    color:black;
 }

@@ -203,6 +203,6 @@ def buscar_cuotas(dni):
         cur.execute(f"select gc({v[0]})")
     cur.close()
     cuotas = pgdict(con, f"select nc,vto,ic::integer,idvta from cuotas where debe>0 and idcliente={idcliente} order by vto")
-    pagadas = pgdict(con, f"select * from pagos where idcliente={idcliente} and \
+    pagadas = pgdict(con, f"select fecha,rbo,imp::integer,rec::integer,cobr from pagos where idcliente={idcliente} and \
              idvta in (select id from ventas where saldo>0) order by fecha desc")
-    return jsonify(cuotas=cuotas)
+    return jsonify(cuotas=cuotas,pagadas=pagadas)
