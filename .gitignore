@@ -1,7 +1,6 @@
 venv/
 *.pdf
 __pychache__/
-boots*
 *.pyc
 *.xlsx
 #formularios.py#
