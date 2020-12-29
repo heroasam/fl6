@@ -186,3 +186,9 @@ def buscar_ventas(dni):
     idcliente = pgonecolumn(con,f"select id from clientes where dni='{dni}'")
     ventas = pgdict(con,f"select id,fecha,cc,ic::integer,p,idvdor,saldo::integer,pp,pcc,pic::integer,pper from ventas where idcliente={idcliente}")
     return jsonify(ventas=ventas)
+
+
+@app.route('/buscador/pedirarticulos/<int:idvta>')
+def buscar_articulos(idvta):
+    articulos = pgdict(con,f"select cnt,art from detvta where idvta={idvta}")
+    return jsonify(articulos=articulos)

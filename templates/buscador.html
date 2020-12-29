@@ -28,8 +28,8 @@
         <button class="btn btn-outline-primary floated" @mouseover="buscar=cliente[2]" @click="buscaCuentaporDni(cliente[0])">|cliente[1]|</button>
         </div>
     </div>
-    <div class="row">
-        <div class="card mt-2" style="width: 52rem;" v-if="verCard">
+    <div class="row"  v-if="verCard">
+        <div class="card mt-2" style="width: 52rem;">
             <div class="card-body">
               <h4 class="card-title">|nombre|  |dni|</h4>
               <h5 class="card-subtitle mb-2 text-muted">|direccion|  |barrio|  zona:|zona|</h5>
@@ -102,6 +102,7 @@ const app = new Vue({
         seguir:'',
         ventas:[],
         verVentas:false,
+        articulos:[],
 
         
     },
@@ -139,7 +140,7 @@ const app = new Vue({
         pedirVentas(dni){
             axios.get('/buscador/pedirventas/'+dni)
             .then(res=>{
-                console.log(res.data.ventas);
+                //console.log(res.data.ventas);
                 arrayVentas = Array.from(res.data.ventas)
                 let arrayTblVtas = []
                 arrayVentas.forEach(vta=>{
@@ -156,19 +157,35 @@ const app = new Vue({
                     array.push(vta[7]==1?'PLAN DE PAGO':null)
                     arrayTblVtas.push(array)
                 })
-                console.log(arrayTblVtas);
+                //console.log(arrayTblVtas);
                 this.ventas=arrayTblVtas;
             })
         },
         muestraArt(idvta){
-            console.log(idvta);
-            let $tbody = document.querySelector('tbody');
-            let rowInd = event.target.parentElement.parentElement.rowIndex;
-            let row = $tbody.insertRow(rowInd)
-            let $cell0 = row.insertCell(0);
-            let $cell1 = row.insertCell(1);
-            $cell1.colSpan = "2"
-            $cell0.innerHTML = "Articulo";
+            axios.get('/buscador/pedirarticulos/'+idvta)
+            .then(res=>{
+                console.log(res.data.articulos);
+                this.articulos=res.data.articulos
+                
+                let $tbody = document.querySelector('tbody');
+                let rowInd;
+                arrayRows = Array.from($tbody.children)
+                arrayRows.forEach(row=>{
+                    if(row.innerHTML.includes(idvta)){
+                        rowInd = row.rowIndex
+                    }
+                })
+                for(let articulo of this.articulos){
+                    console.log(articulo);
+                    let $row = $tbody.insertRow(rowInd)
+                    let $cell0 = $row.insertCell(0);
+                    let $cell1 = $row.insertCell(1);
+                    $cell1.colSpan = "2"
+                    $cell0.innerHTML = articulo[0];
+                    $cell1.innerHTML = articulo[1];
+                }
+            })
+            
             
         },
         
