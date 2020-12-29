@@ -17,8 +17,8 @@ DEBUG = False
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
 
 
-con = psycopg2.connect(dbname='daq6n3vvmrg79o', user='ynpqvlqqsidhga', host='ec2-3-95-87-221.compute-1.amazonaws.com', password='4bded69478ac502d5223655094cbc2241ed5aaf025f0b31fd19494c5aa35d6f0',sslmode='require')
-#con = psycopg2.connect(dbname='hero', user='hero', host='localhost', password='ata', port=5432)
+#con = psycopg2.connect(dbname='daq6n3vvmrg79o', user='ynpqvlqqsidhga', host='ec2-3-95-87-221.compute-1.amazonaws.com', password='4bded69478ac502d5223655094cbc2241ed5aaf025f0b31fd19494c5aa35d6f0',sslmode='require')
+con = psycopg2.connect(dbname='hero', user='hero', host='localhost', password='ata', port=5432)
 
 
 
@@ -184,7 +184,7 @@ def buscar_cuenta(buscar):
 @app.route('/buscador/pedirventas/<string:dni>')
 def buscar_ventas(dni):
     idcliente = pgonecolumn(con,f"select id from clientes where dni='{dni}'")
-    ventas = pgdict(con,f"select id,fecha,cc,ic::integer,p,idvdor,saldo::integer,comprado::integer,pp,pcc,pic::integer,pper from ventas where idcliente={idcliente}")
+    ventas = pgdict(con,f"select id,fecha,cc,ic::integer,p,idvdor,saldo::integer,comprado::integer,pp,pcc,pic::integer,pper,devuelta,condonada from ventas where idcliente={idcliente}")
     return jsonify(ventas=ventas)
 
 
@@ -192,3 +192,17 @@ def buscar_ventas(dni):
 def buscar_articulos(idvta):
     articulos = pgdict(con,f"select cnt,art,cc||' '||'x$'||ic from detvta where idvta={idvta}")
     return jsonify(articulos=articulos)
+
+
+@app.route('/buscador/pedircuotas/<string:dni>')
+def buscar_cuotas(dni):
+    idcliente = pgonecolumn(con,f"select id from clientes where dni='{dni}'")
+    ventas = pgdict(con,f"select id from ventas where idcliente={idcliente} and saldo>0")
+    cur = con.cursor()
+    for v in ventas:
+        cur.execute(f"select gc({v[0]})")
+    cur.close()
+    cuotas = pgdict(con, f"select nc,vto,ic::integer,idvta from cuotas where debe>0 and idcliente={idcliente} order by vto")
+    pagadas = pgdict(con, f"select * from pagos where idcliente={idcliente} and \
+             idvta in (select id from ventas where saldo>0) order by fecha desc")
+    return jsonify(cuotas=cuotas)
