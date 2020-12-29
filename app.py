@@ -190,5 +190,5 @@ def buscar_ventas(dni):
 
 @app.route('/buscador/pedirarticulos/<int:idvta>')
 def buscar_articulos(idvta):
-    articulos = pgdict(con,f"select cnt,art from detvta where idvta={idvta}")
+    articulos = pgdict(con,f"select cnt,art,cc||' '||'x$'||ic from detvta where idvta={idvta}")
     return jsonify(articulos=articulos)

@@ -62,7 +62,7 @@
             </thead>
             <tbody>
                 <tr v-for="venta in ventas" v-if="venta[3]||verVentas">
-                <td><button class="btn btn-outline-secondary btn-sm" @click="muestraArt(venta[0])">|venta[0]|</button></td>
+                <td><button class="btn btn-outline-secondary btn-sm" @click="toggleVerArticulos(venta[0])">|venta[0]|</button></td>
                 <td>|venta[1]|</td>
                 <td>|venta[2]|</td>
                 <td>|venta[3]|</td>
@@ -161,10 +161,37 @@ const app = new Vue({
                 this.ventas=arrayTblVtas;
             })
         },
+        toggleVerArticulos(idvta){
+            if(this.buscarRowArticulos(idvta)){
+                this.borrarRowArticulos(idvta)
+            }else{
+                this.muestraArt(idvta)
+            }
+        },
+        borrarRowArticulos(idvta){
+            let $tbody = document.querySelector('tbody')
+            arrayRows = Array.from($tbody.children)
+            arrayRows.forEach(row=>{
+                if(row.classList.contains(idvta)){
+                    row.remove();
+                }
+            })
+        },
+        buscarRowArticulos(idvta){
+            let $tbody = document.querySelector('tbody');
+            let value;
+            arrayRows = Array.from($tbody.children)
+            arrayRows.forEach(row=>{
+                if (row.classList.contains(idvta)==true){
+                    value =  true;
+                }
+            })
+            return value;
+        },
         muestraArt(idvta){
             axios.get('/buscador/pedirarticulos/'+idvta)
             .then(res=>{
-                console.log(res.data.articulos);
+                //console.log(res.data.articulos);
                 this.articulos=res.data.articulos
                 
                 let $tbody = document.querySelector('tbody');
@@ -176,14 +203,18 @@ const app = new Vue({
                     }
                 })
                 for(let articulo of this.articulos){
-                    console.log(articulo);
+                    //console.log(articulo);
                     let $row = $tbody.insertRow(rowInd)
+                    $row.classList.add(idvta)
                     let $cell0 = $row.insertCell(0);
                     let $cell1 = $row.insertCell(1);
+                    let $cell2 = $row.insertCell(2);
                     $cell1.colSpan = "2"
                     $cell0.innerHTML = articulo[0];
                     $cell1.innerHTML = articulo[1];
+                    $cell2.innerHTML = articulo[2];
                 }
+            //console.log(this.buscarRowArticulos(idvta));
             })
             
             
