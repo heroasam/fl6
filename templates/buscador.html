@@ -133,6 +133,14 @@
 {% endblock %}
 {% block script %}
 <script>
+function textToClipboard (text) {
+    var dummy = document.createElement("textarea");
+    document.body.appendChild(dummy);
+    dummy.value = text;
+    dummy.select();
+    document.execCommand("copy");
+    document.body.removeChild(dummy);
+}
 Vue.use(Toasted)
 const app = new Vue({
     el:"#app",
@@ -351,7 +359,13 @@ const app = new Vue({
                 }
                 messaje = this.nombre.concat(': ',text,' ',`(Por compra de ${articulos} realizada en '${this.direccion}' el dia ${dayjs.utc(fecha).format('DD-MM-YYYY')})`)
                 //console.log(messaje);
-
+                textToClipboard(messaje)
+                let toast = this.$toasted.success("Notificacion copiada en el portapapeles", { 
+                theme: "outline", 
+                position: "top-right", 
+                duration : 3000,
+                fullWidth: true,
+                });
             })
 
             
