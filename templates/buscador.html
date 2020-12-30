@@ -39,7 +39,8 @@
               <h4 class="card-title">|nombre|  |dni|</h4>
               <h5 class="card-subtitle mb-2 text-muted">|direccion|  |barrio|  zona:|zona|</h5>
               <h5 class="card-subtitle mb-2 text-muted">tel:|tel| wapp:|wapp|</h5>
-              <button class="btn btn-primary floated">PmoVto |pmovto|</button>
+              <button class="btn btn-primary floated">PmoVto</button>
+              <input type="date" v-model="pmovto"  class="form-group floated mt-1">
               <button class="btn btn-primary floated">Deuda $|deuda|</button>
               <button class="btn btn-success floated" v-if="sev">|sev|</button>
               <button class="btn btn-danger floated" v-if="incobrable">|incobrable|</button>
@@ -52,6 +53,7 @@
     </div>
     <div class="row" v-if="verCard">
         <button class="btn btn-outline-info btn-sm" @click="verVentas=!verVentas">Ver Ventas</button>
+        <button class="btn btn-outline-success btn-sm" @click="fecharPmoVto">Fechar</button>
     </div>
     <div class="row" v-if="verCard">
         <table class="table table-sm">
@@ -128,6 +130,7 @@
 {% endblock %}
 {% block script %}
 <script>
+Vue.use(Toasted)
 const app = new Vue({
     el:"#app",
     delimiters:['|','|'],
@@ -178,7 +181,7 @@ const app = new Vue({
                 this.tel = this.clientes[0][4]
                 this.wapp = this.clientes[0][5]
                 this.zona = this.clientes[0][6]
-                this.pmovto = dayjs(this.clientes[0][7]).format('YYYY-MM-DD')
+                this.pmovto = dayjs.utc(this.clientes[0][7]).format('YYYY-MM-DD')
                 this.deuda = this.clientes[0][8]
                 this.sev = this.clientes[0][9]==1?'Seven':null
                 this.incobrable = this.clientes[0][10]==1?'INCOBRABLE':null
@@ -216,7 +219,7 @@ const app = new Vue({
                     /* id,fecha,cc,ic,p,idvdor,saldo,comprado,pp,pcc,pic,pper,devuelta,condonada */
                     let array = []
                     array.push(vta[0])
-                    array.push(dayjs(vta[1]).format('YYYY-MM-DD'))
+                    array.push(dayjs.utc(vta[1]).format('YYYY-MM-DD'))
                     if(vta[8]==0){
                         array.push(`${vta[2]} cuotas ${vta[4]==1?'MEN':'SEM'} de $${vta[3]}`)
                     }else{
@@ -301,14 +304,26 @@ const app = new Vue({
                 /* nc,vto,ic */
                 arrayCuotas = Array.from(res.data.cuotas)
                 arrayCuotas.forEach(row=>{
-                    row[1]=dayjs(row[1]).format('YYYY-MM-DD')
+                    row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD')
                 })
                 this.cuotas=arrayCuotas;
                 arrayPagadas = Array.from(res.data.pagadas)
                 arrayPagadas.forEach(row=>{
-                    row[0]=dayjs(row[0]).format('YYYY-MM-DD')
+                    row[0]=dayjs.utc(row[0]).format('YYYY-MM-DD')
                 })
                 this.pagadas=arrayPagadas;
+            })
+        },
+        fecharPmoVto(){
+            axios.get('/buscador/fecharpmovto/'+this.dni+'/'+this.pmovto)
+            .then(res=>{
+                console.log(res);
+                let toast = this.$toasted.success("PmoVto actualizado con exito", { 
+                theme: "outline", 
+                position: "top-right", 
+                duration : 3000,
+                fullWidth: true,
+            });
             })
         },
         

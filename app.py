@@ -206,3 +206,15 @@ def buscar_cuotas(dni):
     pagadas = pgdict(con, f"select fecha,rbo,imp::integer,rec::integer,cobr from pagos where idcliente={idcliente} and \
              idvta in (select id from ventas where saldo>0) order by fecha desc")
     return jsonify(cuotas=cuotas,pagadas=pagadas)
+
+
+@app.route('/buscador/fecharpmovto/<string:dni>/<string:pmovto>')    
+def buscar_fecharpmovto(dni,pmovto):
+    print(pmovto)
+    upd = f"update clientes set pmovto='{pmovto}' where dni='{dni}'"
+    print(upd)
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    cur.close()
+    return 'ok'
