@@ -15,7 +15,7 @@
 <div id="app">
     <div class="row">
         <div v-for="historico in historial">
-            <button class="btn btn-outline-secondary" @click="buscaCuentaporDni(historico[0])">|historico[1]|</button>
+            <button class="btn btn-outline-secondary" @click="buscaCuentaporDni(historico[0])">|historico[1].slice(0,18)|</button>
         </div>
     </div>
     <div class="row">
@@ -26,7 +26,8 @@
         </div>
         </div>
     </div>
-    <div class="row" v-if="!verCard">
+    <div class="row" v-if="buscar">
+    <!-- <div class="row" v-if="!verCard"> -->
         <div v-for="cliente in clientes">
             <!-- [dni,nombre,direccion] -->
         <button class="btn btn-outline-primary floated" @mouseover="buscar=cliente[2]" @click="buscaCuentaporDni(cliente[0])">|cliente[1]|</button>
@@ -163,6 +164,7 @@ const app = new Vue({
             axios.get('/buscador/'+this.buscar)
             .then(res=>{
                 this.clientes = res.data.clientes
+                if(this.clientes.length==1) this.buscaCuentaporDni(this.clientes[0][0])
             })
         },
         buscaCuentaporDni(dni){
@@ -186,7 +188,11 @@ const app = new Vue({
                 this.seguir = this.clientes[0][14]==1?'Seguir':null
                 
                 this.verCard = true;
+                this.buscar = '';
+                this.clientes = [];
                 this.pedirVentas(this.dni)
+
+                //botones de historial
                 let agregar=true;
                 this.historial.forEach(row=>{
                     if(row[1]==this.nombre) agregar=false
@@ -291,7 +297,7 @@ const app = new Vue({
         pedirCuotas(dni){
             axios.get('/buscador/pedircuotas/'+dni)
             .then(res=>{
-                console.log(res.data.cuotas);
+                //console.log(res.data.cuotas);
                 /* nc,vto,ic */
                 arrayCuotas = Array.from(res.data.cuotas)
                 arrayCuotas.forEach(row=>{
