@@ -3,6 +3,7 @@ from flask import render_template,url_for,request,redirect, send_file,jsonify
 import psycopg2
 import psycopg2.extras
 from lib import *
+from formularios import ficha
 import pandas as pd
 import numpy as np
 import re
@@ -218,3 +219,9 @@ def buscar_fecharpmovto(dni,pmovto):
     con.commit()
     cur.close()
     return 'ok'
+
+
+@app.route('/buscador/imprimirficha/<string:dni>')
+def buscar_imprimirficha(dni):
+    ficha(con,dni)
+    return send_file('ficha.pdf')
