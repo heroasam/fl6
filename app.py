@@ -173,9 +173,9 @@ def buscar_cuenta(buscar):
     rcuenta = r'^[0-9]{5}$'
     rdni = r'^[0-9]{7,8}$'
     if (re.match(rcuenta,buscar)):
-        clientes = pgdict(con,f"select dni,nombre,calle||' '||num,barrio,tel,wapp,clientes.zona,clientes.pmovto,deuda::integer,sev,incobrable,gestion,subirseven,novendermas,seguir from clientes,ventas where clientes.id=ventas.idcliente and ventas.id={buscar}")
+        clientes = pgdict(con,f"select dni,nombre,calle||' '||num,barrio,tel,wapp,clientes.zona,clientes.pmovto,deuda::integer,sev,incobrable,gestion,subirseven,novendermas,seguir,mudo from clientes,ventas where clientes.id=ventas.idcliente and ventas.id={buscar}")
     elif (re.match(rdni,buscar)):
-        clientes = pgdict(con,f"select dni,nombre,calle||' '||num,barrio,tel,wapp,zona,pmovto,deuda::integer,sev,incobrable,gestion,subirseven,novendermas,seguir from clientes where dni='{buscar}'")
+        clientes = pgdict(con,f"select dni,nombre,calle||' '||num,barrio,tel,wapp,zona,pmovto,deuda::integer,sev,incobrable,gestion,subirseven,novendermas,seguir,mudo from clientes where dni='{buscar}'")
     else:
         buscar = '%'+buscar.replace(' ','%')+'%'
         clientes = pgdict(con,f"select dni,nombre,calle||' '||num from clientes where nombre||calle||num||barrio ilike '{buscar}'")
@@ -232,3 +232,45 @@ def buscar_datosultvta(dni):
     idcliente = pgonecolumn(con,f"select id from clientes where dni='{dni}'")
     ultvta = pgdict(con,f"select fecha, (select max(art) from detvta where idvta=ventas.id) from ventas where idcliente={idcliente} order by id desc")
     return jsonify(ultvta=ultvta)
+
+
+@app.route('/buscador/togglesube/<string:dni>')    
+def buscar_togglesube(dni):
+    sube = pgonecolumn(con,f"select subirseven from clientes where dni='{dni}'")
+    if sube:
+        upd = f"update clientes set subirseven=0 where dni='{dni}'"
+    else:
+        upd = f"update clientes set subirseven=1 where dni='{dni}'"
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    cur.close()
+    return 'ok'
+
+
+@app.route('/buscador/togglegestion/<string:dni>')    
+def buscar_togglegestion(dni):
+    sube = pgonecolumn(con,f"select gestion from clientes where dni='{dni}'")
+    if sube:
+        upd = f"update clientes set gestion=0 where dni='{dni}'"
+    else:
+        upd = f"update clientes set gestion=1 where dni='{dni}'"
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    cur.close()
+    return 'ok'
+
+
+@app.route('/buscador/togglemudado/<string:dni>')    
+def buscar_togglemudado(dni):
+    sube = pgonecolumn(con,f"select mudo from clientes where dni='{dni}'")
+    if sube:
+        upd = f"update clientes set mudo=0 where dni='{dni}'"
+    else:
+        upd = f"update clientes set mudo=1 where dni='{dni}'"
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    cur.close()
+    return 'ok'

@@ -42,7 +42,8 @@
               <button class="btn btn-primary floated">PmoVto</button>
               <input type="date" v-model="pmovto"  class="form-group floated mt-1">
               <button class="btn btn-primary floated">Deuda $|deuda|</button>
-              <button class="btn btn-success floated" v-if="sev">|sev|</button>
+              <button class="btn btn-success floated" v-if="sev">|seven|</button>
+              <button class="btn btn-danger floated" v-if="mudo">|mudo|</button>
               <button class="btn btn-danger floated" v-if="incobrable">|incobrable|</button>
               <button class="btn btn-warning floated" v-if="gestion">|gestion|</button>
               <button class="btn btn-info floated" v-if="subirseven">|subirseven|</button>
@@ -58,6 +59,13 @@
         <a href="#" class="btn btn-outline-warning btn-sm">Intimar</a>
         <button class="btn btn-outline-success btn-sm" @click="cargarWapp">Wapp</button>
         <button class="btn btn-outline-success btn-sm" @click="cargarDatos">Datos</button>
+        <button class="btn btn-outline-danger btn-sm" @click="toggleSube">SUBE</button>
+        <button class="btn btn-outline-danger btn-sm"@click="toggleGestion">Gestion</button>
+        <button class="btn btn-outline-danger btn-sm"@click="toggleMudado">Mudado</button>
+        <button class="btn btn-outline-danger btn-sm">INC</button>
+        <button class="btn btn-outline-danger btn-sm">LN</button>
+        <button class="btn btn-outline-danger btn-sm">Llamar</button>
+        <button class="btn btn-outline-danger btn-sm">Seguir</button>
     </div>
     <div class="row" v-if="verCard">
         <table class="table table-sm">
@@ -161,6 +169,7 @@ const app = new Vue({
         deuda:'',
         sev:'',
         incobrable:'',
+        mudo:'',
         gestion:'',
         subirseven:'',
         novendermas:'',
@@ -201,6 +210,7 @@ const app = new Vue({
                 this.subirseven = this.clientes[0][12]==1?'SUBE':null
                 this.novendermas = this.clientes[0][13]==1?'NV+':null
                 this.seguir = this.clientes[0][14]==1?'Seguir':null
+                this.mudo = this.clientes[0][15]==1?'MUDO':null
                 
                 this.verCard = true;
                 this.buscar = '';
@@ -379,8 +389,24 @@ const app = new Vue({
                 fullWidth: true,
                 });
         },
-        
-        
+        toggleSube(){
+            axios.get('/buscador/togglesube/'+this.dni)
+            .then(res=>{
+                this.buscaCuentaporDni(this.dni)
+            })
+        },
+        toggleGestion(){
+            axios.get('/buscador/togglegestion/'+this.dni)
+            .then(res=>{
+                this.buscaCuentaporDni(this.dni)
+            })
+        },
+        toggleMudado(){
+            axios.get('/buscador/togglemudado/'+this.dni)
+            .then(res=>{
+                this.buscaCuentaporDni(this.dni)
+            })
+        },
     },
     
 })
