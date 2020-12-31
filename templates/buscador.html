@@ -36,7 +36,7 @@
         <div class="card mt-2" style="width: 52rem;">
             <div class="card-body">
               <h4 class="card-title">|nombre|  |dni|</h4>
-              <h5 class="card-subtitle mb-2 text-muted">|direccion|  |barrio|  zona:|zona|</h5>
+              <h5 class="card-subtitle mb-2 text-muted">|calle+' '+num|  |barrio|  zona:|zona|</h5>
               <h5 class="card-subtitle mb-2 text-muted">tel:|tel| wapp:|wapp|</h5>
               <button class="btn btn-primary floated">PmoVto</button>
               <input type="date" v-model="pmovto"  class="form-group floated mt-1">
@@ -66,7 +66,7 @@
         <button class="btn btn-outline-danger btn-sm"@click="toggleLN">LN</button>
         <button class="btn btn-outline-danger btn-sm"@click="toggleLlamar">Llamar</button>
         <button class="btn btn-outline-danger btn-sm"@click="toggleSeguir">Seguir</button>
-        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#staticBackdrop">Editar</button>
+        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#staticBackdrop" @click="editarDatos">Editar</button>
     </div>
     <div class="row" v-if="verCard">
         <table class="table table-sm">
@@ -151,64 +151,69 @@
         <div class="modal-body">
             <div class="form-row">
                 <div class="form-group col-md-1">
-                  <label for="id">Id</label>
-                  <input type="text" class="form-control" name="id" value="">
-                </div>
-                <div class="form-group col-md-1">
                     <label for="sex">Sexo</label>
-                    <input type="text" class="form-control" name="sex" value="">
+                    <input type="text" class="form-control" name="sex" v-model="sexo" value="">
                   </div>
                   <div class="form-group col-md-2">
                     <label for="dni">DNI</label>
-                    <input type="text" class="form-control" name="dni" value="">
+                    <input type="text" class="form-control" name="dni" v-model="dni" value="">
                   </div>
-                <div class="form-group col-md-4">
+                <div class="form-group col-md-5">
                   <label for="nombre">Nombre</label>
-                  <input type="text" class="form-control" name="nombre" value="">
+                  <input type="text" class="form-control" name="nombre" v-model="nombre" value="">
                 </div>
                 <div class="form-group col-md-2">
                   <label for="tel">Tel</label>
-                  <input type="text" class="form-control" name="tel" value="">
+                  <input type="text" class="form-control" name="tel" v-model="tel" value="">
                 </div>
                 <div class="form-group col-md-2">
                   <label for="wapp">WhasApp</label>
-                  <input type="text" class="form-control" name="wapp" value="">
+                  <input type="text" class="form-control" name="wapp" v-model="wapp" value="">
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group col-md-4">
                   <label for="calle">Calle</label>
-                  <input type="text" class="form-control" name="calle" value="">
+                  <input type="text" class="form-control" name="calle" v-model="calle" list="callelist" autocomplete="off">
+                  <datalist id="callelist">
+                    <option v-for="calle in calles">|calle[0]|</option>
+                </datalist>
                 </div>
                 <div class="form-group col-md-1">
                     <label for="num">Num</label>
-                    <input type="text" class="form-control" name="num" value="">
+                    <input type="text" class="form-control" name="num" v-model="num" >
                   </div>
                   <div class="form-group col-md-4">
                     <label for="barrio">Barrio</label>
-                    <input type="text" class="form-control" name="barrio" value="">
+                    <input type="text" class="form-control" name="barrio" v-model="barrio" list="barriolist" autocomplete="off">
+                    <datalist id="barriolist">
+                        <option v-for="barrio in barrios">|barrio[0]|</option>
+                    </datalist>
                   </div>
                 <div class="form-group col-md-3">
                   <label for="zona">Zona</label>
-                  <input type="text" class="form-control" name="zona" value="">
+                  <input type="text" class="form-control" name="zona" v-model="zona" list="zonalist" autocomplete="off">
+                  <datalist id="zonalist">
+                    <option v-for="zona in zonas">|zona[0]|</option>
+                </datalist>
                 </div>
             </div>
             <div class="form-row">
                   <div class="form-group col-md-3">
                     <label for="acla">Aclaracion</label>
-                    <input type="text" class="form-control" name="acla" value="">
+                    <input type="text" class="form-control" name="acla" v-model="acla" value="">
                   </div>
                   <div class="form-group col-md-3">
                     <label for="horario">Horario</label>
-                    <input type="text" class="form-control" name="horario" value="">
+                    <input type="text" class="form-control" name="horario" v-model="horario" value="">
                   </div>
                   <div class="form-group col-md-3">
                     <label for="mjecobr">MjeCobr</label>
-                    <input type="text" class="form-control" name="mjecobr" value="">
+                    <input type="text" class="form-control" name="mjecobr" v-model="mjecobr" value="">
                   </div>
                 <div class="form-group col-md-3">
                   <label for="infoseven">InfoSeven</label>
-                  <input type="text" class="form-control" name="infoseven" value="">
+                  <input type="text" class="form-control" name="infoseven" vmodel="infoseven" value="">
                 </div>
         </div>
         <div class="modal-footer">
@@ -240,13 +245,20 @@ const app = new Vue({
         verCard:false,
         buscar:'',
         clientes: [],
+        sexo:'',
         dni:'',
         nombre:'',
+        calle:'',
+        num:'',
         direccion:'',
         barrio:'',
         tel:'',
         wapp:'',
         zona:'',
+        acla:'',
+        horario:'',
+        mjecobr:'',
+        infoseven:'',
         pmovto:'',
         deuda:'',
         sev:'',
@@ -263,6 +275,9 @@ const app = new Vue({
         cuotas:[],
         pagadas:[],
         historial:[],
+        calles:[],
+        barrios:[],
+        zonas:[],
 
         
     },
@@ -277,24 +292,34 @@ const app = new Vue({
         buscaCuentaporDni(dni){
             axios.get('/buscador/'+dni)
             .then(res=>{
+                /* dni[0],nombre[1],calle[2],num[3],barrio[4],tel[5],wapp[6],zona[7],pmovto[8],deuda[9]
+                ,sev[10],incobrable[11],gestion[12],subirseven[13],novendermas[14],seguir[15],
+                mudo[16],llamar[17],acla[18],horario[19],mjecobr[20],infoseven[21],sex[22] */
                 this.clientes = res.data.clientes
                 this.dni = this.clientes[0][0]
                 this.nombre = this.clientes[0][1]
-                this.direccion = this.clientes[0][2]
-                this.barrio = this.clientes[0][3]
-                this.tel = this.clientes[0][4]
-                this.wapp = this.clientes[0][5]
-                this.zona = this.clientes[0][6]
-                this.pmovto = dayjs.utc(this.clientes[0][7]).format('YYYY-MM-DD')
-                this.deuda = this.clientes[0][8]
-                this.sev = this.clientes[0][9]==1?'Seven':null
-                this.incobrable = this.clientes[0][10]==1?'INCOBRABLE':null
-                this.gestion = this.clientes[0][11]==1?'Gestion':null
-                this.subirseven = this.clientes[0][12]==1?'SUBE':null
-                this.novendermas = this.clientes[0][13]==1?'NV+':null
-                this.seguir = this.clientes[0][14]==1?'Seguir':null
-                this.mudo = this.clientes[0][15]==1?'MUDO':null
-                this.llamar = this.clientes[0][16]==1?'Llamar':null
+                this.calle = this.clientes[0][2]
+                this.num = this.clientes[0][3]
+                this.direccion = this.calle+' '+this.num
+                this.barrio = this.clientes[0][4]
+                this.tel = this.clientes[0][5]
+                this.wapp = this.clientes[0][6]
+                this.zona = this.clientes[0][7]
+                this.pmovto = dayjs.utc(this.clientes[0][8]).format('YYYY-MM-DD')
+                this.deuda = this.clientes[0][9]
+                this.sev = this.clientes[0][10]==1?'Seven':null
+                this.incobrable = this.clientes[0][11]==1?'INCOBRABLE':null
+                this.gestion = this.clientes[0][12]==1?'Gestion':null
+                this.subirseven = this.clientes[0][13]==1?'SUBE':null
+                this.novendermas = this.clientes[0][14]==1?'NV+':null
+                this.seguir = this.clientes[0][15]==1?'Seguir':null
+                this.mudo = this.clientes[0][16]==1?'MUDO':null
+                this.llamar = this.clientes[0][17]==1?'Llamar':null
+                this.acla = this.clientes[0][18]
+                this.horario = this.clientes[0][19]
+                this.mjecobr = this.clientes[0][20]
+                this.infoseven = this.clientes[0][21]
+                this.sexo = this.clientes[0][22]
                 
                 this.verCard = true;
                 this.buscar = '';
@@ -515,6 +540,21 @@ const app = new Vue({
                 this.buscaCuentaporDni(this.dni)
             })
         },
+        editarDatos(){
+            console.log('editando datos');
+        },
+        getTablas(){
+            axios.get('/buscador/gettablas')
+            .then(res=>{
+                //console.log(res.data.calles);
+                this.calles=res.data.calles
+                this.barrios=res.data.barrios
+                this.zonas=res.data.zonas
+            })
+        },
+    },
+    created: function(){
+        this.getTablas();
     },
     
 })

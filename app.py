@@ -173,9 +173,9 @@ def buscar_cuenta(buscar):
     rcuenta = r'^[0-9]{5}$'
     rdni = r'^[0-9]{7,8}$'
     if (re.match(rcuenta,buscar)):
-        clientes = pgdict(con,f"select dni,nombre,calle||' '||num,barrio,tel,wapp,clientes.zona,clientes.pmovto,deuda::integer,sev,incobrable,gestion,subirseven,novendermas,seguir,mudo,llamar from clientes,ventas where clientes.id=ventas.idcliente and ventas.id={buscar}")
+        clientes = pgdict(con,f"select dni,nombre,calle||' '||num,barrio,tel,wapp,clientes.zona,clientes.pmovto,deuda::integer,sev,incobrable,gestion,subirseven,novendermas,seguir,mudo,llamar,acla,horario,mjecobr,infoseven,sex from clientes,ventas where clientes.id=ventas.idcliente and ventas.id={buscar}")
     elif (re.match(rdni,buscar)):
-        clientes = pgdict(con,f"select dni,nombre,calle||' '||num,barrio,tel,wapp,zona,pmovto,deuda::integer,sev,incobrable,gestion,subirseven,novendermas,seguir,mudo,llamar from clientes where dni='{buscar}'")
+        clientes = pgdict(con,f"select dni,nombre,calle,num,barrio,tel,wapp,zona,pmovto,deuda::integer,sev,incobrable,gestion,subirseven,novendermas,seguir,mudo,llamar,acla,horario,mjecobr,infoseven,sex from clientes where dni='{buscar}'")
     else:
         buscar = '%'+buscar.replace(' ','%')+'%'
         clientes = pgdict(con,f"select dni,nombre,calle||' '||num from clientes where nombre||calle||num||barrio ilike '{buscar}'")
@@ -330,3 +330,11 @@ def buscar_toggleseguir(dni):
     con.commit()
     cur.close()
     return 'ok'
+
+
+@app.route('/buscador/gettablas')
+def buscar_gettablas():
+    calles = pgdict(con,f"select calle from calles order by calle")
+    barrios = pgdict(con,f"select barrio from barrios order by barrio")
+    zonas = pgdict(con,f"select zona from zonas order by zona")
+    return jsonify(calles=calles,barrios=barrios,zonas=zonas)
