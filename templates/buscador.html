@@ -27,7 +27,6 @@
         </div>
     </div>
     <div class="row" v-if="buscar">
-    <!-- <div class="row" v-if="!verCard"> -->
         <div v-for="cliente in clientes">
             <!-- [dni,nombre,direccion] -->
         <button class="btn btn-outline-primary floated" @mouseover="buscar=cliente[2]" @click="buscaCuentaporDni(cliente[0])">|cliente[1]|</button>
@@ -67,6 +66,7 @@
         <button class="btn btn-outline-danger btn-sm"@click="toggleLN">LN</button>
         <button class="btn btn-outline-danger btn-sm"@click="toggleLlamar">Llamar</button>
         <button class="btn btn-outline-danger btn-sm"@click="toggleSeguir">Seguir</button>
+        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#staticBackdrop">Editar</button>
     </div>
     <div class="row" v-if="verCard">
         <table class="table table-sm">
@@ -137,7 +137,88 @@
         </table>
     </div>
     
-</div>
+  
+  <!-- Modal Edicion de datos Clientes -->
+  <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1"        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">Editar Datos Cliente</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <div class="form-group col-md-1">
+                  <label for="id">Id</label>
+                  <input type="text" class="form-control" name="id" value="">
+                </div>
+                <div class="form-group col-md-1">
+                    <label for="sex">Sexo</label>
+                    <input type="text" class="form-control" name="sex" value="">
+                  </div>
+                  <div class="form-group col-md-2">
+                    <label for="dni">DNI</label>
+                    <input type="text" class="form-control" name="dni" value="">
+                  </div>
+                <div class="form-group col-md-4">
+                  <label for="nombre">Nombre</label>
+                  <input type="text" class="form-control" name="nombre" value="">
+                </div>
+                <div class="form-group col-md-2">
+                  <label for="tel">Tel</label>
+                  <input type="text" class="form-control" name="tel" value="">
+                </div>
+                <div class="form-group col-md-2">
+                  <label for="wapp">WhasApp</label>
+                  <input type="text" class="form-control" name="wapp" value="">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                  <label for="calle">Calle</label>
+                  <input type="text" class="form-control" name="calle" value="">
+                </div>
+                <div class="form-group col-md-1">
+                    <label for="num">Num</label>
+                    <input type="text" class="form-control" name="num" value="">
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="barrio">Barrio</label>
+                    <input type="text" class="form-control" name="barrio" value="">
+                  </div>
+                <div class="form-group col-md-3">
+                  <label for="zona">Zona</label>
+                  <input type="text" class="form-control" name="zona" value="">
+                </div>
+            </div>
+            <div class="form-row">
+                  <div class="form-group col-md-3">
+                    <label for="acla">Aclaracion</label>
+                    <input type="text" class="form-control" name="acla" value="">
+                  </div>
+                  <div class="form-group col-md-3">
+                    <label for="horario">Horario</label>
+                    <input type="text" class="form-control" name="horario" value="">
+                  </div>
+                  <div class="form-group col-md-3">
+                    <label for="mjecobr">MjeCobr</label>
+                    <input type="text" class="form-control" name="mjecobr" value="">
+                  </div>
+                <div class="form-group col-md-3">
+                  <label for="infoseven">InfoSeven</label>
+                  <input type="text" class="form-control" name="infoseven" value="">
+                </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
 </div>
 
 {% endblock %}
