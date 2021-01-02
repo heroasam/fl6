@@ -11,6 +11,9 @@
     background-color: lightyellow;
     color:black;
 }
+caption{
+    caption-side: top;
+}
 </style>
 {% endblock %}
 
@@ -42,6 +45,10 @@
               <h4 class="card-title">|nombre|  |dni|</h4>
               <h5 class="card-subtitle mb-2 text-muted">|calle+' '+num|  |barrio|  zona:|zona|</h5>
               <h5 class="card-subtitle mb-2 text-muted">tel:|tel| wapp:|wapp|</h5>
+              <h6 class="card-subtitle mb-2 text-muted" v-if="acla"><span class="badge badge-info " >acla  </span>|acla|</h6>
+              <h6 class="card-subtitle mb-2 text-muted" v-if="mjecobr"><span class="badge badge-danger " >mjecobr  </span>|mjecobr|</h6>
+              <h6 class="card-subtitle mb-2 text-muted" v-if="horario"><span class="badge badge-info " >horario  </span>|horario|</h6>
+              <h6 class="card-subtitle mb-2 text-muted" v-if="infoseven"><span class="badge badge-success " >infoseven  </span>|infoseven|</h6>
               <button class="btn btn-primary floated">PmoVto</button>
               <input type="date" v-model="pmovto"  class="form-group floated mt-1">
               <button class="btn btn-primary floated">Deuda $|deuda|</button>
@@ -72,6 +79,7 @@
         <button class="btn btn-outline-danger btn-sm"@click="toggleSeguir">Seguir</button>
         <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#staticBackdrop" @click="editarDatos">Editar</button>
     </div>
+    <!-- tabla ventas -->
     <div class="row" v-if="verCard">
         <table class="table table-sm">
             <thead >
@@ -102,8 +110,10 @@
             </tbody>
         </table>
     </div>
+    <!-- tabla cuotas a pagar -->
     <div class="row" v-if="verCard" style="float:left;">
         <table class="table table-sm"  style="width: 300px;">
+            <caption>Cuotas a pagar</caption>
             <thead>
                 <tr>
                     <th>Id</th>
@@ -119,7 +129,9 @@
                 </tr>
             </tbody>
         </table>
+        <!-- tabla cuotas pagadas -->
         <table class="table table-sm ml-5"  style="width: 300px;">
+            <caption>Pagos Realizados</caption>
             <thead>
                 <tr>
                     <th>Fecha</th>
@@ -217,12 +229,12 @@
                   </div>
                 <div class="form-group col-md-3">
                   <label for="infoseven">InfoSeven</label>
-                  <input type="text" class="form-control" name="infoseven" vmodel="infoseven" value="">
+                  <input type="text" class="form-control" name="infoseven" v-model="infoseven" value="">
                 </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-          <button type="button" class="btn btn-primary">Guardar</button>
+          <button type="button" class="btn btn-primary" @click="guardarEdicion">Guardar</button>
         </div>
       </div>
     </div>
@@ -555,6 +567,37 @@ const app = new Vue({
                 this.barrios=res.data.barrios
                 this.zonas=res.data.zonas
             })
+        },
+        guardarEdicion(){
+            axios({
+                method:'POST',
+                url:'/buscador/editardatos/'+this.dni,
+                data:{
+                    sex:this.sexo,
+                    dni:this.dni,
+                    nombre:this.nombre,
+                    calle:this.calle,
+                    num:this.num,
+                    barrio:this.barrio,
+                    zona:this.zona,
+                    tel:this.tel,
+                    wapp:this.wapp,
+                    acla:this.acla,
+                    mjecobr:this.mjecobr,
+                    horario:this.horario,
+                    infoseven:this.infoseven,
+                }
+            })
+            .then(res=>{
+                console.log(res);
+                let toast = this.$toasted.success("Edicion realizada con exito", { 
+                theme: "outline", 
+                position: "top-right", 
+                duration : 3000,
+                fullWidth: true,
+                });
+            })
+
         },
     },
     created: function(){

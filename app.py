@@ -338,3 +338,15 @@ def buscar_gettablas():
     barrios = pgdict(con,f"select barrio from barrios order by barrio")
     zonas = pgdict(con,f"select zona from zonas order by zona")
     return jsonify(calles=calles,barrios=barrios,zonas=zonas)
+
+
+@app.route('/buscador/editardatos/<string:dni>' , methods = ['POST'])
+def busca_editardatos(dni):
+    d = ast.literal_eval(request.data.decode("UTF-8"))
+    upd = f"update clientes set sex='{d['sex']}', dni='{d['dni']}', nombre='{d['nombre']}', calle='{d['calle']}', num={d['num']}, barrio='{d['barrio']}', zona='{d['zona']}', tel='{d['tel']}', wapp={d['wapp']}, acla='{d['acla']}', mjecobr='{d['mjecobr']}', horario='{d['horario']}', infoseven='{d['infoseven']}' where dni='{dni}'"
+    print(upd)
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    cur.close()
+    return 'ok'
