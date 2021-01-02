@@ -39,27 +39,42 @@ caption{
         <button class="btn btn-outline-primary floated" @mouseover="buscar=cliente[2]" @click="buscaCuentaporDni(cliente[0])">|cliente[1]|</button>
         </div>
     </div>
+    <!-- card datos clientes -->
     <div class="row"  v-if="verCard">
         <div class="card mt-2" style="width: 52rem;">
             <div class="card-body">
-              <h4 class="card-title">|nombre|  |dni|</h4>
-              <h5 class="card-subtitle mb-2 text-muted">|calle+' '+num|  |barrio|  zona:|zona|</h5>
-              <h5 class="card-subtitle mb-2 text-muted">tel:|tel| wapp:|wapp|</h5>
-              <h6 class="card-subtitle mb-2 text-muted" v-if="acla"><span class="badge badge-info " >acla  </span>|acla|</h6>
-              <h6 class="card-subtitle mb-2 text-muted" v-if="mjecobr"><span class="badge badge-danger " >mjecobr  </span>|mjecobr|</h6>
-              <h6 class="card-subtitle mb-2 text-muted" v-if="horario"><span class="badge badge-info " >horario  </span>|horario|</h6>
-              <h6 class="card-subtitle mb-2 text-muted" v-if="infoseven"><span class="badge badge-success " >infoseven  </span>|infoseven|</h6>
-              <button class="btn btn-primary floated">PmoVto</button>
-              <input type="date" v-model="pmovto"  class="form-group floated mt-1">
-              <button class="btn btn-primary floated">Deuda $|deuda|</button>
-              <button class="btn btn-danger floated" v-if="novendermas">|novendermas|</button>
-              <button class="btn btn-success floated" v-if="sev">|seven|</button>
-              <button class="btn btn-info floated" v-if="subirseven">|subirseven|</button>
-              <button class="btn btn-danger floated" v-if="mudo">|mudo|</button>
-              <button class="btn btn-warning floated" v-if="gestion">|gestion|</button>
-              <button class="btn btn-danger floated" v-if="incobrable">|incobrable|</button>
-              <button class="btn btn-info floated" v-if="seguir">|seguir|</button>
-              <button class="btn btn-primary floated" v-if="llamar">|llamar|</button>
+                <div class="row">
+                    <h4 class="card-title">|nombre|  |dni|</h4>
+                </div>
+                <div class="row">
+                    <h5 class="card-subtitle mb-2 text-muted">|calle+' '+num|  |barrio|  zona:|zona|</h5>
+                </div>
+              <div class="row">
+                <h5 class="card-subtitle mb-2 text-muted">tel:|tel| wapp:|wapp|</h5>
+                </div>
+              <div class="row">
+                <div class="row ml-1">
+                <h6 class="card-subtitle mb-2 text-muted" v-if="acla"><span class="badge badge-info " >acla  </span>|acla|</h6>
+                <h6 class="card-subtitle mb-2 text-muted" v-if="mjecobr"><span class="badge badge-danger " >mjecobr  </span>|mjecobr|</h6>
+                <h6 class="card-subtitle mb-2 text-muted" v-if="horario"><span class="badge badge-info " >horario  </span>|horario|</h6>
+                <h6 class="card-subtitle mb-2 text-muted" v-if="infoseven"><span class="badge badge-success " >infoseven  </span>|infoseven|</h6>
+                </div>
+              </div>
+                <div class="row">
+                    <button class="btn btn-primary floated">PmoVto</button>
+                    <button class="btn btn-primary floated">Deuda $|deuda|</button>
+                    <button class="btn btn-danger floated" v-if="novendermas">|novendermas|</button>
+                    <button class="btn btn-success floated" v-if="sev">|seven|</button>
+                    <button class="btn btn-info floated" v-if="subirseven">|subirseven|</button>
+                    <button class="btn btn-danger floated" v-if="mudo">|mudo|</button>
+                    <button class="btn btn-warning floated" v-if="gestion">|gestion|</button>
+                    <button class="btn btn-danger floated" v-if="incobrable">|incobrable|</button>
+                    <button class="btn btn-info floated" v-if="seguir">|seguir|</button>
+                    <button class="btn btn-primary floated" v-if="llamar">|llamar|</button>
+                </div>
+                <div class="row">
+                    <input type="date" v-model="pmovto"  class="form-group floated mt-1">
+                </div>
             </div>
           </div>
     </div>
