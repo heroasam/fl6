@@ -36,7 +36,7 @@ caption{
     <div class="row" v-if="buscar">
         <div v-for="cliente in clientes">
             <!-- [dni,nombre,direccion] -->
-        <button class="btn btn-outline-primary floated" @mouseover="buscar=cliente[2]" @click="buscaCuentaporDni(cliente[0])">|cliente[1]|</button>
+        <button class="btn btn-outline-primary" @mouseover="buscar=cliente[2]" @click="buscaCuentaporDni(cliente[0])">|cliente[1]|</button>
         </div>
     </div>
     <!-- card datos clientes -->
@@ -61,23 +61,24 @@ caption{
                 </div>
               </div>
                 <div class="row">
-                    <button class="btn btn-primary floated">PmoVto</button>
-                    <button class="btn btn-primary floated">Deuda $|deuda|</button>
-                    <button class="btn btn-danger floated" v-if="novendermas">|novendermas|</button>
-                    <button class="btn btn-success floated" v-if="sev">|seven|</button>
-                    <button class="btn btn-info floated" v-if="subirseven">|subirseven|</button>
-                    <button class="btn btn-danger floated" v-if="mudo">|mudo|</button>
-                    <button class="btn btn-warning floated" v-if="gestion">|gestion|</button>
-                    <button class="btn btn-danger floated" v-if="incobrable">|incobrable|</button>
-                    <button class="btn btn-info floated" v-if="seguir">|seguir|</button>
-                    <button class="btn btn-primary floated" v-if="llamar">|llamar|</button>
+                    <button class="btn btn-primary ">PmoVto</button>
+                    <button class="btn btn-primary ">Deuda $|deuda|</button>
+                    <button class="btn btn-danger " v-if="novendermas">|novendermas|</button>
+                    <button class="btn btn-success " v-if="sev">|sev|</button>
+                    <button class="btn btn-info " v-if="subirseven">|subirseven|</button>
+                    <button class="btn btn-danger " v-if="mudo">|mudo|</button>
+                    <button class="btn btn-warning " v-if="gestion">|gestion|</button>
+                    <button class="btn btn-danger " v-if="incobrable">|incobrable|</button>
+                    <button class="btn btn-info " v-if="seguir">|seguir|</button>
+                    <button class="btn btn-primary " v-if="llamar">|llamar|</button>
                 </div>
                 <div class="row">
-                    <input type="date" v-model="pmovto"  class="form-group floated mt-1">
+                    <input type="date" v-model="pmovto"  class="form-group mt-1">
                 </div>
             </div>
           </div>
     </div>
+    <!-- botonera funcional -->
     <div class="row" v-if="verCard">
         <button class="btn btn-outline-info btn-sm" @click="verVentas=!verVentas">Ver Ventas</button>
         <button class="btn btn-outline-success btn-sm" @click="fecharPmoVto">Fechar</button>
@@ -126,7 +127,7 @@ caption{
         </table>
     </div>
     <!-- tabla cuotas a pagar -->
-    <div class="row" v-if="verCard" style="float:left;">
+    <div class="row d-flex" v-if="verCard" >
         <table class="table table-sm"  style="width: 300px;">
             <caption>Cuotas a pagar</caption>
             <thead>
@@ -167,7 +168,23 @@ caption{
             </tbody>
         </table>
     </div>
-    
+    <!-- tabla comentarios -->
+    <div class="row" v-if="verCard && comentarios.length">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Comentario</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="comentario in comentarios">
+                    <td>|comentario[0]|</td>
+                    <td>|comentario[1]|</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
   
   <!-- Modal Edicion de datos Clientes -->
   <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1"        aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -309,6 +326,7 @@ const app = new Vue({
         calles:[],
         barrios:[],
         zonas:[],
+        comentarios:[],
 
         
     },
@@ -356,6 +374,7 @@ const app = new Vue({
                 this.buscar = '';
                 this.clientes = [];
                 this.pedirVentas(this.dni)
+                this.pedirComentarios(this.dni)
 
                 //botones de historial
                 let agregar=true;
@@ -398,6 +417,17 @@ const app = new Vue({
                 //console.log(arrayTblVtas);
                 this.ventas=arrayTblVtas;
                 this.pedirCuotas(dni)
+            })
+        },
+        pedirComentarios(dni){
+            axios.get('/buscador/pedircomentarios/'+dni)
+            .then(res=>{
+                //console.log(res.data.comentarios);
+                arrayComentarios = Array.from(res.data.comentarios)
+                arrayComentarios.forEach(row=>{
+                    row[0]=dayjs.utc(row[0]).format('YYYY-MM-DD')
+                })
+                this.comentarios=arrayComentarios
             })
         },
         toggleVerArticulos(idvta){

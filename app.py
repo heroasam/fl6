@@ -350,3 +350,10 @@ def busca_editardatos(dni):
     con.commit()
     cur.close()
     return 'ok'
+
+
+@app.route('/buscador/pedircomentarios/<string:dni>')
+def buscar_pedircomentarios(dni):
+    idcliente = pgonecolumn(con,f"select id from clientes where dni='{dni}'")
+    comentarios=pgdict(con,f"select fechahora,comentario from comentarios where idcliente={idcliente}")
+    return jsonify(comentarios=comentarios)
