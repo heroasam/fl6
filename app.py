@@ -357,3 +357,28 @@ def buscar_pedircomentarios(dni):
     idcliente = pgonecolumn(con,f"select id from clientes where dni='{dni}'")
     comentarios=pgdict(con,f"select fechahora,comentario from comentarios where idcliente={idcliente}")
     return jsonify(comentarios=comentarios)
+
+
+
+@app.route('/fichaje')
+def fichaje():
+    return render_template("fichaje.html")
+
+
+@app.route('/fichaje/getcobradores')
+def fichaje_getcobradores():
+    cobradores = pgdict(con,f"select id from cobr where activo=1 and prom=0 and id>15")
+    return jsonify(cobradores=cobradores)
+
+
+@app.route('/fichaje/muestrazonas/<int:cobr>')
+def fichaje_muestrazona(cobr):
+    zonas = pgdict(con,f"select zona from zonas where asignado={cobr}")
+    print(zonas)
+    return jsonify(zonas=zonas)
+
+
+@app.route('/fichaje/muestraclientes/<string:zona>')
+def fichaje_muestraclientes(zona):
+    clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto from clientes where zona='{zona}' and ultpago>now()-interval '6 month' and deuda>0 order by pmovto")
+    return jsonify(clientes=clientes)
