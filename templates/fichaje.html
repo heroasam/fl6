@@ -33,6 +33,9 @@ thead th {
         </div>
     </div>
     <div class="row">
+        <button class="btn bnt-outline-success" @click="seleccionarHoy()">Seleccionar Hoy</button>
+    </div>
+    <div class="row">
         <table id="table" class="table table-sm">
             <thead>
                 <tr>
@@ -179,7 +182,24 @@ const app = new Vue({
                     row[3]=dayjs.utc(row[3]).format('YYYY-MM-DD')
                     row[4]=dayjs.utc(row[4]).format('YYYY-MM-DD')
                 });
+                const $tbody = document.querySelector('tbody')
+                arrayRows = Array.from($tbody.children)
+                arrayRows.forEach(row=>{
+                    if(row.classList.contains('selected')){
+                        row.classList.remove('selected')
+                    }
+                })
                 this.clientes = arrayClientes;
+            })
+        },
+        seleccionarHoy(){
+            const $tbody = document.querySelector('tbody')
+            arrayRows = Array.from($tbody.children)
+            arrayRows.forEach(row=>{
+                let pmovto = dayjs(row.cells[4].innerHTML)
+                if(pmovto.unix()<dayjs().unix()){
+                    row.classList.add('selected')
+                }
             })
         },
        
