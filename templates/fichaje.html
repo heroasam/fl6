@@ -1,238 +1,237 @@
-{% extends "base_template.html" %}
-
-{% block title %}Planillas de Rendicion{% endblock %}
-{% block style %}
+{% extends "base_template.html" %} {% block title %}Planillas de Rendicion{%
+endblock %} {% block style %}
 <style>
-thead th {
+  thead th {
     position: sticky;
     position: -webkit-sticky;
     top: 0px;
     z-index: 10;
     background-color: #837e7e;
-    color:white;
-}
-.selected{
+    color: white;
+  }
+  .selected {
     background-color: orange;
     color: black;
     cursor: pointer;
-}
+  }
 </style>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 
 <div id="app">
-    <div class="row">
-        <div v-for="cobrador in cobradores">
-        <button class="btn btn-info ml-1" @click="muestraZonas(cobrador[0])">|cobrador[0]|</button>
-        </div>
+  <div class="row">
+    <div v-for="cobrador in cobradores">
+      <button class="btn btn-info ml-1" @click="muestraZonas(cobrador[0])">
+        |cobrador[0]|
+      </button>
     </div>
-    <div class="row">
-        <div v-for="zona in zonas">
-            <button class="btn btn-success ml-1 mt-1" @click="muestraClientes(zona[0])">|zona[0]|</button>
-        </div>
+  </div>
+  <div class="row">
+    <div v-for="zona in zonas">
+      <button
+        class="btn btn-success ml-1 mt-1"
+        @click="muestraClientes(zona[0])"
+      >
+        |zona[0]|
+      </button>
     </div>
-    <div class="row">
-        <button class="btn bnt-outline-success" @click="seleccionarHoy()">Seleccionar Hoy</button>
-        <button class="btn bnt-outline-danger" @click="imprimir()">Imprimir</button>
-    </div>
-    <div class="row">
-        <table id="table" class="table table-sm">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Calle</th>
-                    <th>Num</th>
-                    <th>UltPago</th>
-                    <th>PmoVto</th>
-                    <th>DNI</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="cliente in clientes">
-                    <td>|cliente[0]|</td>
-                    <td>|cliente[1]|</td>
-                    <td>|cliente[2]|</td>
-                    <td>|cliente[3]|</td>
-                    <td>|cliente[4]|</td>
-                    <td>|cliente[5]|</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+  </div>
+  <div class="row">
+    <button class="btn bnt-outline-success" @click="seleccionarHoy()">
+      Seleccionar Hoy
+    </button>
+    <button class="btn bnt-outline-danger" @click="imprimir()">Imprimir</button>
+  </div>
+  <div class="row">
+    <table id="table" class="table table-sm">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Calle</th>
+          <th>Num</th>
+          <th>UltPago</th>
+          <th>PmoVto</th>
+          <th>DNI</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="cliente in clientes">
+          <td>|cliente[0]|</td>
+          <td>|cliente[1]|</td>
+          <td>|cliente[2]|</td>
+          <td>|cliente[3]|</td>
+          <td>|cliente[4]|</td>
+          <td>|cliente[5]|</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
-
-{% endblock %}
-{% block script %}
+{% endblock %} {% block script %}
 <script>
-const sortGrid = (colNum,dir)=>{
-        let tbody = table.querySelector('tbody');
-        let rowsArray = Array.from(tbody.rows);
-        let compare;
-        let compareAsc;
-        compareAsc = function(rowA, rowB) {
-            return (rowA.cells[colNum].innerHTML).localeCompare(rowB.cells[colNum].innerHTML);
-        }
-        let compareDesc;
-        compareDesc = function(rowA, rowB) {
-            return (rowA.cells[colNum].innerHTML).localeCompare(rowB.cells[colNum].innerHTML)*-1;
-        }
-        if (dir==='ASC') {
-            compare = compareAsc;
-        } else {
-            compare = compareDesc;
-        }
-        rowsArray.sort(compare);
-        tbody.append(...rowsArray);
-}
-const sortGridNumerica = (colNum,dir)=>{
-        let tbody = table.querySelector('tbody');
-        let rowsArray = Array.from(tbody.rows);
-        let compare;
-        let compareAsc;
-        compareAsc = function(rowA, rowB) {
-           return rowA.cells[colNum].innerHTML - rowB.cells[colNum].innerHTML;
-        }
-        let compareDesc;
-        compareDesc = function(rowA, rowB) {
-            return rowB.cells[colNum].innerHTML - rowA.cells[colNum].innerHTML;
-        }
-        if (dir==='ASC') {
-            compare = compareAsc;
-        } else {
-            compare = compareDesc;
-        }
-        rowsArray.sort(compare);
-        tbody.append(...rowsArray);
-}
-document.addEventListener('click', ()=>{
-    if(event.target.tagName=== 'TH'){
-        let th = event.target;
-        sortGrid(th.cellIndex,'ASC')
-    }
-    if(event.target.tagName=== 'TH' && event.ctrlKey===true){
-        let th = event.target;
-        sortGridNumerica(th.cellIndex,'ASC')
-    }
-});
-document.addEventListener('contextmenu', ()=>{
-        event.preventDefault()
-        if(event.target.tagName==='TH'){
-        let th = event.target;
-        sortGrid(th.cellIndex,'DESC')
-        }
-        if(event.target.tagName==='TH' && event.ctrlKey===true){
-        let th = event.target;
-        sortGridNumerica(th.cellIndex,'DESC')
-        }
-
-});
-document.addEventListener('mouseover',()=>{
-    if(event.target.tagName==='TD') {
-        if(event.buttons===1){
-        markSelected(1)
-        }
+  const sortGrid = (colNum, dir) => {
+    let tbody = table.querySelector("tbody");
+    let rowsArray = Array.from(tbody.rows);
+    let compare;
+    let compareAsc;
+    compareAsc = function (rowA, rowB) {
+      return rowA.cells[colNum].innerHTML.localeCompare(
+        rowB.cells[colNum].innerHTML
+      );
     };
-    })
-document.addEventListener('mousedown',()=>{
-    if(event.target.tagName==='TD') event.preventDefault();
-    if(event.target.tagName==='TH') event.preventDefault();
+    let compareDesc;
+    compareDesc = function (rowA, rowB) {
+      return (
+        rowA.cells[colNum].innerHTML.localeCompare(
+          rowB.cells[colNum].innerHTML
+        ) * -1
+      );
+    };
+    if (dir === "ASC") {
+      compare = compareAsc;
+    } else {
+      compare = compareDesc;
+    }
+    rowsArray.sort(compare);
+    tbody.append(...rowsArray);
+  };
+  const sortGridNumerica = (colNum, dir) => {
+    let tbody = table.querySelector("tbody");
+    let rowsArray = Array.from(tbody.rows);
+    let compare;
+    let compareAsc;
+    compareAsc = function (rowA, rowB) {
+      return rowA.cells[colNum].innerHTML - rowB.cells[colNum].innerHTML;
+    };
+    let compareDesc;
+    compareDesc = function (rowA, rowB) {
+      return rowB.cells[colNum].innerHTML - rowA.cells[colNum].innerHTML;
+    };
+    if (dir === "ASC") {
+      compare = compareAsc;
+    } else {
+      compare = compareDesc;
+    }
+    rowsArray.sort(compare);
+    tbody.append(...rowsArray);
+  };
+  document.addEventListener("click", () => {
+    if (event.target.tagName === "TH") {
+      let th = event.target;
+      sortGrid(th.cellIndex, "ASC");
+    }
+    if (event.target.tagName === "TH" && event.ctrlKey === true) {
+      let th = event.target;
+      sortGridNumerica(th.cellIndex, "ASC");
+    }
+  });
+  document.addEventListener("contextmenu", () => {
+    event.preventDefault();
+    if (event.target.tagName === "TH") {
+      let th = event.target;
+      sortGrid(th.cellIndex, "DESC");
+    }
+    if (event.target.tagName === "TH" && event.ctrlKey === true) {
+      let th = event.target;
+      sortGridNumerica(th.cellIndex, "DESC");
+    }
+  });
+  document.addEventListener("mouseover", () => {
+    if (event.target.tagName === "TD") {
+      if (event.buttons === 1) {
+        markSelected(1);
+      }
+    }
+  });
+  document.addEventListener("mousedown", () => {
+    if (event.target.tagName === "TD") event.preventDefault();
+    if (event.target.tagName === "TH") event.preventDefault();
     // prevenimos la accion de seleccionar valores
     // de la tabla que es molesto y no sirve para nada.
-});
-document.addEventListener('click', ()=>{
-    if(event.target.tagName==='TD') {
-        markSelected()
-    };
-})
-const markSelected = ()=>{
-        if (event.target.parentElement.parentElement.tagName!='TBODY') return;
-        const $row = event.target.parentElement;
-        $row.classList.toggle('selected');
-}
+  });
+  document.addEventListener("click", () => {
+    if (event.target.tagName === "TD") {
+      markSelected();
+    }
+  });
+  const markSelected = () => {
+    if (event.target.parentElement.parentElement.tagName != "TBODY") return;
+    const $row = event.target.parentElement;
+    $row.classList.toggle("selected");
+  };
 
-const app = new Vue({
-    el:"#app",
-    delimiters:['|','|'],
-    data:{
-       cobradores:[],
-       zonas:[],
-       clientes:[],
-
+  const app = new Vue({
+    el: "#app",
+    delimiters: ["|", "|"],
+    data: {
+      cobradores: [],
+      zonas: [],
+      clientes: [],
     },
     methods: {
-        getCobradores(){
-            axios.get('/fichaje/getcobradores')
-            .then(res=>{
-                //console.log(res.data.cobradores);
-                this.cobradores=res.data.cobradores;
-            })
-        },
-        muestraZonas(cobr){
-            axios.get('/fichaje/muestrazonas/'+cobr)
-            .then(res=>{
-                //console.log(res.data.zonas)
-                this.zonas = res.data.zonas
-            })
-        },
-        muestraClientes(zona){
-            axios.get('/fichaje/muestraclientes/'+zona)
-            .then(res=>{
-                //console.log(res.data.clientes)
-                arrayClientes = Array.from(res.data.clientes)
-                arrayClientes.forEach(row => {
-                    row[3]=dayjs.utc(row[3]).format('YYYY-MM-DD')
-                    row[4]=dayjs.utc(row[4]).format('YYYY-MM-DD')
-                });
-                const $tbody = document.querySelector('tbody')
-                arrayRows = Array.from($tbody.children)
-                arrayRows.forEach(row=>{
-                    if(row.classList.contains('selected')){
-                        row.classList.remove('selected')
-                    }
-                })
-                this.clientes = arrayClientes;
-            })
-        },
-        seleccionarHoy(){
-            const $tbody = document.querySelector('tbody')
-            arrayRows = Array.from($tbody.children)
-            arrayRows.forEach(row=>{
-                let pmovto = dayjs(row.cells[4].innerHTML)
-                if(pmovto.unix()<dayjs().unix()){
-                    row.classList.add('selected')
-                }
-            })
-        },
-        imprimir(){
-            let ids = [];
-            let tbody = table.querySelector('tbody');
-            let rowsArray = Array.from(tbody.rows);
-            rowsArray.forEach((row)=>{
-	             if(row.classList.contains('selected')){
-	            ids.push(row.cells[5].innerHTML)
-	            }
-            })
-            axios({
-                method:'POST',
-                url:'/fichaje/imprimir',
-                responseType: "blob",
-                data: ids,
-            })
-            .then(res=>{
-       
-        let url = window.URL.createObjectURL(res.data);
-        window.open(url)        
-            
-            })
-        },
-       
+      getCobradores() {
+        axios.get("/fichaje/getcobradores").then((res) => {
+          //console.log(res.data.cobradores);
+          this.cobradores = res.data.cobradores;
+        });
+      },
+      muestraZonas(cobr) {
+        axios.get("/fichaje/muestrazonas/" + cobr).then((res) => {
+          //console.log(res.data.zonas)
+          this.zonas = res.data.zonas;
+        });
+      },
+      muestraClientes(zona) {
+        axios.get("/fichaje/muestraclientes/" + zona).then((res) => {
+          //console.log(res.data.clientes)
+          arrayClientes = Array.from(res.data.clientes);
+          arrayClientes.forEach((row) => {
+            row[3] = dayjs.utc(row[3]).format("YYYY-MM-DD");
+            row[4] = dayjs.utc(row[4]).format("YYYY-MM-DD");
+          });
+          const $tbody = document.querySelector("tbody");
+          arrayRows = Array.from($tbody.children);
+          arrayRows.forEach((row) => {
+            if (row.classList.contains("selected")) {
+              row.classList.remove("selected");
+            }
+          });
+          this.clientes = arrayClientes;
+        });
+      },
+      seleccionarHoy() {
+        const $tbody = document.querySelector("tbody");
+        arrayRows = Array.from($tbody.children);
+        arrayRows.forEach((row) => {
+          let pmovto = dayjs(row.cells[4].innerHTML);
+          if (pmovto.unix() < dayjs().unix()) {
+            row.classList.add("selected");
+          }
+        });
+      },
+      imprimir() {
+        let ids = [];
+        let tbody = table.querySelector("tbody");
+        let rowsArray = Array.from(tbody.rows);
+        rowsArray.forEach((row) => {
+          if (row.classList.contains("selected")) {
+            ids.push(row.cells[5].innerHTML);
+          }
+        });
+        axios({
+          method: "POST",
+          url: "/fichaje/imprimir",
+          responseType: "blob",
+          data: ids,
+        }).then((res) => {
+          let url = window.URL.createObjectURL(res.data);
+          window.open(url);
+        });
+      },
     },
-    created: function(){
-       this.getCobradores();
+    created: function () {
+      this.getCobradores();
     },
-})
-
+  });
 </script>
 {% endblock %}

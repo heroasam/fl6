@@ -387,7 +387,7 @@ def fichaje_muestraclientes(zona):
 @app.route('/fichaje/imprimir', methods = ['POST'])
 def fichaje_imprimir():
     listadni = ast.literal_eval(request.data.decode("UTF-8"))
-    # aca se el ast.literal entrega la lista enviada por el axios-post
+    # aca se el ast.literal entrega la lista enviada por el axios-post directamente
     ficha(con, listadni)
-    return send_file('ficha.pdf',mimetype='application/pdf')
+    return send_file('ficha.pdf')
     

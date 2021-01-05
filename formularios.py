@@ -14,7 +14,10 @@ def ficha(con, ldni):
     listdni = pglflat(con,f"select dni from clientes where dni::numeric in {lpg} order by calle,num")
 
     for dni in listdni:
-        
+        print(pdf.get_y())
+        if (pdf.get_y()>250):
+            pdf.add_page()
+            pdf.set_y(15)
         cliente = pgdict0(con,f"select * from clientes where dni='{dni}'")
         pdf.set_font_size(12)
         pdf.cell(100,6,cliente['nombre'][0:38],0,0)
@@ -55,8 +58,7 @@ def ficha(con, ldni):
                 pdf.cell(80,4,f"{detvta['art']}",1,0)
                 pdf.cell(35,4,f"{detvta['cc']} cuotas de ${detvta['ic']}",1,1,'C')
             cur =con.cursor()
-            for venta in ventas:
-                cur.execute(f"select gc({venta['id']})")
+            cur.execute(f"select gc({venta['id']})")
             cur.close()
             cuotas = pgddict(con, f"select * from cuotas where debe>0 and idvta={venta['id']}")
             pagadas = pgddict(con, f"select * from pagos where idvta={venta['id']} order by fecha")
@@ -66,7 +68,7 @@ def ficha(con, ldni):
             else:
                 max=len(pagadas)
             # Formula para el calculo del espacio ocupable
-            if ((pdf.get_y()+max*8)>280):
+            if ((pdf.get_y()+max*7)>280):
                 pdf.add_page()
                 pdf.set_y(15)
 
