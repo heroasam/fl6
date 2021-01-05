@@ -65,7 +65,7 @@ def ficha(con, ldni):
                 max=len(cuotas)
             else:
                 max=len(pagadas)
-            print(pdf.get_y())
+            # Formula para el calculo del espacio ocupable
             if ((pdf.get_y()+max*8)>280):
                 pdf.add_page()
                 pdf.set_y(15)

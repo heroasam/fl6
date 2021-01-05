@@ -384,8 +384,10 @@ def fichaje_muestraclientes(zona):
     return jsonify(clientes=clientes)
 
 
-@app.route('/fichaje/imprimir/<string:ids>', methods = ['POST'])
-def fichaje_imprimir(ids):
-    listaids = ids.split(',')
-    ficha(con,listaids)
+@app.route('/fichaje/imprimir', methods = ['POST'])
+def fichaje_imprimir():
+    listadni = ast.literal_eval(request.data.decode("UTF-8"))
+    # aca se el ast.literal entrega la lista enviada por el axios-post
+    ficha(con, listadni)
     return send_file('ficha.pdf',mimetype='application/pdf')
+    

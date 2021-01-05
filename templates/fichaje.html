@@ -216,8 +216,9 @@ const app = new Vue({
             })
             axios({
                 method:'POST',
-                url:'/fichaje/imprimir/'+ids,
+                url:'/fichaje/imprimir',
                 responseType: "blob",
+                data: ids,
             })
             .then(res=>{
        
