@@ -10,11 +10,10 @@ def ficha(con, ldni):
     for dni in ldni:
         lpg+=dni+','
     lpg = lpg[0:-1]+')'
-    print(lpg)
     listdni = pglflat(con,f"select dni from clientes where dni::numeric in {lpg} order by calle,num")
 
     for dni in listdni:
-        print(pdf.get_y())
+        #regla para que no comience un encabezado con poco espacio
         if (pdf.get_y()>250):
             pdf.add_page()
             pdf.set_y(15)
