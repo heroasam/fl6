@@ -223,7 +223,7 @@ def buscar_fecharpmovto(dni,pmovto):
 
 @app.route('/buscador/imprimirficha/<string:dni>')
 def buscar_imprimirficha(dni):
-    ficha(con,dni)
+    ficha(con,[dni,])
     return send_file('ficha.pdf')
 
 
@@ -380,5 +380,12 @@ def fichaje_muestrazona(cobr):
 
 @app.route('/fichaje/muestraclientes/<string:zona>')
 def fichaje_muestraclientes(zona):
-    clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto from clientes where zona='{zona}' and ultpago>now()-interval '6 month' and deuda>0 order by pmovto")
+    clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,dni from clientes where zona='{zona}' and ultpago>now()-interval '6 month' and deuda>0 order by pmovto")
     return jsonify(clientes=clientes)
+
+
+@app.route('/fichaje/imprimir/<string:ids>', methods = ['POST'])
+def fichaje_imprimir(ids):
+    listaids = ids.split(',')
+    ficha(con,listaids)
+    return send_file('ficha.pdf',mimetype='application/pdf')

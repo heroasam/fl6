@@ -34,6 +34,7 @@ thead th {
     </div>
     <div class="row">
         <button class="btn bnt-outline-success" @click="seleccionarHoy()">Seleccionar Hoy</button>
+        <button class="btn bnt-outline-danger" @click="imprimir()">Imprimir</button>
     </div>
     <div class="row">
         <table id="table" class="table table-sm">
@@ -44,6 +45,7 @@ thead th {
                     <th>Num</th>
                     <th>UltPago</th>
                     <th>PmoVto</th>
+                    <th>DNI</th>
                 </tr>
             </thead>
             <tbody>
@@ -53,6 +55,7 @@ thead th {
                     <td>|cliente[2]|</td>
                     <td>|cliente[3]|</td>
                     <td>|cliente[4]|</td>
+                    <td>|cliente[5]|</td>
                 </tr>
             </tbody>
         </table>
@@ -200,6 +203,27 @@ const app = new Vue({
                 if(pmovto.unix()<dayjs().unix()){
                     row.classList.add('selected')
                 }
+            })
+        },
+        imprimir(){
+            let ids = [];
+            let tbody = table.querySelector('tbody');
+            let rowsArray = Array.from(tbody.rows);
+            rowsArray.forEach((row)=>{
+	             if(row.classList.contains('selected')){
+	            ids.push(row.cells[5].innerHTML)
+	            }
+            })
+            axios({
+                method:'POST',
+                url:'/fichaje/imprimir/'+ids,
+                responseType: "blob",
+            })
+            .then(res=>{
+       
+        let url = window.URL.createObjectURL(res.data);
+        window.open(url)        
+            
             })
         },
        
