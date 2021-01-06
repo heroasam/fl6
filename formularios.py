@@ -1,9 +1,16 @@
 from fpdf import FPDF 
 from lib import pgdict0, pgddict, per, desnull,pglflat
-
+class MyFPDF(FPDF):
+    def header(self):
+        self.set_font('Helvetica', '', 10)
+        self.set_y(5)
+        self.cell(0, 6, 'Pag ' + str(self.page_no()), 0, 0, 'R')
+        self.ln(10)
+    def footer(self):
+        pass
 def ficha(con, ldni):
-    pdf=FPDF()
-    pdf.set_margins(30,10)
+    pdf=MyFPDF()
+    pdf.set_margins(30,30)
     pdf.add_page()
     pdf.set_font("Helvetica","",10)
     lpg ='('
@@ -12,6 +19,10 @@ def ficha(con, ldni):
     lpg = lpg[0:-1]+')'
     listdni = pglflat(con,f"select dni from clientes where dni::numeric in {lpg} order by calle,num")
 
+    i=1
+    dictPos = {} # diccionario de posisiones de ficha en paginas
+    dictNombre = {} # dicc que guarda los nombres para el resumen
+    dictDir = {} # dicc que guarda la direccion para el resumen
     for dni in listdni:
         #regla para que no comience un encabezado con poco espacio
         if (pdf.get_y()>250):
@@ -19,12 +30,17 @@ def ficha(con, ldni):
             pdf.set_y(15)
         cliente = pgdict0(con,f"select * from clientes where dni='{dni}'")
         pdf.set_font_size(12)
+        pdf.set_x(10)
+        pdf.cell(20,6,str(i),0,0)
+        dictPos[i]=pdf.page_no()
         pdf.cell(100,6,cliente['nombre'][0:38],0,0)
+        dictNombre[i]=cliente['nombre'][0:38]
         pdf.set_font_size(10)
         pdf.cell(30,6,desnull(cliente['tel'][0:8]),1,0,'C')
         pdf.cell(30,6,desnull(cliente['wapp']),1,1,'C')
         pdf.cell(80,6,cliente['calle'],1,0)
         pdf.cell(10,6,cliente['num'][0:4],1,0)
+        dictDir[i]=cliente['calle']+' '+cliente['num']
         pdf.cell(70,6,cliente['barrio'],1,1)
         if cliente['acla']:
             pdf.set_font_size(7)
@@ -101,6 +117,19 @@ def ficha(con, ldni):
                 pdf.set_y(pdf.get_y())
             pdf.set_x(30)
             pdf.ln(10)
-            pdf.line(10,pdf.get_y()-5,200,pdf.get_y()-5)
-            
+        pdf.line(10,pdf.get_y()-5,200,pdf.get_y()-5)
+        i+=1
+    pdf.add_page()
+    for x in dictPos.keys():
+        pdf.cell(10,5,str(x),1,0,'C')  
+        pdf.cell(60,5,dictNombre[x],1,0,'L') 
+        pdf.cell(60,5,dictDir[x],1,0,'L') 
+        pdf.cell(20,5,'Pag N°'+str(dictPos[x]),1,1,'C')
     pdf.output("ficha.pdf")
+
+
+
+    
+
+    
+
