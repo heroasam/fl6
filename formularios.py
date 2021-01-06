@@ -9,7 +9,6 @@ class MyFPDF(FPDF):
     def footer(self):
         pass
 def ficha(con, ldni):
-    print(ldni,len(ldni))
     pdf=MyFPDF()
     pdf.set_margins(30,30)
     pdf.add_page()

@@ -85,16 +85,13 @@ def pagos_buscar(cuenta):
         clientes = pgdict(con,f"select nombre,calle||' '||num as direccion,dni from clientes where dni='{cuenta}'")
     else:
         cuenta = '%'+cuenta.replace(' ','%')+'%'
-        print(cuenta)
         clientes = pgdict(con,f"select nombre,calle||' '||num as direccion,dni from clientes where nombre||calle||num||barrio like '{cuenta}' and deuda>0")
-    print(clientes)
     return jsonify(clientes=clientes)
 
 
 @app.route('/pagos/idvtas/<string:dni>')
 def pagos_idvtas(dni):
     sel = f"select ventas.id as id,calle||' '||num from ventas,clientes where clientes.id=ventas.idcliente and dni='{dni}' and saldo>0"
-    print(sel)
     idvtas = pgdict(con,sel)
     return jsonify(idvtas=idvtas)
 
@@ -112,7 +109,6 @@ def pagos_pasarpagos():
     if(d['rec']==''):
         d['rec']=0
     ins = f"insert into pagos(idvta,fecha,imp,rec,rbo,cobr,idcliente,lote) values({d['idvta']},'{d['fecha']}',{d['imp']},{d['rec']},{d['rbo']},{d['cobr']},{idcliente},{d['lote']})"
-    print(ins)
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
@@ -211,9 +207,7 @@ def buscar_cuotas(dni):
 
 @app.route('/buscador/fecharpmovto/<string:dni>/<string:pmovto>')    
 def buscar_fecharpmovto(dni,pmovto):
-    print(pmovto)
     upd = f"update clientes set pmovto='{pmovto}' where dni='{dni}'"
-    print(upd)
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
@@ -223,7 +217,6 @@ def buscar_fecharpmovto(dni,pmovto):
 
 @app.route('/buscador/imprimirficha' , methods = ['POST'])
 def buscar_imprimirficha():
-    print(request.data)
     dni = ast.literal_eval(request.data.decode("UTF-8"))
     ficha(con,dni)
     return send_file('ficha.pdf')
@@ -346,7 +339,6 @@ def buscar_gettablas():
 def busca_editardatos(dni):
     d = ast.literal_eval(request.data.decode("UTF-8"))
     upd = f"update clientes set sex='{d['sex']}', dni='{d['dni']}', nombre='{d['nombre']}', calle='{d['calle']}', num={d['num']}, barrio='{d['barrio']}', zona='{d['zona']}', tel='{d['tel']}', wapp={d['wapp']}, acla='{d['acla']}', mjecobr='{d['mjecobr']}', horario='{d['horario']}', infoseven='{d['infoseven']}' where dni='{dni}'"
-    print(upd)
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
@@ -376,7 +368,6 @@ def fichaje_getcobradores():
 @app.route('/fichaje/muestrazonas/<int:cobr>')
 def fichaje_muestrazona(cobr):
     zonas = pgdict(con,f"select zona from zonas where asignado={cobr}")
-    print(zonas)
     return jsonify(zonas=zonas)
 
 
