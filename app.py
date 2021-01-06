@@ -221,9 +221,11 @@ def buscar_fecharpmovto(dni,pmovto):
     return 'ok'
 
 
-@app.route('/buscador/imprimirficha/<string:dni>')
-def buscar_imprimirficha(dni):
-    ficha(con,[dni,])
+@app.route('/buscador/imprimirficha' , methods = ['POST'])
+def buscar_imprimirficha():
+    print(request.data)
+    dni = ast.literal_eval(request.data.decode("UTF-8"))
+    ficha(con,dni)
     return send_file('ficha.pdf')
 
 

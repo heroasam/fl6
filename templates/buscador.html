@@ -82,7 +82,8 @@ caption{
     <div class="row" v-if="verCard">
         <button class="btn btn-outline-info btn-sm" @click="verVentas=!verVentas">Ver Ventas</button>
         <button class="btn btn-outline-success btn-sm" @click="fecharPmoVto">Fechar</button>
-        <a :href="`/buscador/imprimirficha/${dni}`" class="btn btn-outline-warning btn-sm" target="_blank">Impr Ficha</a>
+        <button class="btn btn-outline-warning btn-sm" @click="imprimirFicha">Impr Ficha</button>
+        <!-- <a :href="`/buscador/imprimirficha/${dni}`" class="btn btn-outline-warning btn-sm" target="_blank">Impr Ficha</a> -->
         <a href="#" class="btn btn-outline-warning btn-sm">Intimar</a>
         <button class="btn btn-outline-success btn-sm" @click="cargarWapp">Wapp</button>
         <button class="btn btn-outline-success btn-sm" @click="cargarDatos">Datos</button>
@@ -518,12 +519,6 @@ const app = new Vue({
             });
             })
         },
-        impFicha(){
-            axios.get('buscador/imprimirficha/'+this.dni)
-            .then(res=>{
-                //console.log(res);
-            })
-        },
         cargarWapp(){
             let text,
                 messaje;
@@ -644,7 +639,22 @@ const app = new Vue({
             })
 
         },
+        imprimirFicha(){
+            let ids = [];
+            ids.push(this.dni);
+            axios({
+                method:"POST",
+                url:"/buscador/imprimirficha",
+                responseType: "blob",
+                data: ids,
+            }).then((res)=>{
+                let url = window.URL.createObjectURL(res.data);
+                window.open(url);
+            })
+
+        }
     },
+
     created: function(){
         this.getTablas();
     },

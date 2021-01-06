@@ -9,6 +9,7 @@ class MyFPDF(FPDF):
     def footer(self):
         pass
 def ficha(con, ldni):
+    print(ldni,len(ldni))
     pdf=MyFPDF()
     pdf.set_margins(30,30)
     pdf.add_page()
@@ -119,12 +120,14 @@ def ficha(con, ldni):
             pdf.ln(10)
         pdf.line(10,pdf.get_y()-5,200,pdf.get_y()-5)
         i+=1
-    pdf.add_page()
-    for x in dictPos.keys():
-        pdf.cell(10,5,str(x),1,0,'C')  
-        pdf.cell(60,5,dictNombre[x],1,0,'L') 
-        pdf.cell(60,5,dictDir[x],1,0,'L') 
-        pdf.cell(20,5,'Pag N°'+str(dictPos[x]),1,1,'C')
+    
+    if (len(ldni)>1):
+        pdf.add_page()
+        for x in dictPos.keys():
+            pdf.cell(10,5,str(x),1,0,'C')  
+            pdf.cell(60,5,dictNombre[x],1,0,'L') 
+            pdf.cell(60,5,dictDir[x],1,0,'L') 
+            pdf.cell(20,5,'Pag N°'+str(dictPos[x]),1,1,'C')
     pdf.output("ficha.pdf")
 
 
