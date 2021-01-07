@@ -29,17 +29,19 @@ endblock %} {% block style %}
     <div v-for="zona in zonas">
       <button
         class="btn btn-success ml-1 mt-1"
-        @click="muestraClientes(zona[0])"
+        @click="muestraClientes('normales',zona[0]);zonaactual=zona[0]"
       >
         |zona[0]|
       </button>
     </div>
   </div>
   <div class="row">
-    <button class="btn bnt-outline-success" @click="seleccionarHoy()">
+    <button class="btn bnt-success" @click="seleccionarHoy()">
       Seleccionar Hoy
     </button>
-    <button class="btn bnt-outline-danger" @click="imprimir()">Imprimir</button>
+    <button class="btn bnt-danger" @click="imprimir()">Imprimir</button>
+    <button class="btn btn-warning" @click="muestraClientes('gestion',zonaactual)">Gestion</button>
+    <button class="btn btn-dark" @click="muestraClientes('antiguos',zonaactual)">Antiguos</button>
   </div>
   <div class="row">
     <table id="table" class="table table-sm">
@@ -179,6 +181,7 @@ endblock %} {% block style %}
       cobradores: [],
       zonas: [],
       clientes: [],
+      zonaactual:'',
     },
     methods: {
       getCobradores() {
@@ -193,8 +196,8 @@ endblock %} {% block style %}
           this.zonas = res.data.zonas;
         });
       },
-      muestraClientes(zona) {
-        axios.get("/fichaje/muestraclientes/" + zona).then((res) => {
+      muestraClientes(tipo,zona) {
+        axios.get("/fichaje/muestraclientes/"+ tipo +'/'+ zona).then((res) => {
           //console.log(res.data.clientes)
           /* nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni */
           arrayClientes = Array.from(res.data.clientes);

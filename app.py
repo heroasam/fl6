@@ -371,9 +371,14 @@ def fichaje_muestrazona(cobr):
     return jsonify(zonas=zonas)
 
 
-@app.route('/fichaje/muestraclientes/<string:zona>')
-def fichaje_muestraclientes(zona):
-    clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni from clientes where zona='{zona}' and ultpago>now()-interval '6 month' and deuda>0  and gestion=0 and incobrable=0 and mudo=0 order by pmovto")
+@app.route('/fichaje/muestraclientes/<string:tipo>/<string:zona>')
+def fichaje_muestraclientes(tipo,zona):
+    if tipo=='normales':
+        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni from clientes where zona='{zona}' and ultpago>now()-interval '12 month' and deuda>0  and gestion=0 and incobrable=0 and mudo=0 order by pmovto")
+    elif tipo=='gestion':
+        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni from clientes where zona='{zona}' and ultpago>now()-interval '12 month' and deuda>0  and (gestion=1 or incobrable=1 or mudo=1) order by pmovto")
+    elif tipo=='antiguos':
+        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni from clientes where zona='{zona}' and ultpago<=now()-interval '12 month' and deuda>0  order by ultpago desc")
     return jsonify(clientes=clientes)
 
 
