@@ -52,28 +52,30 @@ endblock %} {% block style %}
           <th>Num</th>
           <th>UltPago</th>
           <th>PmoVto</th>
-          <th>Sev</th>
-          <th>NV+</th>
-          <th>Ges</th>
-          <th>Mud</th>
-          <th>INC</th>
+          <th colspan="5">Estados</th>
           <th>DNI</th>
+          <th colspan="5">Operaciones</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="cliente in clientes">
-          <!-- nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni -->
+          <!-- nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni,subirseven -->
           <td>|cliente[0]|</td>
           <td>|cliente[1]|</td>
           <td>|cliente[2]|</td>
           <td>|cliente[3]|</td>
           <td>|cliente[4]|</td>
-          <td><button class="btn btn-success btn-sm" v-if="cliente[5]">|cliente[5]==1?'SEVEN':null|</button></td>
+          <td><button class="btn btn-success btn-sm" v-if="cliente[5]||cliente[11]">|cliente[5]==1?'SEVEN':cliente[11]==1?'SUBE':null|</button></td>
           <td><button class="btn btn-primary btn-sm" v-if="cliente[6]">|cliente[6]==1?'NV+':null|</button></td>
           <td><button class="btn btn-info btn-sm" v-if="cliente[7]">|cliente[7]==1?'GESTION':null|</button></td>
           <td><button class="btn btn-warning btn-sm" v-if="cliente[8]">|cliente[8]==1?'MUDO':null|</button></td>
           <td><button class="btn btn-danger btn-sm" v-if="cliente[9]">|cliente[9]==1?'INC':''|</button></td>
           <td>|cliente[10]|</td>
+          <td><button class="btn btn-outline-primary btn-sm" @click="toggleSube(cliente[10])">SU</button></td>
+          <td><button class="btn btn-outline-primary btn-sm" @click="toggleLN(cliente[10])">NV</button></td>
+          <td><button class="btn btn-outline-primary btn-sm" @click="toggleGestion(cliente[10])">Ge</button></td>
+          <td><button class="btn btn-outline-primary btn-sm" @click="toggleMudo(cliente[10])">Mu</button></td>
+          <td><button class="btn btn-outline-primary btn-sm" @click="toggleInc(cliente[10]);">IN</button></td>
           
         </tr>
       </tbody>
@@ -174,6 +176,7 @@ endblock %} {% block style %}
     $row.classList.toggle("selected");
   };
 
+  Vue.use(Toasted)
   const app = new Vue({
     el: "#app",
     delimiters: ["|", "|"],
@@ -245,7 +248,66 @@ endblock %} {% block style %}
           }
         });
       },
-      
+      toggleInc(dni){
+        axios.get('/buscador/toggleinc/'+dni)
+        .then(res=>{
+          //console.log(res);
+          let toast = this.$toasted.success("Registro procesado con exito", { 
+                theme: "outline", 
+                position: "top-right", 
+                duration : 3000,
+                fullWidth: true,
+                });
+        })
+      },
+      toggleSube(dni){
+        axios.get('/buscador/togglesube/'+dni)
+        .then(res=>{
+          //console.log(res);
+          let toast = this.$toasted.success("Registro procesado con exito", { 
+                theme: "outline", 
+                position: "top-right", 
+                duration : 3000,
+                fullWidth: true,
+                });
+        })
+      },
+      toggleGestion(dni){
+        axios.get('/buscador/togglegestion/'+dni)
+        .then(res=>{
+          //console.log(res);
+          let toast = this.$toasted.success("Registro procesado con exito", { 
+                theme: "outline", 
+                position: "top-right", 
+                duration : 3000,
+                fullWidth: true,
+                });
+        })
+      },
+      toggleMudo(dni){
+        axios.get('/buscador/togglemudado/'+dni)
+        .then(res=>{
+          //console.log(res);
+          let toast = this.$toasted.success("Registro procesado con exito", { 
+                theme: "outline", 
+                position: "top-right", 
+                duration : 3000,
+                fullWidth: true,
+                });
+        })
+      },
+      toggleLN(dni){
+        axios.get('/buscador/toggleln/'+dni)
+        .then(res=>{
+          //console.log(res);
+          let toast = this.$toasted.success("Registro procesado con exito", { 
+                theme: "outline", 
+                position: "top-right", 
+                duration : 3000,
+                fullWidth: true,
+                });
+        })
+      },
     },
     created: function () {
       this.getCobradores();

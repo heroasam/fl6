@@ -18,8 +18,8 @@ DEBUG = False
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
 
 
-# con = psycopg2.connect(dbname='daq6n3vvmrg79o', user='ynpqvlqqsidhga', host='ec2-3-95-87-221.compute-1.amazonaws.com', password='4bded69478ac502d5223655094cbc2241ed5aaf025f0b31fd19494c5aa35d6f0',sslmode='require')
-con = psycopg2.connect(dbname='hero', user='hero', host='localhost', password='ata', port=5432)
+con = psycopg2.connect(dbname='daq6n3vvmrg79o', user='ynpqvlqqsidhga', host='ec2-3-95-87-221.compute-1.amazonaws.com', password='4bded69478ac502d5223655094cbc2241ed5aaf025f0b31fd19494c5aa35d6f0',sslmode='require')
+# con = psycopg2.connect(dbname='hero', user='hero', host='localhost', password='ata', port=5432)
 
 
 
@@ -232,15 +232,19 @@ def buscar_datosultvta(dni):
 @app.route('/buscador/togglesube/<string:dni>')    
 def buscar_togglesube(dni):
     sube = pgonecolumn(con,f"select subirseven from clientes where dni='{dni}'")
-    if sube:
-        upd = f"update clientes set subirseven=0 where dni='{dni}'"
+    sev = pgonecolumn(con,f"select sev from clientes where dni='{dni}'")
+    if sev==0:
+        if sube:
+            upd = f"update clientes set subirseven=0 where dni='{dni}'"
+        else:
+            upd = f"update clientes set subirseven=1 where dni='{dni}'"
+        cur = con.cursor()
+        cur.execute(upd)
+        con.commit()
+        cur.close()
+        return 'ok subido'
     else:
-        upd = f"update clientes set subirseven=1 where dni='{dni}'"
-    cur = con.cursor()
-    cur.execute(upd)
-    con.commit()
-    cur.close()
-    return 'ok'
+        return 'no se sube pq ya esta en el seven'
 
 
 @app.route('/buscador/togglegestion/<string:dni>')    
@@ -374,11 +378,11 @@ def fichaje_muestrazona(cobr):
 @app.route('/fichaje/muestraclientes/<string:tipo>/<string:zona>')
 def fichaje_muestraclientes(tipo,zona):
     if tipo=='normales':
-        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni from clientes where zona='{zona}' and ultpago>now()-interval '12 month' and deuda>0  and gestion=0 and incobrable=0 and mudo=0 order by pmovto")
+        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni,subirseven from clientes where zona='{zona}' and ultpago>now()-interval '12 month' and deuda>0  and gestion=0 and incobrable=0 and mudo=0 order by pmovto")
     elif tipo=='gestion':
-        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni from clientes where zona='{zona}' and ultpago>now()-interval '12 month' and deuda>0  and (gestion=1 or incobrable=1 or mudo=1) order by pmovto")
+        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni,subirseven from clientes where zona='{zona}' and ultpago>now()-interval '12 month' and deuda>0  and (gestion=1 or incobrable=1 or mudo=1) order by pmovto")
     elif tipo=='antiguos':
-        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni from clientes where zona='{zona}' and ultpago<=now()-interval '12 month' and deuda>0  order by ultpago desc")
+        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni,subirseven from clientes where zona='{zona}' and ultpago<=now()-interval '12 month' and deuda>0  order by ultpago desc")
     return jsonify(clientes=clientes)
 
 
