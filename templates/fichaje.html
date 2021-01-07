@@ -50,17 +50,29 @@ endblock %} {% block style %}
           <th>Num</th>
           <th>UltPago</th>
           <th>PmoVto</th>
+          <th>Sev</th>
+          <th>NV+</th>
+          <th>Ges</th>
+          <th>Mud</th>
+          <th>INC</th>
           <th>DNI</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="cliente in clientes">
+          <!-- nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni -->
           <td>|cliente[0]|</td>
           <td>|cliente[1]|</td>
           <td>|cliente[2]|</td>
           <td>|cliente[3]|</td>
           <td>|cliente[4]|</td>
-          <td>|cliente[5]|</td>
+          <td><button class="btn btn-success btn-sm" v-if="cliente[5]">|cliente[5]==1?'SEVEN':null|</button></td>
+          <td><button class="btn btn-primary btn-sm" v-if="cliente[6]">|cliente[6]==1?'NV+':null|</button></td>
+          <td><button class="btn btn-info btn-sm" v-if="cliente[7]">|cliente[7]==1?'GESTION':null|</button></td>
+          <td><button class="btn btn-warning btn-sm" v-if="cliente[8]">|cliente[8]==1?'MUDO':null|</button></td>
+          <td><button class="btn btn-danger btn-sm" v-if="cliente[9]">|cliente[9]==1?'INC':''|</button></td>
+          <td>|cliente[10]|</td>
+          
         </tr>
       </tbody>
     </table>
@@ -184,6 +196,7 @@ endblock %} {% block style %}
       muestraClientes(zona) {
         axios.get("/fichaje/muestraclientes/" + zona).then((res) => {
           //console.log(res.data.clientes)
+          /* nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni */
           arrayClientes = Array.from(res.data.clientes);
           arrayClientes.forEach((row) => {
             row[3] = dayjs.utc(row[3]).format("YYYY-MM-DD");
@@ -199,23 +212,14 @@ endblock %} {% block style %}
           this.clientes = arrayClientes;
         });
       },
-      seleccionarHoy() {
-        const $tbody = document.querySelector("tbody");
-        arrayRows = Array.from($tbody.children);
-        arrayRows.forEach((row) => {
-          let pmovto = dayjs(row.cells[4].innerHTML);
-          if (pmovto.unix() < dayjs().unix()) {
-            row.classList.add("selected");
-          }
-        });
-      },
       imprimir() {
         let ids = [];
         let tbody = table.querySelector("tbody");
         let rowsArray = Array.from(tbody.rows);
         rowsArray.forEach((row) => {
           if (row.classList.contains("selected")) {
-            ids.push(row.cells[5].innerHTML);
+            ids.push(row.cells[10].innerHTML);
+            //la celda que corresponda a dni OJO
           }
         });
         axios({
@@ -228,6 +232,17 @@ endblock %} {% block style %}
           window.open(url);
         });
       },
+      seleccionarHoy() {
+        const $tbody = document.querySelector("tbody");
+        arrayRows = Array.from($tbody.children);
+        arrayRows.forEach((row) => {
+          let pmovto = dayjs(row.cells[4].innerHTML);
+          if (pmovto.unix() < dayjs().unix()) {
+            row.classList.add("selected");
+          }
+        });
+      },
+      
     },
     created: function () {
       this.getCobradores();
