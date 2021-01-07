@@ -1,5 +1,7 @@
 from fpdf import FPDF 
 from lib import pgdict0, pgddict, per, desnull,pglflat
+from datetime import date
+
 class MyFPDF(FPDF):
     def header(self):
         self.set_font('Helvetica', '', 10)
@@ -20,9 +22,10 @@ def ficha(con, ldni):
     listdni = pglflat(con,f"select dni from clientes where dni::numeric in {lpg} order by calle,num")
 
     i=1
-    dictPos = {} # diccionario de posisiones de ficha en paginas
-    dictNombre = {} # dicc que guarda los nombres para el resumen
-    dictDir = {} # dicc que guarda la direccion para el resumen
+    lisdatos = [] # lista que contendra los datos del resumen
+    # dictPos = {} # diccionario de posisiones de ficha en paginas
+    # dictNombre = {} # dicc que guarda los nombres para el resumen
+    # dictDir = {} # dicc que guarda la direccion para el resumen
     for dni in listdni:
         #regla para que no comience un encabezado con poco espacio
         if (pdf.get_y()>250):
@@ -32,15 +35,20 @@ def ficha(con, ldni):
         pdf.set_font_size(12)
         pdf.set_x(10)
         pdf.cell(20,6,str(i),0,0)
-        dictPos[i]=pdf.page_no()
+        # dictPos[i]=pdf.page_no()
         pdf.cell(100,6,cliente['nombre'][0:38],0,0)
-        dictNombre[i]=cliente['nombre'][0:38]
+        # dictNombre[i]=cliente['nombre'][0:38]
         pdf.set_font_size(10)
         pdf.cell(30,6,desnull(cliente['tel'][0:8]),1,0,'C')
         pdf.cell(30,6,desnull(cliente['wapp']),1,1,'C')
         pdf.cell(80,6,cliente['calle'],1,0)
         pdf.cell(10,6,cliente['num'][0:4],1,0)
-        dictDir[i]=cliente['calle']+' '+cliente['num']
+        # dictDir[i]=cliente['calle']+' '+cliente['num']
+        if cliente['pmovto']<date.today():
+            pmovto = date.today().strftime('%Y-%m-%d')
+        else:
+            pmovto = cliente['pmovto']
+        lisdatos.append((i,cliente['nombre'][0:38],cliente['calle']+' '+cliente['num'],pdf.page_no(),pmovto))
         pdf.cell(70,6,cliente['barrio'],1,1)
         if cliente['acla']:
             pdf.set_font_size(7)
@@ -122,11 +130,17 @@ def ficha(con, ldni):
     
     if (len(ldni)>1):
         pdf.add_page()
-        for x in dictPos.keys():
-            pdf.cell(10,5,str(x),1,0,'C')  
-            pdf.cell(60,5,dictNombre[x],1,0,'L') 
-            pdf.cell(60,5,dictDir[x],1,0,'L') 
-            pdf.cell(20,5,'Pag N°'+str(dictPos[x]),1,1,'C')
+        # for x in dictPos.keys():
+        #     pdf.cell(10,5,str(x),1,0,'C')  
+        #     pdf.cell(60,5,dictNombre[x],1,0,'L') 
+        #     pdf.cell(60,5,dictDir[x],1,0,'L') 
+        #     pdf.cell(20,5,'Pag N°'+str(dictPos[x]),1,1,'C')
+        for row in lisdatos:
+            pdf.cell(25,5,str(row[4]),1,0,'C')
+            pdf.cell(10,5,str(row[0]),1,0,'C')
+            pdf.cell(60,5,row[1],1,0,'L')
+            pdf.cell(60,5,row[2],1,0,'L')
+            pdf.cell(20,5,'Pag N°'+ str(row[3]),1,1,'C')
     pdf.output("ficha.pdf")
 
 
