@@ -18,8 +18,8 @@ DEBUG = False
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
 
 
-con = psycopg2.connect(dbname='daq6n3vvmrg79o', user='ynpqvlqqsidhga', host='ec2-3-95-87-221.compute-1.amazonaws.com', password='4bded69478ac502d5223655094cbc2241ed5aaf025f0b31fd19494c5aa35d6f0',sslmode='require')
-# con = psycopg2.connect(dbname='hero', user='hero', host='localhost', password='ata', port=5432)
+# con = psycopg2.connect(dbname='daq6n3vvmrg79o', user='ynpqvlqqsidhga', host='ec2-3-95-87-221.compute-1.amazonaws.com', password='4bded69478ac502d5223655094cbc2241ed5aaf025f0b31fd19494c5aa35d6f0',sslmode='require')
+con = psycopg2.connect(dbname='hero', user='hero', host='localhost', password='ata', port=5432)
 
 
 
@@ -236,15 +236,17 @@ def buscar_togglesube(dni):
     if sev==0:
         if sube:
             upd = f"update clientes set subirseven=0 where dni='{dni}'"
+            msg = "Registro desmarcado para subir seven"
         else:
             upd = f"update clientes set subirseven=1 where dni='{dni}'"
+            msg = "Registro marcado para subir seven"
         cur = con.cursor()
         cur.execute(upd)
         con.commit()
         cur.close()
-        return 'ok subido'
+        return msg
     else:
-        return 'no se sube pq ya esta en el seven'
+        return 'No se sube pq ya esta en el seven'
 
 
 @app.route('/buscador/togglegestion/<string:dni>')    
@@ -252,13 +254,15 @@ def buscar_togglegestion(dni):
     sube = pgonecolumn(con,f"select gestion from clientes where dni='{dni}'")
     if sube:
         upd = f"update clientes set gestion=0 where dni='{dni}'"
+        msg = "Registro desmarcado como Gestion"
     else:
         upd = f"update clientes set gestion=1 where dni='{dni}'"
+        msg = "Registro marcado como Gestion"
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
     cur.close()
-    return 'ok'
+    return msg
 
 
 @app.route('/buscador/togglemudado/<string:dni>')    
@@ -266,13 +270,15 @@ def buscar_togglemudado(dni):
     sube = pgonecolumn(con,f"select mudo from clientes where dni='{dni}'")
     if sube:
         upd = f"update clientes set mudo=0 where dni='{dni}'"
+        msg = "Registro desmarcado como Mudado"
     else:
         upd = f"update clientes set mudo=1 where dni='{dni}'"
+        msg = "Registro marcado como Mudado"
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
     cur.close()
-    return 'ok'
+    return msg
 
 
 @app.route('/buscador/toggleinc/<string:dni>')    
@@ -280,13 +286,15 @@ def buscar_toggleinc(dni):
     sube = pgonecolumn(con,f"select incobrable from clientes where dni='{dni}'")
     if sube:
         upd = f"update clientes set incobrable=0 where dni='{dni}'"
+        msg = "Registro desmarcado como Incobrable"
     else:
         upd = f"update clientes set incobrable=1 where dni='{dni}'"
+        msg = "Registro marcado como Incobrable"
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
     cur.close()
-    return 'ok'
+    return msg
 
 
 @app.route('/buscador/toggleln/<string:dni>')    
@@ -294,13 +302,15 @@ def buscar_toggleln(dni):
     sube = pgonecolumn(con,f"select novendermas from clientes where dni='{dni}'")
     if sube:
         upd = f"update clientes set novendermas=0 where dni='{dni}'"
+        msg = "Registro desmarcado como No Vender Mas"
     else:
         upd = f"update clientes set novendermas=1 where dni='{dni}'"
+        msg = "Registro marcado como No Vender Mas"
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
     cur.close()
-    return 'ok'
+    return msg
 
 
 @app.route('/buscador/togglellamar/<string:dni>')    

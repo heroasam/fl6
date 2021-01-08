@@ -252,7 +252,7 @@ endblock %} {% block style %}
         axios.get('/buscador/toggleinc/'+dni)
         .then(res=>{
           //console.log(res);
-          let toast = this.$toasted.success("Registro procesado con exito", { 
+          let toast = this.$toasted.success(res.data, { 
                 theme: "outline", 
                 position: "top-right", 
                 duration : 3000,
@@ -264,19 +264,29 @@ endblock %} {% block style %}
         axios.get('/buscador/togglesube/'+dni)
         .then(res=>{
           //console.log(res);
-          let toast = this.$toasted.success("Registro procesado con exito", { 
+          if (res.data=='No se sube pq ya esta en el seven'){
+          let toast = this.$toasted.error(res.data, { 
                 theme: "outline", 
                 position: "top-right", 
                 duration : 3000,
                 fullWidth: true,
                 });
+              }else{
+          let toast = this.$toasted.success(res.data, { 
+                theme: "outline", 
+                position: "top-right", 
+                duration : 3000,
+                fullWidth: true,
+                });
+              }
         })
+      
       },
       toggleGestion(dni){
         axios.get('/buscador/togglegestion/'+dni)
         .then(res=>{
           //console.log(res);
-          let toast = this.$toasted.success("Registro procesado con exito", { 
+          let toast = this.$toasted.success(res.data, { 
                 theme: "outline", 
                 position: "top-right", 
                 duration : 3000,
@@ -288,7 +298,7 @@ endblock %} {% block style %}
         axios.get('/buscador/togglemudado/'+dni)
         .then(res=>{
           //console.log(res);
-          let toast = this.$toasted.success("Registro procesado con exito", { 
+          let toast = this.$toasted.success(res.data, { 
                 theme: "outline", 
                 position: "top-right", 
                 duration : 3000,
@@ -300,7 +310,7 @@ endblock %} {% block style %}
         axios.get('/buscador/toggleln/'+dni)
         .then(res=>{
           //console.log(res);
-          let toast = this.$toasted.success("Registro procesado con exito", { 
+          let toast = this.$toasted.success(res.data, { 
                 theme: "outline", 
                 position: "top-right", 
                 duration : 3000,
