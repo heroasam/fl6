@@ -1,6 +1,10 @@
 {% extends "base_template.html" %} {% block title %}Planillas de Rendicion{%
 endblock %} {% block style %}
 <style>
+  body{
+    width: 90%;
+    margin: auto;
+  }
   thead th {
     position: sticky;
     position: -webkit-sticky;
@@ -16,7 +20,7 @@ endblock %} {% block style %}
   }
 </style>
 {% endblock %} {% block content %}
-
+<div class="conteiner-fluid">
 <div id="app">
   <div class="row">
     <div v-for="cobrador in cobradores">
@@ -52,6 +56,8 @@ endblock %} {% block style %}
           <th>Num</th>
           <th>UltPago</th>
           <th>PmoVto</th>
+          <th>Compra</th>
+          <th>Deuda</th>
           <th colspan="5">Estados</th>
           <th>DNI</th>
           <th colspan="5">Operaciones</th>
@@ -59,12 +65,14 @@ endblock %} {% block style %}
       </thead>
       <tbody>
         <tr v-for="cliente in clientes">
-          <!-- nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni,subirseven -->
+          <!-- nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda -->
           <td>|cliente[0]|</td>
           <td>|cliente[1]|</td>
           <td>|cliente[2]|</td>
           <td>|cliente[3]|</td>
           <td>|cliente[4]|</td>
+          <td>|cliente[12]|</td>
+          <td>|cliente[13]|</td>
           <td><button class="btn btn-success btn-sm" v-if="cliente[5]||cliente[11]">|cliente[5]==1?'SEVEN':cliente[11]==1?'SUBE':null|</button></td>
           <td><button class="btn btn-primary btn-sm" v-if="cliente[6]">|cliente[6]==1?'NV+':null|</button></td>
           <td><button class="btn btn-info btn-sm" v-if="cliente[7]">|cliente[7]==1?'GESTION':null|</button></td>
@@ -82,7 +90,7 @@ endblock %} {% block style %}
     </table>
   </div>
 </div>
-
+</div>
 {% endblock %} {% block script %}
 <script>
   const sortGrid = (colNum, dir) => {
@@ -224,7 +232,7 @@ endblock %} {% block style %}
         let rowsArray = Array.from(tbody.rows);
         rowsArray.forEach((row) => {
           if (row.classList.contains("selected")) {
-            ids.push(row.cells[10].innerHTML);
+            ids.push(row.cells[12].innerHTML);
             //la celda que corresponda a dni OJO
           }
         });
