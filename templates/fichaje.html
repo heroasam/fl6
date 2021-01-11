@@ -39,13 +39,19 @@ endblock %} {% block style %}
       </button>
     </div>
   </div>
-  <div class="row">
+  <div class="row  d-flex">
     <button class="btn bnt-success" @click="seleccionarHoy()">
       Seleccionar Hoy
     </button>
     <button class="btn bnt-danger" @click="imprimir()">Imprimir</button>
     <button class="btn btn-warning" @click="muestraClientes('gestion',zonaactual)">Gestion</button>
     <button class="btn btn-dark" @click="muestraClientes('antiguos',zonaactual)">Antiguos</button>
+    <button class="btn btn-success" @click="verZonas==true?verZonas=false:verZonas=true">Zonas</button>
+    <input type="text" name="zona" v-model="zona" list="zonalist" autocomplete="off" v-if="verZonas">
+                  <datalist id="zonalist">
+                    <option v-for="zona in listazonas">|zona[0]|</option>
+                </datalist>
+    <button class="btn btn-success" @click="cambiarZona(zona)" v-if="verZonas">Cambiar Zonas</button>
   </div>
   <div class="row">
     <table id="table" class="table table-sm">
@@ -58,14 +64,16 @@ endblock %} {% block style %}
           <th>PmoVto</th>
           <th>Compra</th>
           <th>Deuda</th>
-          <th colspan="5">Estados</th>
           <th>DNI</th>
+          <th>Zona</th>
+          <th>Barrio</th>
+          <th colspan="5">Estados</th>
           <th colspan="5">Operaciones</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="cliente in clientes">
-          <!-- nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni[10],subirseven,comprado,deuda -->
+          <!-- nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni[10],subirseven,comprado,deuda,zona,barrio -->
           <td>|cliente[0]|</td>
           <td>|cliente[1]|</td>
           <td>|cliente[2]|</td>
@@ -73,12 +81,14 @@ endblock %} {% block style %}
           <td>|cliente[4]|</td>
           <td>|cliente[12]|</td>
           <td>|cliente[13]|</td>
+          <td>|cliente[10]|</td>
+          <td>|cliente[14]|</td>
+          <td>|cliente[15]|</td>
           <td><button class="btn btn-success btn-sm" v-if="cliente[5]||cliente[11]">|cliente[5]==1?'SEVEN':cliente[11]==1?'SUBE':null|</button></td>
           <td><button class="btn btn-primary btn-sm" v-if="cliente[6]">|cliente[6]==1?'NV+':null|</button></td>
           <td><button class="btn btn-info btn-sm" v-if="cliente[7]">|cliente[7]==1?'GESTION':null|</button></td>
           <td><button class="btn btn-warning btn-sm" v-if="cliente[8]">|cliente[8]==1?'MUDO':null|</button></td>
           <td><button class="btn btn-danger btn-sm" v-if="cliente[9]">|cliente[9]==1?'INC':''|</button></td>
-          <td>|cliente[10]|</td>
           <td><button class="btn btn-outline-primary btn-sm" @click="toggleSube(cliente[10])">SU</button></td>
           <td><button class="btn btn-outline-primary btn-sm" @click="toggleLN(cliente[10])">NV</button></td>
           <td><button class="btn btn-outline-primary btn-sm" @click="toggleGestion(cliente[10])">Ge</button></td>
@@ -142,6 +152,7 @@ endblock %} {% block style %}
   document.addEventListener("click", () => {
     if (event.target.tagName === "TH") {
       let th = event.target;
+      console.log(th.cellIndex);
       sortGrid(th.cellIndex, "ASC");
     }
     if (event.target.tagName === "TH" && event.ctrlKey === true) {
@@ -193,6 +204,9 @@ endblock %} {% block style %}
       zonas: [],
       clientes: [],
       zonaactual:'',
+      verZonas: false,
+      zona:'',
+      listazonas:[],
     },
     methods: {
       getCobradores() {
@@ -326,9 +340,20 @@ endblock %} {% block style %}
                 });
         })
       },
+      cargarZonas(){
+        axios.get('/buscador/getzonas')
+            .then(res=>{
+                this.listazonas=res.data.zonas
+                console.log(this.listazonas)
+            })
+      },
+      cambiarZona(zona){
+        console.log(zona);
+      },
     },
     created: function () {
       this.getCobradores();
+      this.cargarZonas();
     },
   });
 </script>

@@ -349,6 +349,12 @@ def buscar_gettablas():
     return jsonify(calles=calles,barrios=barrios,zonas=zonas)
 
 
+@app.route('/buscador/getzonas')
+def buscar_getzonas():
+    zonas = pgdict(con,f"select zona from zonas order by zona")
+    return jsonify(zonas=zonas)
+
+
 @app.route('/buscador/editardatos/<string:dni>' , methods = ['POST'])
 def busca_editardatos(dni):
     d = ast.literal_eval(request.data.decode("UTF-8"))
@@ -388,11 +394,11 @@ def fichaje_muestrazona(cobr):
 @app.route('/fichaje/muestraclientes/<string:tipo>/<string:zona>')
 def fichaje_muestraclientes(tipo,zona):
     if tipo=='normales':
-        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado::integer,deuda::integer from clientes where zona='{zona}' and ultpago>now()-interval '12 month' and deuda>0  and gestion=0 and incobrable=0 and mudo=0 order by pmovto")
+        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado::integer,deuda::integer,zona,barrio from clientes where zona='{zona}' and ultpago>now()-interval '12 month' and deuda>0  and gestion=0 and incobrable=0 and mudo=0 order by pmovto")
     elif tipo=='gestion':
-        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado::integer,deuda::integer from clientes where zona='{zona}' and ultpago>now()-interval '12 month' and deuda>0  and (gestion=1 or incobrable=1 or mudo=1) order by pmovto")
+        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado::integer,deuda::integer,zona,barrio from clientes where zona='{zona}' and ultpago>now()-interval '12 month' and deuda>0  and (gestion=1 or incobrable=1 or mudo=1) order by pmovto")
     elif tipo=='antiguos':
-        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado::integer,deuda::integer from clientes where zona='{zona}' and ultpago<=now()-interval '12 month' and deuda>0  order by ultpago desc")
+        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado::integer,deuda::integer,zona,barrio from clientes where zona='{zona}' and ultpago<=now()-interval '12 month' and deuda>0  order by ultpago desc")
     return jsonify(clientes=clientes)
 
 
