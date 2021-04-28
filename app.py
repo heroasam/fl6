@@ -159,6 +159,7 @@ def pagos_getplanillashoy(fecha):
     return jsonify(planillas=planillas)
 
 
+@app.route('/')
 @app.route('/buscador')
 def buscador():
     return render_template("buscador.html")
