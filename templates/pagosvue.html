@@ -230,6 +230,7 @@ const app = new Vue({
            })
            },
         buscaCuenta(cuenta){
+            console.log(cuenta)
             axios.get('/pagos/buscar/'+cuenta)
             .then(res=>{
                 this.clientes=res.data.clientes;
