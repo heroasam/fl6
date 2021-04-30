@@ -246,10 +246,11 @@ endblock %} {% block style %}
         let rowsArray = Array.from(tbody.rows);
         rowsArray.forEach((row) => {
           if (row.classList.contains("selected")) {
-            ids.push(row.cells[12].innerHTML);
+            ids.push(row.cells[7].innerHTML);
             //la celda que corresponda a dni OJO
           }
         });
+ 
         axios({
           method: "POST",
           url: "/fichaje/imprimir",

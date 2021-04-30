@@ -407,6 +407,7 @@ def fichaje_muestraclientes(tipo,zona):
 def fichaje_imprimir():
     listadni = ast.literal_eval(request.data.decode("UTF-8"))
     # aca se el ast.literal entrega la lista enviada por el axios-post directamente
+
     ficha(con, listadni)
     return send_file('ficha.pdf')
     
