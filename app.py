@@ -415,4 +415,24 @@ def fichaje_imprimir():
 @app.route('/loterbo')
 def loterbo():
     return render_template("loterbo.html")
+
+@app.route('/loterbo/guardarlote/<string:fecha>/<string:cobr>', methods = ['POST'])
+def guardarlote(fecha,cobr):
+    listarbos = ast.literal_eval(request.data.decode("UTF-8"))
+    cnt = len(listarbos)
+    ins = f"insert into loterbos(fecha,cobr,cnt,procesado) values('{fecha}',{cobr},{cnt},0)"
+    cur = con.cursor()
+    cur.execute(ins)
+    con.commit()
+    idlote = pgonecolumn(con, f"select max(id) from loterbos")
+    for rbo in listarbos:
+        ins = f"insert into rbos(idloterbos,rbo) values({idlote},{rbo})"
+        cur.execute(ins)
+    con.commit()
+    cur.close()
+    return "OK"
     
+@app.route('/loterbo/obtenerlastid')
+def obtenerlastid():
+    idlote = str(pgonecolumn(con, f"select max(id) from loterbos"))
+    return jsonify(idlote=idlote)

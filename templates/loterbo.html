@@ -3,19 +3,26 @@
 {% block title %}Lote de Recibos{% endblock %}
 {% block style %}
 <style>
+    .input1{
+        width: 100px;
+        background-color: bisque;
+
+    }
  </style>
 {% endblock %}
 
 {% block content %}
 
 <div id="app">
-    <form v-on:submit.prevent class="form-inline">
-        <input id="fechapago" type="date"  class="form-control" v-model="fechapago">
-        <input id="cobrador" type="text"  class="form-control" placeholder="Cobrador" v-model="cobrador">
-        <input type="text" id="cntrbos" class="form-control" placeholder="Cnt Rbos" v-model="cntrbos">
+    <form v-on:submit.prevent class="form-inline mb-3">
+        <input id="fechapago" type="date"  class="form-control input1" v-model="fechapago">
+        <input id="cobrador" type="text"  class="form-control input1" size= 10 placeholder="Cobrador" v-model="cobrador">
+        <input type="text" id="cntrbos" class="form-control input1" size=5 placeholder="Cnt Rbos" v-model="cntrbos">
+        <button type="button" class="btn btn-success" @click="guardarLote">Guardar</button>
+        <h3><span class="badge badge-secondary mt-3" >|`Lote ${idloterbo}`|</span></h3>
     </form>
     <ul>
-        <li v-for=" n in [...Array(Number(cntrbos)).keys()]" @keyup.enter="nextRbo"><input type="text" :id="n+1"></li>
+        <li v-for=" n in [...Array(Number(cntrbos)).keys()]" @keyup.enter="nextRbo"><input type="text" :id="n+1" class="input2"></li>
     </ul>
 </div>
 
@@ -30,6 +37,8 @@ const app = new Vue({
         fechapago:'',
         cobrador:'',
         cntrbos:10,
+        arrayRbos:[],
+        idloterbo:0,
     },
     methods: {
         nextRbo(){
@@ -38,7 +47,26 @@ const app = new Vue({
                 document.getElementById(nextCelda).focus()
                 document.getElementById(nextCelda).value=Number(event.target.value)+1
             }
-        }
+        },
+        guardarLote(){
+            for(let i=1; i<=this.cntrbos;i++){
+                this.arrayRbos.push(document.getElementById(i).value)
+            }
+            axios({
+                method:'POST',
+                url:'/loterbo/guardarlote/'+this.fechapago+'/'+this.cobrador,
+                responseType: "blob",
+                data:this.arrayRbos,
+                
+            })
+            .then(axios.get('/loterbo/obtenerlastid')
+            .then(res=>{
+                //console.log(res.data)
+                this.idloterbo = res.data.idlote
+            })
+            )
+        },
+       
         
     },
     
