@@ -143,7 +143,27 @@ def ficha(con, ldni):
             pdf.cell(20,5,'Pag N°'+ str(row[3]),1,1,'C')
     pdf.output("ficha.pdf")
 
+def loterbo(con, lrbo):
+    pdf=MyFPDF()
+    pdf.set_margins(30,30)
+    pdf.add_page()
+    pdf.set_font("Helvetica","",10)
+    for n,rbo in enumerate(lrbo):
+        if n==43:
+            pdf.set_y(15)
+            pdf.set_x(90)
+        if n==86:
+            pdf.set_y(15)
+            pdf.set_x(150)
+        if (n>43 and n<86):
+            pdf.set_x(90)
+        if n>86:
+            pdf.set_x(150)
+        pdf.cell(8,6,str(n+1),1,0,'C')
+        pdf.cell(20,6,rbo,1,0,'C')
+        pdf.cell(25,6,'',1,1)
 
+    pdf.output("loterbo.pdf")
 
     
 

@@ -3,7 +3,7 @@ from flask import render_template,url_for,request,redirect, send_file,jsonify
 import psycopg2
 import psycopg2.extras
 from lib import *
-from formularios import ficha
+from formularios import *
 import pandas as pd
 import numpy as np
 import re
@@ -413,7 +413,7 @@ def fichaje_imprimir():
     return send_file('ficha.pdf')
 
 @app.route('/loterbo')
-def loterbo():
+def loterbo_():
     return render_template("loterbo.html")
 
 @app.route('/loterbo/guardarlote/<string:fecha>/<string:cobr>', methods = ['POST'])
@@ -436,3 +436,11 @@ def guardarlote(fecha,cobr):
 def obtenerlastid():
     idlote = str(pgonecolumn(con, f"select max(id) from loterbos"))
     return jsonify(idlote=idlote)
+
+@app.route('/loterbo/imprimir', methods = ['POST'])
+def loterbo_imprimir():
+    listarbo = ast.literal_eval(request.data.decode("UTF-8"))
+    # aca se el ast.literal entrega la lista enviada por el axios-post directamente
+
+    loterbo(con, listarbo)
+    return send_file('loterbo.pdf')
