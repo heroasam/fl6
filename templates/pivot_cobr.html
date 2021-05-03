@@ -1,0 +1,35 @@
+{% extends "base_template.html" %}
+
+{% block title %}Ver datos Clientes{% endblock %}
+{% block style %}
+<style>
+td {text-align: center;
+    color: lightgray;
+}
+
+
+tr,th {text-align:center;}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<h1>Cobranza y Comision Mensual por Cobrador</h1>
+{{tbl|safe}}
+
+
+
+<!-- {% block script %}
+<script>
+function agregaClase() {
+    let element = document.getElementsByTagName("table");
+    console.log(element)
+    element[0].classList.add("table");
+    element[0].classList.add("table-sm");
+    element[0].classList.add("table-striped");
+}
+
+</script>
+{% endblock %} -->
+
+{% endblock %}

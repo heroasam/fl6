@@ -1,0 +1,41 @@
+{% extends "base_template.html" %}
+
+{% block title %}Lote de Recibos{% endblock %}
+{% block style %}
+<style>
+ </style>
+{% endblock %}
+
+{% block content %}
+
+<div id="app">
+    <form v-on:submit.prevent class="form-inline">
+        <input id="fechapago" type="date"  class="form-control" v-model="fechapago">
+        <input id="cobrador" type="text"  class="form-control" placeholder="Cobrador" v-model="cobrador">
+        <input type="text" id="cntrbos" class="form-control" placeholder="Cnt Rbos" v-model="cntrbos">
+    </form>
+    <ul>
+        <li v-for=" n in [...Array(Number(cntrbos)).keys()]"><input type="text"></li>
+    </ul>
+</div>
+
+{% endblock %}
+{% block script %}
+<script>
+
+const app = new Vue({
+    el:"#app",
+    delimiters:['|','|'],
+    data:{
+        fechapago:'',
+        cobrador:'',
+        cntrbos:10,
+    },
+    methods: {
+        
+    },
+    
+})
+
+</script>
+{% endblock %}

@@ -42,6 +42,7 @@ thead th {
         <input id="cobrador" type="text"  class="form-control" placeholder="Cobrador" v-model="cobrador" @keyup.enter="validateCargarPlanilla">
         <button @click.prevent="validateCargarPlanilla" type="button" class="btn btn-info">Cargar Planilla</button>
         <input type="text" id="lote" class="form-control" placeholder="Lote Recibos N°" v-model="lote">
+        <a href="/loterbo">Registrar Lote Rbos</a>
     </form>
         <input type="text" placeholder="Cuenta o Nombre a buscar" class="form-control mt-1" v-model="cuenta" @keyup.enter="buscaCuenta(cuenta)" @focus="cuenta='';verInputsPagos=false">
 </div>
