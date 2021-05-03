@@ -15,7 +15,7 @@
         <input type="text" id="cntrbos" class="form-control" placeholder="Cnt Rbos" v-model="cntrbos">
     </form>
     <ul>
-        <li v-for=" n in [...Array(Number(cntrbos)).keys()]"><input type="text"></li>
+        <li v-for=" n in [...Array(Number(cntrbos)).keys()]" @keyup.enter="nextRbo"><input type="text" :id="n+1"></li>
     </ul>
 </div>
 
@@ -32,6 +32,13 @@ const app = new Vue({
         cntrbos:10,
     },
     methods: {
+        nextRbo(){
+            nextCelda = Number(event.target.id)+1
+            if (nextCelda<Number(this.cntrbos+1)){
+                document.getElementById(nextCelda).focus()
+                document.getElementById(nextCelda).value=Number(event.target.value)+1
+            }
+        }
         
     },
     
