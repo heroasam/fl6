@@ -162,7 +162,19 @@ def loterbo(con, lrbo):
         pdf.cell(8,6,str(n+1),1,0,'C')
         pdf.cell(20,6,rbo,1,0,'C')
         pdf.cell(25,6,'',1,1)
-
+    pdf.set_y(-50)
+    pdf.set_x(150)
+    pdf.cell(28,6,'Total',1,0,'C')
+    pdf.cell(25,6,'',1,1)
+    pdf.set_x(150)
+    pdf.cell(28,6,'Comision',1,0,'C')
+    pdf.cell(25,6,'',1,1)
+    pdf.set_x(150)
+    pdf.cell(28,6,'Viaticos',1,0,'C')
+    pdf.cell(25,6,'',1,1)
+    pdf.set_x(150)
+    pdf.cell(28,6,'A RENDIR',1,0,'C')
+    pdf.cell(25,6,'',1,1)
     pdf.output("loterbo.pdf")
 
     

@@ -13,7 +13,7 @@
 
 {% block content %}
 
-<div id="app">
+<div id="app" class="container">
     <form v-on:submit.prevent class="form-inline mb-3">
         <input id="fechapago" type="date"  class="form-control input1" v-model="fechapago">
         <input id="cobrador" type="text"  class="form-control input1" size= 10 placeholder="Cobrador" v-model="cobrador">
@@ -30,14 +30,14 @@
 {% endblock %}
 {% block script %}
 <script>
-
+Vue.use(Toasted)
 const app = new Vue({
     el:"#app",
     delimiters:['|','|'],
     data:{
         fechapago:'',
         cobrador:'',
-        cntrbos:10,
+        cntrbos:0,
         arrayRbos:[],
         idloterbo:0,
     },
@@ -53,6 +53,18 @@ const app = new Vue({
             for(let i=1; i<=this.cntrbos;i++){
                 this.arrayRbos.push(document.getElementById(i).value)
             }
+            let total = this.arrayRbos.reduce((a,b)=>Number(a)+Number(b),0);
+            if (total>0) {this.guardarLote_()} else {
+                let toast = this.$toasted.error("Cargue los numeros de recibo", { 
+                theme: "outline", 
+                position: "top-right", 
+                duration : 3000,
+                fullWidth: true,
+                });
+            }
+            
+        },
+        guardarLote_(){
             axios({
                 method:'POST',
                 url:'/loterbo/guardarlote/'+this.fechapago+'/'+this.cobrador,
