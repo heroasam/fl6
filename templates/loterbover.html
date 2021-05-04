@@ -1,0 +1,40 @@
+{% extends "base_template.html" %}
+
+{% block title %}Listado de LoteRbos{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <h1>Listado de Lote de Rbos</h1>
+<a href="{{url_for('pagos')}}">Volver</a>
+
+
+<table class="table table table-hover table-striped" id="table">
+    <thead>
+        <tr>
+            <td>Id</td>
+            <td>fecha</td>
+            <td>cobr</td>
+            <td>cnt</td>
+            <td>oper.</td>
+            <td>oper.</td>
+        </tr>
+    </thead>
+    <tbody>
+        {% if lotesrbo != None %}
+        {% for lr in lotesrbo %}
+        <tr>
+        <td>{{ lr['id'] }}</td>
+        <td>{{ lr['fecha'] }}</td>
+        <td>{{ lr['cobr'] }}</td>
+        <td>{{ lr['cnt'] }}</td>
+        <td><a href="/loterbo/delete/{{lr['id']}}" class="btn btn-danger btn-sm">Borrar</a></td>
+        <td><a href="/loterbo/reimprimir/{{lr['fecha']}}/{{lr['cobr']}}/{{lr['id']}}" class="btn btn-success btn-sm">Imprimir</a></td>
+        </tr>
+        {% endfor %}
+        {% endif %}
+    </tbody>
+</table>
+
+</div>
+{% endblock %}
