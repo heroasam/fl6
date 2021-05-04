@@ -18,8 +18,8 @@ DEBUG = False
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
 
 
-#con = psycopg2.connect(dbname='daq6n3vvmrg79o', user='ynpqvlqqsidhga', host='ec2-3-95-87-221.compute-1.amazonaws.com', password='4bded69478ac502d5223655094cbc2241ed5aaf025f0b31fd19494c5aa35d6f0',sslmode='require')
-con = psycopg2.connect(dbname='hero', user='hero', host='localhost', password='ata', port=5432)
+con = psycopg2.connect(dbname='daq6n3vvmrg79o', user='ynpqvlqqsidhga', host='ec2-3-95-87-221.compute-1.amazonaws.com', password='4bded69478ac502d5223655094cbc2241ed5aaf025f0b31fd19494c5aa35d6f0',sslmode='require')
+#con = psycopg2.connect(dbname='hero', user='hero', host='localhost', password='ata', port=5432)
 
 
 
@@ -437,10 +437,31 @@ def obtenerlastid():
     idlote = str(pgonecolumn(con, f"select max(id) from loterbos"))
     return jsonify(idlote=idlote)
 
-@app.route('/loterbo/imprimir', methods = ['POST'])
-def loterbo_imprimir():
+@app.route('/loterbo/imprimir/<string:fecha>/<string:cobr>/<int:idlote>', methods = ['POST'])
+def loterbo_imprimir(fecha,cobr,idlote):
     listarbo = ast.literal_eval(request.data.decode("UTF-8"))
     # aca se el ast.literal entrega la lista enviada por el axios-post directamente
 
-    loterbo(con, listarbo)
+    loterbo(con, listarbo,fecha,cobr,idlote)
     return send_file('loterbo.pdf')
+
+@app.route('/loterbo/reimprimir/<string:fecha>/<string:cobr>/<int:idlote>')
+def loterbo_reimprimir(fecha,cobr,idlote):
+    listarbo = pglflat(con, f"select rbo from rbos where idloterbos={idlote}")
+    print(listarbo)
+    loterbo(con, listarbo, fecha,cobr,idlote)
+    return send_file('loterbo.pdf')
+     
+
+@app.route('/loterbo/ver')
+def loterbo_ver():
+    lotesrbo = pgddict(con,f"select id,fecha,cobr,cnt from loterbos order by id desc limit 100")
+    return render_template("loterbover.html", lotesrbo=lotesrbo)
+
+@app.route('/loterbo/delete/<string:id>')
+def loterbo_delete(id):
+    cur = con.cursor()
+    cur.execute("delete from loterbos where id={0}".format(id))
+    con.commit()
+    cur.close()
+    return redirect(url_for('loterbo_ver'))

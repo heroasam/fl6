@@ -15,10 +15,10 @@
 
 <div id="app" class="container">
     <form v-on:submit.prevent class="form-inline mb-3">
-        <input id="fechapago" type="date"  class="form-control input1" v-model="fechapago">
-        <input id="cobrador" type="text"  class="form-control input1" size= 10 placeholder="Cobrador" v-model="cobrador">
+        <input id="fechapago" type="date"  class="form-control input1" v-model="fechapago" required>
+        <input id="cobrador" type="text"  class="form-control input1" size= 10 placeholder="Cobrador" v-model="cobrador" required>
         <input type="text" id="cntrbos" class="form-control input1" size=5 placeholder="Cnt Rbos" v-model="cntrbos">
-        <button type="button" class="btn btn-success" @click="guardarLote">Guardar</button>
+        <button type="button" class="btn btn-success" @click="validaGuardarLoteI">Guardar</button>
         <h3><span class="badge badge-secondary mt-3" >|`Lote ${idloterbo}`|</span></h3>
         <button type="button" class="btn btn-primary" @click="imprimirLote">Imprimir</button>
     </form>
@@ -49,12 +49,25 @@ const app = new Vue({
                 document.getElementById(nextCelda).value=Number(event.target.value)+1
             }
         },
-        guardarLote(){
+        //valido primero que tenga cobrador y fecha de pago
+        validaGuardarLoteI(){
+            if (this.cobrador==""||this.fechapago==""){
+                let toast = this.$toasted.error("Complete los datos de fecha y cobrador", { 
+                theme: "outline", 
+                position: "top-right", 
+                duration : 3000,
+                fullWidth: true,
+                });
+            }else{this.validaGuardarLoteII()}
+        },
+        // paso a validacion II calculando con un reduce la suma de los num de rbo para ver
+        // si se han ingresado recibos o se presiona el boton en vacio
+        validaGuardarLoteII(){
             for(let i=1; i<=this.cntrbos;i++){
                 this.arrayRbos.push(document.getElementById(i).value)
             }
             let total = this.arrayRbos.reduce((a,b)=>Number(a)+Number(b),0);
-            if (total>0) {this.guardarLote_()} else {
+            if (total>0) {this.guardarLote()} else {
                 let toast = this.$toasted.error("Cargue los numeros de recibo", { 
                 theme: "outline", 
                 position: "top-right", 
@@ -64,7 +77,8 @@ const app = new Vue({
             }
             
         },
-        guardarLote_(){
+        // una vez validado se hace el guardarlote
+        guardarLote(){
             axios({
                 method:'POST',
                 url:'/loterbo/guardarlote/'+this.fechapago+'/'+this.cobrador,
@@ -82,7 +96,7 @@ const app = new Vue({
         imprimirLote(){
             axios({
                 method: "POST",
-                url: "/loterbo/imprimir",
+                url: "/loterbo/imprimir/"+this.fechapago+"/"+this.cobrador+"/"+this.idloterbo,
                 responseType: "blob",
                 data: this.arrayRbos,
             }).then((res)=>{
