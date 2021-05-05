@@ -219,11 +219,12 @@ const app = new Vue({
                  //transformar columna fecha malformada
                  arrayPagos = Array.from(res.data.planilla)
                  arrayPagos.forEach(row=>{
-                     row[2]=dayjs(row[2]).format('YYYY-MM-DD')
+                     row[2]=dayjs.utc(row[2]).format('YYYY-MM-DD')
                  })
                  this.rbosPagos = arrayPagos
                  
-                 this.cntRbos = res.data.planilla.length
+                 //this.cntRbos = res.data.planilla.length
+                 this.cntRbos = res.data.cntrbos
                  let arrayRow = []
                  this.rbosPagos.forEach(row=>{
                      arrayRow.push(row[6])
@@ -345,6 +346,7 @@ const app = new Vue({
             })
         },
         pasarPlanilla(){
+            console.log(this.fechapago)
             axios({
                 method:'POST',
                 url:'/pagos/pasarplanilla',
@@ -368,10 +370,10 @@ const app = new Vue({
             .then(res=>{
                 arrayPlanillas = Array.from(res.data.planillas)
                 arrayPlanillas.forEach(row=>{
-                    row[0]=dayjs(row[0]).format('YYYY-MM-DD')
+                    row[0]=dayjs.utc(row[0]).format('YYYY-MM-DD')
                 })
                 this.planillas = arrayPlanillas
-                console.log(res.data.planillas);
+                //console.log(res.data.planillas);
             })
         },
         cargaNombreCobr(){

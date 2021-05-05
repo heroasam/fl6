@@ -40,7 +40,7 @@ thead th {
         </thead>
         <tbody>
             <tr v-for="planilla in planillas" :class="planilla[1]!=planilla[5]?'noprocesada':'procesada'">
-                <td><button class="btn btn-outline-primary btn-sm" @click="procesarPlanilla(planilla[0],planilla[1],planilla[2],planilla[3])">Procesar</button></td>
+                <td><button class="btn btn-outline-primary btn-sm" @click="procesarPlanilla(planilla[0],planilla[1],planilla[2],planilla[3],planilla[5])">Procesar</button></td>
                 <td>|planilla[0]|</td>
                 <td>|planilla[1]|</td>
                 <td>|planilla[2]|</td>
@@ -67,13 +67,16 @@ const app = new Vue({
             .then(res=>{
                 arrayPlanillas = Array.from(res.data.planillas)
                 arrayPlanillas.forEach(row=>{
-                    row[0]=dayjs(row[0]).format('YYYY-MM-DD')
+                    row[0]=dayjs.utc(row[0]).format('YYYY-MM-DD')
                 })
                 this.planillas = arrayPlanillas
                 //console.log(this.planillas);
             })
         },
-        procesarPlanilla(fecha,cobrado,comision,viatico){
+        procesarPlanilla(fecha,cobrado,comision,viatico,procesado){
+            //console.log('procesado',procesado)
+            //proceso unicamente cuando la columna procesada esta en null
+            if (procesado==null){
             axios({
                 method:'POST',
                 url:'/pagos/procesarplanilla',
@@ -88,6 +91,7 @@ const app = new Vue({
                 console.log(res);
                 this.getPlanillas();
             })
+            }
         },
     },
     created: function(){

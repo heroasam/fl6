@@ -72,7 +72,11 @@ def pagos():
 def pagos_planilla(fechapago,cobrador):
     planilla = pgdict(con,f"select pagos.id as id, rbo, fecha, idvta,imp::INTEGER as imp, rec::INTEGER as rec, (imp+rec)::INTEGER as total, nombre, calle||' '||num as direccion, zona,deuda::INTEGER as deuda from pagos, clientes where clientes.id=pagos.idcliente and fecha='{fechapago}' and pagos.cobr={cobrador} order by id desc")
     lote = pgonecolumn(con,f"select lote from pagos where fecha='{fechapago}' and cobr={cobrador}") 
-    return jsonify(planilla=planilla,lote=lote)
+    if lote=='':
+        cntrbos = 0
+    else:
+        cntrbos = pgonecolumn(con, f"select count(*) from (select distinct rbo from pagos where lote={lote}) as foo")
+    return jsonify(planilla=planilla,lote=lote,cntrbos=cntrbos)
 
 
 @app.route('/pagos/buscar/<string:cuenta>')
@@ -159,6 +163,21 @@ def pagos_getplanillashoy(fecha):
     planillas = pgdict(con,f"select fecha,idcobr,cobrado::integer,comision::integer,viatico::integer,cntrbos,idlote from planillas where fecha='{fecha}'")
     return jsonify(planillas=planillas)
 
+
+@app.route('/pagos/procesarplanilla', methods = ['POST'])
+def pagos_procesarplanilla():
+    d = ast.literal_eval(request.data.decode("UTF-8"))
+    fecha = d['fecha']
+    ins1 = f"insert into caja(fecha,cuenta,imp,comentario) values('{fecha}','cobranza',{d['cobrado']},'global')"
+    ins2 = f"insert into caja(fecha,cuenta,imp,comentario) values('{fecha}','cobranza',{-1*d['comision']},'com')"
+    ins3 = f"insert into caja(fecha,cuenta,imp,comentario) values('{fecha}','cobranza',{-1*d['viatico']},'via')"
+    cur = con.cursor()
+    cur.execute(ins1)
+    cur.execute(ins2)
+    cur.execute(ins3)
+    con.commit()
+    cur.close()
+    return "OK"
 
 @app.route('/')
 @app.route('/buscador')
