@@ -14,14 +14,17 @@
 {% block content %}
 
 <div id="app" class="container">
-    <form v-on:submit.prevent class="form-inline mb-3">
-        <input id="fechapago" type="date"  class="form-control input1" v-model="fechapago" required>
-        <input id="cobrador" type="text"  class="form-control input1" size= 10 placeholder="Cobrador" v-model="cobrador" required>
+    <h1>Generar Lote de Rbos</h1>
+    <form v-on:submit.prevent class="form-inline ">
+        <button type="button" class="btn btn-danger" @click="limpiarForm">Limpiar</button>
+        <input id="fechapago" type="date"  class="form-control input1" v-model="fechapago">
+        <input id="cobrador" type="text"  class="form-control input1" size= 10 placeholder="Cobrador" v-model="cobrador" @blur="buscaNombreCobr">
         <input type="text" id="cntrbos" class="form-control input1" size=5 placeholder="Cnt Rbos" v-model="cntrbos">
         <button type="button" class="btn btn-success" @click="validaGuardarLoteI">Guardar</button>
         <h3><span class="badge badge-secondary mt-3" >|`Lote ${idloterbo}`|</span></h3>
         <button type="button" class="btn btn-primary" @click="imprimirLote">Imprimir</button>
     </form>
+    <h3 class="mb-3">|nombrecobrador|</h3>
     <ul>
         <li v-for=" n in [...Array(Number(cntrbos)).keys()]" @keyup.enter="nextRbo"><input type="text" :id="n+1" class="input2"></li>
     </ul>
@@ -37,6 +40,7 @@ const app = new Vue({
     data:{
         fechapago:'',
         cobrador:'',
+        nombrecobrador:'',
         cntrbos:0,
         arrayRbos:[],
         idloterbo:0,
@@ -103,6 +107,20 @@ const app = new Vue({
                 let url = window.URL.createObjectURL(res.data);
                 window.open(url);
             })
+        },
+        buscaNombreCobr(){
+            axios.get('/loterbo/buscanombrecobr/'+this.cobrador)
+            .then(res=>{
+                //console.log(res.data.nombrecobr)
+                this.nombrecobrador=res.data.nombrecobr
+            })
+        },
+        limpiarForm(){
+            this.cobrador='';
+            this.cntrbos=0;
+            this.idloterbo='';
+            this.nombrecobrador=''
+            this.arrayRbos=[]
         },
        
         

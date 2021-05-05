@@ -39,23 +39,24 @@ thead th {
 <div class="row"> 
     <form v-on:submit.prevent class="form-inline">
         <input id="fechapago" type="date"  class="form-control" v-model="fechapago">
-        <input id="cobrador" type="text"  class="form-control" placeholder="Cobrador" v-model="cobrador" @keyup.enter="validateCargarPlanilla">
+        <input id="cobrador" type="text"  class="form-control" placeholder="Cobrador" v-model="cobrador" @keyup.enter="validateCargarPlanilla" @blur="cargaNombreCobr">
         <button @click.prevent="validateCargarPlanilla" type="button" class="btn btn-info">Cargar Planilla</button>
         <input type="text" id="lote" class="form-control" placeholder="Lote Recibos N°" v-model="lote">
         <a href="/loterbo" class="btn btn-warning">Registrar Lote Rbos</a>
         <a href="/loterbo/ver" class="btn btn-primary">Ver Lote Rbos</a>
     </form>
-        <input type="text" placeholder="Cuenta o Nombre a buscar" class="form-control mt-1" v-model="cuenta" @keyup.enter="buscaCuenta(cuenta)" @focus="cuenta='';verInputsPagos=false">
+        <input type="text" placeholder="Cuenta o Nombre a buscar" class="form-control mt-1" v-model="cuenta" @keyup.enter="buscaCuenta(cuenta)" @focus="cuenta='';verInputsPagos=false" style="width: 50%;">
+        <h3 class="ml-3">|nombrecobrador|</h3>
 </div>
 
 <div class="row">
     <div v-for="cliente in clientes" >
         <!-- [nombre,direccion,dni] -->
-        <button class="btn btn-outline-primary mt-1 floated" @mouseover="cuenta=cliente[1]" @click="buscaCuenta(cliente[2]);obtenerCuentas(cliente[2]);direccion=cuenta" >|cliente[0]|</button>
+        <button class="btn btn-primary btn-lg mt-1 floated" @mouseover="cuenta=cliente[1]" @click="buscaCuenta(cliente[2]);obtenerCuentas(cliente[2]);direccion=cuenta" >|cliente[0]|</button>
     </div>
     <div v-for="idvta in idvtas">
         <!-- [N°cuenta,direccion] -->
-        <button class="btn btn-outline-danger mt-1 floated" v-if="cuenta==idvta[1]" @click="traerFicha(idvta[0])">|idvta[0]|</button>
+        <button class="btn btn-danger btn-lg mt-1 floated" v-if="cuenta==idvta[1]" @click="traerFicha(idvta[0])">|idvta[0]|</button>
     </div>
 </div>
 
@@ -162,6 +163,7 @@ const app = new Vue({
     data:{
         fechapago:'',
         cobrador: '',
+        nombrecobrador:'',
         lote:'',
         cuenta:'',
         clientes:[],
@@ -370,6 +372,13 @@ const app = new Vue({
                 })
                 this.planillas = arrayPlanillas
                 console.log(res.data.planillas);
+            })
+        },
+        cargaNombreCobr(){
+            axios.get('/loterbo/buscanombrecobr/'+this.cobrador)
+            .then(res=>{
+                //console.log(res.data.nombrecobr)
+                this.nombrecobrador=res.data.nombrecobr
             })
         },
         
