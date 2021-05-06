@@ -36,6 +36,7 @@ thead th {
 {% block content %}
 <div class="container">
 <div id="app" class="container">
+<h1>Pasar Pagos</h1>
 <div class="row"> 
     <form v-on:submit.prevent class="form-inline">
         <input id="fechapago" type="date"  class="form-control" v-model="fechapago">
@@ -49,7 +50,7 @@ thead th {
         <h3 class="ml-3">|nombrecobrador|</h3>
 </div>
 
-<div class="row">
+<div class="row" v-if="verBtnClientes">
     <div v-for="cliente in clientes" >
         <!-- [nombre,direccion,dni] -->
         <button class="btn btn-primary btn-lg mt-1 floated" @mouseover="cuenta=cliente[1]" @click="buscaCuenta(cliente[2]);obtenerCuentas(cliente[2]);direccion=cuenta" >|cliente[0]|</button>
@@ -176,6 +177,7 @@ const app = new Vue({
         recargo:'',
         recibo:'',
         verInputsPagos:false,
+        verBtnClientes:true,
         rbosPagos:[],
         cntRbos:'',
         cobrado:'',
@@ -235,11 +237,12 @@ const app = new Vue({
            })
            },
         buscaCuenta(cuenta){
-            console.log(cuenta)
+            //console.log(cuenta)
+            this.verBtnClientes=true;
             axios.get('/pagos/buscar/'+cuenta)
             .then(res=>{
                 this.clientes=res.data.clientes;
-                console.log(this.clientes);
+                //console.log(this.clientes);
                 this.importe='';
                 this.cuota='';
                 this.saldo='';
@@ -343,6 +346,8 @@ const app = new Vue({
                 duration : 3000,
                 fullWidth: true,
             });
+                this.verBtnClientes = false;
+                this.cuenta='';
             })
         },
         pasarPlanilla(){
