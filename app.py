@@ -500,7 +500,7 @@ def stock_asientos():
 
 @app.route('/stock/getasientos')
 def stock_getasientos():
-    asientos=pgddict(con, f"select id,fecha, cuenta, imp::integer, comentario from caja order by id desc limit 500")
+    asientos=pgddict(con, f"select id,fecha, cuenta, imp::integer, comentario from caja order by id desc limit 100")
     saldo = pgonecolumn(con, f"select sum(imp::int) from caja")
     return jsonify(asientos=asientos,saldo=saldo)
 
@@ -513,3 +513,28 @@ def stock_delete(id):
     con.commit()
     cur.close()
     return 'el registro ha sido borrado'
+
+
+@app.route('/stock/getcuentas')
+def stock_getcuentas():
+    cuentas = pglflat(con, f"select cuenta from ctas order by cuenta")
+    print(cuentas)
+    return jsonify(cuentas=cuentas)
+
+
+@app.route('/stock/guardarasiento' , methods = ['POST'])
+def stock_guardarasiento():
+    d = ast.literal_eval(request.data.decode("UTF-8"))
+    tipo = pgonecolumn(con, f"select tipo from ctas where cuenta='{d['cuenta']}'")
+    print('tipo',tipo)
+    if tipo==0:
+        importe = int(d['imp'])*(-1)
+    else:
+        importe = int(d['imp'])
+    
+    ins = f"insert into caja(fecha,cuenta,imp,comentario) values('{d['fecha']}','{d['cuenta']}',{importe},'{d['comentario']}')"
+    cur = con.cursor()
+    cur.execute(ins)
+    con.commit()
+    cur.close()
+    return 'OK'

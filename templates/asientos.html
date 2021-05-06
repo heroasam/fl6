@@ -10,8 +10,23 @@
 {% block content %}
 
 <div id="app" class="container">
-    <h1 style="width:70%; float:left ">Asientos</h1>
-    <h2 style="width:30%;float:left">Saldo $|saldo|</h2>
+<div class="row">
+    <h1 style="width:70%;">Asientos</h1>
+    <h2 style="width:30%;">Saldo $|saldo|</h2>
+</div>
+<div class="row">
+    <form v-on:submit.prevent class="form-inline">
+        <input type="date" v-model="fecha" class="form-control">
+        <input type="text" class="form-control"  name="cuenta" list="cuentalist" value="" autocomplete="off" v-model="cuenta" placeholder="Cuenta" ref="cuenta">
+        <datalist id="cuentalist">
+            <option v-for="cta in cuentas">|cta|</option>
+        </datalist>
+        <input type="text" v-model="imp" class="form-control" size="5" placeholder="Imp">
+        <input type="text" v-model="comentario" class="form-control" size="60" placeholder="Comentario">
+        <button type="button" class="btn btn-primary" @click="guardarAsiento">Guardar</button>
+    </form>
+</div>
+
     <table class="table table-sm table-striped">
         <thead>
             <tr>
@@ -45,6 +60,11 @@ const app = new Vue({
     data:{
         asientos:[],
         saldo:0,
+        fecha:'',
+        imp:'',
+        cuenta:'',
+        comentario:'',
+        cuentas:[],
     },
     methods: {
         getAsientos(){
@@ -66,10 +86,39 @@ const app = new Vue({
                 this.getAsientos()
             })
         },
+        getCuentas(){
+            axios.get('/stock/getcuentas')
+            .then(res=>{
+                console.log(res.data.cuentas)
+                this.cuentas=res.data.cuentas
+            })
+        },
+        guardarAsiento(){
+            axios({
+                method:'POST',
+                url: '/stock/guardarasiento',
+                data:{
+                    fecha:this.fecha,
+                    cuenta:this.cuenta,
+                    imp:this.imp,
+                    comentario:this.comentario,
+                }
+            })
+            .then(res=>{
+                //console.log(res)
+                this.getAsientos()
+                this.cuenta=''
+                this.imp=''
+                this.comentario=''
+                this.$refs.cuenta.focus();
+                
+            })
+        },
         
     },
     created: function(){
         this.getAsientos();
+        this.getCuentas();
     },
 })
 
