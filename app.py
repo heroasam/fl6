@@ -490,3 +490,26 @@ def loterbo_delete(id):
 def loterbo_buscanombrecobr(cobr):
     nombrecobr = pgonecolumn(con, f"select nombre from cobr where id={cobr}")
     return jsonify(nombrecobr=nombrecobr)
+
+
+
+@app.route('/stock/asientos')
+def stock_asientos():
+    return render_template('asientos.html')
+
+
+@app.route('/stock/getasientos')
+def stock_getasientos():
+    asientos=pgddict(con, f"select id,fecha, cuenta, imp::integer, comentario from caja order by id desc limit 500")
+    saldo = pgonecolumn(con, f"select sum(imp::int) from caja")
+    return jsonify(asientos=asientos,saldo=saldo)
+
+
+@app.route('/stock/deleteasiento/<int:id>')
+def stock_delete(id):
+    stm=f'delete from caja where id={id}'
+    cur = con.cursor()
+    cur.execute(stm)
+    con.commit()
+    cur.close()
+    return 'el registro ha sido borrado'

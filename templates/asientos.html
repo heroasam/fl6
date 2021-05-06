@@ -1,0 +1,77 @@
+{% extends "base_template.html" %}
+
+{% block title %}Asientos{% endblock %}
+{% block style %}
+<style>
+ 
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div id="app" class="container">
+    <h1 style="width:70%; float:left ">Asientos</h1>
+    <h2 style="width:30%;float:left">Saldo $|saldo|</h2>
+    <table class="table table-sm table-striped">
+        <thead>
+            <tr>
+                <th>op</th>
+                <th>id</th>
+                <th>fecha</th>
+                <th>cuenta</th>
+                <th>imp</th>
+                <th>comentario</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="asiento in asientos">
+                <td><button class="btn btn-danger btn-sm" @click="borrarAsiento(asiento[0])">Borrar</button></td>
+                <td>|asiento[0]|</td>
+                <td>|asiento[1]|</td>
+                <td>|asiento[2]|</td>
+                <td>|asiento[3]|</td>
+                <td>|asiento[4]|</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+{% block script %}
+<script>
+const app = new Vue({
+    el:"#app",
+    delimiters:['|','|'],
+    data:{
+        asientos:[],
+        saldo:0,
+    },
+    methods: {
+        getAsientos(){
+            axios.get('/stock/getasientos')
+            .then(res=>{
+                arrayAsientos = Array.from(res.data.asientos)
+                arrayAsientos.forEach(row=>{
+                    row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD')
+                })
+                this.asientos = arrayAsientos
+                this.saldo = res.data.saldo
+                //console.log(this.planillas);
+            })
+        },
+        borrarAsiento(id){
+            axios.get('/stock/deleteasiento/'+id)
+            .then(res=>{
+                console.log(res)
+                this.getAsientos()
+            })
+        },
+        
+    },
+    created: function(){
+        this.getAsientos();
+    },
+})
+
+</script>
+{% endblock %}
