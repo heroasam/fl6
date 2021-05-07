@@ -538,3 +538,14 @@ def stock_guardarasiento():
     con.commit()
     cur.close()
     return 'OK'
+
+
+@app.route('/stock/mayor')
+def stock_mayor():
+    return render_template('mayor.html')
+
+
+@app.route('/stock/getmayor/<string:cuenta>')
+def stock_getmayor(cuenta):
+    asientos=pgddict(con, f"select id,fecha, cuenta, imp::integer, comentario from caja where cuenta='{cuenta}' order by id desc")
+    return jsonify(asientos=asientos)

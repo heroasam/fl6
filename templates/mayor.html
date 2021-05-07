@@ -1,8 +1,12 @@
 {% extends "base_template.html" %}
 
-{% block title %}Asientos{% endblock %}
+{% block title %}Mayor{% endblock %}
 {% block style %}
 <style>
+.floated{
+     float:left;
+     margin-right: 5px;
+ }
 .required{
     border-color: red;
     border-width: 2px;
@@ -66,26 +70,18 @@
 
 <div id="app" class="container">
 <div class="row">
-    <h1 style="width:70%;">Asientos</h1>
-    <h2 style="width:30%;">Saldo $|saldo|</h2>
+    <h1 style="width:70%;">Mayor</h1>
 </div>
-<div class="row">
-    <a href="/stock/mayor"  type="button" class="btn btn-outline-primary">Mayor</a>
-    
+<div class="row py-3">
+    <a href="/stock/asientos"  type="button" class="btn btn-outline-primary">Asientos</a>
 </div>
-<div class="row">
-    <form v-on:submit.prevent class="form-inline">
-        <input type="date" v-model="fecha" class="form-control" :class='{required:!fecha}'>
-        <input type="text" class="form-control"  name="cuenta" list="cuentalist" value="" autocomplete="off" v-model="cuenta" placeholder="Cuenta" ref="cuenta" @keyup.enter="$refs.imp.focus()" :class='{required:!cuenta}'>
-        <datalist id="cuentalist">
-            <option v-for="cta in cuentas">|cta|</option>
-        </datalist>
-        <input type="text" v-model="imp" class="form-control" size="5" placeholder="Imp" ref="imp" @keyup.enter="$refs.comentario.focus()" :class='{required:!imp}'>
-        <input type="text" v-model="comentario" class="form-control" size="60" placeholder="Comentario" ref="comentario" @keyup.enter="$refs.guardar.focus()">
-        <button type="button" class="btn btn-primary" @click="validarAsiento" ref="guardar">Guardar</button>
-    </form>
+<div class="row"  >
+    <div v-for="cuenta in cuentas">
+        <button type="button" class="btn btn-dark floated my-1" @click="getAsientos(cuenta)">|cuenta|</button>
+    </div>
 </div>
 
+<div class="row">
     <table class="table table-sm table-striped">
         <thead>
             <tr>
@@ -99,7 +95,7 @@
         </thead>
         <tbody>
             <tr v-for="asiento in asientos">
-                <td><button class="btn btn-danger btn-sm" @click="borrarAsiento(asiento[0])">Borrar</button></td>
+                <td><button class="btn btn-danger btn-sm" @click="borrarAsiento(asiento[0],asiento[2])">Borrar</button></td>
                 <td>|asiento[0]|</td>
                 <td :class="dia(asiento[1])">|asiento[1]|</td>
                 <td>|asiento[2]|</td>
@@ -109,7 +105,7 @@
         </tbody>
     </table>
 </div>
-
+</div>
 {% endblock %}
 {% block script %}
 <script>
@@ -127,23 +123,21 @@ const app = new Vue({
         cuentas:[],
     },
     methods: {
-        getAsientos(){
-            axios.get('/stock/getasientos')
+        getAsientos(cuenta){
+            axios.get('/stock/getmayor/'+cuenta)
             .then(res=>{
                 arrayAsientos = Array.from(res.data.asientos)
                 arrayAsientos.forEach(row=>{
                     row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD')
                 })
                 this.asientos = arrayAsientos
-                this.saldo = res.data.saldo
-                //console.log(this.planillas);
             })
         },
-        borrarAsiento(id){
+        borrarAsiento(id,cuenta){
             axios.get('/stock/deleteasiento/'+id)
             .then(res=>{
-                console.log(res)
-                this.getAsientos()
+                //console.log(res)
+                this.getAsientos(cuenta)
             })
         },
         getCuentas(){
@@ -153,49 +147,11 @@ const app = new Vue({
                 this.cuentas=res.data.cuentas
             })
         },
-        validarAsiento(){
-            if(this.fecha!=''&&this.cuenta!=''&&this.imp!=''){
-                this.guardarAsiento()
-            }else{
-                let toast = this.$toasted.error("Complete los datos faltantes", { 
-                theme: "outline", 
-                position: "top-right", 
-                duration : 3000,
-                fullWidth: true,
-                });
-            }
-        },
-        guardarAsiento(){
-            axios({
-                method:'POST',
-                url: '/stock/guardarasiento',
-                data:{
-                    fecha:this.fecha,
-                    cuenta:this.cuenta,
-                    imp:this.imp,
-                    comentario:this.comentario,
-                }
-            })
-            .then(res=>{
-                //console.log(res)
-                this.getAsientos()
-                this.cuenta=''
-                this.imp=''
-                this.comentario=''
-                this.$refs.cuenta.focus();
-                
-            })
-        },
-        dia(day){
-            //formamos el nombre de la clase con la palabra color mas
-            //el ultimo digito de los dias para tener solo diez colores
-            return "color" + dayjs.utc(day).format('DD').slice(1,2)
-        },
+        
        
         
     },
     created: function(){
-        this.getAsientos();
         this.getCuentas();
     },
 })
