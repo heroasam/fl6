@@ -3,7 +3,62 @@
 {% block title %}Asientos{% endblock %}
 {% block style %}
 <style>
- 
+.required{
+    border-color: red;
+    border-width: 2px;
+    background-color: lightyellow;
+    color: black;
+}
+.color1 {
+    background-color: rgb(178, 42, 32);
+    color: black;
+    text-align: center;
+}     
+.color2 {
+    background-color: rgb(178, 127, 32);
+    color: black;
+    text-align: center;
+}     
+.color3 {
+    background-color: rgb(176, 178, 32);
+    color: black;
+    text-align: center;
+}     
+.color4 {
+    background-color: rgb(32, 178, 98);
+    color: black;
+    text-align: center;
+} 
+.color5 {
+    background-color: rgb(147, 196, 193);
+    color: black;
+    text-align: center;
+} 
+.color6 {
+    background-color: lightyellow;
+    color: black;
+    text-align: center;
+}
+.color7 {
+    background-color: rgb(80, 89, 214);
+    color: black;
+    text-align: center;
+}  
+.color8 {
+    background-color: rgb(13, 130, 148);
+    color: black;
+    text-align: center;
+} 
+.color9 {
+    background-color: rgb(141, 11, 104);
+    color: black;
+    text-align: center;
+} 
+.color0 {
+    background-color: rgb(127, 19, 189);
+    color: black;
+    text-align: center;
+} 
 </style>
 {% endblock %}
 
@@ -16,14 +71,14 @@
 </div>
 <div class="row">
     <form v-on:submit.prevent class="form-inline">
-        <input type="date" v-model="fecha" class="form-control">
-        <input type="text" class="form-control"  name="cuenta" list="cuentalist" value="" autocomplete="off" v-model="cuenta" placeholder="Cuenta" ref="cuenta">
+        <input type="date" v-model="fecha" class="form-control" :class='{required:!fecha}'>
+        <input type="text" class="form-control"  name="cuenta" list="cuentalist" value="" autocomplete="off" v-model="cuenta" placeholder="Cuenta" ref="cuenta" @keyup.enter="$refs.imp.focus()" :class='{required:!cuenta}'>
         <datalist id="cuentalist">
             <option v-for="cta in cuentas">|cta|</option>
         </datalist>
-        <input type="text" v-model="imp" class="form-control" size="5" placeholder="Imp">
-        <input type="text" v-model="comentario" class="form-control" size="60" placeholder="Comentario">
-        <button type="button" class="btn btn-primary" @click="guardarAsiento">Guardar</button>
+        <input type="text" v-model="imp" class="form-control" size="5" placeholder="Imp" ref="imp" @keyup.enter="$refs.comentario.focus()" :class='{required:!imp}'>
+        <input type="text" v-model="comentario" class="form-control" size="60" placeholder="Comentario" ref="comentario" @keyup.enter="$refs.guardar.focus()">
+        <button type="button" class="btn btn-primary" @click="validarAsiento" ref="guardar">Guardar</button>
     </form>
 </div>
 
@@ -42,7 +97,7 @@
             <tr v-for="asiento in asientos">
                 <td><button class="btn btn-danger btn-sm" @click="borrarAsiento(asiento[0])">Borrar</button></td>
                 <td>|asiento[0]|</td>
-                <td>|asiento[1]|</td>
+                <td :class="dia(asiento[1])">|asiento[1]|</td>
                 <td>|asiento[2]|</td>
                 <td>|asiento[3]|</td>
                 <td>|asiento[4]|</td>
@@ -54,6 +109,7 @@
 {% endblock %}
 {% block script %}
 <script>
+Vue.use(Toasted)
 const app = new Vue({
     el:"#app",
     delimiters:['|','|'],
@@ -89,9 +145,21 @@ const app = new Vue({
         getCuentas(){
             axios.get('/stock/getcuentas')
             .then(res=>{
-                console.log(res.data.cuentas)
+                //console.log(res.data.cuentas)
                 this.cuentas=res.data.cuentas
             })
+        },
+        validarAsiento(){
+            if(this.fecha!=''&&this.cuenta!=''&&this.imp!=''){
+                this.guardarAsiento()
+            }else{
+                let toast = this.$toasted.error("Complete los datos faltantes", { 
+                theme: "outline", 
+                position: "top-right", 
+                duration : 3000,
+                fullWidth: true,
+                });
+            }
         },
         guardarAsiento(){
             axios({
@@ -114,6 +182,12 @@ const app = new Vue({
                 
             })
         },
+        dia(day){
+            //formamos el nombre de la clase con la palabra color mas
+            //el ultimo digito de los dias para tener solo diez colores
+            return "color" + dayjs.utc(day).format('DD').slice(1,2)
+        },
+       
         
     },
     created: function(){
