@@ -554,7 +554,7 @@ def stock_getmayor(cuenta):
 @app.route('/stock/pivotcuentas')
 def stock_pivotcuentas():
     sql="select ym(fecha) as fecha,cuenta,imp from caja order by id desc"
-    pd.options.display.float_format = '{:20,.0f}'.format
+    pd.options.display.float_format = '{:20.0f}'.format
     dat = pd.read_sql_query(sql, con)
     df = pd.DataFrame(dat)
     tbl = pd.pivot_table(df, values=['imp'],index='cuenta',columns='fecha',aggfunc='sum').sort_index(1, 'fecha',False)
