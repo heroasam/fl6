@@ -74,6 +74,7 @@
 </div>
 <div class="row py-3">
     <a href="/stock/asientos"  type="button" class="btn btn-outline-primary">Asientos</a>
+    <a href="/stock/pivotcuentas"  type="button" class="btn btn-outline-primary">Pivot-Cuentas</a>
 </div>
 <div class="row"  >
     <div v-for="cuenta in cuentas">
@@ -146,6 +147,11 @@ const app = new Vue({
                 //console.log(res.data.cuentas)
                 this.cuentas=res.data.cuentas
             })
+        },
+        dia(day){
+            //formamos el nombre de la clase con la palabra color mas
+            //el ultimo digito de los dias para tener solo diez colores
+            return "color" + dayjs.utc(day).format('DD').slice(1,2)
         },
         
        

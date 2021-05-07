@@ -549,3 +549,15 @@ def stock_mayor():
 def stock_getmayor(cuenta):
     asientos=pgddict(con, f"select id,fecha, cuenta, imp::integer, comentario from caja where cuenta='{cuenta}' order by id desc")
     return jsonify(asientos=asientos)
+
+
+@app.route('/stock/pivotcuentas')
+def stock_pivotcuentas():
+    sql="select ym(fecha) as fecha,cuenta,imp from caja order by id desc"
+    pd.options.display.float_format = '{:20,.0f}'.format
+    dat = pd.read_sql_query(sql, con)
+    df = pd.DataFrame(dat)
+    tbl = pd.pivot_table(df, values=['imp'],index='cuenta',columns='fecha',aggfunc='sum').sort_index(1, 'fecha',False)
+    tbl = tbl.fillna("")
+    tbl = tbl.to_html(table_id="table",classes="table table-sm")
+    return render_template("pivot_cuentas.html", tbl=tbl)

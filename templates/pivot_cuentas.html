@@ -1,0 +1,48 @@
+{% extends "base_template.html" %}
+
+{% block title %}Pivot Cuentas{% endblock %}
+{% block style %}
+<style>
+td {text-align: center;
+    
+}
+
+
+tr,th {text-align:center;}
+th{
+    top:0;
+    z-index: 20;
+    left: 0;
+    position:sticky;
+    background-color: bisque;
+    color: black;
+}
+tr:hover{
+    background-color: bisque;
+    color: black;
+}
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+<h1>Pivot Cuentas</h1>
+<div class="row py-3">
+    <a href="/stock/asientos"  type="button" class="btn btn-outline-primary">Asientos</a>
+    <a href="/stock/mayor"  type="button" class="btn btn-outline-primary">Mayor</a>
+</div>
+{{tbl|safe}}
+
+
+
+{% block script %}
+<script>
+let $thead = document.querySelector('thead');
+let heads = $thead.children.length
+if(heads===3) $thead.removeChild($thead.lastElementChild)
+//removemos el tr de fecha que complica y afea el encabezado
+</script>
+{% endblock %}
+
+{% endblock %}
