@@ -3,6 +3,9 @@
 {% block title %}Asientos{% endblock %}
 {% block style %}
 <style>
+.block:not(:last-child) {
+  margin-bottom: 1.5rem;
+}
 .required{
     border-color: red;
     border-width: 2px;
@@ -13,27 +16,27 @@
     background-color: rgb(178, 42, 32);
     color: black;
     text-align: center;
-}     
+}
 .color2 {
     background-color: rgb(178, 127, 32);
     color: black;
     text-align: center;
-}     
+}
 .color3 {
     background-color: rgb(176, 178, 32);
     color: black;
     text-align: center;
-}     
+}
 .color4 {
     background-color: rgb(32, 178, 98);
     color: black;
     text-align: center;
-} 
+}
 .color5 {
     background-color: rgb(147, 196, 193);
     color: black;
     text-align: center;
-} 
+}
 .color6 {
     background-color: lightyellow;
     color: black;
@@ -43,51 +46,67 @@
     background-color: rgb(80, 89, 214);
     color: black;
     text-align: center;
-}  
+}
 .color8 {
     background-color: rgb(13, 130, 148);
     color: black;
     text-align: center;
-} 
+}
 .color9 {
     background-color: rgb(141, 11, 104);
     color: black;
     text-align: center;
-} 
+}
 .color0 {
     background-color: rgb(127, 19, 189);
     color: black;
     text-align: center;
-} 
+}
 </style>
 {% endblock %}
 
 {% block content %}
 
-<div id="app" class="container">
-<div class="row">
-    <h1 style="width:70%;">Asientos</h1>
-    <h2 style="width:30%;">Saldo $|saldo|</h2>
+<div id="app" class="container is-fullhd">
+<div class="columns">
+    <div class="column is-7">
+        <h1>Asientos</h1>
+    </div>
+    <div class="column">
+        <h2>Saldo $|saldo|</h2>
+    </div>
 </div>
-<div class="row">
-    <a href="/stock/mayor"  type="button" class="btn btn-outline-primary">Mayor</a>
-    <a href="/stock/pivotcuentas"  type="button" class="btn btn-outline-primary">Pivot-Cuentas</a>
-    
+<div>
+    <a href="/stock/mayor"  type="button" class="button is-outlined is-primary">Mayor</a>
+    <a href="/stock/pivotcuentas"  type="button" class="button is-outlined is-primary">Pivot-Cuentas</a>
+
 </div>
-<div class="row">
-    <form v-on:submit.prevent class="form-inline">
-        <input type="date" v-model="fecha" class="form-control" :class='{required:!fecha}'>
-        <input type="text" class="form-control"  name="cuenta" list="cuentalist" value="" autocomplete="off" v-model="cuenta" placeholder="Cuenta" ref="cuenta" @keyup.enter="$refs.imp.focus()" :class='{required:!cuenta}'>
-        <datalist id="cuentalist">
-            <option v-for="cta in cuentas">|cta|</option>
-        </datalist>
-        <input type="text" v-model="imp" class="form-control" size="5" placeholder="Imp" ref="imp" @keyup.enter="$refs.comentario.focus()" :class='{required:!imp}'>
-        <input type="text" v-model="comentario" class="form-control" size="60" placeholder="Comentario" ref="comentario" @keyup.enter="$refs.guardar.focus()">
-        <button type="button" class="btn btn-primary" @click="validarAsiento" ref="guardar">Guardar</button>
+<div>
+    <form v-on:submit.prevent>
+        <div class="field is-grouped">
+            <div class="control">
+                <input type="date" v-model="fecha" class="input" :class='{required:!fecha}'>
+            </div>
+            <div class="control">
+                <input type="text" class="input"  name="cuenta" list="cuentalist" value="" autocomplete="off" v-model="cuenta" placeholder="Cuenta" ref="cuenta" @keyup.enter="$refs.imp.focus()" :class='{required:!cuenta}'>
+                <datalist id="cuentalist">
+                    <option v-for="cta in cuentas">|cta|</option>
+                </datalist>
+            </div>
+            <div class="control">
+                <input type="text" v-model="imp" class="input" size="5" placeholder="Imp" ref="imp" @keyup.enter="$refs.comentario.focus()" :class='{required:!imp}'>
+            </div>
+            <div class="control">
+                <input type="text" v-model="comentario" class="input" size="60" placeholder="Comentario" ref="comentario" @keyup.enter="$refs.guardar.focus()">
+            </div>
+            <div class="control">
+                <button type="button" class="button is-primary" @click="validarAsiento" ref="guardar">Guardar</button>
+            </div>
+        </div>
     </form>
 </div>
 
-    <table id="table" class="table table-sm ">
+    <table id="table" class="table is-narrow ">
         <thead>
             <tr>
                 <th>op</th>
@@ -100,7 +119,7 @@
         </thead>
         <tbody>
             <tr v-for="asiento in asientos">
-                <td><button class="btn btn-danger btn-sm" @click="borrarAsiento(asiento[0])">Borrar</button></td>
+                <td><button class="button is-danger is-small" @click="borrarAsiento(asiento[0])">Borrar</button></td>
                 <td>|asiento[0]|</td>
                 <td :class="dia(asiento[1])">|asiento[1]|</td>
                 <td>|asiento[2]|</td>
@@ -158,9 +177,9 @@ const app = new Vue({
             if(this.fecha!=''&&this.cuenta!=''&&this.imp!=''){
                 this.guardarAsiento()
             }else{
-                let toast = this.$toasted.error("Complete los datos faltantes", { 
-                theme: "outline", 
-                position: "top-right", 
+                let toast = this.$toasted.error("Complete los datos faltantes", {
+                theme: "outline",
+                position: "top-right",
                 duration : 3000,
                 fullWidth: true,
                 });
@@ -184,7 +203,7 @@ const app = new Vue({
                 this.imp=''
                 this.comentario=''
                 this.$refs.cuenta.focus();
-                
+
             })
         },
         dia(day){
@@ -192,8 +211,8 @@ const app = new Vue({
             //el ultimo digito de los dias para tener solo diez colores
             return "color" + dayjs.utc(day).format('DD').slice(1,2)
         },
-       
-        
+
+
     },
     created: function(){
         this.getAsientos();
