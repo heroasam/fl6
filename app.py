@@ -18,8 +18,8 @@ DEBUG = False
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
 
 
-#con = psycopg2.connect(dbname='daq6n3vvmrg79o', user='ynpqvlqqsidhga', host='ec2-3-95-87-221.compute-1.amazonaws.com', password='4bded69478ac502d5223655094cbc2241ed5aaf025f0b31fd19494c5aa35d6f0',sslmode='require')
-con = psycopg2.connect(dbname='hero', user='hero', host='localhost', password='ata', port=5432)
+con = psycopg2.connect(dbname='daq6n3vvmrg79o', user='ynpqvlqqsidhga', host='ec2-3-95-87-221.compute-1.amazonaws.com', password='4bded69478ac502d5223655094cbc2241ed5aaf025f0b31fd19494c5aa35d6f0',sslmode='require')
+# con = psycopg2.connect(dbname='hero', user='hero', host='localhost', password='ata', port=5432)
 
 
 
@@ -71,7 +71,7 @@ def pagos():
 @app.route('/pagos/planilla/<string:fechapago>/<int:cobrador>')
 def pagos_planilla(fechapago,cobrador):
     planilla = pgdict(con,f"select pagos.id as id, rbo, fecha, idvta,imp::INTEGER as imp, rec::INTEGER as rec, (imp+rec)::INTEGER as total, nombre, calle||' '||num as direccion, zona,deuda::INTEGER as deuda from pagos, clientes where clientes.id=pagos.idcliente and fecha='{fechapago}' and pagos.cobr={cobrador} order by id desc")
-    lote = pgonecolumn(con,f"select lote from pagos where fecha='{fechapago}' and cobr={cobrador}") 
+    lote = pgonecolumn(con,f"select lote from pagos where fecha='{fechapago}' and cobr={cobrador}")
     if lote=='':
         cntrbos = 0
     else:
@@ -121,7 +121,7 @@ def pagos_pasarpagos():
     return 'ok'
 
 
-@app.route('/pagos/borrarpago/<int:idpago>')    
+@app.route('/pagos/borrarpago/<int:idpago>')
 def pagos_borrarpago(idpago):
     stm = f"delete from pagos where id={idpago}"
     cur = con.cursor()
@@ -196,7 +196,7 @@ def buscar_cuenta(buscar):
     else:
         buscar = '%'+buscar.replace(' ','%')+'%'
         clientes = pgdict(con,f"select dni,nombre,calle||' '||num from clientes where nombre||calle||num||barrio ilike '{buscar}'")
-    return jsonify(clientes=clientes) 
+    return jsonify(clientes=clientes)
 
 
 @app.route('/buscador/pedirventas/<string:dni>')
@@ -226,7 +226,7 @@ def buscar_cuotas(dni):
     return jsonify(cuotas=cuotas,pagadas=pagadas)
 
 
-@app.route('/buscador/fecharpmovto/<string:dni>/<string:pmovto>')    
+@app.route('/buscador/fecharpmovto/<string:dni>/<string:pmovto>')
 def buscar_fecharpmovto(dni,pmovto):
     upd = f"update clientes set pmovto='{pmovto}' where dni='{dni}'"
     cur = con.cursor()
@@ -250,7 +250,7 @@ def buscar_datosultvta(dni):
     return jsonify(ultvta=ultvta)
 
 
-@app.route('/buscador/togglesube/<string:dni>')    
+@app.route('/buscador/togglesube/<string:dni>')
 def buscar_togglesube(dni):
     sube = pgonecolumn(con,f"select subirseven from clientes where dni='{dni}'")
     sev = pgonecolumn(con,f"select sev from clientes where dni='{dni}'")
@@ -270,7 +270,7 @@ def buscar_togglesube(dni):
         return 'No se sube pq ya esta en el seven'
 
 
-@app.route('/buscador/togglegestion/<string:dni>')    
+@app.route('/buscador/togglegestion/<string:dni>')
 def buscar_togglegestion(dni):
     sube = pgonecolumn(con,f"select gestion from clientes where dni='{dni}'")
     if sube:
@@ -286,7 +286,7 @@ def buscar_togglegestion(dni):
     return msg
 
 
-@app.route('/buscador/togglemudado/<string:dni>')    
+@app.route('/buscador/togglemudado/<string:dni>')
 def buscar_togglemudado(dni):
     sube = pgonecolumn(con,f"select mudo from clientes where dni='{dni}'")
     if sube:
@@ -302,7 +302,7 @@ def buscar_togglemudado(dni):
     return msg
 
 
-@app.route('/buscador/toggleinc/<string:dni>')    
+@app.route('/buscador/toggleinc/<string:dni>')
 def buscar_toggleinc(dni):
     sube = pgonecolumn(con,f"select incobrable from clientes where dni='{dni}'")
     if sube:
@@ -318,7 +318,7 @@ def buscar_toggleinc(dni):
     return msg
 
 
-@app.route('/buscador/toggleln/<string:dni>')    
+@app.route('/buscador/toggleln/<string:dni>')
 def buscar_toggleln(dni):
     sube = pgonecolumn(con,f"select novendermas from clientes where dni='{dni}'")
     if sube:
@@ -334,7 +334,7 @@ def buscar_toggleln(dni):
     return msg
 
 
-@app.route('/buscador/togglellamar/<string:dni>')    
+@app.route('/buscador/togglellamar/<string:dni>')
 def buscar_togglellamar(dni):
     sube = pgonecolumn(con,f"select llamar from clientes where dni='{dni}'")
     if sube:
@@ -348,7 +348,7 @@ def buscar_togglellamar(dni):
     return 'ok'
 
 
-@app.route('/buscador/toggleseguir/<string:dni>')    
+@app.route('/buscador/toggleseguir/<string:dni>')
 def buscar_toggleseguir(dni):
     sube = pgonecolumn(con,f"select seguir from clientes where dni='{dni}'")
     if sube:
@@ -451,7 +451,7 @@ def guardarlote(fecha,cobr):
     con.commit()
     cur.close()
     return "OK"
-    
+
 @app.route('/loterbo/obtenerlastid')
 def obtenerlastid():
     idlote = str(pgonecolumn(con, f"select max(id) from loterbos"))
@@ -471,7 +471,7 @@ def loterbo_reimprimir(fecha,cobr,idlote):
     print(listarbo)
     loterbo(con, listarbo, fecha,cobr,idlote)
     return send_file('loterbo.pdf')
-     
+
 
 @app.route('/loterbo/ver')
 def loterbo_ver():
@@ -531,7 +531,7 @@ def stock_guardarasiento():
         importe = int(d['imp'])*(-1)
     else:
         importe = int(d['imp'])
-    
+
     ins = f"insert into caja(fecha,cuenta,imp,comentario) values('{d['fecha']}','{d['cuenta']}',{importe},'{d['comentario']}')"
     cur = con.cursor()
     cur.execute(ins)
