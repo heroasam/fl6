@@ -14,8 +14,8 @@ thead th {
     position: -webkit-sticky;
     top: 0px;
     z-index: 10;
-    background-color: #333000;
-    color:white;
+    background-color: white;
+    color:black;
 }
 .selected{
     background-color: orange;

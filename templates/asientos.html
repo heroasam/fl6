@@ -3,9 +3,7 @@
 {% block title %}Asientos{% endblock %}
 {% block style %}
 <style>
-.block:not(:last-child) {
-  margin-bottom: 1.5rem;
-}
+
 .required{
     border-color: red;
     border-width: 2px;
@@ -38,7 +36,7 @@
     text-align: center;
 }
 .color6 {
-    background-color: lightyellow;
+    background-color: orange;
     color: black;
     text-align: center;
 }
@@ -70,20 +68,18 @@
 <div id="app" class="container is-fullhd">
 <div class="columns">
     <div class="column is-7">
-        <h1>Asientos</h1>
+        <h1 class="is-size-1">Asientos</h1>
     </div>
     <div class="column">
-        <h2>Saldo $|saldo|</h2>
+        <h2 class="is-size-1">Saldo $|saldo|</h2>
     </div>
 </div>
-<div>
+<div class="columns">
     <a href="/stock/mayor"  type="button" class="button is-outlined is-primary">Mayor</a>
     <a href="/stock/pivotcuentas"  type="button" class="button is-outlined is-primary">Pivot-Cuentas</a>
-
 </div>
-<div>
-    <form v-on:submit.prevent>
-        <div class="field is-grouped">
+<div class="columns my-6">
+        <div class="field is-horizontal">
             <div class="control">
                 <input type="date" v-model="fecha" class="input" :class='{required:!fecha}'>
             </div>
@@ -97,13 +93,12 @@
                 <input type="text" v-model="imp" class="input" size="5" placeholder="Imp" ref="imp" @keyup.enter="$refs.comentario.focus()" :class='{required:!imp}'>
             </div>
             <div class="control">
-                <input type="text" v-model="comentario" class="input" size="60" placeholder="Comentario" ref="comentario" @keyup.enter="$refs.guardar.focus()">
+                <input type="text" v-model="comentario" class="input" size="50" placeholder="Comentario" ref="comentario" @keyup.enter="$refs.guardar.focus()">
             </div>
             <div class="control">
                 <button type="button" class="button is-primary" @click="validarAsiento" ref="guardar">Guardar</button>
             </div>
         </div>
-    </form>
 </div>
 
     <table id="table" class="table is-narrow ">
