@@ -3,6 +3,9 @@
 {% block title %}Mayor{% endblock %}
 {% block style %}
 <style>
+.block:not(:last-child) {
+      margin-bottom: 1.5rem;
+}
 .floated{
      float:left;
      margin-right: 5px;
@@ -17,27 +20,27 @@
     background-color: rgb(178, 42, 32);
     color: black;
     text-align: center;
-}     
+}
 .color2 {
     background-color: rgb(178, 127, 32);
     color: black;
     text-align: center;
-}     
+}
 .color3 {
     background-color: rgb(176, 178, 32);
     color: black;
     text-align: center;
-}     
+}
 .color4 {
     background-color: rgb(32, 178, 98);
     color: black;
     text-align: center;
-} 
+}
 .color5 {
     background-color: rgb(147, 196, 193);
     color: black;
     text-align: center;
-} 
+}
 .color6 {
     background-color: lightyellow;
     color: black;
@@ -47,42 +50,44 @@
     background-color: rgb(80, 89, 214);
     color: black;
     text-align: center;
-}  
+}
 .color8 {
     background-color: rgb(13, 130, 148);
     color: black;
     text-align: center;
-} 
+}
 .color9 {
     background-color: rgb(141, 11, 104);
     color: black;
     text-align: center;
-} 
+}
 .color0 {
     background-color: rgb(127, 19, 189);
     color: black;
     text-align: center;
-} 
+}
 </style>
 {% endblock %}
 
 {% block content %}
 
 <div id="app" class="container">
-<div class="row">
-    <h1 style="width:70%;">Mayor</h1>
+<div class="columns">
+    <h1 style="width:70%;" class="is-size-1">Mayor</h1>
 </div>
-<div class="row py-3">
-    <a href="/stock/asientos"  type="button" class="btn btn-outline-primary">Asientos</a>
-    <a href="/stock/pivotcuentas"  type="button" class="btn btn-outline-primary">Pivot-Cuentas</a>
+<div class="block">
+    <a href="/stock/asientos"  type="button" class="button is-outlined is-primary">Asientos</a>
+    <a href="/stock/pivotcuentas"  type="button" class="button is-outlined is-primary">Pivot-Cuentas</a>
 </div>
-<div class="row"  >
-    <div v-for="cuenta in cuentas">
-        <button type="button" class="btn btn-dark floated my-1" @click="getAsientos(cuenta)">|cuenta|</button>
+<div class="block">
+    <div class="field is-grouped is-grouped-multiline">
+      <div v-for="cuenta in cuentas">
+          <button type="button" class="button is-dark is-small" @click="getAsientos(cuenta)">|cuenta|</button>
+      </div>
     </div>
 </div>
 
-<div class="row">
+<div class="block">
     <table id="table" class="table table-sm ">
         <thead>
             <tr>
@@ -153,9 +158,9 @@ const app = new Vue({
             //el ultimo digito de los dias para tener solo diez colores
             return "color" + dayjs.utc(day).format('DD').slice(1,2)
         },
-        
-       
-        
+
+
+
     },
     created: function(){
         this.getCuentas();

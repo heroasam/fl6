@@ -3,7 +3,9 @@
 {% block title %}Asientos{% endblock %}
 {% block style %}
 <style>
-
+.block:not(:last-child) {
+    margin-bottom: 1.5rem;
+}
 .required{
     border-color: red;
     border-width: 2px;
@@ -74,11 +76,11 @@
         <h2 class="is-size-1">Saldo $|saldo|</h2>
     </div>
 </div>
-<div class="columns">
+<div class="block">
     <a href="/stock/mayor"  type="button" class="button is-outlined is-primary">Mayor</a>
     <a href="/stock/pivotcuentas"  type="button" class="button is-outlined is-primary">Pivot-Cuentas</a>
 </div>
-<div class="columns my-6">
+<div class="block">
         <div class="field is-horizontal">
             <div class="control">
                 <input type="date" v-model="fecha" class="input" :class='{required:!fecha}'>
@@ -100,29 +102,30 @@
             </div>
         </div>
 </div>
-
-    <table id="table" class="table is-narrow ">
-        <thead>
-            <tr>
-                <th>op</th>
-                <th>id</th>
-                <th>fecha</th>
-                <th>cuenta</th>
-                <th>imp</th>
-                <th>comentario</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="asiento in asientos">
-                <td><button class="button is-danger is-small" @click="borrarAsiento(asiento[0])">Borrar</button></td>
-                <td>|asiento[0]|</td>
-                <td :class="dia(asiento[1])">|asiento[1]|</td>
-                <td>|asiento[2]|</td>
-                <td>|asiento[3]|</td>
-                <td>|asiento[4]|</td>
-            </tr>
-        </tbody>
-    </table>
+<div class="block">
+  <table id="table" class="table is-narrow ">
+      <thead>
+          <tr>
+              <th>op</th>
+              <th>id</th>
+              <th>fecha</th>
+              <th>cuenta</th>
+              <th>imp</th>
+              <th>comentario</th>
+          </tr>
+      </thead>
+      <tbody>
+          <tr v-for="asiento in asientos">
+              <td><button class="button is-danger is-small" @click="borrarAsiento(asiento[0])">Borrar</button></td>
+              <td>|asiento[0]|</td>
+              <td :class="dia(asiento[1])">|asiento[1]|</td>
+              <td>|asiento[2]|</td>
+              <td>|asiento[3]|</td>
+              <td>|asiento[4]|</td>
+          </tr>
+      </tbody>
+  </table>
+</div>
 </div>
 
 {% endblock %}
