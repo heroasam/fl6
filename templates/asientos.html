@@ -6,12 +6,6 @@
 .block:not(:last-child) {
     margin-bottom: 1.5rem;
 }
-.required{
-    border-color: red;
-    border-width: 2px;
-    background-color: lightyellow;
-    color: black;
-}
 .color1 {
     background-color: rgb(178, 42, 32);
     color: black;
@@ -83,22 +77,25 @@
 <div class="block">
         <div class="field is-horizontal">
             <div class="control">
-                <input type="date" v-model="fecha" class="input" :class='{required:!fecha}'>
+                <input type="date" v-model="fecha" class="input" :class='{"is-danger":!fecha}'>
+                <p v-show="!fecha" class="help is-danger">Requerido</p>
             </div>
             <div class="control">
-                <input type="text" class="input"  name="cuenta" list="cuentalist" value="" autocomplete="off" v-model="cuenta" placeholder="Cuenta" ref="cuenta" @keyup.enter="$refs.imp.focus()" :class='{required:!cuenta}'>
+                <input type="text" class="input"  name="cuenta" list="cuentalist" value="" autocomplete="off" v-model="cuenta" placeholder="Cuenta" ref="cuenta" @keyup.enter="$refs.imp.focus()" :class='{"is-danger":!cuenta}'>
                 <datalist id="cuentalist">
                     <option v-for="cta in cuentas">|cta|</option>
                 </datalist>
+                <p v-show="!cuenta" class="help is-danger">Requerido</p>
             </div>
             <div class="control">
-                <input type="text" v-model="imp" class="input" size="5" placeholder="Imp" ref="imp" @keyup.enter="$refs.comentario.focus()" :class='{required:!imp}'>
+                <input type="text" v-model="imp" class="input" size="5" placeholder="Imp" ref="imp" @keyup.enter="$refs.comentario.focus()" :class='{"is-danger":!imp}'>
+                <p v-show="!imp" class="help is-danger">Requerido</p>
             </div>
             <div class="control">
                 <input type="text" v-model="comentario" class="input" size="50" placeholder="Comentario" ref="comentario" @keyup.enter="$refs.guardar.focus()">
             </div>
             <div class="control">
-                <button type="button" class="button is-primary" @click="validarAsiento" ref="guardar">Guardar</button>
+                <button type="button" class="button is-primary" @click="validarAsiento" ref="guardar" id="guardar">Guardar</button>
             </div>
         </div>
 </div>
@@ -131,7 +128,6 @@
 {% endblock %}
 {% block script %}
 <script>
-Vue.use(Toasted)
 const app = new Vue({
     el:"#app",
     delimiters:['|','|'],
@@ -175,12 +171,13 @@ const app = new Vue({
             if(this.fecha!=''&&this.cuenta!=''&&this.imp!=''){
                 this.guardarAsiento()
             }else{
-                let toast = this.$toasted.error("Complete los datos faltantes", {
-                theme: "outline",
-                position: "top-right",
-                duration : 3000,
-                fullWidth: true,
-                });
+                // let toast = this.$toasted.error("Complete los datos faltantes", {
+                // theme: "outline",
+                // position: "top-right",
+                // duration : 3000,
+                // fullWidth: true,
+                // });
+                bulmaToast.toast({ message: 'Complete los datos faltantes', type: 'is-danger' })
             }
         },
         guardarAsiento(){
@@ -201,7 +198,7 @@ const app = new Vue({
                 this.imp=''
                 this.comentario=''
                 this.$refs.cuenta.focus();
-
+                bulmaToast.toast({message:"Asiento guardado con exito", type:'is-success'})
             })
         },
         dia(day){

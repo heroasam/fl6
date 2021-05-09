@@ -10,12 +10,6 @@
      float:left;
      margin-right: 5px;
  }
-.required{
-    border-color: red;
-    border-width: 2px;
-    background-color: lightyellow;
-    color: black;
-}
 .color1 {
     background-color: rgb(178, 42, 32);
     color: black;
@@ -101,7 +95,7 @@
         </thead>
         <tbody>
             <tr v-for="asiento in asientos">
-                <td><button class="btn btn-danger btn-sm" @click="borrarAsiento(asiento[0],asiento[2])">Borrar</button></td>
+                <td><button class="button is-danger is-small" @click="borrarAsiento(asiento[0],asiento[2])">Borrar</button></td>
                 <td>|asiento[0]|</td>
                 <td :class="dia(asiento[1])">|asiento[1]|</td>
                 <td>|asiento[2]|</td>

@@ -3,23 +3,8 @@
 {% block title %}Pivot Cuentas{% endblock %}
 {% block style %}
 <style>
-td {text-align: center;
-    
-}
-
-
-tr,th {text-align:center;}
-th{
-    top:0;
-    z-index: 20;
-    left: 0;
-    position:sticky;
-    background-color: bisque;
-    color: black;
-}
-tr:hover{
-    background-color: bisque;
-    color: black;
+.block:not(:last-child) {
+        margin-bottom: 1.5rem;
 }
 </style>
 
@@ -27,10 +12,12 @@ tr:hover{
 
 
 {% block content %}
-<h1>Pivot Cuentas</h1>
-<div class="row py-3">
-    <a href="/stock/asientos"  type="button" class="btn btn-outline-primary">Asientos</a>
-    <a href="/stock/mayor"  type="button" class="btn btn-outline-primary">Mayor</a>
+<div class="columns">
+    <h1 style="width:70%;" class="is-size-1">Pivot-Cuentas</h1>
+</div>
+<div class="block">
+    <a href="/stock/asientos"  type="button" class="button is-outlined is-primary">Asientos</a>
+    <a href="/stock/mayor"  type="button" class="button is-outlined is-primary">Mayor</a>
 </div>
 {{tbl|safe}}
 
