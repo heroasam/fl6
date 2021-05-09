@@ -4,7 +4,7 @@
 {% block style %}
 <style>
     .input1{
-        width: 100px;
+        width: 150px;
         background-color: bisque;
 
     }
@@ -14,17 +14,17 @@
 {% block content %}
 
 <div id="app" class="container">
-    <h1>Generar Lote de Rbos</h1>
-    <form v-on:submit.prevent class="form-inline ">
-        <button type="button" class="btn btn-danger" @click="limpiarForm">Limpiar</button>
-        <input id="fechapago" type="date"  class="form-control input1" v-model="fechapago">
-        <input id="cobrador" type="text"  class="form-control input1" size= 10 placeholder="Cobrador" v-model="cobrador" @blur="buscaNombreCobr">
-        <input type="text" id="cntrbos" class="form-control input1" size=5 placeholder="Cnt Rbos" v-model="cntrbos">
-        <button type="button" class="btn btn-success" @click="validaGuardarLoteI">Guardar</button>
-        <h3><span class="badge badge-secondary mt-3" >|`Lote ${idloterbo}`|</span></h3>
-        <button type="button" class="btn btn-primary" @click="imprimirLote">Imprimir</button>
+    <p class="title is-1">Generar Lote de Rbos</p>
+    <form v-on:submit.prevent class="field is-horizontal">
+        <button type="button" class="button is-danger" @click="limpiarForm">Limpiar</button>
+        <input id="fechapago" type="date"  class="input input1 is-narrow" v-model="fechapago">
+        <input id="cobrador" type="text"  class="input input1 is-narrow" size= 10 placeholder="Cobrador" v-model="cobrador" @blur="buscaNombreCobr">
+        <input type="text" id="cntrbos" class="input input1 is-narrow" size=5 placeholder="Cnt Rbos" v-model="cntrbos">
+        <button type="button" class="button is-success" @click="validaGuardarLoteI">Guardar</button>
+        <span class="tag is-secondary is-large" >|`Lote ${idloterbo}`|</span>
+        <button type="button" class="button is-primary" @click="imprimirLote">Imprimir</button>
     </form>
-    <h3 class="mb-3">|nombrecobrador|</h3>
+    <p class="subtitle is-3">|nombrecobrador|</p>
     <ul>
         <li v-for=" n in [...Array(Number(cntrbos)).keys()]" @keyup.enter="nextRbo" class="list-group-item"><input type="text" :id="n+1" class="input2"></li>
     </ul>
@@ -33,7 +33,6 @@
 {% endblock %}
 {% block script %}
 <script>
-Vue.use(Toasted)
 const app = new Vue({
     el:"#app",
     delimiters:['|','|'],
@@ -56,12 +55,13 @@ const app = new Vue({
         //valido primero que tenga cobrador y fecha de pago
         validaGuardarLoteI(){
             if (this.cobrador==""||this.fechapago==""){
-                let toast = this.$toasted.error("Complete los datos de fecha y cobrador", { 
-                theme: "outline", 
-                position: "top-right", 
-                duration : 3000,
-                fullWidth: true,
-                });
+                // let toast = this.$toasted.error("Complete los datos de fecha y cobrador", {
+                // theme: "outline",
+                // position: "top-right",
+                // duration : 3000,
+                // fullWidth: true,
+                // });
+                bulmaToast.toast({message:"Complete los datos de fecha y cobrador", type: "is-danger"})
             }else{this.validaGuardarLoteII()}
         },
         // paso a validacion II calculando con un reduce la suma de los num de rbo para ver
@@ -72,14 +72,15 @@ const app = new Vue({
             }
             let total = this.arrayRbos.reduce((a,b)=>Number(a)+Number(b),0);
             if (total>0) {this.guardarLote()} else {
-                let toast = this.$toasted.error("Cargue los numeros de recibo", { 
-                theme: "outline", 
-                position: "top-right", 
-                duration : 3000,
-                fullWidth: true,
-                });
+                // let toast = this.$toasted.error("Cargue los numeros de recibo", {
+                // theme: "outline",
+                // position: "top-right",
+                // duration : 3000,
+                // fullWidth: true,
+                // });
+                bulmaToast.toast({message:"Cargue los numeros de recibo", type: "is-danger"})
             }
-            
+
         },
         // una vez validado se hace el guardarlote
         guardarLote(){
@@ -88,7 +89,7 @@ const app = new Vue({
                 url:'/loterbo/guardarlote/'+this.fechapago+'/'+this.cobrador,
                 responseType: "blob",
                 data:this.arrayRbos,
-                
+
             })
             .then(axios.get('/loterbo/obtenerlastid')
             .then(res=>{
@@ -122,10 +123,10 @@ const app = new Vue({
             this.nombrecobrador=''
             this.arrayRbos=[]
         },
-       
-        
+
+
     },
-    
+
 })
 
 </script>
