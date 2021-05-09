@@ -27,3 +27,6 @@ thead th {
     color: blue;
     text-weight: bold;
 }
+.block:not(:last-child) {
+      margin-bottom: 1.5rem;
+}

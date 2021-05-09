@@ -3,10 +3,6 @@
 {% block title %}Pasar Pagos{% endblock %}
 {% block style %}
 <style>
-.floated{
-     float:left;
-     margin-right: 5px;
- }
 .center{
     text-align:center;
 }
@@ -34,58 +30,72 @@ thead th {
 </style>
 {% endblock%}
 {% block content %}
-<div class="container">
+<div>
 <div id="app" class="container">
-<h1>Pasar Pagos</h1>
-<div class="row"> 
-    <form v-on:submit.prevent class="form-inline">
-        <input id="fechapago" type="date"  class="form-control" v-model="fechapago">
-        <input id="cobrador" type="text"  class="form-control" placeholder="Cobrador" v-model="cobrador" @keyup.enter="validateCargarPlanilla" @blur="cargaNombreCobr">
-        <button @click.prevent="validateCargarPlanilla" type="button" class="btn btn-info">Cargar Planilla</button>
-        <input type="text" id="lote" class="form-control" placeholder="Lote Recibos N°" v-model="lote">
-        <a href="/loterbo" class="btn btn-warning">Registrar Lote Rbos</a>
-        <a href="/loterbo/ver" class="btn btn-primary">Ver Lote Rbos</a>
+<p class="title is-1">Pasar Pagos</p>
+
+    <form v-on:submit.prevent class="block field is-horizontal">
+        <input id="fechapago" type="date"  class="input" v-model="fechapago">
+        <input id="cobrador" type="text"  class="input" placeholder="Cobrador" v-model="cobrador" @keyup.enter="validateCargarPlanilla" @blur="cargaNombreCobr">
+        <button @click.prevent="validateCargarPlanilla" type="button" class="button is-info">Cargar Planilla</button>
+        <input type="text" id="lote" class="input" placeholder="Lote Recibos N°" v-model="lote">
+        <a href="/loterbo" class="button is-outlined is-warning">Registrar Lote Rbos</a>
+        <a href="/loterbo/ver" class="button is-outlined is-primary">Ver Lote Rbos</a>
     </form>
-        <input type="text" placeholder="Cuenta o Nombre a buscar" class="form-control mt-1" v-model="cuenta" @keyup.enter="buscaCuenta(cuenta)" @focus="cuenta='';verInputsPagos=false" style="width: 50%;">
-        <h3 class="ml-3">|nombrecobrador|</h3>
-</div>
-
-<div class="row" v-if="verBtnClientes">
-    <div v-for="cliente in clientes" >
-        <!-- [nombre,direccion,dni] -->
-        <button class="btn btn-primary btn-lg mt-1 floated" @mouseover="cuenta=cliente[1]" @click="buscaCuenta(cliente[2]);obtenerCuentas(cliente[2]);direccion=cuenta" >|cliente[0]|</button>
+    <div class="columns">
+      <div class="column">
+        <input type="text" placeholder="Cuenta o Nombre a buscar" class="input" v-model="cuenta" @keyup.enter="buscaCuenta(cuenta)" @focus="cuenta='';verInputsPagos=false">
+      </div>
+      <div class="column">
+        <p class="subtitle is-3">|nombrecobrador|</p>
+      </div>
     </div>
-    <div v-for="idvta in idvtas">
-        <!-- [N°cuenta,direccion] -->
-        <button class="btn btn-danger btn-lg mt-1 floated" v-if="cuenta==idvta[1]" @click="traerFicha(idvta[0])">|idvta[0]|</button>
+
+    <div  class="block" v-if="verBtnClientes">
+      <div class="buttons">
+        <div v-for="cliente in clientes" >
+            <!-- [nombre,direccion,dni] -->
+            <button class="button is-primary is-large" @mouseover="cuenta=cliente[1]" @click="buscaCuenta(cliente[2]);obtenerCuentas(cliente[2]);direccion=cuenta" >|cliente[0]|</button>
+        </div>
+        <div v-for="idvta in idvtas">
+            <!-- [N°cuenta,direccion] -->
+            <button class="button is-danger is-large" v-if="cuenta==idvta[1]" @click="traerFicha(idvta[0])">|idvta[0]|</button>
+        </div>
+      </div>
     </div>
+
+
+<div class="block" v-if="verInputsPagos">
+    <div class="field is-horizontal">
+    <span class="tag is-danger is-large" >|`Saldo ${saldo}`|</span>
+    <span class="tag is-secondary is-large" >|`Cuota ${cuota}`|</span>
+    <input id="importe" type="text" placeholder="Importe" class="input center" v-model="importe" size="6" >
+    <input type="text" placeholder="Recargo" class="input  center" size="6"  v-model="recargo">
+    <input type="text" placeholder="Total" class="input  center" size="6"  :value="+importe+(+recargo)">
+    <input id="recibo" type="text" placeholder="Recibo N°" class="input  center" size="6"  v-model="recibo" @keyup.up="recibo++" @keyup.down="recibo--" @keyup.enter="validatePasarPagos">
+    <button class="button is-danger " type="button"  @click="validatePasarPagos">Pasar</button>
+</div>
 </div>
 
-<div class="row" v-if="verInputsPagos">
-    <form v-on:submit.prevent class="form-inline">
-    <h3><span class="badge badge-danger mt-3" >|`Saldo ${saldo}`|</span></h3>
-    <h3><span class="badge badge-secondary mt-3" >|`Cuota ${cuota}`|</span></h3>
-    <input id="importe" type="text" placeholder="Importe" class="form-control mt-1 center" v-model="importe" size="6" >
-    <input type="text" placeholder="Recargo" class="form-control mt-1 center" size="6"  v-model="recargo">
-    <input type="text" placeholder="Total" class="form-control mt-1 center" size="6"  :value="+importe+(+recargo)">
-    <input id="recibo" type="text" placeholder="Recibo N°" class="form-control mt-1 center" size="6"  v-model="recibo" @keyup.up="recibo++" @keyup.down="recibo--" @keyup.enter="validatePasarPagos">
-    <button class="btn btn-danger mt-1" type="button"  @click="validatePasarPagos">Pasar</button>
-</form>
-</div>
 
-<div class="row" v-if="cntRbos && !verInputsPagos ">
-    <h2><span class="badge badge-success " >Cnt Rbos |cntRbos|</span></h2>
-    <h2><span class="badge badge-warning"  >Cobrado $|cobrado|</span></h2>
-    <h2><span class="badge badge-info"  >Comision $|comision|</span></h2>
-    <form @submit.prevent class="form-inline  ">
-        <input type="text" placeholder="Viaticos" class="form-control  center" size="6"   v-model="viatico">
-        <button class="btn btn-outline-info"   @click="pasarPlanilla">Guardar Planilla</button>
-        <a href="/pagos/verplanillas" class="btn btn-outline-info" >Ver Planillas</a>
+
+<div class="block" v-if="cntRbos && !verInputsPagos ">
+  <form @submit.prevent class="field is-horizontal">
+    <span class="tag is-success is-large" >Cnt Rbos |cntRbos|</span>
+    <span class="tag is-warning is-large"  >Cobrado $|cobrado|</span>
+    <span class="tag is-info is-large"  >Comision $|comision|</span>
+        <div class="field is-narrow">
+          <input type="text" placeholder="Viaticos" class="input" size="6"   v-model="viatico">
+        </div>
+        <button class="button is-outined is-primary"   @click="pasarPlanilla">Guardar Planilla</button>
+        <a href="/pagos/verplanillas" class="button is-outlined is-info" >Ver Planillas</a>
     </form>
 </div>
 
-<div class="row">
-    <table class="table">
+
+
+<div>
+    <table id="table" class="table is-narrow">
         <thead>
             <tr>
                 <th>Op</th>
@@ -105,7 +115,7 @@ thead th {
         </thead>
         <tbody>
             <tr v-for="pago in rbosPagos" :class="pago[10]>0?'normal':'cancelada'">
-                <td><button class="btn btn-outline-primary btn-sm" @click="borrarPago(pago[0])">Borrar</button></td>
+                <td><button class="button is-small is-danger is-outlined" @click="borrarPago(pago[0])">Borrar</button></td>
                 <td>|pago[0]|</td>
                 <td>|pago[1]|</td>
                 <td style="min-width:100px">|pago[2]|</td>
@@ -156,7 +166,7 @@ thead th {
 {% endblock %}
 {% block script %}
 <script>
-Vue.use(Toasted)
+
 
 const app = new Vue({
     el:"#app",
@@ -203,9 +213,9 @@ const app = new Vue({
                 this.cargarPlanilla()
             }else{
                 //alert('corregir faltantes')
-                let toast = this.$toasted.error("Complete los campos faltantes", { 
-                theme: "outline", 
-                position: "top-right", 
+                let toast = this.$toasted.error("Complete los campos faltantes", {
+                theme: "outline",
+                position: "top-right",
                 duration : 3000,
                 fullWidth: true,
             });
@@ -224,7 +234,7 @@ const app = new Vue({
                      row[2]=dayjs.utc(row[2]).format('YYYY-MM-DD')
                  })
                  this.rbosPagos = arrayPagos
-                 
+
                  //this.cntRbos = res.data.planilla.length
                  this.cntRbos = res.data.cntrbos
                  let arrayRow = []
@@ -311,13 +321,7 @@ const app = new Vue({
                 this.pasarPagos()
             }else{
                 //alert('corregir campos faltantes')
-                
-            let toast = this.$toasted.error("Complete los campos faltantes", { 
-                theme: "outline", 
-                position: "top-right", 
-                duration : 3000,
-                fullWidth: true,
-            });
+            bulmaToast.toast({message:"Complete los campos faltantes", type:"is-danger"})
             }
         },
         pasarPagos(){
@@ -340,12 +344,7 @@ const app = new Vue({
                 this.verInputsPagos=false;
                 this.cargarPlanilla();
                 this.recibo++
-                let toast = this.$toasted.success("Pago procesado con exito", { 
-                theme: "outline", 
-                position: "top-right", 
-                duration : 3000,
-                fullWidth: true,
-            });
+                bulmaToast.toast({message:"Pago procesado con exito", type: "is-success"})
                 this.verBtnClientes = false;
                 this.cuenta='';
             })
@@ -388,8 +387,8 @@ const app = new Vue({
                 this.nombrecobrador=res.data.nombrecobr
             })
         },
-        
-       
+
+
     },
 
 })
