@@ -109,8 +109,9 @@
             </div>
         </div>
 </div>
-<div class="block">
-  <table id="table" class="table is-narrow ">
+<div class="columns">
+<div class="column is-7">
+  <table id="table" class="table is-narrow" id="table">
       <thead>
           <tr>
               <th>op</th>
@@ -136,6 +137,24 @@
           </tr>
       </tbody>
   </table>
+
+</div>
+  <div class="column is-5">
+    <table class="table is-narrow" >
+      <thead>
+        <tr>
+          <th>fecha</th>
+          <th>importe</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="deposito in depositos">
+          <td>|deposito[0]|</td>
+          <td>|deposito[1]|</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 </div>
 
@@ -156,6 +175,7 @@ const app = new Vue({
         proveedor:'',
         articulos:[],
         saldosorpresa:'',
+        depositos: [],
     },
     methods: {
         getCompras(){
@@ -179,6 +199,16 @@ const app = new Vue({
           axios.get('/stock/saldosorpresa')
           .then(res=>{
             this.saldosorpresa=res.data.saldosorpresa
+          })
+        },
+        getDepositos(){
+          axios.get('/stock/getdepositos')
+          .then(res=>{
+            arrayDepositos = Array.from(res.data.depositos)
+            arrayDepositos.forEach(row=>{
+                row[0]=dayjs.utc(row[0]).format('YYYY-MM-DD')
+            })
+            this.depositos = arrayDepositos
           })
         },
         borrarCompra(id){
@@ -233,8 +263,10 @@ const app = new Vue({
         this.getCompras();
         this.getArticulos();
         this.getSaldo();
+        this.getDepositos();
     },
 })
+
 
 </script>
 {% endblock %}

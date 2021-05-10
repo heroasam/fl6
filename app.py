@@ -619,3 +619,9 @@ def stock_saldosorpresa():
     comprado = pgonecolumn(con, f"select sum(total::integer) from artcomprado where proveedor ilike 'Sorpresa' and fecha>'2015-09-20'")
     saldosorpresa = 122031 + comprado + pagado
     return jsonify(saldosorpresa=saldosorpresa)
+
+
+@app.route('/stock/getdepositos')
+def stock_getdepositos():
+    depositos=pgddict(con, f"select fecha,imp::integer from caja where cuenta='depositos sorpresa' order by id desc")
+    return jsonify(depositos=depositos)
