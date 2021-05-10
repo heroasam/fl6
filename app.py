@@ -506,7 +506,7 @@ def stock_getasientos():
 
 
 @app.route('/stock/deleteasiento/<int:id>')
-def stock_delete(id):
+def stock_deleteasiento(id):
     stm=f'delete from caja where id={id}'
     cur = con.cursor()
     cur.execute(stm)
@@ -573,3 +573,49 @@ def stock_retiros():
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="table",classes="table table-sm")
     return render_template("retiros.html", tbl=tbl)
+
+
+@app.route('/stock/getcompras')
+def stock_getcompras():
+    compras=pgddict(con, f"select id,fecha,art,cnt::integer, costo::integer,total::integer,proveedor from artcomprado order by id desc limit 200")
+    return jsonify(compras=compras)
+
+
+@app.route('/stock/getarticulos')
+def stock_getarticulos():
+    articulos=pglflat(con, f"select art from articulos")
+    return jsonify(articulos=articulos)
+
+
+@app.route('/stock/compras')
+def stock_compras():
+    return render_template('compras.html')
+
+
+@app.route('/stock/deletecompra/<int:id>')
+def stock_deletecompra(id):
+    stm=f'delete from artcomprado where id={id}'
+    cur = con.cursor()
+    cur.execute(stm)
+    con.commit()
+    cur.close()
+    return 'el registro ha sido borrado'
+
+
+@app.route('/stock/guardarcompra' , methods = ['POST'])
+def stock_guardarcompra():
+    d = ast.literal_eval(request.data.decode("UTF-8"))
+    ins = f"insert into artcomprado(fecha,cnt,art,costo,total,proveedor) values('{d['fecha']}',{d['cnt']},'{d['art']}',{d['costo']},{d['total']},'{d['proveedor']}')"
+    cur = con.cursor()
+    cur.execute(ins)
+    con.commit()
+    cur.close()
+    return 'OK'
+
+
+@app.route('/stock/saldosorpresa')
+def stock_saldosorpresa():
+    pagado = pgonecolumn(con, f"select sum(imp::integer) from caja where cuenta = 'depositos sorpresa'")
+    comprado = pgonecolumn(con, f"select sum(total::integer) from artcomprado where proveedor ilike 'Sorpresa' and fecha>'2015-09-20'")
+    saldosorpresa = 122031 + comprado + pagado
+    return jsonify(saldosorpresa=saldosorpresa)

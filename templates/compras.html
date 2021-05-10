@@ -1,0 +1,240 @@
+{% extends "base_template.html" %}
+
+{% block title %}Asientos{% endblock %}
+{% block style %}
+<style>
+.block:not(:last-child) {
+    margin-bottom: 1.5rem;
+}
+.color1 {
+    background-color: rgb(178, 42, 32);
+    color: black;
+    text-align: center;
+}
+.color2 {
+    background-color: rgb(178, 127, 32);
+    color: black;
+    text-align: center;
+}
+.color3 {
+    background-color: rgb(176, 178, 32);
+    color: black;
+    text-align: center;
+}
+.color4 {
+    background-color: rgb(32, 178, 98);
+    color: black;
+    text-align: center;
+}
+.color5 {
+    background-color: rgb(147, 196, 193);
+    color: black;
+    text-align: center;
+}
+.color6 {
+    background-color: orange;
+    color: black;
+    text-align: center;
+}
+.color7 {
+    background-color: rgb(80, 89, 214);
+    color: black;
+    text-align: center;
+}
+.color8 {
+    background-color: rgb(13, 130, 148);
+    color: black;
+    text-align: center;
+}
+.color9 {
+    background-color: rgb(141, 11, 104);
+    color: black;
+    text-align: center;
+}
+.color0 {
+    background-color: rgb(127, 19, 189);
+    color: black;
+    text-align: center;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div id="app" class="container is-fullhd">
+<div class="columns">
+    <div class="column is-7">
+        <p class="title is-1">Compras</p>
+    </div>
+    <div class="column is-5">
+      <p class="title is-2">Saldo $|saldosorpresa|</p>
+
+    </div>
+</div>
+<div class="block">
+    <a href="/stock/asientos"  type="button" class="button is-outlined is-primary">Asientos</a>
+    <a href="/stock/mayor"  type="button" class="button is-outlined is-primary">Mayor</a>
+    <a href="/stock/pivotcuentas"  type="button" class="button is-outlined is-primary">Pivot-Cuentas</a>
+    <a href="/stock/retiros"  type="button" class="button is-outlined is-primary">Retiros</a>
+</div>
+<div class="block">
+        <div class="field is-horizontal">
+            <div class="control">
+                <input type="date" v-model="fecha" class="input" :class='{"is-danger":!fecha}'>
+                <p v-show="!fecha" class="help is-danger">Requerido</p>
+            </div>
+            <div class="control">
+              <input type="text" v-model="cnt" class="input" :class='{"is-danger":!cnt}' placeholder="Cantidad" @keyup.enter="$refs.art.focus()" size="5" ref="cnt">
+              <p v-show="!cnt" class="help is-danger">Requerido</p>
+            </div>
+            <div class="control">
+                <input type="text" class="input" size="40" name="art" list="artlist" value="" autocomplete="off" v-model="art" placeholder="Articulo" ref="art" @keyup.enter="$refs.costo.focus()" :class='{"is-danger":!art}'>
+                <datalist id="artlist">
+                    <option v-for="art in articulos">|art|</option>
+                </datalist>
+                <p v-show="!art" class="help is-danger">Requerido</p>
+            </div>
+            <div class="control">
+                <input type="text" v-model="costo" class="input" size="5" placeholder="Costo" ref="costo" @keyup.enter="$refs.proveedor.focus();total=costo*cnt" :class='{"is-danger":!costo}'>
+                <p v-show="!costo" class="help is-danger">Requerido</p>
+            </div>
+            <div class="control">
+                <input type="text" v-model="total" class="input disabled" size="5" placeholder="Total">
+            </div>
+            <div class="control">
+                <input type="text" v-model="proveedor" class="input" size="20" placeholder="Proveedor" ref="proveedor" @keyup.enter="$refs.guardar.focus()">
+            </div>
+            <div class="control">
+                <button type="button" class="button is-primary" @click="validarCompra" ref="guardar" id="guardar">Guardar</button>
+            </div>
+        </div>
+</div>
+<div class="block">
+  <table id="table" class="table is-narrow ">
+      <thead>
+          <tr>
+              <th>op</th>
+              <th>id</th>
+              <th>fecha</th>
+              <th>art</th>
+              <th>cnt</th>
+              <th>costo</th>
+              <th>total</th>
+              <th>proveedor</th>
+          </tr>
+      </thead>
+      <tbody>
+          <tr v-for="compra in compras">
+              <td><button class="button is-danger is-small" @click="borrarCompra(compra[0])">Borrar</button></td>
+              <td>|compra[0]|</td>
+              <td :class="dia(compra[1])">|compra[1]|</td>
+              <td>|compra[2]|</td>
+              <td>|compra[3]|</td>
+              <td>|compra[4]|</td>
+              <td>|compra[5]|</td>
+              <td>|compra[6]|</td>
+          </tr>
+      </tbody>
+  </table>
+</div>
+</div>
+
+{% endblock %}
+{% block script %}
+<script>
+const app = new Vue({
+    el:"#app",
+    delimiters:['|','|'],
+    data:{
+        compras:[],
+        fecha:'',
+        cnt:'',
+        art:'',
+        imp:'',
+        costo:'',
+        total:'',
+        proveedor:'',
+        articulos:[],
+        saldosorpresa:'',
+    },
+    methods: {
+        getCompras(){
+            axios.get('/stock/getcompras')
+            .then(res=>{
+                arrayCompras = Array.from(res.data.compras)
+                arrayCompras.forEach(row=>{
+                    row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD')
+                })
+                this.compras = arrayCompras
+                console.log(this.compras);
+            })
+        },
+        getArticulos(){
+          axios.get('/stock/getarticulos')
+          .then(res=>{
+            this.articulos=res.data.articulos
+          })
+        },
+        getSaldo(){
+          axios.get('/stock/saldosorpresa')
+          .then(res=>{
+            this.saldosorpresa=res.data.saldosorpresa
+          })
+        },
+        borrarCompra(id){
+            axios.get('/stock/deletecompra/'+id)
+            .then(res=>{
+                console.log(res)
+                this.getCompras()
+                this.getSaldo()
+            })
+        },
+        validarCompra(){
+            if(this.fecha!=''&&this.cnt!=''&&this.art!=''&&this.costo!=''&&this.proveedor!=''){
+                this.guardarCompra()
+            }else{
+                bulmaToast.toast({ message: 'Complete los datos faltantes', type: 'is-danger' })
+            }
+        },
+        guardarCompra(){
+            axios({
+                method:'POST',
+                url: '/stock/guardarcompra',
+                data:{
+                    fecha:this.fecha,
+                    cnt: this.cnt,
+                    art: this.art,
+                    costo: this.costo,
+                    total: this.total,
+                    proveedor: this.proveedor,
+                }
+            })
+            .then(res=>{
+                //console.log(res)
+                this.getCompras()
+                this.getSaldo()
+                this.cnt=''
+                this.art=''
+                this.costo=''
+                this.total=''
+                this.$refs.cnt.focus();
+                bulmaToast.toast({message:"Compra procesada con exito", type:'is-success'})
+            })
+        },
+        dia(day){
+            //formamos el nombre de la clase con la palabra color mas
+            //el ultimo digito de los dias para tener solo diez colores
+            return "color" + dayjs.utc(day).format('DD').slice(1,2)
+        },
+
+
+    },
+    created: function(){
+        this.getCompras();
+        this.getArticulos();
+        this.getSaldo();
+    },
+})
+
+</script>
+{% endblock %}

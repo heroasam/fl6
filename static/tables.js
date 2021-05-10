@@ -49,7 +49,7 @@ const totalizar = (tableId)=>{
         });
         let total = col.reduce((a,b)=>Number(a)+Number(b));
         let $cell = $rowTotal.insertCell(i);
-        $cell.innerHTML = total
+        if (!(Number.isNaN(total))) $cell.innerHTML = total
         }
 
     };
