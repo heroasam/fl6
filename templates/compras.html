@@ -140,7 +140,7 @@
 
 </div>
   <div class="column is-5">
-    <table class="table is-narrow" >
+    <table class="table is-narrow" id="table1" >
       <thead>
         <tr>
           <th>fecha</th>
@@ -158,9 +158,11 @@
 </div>
 </div>
 
+
 {% endblock %}
 {% block script %}
 <script>
+
 const app = new Vue({
     el:"#app",
     delimiters:['|','|'],

@@ -130,6 +130,7 @@ document.addEventListener('click', ()=>{
         let th = event.target;
         sortGridNumerica(th.cellIndex,'ASC')
     }
+
     });
 
 document.addEventListener('click', ()=>{
@@ -138,6 +139,9 @@ document.addEventListener('click', ()=>{
     };
     if(event.target.tagName==='TD'&& event.ctrlKey===true) {
         markSelected()
+    };
+    if(event.target.tagName=== 'TD' && event.shiftKey===true){
+        totalizar(table1)
     };
 })
 
@@ -174,6 +178,7 @@ document.addEventListener('keydown',(e)=>{
             };
             case 'r': {
                 restaurar(table)
+                restaurar(table1)
                 break
             }
         };
