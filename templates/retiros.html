@@ -1,0 +1,19 @@
+{% extends "base_template.html" %}
+
+{% block title %}Retiros Socios{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <p class="title is-1">Retiro Socios</p>
+
+<div class="block">
+  <a href="/stock/asientos"  type="button" class="button is-outlined is-primary">Asientos</a>
+    <a href="/stock/mayor"  type="button" class="button is-outlined is-primary">Mayor</a>
+    <a href="/stock/pivotcuentas"  type="button" class="button is-outlined is-primary">Pivot-Cuentas</a>
+</div>
+
+{{tbl|safe}}
+
+</div>
+{% endblock %}

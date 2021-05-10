@@ -1,6 +1,11 @@
 let $thead = document.querySelector('thead');
 let heads = $thead.children.length
-if(heads===3) $thead.removeChild($thead.lastElementChild)
+if(heads===3) {
+  $thead.removeChild($thead.lastElementChild)
+  $thead.removeChild($thead.firstElementChild)
+  heads = $thead.children.length
+}
+
 //removemos el tr de fecha que complica y afea el encabezado
 let factor;
 switch (heads) {
@@ -173,5 +178,3 @@ document.addEventListener('keydown',(e)=>{
             }
         };
     })
-
-
