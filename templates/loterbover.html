@@ -5,8 +5,8 @@
 {% block content %}
 
 <div class="container">
-    <h1>Listado de Lote de Rbos</h1>
-<a href="{{url_for('pagos')}}">Volver</a>
+    <p class="title is-1">Listado de Lote de Rbos</p>
+<a href="{{url_for('pagos')}}" class="button is-primary is-outlined">Volver</a>
 
 
 <table class="table table table-hover table-striped" id="table">
@@ -28,8 +28,8 @@
         <td>{{ lr['fecha'] }}</td>
         <td>{{ lr['cobr'] }}</td>
         <td>{{ lr['cnt'] }}</td>
-        <td><a href="/loterbo/delete/{{lr['id']}}" class="btn btn-danger btn-sm">Borrar</a></td>
-        <td><a href="/loterbo/reimprimir/{{lr['fecha']}}/{{lr['cobr']}}/{{lr['id']}}" class="btn btn-success btn-sm">Imprimir</a></td>
+        <td><a href="/loterbo/delete/{{lr['id']}}" class="button is-danger is-small">Borrar</a></td>
+        <td><a href="/loterbo/reimprimir/{{lr['fecha']}}/{{lr['cobr']}}/{{lr['id']}}" class="button is-success is-small">Imprimir</a></td>
         </tr>
         {% endfor %}
         {% endif %}

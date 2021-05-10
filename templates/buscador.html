@@ -3,10 +3,6 @@
 {% block title %}Clientes{% endblock %}
 {% block style %}
 <style>
- .floated{
-     float:left;
-     margin-right: 5px;
- }
  .articulos{
     background-color: lightyellow;
     color:black;
@@ -20,83 +16,75 @@ caption{
 {% block content %}
 <div class="container">
 <div id="app">
-    <div class="row">
+    <div class="buttons">
         <div v-for="historico in historial">
-            <button class="btn btn-outline-secondary" @click="buscaCuentaporDni(historico[0])">|historico[1].slice(0,18)|</button>
+            <button class="button is-outlined is-primary" @click="buscaCuentaporDni(historico[0])">|historico[1].slice(0,18)|</button>
         </div>
     </div>
-    <div class="row">
-        <div class="input-group">
-            <input type="search" placeholder="Buscar en Romitex" size="73" class="form-control" v-model="buscar" @keyup.enter="buscarCliente" @focus="buscar='';verCard=false">
-        <div class="input-group-append">
-            <button type="button" @click="buscarCliente" class="btn btn-outline-secondary">Buscar</button>
-        </div>
-        </div>
-    </div>
-    <div class="row" v-if="buscar">
+
+      <div class="field is-horizontal">
+        <input type="search" placeholder="Buscar en Romitex" size="73" class="input" v-model="buscar" @keyup.enter="buscarCliente" @focus="buscar='';verCard=false">
+        <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
+      </div>
+
+    <div class="buttons" v-if="buscar">
         <div v-for="cliente in clientes">
             <!-- [dni,nombre,direccion] -->
-        <button class="btn btn-outline-primary" @mouseover="buscar=cliente[2]" @click="buscaCuentaporDni(cliente[0])">|cliente[1]|</button>
+        <button class="button is-info" @mouseover="buscar=cliente[2]" @click="buscaCuentaporDni(cliente[0])">|cliente[1]|</button>
         </div>
     </div>
     <!-- card datos clientes -->
-    <div class="row"  v-if="verCard">
+    <div class="block"  v-if="verCard">
         <div class="card mt-2" style="width: 52rem;">
-            <div class="card-body">
-                <div class="row">
-                    <h4 class="card-title">|nombre|  |dni|</h4>
-                </div>
-                <div class="row">
-                    <h5 class="card-subtitle mb-2 text-muted">|calle+' '+num|  |barrio|  zona:|zona|</h5>
-                </div>
-              <div class="row">
-                <h5 class="card-subtitle mb-2 text-muted">tel:|tel| wapp:|wapp|</h5>
-                </div>
-              <div class="row">
-                <div class="row ml-1">
-                <h6 class="card-subtitle mb-2 text-muted" v-if="acla"><span class="badge badge-info " >acla  </span>|acla|</h6>
-                <h6 class="card-subtitle mb-2 text-muted" v-if="mjecobr"><span class="badge badge-danger " >mjecobr  </span>|mjecobr|</h6>
-                <h6 class="card-subtitle mb-2 text-muted" v-if="horario"><span class="badge badge-info " >horario  </span>|horario|</h6>
-                <h6 class="card-subtitle mb-2 text-muted" v-if="infoseven"><span class="badge badge-success " >infoseven  </span>|infoseven|</h6>
-                </div>
+            <div class="card-header">
+              <div class="card-header-title">
+                <p class="title is-3">|nombre|  |dni|</p>
               </div>
-                <div class="row">
-                    <button class="btn btn-primary ">PmoVto</button>
-                    <button class="btn btn-primary ">Deuda $|deuda|</button>
-                    <button class="btn btn-danger " v-if="novendermas">|novendermas|</button>
-                    <button class="btn btn-success " v-if="sev">|sev|</button>
-                    <button class="btn btn-info " v-if="subirseven">|subirseven|</button>
-                    <button class="btn btn-danger " v-if="mudo">|mudo|</button>
-                    <button class="btn btn-warning " v-if="gestion">|gestion|</button>
-                    <button class="btn btn-danger " v-if="incobrable">|incobrable|</button>
-                    <button class="btn btn-info " v-if="seguir">|seguir|</button>
-                    <button class="btn btn-primary " v-if="llamar">|llamar|</button>
-                </div>
-                <div class="row">
-                    <input type="date" v-model="pmovto"  class="form-group mt-1">
-                </div>
             </div>
+              <div class="card-content">
+                <p class="">|calle+' '+num|  |barrio|  zona:|zona|</p>
+                <p class="">tel:|tel| wapp:|wapp|</p>
+                <p class="" v-if="acla"><span class="tag is-info" >acla  </span>|acla|</p>
+                <p class="" v-if="mjecobr"><span class="tag is-danger " >mjecobr  </span>|mjecobr|</p>
+                <p class="" v-if="horario"><span class="tag is-info " >horario  </span>|horario|</p>
+                <p class="" v-if="infoseven"><span class="tag is-success " >infoseven  </span>|infoseven|</p>
+                <div class="buttons">
+                    <button class="button is-primary ">Deuda $|deuda|</button>
+                    <button class="button is-danger " v-if="novendermas">|novendermas|</button>
+                    <button class="button is-success " v-if="sev">|sev|</button>
+                    <button class="button is-info " v-if="subirseven">|subirseven|</button>
+                    <button class="button is-danger " v-if="mudo">|mudo|</button>
+                    <button class="button is-warning " v-if="gestion">|gestion|</button>
+                    <button class="button is-danger " v-if="incobrable">|incobrable|</button>
+                    <button class="button is-info " v-if="seguir">|seguir|</button>
+                    <button class="button is-primary " v-if="llamar">|llamar|</button>
+                </div>
+                <div class="field is-horizontal">
+                    <button class="button is-primary ">PmoVto</button>
+                    <input type="date" v-model="pmovto" size="12" class="input is-narrow">
+                </div>
+                </div>
           </div>
     </div>
     <!-- botonera funcional -->
-    <div class="row" v-if="verCard">
-        <button class="btn btn-outline-info btn-sm" @click="verVentas=!verVentas">Ver Ventas</button>
-        <button class="btn btn-outline-success btn-sm" @click="fecharPmoVto">Fechar</button>
-        <button class="btn btn-outline-warning btn-sm" @click="imprimirFicha">Impr Ficha</button>
-        <a href="#" class="btn btn-outline-warning btn-sm">Intimar</a>
-        <button class="btn btn-outline-success btn-sm" @click="cargarWapp">Wapp</button>
-        <button class="btn btn-outline-success btn-sm" @click="cargarDatos">Datos</button>
-        <button class="btn btn-outline-danger btn-sm" @click="toggleSube">SUBE</button>
-        <button class="btn btn-outline-danger btn-sm"@click="toggleGestion">Gestion</button>
-        <button class="btn btn-outline-danger btn-sm"@click="toggleMudado">Mudado</button>
-        <button class="btn btn-outline-danger btn-sm"@click="toggleInc">INC</button>
-        <button class="btn btn-outline-danger btn-sm"@click="toggleLN">LN</button>
-        <button class="btn btn-outline-danger btn-sm"@click="toggleLlamar">Llamar</button>
-        <button class="btn btn-outline-danger btn-sm"@click="toggleSeguir">Seguir</button>
-        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#staticBackdrop" @click="editarDatos">Editar</button>
+    <div class="block" v-if="verCard">
+        <button class="button is-outlined is-info is-small" @click="verVentas=!verVentas">Ver Ventas</button>
+        <button class="button is-outlined is-success is-small" @click="fecharPmoVto">Fechar</button>
+        <button class="button is-outlined is-warning is-small" @click="imprimirFicha">Impr Ficha</button>
+        <a href="#" class="button is-outlined is-warning is-small">Intimar</a>
+        <button class="button is-outlined is-success is-small" @click="cargarWapp">Wapp</button>
+        <button class="button is-outlined is-success is-small" @click="cargarDatos">Datos</button>
+        <button class="button is-outlined is-danger is-small" @click="toggleSube">SUBE</button>
+        <button class="button is-outlined is-danger is-small"@click="toggleGestion">Gestion</button>
+        <button class="button is-outlined is-danger is-small"@click="toggleMudado">Mudado</button>
+        <button class="button is-outlined is-danger is-small"@click="toggleInc">INC</button>
+        <button class="button is-outlined is-danger is-small"@click="toggleLN">LN</button>
+        <button class="button is-outlined is-danger is-small"@click="toggleLlamar">Llamar</button>
+        <button class="button is-outlined is-danger is-small"@click="toggleSeguir">Seguir</button>
+        <button type="button" class="button is-primary is-small" data-toggle="modal" data-target="#staticBackdrop" @click="editarDatos">Editar</button>
     </div>
     <!-- tabla ventas -->
-    <div class="row" v-if="verCard">
+    <div class="block" v-if="verCard">
         <table class="table table-sm">
             <thead >
                 <tr @click="!verVentas">
@@ -111,23 +99,23 @@ caption{
             </thead>
             <tbody>
                 <tr v-for="venta in ventas" v-if="venta[3]||verVentas">
-                <td><button class="btn btn-outline-primary btn-sm" @click="toggleVerArticulos(venta[0])">|venta[0]|</button></td>
+                <td><button class="button is-outlined is-primary is-small" @click="toggleVerArticulos(venta[0])">|venta[0]|</button></td>
                 <td>|venta[1]|</td>
                 <td>|venta[2]|</td>
                 <td>$|venta[3]|</td>
                 <td>$|venta[4]|</td>
                 <td>|venta[5]|</td>
                 <td>
-                    <button class="btn btn-danger btn-sm" v-if="venta[6]">|venta[6]|</button>
-                    <button class="btn btn-success btn-sm" v-if="venta[7]">|venta[7]|</button>
-                    <button class="btn btn-primary btn-sm" v-if="venta[8]">|venta[8]|</button>
+                    <button class="button is-danger is-small" v-if="venta[6]">|venta[6]|</button>
+                    <button class="button is-success is-small" v-if="venta[7]">|venta[7]|</button>
+                    <button class="button is-primary is-small" v-if="venta[8]">|venta[8]|</button>
                 </td>
                 </tr>
             </tbody>
         </table>
     </div>
     <!-- tabla cuotas a pagar -->
-    <div class="row d-flex" v-if="verCard" >
+    <div class="block d-flex" v-if="verCard" >
         <table class="table table-sm"  style="width: 300px;">
             <caption>Cuotas a pagar</caption>
             <thead>
@@ -169,7 +157,7 @@ caption{
         </table>
     </div>
     <!-- tabla comentarios -->
-    <div class="row" v-if="verCard && comentarios.length">
+    <div class="block" v-if="verCard && comentarios.length">
         <table class="table table-sm">
             <thead>
                 <tr>
@@ -185,7 +173,7 @@ caption{
             </tbody>
         </table>
     </div>
-  
+
   <!-- Modal Edicion de datos Clientes -->
   <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1"        aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
@@ -328,7 +316,7 @@ const app = new Vue({
         zonas:[],
         comentarios:[],
 
-        
+
     },
     methods: {
         buscarCliente(){
@@ -369,7 +357,7 @@ const app = new Vue({
                 this.mjecobr = this.clientes[0][20]
                 this.infoseven = this.clientes[0][21]
                 this.sexo = this.clientes[0][22]
-                
+
                 this.verCard = true;
                 this.buscar = '';
                 this.clientes = [];
@@ -462,7 +450,7 @@ const app = new Vue({
             .then(res=>{
                 //console.log(res.data.articulos);
                 this.articulos=res.data.articulos
-                
+
                 let $tbody = document.querySelector('tbody');
                 let rowInd;
                 arrayRows = Array.from($tbody.children)
@@ -486,8 +474,8 @@ const app = new Vue({
                 }
             //console.log(this.buscarRowArticulos(idvta));
             })
-            
-            
+
+
         },
         pedirCuotas(dni){
             axios.get('/buscador/pedircuotas/'+dni)
@@ -510,9 +498,9 @@ const app = new Vue({
             axios.get('/buscador/fecharpmovto/'+this.dni+'/'+this.pmovto)
             .then(res=>{
                 //console.log(res);
-                let toast = this.$toasted.success("PmoVto actualizado con exito", { 
-                theme: "outline", 
-                position: "top-right", 
+                let toast = this.$toasted.success("PmoVto actualizado con exito", {
+                theme: "outline",
+                position: "top-right",
                 duration : 3000,
                 fullWidth: true,
             });
@@ -527,17 +515,17 @@ const app = new Vue({
                 let articulos = res.data.ultvta[0][1];
                 if (this.sev=='Seven'){
                 text=
-                `Nos comunicamos de la empresa ROMITEX por una deuda que usted tiene con la firma. Usted fue subido al SEVEN hasta regularizar su cuenta. Puede hacer un plan de pagos. Consulte por Wapp. Una vez cancelado en 24hs se lo elimina del SEVEN. De no desmostrar interes nos vemos obligados a cobrar su pagare por via JUDICIAL. Atte. *Departamento de cobranzas de ROMITEX*` 
+                `Nos comunicamos de la empresa ROMITEX por una deuda que usted tiene con la firma. Usted fue subido al SEVEN hasta regularizar su cuenta. Puede hacer un plan de pagos. Consulte por Wapp. Una vez cancelado en 24hs se lo elimina del SEVEN. De no desmostrar interes nos vemos obligados a cobrar su pagare por via JUDICIAL. Atte. *Departamento de cobranzas de ROMITEX*`
                 } else {
-                    text= 
+                    text=
                     `Nos comunicamos de la empresa ROMITEX por una deuda que usted tiene con la firma. En los proximos dias deberemos informar al SEVEN el atraso de su cuenta. Le proponemos un plan de pagos que podemos realizar por este medio.`
                 }
                 messaje = this.nombre.concat(': ',text,' ',`(Por compra de ${articulos} realizada en '${this.direccion}' el dia ${dayjs.utc(fecha).format('DD-MM-YYYY')})`)
                 //console.log(messaje);
                 textToClipboard(messaje)
-                let toast = this.$toasted.success("Notificacion copiada en el portapapeles", { 
-                theme: "outline", 
-                position: "top-right", 
+                let toast = this.$toasted.success("Notificacion copiada en el portapapeles", {
+                theme: "outline",
+                position: "top-right",
                 duration : 3000,
                 fullWidth: true,
                 });
@@ -546,9 +534,9 @@ const app = new Vue({
         cargarDatos(){
             let text = this.dni+'\n'+this.direccion+'\n'+this.barrio+'\n'+this.wapp
             textToClipboard(text)
-                let toast = this.$toasted.success("Datos copiados en el portapapeles", { 
-                theme: "outline", 
-                position: "top-right", 
+                let toast = this.$toasted.success("Datos copiados en el portapapeles", {
+                theme: "outline",
+                position: "top-right",
                 duration : 3000,
                 fullWidth: true,
                 });
@@ -629,9 +617,9 @@ const app = new Vue({
             })
             .then(res=>{
                 console.log(res);
-                let toast = this.$toasted.success("Edicion realizada con exito", { 
-                theme: "outline", 
-                position: "top-right", 
+                let toast = this.$toasted.success("Edicion realizada con exito", {
+                theme: "outline",
+                position: "top-right",
                 duration : 3000,
                 fullWidth: true,
                 });
@@ -657,7 +645,7 @@ const app = new Vue({
     created: function(){
         this.getTablas();
     },
-    
+
 })
 
 </script>
