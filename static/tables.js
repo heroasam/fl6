@@ -22,7 +22,16 @@ switch (heads) {
         factor=0;
         break
 }
-
+const nop = (pesos)=>{
+  let signo = pesos.substr(0,1)
+  if (signo=="$"){
+    let len =  pesos.length - 1
+    let valor = pesos.substr(1,len)
+    return valor
+  }else{
+    return pesos
+  }
+};
 const totalizar = (tableId)=>{
         let tbody = tableId.querySelector('tbody');
         let rowsArray = Array.from(tbody.rows);
@@ -45,7 +54,7 @@ const totalizar = (tableId)=>{
         for(let i=1;i<cols;i++){
         let col = [];
         rowIndex.forEach((ix)=>{
-            col.push(tbody.rows[ix].cells[i].innerText)
+            col.push(nop(tbody.rows[ix].cells[i].innerText))
         });
         let total = col.reduce((a,b)=>Number(a)+Number(b));
         let $cell = $rowTotal.insertCell(i);
@@ -137,11 +146,12 @@ document.addEventListener('click', ()=>{
     if(event.target.tagName==='TD') {
         markSelected(1)
     };
-    if(event.target.tagName==='TD'&& event.ctrlKey===true) {
+    if(event.target.tagName==='TD'&& event.shiftKey===true) {
         markSelected()
     };
-    if(event.target.tagName=== 'TD' && event.shiftKey===true){
-        totalizar(table1)
+    if(event.target.tagName=== 'TD' && event.ctrlKey===true){
+        t=event.target.parentElement.parentElement.parentElement
+        totalizar(t)
     };
 })
 
@@ -165,21 +175,25 @@ document.addEventListener('mouseover',()=>{
 
 document.addEventListener('contextmenu', ()=>{
         event.preventDefault()
+        if(event.target.tagName=== 'TD'){
+            t=event.target.parentElement.parentElement.parentElement
+            restaurar(t)
+        };
         if(event.target.tagName!= 'TH') return;
         let th = event.target;
         sortGrid(th.cellIndex,'DESC')
     });
 
-document.addEventListener('keydown',(e)=>{
-        switch (e.key) {
-            case 't' : {
-                totalizar(table)
-                break
-            };
-            case 'r': {
-                restaurar(table)
-                restaurar(table1)
-                break
-            }
-        };
-    })
+// document.addEventListener('keydown',(e)=>{
+//         t=e.target.parentElement.parentElement.parentElement
+//         switch (e.key) {
+//             case 't' : {
+//                 totalizar(t)
+//                 break
+//             };
+//             case 'r': {
+//                 restaurar(t)
+//                 break
+//             }
+//         };
+//     })
