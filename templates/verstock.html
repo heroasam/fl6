@@ -1,0 +1,69 @@
+{% extends "base_template.html" %}
+
+{% block title %}Mayor{% endblock %}
+{% block style %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div id="app" class="container">
+<div class="columns">
+    <h1 style="width:70%;" class="is-size-1">Stock</h1>
+</div>
+<div class="block">
+    <a href="/stock/asientos"  type="button" class="button is-outlined is-primary">Asientos</a>
+    <a href="/stock/mayor"  type="button" class="button is-outlined is-primary">Mayor</a>
+    <a href="/stock/pivotcuentas"  type="button" class="button is-outlined is-primary">Pivot-Cuentas</a>
+    <a href="/stock/retiros"  type="button" class="button is-outlined is-primary">Retiros</a>
+    <a href="/stock/compras"  type="button" class="button is-outlined is-primary">Compras</a>
+</div>
+
+
+<div class="block">
+    <table id="table" class="table table-sm ">
+        <thead>
+            <tr>
+                <th>art</th>
+                <th>ingreso</th>
+                <th>egreso</th>
+                <th>stock</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="item in stock">
+                <td>|item[0]|</td>
+                <td>|item[1]|</td>
+                <td>|item[2]|</td>
+                <td>|item[3]|</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+const app = new Vue({
+    el:"#app",
+    delimiters:['|','|'],
+    data:{
+      stock:[],
+    },
+    methods: {
+        getStock(){
+            axios.get('/stock/generarstock')
+            .then(res=>{
+                this.stock = res.data.stock
+            })
+        },
+
+    },
+    created: function(){
+        this.getStock();
+    },
+})
+
+</script>
+{% endblock %}

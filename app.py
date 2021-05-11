@@ -625,3 +625,21 @@ def stock_saldosorpresa():
 def stock_getdepositos():
     depositos=pgddict(con, f"select fecha,imp::integer from caja where cuenta='depositos sorpresa' order by id desc")
     return jsonify(depositos=depositos)
+
+
+@app.route('/stock/generarstock')
+def stock_generarstock():
+    cur = con.cursor()
+    cur.execute('drop table if exists detalles')
+    cur.execute("create temp table if not exists detalles as select cnt,art from detvta where idvta>55203 and devuelta=0 UNION ALL select cnt,art from detsalida")
+    cur.execute('drop table if exists stockactual')
+    cur.execute("create temp table if not exists stockactual as select art,sum(cnt) as ingreso,(select sum(cnt) from detalles where art=artcomprado.art) as egreso from artcomprado where  fecha>'2015-09-15' group by art order by art")
+    con.commit()
+    cur.close()
+    stock = pgddict(con, f"select art, ingreso, egreso, ingreso-egreso as stock from stockactual")
+    return jsonify(stock=stock)
+
+
+@app.route('/stock/verstock')
+def stock_verstock():
+    return render_template('verstock.html')
