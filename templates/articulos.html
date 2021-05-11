@@ -73,37 +73,27 @@
     <a href="/stock/pivotcuentas"  type="button" class="button is-outlined is-primary">Pivot-Cuentas</a>
     <a href="/stock/retiros"  type="button" class="button is-outlined is-primary">Retiros</a>
     <a href="/stock/compras"  type="button" class="button is-outlined is-primary">Compras</a>
+    <a href="/stock/salidas"  type="button" class="button is-outlined is-primary">Salidas</a>
     <a href="/stock/verstock"  type="button" class="button is-outlined is-primary">Stock</a>
-    <a href="/stock/articulos"  type="button" class="button is-outlined is-primary">Articulos</a>
 </div>
 <div class="block">
         <div class="field is-horizontal">
+
             <div class="control">
-                <input type="date" v-model="fecha" class="input" :class='{"is-danger":!fecha}'>
-                <p v-show="!fecha" class="help is-danger">Requerido</p>
+              <input type="text" v-model="art" class="input" :class='{"is-danger":!art}' placeholder="Articulo" @keyup.enter="$refs.costo.focus()" size="25" ref="art">
+              <p v-show="!art" class="help is-danger">Requerido</p>
             </div>
             <div class="control">
-              <input type="text" v-model="cnt" class="input" :class='{"is-danger":!cnt}' placeholder="Cantidad" @keyup.enter="$refs.art.focus()" size="5" ref="cnt">
-              <p v-show="!cnt" class="help is-danger">Requerido</p>
-            </div>
-            <div class="control">
-                <input type="text" class="input" size="40" name="art" list="artlist" value="" autocomplete="off" v-model="art" placeholder="Articulo" ref="art" @keyup.enter="$refs.costo.focus()" :class='{"is-danger":!art}'>
-                <datalist id="artlist">
-                    <option v-for="art in articulos">|art|</option>
-                </datalist>
-                <p v-show="!art" class="help is-danger">Requerido</p>
-            </div>
-            <div class="control">
-                <input type="text" v-model="costo" class="input" size="5" placeholder="Costo" ref="costo" @keyup.enter="$refs.comentario.focus()" :class='{"is-danger":!costo}'>
+                <input type="text" v-model="costo" class="input" size="5" placeholder="Costo" ref="costo" @keyup.enter="$refs.activo.focus()" :class='{"is-danger":!costo}'>
                 <p v-show="!costo" class="help is-danger">Requerido</p>
             </div>
             <div class="control">
-              <input type="text" v-model="comentario" class="input" size="15" placeholder="Comentario" ref="comentario" @keyup.enter="$refs.guardar.focus()">
-
+              <input type="text" v-model="activo" class="input" size="5" placeholder="Activo" ref="activo" @keyup.enter="$refs.guardar.focus()" :class='{"is-danger":!activo}'>
+                <p v-show="!activo" class="help is-danger">Requerido</p>
             </div>
 
             <div class="control">
-                <button type="button" class="button is-primary" @click="validarSalida" ref="guardar" id="guardar">Guardar</button>
+                <button type="button" class="button is-primary" @click="validarArticulo" ref="guardar" id="guardar">Guardar</button>
             </div>
         </div>
 </div>
@@ -114,22 +104,18 @@
           <tr>
               <th>op</th>
               <th>id</th>
-              <th>fecha</th>
               <th>art</th>
-              <th>cnt</th>
               <th>costo</th>
-              <th>comentario</th>
+              <th>activo</th>
           </tr>
       </thead>
       <tbody>
-          <tr v-for="salida in salidas">
-              <td><button class="button is-danger is-small" @click="borrarSalida(salida[0])">Borrar</button></td>
-              <td>|salida[0]|</td>
-              <td :class="dia(salida[1])">|salida[1]|</td>
-              <td>|salida[2]|</td>
-              <td>|salida[3]|</td>
-              <td>|salida[4]|</td>
-              <td>|salida[5]|</td>
+          <tr v-for="articulo in articulos">
+              <td><button class="button is-danger is-small" @click="borrarArticulo(articulo[0])">Borrar</button></td>
+              <td>|articulo[0]|</td>
+              <td>|articulo[1]|</td>
+              <td>|articulo[2]|</td>
+              <td>|articulo[3]|</td>
           </tr>
       </tbody>
   </table>
@@ -149,23 +135,16 @@ const app = new Vue({
     delimiters:['|','|'],
     data:{
         articulos:[],
-        salidas:[],
-        fecha:'',
-        cnt:'',
         art:'',
         costo:'',
-        comentario:'',
+        activo:'',
     },
     methods: {
-        getSalidas(){
-            axios.get('/stock/getsalidas')
+        getArticulos(){
+            axios.get('/stock/getlistaarticulos')
             .then(res=>{
-                arraySalidas = Array.from(res.data.salidas)
-                arraySalidas.forEach(row=>{
-                    row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD')
-                })
-                this.salidas = arraySalidas
-                console.log(this.salidas);
+                this.articulos = res.data.articulos
+                console.log(this.articulos);
             })
         },
 
@@ -176,14 +155,14 @@ const app = new Vue({
                 this.getSalidas()
             })
         },
-        validarSalida(){
+        validarArticulo(){
             if(this.fecha!=''&&this.cnt!=''&&this.art!=''&&this.costo!=''){
-                this.guardarSalida()
+                this.guardarArticulo()
             }else{
                 bulmaToast.toast({ message: 'Complete los datos faltantes', type: 'is-danger' })
             }
         },
-        guardarSalida(){
+        guardarArticulo(){
             axios({
                 method:'POST',
                 url: '/stock/guardarsalida',
@@ -211,17 +190,11 @@ const app = new Vue({
             //el ultimo digito de los dias para tener solo diez colores
             return "color" + dayjs.utc(day).format('DD').slice(1,2)
         },
-        getArticulos(){
-          axios.get('/stock/getarticulos')
-          .then(res=>{
-            this.articulos=res.data.articulos
-          })
-        },
+
 
 
     },
     created: function(){
-        this.getSalidas();
         this.getArticulos();
 
     },

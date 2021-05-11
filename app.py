@@ -675,3 +675,14 @@ def stock_guardarsalida():
     con.commit()
     cur.close()
     return 'OK'
+
+
+@app.route('/stock/getlistaarticulos')
+def stock_getlistaarticulos():
+    articulos=pgddict(con, f"select id,art,costo::integer,activo from articulos order by art" )
+    return jsonify(articulos=articulos)
+
+
+@app.route('/stock/articulos')
+def stock_articulos():
+    return render_template('articulos.html')
