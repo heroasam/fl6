@@ -1,6 +1,6 @@
 {% extends "base_template.html" %}
 
-{% block title %}Asientos{% endblock %}
+{% block title %}Salida Mercaderia{% endblock %}
 {% block style %}
 <style>
 .block:not(:last-child) {
@@ -64,19 +64,16 @@
 <div id="app" class="container is-fullhd">
 <div class="columns">
     <div class="column is-7">
-        <h1 class="is-size-1">Asientos</h1>
-    </div>
-    <div class="column">
-        <h2 class="is-size-1">Saldo $|saldo|</h2>
+        <p class="title is-1">Salida Mercaderia</p>
     </div>
 </div>
 <div class="block">
+    <a href="/stock/asientos"  type="button" class="button is-outlined is-primary">Asientos</a>
     <a href="/stock/mayor"  type="button" class="button is-outlined is-primary">Mayor</a>
     <a href="/stock/pivotcuentas"  type="button" class="button is-outlined is-primary">Pivot-Cuentas</a>
     <a href="/stock/retiros"  type="button" class="button is-outlined is-primary">Retiros</a>
     <a href="/stock/compras"  type="button" class="button is-outlined is-primary">Compras</a>
     <a href="/stock/verstock"  type="button" class="button is-outlined is-primary">Stock</a>
-    <a href="/stock/salidas"  type="button" class="button is-outlined is-primary">Salidas</a>
 </div>
 <div class="block">
         <div class="field is-horizontal">
@@ -85,124 +82,127 @@
                 <p v-show="!fecha" class="help is-danger">Requerido</p>
             </div>
             <div class="control">
-                <input type="text" class="input"  name="cuenta" list="cuentalist" value="" autocomplete="off" v-model="cuenta" placeholder="Cuenta" ref="cuenta" @keyup.enter="$refs.imp.focus()" :class='{"is-danger":!cuenta}'>
-                <datalist id="cuentalist">
-                    <option v-for="cta in cuentas">|cta|</option>
+              <input type="text" v-model="cnt" class="input" :class='{"is-danger":!cnt}' placeholder="Cantidad" @keyup.enter="$refs.art.focus()" size="5" ref="cnt">
+              <p v-show="!cnt" class="help is-danger">Requerido</p>
+            </div>
+            <div class="control">
+                <input type="text" class="input" size="40" name="art" list="artlist" value="" autocomplete="off" v-model="art" placeholder="Articulo" ref="art" @keyup.enter="$refs.costo.focus()" :class='{"is-danger":!art}'>
+                <datalist id="artlist">
+                    <option v-for="art in articulos">|art|</option>
                 </datalist>
-                <p v-show="!cuenta" class="help is-danger">Requerido</p>
+                <p v-show="!art" class="help is-danger">Requerido</p>
             </div>
             <div class="control">
-                <input type="text" v-model="imp" class="input" size="5" placeholder="Imp" ref="imp" @keyup.enter="$refs.comentario.focus()" :class='{"is-danger":!imp}'>
-                <p v-show="!imp" class="help is-danger">Requerido</p>
+                <input type="text" v-model="costo" class="input" size="5" placeholder="Costo" ref="costo" @keyup.enter="$refs.comentario.focus()" :class='{"is-danger":!costo}'>
+                <p v-show="!costo" class="help is-danger">Requerido</p>
             </div>
             <div class="control">
-                <input type="text" v-model="comentario" class="input" size="50" placeholder="Comentario" ref="comentario" @keyup.enter="$refs.guardar.focus()">
+              <input type="text" v-model="comentario" class="input" size="15" placeholder="Comentario" ref="comentario" @keyup.enter="$refs.guardar.focus()">
+
             </div>
+
             <div class="control">
-                <button type="button" class="button is-primary" @click="validarAsiento" ref="guardar" id="guardar">Guardar</button>
+                <button type="button" class="button is-primary" @click="validarSalida" ref="guardar" id="guardar">Guardar</button>
             </div>
         </div>
 </div>
-<div class="block">
-  <table id="table" class="table is-narrow ">
+<div class="columns">
+<div class="column is-7">
+  <table id="table" class="table is-narrow" id="table">
       <thead>
           <tr>
               <th>op</th>
               <th>id</th>
               <th>fecha</th>
-              <th>cuenta</th>
-              <th>imp</th>
+              <th>art</th>
+              <th>cnt</th>
+              <th>costo</th>
               <th>comentario</th>
           </tr>
       </thead>
       <tbody>
-          <tr v-for="asiento in asientos">
-              <td><button class="button is-danger is-small" @click="borrarAsiento(asiento[0])">Borrar</button></td>
-              <td>|asiento[0]|</td>
-              <td :class="dia(asiento[1])">|asiento[1]|</td>
-              <td>|asiento[2]|</td>
-              <td>|asiento[3]|</td>
-              <td>|asiento[4]|</td>
+          <tr v-for="salida in salidas">
+              <td><button class="button is-danger is-small" @click="borrarSalida(salida[0])">Borrar</button></td>
+              <td>|salida[0]|</td>
+              <td :class="dia(salida[1])">|salida[1]|</td>
+              <td>|salida[2]|</td>
+              <td>|salida[3]|</td>
+              <td>|salida[4]|</td>
+              <td>|salida[5]|</td>
           </tr>
       </tbody>
   </table>
+
+</div>
+
 </div>
 </div>
+
 
 {% endblock %}
 {% block script %}
 <script>
+
 const app = new Vue({
     el:"#app",
     delimiters:['|','|'],
     data:{
-        asientos:[],
-        saldo:0,
+        articulos:[],
+        salidas:[],
         fecha:'',
-        imp:'',
-        cuenta:'',
+        cnt:'',
+        art:'',
+        costo:'',
         comentario:'',
-        cuentas:[],
     },
     methods: {
-        getAsientos(){
-            axios.get('/stock/getasientos')
+        getSalidas(){
+            axios.get('/stock/getsalidas')
             .then(res=>{
-                arrayAsientos = Array.from(res.data.asientos)
-                arrayAsientos.forEach(row=>{
+                arraySalidas = Array.from(res.data.salidas)
+                arraySalidas.forEach(row=>{
                     row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD')
                 })
-                this.asientos = arrayAsientos
-                this.saldo = res.data.saldo
-                //console.log(this.planillas);
+                this.salidas = arraySalidas
+                console.log(this.salidas);
             })
         },
-        borrarAsiento(id){
-            axios.get('/stock/deleteasiento/'+id)
+
+        borrarSalida(id){
+            axios.get('/stock/deletesalida/'+id)
             .then(res=>{
                 console.log(res)
-                this.getAsientos()
+                this.getSalidas()
             })
         },
-        getCuentas(){
-            axios.get('/stock/getcuentas')
-            .then(res=>{
-                //console.log(res.data.cuentas)
-                this.cuentas=res.data.cuentas
-            })
-        },
-        validarAsiento(){
-            if(this.fecha!=''&&this.cuenta!=''&&this.imp!=''){
-                this.guardarAsiento()
+        validarSalida(){
+            if(this.fecha!=''&&this.cnt!=''&&this.art!=''&&this.costo!=''){
+                this.guardarSalida()
             }else{
-                // let toast = this.$toasted.error("Complete los datos faltantes", {
-                // theme: "outline",
-                // position: "top-right",
-                // duration : 3000,
-                // fullWidth: true,
-                // });
                 bulmaToast.toast({ message: 'Complete los datos faltantes', type: 'is-danger' })
             }
         },
-        guardarAsiento(){
+        guardarSalida(){
             axios({
                 method:'POST',
-                url: '/stock/guardarasiento',
+                url: '/stock/guardarsalida',
                 data:{
                     fecha:this.fecha,
-                    cuenta:this.cuenta,
-                    imp:this.imp,
-                    comentario:this.comentario,
+                    cnt: this.cnt,
+                    art: this.art,
+                    costo: this.costo,
+                    comentario: this.comentario,
                 }
             })
             .then(res=>{
                 //console.log(res)
-                this.getAsientos()
-                this.cuenta=''
-                this.imp=''
+                this.getSalidas()
+                this.cnt=''
+                this.art=''
+                this.costo=''
                 this.comentario=''
-                this.$refs.cuenta.focus();
-                bulmaToast.toast({message:"Asiento guardado con exito", type:'is-success'})
+                this.$refs.cnt.focus();
+                bulmaToast.toast({message:"Compra procesada con exito", type:'is-success'})
             })
         },
         dia(day){
@@ -210,14 +210,22 @@ const app = new Vue({
             //el ultimo digito de los dias para tener solo diez colores
             return "color" + dayjs.utc(day).format('DD').slice(1,2)
         },
+        getArticulos(){
+          axios.get('/stock/getarticulos')
+          .then(res=>{
+            this.articulos=res.data.articulos
+          })
+        },
 
 
     },
     created: function(){
-        this.getAsientos();
-        this.getCuentas();
+        this.getSalidas();
+        this.getArticulos();
+
     },
 })
+
 
 </script>
 {% endblock %}

@@ -643,3 +643,35 @@ def stock_generarstock():
 @app.route('/stock/verstock')
 def stock_verstock():
     return render_template('verstock.html')
+
+
+@app.route('/stock/salidas')
+def stock_salidas():
+    return render_template('salidas.html')
+
+
+@app.route('/stock/getsalidas')
+def stock_getsalidas():
+    salidas=pgddict(con, f"select id,fecha,cnt,art,costo::integer,comentario from detsalida order by id desc limit 200")
+    return jsonify(salidas=salidas)
+
+
+@app.route('/stock/deletesalida/<int:id>')
+def stock_deletesalida(id):
+    stm=f'delete from detsalida where id={id}'
+    cur = con.cursor()
+    cur.execute(stm)
+    con.commit()
+    cur.close()
+    return 'el registro ha sido borrado'
+
+
+@app.route('/stock/guardarsalida' , methods = ['POST'])
+def stock_guardarsalida():
+    d = ast.literal_eval(request.data.decode("UTF-8"))
+    ins = f"insert into detsalida(fecha,cnt,art,costo,comentario) values('{d['fecha']}',{d['cnt']},'{d['art']}',{d['costo']},'{d['comentario']}')"
+    cur = con.cursor()
+    cur.execute(ins)
+    con.commit()
+    cur.close()
+    return 'OK'
