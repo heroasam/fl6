@@ -107,6 +107,7 @@
       <thead>
           <tr>
               <th>op</th>
+              <th>op</th>
               <th>id</th>
               <th>art</th>
               <th>costo</th>
@@ -117,6 +118,7 @@
       <tbody>
           <tr v-for="articulo in articulos">
               <td><button class="button is-danger is-small" @click="borrarArticulo(articulo[0])">Borrar</button></td>
+              <td><button class="button is-info is-small" @click="editarArticulo(articulo[0],articulo[1],articulo[2],articulo[3])">Editar</button></td>
               <td>|articulo[0]|</td>
               <td>|articulo[1]|</td>
               <td>|articulo[2]|</td>
@@ -129,9 +131,37 @@
 </div>
 
 </div>
+
+
+<div class="modal" :class="{'is-active':toggleModal}">
+<div class="modal-background"></div>
+<div class="modal-content">
+  <div class="block">
+          <div class="field is-horizontal">
+
+              <div class="control">
+                <input type="text" v-model="arted" class="input" :class='{"is-danger":!arted}' placeholder="Articulo" @keyup.enter="$refs.costoed.focus()" size="25" ref="arted">
+                <p v-show="!arted" class="help is-danger">Requerido</p>
+              </div>
+              <div class="control">
+                  <input type="text" v-model="costoed" class="input" size="5" placeholder="Costo" ref="costoed" @keyup.enter="$refs.activoed.focus()" :class='{"is-danger":!costoed}'>
+                  <p v-show="!costoed" class="help is-danger">Requerido</p>
+              </div>
+              <div class="control">
+                <input type="text" v-model="activoed" class="input" size="5" placeholder="Activo" ref="activoed" @keyup.enter="$refs.guardar.focus()" :class='{"is-danger":activoed==""}'>
+                  <p v-show="activoed==''" class="help is-danger">Requerido</p>
+              </div>
+
+              <div class="control">
+                  <button type="button" class="button is-primary" @click="validarEdicion()" ref="guardar" id="guardar">Guardar</button>
+              </div>
+          </div>
+  </div>
+</div>
+<button class="modal-close is-large" aria-label="close" @click="modal"></button>
 </div>
 
-
+</div>
 {% endblock %}
 {% block script %}
 <script>
@@ -144,13 +174,18 @@ const app = new Vue({
         art:'',
         costo:'',
         activo:'',
+        ided:'',
+        arted:'',
+        costoed:'',
+        activoed:'',
+        toggleModal: false,
     },
     methods: {
         getArticulos(){
             axios.get('/stock/getlistaarticulos')
             .then(res=>{
                 this.articulos = res.data.articulos
-                console.log(this.articulos);
+                //console.log(this.articulos);
             })
         },
 
@@ -195,7 +230,39 @@ const app = new Vue({
             //console.log(res)
           })
         },
-
+        editarArticulo(id,art,costo,activo){
+          this.modal()
+          this.ided=id;
+          this.arted=art;
+          this.costoed=costo;
+          this.activoed=activo;
+        },
+        validarEdicion(){
+            if(this.arted!=''&&this.activoed!=''&&this.costoed!=''){
+                this.guardarEdicion()
+            }else{
+                bulmaToast.toast({ message: 'Complete los datos faltantes', type: 'is-danger' })
+            }
+        },
+        guardarEdicion(){
+          axios({
+              method:'POST',
+              url: '/stock/guardaredicionarticulo',
+              data:{
+                  ided:this.ided,
+                  arted:this.arted,
+                  costoed: this.costoed,
+                  activoed: this.activoed,
+              }
+          })
+          .then(res=>{
+            this.modal()
+            this.getArticulos()
+          })
+        },
+        modal(){
+          this.toggleModal=!this.toggleModal
+        },
 
 
 

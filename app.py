@@ -721,3 +721,14 @@ def stock_articulotoggleactivo(id):
     con.commit()
     cur.close()
     return 'OK'
+
+
+@app.route('/stock/guardaredicionarticulo' , methods = ['POST'])
+def stock_guardaredicionarticulo():
+    d = ast.literal_eval(request.data.decode("UTF-8"))
+    upd = f"update articulos set art='{d['arted']}', costo= {d['costoed']}, activo= {d['activoed']} where id={d['ided']}"
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    cur.close()
+    return 'OK'
