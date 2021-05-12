@@ -123,7 +123,7 @@
               <td>|articulo[1]|</td>
               <td>|articulo[2]|</td>
               <td :class="articulo[3]==1?'active':'inactive'">|articulo[3]|</td>
-              <td><button type="button" class="button is-info is-small" @click="toggleactivo(articulo[0])">Toggle</button></td>
+              <td><button type="button" class="button is-primary is-small" @click="toggleactivo(articulo[0])">Toggle</button></td>
           </tr>
       </tbody>
   </table>
@@ -148,12 +148,12 @@
                   <p v-show="!costoed" class="help is-danger">Requerido</p>
               </div>
               <div class="control">
-                <input type="text" v-model="activoed" class="input" size="5" placeholder="Activo" ref="activoed" @keyup.enter="$refs.guardar.focus()" :class='{"is-danger":activoed==""}'>
+                <input type="text" v-model="activoed" class="input" size="5" placeholder="Activo" ref="activoed" @keyup.enter="$refs.guardared.focus()" :class='{"is-danger":activoed==""}'>
                   <p v-show="activoed==''" class="help is-danger">Requerido</p>
               </div>
 
               <div class="control">
-                  <button type="button" class="button is-primary" @click="validarEdicion()" ref="guardar" id="guardar">Guardar</button>
+                  <button type="button" class="button is-primary" @click="validarEdicion()" ref="guardared" id="guardar">Guardar</button>
               </div>
           </div>
   </div>
@@ -214,13 +214,17 @@ const app = new Vue({
                 }
             })
             .then(res=>{
-                //console.log(res)
+                console.log(res)
                 this.getArticulos()
                 this.art=''
                 this.costo=''
                 this.activo=''
                 this.$refs.art.focus();
-                bulmaToast.toast({message:"Compra procesada con exito", type:'is-success'})
+                bulmaToast.toast({message:"Articulo agregado con exito", type:'is-success'})
+            })
+            .catch(error=>{
+              //console.log('El error es:',error.request.response)
+              bulmaToast.toast({message:error.request.response, type:'is-danger'})
             })
         },
         toggleactivo(id){
@@ -258,6 +262,11 @@ const app = new Vue({
           .then(res=>{
             this.modal()
             this.getArticulos()
+            bulmaToast.toast({message:"Edicion procesada con exito", type:'is-success'})
+          })
+          .catch(error=>{
+            //console.log('El error es:',error.request.response)
+            bulmaToast.toast({message:error.request.response, type:'is-danger'})
           })
         },
         modal(){

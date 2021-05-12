@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import render_template,url_for,request,redirect, send_file,jsonify
+from flask import render_template,url_for,request,redirect, send_file,jsonify, make_response
 import psycopg2
 import psycopg2.extras
 from lib import *
@@ -20,7 +20,6 @@ app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b
 
 #con = psycopg2.connect(dbname='daq6n3vvmrg79o', user='ynpqvlqqsidhga', host='ec2-3-95-87-221.compute-1.amazonaws.com', password='4bded69478ac502d5223655094cbc2241ed5aaf025f0b31fd19494c5aa35d6f0',sslmode='require')
 con = psycopg2.connect(dbname='hero', user='hero', host='localhost', password='ata', port=5432)
-
 
 
 @app.route('/pivot/pagos_cobr')
@@ -693,10 +692,16 @@ def stock_guardararticulo():
     d = ast.literal_eval(request.data.decode("UTF-8"))
     ins = f"insert into articulos(art, costo, activo) values('{d['art']}',{d['costo']},{d['activo']})"
     cur = con.cursor()
-    cur.execute(ins)
-    con.commit()
-    cur.close()
-    return 'OK'
+    try:
+        cur.execute(ins)
+    except psycopg2.Error as e:
+        con.rollback()
+        error = e.pgerror
+        return make_response(error,400)
+    else:
+        con.commit()
+        cur.close()
+        return 'OK'
 
 
 @app.route('/stock/deletearticulo/<int:id>')
@@ -728,7 +733,13 @@ def stock_guardaredicionarticulo():
     d = ast.literal_eval(request.data.decode("UTF-8"))
     upd = f"update articulos set art='{d['arted']}', costo= {d['costoed']}, activo= {d['activoed']} where id={d['ided']}"
     cur = con.cursor()
-    cur.execute(upd)
-    con.commit()
-    cur.close()
-    return 'OK'
+    try:
+        cur.execute(upd)
+    except psycopg2.Error as e:
+        con.rollback()
+        error = e.pgerror
+        return make_response(error,400)
+    else:
+        con.commit()
+        cur.close()
+        return 'OK'
