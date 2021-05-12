@@ -679,10 +679,45 @@ def stock_guardarsalida():
 
 @app.route('/stock/getlistaarticulos')
 def stock_getlistaarticulos():
-    articulos=pgddict(con, f"select id,art,costo::integer,activo from articulos order by art" )
+    articulos=pgddict(con, f"select id,art,costo::integer,activo from articulos order by id desc" )
     return jsonify(articulos=articulos)
 
 
 @app.route('/stock/articulos')
 def stock_articulos():
     return render_template('articulos.html')
+
+
+@app.route('/stock/guardararticulo' , methods = ['POST'])
+def stock_guardararticulo():
+    d = ast.literal_eval(request.data.decode("UTF-8"))
+    ins = f"insert into articulos(art, costo, activo) values('{d['art']}',{d['costo']},{d['activo']})"
+    cur = con.cursor()
+    cur.execute(ins)
+    con.commit()
+    cur.close()
+    return 'OK'
+
+
+@app.route('/stock/deletearticulo/<int:id>')
+def stock_deletearticulo(id):
+    stm=f'delete from articulos where id={id}'
+    cur = con.cursor()
+    cur.execute(stm)
+    con.commit()
+    cur.close()
+    return 'el registro ha sido borrado'
+
+
+@app.route('/stock/articulotoggleactivo/<int:id>')
+def stock_articulotoggleactivo(id):
+    activo = pgonecolumn(con, f"select activo from articulos where id={id}")
+    if activo==1:
+        stm = f"update articulos set activo=0 where id={id}"
+    else:
+        stm = f"update articulos set activo=1 where id={id}"
+    cur = con.cursor()
+    cur.execute(stm)
+    con.commit()
+    cur.close()
+    return 'OK'

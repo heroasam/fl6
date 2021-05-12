@@ -1,8 +1,14 @@
 {% extends "base_template.html" %}
 
-{% block title %}Salida Mercaderia{% endblock %}
+{% block title %}tabla Articulos{% endblock %}
 {% block style %}
 <style>
+.inactive{
+  background-color:rgb(178, 42, 32);
+}
+.active{
+  background-color:rgb(13, 130, 148);
+}
 .block:not(:last-child) {
     margin-bottom: 1.5rem;
 }
@@ -62,11 +68,9 @@
 {% block content %}
 
 <div id="app" class="container is-fullhd">
-<div class="columns">
-    <div class="column is-7">
-        <p class="title is-1">Salida Mercaderia</p>
-    </div>
-</div>
+<p class="title is-1">tabla Articulos</p>
+
+
 <div class="block">
     <a href="/stock/asientos"  type="button" class="button is-outlined is-primary">Asientos</a>
     <a href="/stock/mayor"  type="button" class="button is-outlined is-primary">Mayor</a>
@@ -107,6 +111,7 @@
               <th>art</th>
               <th>costo</th>
               <th>activo</th>
+              <th>op</th>
           </tr>
       </thead>
       <tbody>
@@ -115,7 +120,8 @@
               <td>|articulo[0]|</td>
               <td>|articulo[1]|</td>
               <td>|articulo[2]|</td>
-              <td>|articulo[3]|</td>
+              <td :class="articulo[3]==1?'active':'inactive'">|articulo[3]|</td>
+              <td><button type="button" class="button is-info is-small" @click="toggleactivo(articulo[0])">Toggle</button></td>
           </tr>
       </tbody>
   </table>
@@ -148,15 +154,15 @@ const app = new Vue({
             })
         },
 
-        borrarSalida(id){
-            axios.get('/stock/deletesalida/'+id)
+        borrarArticulo(id){
+            axios.get('/stock/deletearticulo/'+id)
             .then(res=>{
                 console.log(res)
-                this.getSalidas()
+                this.getArticulos()
             })
         },
         validarArticulo(){
-            if(this.fecha!=''&&this.cnt!=''&&this.art!=''&&this.costo!=''){
+            if(this.art!=''&&this.activo!=''&&this.costo!=''){
                 this.guardarArticulo()
             }else{
                 bulmaToast.toast({ message: 'Complete los datos faltantes', type: 'is-danger' })
@@ -165,31 +171,31 @@ const app = new Vue({
         guardarArticulo(){
             axios({
                 method:'POST',
-                url: '/stock/guardarsalida',
+                url: '/stock/guardararticulo',
                 data:{
-                    fecha:this.fecha,
-                    cnt: this.cnt,
-                    art: this.art,
+                    art:this.art,
                     costo: this.costo,
-                    comentario: this.comentario,
+                    activo: this.activo,
                 }
             })
             .then(res=>{
                 //console.log(res)
-                this.getSalidas()
-                this.cnt=''
+                this.getArticulos()
                 this.art=''
                 this.costo=''
-                this.comentario=''
-                this.$refs.cnt.focus();
+                this.activo=''
+                this.$refs.art.focus();
                 bulmaToast.toast({message:"Compra procesada con exito", type:'is-success'})
             })
         },
-        dia(day){
-            //formamos el nombre de la clase con la palabra color mas
-            //el ultimo digito de los dias para tener solo diez colores
-            return "color" + dayjs.utc(day).format('DD').slice(1,2)
+        toggleactivo(id){
+          axios.get('/stock/articulotoggleactivo/'+id)
+          .then(res=>{
+            this.getArticulos()
+            //console.log(res)
+          })
         },
+
 
 
 
