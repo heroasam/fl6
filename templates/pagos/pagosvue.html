@@ -34,13 +34,18 @@ thead th {
 <div id="app" class="container">
 <p class="title is-1">Pasar Pagos</p>
 
-    <form v-on:submit.prevent class="block field is-horizontal">
-        <input id="fechapago" type="date"  class="input" v-model="fechapago">
-        <input id="cobrador" type="text"  class="input" placeholder="Cobrador" v-model="cobrador" @keyup.enter="validateCargarPlanilla" @blur="cargaNombreCobr">
+<div class="buttons">
+  <a href="/pagos/verplanillas" class="button is-outlined is-primary">Planillas</a>
+  <a href="/loterbo" class="button is-outlined is-primary">Registrar Lote Rbos</a>
+  <a href="/loterbo/ver" class="button is-outlined is-primary">Ver Lote Rbos</a>
+  <a href="/pagos/editarrbo" class="button is-outlined is-primary">Editar Rbo</a>
+</div>
+
+    <form v-on:submit.prevent class="field is-horizontal">
+        <input id="fechapago" type="date" style="width:250px;" class="input is-narrow" v-model="fechapago">
+        <input id="cobrador" type="text" style="width:100px;" class="input is-narrow" placeholder="Cobrador" v-model="cobrador" @keyup.enter="validateCargarPlanilla" @blur="cargaNombreCobr">
         <button @click.prevent="validateCargarPlanilla" type="button" class="button is-info">Cargar Planilla</button>
-        <input type="text" id="lote" class="input" placeholder="Lote Recibos N°" v-model="lote">
-        <a href="/loterbo" class="button is-outlined is-warning">Registrar Lote Rbos</a>
-        <a href="/loterbo/ver" class="button is-outlined is-primary">Ver Lote Rbos</a>
+        <input type="text" id="lote" style="width:300px;" class="input is-narrow" placeholder="Lote Recibos N°" v-model="lote">
     </form>
     <div class="columns">
       <div class="column">
@@ -88,7 +93,6 @@ thead th {
           <input type="text" placeholder="Viaticos" class="input" size="6"   v-model="viatico">
         </div>
         <button class="button is-outined is-primary"   @click="pasarPlanilla">Guardar Planilla</button>
-        <a href="/pagos/verplanillas" class="button is-outlined is-info" >Ver Planillas</a>
     </form>
 </div>
 
@@ -213,11 +217,12 @@ const app = new Vue({
                 this.cargarPlanilla()
             }else{
                 //alert('corregir faltantes')
-                let toast = this.$toasted.error("Complete los campos faltantes", {
-                theme: "outline",
-                position: "top-right",
-                duration : 3000,
-                fullWidth: true,
+                // let toast = this.$toasted.error("Complete los campos faltantes", {
+                // theme: "outline",
+                // position: "top-right",
+                // duration : 3000,
+                // fullWidth: true,
+                bulmaToast.toast({message="Complete los campos faltantes", type="is-danger"})
             });
             }
 
@@ -367,6 +372,7 @@ const app = new Vue({
             .then(res=>{
                 //console.log(res)
                 this.getPlanillas(this.fechapago);
+                bulmaToast.toast({message:"Planilla agregada/corregida con exito", type:"is-success"})
             })
         },
         getPlanillas(fecha){

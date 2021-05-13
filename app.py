@@ -149,7 +149,7 @@ def pagos_pasarplanilla():
 
 @app.route('/pagos/verplanillas')
 def pagos_verplanillas():
-    return render_template("planillas.html")
+    return render_template("pagos/planillas.html")
 
 @app.route('/pagos/getplanillas')
 def pagos_getplanillas():
@@ -177,6 +177,52 @@ def pagos_procesarplanilla():
     con.commit()
     cur.close()
     return "OK"
+
+@app.route('/pagos/editarrbo')
+def pagos_editarrbo():
+    return render_template('pagos/editarrbo.html')
+
+
+@app.route('/pagos/obtenerrbo/<int:id>')
+def pagos_obtenerrbo(id):
+    reg = pgdict(con, f"select fecha, idvta, imp::integer, rec::integer, rbo, cobr, id, (select nombre from clientes where clientes.id=pagos.idcliente) as nombre from pagos where id={id}")
+    return jsonify (reg=reg)
+
+
+@app.route('/pagos/obtenerregrbo/<int:buscar>')
+def pagos_obtenerregrbo(buscar):
+    try:
+        reg = pgdict(con, f"select id, fecha, idvta, imp::integer, rec::integer, rbo, cobr, idcliente from pagos where rbo={buscar}")
+        idcliente = pgonecolumn(con, f"select idcliente from pagos where rbo={buscar}")
+        nombre = pgonecolumn(con, f"select nombre from clientes where id={idcliente}")
+    except psycopg2.Error as e:
+        con.rollback()
+        error = e.pgerror
+        return make_response(error,400)
+    else:
+        return jsonify (reg=reg, nombre=nombre)
+
+
+@app.route('/pagos/borrarrbo/<int:id>')
+def pagos_borrarrbo(id):
+    stm = f"delete from pagos where id={id}"
+    cur = con.cursor()
+    cur.execute(stm)
+    con.commit()
+    cur.close()
+    return 'ok'
+
+@app.route('/pagos/guardaredicionrbo' , methods = ['POST'])
+def pagos_guardaredicionrbo():
+    d = ast.literal_eval(request.data.decode("UTF-8"))
+    idcliente = pgonecolumn(con, f"select idcliente from ventas where id={d['idvta']}")
+    upd = f"update pagos set fecha='{d['fecha']}', idvta={d['idvta']}, imp={d['imp']}, rec={d['rec']}, rbo={d['rbo']}, cobr={d['cobr']}, idcliente={idcliente} where id={d['id']}"
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    cur.close()
+    return 'OK'
+
 
 @app.route('/')
 @app.route('/buscador')

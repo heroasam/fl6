@@ -1,0 +1,177 @@
+{% extends "base_template.html" %}
+
+{% block title %}Editar Recibos{% endblock %}
+{% block style %}
+<style>
+  .input2{
+    color: #aaa;
+    font-size: 2em;
+    font-weight: bold;
+    text-align: center;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="app" class="container">
+  <p class="title is-1">Editar Recibos</p>
+  <p class="subtitle is-3" v-show="nombre">|nombre|</p>
+
+  <input type="text" v-model="buscar" class="block input input2" placeholder="Recibo a editar" @keyup.enter="obtenerRegRbo(buscar)">
+
+<div class="box block">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>op</th>
+        <th>op</th>
+        <th>Id</th>
+        <th>Fecha</th>
+        <th>idvta</th>
+        <th>imp</th>
+        <th>rec</th>
+        <th>rbo</th>
+        <th>cobr</th>
+        <th>idcliente</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="rbo in rbos">
+        <td><button class="button is-danger is-small" @click="borrarRbo(rbo[0])">Borrar</button></td>
+        <td><button class="button is-info is-small" @click="obtenerRbo(rbo[0])">Editar</button></td>
+        <td>|rbo[0]|</td>
+        <td>|rbo[1]|</td>
+        <td>|rbo[2]|</td>
+        <td>|rbo[3]|</td>
+        <td>|rbo[4]|</td>
+        <td>|rbo[5]|</td>
+        <td>|rbo[6]|</td>
+        <td>|rbo[7]|</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+
+
+
+
+
+  
+  <form v-on:submit.prevent class="box field is-horizontal">
+    <div class="field">
+      <label class="label">Fecha</label>
+      <input type="date" v-model="fecha" style="width: 150px;" class="input is-narrow">
+    </div>
+    <div class="field">
+      <label class="label">IdVta</label>
+      <input type="text" v-model="idvta" style="width: 100px" class="input is-narrow">
+    </div>
+    <div class="field">
+      <label class="label">Imp</label>
+      <input type="text" v-model="imp" style="width: 70px;" class="input is-narrow">
+    </div>
+    <div class="field">
+      <label class="label">Rec</label>
+      <input type="text" v-model="rec" style="width: 70px;" class="input is-narrow">
+    </div>
+    <div class="field">
+      <label class="label">Rbo</label>
+      <input type="text" v-model="rbo" style="width: 100px;" class="input is-narrow">
+    </div>
+    <div class="field">
+      <label class="label">Cobr</label>
+      <input type="text" v-model="cobr" style="width: 70px;" class="input is-narrow">
+    </div>
+   </form>
+      <button type="button" class="button is-danger ml-5" @click="validarEdicionRbo">Guardar</button>
+    
+    
+    
+</div>
+
+
+
+{% endblock %}
+{% block script %}
+<script>
+  const app = new Vue({
+    el:"#app",
+    delimiters:['|','|'],
+    data:{
+        buscar:'',
+        fecha:'',
+        idvta:'',
+        imp:'',
+        rec:'',
+        rbo:'',
+        cobr:'',
+        id:'',
+        nombre:'',
+        rbos:[],
+    },
+    methods:{
+      obtenerRegRbo(buscar){
+        axios.get('/pagos/obtenerregrbo/'+buscar)
+        .then(res=>{
+          let arrayRbos = Array.from(res.data.reg)
+                arrayRbos.forEach(row=>{
+                    row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD')
+                })
+                this.rbos = arrayRbos
+                this.nombre = res.data.nombre
+        })
+        .catch(error=>{
+          bulmaToast.toast({message:"No hay registros para ese recibo", type:"is-danger"})
+        })
+      },
+      obtenerRbo(id){
+        // ojo aca se busca por id de la tabla pagos
+        axios.get('/pagos/obtenerrbo/'+id)
+        .then(res=>{
+          console.log(res.data.reg)
+          this.fecha = dayjs.utc(res.data.reg[0][0]).format('YYYY-MM-DD')
+          this.idvta = res.data.reg[0][1]
+          this.imp = res.data.reg[0][2]
+          this.rec = res.data.reg[0][3]
+          this.rbo = res.data.reg[0][4]
+          this.cobr = res.data.reg[0][5]
+          this.id = res.data.reg[0][6]
+          this.nombre = res.data.reg[0][7]
+        })
+      },
+      validarEdicionRbo(){
+        if(this.fecha!=''&&this.idvta!=''&&this.imp!=''&&this.rbo!=''&&this.cobr!=''){
+          console.log('validado')
+          this.guardarEdicionRbo();
+        }
+      },
+      guardarEdicionRbo(){
+        axios({
+                method:'POST',
+                url:'/pagos/guardaredicionrbo',
+                data:{
+                    fecha:this.fecha,
+                    idvta:this.idvta,
+                    imp:this.imp,
+                    rec:this.rec,
+                    rbo:this.rbo,
+                    cobr:this.cobr,
+                    id:this.id,
+                }
+                })
+                .then(res=>{
+                  bulmaToast.toast({message:"El recibo fue editado con exito", type:"is-success"})
+                })
+      },
+      borrarRbo(id){
+        axios.get('/pagos/borrarrbo/'+id)
+        .then(res=>{
+          this.obtenerRegRbo(this.buscar);
+        })
+      }
+    },
+  })
+</script>
+{% endblock %}
