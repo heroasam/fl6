@@ -65,7 +65,7 @@ def cur(monto):
 
 @app.route('/pagos')
 def pagos():
-    return render_template("pagosvue.html")
+    return render_template("pagos/pagosvue.html")
 
 @app.route('/pagos/planilla/<string:fechapago>/<int:cobrador>')
 def pagos_planilla(fechapago,cobrador):
@@ -432,7 +432,7 @@ def fichaje_imprimir():
 
 @app.route('/loterbo')
 def loterbo_():
-    return render_template("loterbo.html")
+    return render_template("pagos/loterbo.html")
 
 @app.route('/loterbo/guardarlote/<string:fecha>/<string:cobr>', methods = ['POST'])
 def guardarlote(fecha,cobr):
@@ -475,7 +475,7 @@ def loterbo_reimprimir(fecha,cobr,idlote):
 @app.route('/loterbo/ver')
 def loterbo_ver():
     lotesrbo = pgddict(con,f"select id,fecha,cobr,cnt from loterbos order by id desc limit 100")
-    return render_template("loterbover.html", lotesrbo=lotesrbo)
+    return render_template("pagos/loterbover.html", lotesrbo=lotesrbo)
 
 @app.route('/loterbo/delete/<string:id>')
 def loterbo_delete(id):
@@ -494,7 +494,7 @@ def loterbo_buscanombrecobr(cobr):
 
 @app.route('/stock/asientos')
 def stock_asientos():
-    return render_template('asientos.html')
+    return render_template('stock/asientos.html')
 
 
 @app.route('/stock/getasientos')
@@ -541,7 +541,7 @@ def stock_guardarasiento():
 
 @app.route('/stock/mayor')
 def stock_mayor():
-    return render_template('mayor.html')
+    return render_template('stock/mayor.html')
 
 
 @app.route('/stock/getmayor/<string:cuenta>')
@@ -559,7 +559,7 @@ def stock_pivotcuentas():
     tbl = pd.pivot_table(df, values=['imp'],index='cuenta',columns='fecha',aggfunc='sum').sort_index(1, 'fecha',False)
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="table",classes="table table-sm")
-    return render_template("pivot_cuentas.html", tbl=tbl)
+    return render_template("stock/pivot_cuentas.html", tbl=tbl)
 
 
 @app.route('/stock/retiros')
@@ -571,7 +571,7 @@ def stock_retiros():
     tbl = pd.pivot_table(df, values=['imp'],index='fecha',columns='cuenta',aggfunc='sum')
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="table",classes="table table-sm")
-    return render_template("retiros.html", tbl=tbl)
+    return render_template("stock/retiros.html", tbl=tbl)
 
 
 @app.route('/stock/getcompras')
@@ -588,7 +588,7 @@ def stock_getarticulos():
 
 @app.route('/stock/compras')
 def stock_compras():
-    return render_template('compras.html')
+    return render_template('stock/compras.html')
 
 
 @app.route('/stock/deletecompra/<int:id>')
@@ -641,12 +641,12 @@ def stock_generarstock():
 
 @app.route('/stock/verstock')
 def stock_verstock():
-    return render_template('verstock.html')
+    return render_template('stock/verstock.html')
 
 
 @app.route('/stock/salidas')
 def stock_salidas():
-    return render_template('salidas.html')
+    return render_template('stock/salidas.html')
 
 
 @app.route('/stock/getsalidas')
@@ -684,7 +684,7 @@ def stock_getlistaarticulos():
 
 @app.route('/stock/articulos')
 def stock_articulos():
-    return render_template('articulos.html')
+    return render_template('stock/articulos.html')
 
 
 @app.route('/stock/guardararticulo' , methods = ['POST'])
