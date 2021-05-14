@@ -39,6 +39,7 @@ thead th {
   <a href="/loterbo" class="button is-outlined is-primary">Registrar Lote Rbos</a>
   <a href="/loterbo/ver" class="button is-outlined is-primary">Ver Lote Rbos</a>
   <a href="/pagos/editarrbo" class="button is-outlined is-primary">Editar Rbo</a>
+  <a href="/pagos/verzona" class="button is-outlined is-primary">Ver Zona</a>
 </div>
 
     <form v-on:submit.prevent class="field is-horizontal">
@@ -216,14 +217,7 @@ const app = new Vue({
             if(this.fechapago!=''&&this.cobrador!=''){
                 this.cargarPlanilla()
             }else{
-                //alert('corregir faltantes')
-                // let toast = this.$toasted.error("Complete los campos faltantes", {
-                // theme: "outline",
-                // position: "top-right",
-                // duration : 3000,
-                // fullWidth: true,
-                bulmaToast.toast({message="Complete los campos faltantes", type="is-danger"})
-            });
+                bulmaToast.toast({message:"Complete los campos faltantes", type:"is-danger"})
             }
 
         },

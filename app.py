@@ -224,6 +224,34 @@ def pagos_guardaredicionrbo():
     return 'OK'
 
 
+@app.route('/pagos/getzonasasignadas')
+def pagos_getzonasasignadas():
+    zonas = pgddict(con, f"select zonas.id as id,zonas.zona as zona,asignado,(select nombre from cobr where cobr.id=asignado) as nombre, count(*) as cnt, sum(cuota::integer) as cuota from zonas,clientes where clientes.zona=zonas.zona and pmovto>=now()-interval '3 month' and zonas.zona not like '-%' group by zonas.id order by asignado")
+    return jsonify(zonas=zonas)
+
+
+@app.route('/pagos/verzona')
+def pagos_verzona():
+    return render_template('pagos/verzona.html')
+
+
+@app.route('/pagos/editarasignado', methods = ['POST'])
+def pagos_editarasignado():
+    d = ast.literal_eval(request.data.decode("UTF-8"))
+    upd = f"update zonas set asignado={d['asignado']} where id={d['id']}"
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    cur.close()
+    return 'ok'
+
+
+@app.route('/pagos/gettotaleszonas')
+def pagos_gettotaleszonas():
+    totales = pgddict(con, f"select asignado,(select nombre from cobr where cobr.id=asignado) as nombre, sum(cuota::integer) as cuota from zonas,clientes where clientes.zona=zonas.zona and pmovto>=now()-interval '3 month' and zonas.zona not like '-%' group by asignado order by asignado")
+    return jsonify(totales=totales)
+
+
 @app.route('/')
 @app.route('/buscador')
 def buscador():
