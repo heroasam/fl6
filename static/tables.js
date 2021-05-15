@@ -1,28 +1,32 @@
-let $thead = document.querySelector('thead');
-let heads = $thead.children.length
-if(heads===3) {
-  $thead.removeChild($thead.lastElementChild)
-  $thead.removeChild($thead.firstElementChild)
-  heads = $thead.children.length
-}
+let listaheads = document.querySelectorAll('thead');
+$theads = Array.from(listaheads)
+$theads.forEach($thead=>{
+    let heads = $thead.children.length
+    if(heads===3) {
+    $thead.removeChild($thead.lastElementChild)
+    $thead.removeChild($thead.firstElementChild)
+    heads = $thead.children.length
+    }
+})
+
 
 //removemos el tr de fecha que complica y afea el encabezado
-let factor;
-switch (heads) {
-    case 1:
-        factor=1;
-        break;
-    case 2:
-        factor=2;
-        break;
-    case 3:
-        factor=2;
-        break;
-    default:
-        factor=0;
-        break
-}
-const nop = (pesos)=>{
+// let factor;
+// switch (heads) {
+//     case 1:
+//         factor=1;
+//         break;
+//     case 2:
+//         factor=2;
+//         break;
+//     case 3:
+//         factor=2;
+//         break;
+//     default:
+//         factor=0;
+//         break
+// }
+function nop(pesos){
   let signo = pesos.substr(0,1)
   if (signo=="$"){
     let len =  pesos.length - 1
@@ -38,8 +42,8 @@ const totalizar = (tableId)=>{
         let rowIndex=[];
         rowsArray.forEach((row)=>{
             if(row.classList.contains('selected')) {
-                rowIndex.push(row.rowIndex-factor)
-                //hago -3 pq el tbody tiene tres filas inutiles de titulos.
+                rowIndex.push(row.rowIndex-1)
+                //hago factor 1 pq se eliminan las filas sobrantes y se deja 1
                 //console.log(row);
             }
         });
