@@ -254,7 +254,7 @@ def pagos_gettotaleszonas():
 
 @app.route('/pagos/cobrostotales')
 def pagos_cobrostotales():
-    pd.options.display.float_format = '${:.0f}'.format
+    pd.options.display.float_format = '{:.0f}'.format
     sql="select ym(fecha) as fp,imp+rec as cuota,cobr from pagos where fecha >now() -interval '12 months'"
     dat = pd.read_sql_query(sql, con)
     df = pd.DataFrame(dat)
