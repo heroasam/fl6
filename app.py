@@ -269,7 +269,19 @@ def pagos_cobrostotales():
     tbl1 = tbl1.to_html(table_id="totaleszona",classes="table")
     return render_template("pagos/totales.html", tbl=tbl, tbl1=tbl1)
 
-    
+
+@app.route('/pagos/comisiones')
+def pagos_comisiones():
+    pd.options.display.float_format = '${:.0f}'.format
+    sql="select ym(fecha) as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,816) and fecha>'2018-07-31'"
+    dat = pd.read_sql_query(sql, con)
+    df = pd.DataFrame(dat)
+    tbl = pd.pivot_table(df, values=['comision','cobranza'],index='fecha',columns='cobr',aggfunc='sum').sort_index(0, 'fecha',False)
+    tbl = tbl.fillna("")
+    tbl = tbl.to_html(table_id="table",classes="table table-sm")
+    return render_template("pagos/comisiones.html", tbl=tbl)
+
+
 @app.route('/')
 @app.route('/buscador')
 def buscador():
