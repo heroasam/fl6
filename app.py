@@ -270,6 +270,24 @@ def pagos_cobrostotales():
     return render_template("pagos/totales.html", tbl=tbl, tbl1=tbl1)
 
 
+@app.route('/pagos/estimados')
+def pagos_estimados():
+    pd.options.display.float_format = '{:.0f}'.format
+    sql="select ym(pmovto) as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>now()- interval '6 months'  and zonas.zona not like '-%'"
+    sql1="select ym(pmovto) as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>now()-interval '6 months'  and zonas.zona not like '-%'"
+    dat = pd.read_sql_query(sql, con)
+    dat1= pd.read_sql_query(sql1,con)
+    df = pd.DataFrame(dat)
+    df1 = pd.DataFrame(dat1)
+    tbl = pd.pivot_table(df, values=['cuota'],index='asignado',columns='pmovto',aggfunc='sum').sort_index(1, 'pmovto',False)
+    tbl1 = pd.pivot_table(df1, values=['cuota'],index=['asignado','zona'],columns='pmovto',aggfunc='sum').sort_index(1, 'pmovto',False)
+    tbl = tbl.fillna("")
+    tbl1 = tbl1.fillna("")
+    tbl = tbl.to_html(table_id="totales",classes="table")
+    tbl1 = tbl1.to_html(table_id="totaleszona",classes="table")
+    return render_template("pagos/estimados.html", tbl=tbl, tbl1=tbl1)
+
+
 @app.route('/pagos/comisiones')
 def pagos_comisiones():
     pd.options.display.float_format = '${:.0f}'.format
