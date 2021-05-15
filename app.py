@@ -256,13 +256,13 @@ def pagos_gettotaleszonas():
 def pagos_cobrostotales():
     pd.options.display.float_format = '{:.0f}'.format
     sql="select ym(fecha) as fp,imp+rec as cuota,cobr from pagos where fecha >now() -interval '12 months'"
-    sql1="select ym(fecha) as fp,imp+rec as cuota,pagos.cobr as cobr,zona from pagos,clientes where clientes.id=pagos.idcliente and fecha >now()- interval '12 months'"
+    sql1="select ym(fecha) as fp,imp+rec as cuota,pagos.cobr as cobr,zona,(select asignado from zonas where zona=clientes.zona) as asignado from pagos,clientes where clientes.id=pagos.idcliente and fecha >now()- interval '12 months' and zona not like '-%'"
     dat = pd.read_sql_query(sql, con)
     dat1= pd.read_sql_query(sql1,con)
     df = pd.DataFrame(dat)
     df1 = pd.DataFrame(dat1)
     tbl = pd.pivot_table(df, values=['cuota'],index='cobr',columns='fp',aggfunc='sum').sort_index(1, 'fp',False)
-    tbl1 = pd.pivot_table(df1, values=['cuota'],index='zona',columns='fp',aggfunc='sum').sort_index(1, 'fp',False)
+    tbl1 = pd.pivot_table(df1, values=['cuota'],index=['asignado','zona'],columns='fp',aggfunc='sum').sort_index(1, 'fp',False)
     tbl = tbl.fillna("")
     tbl1 = tbl1.fillna("")
     tbl = tbl.to_html(table_id="totales",classes="table")
