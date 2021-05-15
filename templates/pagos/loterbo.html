@@ -20,7 +20,20 @@
 {% block content %}
 
 <div id="app" class="container">
+
     <p class="title is-1">Generar Lote de Rbos</p>
+
+    <div class="buttons">
+        <a href="/pagos" class="button is-outlined is-primary">Pagos</a>
+        <a href="/pagos/verplanillas" class="button is-outlined is-primary">Planillas</a>
+        <a href="/loterbo/ver" class="button is-outlined is-primary">Ver Lote Rbos</a>
+        <a href="/pagos/editarrbo" class="button is-outlined is-primary">Editar Rbo</a>
+        <a href="/pagos/verzona" class="button is-outlined is-primary">Ver Zona</a>
+        <a href="/pagos/cobrostotales" class="button is-outlined is-primary">Totales</a>
+        <a href="/pagos/estimados" class="button is-outlined is-primary">Estimados</a>
+        <a href="/pagos/comisiones" class="button is-outlined is-primary">Comisiones</a>
+      </div>
+
     <form v-on:submit.prevent class="field is-horizontal">
         <button type="button" class="button is-danger" @click="limpiarForm">Limpiar</button>
         <input id="fechapago" type="date"  class="input input1 is-narrow" v-model="fechapago">
