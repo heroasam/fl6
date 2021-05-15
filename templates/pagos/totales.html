@@ -3,7 +3,10 @@
 {% block title %}Totales{% endblock %}
 {% block style %}
 <style>
-  
+  .total{
+    background-color: yellow;
+    color: #aaa;
+  }
   </style>
   {% endblock %}
 
@@ -20,6 +23,29 @@
 
 {% block script %}
 <script>
+   let tableId = document.getElementById('totales')
+   let tbody = tableId.querySelector('tbody');
+        let rowsArray = Array.from(tbody.rows);
+        let rowIndex=[];
+        rowsArray.forEach((row)=>{
+                rowIndex.push(row.rowIndex-1)
+        });
+        let maxRow = Math.max(...rowIndex)+1;
+        let $rowTotal = tbody.insertRow(maxRow);
+        let $cell0 = $rowTotal.insertCell(0);
+        $cell0.innerHTML = "Total";
+        $rowTotal.classList.add('total');
+
+        const cols = rowsArray[0].children.length // determino la cant columnas
+        for(let i=1;i<cols;i++){
+        let col = [];
+        rowIndex.forEach((ix)=>{
+            col.push(nop(tbody.rows[ix].cells[i].innerText))
+        });
+        let total = col.reduce((a,b)=>Number(a)+Number(b));
+        let $cell = $rowTotal.insertCell(i);
+        if (!(Number.isNaN(total))) $cell.innerHTML = total
+        }
   const app = new Vue({
     el:"#app",
     delimiters:['|','|'],

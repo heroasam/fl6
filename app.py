@@ -260,7 +260,7 @@ def pagos_cobrostotales():
     df = pd.DataFrame(dat)
     tbl = pd.pivot_table(df, values=['cuota'],index='cobr',columns='fp',aggfunc='sum').sort_index(1, 'fp',False)
     tbl = tbl.fillna("")
-    tbl = tbl.to_html(table_id="table",classes="table")
+    tbl = tbl.to_html(table_id="totales",classes="table")
     return render_template("pagos/totales.html", tbl=tbl)
 
     
