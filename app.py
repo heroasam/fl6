@@ -252,6 +252,18 @@ def pagos_gettotaleszonas():
     return jsonify(totales=totales)
 
 
+@app.route('/pagos/cobrostotales')
+def pagos_cobrostotales():
+    pd.options.display.float_format = '${:.0f}'.format
+    sql="select ym(fecha) as fp,imp+rec as cuota,cobr from pagos where fecha >now() -interval '12 months'"
+    dat = pd.read_sql_query(sql, con)
+    df = pd.DataFrame(dat)
+    tbl = pd.pivot_table(df, values=['cuota'],index='cobr',columns='fp',aggfunc='sum').sort_index(1, 'fp',False)
+    tbl = tbl.fillna("")
+    tbl = tbl.to_html(table_id="table",classes="table")
+    return render_template("pagos/totales.html", tbl=tbl)
+
+    
 @app.route('/')
 @app.route('/buscador')
 def buscador():

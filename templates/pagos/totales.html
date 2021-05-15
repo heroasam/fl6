@@ -1,17 +1,18 @@
 {% extends "base_template.html" %}
 
-{% block title %}VerZonas{% endblock %}
+{% block title %}Totales{% endblock %}
 {% block style %}
 <style>
+  
   </style>
   {% endblock %}
-  
+
 {% block content %}
 
 <div class="container">
-    <p class="title is-1">Ver Zonas Asignadas</p>
+    <p class="title is-1">Totales Cobrados</p>
 
-
+    {{tbl|safe}}
 
 
 </div>
