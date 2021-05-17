@@ -1,0 +1,117 @@
+{% extends "base_template.html" %}
+
+{% block title %}Ventas{% endblock %}
+{% block style %}
+<style>
+  </style>
+  {% endblock %}
+  
+{% block content %}
+
+<div id="app" class="container">
+    <p class="title is-1">Pasar Ventas</p>
+    <div class="field is-horizontal box">
+      <input type="search" placeholder="Buscar en Romitex" size="73" class="input" v-model="buscar" @keyup.enter="buscarCliente" @focus="buscar=''">
+      <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
+    </div>
+
+  <div class="buttons" v-if="buscar">
+      <div v-for="cliente in clientes">
+          <!-- [dni,nombre,direccion] -->
+      <button class="button is-info" @mouseover="buscar=cliente[2]" @click="buscaCuentaporDni(cliente[0])">|cliente[1]|</button>
+      </div>
+  </div>
+
+  <form class="box">
+    <div class="columns">
+      <div class="is-1">
+        <input type="text" v-model="sex" placeholder="Sexo" size="1" class="input">
+      </div>
+      <div class="is-2">
+        <input type="text" v-model="dni" placeholder="DNI" size="6" class="input">
+      </div>
+      <div class="is-9">
+        <input type="text" v-model="nombre" placeholder="Nombre" size="60" class="input">
+      </div>
+    </div>
+    <div class="columns">
+      <div class="is-4">
+        <input type="text" v-model="calle" placeholder="Calle" size="30" class="input" list="callelist">
+        <datalist id="callelist">
+          <option v-for="calle in calles">|calle|</option>
+          </datalist>
+      </div>
+      <div class="is-1">
+        <input type="text" v-model="num" placeholder="Num" size="10" class="input">
+      </div>
+      <div class="is-4">
+        <input type="text" v-model="barrio" placeholder="Barrio" size="30" class="input" list="barriolist">
+        <datalist id="barriolist">
+          <option v-for="barrio in barrios">|barrio|</option>
+      </datalist>
+      </div>
+      <div class="is-3">
+        <input type="text" v-model="zona" placeholder="Zona" size="20" class="input" list="zonalist">
+        <datalist id="zonalist">
+          <option v-for="zona in zonas">|zona|</option>
+      </datalist>
+      </div>
+    </div>
+  </form>
+
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  const app = new Vue({
+    el:"#app",
+    delimiters:['|','|'],
+    data:{
+      buscar:'',
+      clientes:[],
+      calles:[],
+      barrios:[],
+      zonas:[],
+      sex:'',
+      dni:'',
+      nombre:'',
+      calle:'',
+
+    },
+    methods:{
+      buscarCliente(){
+            axios.get('/buscador/'+this.buscar)
+            .then(res=>{
+                this.clientes = res.data.clientes
+                //if(this.clientes.length==1) this.buscaCuentaporDni(this.clientes[0][0])
+            })
+        },
+      getCalles(){
+        axios.get('/ventas/getcalles')
+        .then(res=>{
+          this.calles = res.data.calles
+        })
+      },
+      getBarrios(){
+        axios.get('/ventas/getbarrios')
+        .then(res=>{
+          this.barrios = res.data.barrios
+        })
+      },
+      getZonas(){
+        axios.get('/ventas/getzonas')
+        .then(res=>{
+          this.zonas = res.data.zonas
+        })
+      },
+    },
+    created: function(){
+      this.getCalles()
+      this.getBarrios()
+      this.getZonas()
+    },
+  })
+  </script>
+  {% endblock %}
