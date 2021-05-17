@@ -888,3 +888,9 @@ def ventas_getbarrios():
 def ventas_getzonas():
     zonas = pglflat(con, f"select zona from zonas order by zona")
     return jsonify(zonas= zonas)
+
+
+@app.route('/ventas/getcuentapordni/<string:dni>')
+def ventas_getcuentaspordni(dni):
+    clientes = pgdict(con,f"select sex,dni,nombre,calle,num,barrio,zona,tel,wapp,acla,horario,mjecobr,infoseven,id from clientes where dni='{dni}'")
+    return jsonify(clientes=clientes)

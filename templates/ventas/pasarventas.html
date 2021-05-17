@@ -22,39 +22,59 @@
       </div>
   </div>
 
-  <form class="box">
+  <form class="box" id="EditarForm">
     <div class="columns">
       <div class="is-1">
-        <input type="text" v-model="sex" placeholder="Sexo" size="1" class="input">
+        <input type="text" v-model="sex" placeholder="Sexo" size="1" class="input" id="sex">
       </div>
       <div class="is-2">
-        <input type="text" v-model="dni" placeholder="DNI" size="6" class="input">
+        <input type="text" v-model="dni" placeholder="DNI" size="6" class="input" id="dni">
       </div>
-      <div class="is-9">
-        <input type="text" v-model="nombre" placeholder="Nombre" size="60" class="input">
+      <div class="is-5">
+        <input type="text" v-model="nombre" placeholder="Nombre" size="60" class="input" id="nombre">
+      </div>
+      <div class="is-2">
+        <input type="text" v-model="tel" placeholder="Telefono" size="20" class="input" id="tel">
+      </div>
+      <div class="is-2">
+        <input type="text" v-model="wapp" placeholder="WhatApp" size="20" class="input" id="wapp">
       </div>
     </div>
     <div class="columns">
       <div class="is-4">
-        <input type="text" v-model="calle" placeholder="Calle" size="30" class="input" list="callelist">
+        <input type="text" v-model="calle" placeholder="Calle" size="30" class="input" list="callelist" id="calle">
         <datalist id="callelist">
           <option v-for="calle in calles">|calle|</option>
           </datalist>
       </div>
       <div class="is-1">
-        <input type="text" v-model="num" placeholder="Num" size="10" class="input">
+        <input type="text" v-model="num" placeholder="Num" size="10" class="input" id="num">
       </div>
       <div class="is-4">
-        <input type="text" v-model="barrio" placeholder="Barrio" size="30" class="input" list="barriolist">
+        <input type="text" v-model="barrio" placeholder="Barrio" size="30" class="input" list="barriolist" id="barrio">
         <datalist id="barriolist">
           <option v-for="barrio in barrios">|barrio|</option>
       </datalist>
       </div>
       <div class="is-3">
-        <input type="text" v-model="zona" placeholder="Zona" size="20" class="input" list="zonalist">
+        <input type="text" v-model="zona" placeholder="Zona" size="20" class="input" list="zonalist" id="zona">
         <datalist id="zonalist">
           <option v-for="zona in zonas">|zona|</option>
       </datalist>
+      </div>
+    </div>
+    <div class="columns">
+      <div class="is-3">
+        <input type="text" v-model="acla" placeholder="Aclaracion" size="30" class="input" id="acla">
+      </div>
+      <div class="is-3">
+        <input type="text" v-model="horario" placeholder="Horario" size="30" class="input" id="horario">
+      </div>
+      <div class="is-3">
+        <input type="text" v-model="mjecobr" placeholder="Mje Cobrador" size="30" class="input" id="mjecobr">
+      </div>
+      <div class="is-3">
+        <input type="text" v-model="infoseven" placeholder="InfoSeven" size="30" class="input" id="infoseven">
       </div>
     </div>
   </form>
@@ -65,7 +85,7 @@
 
 {% block script %}
 <script>
-  const app = new Vue({
+const app = new Vue({
     el:"#app",
     delimiters:['|','|'],
     data:{
@@ -78,6 +98,17 @@
       dni:'',
       nombre:'',
       calle:'',
+      num:'',
+      direccion:'',
+      barrio:'',
+      zona:'',
+      tel:'',
+      wapp:'',
+      acla:'',
+      horario:'',
+      mjecobr:'',
+      infoseven:'',
+      id:'',
 
     },
     methods:{
@@ -86,6 +117,30 @@
             .then(res=>{
                 this.clientes = res.data.clientes
                 //if(this.clientes.length==1) this.buscaCuentaporDni(this.clientes[0][0])
+            })
+        },
+        buscaCuentaporDni(dni){
+            axios.get('/ventas/getcuentapordni/'+dni)
+            .then(res=>{
+                this.clientes = res.data.clientes
+                this.sexo = this.clientes[0][0]
+                this.dni = this.clientes[0][1]
+                this.nombre = this.clientes[0][2]
+                this.calle = this.clientes[0][3]
+                this.num = this.clientes[0][4]
+                this.direccion = this.calle+' '+this.num
+                this.barrio = this.clientes[0][5]
+                this.zona = this.clientes[0][6]
+                this.tel = this.clientes[0][7]
+                this.wapp = this.clientes[0][8]
+                this.acla = this.clientes[0][9]
+                this.horario = this.clientes[0][10]
+                this.mjecobr = this.clientes[0][11]
+                this.infoseven = this.clientes[0][12]
+                this.id = this.clientes[0][13]
+
+                this.buscar = '';
+                this.clientes = [];
             })
         },
       getCalles(){
