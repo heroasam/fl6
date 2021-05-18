@@ -11,7 +11,7 @@
 <div id="app" class="container">
     <p class="title is-1">Pasar Ventas</p>
     <div class="field is-horizontal box">
-      <input type="search" placeholder="Buscar en Romitex" size="73" class="input" v-model="buscar" @keyup.enter="buscarCliente" @focus="buscar=''" ref="buscar">
+      <input type="search" placeholder="Buscar en Romitex" size="73" class="input" v-model="buscar" @keyup.enter="buscarCliente" @focus="buscar='';nuevoCliente" ref="buscar">
       <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
       <button type="button" @click="nuevoCliente" class="button is-danger">Nuevo</button>
     </div>
@@ -24,6 +24,7 @@
   </div>
 
   <form class="box" id="EditarForm">
+    <input type="hidden" ref="token" name="csrf_token" value="{{ csrf_token() }}"/>
     <div class="columns">
       <div class="column is-1">
         <input type="text" v-model="sex" placeholder="Sexo" size="1" class="input" ref="sex" @keyup.enter="$refs.dni.focus()" :class='{"is-danger":!sex}' @blur="validarSex">
@@ -141,7 +142,7 @@ const app = new Vue({
             axios.get('/ventas/getcuentapordni/'+dni)
             .then(res=>{
                 this.clientes = res.data.clientes
-                this.sexo = this.clientes[0][0]
+                this.sex = this.clientes[0][0]
                 this.dni = this.clientes[0][1]
                 this.nombre = this.clientes[0][2]
                 this.calle = this.clientes[0][3]
@@ -205,11 +206,33 @@ const app = new Vue({
         }
       },
       guardarCliente(){
-        if(this.id==''){
-          console.log('es un cliente nuevo')
-        }else{
-          console.log('es una edicion')
-        }
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+            axios({
+                method:'POST',
+                url:'/ventas/guardarcliente',
+                data:{
+                    id:this.id,
+                    sex:this.sex,
+                    dni:this.dni,
+                    nombre:this.nombre,
+                    calle:this.calle,
+                    num:this.num,
+                    barrio:this.barrio,
+                    zona:this.zona,
+                    acla:this.acla,
+                    horario:this.horario,
+                    mjecobr:this.mjecobr,
+                    infoseven:this.infoseven,
+                    tel:this.tel,
+                    wapp:this.wapp,
+                }
+                })
+                .then(res=>{
+                  bulmaToast.toast({message:"Cliente creado/editado con exito", type:'is-success'})
+                })
+                .catch(error=>{
+                  bulmaToast.toast({message:error.request.response, type:'is-danger'})
+                })
       },
       validarSex(){
         if(this.sex==''){
