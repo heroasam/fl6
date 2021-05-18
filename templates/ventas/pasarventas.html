@@ -11,8 +11,9 @@
 <div id="app" class="container">
     <p class="title is-1">Pasar Ventas</p>
     <div class="field is-horizontal box">
-      <input type="search" placeholder="Buscar en Romitex" size="73" class="input" v-model="buscar" @keyup.enter="buscarCliente" @focus="buscar=''">
+      <input type="search" placeholder="Buscar en Romitex" size="73" class="input" v-model="buscar" @keyup.enter="buscarCliente" @focus="buscar=''" ref="buscar">
       <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
+      <button type="button" @click="nuevoCliente" class="button is-danger">Nuevo</button>
     </div>
 
   <div class="buttons" v-if="buscar">
@@ -25,13 +26,16 @@
   <form class="box" id="EditarForm">
     <div class="columns">
       <div class="column is-1">
-        <input type="text" v-model="sex" placeholder="Sexo" size="1" class="input" ref="sex" @keyup.enter="$refs.dni.focus()">
+        <input type="text" v-model="sex" placeholder="Sexo" size="1" class="input" ref="sex" @keyup.enter="$refs.dni.focus()" :class='{"is-danger":!sex}' @blur="validarSex">
+        <p v-show="!sex" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-2">
-        <input type="text" v-model="dni" placeholder="DNI" size="6" class="input" ref="dni" @keyup.enter="$refs.nombre.focus()">
+        <input type="text" v-model="dni" placeholder="DNI" size="6" class="input" ref="dni" @keyup.enter="$refs.nombre.focus()" :class='{"is-danger":!dni}'>
+        <p v-show="!dni" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-5">
-        <input type="text" v-model="nombre" placeholder="Nombre" size="60" class="input" ref="nombre" @keyup.enter="$refs.tel.focus()">
+        <input type="text" v-model="nombre" placeholder="Nombre" size="60" class="input" ref="nombre" @keyup.enter="$refs.tel.focus()" :class='{"is-danger":!nombre}'>
+        <p v-show="!nombre" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-2">
         <input type="text" v-model="tel" placeholder="Telefono" size="20" class="input" ref="tel" @keyup.enter="$refs.wapp.focus()">
@@ -42,25 +46,29 @@
     </div>
     <div class="columns">
       <div class="column is-4">
-        <input type="text" v-model="calle" placeholder="Calle" size="30" class="input" list="callelist" ref="calle" @keyup.enter="$refs.num.focus()">
+        <input type="text" v-model="calle" placeholder="Calle" size="30" class="input" list="callelist" ref="calle" @keyup.enter="$refs.num.focus()" :class='{"is-danger":!calle}'>
         <datalist id="callelist">
           <option v-for="calle in calles">|calle|</option>
           </datalist>
+          <p v-show="!calle" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-1">
-        <input type="text" v-model="num" placeholder="Num" size="10" class="input" ref="num" @keyup.enter="$refs.barrio.focus()">
+        <input type="text" v-model="num" placeholder="Num" size="10" class="input" ref="num" @keyup.enter="$refs.barrio.focus()" :class='{"is-danger":!num}'>
+        <p v-show="!num" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-4">
-        <input type="text" v-model="barrio" placeholder="Barrio" size="30" class="input" list="barriolist" ref="barrio" @keyup.enter="$refs.zona.focus()">
+        <input type="text" v-model="barrio" placeholder="Barrio" size="30" class="input" list="barriolist" ref="barrio" @keyup.enter="$refs.zona.focus()" :class='{"is-danger":!barrio}'>
         <datalist id="barriolist">
           <option v-for="barrio in barrios">|barrio|</option>
       </datalist>
+      <p v-show="!barrio" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-3">
-        <input type="text" v-model="zona" placeholder="Zona" size="20" class="input" list="zonalist" ref="zona" @keyup.enter="$refs.acla.focus()">
+        <input type="text" v-model="zona" placeholder="Zona" size="20" class="input" list="zonalist" ref="zona" @keyup.enter="$refs.acla.focus()" :class='{"is-danger":!zona}'>
         <datalist id="zonalist">
           <option v-for="zona in zonas">|zona|</option>
       </datalist>
+      <p v-show="!zona" class="help is-danger">Requerido</p>
       </div>
     </div>
     <div class="columns">
@@ -78,8 +86,8 @@
       </div>
     </div>
     <div class="columns">
-      <div class="column is-1 is-offset-11">
-        <button type="button" class="button is-danger" ref="guardar">Guardar</button>
+      <div class="column is-1" >
+        <button type="button" class="button is-danger" ref="guardar" @click="validarCliente">Guardar</button>
       </div>
     </div>
   </form>
@@ -123,6 +131,11 @@ const app = new Vue({
                 this.clientes = res.data.clientes
                 //if(this.clientes.length==1) this.buscaCuentaporDni(this.clientes[0][0])
             })
+            .catch(error=>{
+              bulmaToast.toast({message:error.request.response,type:"is-danger"})
+              this.dni = this.buscar
+              this.$refs.sex.focus()
+            })
         },
         buscaCuentaporDni(dni){
             axios.get('/ventas/getcuentapordni/'+dni)
@@ -146,6 +159,7 @@ const app = new Vue({
 
                 this.buscar = '';
                 this.clientes = [];
+                this.$refs.sex.focus()
             })
         },
       getCalles(){
@@ -166,6 +180,48 @@ const app = new Vue({
           this.zonas = res.data.zonas
         })
       },
+      nuevoCliente(){
+        this.id=''
+        this.sex=''
+        this.dni=''
+        this.nombre=''
+        this.calle=''
+        this.num=''
+        this.barrio=''
+        this.zona=''
+        this.tel=''
+        this.wapp=''
+        this.acla=''
+        this.horario=''
+        this.mjecobr=''
+        this.infoseven=''
+        this.$refs.buscar.focus()
+      },
+      validarCliente(){
+        if(this.sex!=''&&this.dni!=''&&this.nombre!=''&&this.calle!=''&&this.num!=''&&this.barrio!=''&&this.zona!=''){
+          this.guardarCliente()
+        }else{
+          bulmaToast.toast({message:"Complete los datos minimos requeridos", type:'is-danger'})
+        }
+      },
+      guardarCliente(){
+        if(this.id==''){
+          console.log('es un cliente nuevo')
+        }else{
+          console.log('es una edicion')
+        }
+      },
+      validarSex(){
+        if(this.sex==''){
+          bulmaToast.toast({message:"este campo es requerido", type:'is-danger'})
+          this.$refs.sex.focus()
+        }
+        if(this.sex!='f'&&this.sex!='F'&&this.sex!='m'&&this.sex!='M'){
+          bulmaToast.toast({message:"unicamente se aceptan F o M", type:'is-danger'})
+          this.$refs.sex.focus()
+        }
+        this.sex = this.sex.toUpperCase()
+      }
     },
     created: function(){
       this.getCalles()

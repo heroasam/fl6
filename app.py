@@ -319,6 +319,9 @@ def buscar_cuenta(buscar):
     else:
         buscar = '%'+buscar.replace(' ','%')+'%'
         clientes = pgdict(con,f"select dni,nombre,calle||' '||num from clientes where nombre||calle||num||barrio ilike '{buscar}'")
+    if len(clientes)==0:
+        print('No hay respuesta')
+        return make_response("No existe ese DNI en Romitex",400)
     return jsonify(clientes=clientes)
 
 
