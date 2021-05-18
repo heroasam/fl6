@@ -46,6 +46,7 @@ thead th {
 </div>
 
     <form v-on:submit.prevent class="field is-horizontal">
+        <input type="hidden" ref="token" name="csrf_token" value="{{ csrf_token() }}"/>
         <input id="fechapago" type="date" style="width:250px;" class="input is-narrow" v-model="fechapago">
         <input id="cobrador" type="text" style="width:100px;" class="input is-narrow" placeholder="Cobrador" v-model="cobrador" @keyup.enter="validateCargarPlanilla" @blur="cargaNombreCobr">
         <button @click.prevent="validateCargarPlanilla" type="button" class="button is-info">Cargar Planilla</button>
@@ -327,6 +328,7 @@ const app = new Vue({
             }
         },
         pasarPagos(){
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
             axios({
                 method:'POST',
                 url:'/pagos/pasarpagos',
