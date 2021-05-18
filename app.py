@@ -1,6 +1,9 @@
 from flask import Flask, json
 from flask import render_template,url_for,request,redirect, send_file,jsonify, make_response
 from flask_wtf.csrf import CSRFProtect
+from flask_login import LoginManager, login_user, current_user
+from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.urls import url_parse
 import psycopg2
 import psycopg2.extras
 from lib import *
@@ -10,7 +13,8 @@ import numpy as np
 import re
 import ast
 import os
-
+from model import User
+from forms import LoginForm
 
 
 
@@ -22,9 +26,83 @@ app.config['SECRET_KEY'] = os.urandom(24)
 #'7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
 
 csrf = CSRFProtect(app)
+login = LoginManager(app)
 
 #con = psycopg2.connect(dbname='daq6n3vvmrg79o', user='ynpqvlqqsidhga', host='ec2-3-95-87-221.compute-1.amazonaws.com', password='4bded69478ac502d5223655094cbc2241ed5aaf025f0b31fd19494c5aa35d6f0',sslmode='require')
 con = psycopg2.connect(dbname='hero', user='hero', host='localhost', password='ata', port=5432)
+
+
+@login.user_loader
+def load_user(id):
+    log = pgdict(con, f"select id,name,email,password from users where id={id}")
+    user = User(log[0][0],log[0][1], log[0][2],log[0][3])
+    return user
+
+
+
+@app.route('/login')
+def login():
+    # # if  current_user.is_authenticated:
+    # #     return redirect(url_for('index'))
+    # form = LoginForm()
+    # if form.validate_on_submit():
+    #     print('hola')
+    #     user = get_user(form.email.data)
+    #     if user is not None and user.check_password(form.password.data):
+    #         login.login_user(user, remember=form.remember_me.data)
+    #         next_page = request.args.get('next')
+    #         if not next_page or url_parse(next_page).netloc != '':
+    #             next_page = url_for('index')
+    #         return redirect(next_page)
+    return render_template('login_form.html')
+
+
+@app.route('/login/requerirlogin', methods=['POST'])
+def login_requerirlogin():
+    d = ast.literal_eval(request.data.decode("UTF-8"))
+    #user = User()
+    log = pgdict(con, f"select id,name,email,password from users where email='{d['email']}'")
+    user = User(log[0][0],log[0][1], log[0][2],log[0][3])
+    print(user.password)
+    print(user.check_password("ATA"))
+    print(check_password_hash(user.password, 'ata'))
+    password = "d['password']"
+    print(user.check_password(password))
+    if user is not None :
+        login_user(user, remember = d['remember'])
+        next_page = request.args.get('next')
+        print(user)
+        print(next_page)
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('stock_asientos')
+        print(current_user.name)
+        return redirect(url_for('buscador'))
+    return render_template('login_form.html')
+
+@app.route('/signup')
+def signup():
+    return render_template('signup.html')
+
+
+@app.route('/signup/guardardatos' , methods=['POST'])
+def signup_guardardatos():
+    d = ast.literal_eval(request.data.decode("UTF-8"))
+    name = d['name']
+    email = d['email']
+    password = generate_password_hash(d['password'])
+    ins = f"insert into users(name, email, password) values('{name}', '{email}', '{password}')"
+    cur = con.cursor()
+    try:
+        cur.execute(ins)
+    except psycopg2.Error as e:
+        con.rollback()
+        error = e.pgerror
+        return make_response(error,400)
+    else:
+        con.commit()
+        cur.close()
+        return 'ok'
+    
 
 
 @app.route('/pivot/pagos_cobr')

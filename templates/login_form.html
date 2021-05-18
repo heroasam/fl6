@@ -1,0 +1,69 @@
+{% extends "base_template.html" %}
+
+{% block content %}
+<div id="app">
+    <div class="column is-4 is-offset-4">
+        <h3 class="title">Login</h3>
+        <div class="box">
+            <form >
+                <input type="hidden" ref="token" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="field">
+                    <div class="control">
+                        <input class="input is-large" type="email" name="email" placeholder="Your Email" autofocus="" v-model="email">
+                    </div>
+                </div>
+    
+                <div class="field">
+                    <div class="control">
+                        <input class="input is-large" type="password" name="password" placeholder="Your Password" v-model="password">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="checkbox">
+                        <input type="checkbox" v-model="remember">
+                        Remember me
+                    </label>
+                </div>
+                <button type="button" class="button is-block is-info is-large is-fullwidth" @click="requerirLogin">Login</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  const app = new Vue({
+    el:"#app",
+    delimiters:['|','|'],
+    data:{
+        email:'',
+        password:'',
+        remember:'',
+    },
+    methods:{
+        requerirLogin(){
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+                axios({
+                method:'POST',
+                url:'/login/requerirlogin',
+                data:{
+                    email:this.email,
+                    password:this.password,
+                    remember: this.remember,
+                }
+                })
+                .then(res=>{
+                    console.log(res)
+                    bulmaToast.toast({message:"Logueado con exito", type:"is-success"})
+                })
+                .catch(error=>{
+                    console.log(error.request.response)
+                    bulmaToast.toast({message:error.request.response, type:"is-danger"})
+                })
+
+        }
+    },
+  })
+  </script>
+  {% endblock %}
