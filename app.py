@@ -1,8 +1,9 @@
 from flask import Flask, json
 from flask import render_template,url_for,request,redirect, send_file,jsonify, make_response
 from flask_wtf.csrf import CSRFProtect
-from flask_login import LoginManager, login_user, current_user
-from werkzeug.security import check_password_hash, generate_password_hash
+from flask_login import LoginManager, login_user, current_user, login_required, logout_user
+from flask_bcrypt import Bcrypt
+from flask_login import UserMixin
 from werkzeug.urls import url_parse
 import psycopg2
 import psycopg2.extras
@@ -13,8 +14,7 @@ import numpy as np
 import re
 import ast
 import os
-from model import User
-from forms import LoginForm
+
 
 
 
@@ -27,57 +27,61 @@ app.config['SECRET_KEY'] = os.urandom(24)
 
 csrf = CSRFProtect(app)
 login = LoginManager(app)
+login.login_view = "login"
+bcrypt = Bcrypt(app)
 
 #con = psycopg2.connect(dbname='daq6n3vvmrg79o', user='ynpqvlqqsidhga', host='ec2-3-95-87-221.compute-1.amazonaws.com', password='4bded69478ac502d5223655094cbc2241ed5aaf025f0b31fd19494c5aa35d6f0',sslmode='require')
 con = psycopg2.connect(dbname='hero', user='hero', host='localhost', password='ata', port=5432)
 
 
+class User(UserMixin):
+    def __init__(self, id, name, email, password, is_admin=False):
+        self.id = id
+        self.name = name
+        self.email = email
+        self.password = password
+        self.is_admin = is_admin
+    def set_password(self, password):
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+    def check_password(self, password):
+        return bcrypt.check_password_hash(self.password, password)
+    def __repr__(self):
+        return '<User {}>'.format(self.email)
+
+
 @login.user_loader
 def load_user(id):
     log = pgdict(con, f"select id,name,email,password from users where id={id}")
-    user = User(log[0][0],log[0][1], log[0][2],log[0][3])
+    if log !=[]:
+        user = User(log[0][0],log[0][1], log[0][2],log[0][3])
+    else:
+        return render_template('login_form.html')
     return user
 
 
 
-@app.route('/login')
+@app.route('/login', methods=['GET','POST'])
 def login():
-    # # if  current_user.is_authenticated:
-    # #     return redirect(url_for('index'))
-    # form = LoginForm()
-    # if form.validate_on_submit():
-    #     print('hola')
-    #     user = get_user(form.email.data)
-    #     if user is not None and user.check_password(form.password.data):
-    #         login.login_user(user, remember=form.remember_me.data)
-    #         next_page = request.args.get('next')
-    #         if not next_page or url_parse(next_page).netloc != '':
-    #             next_page = url_for('index')
-    #         return redirect(next_page)
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        log = pgdict(con, f"select id,name,email,password from users where email='{email}'")
+        user = User(log[0][0],log[0][1], log[0][2],log[0][3])
+        if user is not None and user.check_password(password) :
+            login_user(user)
+            
+            next_page = request.args.get('next')
+            if not next_page or url_parse(next_page).netloc != '':
+                next_page = url_for('buscador')
+            return redirect(next_page)
     return render_template('login_form.html')
 
 
-@app.route('/login/requerirlogin', methods=['POST'])
-def login_requerirlogin():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
-    #user = User()
-    log = pgdict(con, f"select id,name,email,password from users where email='{d['email']}'")
-    user = User(log[0][0],log[0][1], log[0][2],log[0][3])
-    print(user.password)
-    print(user.check_password("ATA"))
-    print(check_password_hash(user.password, 'ata'))
-    password = "d['password']"
-    print(user.check_password(password))
-    if user is not None :
-        login_user(user, remember = d['remember'])
-        next_page = request.args.get('next')
-        print(user)
-        print(next_page)
-        if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('stock_asientos')
-        print(current_user.name)
-        return redirect(url_for('buscador'))
-    return render_template('login_form.html')
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
 
 @app.route('/signup')
 def signup():
@@ -89,7 +93,8 @@ def signup_guardardatos():
     d = ast.literal_eval(request.data.decode("UTF-8"))
     name = d['name']
     email = d['email']
-    password = generate_password_hash(d['password'])
+    password = bcrypt.generate_password_hash(d['password']).decode('utf-8')
+    print(d['password'], type(d['password']), password, type(password))
     ins = f"insert into users(name, email, password) values('{name}', '{email}', '{password}')"
     cur = con.cursor()
     try:
@@ -147,8 +152,9 @@ def cur(monto):
 
 
 @app.route('/pagos')
+@login_required
 def pagos():
-    return render_template("pagos/pagosvue.html")
+    return render_template("pagos/pagosvue.html",current=current_user.name)
 
 @app.route('/pagos/planilla/<string:fechapago>/<int:cobrador>')
 def pagos_planilla(fechapago,cobrador):
@@ -385,8 +391,9 @@ def pagos_comisiones():
 
 @app.route('/')
 @app.route('/buscador')
+@login_required
 def buscador():
-    return render_template("buscador.html")
+    return render_template("buscador.html",current=current_user.name)
 
 
 @app.route('/buscador/<string:buscar>')
