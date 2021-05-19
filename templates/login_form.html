@@ -7,6 +7,16 @@
         <div class="box">
             <form method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                {% if errormail %}
+                    <div class="notification is-danger">
+                        {{ errormail }}
+                    </div>
+                {% endif %}
+                {% if errorpassword %}
+                    <div class="notification is-danger">
+                        {{ errorpassword }}
+                    </div>
+                {% endif %}
                 <div class="field">
                     <div class="control">
                         <input class="input is-large" type="email" name="email" placeholder="Your Email" autofocus="" v-model="email">
@@ -18,12 +28,12 @@
                         <input class="input is-large" type="password" name="password" placeholder="Your Password" v-model="password">
                     </div>
                 </div>
-                <div class="field">
+                <!-- <div class="field">
                     <label class="checkbox">
                         <input type="checkbox" v-model="remember" name="remember">
                         Remember me
                     </label>
-                </div>
+                </div> -->
                 <button type="submit" class="button is-block is-info is-large is-fullwidth">Login</button>
             </form>
         </div>
