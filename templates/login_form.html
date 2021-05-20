@@ -41,39 +41,3 @@
 </div>
 {% endblock %}
 
-<!-- {% block script %}
-<script>
-  const app = new Vue({
-    el:"#app",
-    delimiters:['|','|'],
-    data:{
-        email:'',
-        password:'',
-        remember:'',
-    },
-    methods:{
-        requerirLogin(){
-            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                axios({
-                method:'POST',
-                url:'/login/requerirlogin',
-                data:{
-                    email:this.email,
-                    password:this.password,
-                    remember: this.remember,
-                }
-                })
-                .then(res=>{
-                    console.log(res)
-                    bulmaToast.toast({message:"Logueado con exito", type:"is-success"})
-                })
-                .catch(error=>{
-                    console.log(error.request.response)
-                    bulmaToast.toast({message:error.request.response, type:"is-danger"})
-                })
-
-        }
-    },
-  })
-  </script>
-  {% endblock %} -->

@@ -1,7 +1,7 @@
 from flask import Flask, json
-from flask import render_template,url_for,request,redirect, send_file,jsonify, make_response
+from flask import render_template,url_for,request,redirect, send_file,jsonify, make_response, session
 #from flask_wtf.csrf import CSRFProtect
-from flask_login import LoginManager, login_user, current_user, login_required, logout_user
+# from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from flask_bcrypt import Bcrypt
 from flask_login import UserMixin
 from werkzeug.urls import url_parse
@@ -26,8 +26,8 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 #'7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
 
 #csrf = CSRFProtect(app)
-login = LoginManager(app)
-login.login_view = "login"
+# login = LoginManager(app)
+# login.login_view = "login"
 bcrypt = Bcrypt(app)
 
 con = psycopg2.connect(dbname='daq6n3vvmrg79o', user='ynpqvlqqsidhga', host='ec2-3-95-87-221.compute-1.amazonaws.com', password='4bded69478ac502d5223655094cbc2241ed5aaf025f0b31fd19494c5aa35d6f0',sslmode='require')
@@ -49,24 +49,21 @@ class User(UserMixin):
         return '<User {}>'.format(self.email)
 
 
-@login.user_loader
-def load_user(id):
-    # log = pgdict(con, f"select id,name,email,password from users where id={id}")
-    # if log !=[]:
-    #     user = User(log[0][0],log[0][1], log[0][2],log[0][3])
-    # else:
-    #     return render_template('login_form.html')
-    # return user
-    try:
-        log = pgdict(con, f"select id,name,email,password from users where id={id}")
-        user = User(log[0][0],log[0][1], log[0][2],log[0][3])
-        return user
-    except:
-        return None
+# @login.user_loader
+# def load_user(id):
+#     try:
+#         log = pgdict(con, f"select id,name,email,password from users where id={id}")
+#         user = User(log[0][0],log[0][1], log[0][2],log[0][3])
+#         return user
+#     except:
+#         return None
+
+current = None
 
 
 @app.route('/login', methods=['GET','POST'])
 def login():
+    global current
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
@@ -79,8 +76,9 @@ def login():
         if not user.check_password(password):
             return render_template('login_form.html', errorpassword=errorpassword)
         if user is not None and user.check_password(password) :
-            login_user(user,remember=True)
-            
+            #login_user(user,remember=True)
+            session[user.name]=user.name
+            current = user.name
             next_page = request.args.get('next')
             if not next_page or url_parse(next_page).netloc != '':
                 next_page = url_for('buscador')
@@ -90,7 +88,8 @@ def login():
 
 @app.route('/logout')
 def logout():
-    logout_user()
+    # logout_user()
+    session.pop(current, None)
     return redirect(url_for('login'))
 
 
@@ -163,9 +162,9 @@ def cur(monto):
 
 
 @app.route('/pagos')
-@login_required
+# @login_required
 def pagos():
-    return render_template("pagos/pagosvue.html",current=current_user.name)
+    return render_template("pagos/pagosvue.html")
 
 @app.route('/pagos/planilla/<string:fechapago>/<int:cobrador>')
 def pagos_planilla(fechapago,cobrador):
@@ -248,9 +247,9 @@ def pagos_pasarplanilla():
 
 
 @app.route('/pagos/verplanillas')
-@login_required
+# @login_required
 def pagos_verplanillas():
-    return render_template("pagos/planillas.html" ,current=current_user.name)
+    return render_template("pagos/planillas.html")
 
 @app.route('/pagos/getplanillas')
 def pagos_getplanillas():
@@ -280,9 +279,9 @@ def pagos_procesarplanilla():
     return "OK"
 
 @app.route('/pagos/editarrbo')
-@login_required
+# @login_required
 def pagos_editarrbo():
-    return render_template('pagos/editarrbo.html' ,current=current_user.name)
+    return render_template('pagos/editarrbo.html')
 
 
 @app.route('/pagos/obtenerrbo/<int:id>')
@@ -333,9 +332,9 @@ def pagos_getzonasasignadas():
 
 
 @app.route('/pagos/verzona')
-@login_required
+# @login_required
 def pagos_verzona():
-    return render_template('pagos/verzona.html' ,current=current_user.name)
+    return render_template('pagos/verzona.html')
 
 
 @app.route('/pagos/editarasignado', methods = ['POST'])
@@ -356,7 +355,7 @@ def pagos_gettotaleszonas():
 
 
 @app.route('/pagos/cobrostotales')
-@login_required
+# @login_required
 def pagos_cobrostotales():
     pd.options.display.float_format = '{:.0f}'.format
     sql="select ym(fecha) as fp,imp+rec as cuota,cobr from pagos where fecha >now() -interval '12 months'"
@@ -371,11 +370,11 @@ def pagos_cobrostotales():
     tbl1 = tbl1.fillna("")
     tbl = tbl.to_html(table_id="totales",classes="table")
     tbl1 = tbl1.to_html(table_id="totaleszona",classes="table")
-    return render_template("pagos/totales.html", tbl=tbl, tbl1=tbl1 ,current=current_user.name)
+    return render_template("pagos/totales.html", tbl=tbl, tbl1=tbl1)
 
 
 @app.route('/pagos/estimados')
-@login_required
+# @login_required
 def pagos_estimados():
     pd.options.display.float_format = '{:.0f}'.format
     sql="select ym(pmovto) as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>now()- interval '6 months'  and zonas.zona not like '-%'"
@@ -390,11 +389,11 @@ def pagos_estimados():
     tbl1 = tbl1.fillna("")
     tbl = tbl.to_html(table_id="totales",classes="table")
     tbl1 = tbl1.to_html(table_id="totaleszona",classes="table")
-    return render_template("pagos/estimados.html", tbl=tbl, tbl1=tbl1 ,current=current_user.name)
+    return render_template("pagos/estimados.html", tbl=tbl, tbl1=tbl1)
 
 
 @app.route('/pagos/comisiones')
-@login_required
+# @login_required
 def pagos_comisiones():
     pd.options.display.float_format = '${:.0f}'.format
     sql="select ym(fecha) as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,816) and fecha>'2018-07-31'"
@@ -403,14 +402,18 @@ def pagos_comisiones():
     tbl = pd.pivot_table(df, values=['comision','cobranza'],index='fecha',columns='cobr',aggfunc='sum').sort_index(0, 'fecha',False)
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="table",classes="table table-sm")
-    return render_template("pagos/comisiones.html", tbl=tbl, current=current_user.name)
+    return render_template("pagos/comisiones.html", tbl=tbl)
 
 
 @app.route('/')
-@app.route('/buscador')
-@login_required
+@app.route('/buscador', methods = ['GET','POST'])
+# @login_required
 def buscador():
-    return render_template("buscador.html",current=current_user.name)
+    global current
+    if current is None:
+        print('hola')
+        return redirect(url_for('login'))
+    return render_template("buscador.html", current=current)
 
 
 @app.route('/buscador/<string:buscar>')
@@ -663,9 +666,9 @@ def fichaje_imprimir():
     return send_file('ficha.pdf')
 
 @app.route('/loterbo')
-@login_required
+# @login_required
 def loterbo_():
-    return render_template("pagos/loterbo.html" ,current=current_user.name)
+    return render_template("pagos/loterbo.html")
 
 @app.route('/loterbo/guardarlote/<string:fecha>/<string:cobr>', methods = ['POST'])
 def guardarlote(fecha,cobr):
@@ -706,10 +709,10 @@ def loterbo_reimprimir(fecha,cobr,idlote):
 
 
 @app.route('/loterbo/ver')
-@login_required
+# @login_required
 def loterbo_ver():
     lotesrbo = pgddict(con,f"select id,fecha,cobr,cnt from loterbos order by id desc limit 100")
-    return render_template("pagos/loterbover.html", lotesrbo=lotesrbo ,current=current_user.name)
+    return render_template("pagos/loterbover.html", lotesrbo=lotesrbo)
 
 @app.route('/loterbo/delete/<string:id>')
 def loterbo_delete(id):
