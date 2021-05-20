@@ -1,3 +1,3 @@
-DEBUG=False
-TESTING = False
+DEBUG=True
+FLASK_ENV=development
 FLASK_APP=app.py
