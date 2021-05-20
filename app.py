@@ -79,7 +79,7 @@ def login():
         if not user.check_password(password):
             return render_template('login_form.html', errorpassword=errorpassword)
         if user is not None and user.check_password(password) :
-            login_user(user)
+            login_user(user,remember=True)
             
             next_page = request.args.get('next')
             if not next_page or url_parse(next_page).netloc != '':
