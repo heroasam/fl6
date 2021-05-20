@@ -24,7 +24,7 @@
   </div>
 
   <form class="box" id="EditarForm">
-    <input type="hidden" ref="token" name="csrf_token" value="{{ csrf_token() }}"/>
+    
     <div class="columns">
       <div class="column is-1">
         <input type="text" v-model="sex" placeholder="Sexo" size="1" class="input" ref="sex" @keyup.enter="$refs.dni.focus()" :class='{"is-danger":!sex}' @blur="validarSex">
@@ -207,7 +207,7 @@ const app = new Vue({
         }
       },
       guardarCliente(){
-        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+        //axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
             axios({
                 method:'POST',
                 url:'/ventas/guardarcliente',
