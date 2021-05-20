@@ -51,13 +51,18 @@ class User(UserMixin):
 
 @login.user_loader
 def load_user(id):
-    log = pgdict(con, f"select id,name,email,password from users where id={id}")
-    if log !=[]:
+    # log = pgdict(con, f"select id,name,email,password from users where id={id}")
+    # if log !=[]:
+    #     user = User(log[0][0],log[0][1], log[0][2],log[0][3])
+    # else:
+    #     return render_template('login_form.html')
+    # return user
+    try:
+        log = pgdict(con, f"select id,name,email,password from users where id={id}")
         user = User(log[0][0],log[0][1], log[0][2],log[0][3])
-    else:
-        return render_template('login_form.html')
-    return user
-
+        return user
+    except:
+        return None
 
 
 @app.route('/login', methods=['GET','POST'])
