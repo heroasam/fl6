@@ -19,11 +19,9 @@ import os
 
 
 app = Flask(__name__)
-PORT = 5000
-DEBUG = False
+#PORT = 5000
+#DEBUG = False
 app.config['SECRET_KEY'] = os.urandom(24)
-app.config['SECURITY_CSRF_IGNORE_UNAUTH_ENDPOINTS'] = True
-#print(app.config['SECRET_KEY'])
 #'7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
 
 csrf = CSRFProtect(app)
