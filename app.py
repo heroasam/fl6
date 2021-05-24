@@ -1,7 +1,7 @@
 from flask import Flask, json
 from flask import render_template,url_for,request,redirect, send_file,jsonify, make_response, session
 #from flask_wtf.csrf import CSRFProtect
-# from flask_login import LoginManager, login_user, current_user, login_required, logout_user
+from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from flask_bcrypt import Bcrypt
 from flask_login import UserMixin
 from werkzeug.urls import url_parse
@@ -26,8 +26,8 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 #'7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
 
 #csrf = CSRFProtect(app)
-# login = LoginManager(app)
-# login.login_view = "login"
+login = LoginManager(app)
+login.login_view = "login"
 bcrypt = Bcrypt(app)
 
 con = psycopg2.connect(dbname='daq6n3vvmrg79o', user='ynpqvlqqsidhga', host='ec2-3-95-87-221.compute-1.amazonaws.com', password='4bded69478ac502d5223655094cbc2241ed5aaf025f0b31fd19494c5aa35d6f0',sslmode='require')
@@ -49,18 +49,17 @@ class User(UserMixin):
         return '<User {}>'.format(self.email)
 
 
-# @login.user_loader
-# def load_user(id):
-#     try:
-#         log = pgdict(con, f"select id,name,email,password from users where id={id}")
-#         user = User(log[0][0],log[0][1], log[0][2],log[0][3])
-#         return user
-#     except:
-#         return None
+@login.user_loader
+def load_user(id):
+    try:
+        log = pgdict(con, f"select id,name,email,password from users where id={id}")
+        user = User(log[0][0],log[0][1], log[0][2],log[0][3])
+        return user
+    except:
+        return None
+
 
 current = None
-
-
 @app.route('/login', methods=['GET','POST'])
 def login():
     global current
@@ -76,8 +75,7 @@ def login():
         if not user.check_password(password):
             return render_template('login_form.html', errorpassword=errorpassword)
         if user is not None and user.check_password(password) :
-            #login_user(user,remember=True)
-            session[user.name]=user.name
+            login_user(user,remember=True)
             current = user.name
             next_page = request.args.get('next')
             if not next_page or url_parse(next_page).netloc != '':
@@ -88,9 +86,6 @@ def login():
 
 @app.route('/logout')
 def logout():
-    global current
-    session.pop(current, None)
-    current = None
     return redirect(url_for('login'))
 
 
@@ -163,10 +158,9 @@ def cur(monto):
 
 
 @app.route('/pagos')
+@login_required
 def pagos():
     global current
-    if current is None:
-        return redirect(url_for('login'))
     return render_template("pagos/pagosvue.html" , current=current)
 
 @app.route('/pagos/planilla/<string:fechapago>/<int:cobrador>')
@@ -252,8 +246,6 @@ def pagos_pasarplanilla():
 @app.route('/pagos/verplanillas')
 def pagos_verplanillas():
     global current
-    if current is None:
-        return redirect(url_for('login'))
     return render_template("pagos/planillas.html" , current=current)
 
 @app.route('/pagos/getplanillas')
@@ -284,10 +276,9 @@ def pagos_procesarplanilla():
     return "OK"
 
 @app.route('/pagos/editarrbo')
+@login_required
 def pagos_editarrbo():
     global current
-    if current is None:
-        return redirect(url_for('login'))
     return render_template('pagos/editarrbo.html' , current=current)
 
 
@@ -339,10 +330,9 @@ def pagos_getzonasasignadas():
 
 
 @app.route('/pagos/verzona')
+@login_required
 def pagos_verzona():
     global current
-    if current is None:
-        return redirect(url_for('login'))
     return render_template('pagos/verzona.html' , current=current)
 
 
@@ -364,10 +354,9 @@ def pagos_gettotaleszonas():
 
 
 @app.route('/pagos/cobrostotales')
+@login_required
 def pagos_cobrostotales():
     global current
-    if current is None:
-        return redirect(url_for('login'))
     pd.options.display.float_format = '{:.0f}'.format
     sql="select ym(fecha) as fp,imp+rec as cuota,cobr from pagos where fecha >now() -interval '12 months'"
     sql1="select ym(fecha) as fp,imp+rec as cuota,pagos.cobr as cobr,zona,(select asignado from zonas where zona=clientes.zona) as asignado from pagos,clientes where clientes.id=pagos.idcliente and fecha >now()- interval '12 months' and zona not like '-%'"
@@ -385,10 +374,9 @@ def pagos_cobrostotales():
 
 
 @app.route('/pagos/estimados')
+@login_required
 def pagos_estimados():
     global current
-    if current is None:
-        return redirect(url_for('login'))
     pd.options.display.float_format = '{:.0f}'.format
     sql="select ym(pmovto) as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>now()- interval '6 months'  and zonas.zona not like '-%'"
     sql1="select ym(pmovto) as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>now()-interval '6 months'  and zonas.zona not like '-%'"
@@ -406,10 +394,9 @@ def pagos_estimados():
 
 
 @app.route('/pagos/comisiones')
+@login_required
 def pagos_comisiones():
     global current
-    if current is None:
-        return redirect(url_for('login'))
     pd.options.display.float_format = '${:.0f}'.format
     sql="select ym(fecha) as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,816) and fecha>'2018-07-31'"
     dat = pd.read_sql_query(sql, con)
@@ -422,10 +409,9 @@ def pagos_comisiones():
 
 @app.route('/')
 @app.route('/buscador', methods = ['GET','POST'])
+@login_required
 def buscador():
     global current
-    if current is None:
-        return redirect(url_for('login'))
     return render_template("buscador.html", current=current)
 
 
@@ -679,10 +665,9 @@ def fichaje_imprimir():
     return send_file('ficha.pdf')
 
 @app.route('/loterbo')
+@login_required
 def loterbo_():
     global current
-    if current is None:
-        return redirect(url_for('login'))
     return render_template("pagos/loterbo.html" , current=current)
 
 @app.route('/loterbo/guardarlote/<string:fecha>/<string:cobr>', methods = ['POST'])
@@ -724,10 +709,9 @@ def loterbo_reimprimir(fecha,cobr,idlote):
 
 
 @app.route('/loterbo/ver')
+@login_required
 def loterbo_ver():
     global current
-    if current is None:
-        return redirect(url_for('login'))
     lotesrbo = pgddict(con,f"select id,fecha,cobr,cnt from loterbos order by id desc limit 100")
     return render_template("pagos/loterbover.html", lotesrbo=lotesrbo , current=current)
 
