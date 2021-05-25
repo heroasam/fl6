@@ -24,18 +24,18 @@
   </div>
 
   <form class="box" id="EditarForm">
-    
+    <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
     <div class="columns">
       <div class="column is-1">
-        <input type="text" v-model="sex" placeholder="Sexo" size="1" class="input" ref="sex" @keyup.enter="$refs.dni.focus()" :class='{"is-danger":!sex}' @blur="validarSex">
+        <input type="text" v-model="sex" placeholder="Sexo" size="1" class="input" ref="sex" @keyup.enter="$refs.dni.focus()" @blur="validarSex">
         <p v-show="!sex" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-2">
-        <input type="text" v-model="dni" placeholder="DNI" size="6" class="input" ref="dni" @keyup.enter="$refs.nombre.focus()" :class='{"is-danger":!dni}'>
+        <input type="text" v-model="dni" placeholder="DNI" size="6" class="input" ref="dni" @keyup.enter="$refs.nombre.focus()">
         <p v-show="!dni" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-5">
-        <input type="text" v-model="nombre" placeholder="Nombre" size="60" class="input" ref="nombre" @keyup.enter="$refs.tel.focus()" :class='{"is-danger":!nombre}'>
+        <input type="text" v-model="nombre" placeholder="Nombre" size="60" class="input" ref="nombre" @keyup.enter="$refs.tel.focus()">
         <p v-show="!nombre" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-2">
@@ -47,28 +47,61 @@
     </div>
     <div class="columns">
       <div class="column is-4">
-        <input type="text" v-model="calle" placeholder="Calle" size="30" class="input" list="callelist" ref="calle" @keyup.enter="$refs.num.focus()" :class='{"is-danger":!calle}'>
+        <!-- <input type="text" v-model="calle" placeholder="Calle" size="30" class="input" list="callelist" ref="calle" @keyup.enter="$refs.num.focus()" :class='{"is-danger":!calle}'>
         <datalist id="callelist">
           <option v-for="calle in calles">|calle|</option>
-          </datalist>
+          </datalist> -->
+          <b-autocomplete
+                ref="calle"
+                @keyup.enter.native="$refs.num.focus()"
+                v-model="calle"
+                :data="callesFiltradasArray"
+                placeholder="Calle"
+                clearable
+                keep-first
+                @select="option => selected = option">
+                <template #empty>No se encontraron resultados</template>
+            </b-autocomplete>
           <p v-show="!calle" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-1">
-        <input type="text" v-model="num" placeholder="Num" size="10" class="input" ref="num" @keyup.enter="$refs.barrio.focus()" :class='{"is-danger":!num}'>
+        <input type="text" v-model="num" placeholder="Num" size="10" class="input" ref="num" @keyup.enter="$refs.barrio.focus()" >
         <p v-show="!num" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-4">
-        <input type="text" v-model="barrio" placeholder="Barrio" size="30" class="input" list="barriolist" ref="barrio" @keyup.enter="$refs.zona.focus()" :class='{"is-danger":!barrio}'>
+        <!-- <input type="text" v-model="barrio" placeholder="Barrio" size="30" class="input" list="barriolist" ref="barrio" @keyup.enter="$refs.zona.focus()" :class='{"is-danger":!barrio}'>
         <datalist id="barriolist">
           <option v-for="barrio in barrios">|barrio|</option>
-      </datalist>
+      </datalist> -->
+      <b-autocomplete
+                ref="barrio"
+                @keyup.enter.native="$refs.zona.focus()"
+                v-model="barrio"
+                :data="barriosFiltradasArray"
+                placeholder="Barrio"
+                clearable
+                keep-first
+                @select="option => selected = option">
+                <template #empty>No se encontraron resultados</template>
+            </b-autocomplete>
       <p v-show="!barrio" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-3">
-        <input type="text" v-model="zona" placeholder="Zona" size="20" class="input" list="zonalist" ref="zona" @keyup.enter="$refs.acla.focus()" :class='{"is-danger":!zona}'>
+        <!-- <input type="text" v-model="zona" placeholder="Zona" size="20" class="input" list="zonalist" ref="zona" @keyup.enter="$refs.acla.focus()" :class='{"is-danger":!zona}'>
         <datalist id="zonalist">
           <option v-for="zona in zonas">|zona|</option>
-      </datalist>
+      </datalist> -->
+      <b-autocomplete
+                ref="zona"
+                @keyup.enter.native="$refs.acla.focus()"
+                v-model="zona"
+                :data="zonasFiltradasArray"
+                placeholder="Zona"
+                clearable
+                keep-first
+                @select="option => selected = option">
+                <template #empty>No se encontraron resultados</template>
+            </b-autocomplete>
       <p v-show="!zona" class="help is-danger">Requerido</p>
       </div>
     </div>
@@ -98,6 +131,7 @@
 {% endblock %}
 
 {% block script %}
+<script src="https://unpkg.com/buefy/dist/components/autocomplete"></script>
 <script>
 const app = new Vue({
     el:"#app",
@@ -123,6 +157,7 @@ const app = new Vue({
       mjecobr:'',
       infoseven:'',
       id:'',
+      selected: null,
 
     },
     methods:{
@@ -207,7 +242,7 @@ const app = new Vue({
         }
       },
       guardarCliente(){
-        //axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
             axios({
                 method:'POST',
                 url:'/ventas/guardarcliente',
@@ -251,6 +286,32 @@ const app = new Vue({
       this.getCalles()
       this.getBarrios()
       this.getZonas()
+    },
+    computed: {
+        callesFiltradasArray() {
+            return this.calles.filter((option) => {
+                return option
+                    .toString()
+                    .toLowerCase()
+                    .indexOf(this.calle.toLowerCase()) >= 0
+            })
+        },
+        barriosFiltradasArray() {
+            return this.barrios.filter((option) => {
+                return option
+                    .toString()
+                    .toLowerCase()
+                    .indexOf(this.barrio.toLowerCase()) >= 0
+            })
+        },
+        zonasFiltradasArray() {
+            return this.zonas.filter((option) => {
+                return option
+                    .toString()
+                    .toLowerCase()
+                    .indexOf(this.zona.toLowerCase()) >= 0
+            })
+        },
     },
   })
   </script>

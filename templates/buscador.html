@@ -16,12 +16,13 @@ caption{
 {% block content %}
 <div class="container">
 <div id="app">
+    <div class="columns is-mobile">
     <div class="buttons">
         <div v-for="historico in historial">
             <button class="button is-outlined is-primary" @click="buscaCuentaporDni(historico[0])">|historico[1].slice(0,18)|</button>
         </div>
     </div>
-
+    </div>
       <div class="field is-horizontal">
         <input type="search" placeholder="Buscar en Romitex" size="73" class="input" v-model="buscar" @keyup.enter="buscarCliente" @focus="buscar='';verCard=false">
         <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
