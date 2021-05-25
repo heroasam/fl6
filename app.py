@@ -1,5 +1,5 @@
 from flask import Flask, json
-from flask import render_template,url_for,request,redirect, send_file,jsonify, make_response, session
+from flask import render_template,url_for,request,redirect, send_file,jsonify, make_response, session, flash
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from flask_bcrypt import Bcrypt
@@ -93,30 +93,42 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/signup')
+
+
+@app.route('/signup' , methods=['GET','POST'])
 def signup():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        password = request.form['password']
+        error = None
+        
+        if not name:
+            error = "Nombre es requerido"
+        elif not password:
+            error = "Password es requerido"
+        elif not email:
+            error = "Email es requerido"
+        elif pgonecolumn(con,f"select email from users where email='{email}'"):
+            error = f"El email {email} ya esta en uso. Haga Login"
+
+        if error is None:
+            password = bcrypt.generate_password_hash(password).decode('utf-8')
+            ins = f"insert into users(name, email, password) values('{name}', '{email}', '{password}')"
+            cur = con.cursor()
+            try:
+                cur.execute(ins)
+            except psycopg2.Error as e:
+                con.rollback()
+                error = e.pgerror
+                return make_response(error,400)
+            else:
+                con.commit()
+                cur.close()
+                flash("Registro correctamente ingresado")
+                return redirect(url_for('login'))
+        flash(error,category='error')    
     return render_template('signup.html')
-
-
-@app.route('/signup/guardardatos' , methods=['POST'])
-def signup_guardardatos():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
-    name = d['name']
-    email = d['email']
-    password = bcrypt.generate_password_hash(d['password']).decode('utf-8')
-    print(d['password'], type(d['password']), password, type(password))
-    ins = f"insert into users(name, email, password) values('{name}', '{email}', '{password}')"
-    cur = con.cursor()
-    try:
-        cur.execute(ins)
-    except psycopg2.Error as e:
-        con.rollback()
-        error = e.pgerror
-        return make_response(error,400)
-    else:
-        con.commit()
-        cur.close()
-        return 'ok'
     
 
 

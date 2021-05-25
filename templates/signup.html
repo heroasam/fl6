@@ -5,7 +5,13 @@
     <div class="column is-4 is-offset-4">
         <h3 class="title">Sign Up</h3>
         <div class="box">
-            <form>
+            {% for messages in get_flashed_messages(with_categories=False,category_filter=['error']) %}
+            {% if messages %}
+            <div class="notification is-danger">
+                {{ messages}}</div>
+            {% endif %}
+            {% endfor %}
+            <form method="POST">
                 <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
                 <div class="field">
                     <div class="control">
@@ -25,7 +31,7 @@
                     </div>
                 </div>
     
-                <button type="button" class="button is-block is-info is-large is-fullwidth" @click="guardarRegistro">Sign Up</button>
+                <button type="submit" class="button is-block is-info is-large is-fullwidth" @click="guardarRegistro">Sign Up</button>
             </form>
         </div>
     </div>
@@ -33,7 +39,7 @@
 {% endblock %}
 
 {% block script %}
-<script>
+<!-- <script>
   const app = new Vue({
     el:"#app",
     delimiters:['|','|'],
@@ -58,6 +64,7 @@
                 .then(res=>{
                     console.log(res)
                     bulmaToast.toast({message:"Registro ingresado con exito", type:"is-success"})
+                    axios.get('/verlogin')
                 })
                 .catch(error=>{
                     console.log(error.request.response)
@@ -67,5 +74,5 @@
         },
     },
   })
-  </script>
+  </script> -->
   {% endblock %}
