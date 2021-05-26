@@ -165,7 +165,7 @@
         <p v-show="!primera" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-1">
-        <button class="button is-danger" type="button" ref="guardar" @click="validarVenta">Guardar</button>
+        <button class="button is-danger" type="button" ref="guardar" @click="validarVenta" @keyup.space="$refs.cnt.focus()">Guardar</button>
       </div>
       <div class="column is-2">
         <span class="tag is-primary is-large" >|idvta|</span>
@@ -231,8 +231,11 @@
       </table>
     </div>
     <div class="column is-6">
-      <div class="notification is-danger" v-show="sumic-imp">
+      <div class="notification is-warning" v-show="sumic-imp && sumic<=imp">
         <p class="title is-4">Falta agregar los articulos comprados</p>
+      </div>
+      <div class="notification is-danger" v-show="sumic>imp">
+        <p class="title is-4">Error la suma de los item es mayor al total</p>
       </div>
       <div class="notification is-success" v-show="verVtaTerminada">
         <p class="title is-4">Venta Terminada</p>
@@ -367,6 +370,15 @@ const app = new Vue({
         this.mjecobr=''
         this.infoseven=''
         this.$refs.buscar.focus()
+        this.imp='',
+        this.primera='',
+        this.detvta=[],
+        this.sumic=0,
+        this.verVtaTerminada=false,
+        this.idvta='',
+        this.cnt='',
+        this.art='',
+        this.cuota=''
       },
       validarCliente(){
         if(this.sex!=''&&this.dni!=''&&this.nombre!=''&&this.calle!=''&&this.num!=''&&this.barrio!=''&&this.zona!=''){
@@ -471,13 +483,29 @@ const app = new Vue({
                   this.detvta = res.data.detvta
                   this.sumic = res.data.sumic
                   if (this.sumic==Number(this.imp)) this.verVtaTerminada=true;
+                  if (this.sumic>Number(this.imp)) this.verVtaTerminada=false;
+                  this.cnt='';
+                  this.art='';
+                  this.cuota='';
+                  this.$refs.cnt.focus()
                 })
                 .catch(error=>{
                   bulmaToast.toast({message:error.request.response, type:'is-danger'})
                 })
       },
       borrarDetVta(id){
-
+        axios.get('/ventas/borrardetvta/'+id)
+        .then(res=>{
+          bulmaToast.toast({message:"item borrado con exito", type:'is-success'})
+          this.detvta = res.data.detvta
+          this.sumic = res.data.sumic
+          if (this.sumic==Number(this.imp)) this.verVtaTerminada=true;
+          if (this.sumic>Number(this.imp)) this.verVtaTerminada=false;
+          if (this.sumic==0) this.verVtaTerminada=false;
+        })
+        .catch(error=>{
+          bulmaToast.toast({message:error.request.response, type:'is-danger'})
+        })
       },
     },
     created: function(){

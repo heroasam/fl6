@@ -1107,6 +1107,29 @@ def ventas_guardardetvta():
         sumic = pgonecolumn(con,f"select sum(ic::integer) from detvta where idvta={d['idvta']}")
         return jsonify(detvta=detvta,sumic=sumic)
 
+
+@app.route('/ventas/borrardetvta/<int:id>')
+def ventas_borrardetvta(id):
+    idvta= pgonecolumn(con,f"select idvta from detvta where id={id}")
+    stm = f"delete from detvta where id={id}"
+    cur = con.cursor()
+    try:
+        cur.execute(stm)
+    except psycopg2.Error as e:
+        con.rollback()
+        error = e.pgerror
+        return make_response(error,400)
+    else:
+        con.commit()
+        cur.close()
+        detvta = pgdict(con,f"select id,cnt,art,cc,ic::integer from detvta where idvta={idvta}")
+        sumic = pgonecolumn(con,f"select sum(ic::integer) from detvta where idvta={idvta}")
+        if sumic is None:
+            sumic=0
+        return jsonify(detvta=detvta,sumic=sumic)
+
+
+
 @app.route('/ventas/getarticulos')
 def ventas_getarticulos():
     articulos = pglflat(con, f"select art from articulos where activo=1")
