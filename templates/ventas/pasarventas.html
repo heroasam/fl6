@@ -185,6 +185,7 @@
         <b-autocomplete
         ref="art"
         @keyup.enter.native="$refs.cuota.focus()"
+        @dblclick.native="getArticulos"
         v-model="art"
         :data="artFiltradasArray"
         placeholder="articulo"
@@ -193,8 +194,16 @@
         @select="option => selected = option">
         <template #empty>No se encontraron resultados</template>
     </b-autocomplete>
-    <p v-show="!art" class="help is-danger">Requerido</p>
-       </div>
+        <div class="columns">
+              <div class="column is-6">
+              <p v-show="!art" class="help is-danger">Requerido</p>
+              </div>
+              <div class="column is-6">
+                <p class="help is-info" v-show="!art"><a href="/stock/articulos" target="_blank">Agregar Articulo</a></p>
+              </div>
+          </div>
+    </div>
+       
     <div class="column is-2">
       <input type="text" v-model="cuota" size=5 class="input" ref="cuota" placeholder="cuota" @keyup.enter="$refs.guardardetalle.focus()">
         <p v-show="!cuota" class="help is-danger">Requerido</p>
@@ -205,43 +214,45 @@
     </div>
   </form>
   <!-- tabla detalle de venta -->
-  <div class="box columns">
-    <div class="column is-6">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>op</th>
-            <th>id</th>
-            <th>cnt</th>
-            <th>art</th>
-            <th>cc</th>
-            <th>ic</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="dv in detvta">
-            <td><button class="button is-danger is-small" @click="borrarDetVta(dv[0])">Borrar</button></td>
-            <td>|dv[0]|</td>
-            <td>|dv[1]|</td>
-            <td>|dv[2]|</td>
-            <td>|dv[3]|</td>
-            <td>|dv[4]|</td>
-          </tr>
-        </tbody>
-      </table>
+  <form class="box">
+    <div class="columns">
+      <div class="column is-6">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>op</th>
+              <th>id</th>
+              <th>cnt</th>
+              <th>art</th>
+              <th>cc</th>
+              <th>ic</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="dv in detvta">
+              <td><button class="button is-danger is-small" @click="borrarDetVta(dv[0])">Borrar</button></td>
+              <td>|dv[0]|</td>
+              <td>|dv[1]|</td>
+              <td>|dv[2]|</td>
+              <td>|dv[3]|</td>
+              <td>|dv[4]|</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="column is-6">
+        <div class="notification is-warning" v-show="sumic-imp && sumic<=imp">
+          <p class="title is-4">Falta agregar los articulos comprados</p>
+        </div>
+        <div class="notification is-danger" v-show="sumic>imp">
+          <p class="title is-4">Error la suma de los item es mayor al total</p>
+        </div>
+        <div class="notification is-success" v-show="verVtaTerminada">
+          <p class="title is-4">Venta Terminada</p>
+        </div>
+      </div>
     </div>
-    <div class="column is-6">
-      <div class="notification is-warning" v-show="sumic-imp && sumic<=imp">
-        <p class="title is-4">Falta agregar los articulos comprados</p>
-      </div>
-      <div class="notification is-danger" v-show="sumic>imp">
-        <p class="title is-4">Error la suma de los item es mayor al total</p>
-      </div>
-      <div class="notification is-success" v-show="verVtaTerminada">
-        <p class="title is-4">Venta Terminada</p>
-      </div>
-    </div>
-  </div>
+  </form>
 </div>
 {% endblock %}
 
