@@ -116,12 +116,12 @@
         <input type="text" v-model="mjecobr" placeholder="Mje Cobrador" size="30" class="input" ref="mjecobr" @keyup.enter="$refs.infoseven.focus()">
       </div>
       <div class="column is-3">
-        <input type="text" v-model="infoseven" placeholder="InfoSeven" size="30" class="input" ref="infoseven" @keyup.enter="$refs.guardar.focus()">
+        <input type="text" v-model="infoseven" placeholder="InfoSeven" size="30" class="input" ref="infoseven" @keyup.enter="$refs.guardarcliente.focus()">
       </div>
     </div>
     <div class="columns">
       <div class="column is-1" >
-        <button type="button" class="button is-danger" ref="guardar" @click="validarCliente">Guardar</button>
+        <button type="button" class="button is-danger" ref="guardarcliente" @click="validarCliente" @keyup.space="$refs.fecha.focus()">Guardar</button>
       </div>
     </div>
   </form>
@@ -161,13 +161,13 @@
             <p v-show="!per" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-2">
-        <input type="date" v-model="primera" size=12 class="input" ref="primera" @keyup.enter="$refs.guardar.focus()">
+        <input type="date" v-model="primera" size=12 class="input" ref="primera" @keyup.enter="$refs.guardarventa.focus()">
         <p v-show="!primera" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-1">
-        <button class="button is-danger" type="button" ref="guardar" @click="validarVenta" @keyup.space="$refs.cnt.focus()">Guardar</button>
+        <button class="button is-danger" type="button" ref="guardarventa" @click="validarVenta" @keyup.space="$refs.cnt.focus()">Guardar</button>
       </div>
-      <div class="column is-2">
+      <div class="column is-2" v-show="idvta">
         <span class="tag is-primary is-large" >|idvta|</span>
       </div>
     </div>
@@ -217,7 +217,7 @@
   <form class="box">
     <div class="columns">
       <div class="column is-6">
-        <table class="table">
+        <table class="table" v-show="detvta.length">
           <thead>
             <tr>
               <th>op</th>
@@ -230,7 +230,7 @@
           </thead>
           <tbody>
             <tr v-for="dv in detvta">
-              <td><button class="button is-danger is-small" @click="borrarDetVta(dv[0])">Borrar</button></td>
+              <td><button type="button" class="button is-danger is-small" @click="borrarDetVta(dv[0])">Borrar</button></td>
               <td>|dv[0]|</td>
               <td>|dv[1]|</td>
               <td>|dv[2]|</td>
