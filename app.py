@@ -328,6 +328,8 @@ def pagos_borrarrbo(id):
     cur.execute(stm)
     con.commit()
     cur.close()
+    idvta = pgonecolumn(con,f"select idvta from pagos where id={id}")
+    trigger_pago(con, idvta)
     return 'ok'
 
 @app.route('/pagos/guardaredicionrbo' , methods = ['POST'])
@@ -339,6 +341,8 @@ def pagos_guardaredicionrbo():
     cur.execute(upd)
     con.commit()
     cur.close()
+    idvta = pgonecolumn(con,f"select idvta from pagos where id={d['id']}")
+    trigger_pago(con, idvta)
     return 'OK'
 
 
@@ -1054,4 +1058,56 @@ def ventas_guardarcliente():
     else:
         con.commit()
         cur.close()
-        return 'OK'
+        if d['id']=="":
+            id = pgonecolumn(con,f"select id from clientes order by id desc limit 1")
+        return jsonify(id=id)
+
+
+@app.route('/ventas/guardarventa', methods=['POST'])
+def ventas_guardarventa():
+    d = ast.literal_eval(request.data.decode("UTF-8"))
+    per = d['p']
+    if per=='mensual':
+        p=1
+    elif per=='semanal':
+        p=3
+    else:
+        p=2
+    ins = f"insert into ventas(fecha,idvdor,cc,ic,p,primera,idcliente) values('{d['fecha']}',{d['idvdor']},{d['cc']},{d['ic']},{p},'{d['primera']}',{d['idcliente']})"
+    cur = con.cursor()
+    try:
+        cur.execute(ins)
+    except psycopg2.Error as e:
+        con.rollback()
+        error = e.pgerror
+        return make_response(error,400)
+    else:
+        con.commit()
+        cur.close()
+        idvta = pgonecolumn(con,f"select id from ventas order by id desc limit 1")
+        venta_trigger(con,idvta)
+        return jsonify(idvta=idvta)
+
+@app.route('/ventas/guardardetvta', methods=['POST'])
+def ventas_guardardetvta():
+    d = ast.literal_eval(request.data.decode("UTF-8"))
+    costo = pgonecolumn(con, f"select costo from articulos where art='{d['art']}'")
+    ins = f"insert into detvta(idvta,cnt,art,cc,ic,costo) values({d['idvta']},{d['cnt']},'{d['art']}',{d['cc']},{d['ic']},{costo})"
+    cur = con.cursor()
+    try:
+        cur.execute(ins)
+    except psycopg2.Error as e:
+        con.rollback()
+        error = e.pgerror
+        return make_response(error,400)
+    else:
+        con.commit()
+        cur.close()
+        detvta = pgdict(con,f"select id,cnt,art,cc,ic::integer from detvta where idvta={d['idvta']}")
+        sumic = pgonecolumn(con,f"select sum(ic::integer) from detvta where idvta={d['idvta']}")
+        return jsonify(detvta=detvta,sumic=sumic)
+
+@app.route('/ventas/getarticulos')
+def ventas_getarticulos():
+    articulos = pglflat(con, f"select art from articulos where activo=1")
+    return jsonify(articulos=articulos)

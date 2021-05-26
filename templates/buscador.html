@@ -16,16 +16,18 @@ caption{
 {% block content %}
 <div class="container">
 <div id="app">
-    <div class="columns is-mobile">
     <div class="buttons">
         <div v-for="historico in historial">
             <button class="button is-outlined is-primary" @click="buscaCuentaporDni(historico[0])">|historico[1].slice(0,18)|</button>
         </div>
     </div>
-    </div>
-      <div class="field is-horizontal">
-        <input type="search" placeholder="Buscar en Romitex" size="73" class="input" v-model="buscar" @keyup.enter="buscarCliente" @focus="buscar='';verCard=false">
-        <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
+      <div class="columns">
+          <div class="column is-8">
+            <div class="field is-horizontal">
+                <input type="search" placeholder="Buscar en Romitex" size="73" class="input" v-model="buscar" @keyup.enter="buscarCliente" @focus="buscar='';verCard=false">
+                <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
+              </div>
+          </div>
       </div>
 
     <div class="buttons" v-if="buscar">
@@ -39,18 +41,18 @@ caption{
         <div class="card mt-2" style="width: 52rem;">
             <div class="card-header">
               <div class="card-header-title">
-                <p class="title is-3">|nombre|  |dni|</p>
+                <p class="title is-2">|nombre|  |dni|</p>
               </div>
             </div>
               <div class="card-content">
-                <p class="">|calle+' '+num|  |barrio|  zona:|zona|</p>
+                <p class="subtitle is-4">|calle+' '+num|  |barrio|  zona:|zona|</p>
                 <p class="">tel:|tel| wapp:|wapp|</p>
                 <p class="" v-if="acla"><span class="tag is-info" >acla  </span>|acla|</p>
                 <p class="" v-if="mjecobr"><span class="tag is-danger " >mjecobr  </span>|mjecobr|</p>
                 <p class="" v-if="horario"><span class="tag is-info " >horario  </span>|horario|</p>
                 <p class="" v-if="infoseven"><span class="tag is-success " >infoseven  </span>|infoseven|</p>
                 <div class="buttons">
-                    <button class="button is-primary ">Deuda $|deuda|</button>
+                    
                     <button class="button is-danger " v-if="novendermas">|novendermas|</button>
                     <button class="button is-success " v-if="sev">|sev|</button>
                     <button class="button is-info " v-if="subirseven">|subirseven|</button>
@@ -60,9 +62,22 @@ caption{
                     <button class="button is-info " v-if="seguir">|seguir|</button>
                     <button class="button is-primary " v-if="llamar">|llamar|</button>
                 </div>
-                <div class="field is-horizontal">
-                    <button class="button is-primary ">PmoVto</button>
-                    <input type="date" v-model="pmovto" size="12" class="input is-narrow">
+                <div class="columns field is-horizontal">
+                    <div class="column is-2">
+                        <span class="tag is-danger is-large" >PmoVto</span>
+                    </div>
+                    <div class="column is-3">
+                        <input type="date" v-model="pmovto" size="12" class="input is-narrow">
+                    </div>
+                    <div class="column is-2">
+                        <button class="button is-outlined is-success" @click="fecharPmoVto">Fechar</button>
+                    </div>
+                    <div class="column is-3">
+                        <button class="button is-info ">Deuda $|deuda|</button>
+                    </div>
+                    <div class="column is-2">
+                        <button type="button" class="button is-primary" data-toggle="modal" data-target="#staticBackdrop" @click="editarDatos">Editar</button>
+                    </div>
                 </div>
                 </div>
           </div>
@@ -70,7 +85,7 @@ caption{
     <!-- botonera funcional -->
     <div class="block" v-if="verCard">
         <button class="button is-outlined is-info is-small" @click="verVentas=!verVentas">Ver Ventas</button>
-        <button class="button is-outlined is-success is-small" @click="fecharPmoVto">Fechar</button>
+        
         <button class="button is-outlined is-warning is-small" @click="imprimirFicha">Impr Ficha</button>
         <a href="#" class="button is-outlined is-warning is-small">Intimar</a>
         <button class="button is-outlined is-success is-small" @click="cargarWapp">Wapp</button>
@@ -82,7 +97,7 @@ caption{
         <button class="button is-outlined is-danger is-small"@click="toggleLN">LN</button>
         <button class="button is-outlined is-danger is-small"@click="toggleLlamar">Llamar</button>
         <button class="button is-outlined is-danger is-small"@click="toggleSeguir">Seguir</button>
-        <button type="button" class="button is-primary is-small" data-toggle="modal" data-target="#staticBackdrop" @click="editarDatos">Editar</button>
+        
     </div>
     <!-- tabla ventas -->
     <div class="block" v-if="verCard">
@@ -116,7 +131,7 @@ caption{
         </table>
     </div>
     <!-- tabla cuotas a pagar -->
-    <div class="block d-flex" v-if="verCard" >
+    <div class="field is-horizontal" v-if="verCard" >
         <table class="table table-sm"  style="width: 300px;">
             <caption>Cuotas a pagar</caption>
             <thead>

@@ -126,7 +126,119 @@
     </div>
   </form>
 
+  <!-- form pasar ventas -->
+  <form class="box">
+    <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
+    <div class="columns">
+      <div class="column is-2">
+        <input type="date" v-model="fecha" size=12 class="input" ref="fecha" @keyup.enter="$refs.vdor.focus()">
+        <p v-show="!fecha" class="help is-danger">Requerido</p>
+      </div>
+      <div class="column is-1">
+        <input type="text" v-model="vdor" size=5 class="input" ref="vdor" placeholder="Vdor" @keyup.enter="$refs.cuotas.focus()">
+        <p v-show="!vdor" class="help is-danger">Requerido</p>
+      </div>
+      <div class="column is-1">
+        <input type="text" v-model="cuotas" size=5 class="input" ref="cuotas" placeholder="Cuotas" @keyup.enter="$refs.imp.focus()">
+        <p v-show="!cuotas" class="help is-danger">Requerido</p>
+      </div>
+      <div class="column is-1">
+        <input type="text" v-model="imp" size=5 class="input" ref="imp" placeholder="Importe" @keyup.enter="$refs.per.focus()">
+        <p v-show="!imp" class="help is-danger">Requerido</p>
+      </div>
+      <div class="column is-2">
+        <b-autocomplete
+                ref="per"
+                @keyup.enter.native="$refs.primera.focus()"
+                v-model="per"
+                :data="perFiltradasArray"
+                placeholder="Periodicidad"
+                clearable
+                keep-first
+                @select="option => selected = option">
+                <template #empty>No se encontraron resultados</template>
+            </b-autocomplete>
+            <p v-show="!per" class="help is-danger">Requerido</p>
+      </div>
+      <div class="column is-2">
+        <input type="date" v-model="primera" size=12 class="input" ref="primera" @keyup.enter="$refs.guardar.focus()">
+        <p v-show="!primera" class="help is-danger">Requerido</p>
+      </div>
+      <div class="column is-1">
+        <button class="button is-danger" type="button" ref="guardar" @click="validarVenta">Guardar</button>
+      </div>
+      <div class="column is-2">
+        <span class="tag is-primary is-large" >|idvta|</span>
+      </div>
+    </div>
+  </form>
 
+  <!-- form detalle de ventas -->
+  <form class="box">
+    <div class="columns">
+      <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
+   <div class="column is-1">
+    <input type="text" v-model="cnt" size=5 class="input" ref="cnt" placeholder="cnt" @keyup.enter="$refs.art.focus()">
+    <p v-show="!cnt" class="help is-danger">Requerido</p>
+   </div>
+       <div class="column is-8">
+        <b-autocomplete
+        ref="art"
+        @keyup.enter.native="$refs.cuota.focus()"
+        v-model="art"
+        :data="artFiltradasArray"
+        placeholder="articulo"
+        clearable
+        keep-first
+        @select="option => selected = option">
+        <template #empty>No se encontraron resultados</template>
+    </b-autocomplete>
+    <p v-show="!art" class="help is-danger">Requerido</p>
+       </div>
+    <div class="column is-2">
+      <input type="text" v-model="cuota" size=5 class="input" ref="cuota" placeholder="cuota" @keyup.enter="$refs.guardardetalle.focus()">
+        <p v-show="!cuota" class="help is-danger">Requerido</p>
+    </div>
+    <div class="column is-1">
+      <button class="button is-danger" type="button" ref="guardardetalle" @click="guardarDetalleVta">Guardar</button>
+    </div>
+    </div>
+  </form>
+  <!-- tabla detalle de venta -->
+  <div class="box columns">
+    <div class="column is-6">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>op</th>
+            <th>id</th>
+            <th>cnt</th>
+            <th>art</th>
+            <th>cc</th>
+            <th>ic</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="dv in detvta">
+            <td><button class="button is-danger is-small" @click="borrarDetVta(dv[0])">Borrar</button></td>
+            <td>|dv[0]|</td>
+            <td>|dv[1]|</td>
+            <td>|dv[2]|</td>
+            <td>|dv[3]|</td>
+            <td>|dv[4]|</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="column is-6">
+      <div class="notification is-danger" v-show="sumic-imp">
+        <p class="title is-4">Falta agregar los articulos comprados</p>
+      </div>
+      <div class="notification is-success" v-show="verVtaTerminada">
+        <p class="title is-4">Venta Terminada</p>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 
@@ -158,6 +270,21 @@ const app = new Vue({
       infoseven:'',
       id:'',
       selected: null,
+      per: '',
+      periodicidad:['mensual','quincenal','semanal'],
+      idvta:'',
+      fecha:'',
+      vdor:'',
+      cuotas:'',
+      imp:'',
+      primera:'',
+      cnt:'',
+      art:'',
+      cuota:'',
+      articulos:[],
+      detvta: [],
+      sumic: 0,
+      verVtaTerminada:false,
 
     },
     methods:{
@@ -216,6 +343,13 @@ const app = new Vue({
           this.zonas = res.data.zonas
         })
       },
+      getArticulos(){
+        axios.get('/ventas/getarticulos')
+        .then(res=>{
+          this.articulos = res.data.articulos
+          //console.log(this.articulos);
+        })
+      },
       nuevoCliente(){
         this.buscar='',
         this.id=''
@@ -265,6 +399,7 @@ const app = new Vue({
                 })
                 .then(res=>{
                   bulmaToast.toast({message:"Cliente creado/editado con exito", type:'is-success'})
+                  if (this.id=='') this.id=res.data.id
                 })
                 .catch(error=>{
                   bulmaToast.toast({message:error.request.response, type:'is-danger'})
@@ -280,12 +415,76 @@ const app = new Vue({
           this.$refs.sex.focus()
         }
         this.sex = this.sex.toUpperCase()
-      }
+      },
+      validarVenta(){
+        if(this.fecha!=''&&this.vdor!=''&&this.cuotas!=''&&this.imp!=''&&this.per!=''&&this.primera!=''){
+          this.guardarVenta()
+        }else{
+          bulmaToast.toast({message:"Complete los datos minimos requeridos", type:'is-danger'})
+        }
+      },
+      guardarVenta(){
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+            axios({
+                method:'POST',
+                url:'/ventas/guardarventa',
+                data:{
+                    idcliente:this.id,
+                    fecha:this.fecha,
+                    idvdor:this.vdor,
+                    cc:this.cuotas,
+                    ic:this.imp,
+                    p:this.per,
+                    primera:this.primera,
+                }
+                })
+                .then(res=>{
+                  bulmaToast.toast({message:"Venta creada con exito", type:'is-success'})
+                  this.idvta=res.data.idvta
+                })
+                .catch(error=>{
+                  bulmaToast.toast({message:error.request.response, type:'is-danger'})
+                })
+      },
+      validarDetalleVta(){
+        if(this.cnt!=''&&this.art!=''&&this.cuota!=''){
+          this.guardarDetalleVta()
+        }else{
+          bulmaToast.toast({message:"Complete los datos minimos requeridos", type:'is-danger'})
+        }
+      },
+      guardarDetalleVta(){
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+            axios({
+                method:'POST',
+                url:'/ventas/guardardetvta',
+                data:{
+                    idvta:this.idvta,
+                    cnt:this.cnt,
+                    art:this.art,
+                    cc:this.cuotas,
+                    ic:this.cuota,
+                }
+                })
+                .then(res=>{
+                  bulmaToast.toast({message:"Detalle ingresado con exito", type:'is-success'})
+                  this.detvta = res.data.detvta
+                  this.sumic = res.data.sumic
+                  if (this.sumic==Number(this.imp)) this.verVtaTerminada=true;
+                })
+                .catch(error=>{
+                  bulmaToast.toast({message:error.request.response, type:'is-danger'})
+                })
+      },
+      borrarDetVta(id){
+
+      },
     },
     created: function(){
       this.getCalles()
       this.getBarrios()
       this.getZonas()
+      this.getArticulos()
     },
     computed: {
         callesFiltradasArray() {
@@ -310,6 +509,22 @@ const app = new Vue({
                     .toString()
                     .toLowerCase()
                     .indexOf(this.zona.toLowerCase()) >= 0
+            })
+        },
+        perFiltradasArray() {
+            return this.periodicidad.filter((option) => {
+                return option
+                    .toString()
+                    .toLowerCase()
+                    .indexOf(this.per.toLowerCase()) >= 0
+            })
+        },
+        artFiltradasArray() {
+            return this.articulos.filter((option) => {
+                return option
+                    .toString()
+                    .toLowerCase()
+                    .indexOf(this.art.toLowerCase()) >= 0
             })
         },
     },
