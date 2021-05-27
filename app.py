@@ -1,7 +1,7 @@
 from flask import Flask, json
-from flask import render_template,url_for,request,redirect, send_file,jsonify, make_response, session, flash
+from flask import render_template,url_for,request,redirect, make_response, session, flash
 from flask_wtf.csrf import CSRFProtect
-from flask_login import LoginManager, login_user, current_user, login_required, logout_user
+from flask_login import LoginManager, login_user, current_user, logout_user
 from flask_bcrypt import Bcrypt
 from flask_login import UserMixin
 from flask_cors import CORS
@@ -10,11 +10,11 @@ import psycopg2
 import psycopg2.extras
 from lib import *
 from formularios import *
-import pandas as pd
-import numpy as np
-import re
-import ast
-import os
+# import pandas as pd
+# import numpy as np
+# import re
+# import ast
+# import os
 from ventas import ventas
 from stock import stock
 from pagos import pagos
