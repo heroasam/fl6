@@ -1059,6 +1059,8 @@ def ventas_guardarcliente():
         cur.close()
         if d['id']=="":
             id = pgonecolumn(con,f"select id from clientes order by id desc limit 1")
+        else:
+            id = d['id']
         return jsonify(id=id)
 
 

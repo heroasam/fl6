@@ -132,7 +132,7 @@ caption{
     </div>
     <!-- tabla cuotas a pagar -->
     <div class="field is-horizontal" v-if="verCard" >
-        <table class="table table-sm"  style="width: 300px;">
+        <table class="table table-sm"  style="width: 300px;" v-show="cuotas.length">
             <caption>Cuotas a pagar</caption>
             <thead>
                 <tr>
@@ -150,7 +150,7 @@ caption{
             </tbody>
         </table>
         <!-- tabla cuotas pagadas -->
-        <table class="table table-sm ml-5"  style="width: 300px;">
+        <table class="table table-sm ml-5"  style="width: 300px;" v-show="pagadas.length">
             <caption>Pagos Realizados</caption>
             <thead>
                 <tr>
