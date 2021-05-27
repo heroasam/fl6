@@ -62,10 +62,10 @@ def load_user(id):
         return None
 
 
-current = None
+
 @app.route('/login', methods=['GET','POST'])
 def login():
-    global current
+    
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
@@ -89,7 +89,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    global current
+    
     logout_user()
     current = None
     return redirect(url_for('login'))
@@ -178,8 +178,8 @@ def cur(monto):
 @app.route('/pagos')
 @login_required
 def pagos():
-    global current
-    return render_template("pagos/pagosvue.html" , current=current)
+    
+    return render_template("pagos/pagosvue.html" )
 
 @app.route('/pagos/planilla/<string:fechapago>/<int:cobrador>')
 def pagos_planilla(fechapago,cobrador):
@@ -263,8 +263,8 @@ def pagos_pasarplanilla():
 
 @app.route('/pagos/verplanillas')
 def pagos_verplanillas():
-    global current
-    return render_template("pagos/planillas.html" , current=current)
+    
+    return render_template("pagos/planillas.html" )
 
 @app.route('/pagos/getplanillas')
 def pagos_getplanillas():
@@ -296,8 +296,8 @@ def pagos_procesarplanilla():
 @app.route('/pagos/editarrbo')
 @login_required
 def pagos_editarrbo():
-    global current
-    return render_template('pagos/editarrbo.html' , current=current)
+    
+    return render_template('pagos/editarrbo.html' )
 
 
 @app.route('/pagos/obtenerrbo/<int:id>')
@@ -354,8 +354,8 @@ def pagos_getzonasasignadas():
 @app.route('/pagos/verzona')
 @login_required
 def pagos_verzona():
-    global current
-    return render_template('pagos/verzona.html' , current=current)
+    
+    return render_template('pagos/verzona.html' )
 
 
 @app.route('/pagos/editarasignado', methods = ['POST'])
@@ -378,7 +378,7 @@ def pagos_gettotaleszonas():
 @app.route('/pagos/cobrostotales')
 @login_required
 def pagos_cobrostotales():
-    global current
+    
     pd.options.display.float_format = '{:.0f}'.format
     sql="select ym(fecha) as fp,imp+rec as cuota,cobr from pagos where fecha >now() -interval '12 months'"
     sql1="select ym(fecha) as fp,imp+rec as cuota,pagos.cobr as cobr,zona,(select asignado from zonas where zona=clientes.zona) as asignado from pagos,clientes where clientes.id=pagos.idcliente and fecha >now()- interval '12 months' and zona not like '-%'"
@@ -392,13 +392,13 @@ def pagos_cobrostotales():
     tbl1 = tbl1.fillna("")
     tbl = tbl.to_html(table_id="totales",classes="table")
     tbl1 = tbl1.to_html(table_id="totaleszona",classes="table")
-    return render_template("pagos/totales.html", tbl=tbl, tbl1=tbl1 , current=current)
+    return render_template("pagos/totales.html", tbl=tbl, tbl1=tbl1 )
 
 
 @app.route('/pagos/estimados')
 @login_required
 def pagos_estimados():
-    global current
+    
     pd.options.display.float_format = '{:.0f}'.format
     sql="select ym(pmovto) as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>now()- interval '6 months'  and zonas.zona not like '-%'"
     sql1="select ym(pmovto) as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>now()-interval '6 months'  and zonas.zona not like '-%'"
@@ -412,13 +412,13 @@ def pagos_estimados():
     tbl1 = tbl1.fillna("")
     tbl = tbl.to_html(table_id="totales",classes="table")
     tbl1 = tbl1.to_html(table_id="totaleszona",classes="table")
-    return render_template("pagos/estimados.html", tbl=tbl, tbl1=tbl1 , current=current) 
+    return render_template("pagos/estimados.html", tbl=tbl, tbl1=tbl1 ) 
 
 
 @app.route('/pagos/comisiones')
 @login_required
 def pagos_comisiones():
-    global current
+    
     pd.options.display.float_format = '${:.0f}'.format
     sql="select ym(fecha) as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,816) and fecha>'2018-07-31'"
     dat = pd.read_sql_query(sql, con)
@@ -426,15 +426,15 @@ def pagos_comisiones():
     tbl = pd.pivot_table(df, values=['comision','cobranza'],index='fecha',columns='cobr',aggfunc='sum').sort_index(0, 'fecha',False)
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="table",classes="table table-sm")
-    return render_template("pagos/comisiones.html", tbl=tbl , current=current)
+    return render_template("pagos/comisiones.html", tbl=tbl )
 
 
 @app.route('/')
 @app.route('/buscador', methods = ['GET','POST'])
 @login_required
 def buscador():
-    global current
-    return render_template("buscador.html", current=current)
+    
+    return render_template("buscador.html")
 
 
 @app.route('/buscador/<string:buscar>')
@@ -689,8 +689,8 @@ def fichaje_imprimir():
 @app.route('/loterbo')
 @login_required
 def loterbo_():
-    global current
-    return render_template("pagos/loterbo.html" , current=current)
+    
+    return render_template("pagos/loterbo.html" )
 
 @app.route('/loterbo/guardarlote/<string:fecha>/<string:cobr>', methods = ['POST'])
 def guardarlote(fecha,cobr):
@@ -733,9 +733,9 @@ def loterbo_reimprimir(fecha,cobr,idlote):
 @app.route('/loterbo/ver')
 @login_required
 def loterbo_ver():
-    global current
+    
     lotesrbo = pgddict(con,f"select id,fecha,cobr,cnt from loterbos order by id desc limit 100")
-    return render_template("pagos/loterbover.html", lotesrbo=lotesrbo , current=current)
+    return render_template("pagos/loterbover.html", lotesrbo=lotesrbo )
 
 @app.route('/loterbo/delete/<string:id>')
 def loterbo_delete(id):
@@ -1006,6 +1006,7 @@ def stock_guardaredicionarticulo():
 
 
 @app.route('/ventas/pasarventas')
+@login_required
 def ventas_pasarventas():
     return render_template('ventas/pasarventas.html')
 
