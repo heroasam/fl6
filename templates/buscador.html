@@ -150,7 +150,7 @@ caption{
             </tbody>
         </table>
         <!-- tabla cuotas pagadas -->
-        <table class="table table-sm ml-5"  style="width: 300px;" v-show="pagadas.length">
+        <table class="table table-sm ml-5"  style="min-width: 300px;" v-show="pagadas.length">
             <caption>Pagos Realizados</caption>
             <thead>
                 <tr>
@@ -165,7 +165,7 @@ caption{
                 <tr v-for="pagada in pagadas">
                     <td>|pagada[0]|</td>
                     <td>|pagada[1]|</td>
-                    <td>$|pagada[2]|</td>
+                    <td style="min-width: 100px;">$|pagada[2]|</td>
                     <td>$|pagada[3]|</td>
                     <td>|pagada[4]|</td>
                 </tr>

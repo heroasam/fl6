@@ -82,7 +82,7 @@
 </div>
 <div class="block">
         <div class="field is-horizontal">
-
+            <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
             <div class="control">
               <input type="text" v-model="art" class="input" :class='{"is-danger":!art}' placeholder="Articulo" @keyup.enter="$refs.costo.focus()" size="25" ref="art">
               <p v-show="!art" class="help is-danger">Requerido</p>
@@ -122,8 +122,8 @@
               <td>|articulo[0]|</td>
               <td>|articulo[1]|</td>
               <td>|articulo[2]|</td>
-              <td :class="articulo[3]==1?'active':'inactive'">|articulo[3]|</td>
-              <td><button type="button" class="button is-primary is-small" @click="toggleactivo(articulo[0])">Toggle</button></td>
+              <td><span class="tag is-success is-small" v-show="articulo[3]">Activo</span><span class="tag is-danger is-small" v-show="!articulo[3]">Inactivo</span></td>
+              <td><button type="button" class="button is-info is-small" @click="toggleactivo(articulo[0])">Toggle</button></td>
           </tr>
       </tbody>
   </table>
@@ -138,24 +138,27 @@
 <div class="modal-content">
   <div class="block">
           <div class="field is-horizontal">
-
+              <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
               <div class="control">
+                <label class="label" style="color:white;">Articulo</label>
                 <input type="text" v-model="arted" class="input" :class='{"is-danger":!arted}' placeholder="Articulo" @keyup.enter="$refs.costoed.focus()" size="25" ref="arted">
                 <p v-show="!arted" class="help is-danger">Requerido</p>
               </div>
               <div class="control">
+                <label class="label" style="color:white;">Costo</label>
                   <input type="text" v-model="costoed" class="input" size="5" placeholder="Costo" ref="costoed" @keyup.enter="$refs.activoed.focus()" :class='{"is-danger":!costoed}'>
                   <p v-show="!costoed" class="help is-danger">Requerido</p>
               </div>
               <div class="control">
+                <label class="label" style="color:white;">Activo</label>
                 <input type="text" v-model="activoed" class="input" size="5" placeholder="Activo" ref="activoed" @keyup.enter="$refs.guardared.focus()" :class='{"is-danger":activoed==""}'>
                   <p v-show="activoed==''" class="help is-danger">Requerido</p>
               </div>
+            </div>
+            <button type="button" class="button is-primary" @click="validarEdicion()" ref="guardared" id="guardar">Guardar</button>
 
-              <div class="control">
-                  <button type="button" class="button is-primary" @click="validarEdicion()" ref="guardared" id="guardar">Guardar</button>
-              </div>
-          </div>
+              
+              
   </div>
 </div>
 <button class="modal-close is-large" aria-label="close" @click="modal"></button>
@@ -204,6 +207,7 @@ const app = new Vue({
             }
         },
         guardarArticulo(){
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
             axios({
                 method:'POST',
                 url: '/stock/guardararticulo',
@@ -249,6 +253,7 @@ const app = new Vue({
             }
         },
         guardarEdicion(){
+          axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
           axios({
               method:'POST',
               url: '/stock/guardaredicionarticulo',

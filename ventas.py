@@ -141,7 +141,7 @@ def ventas_getarticulos():
 
 @ventas.route('/ventas/getlistado')
 def ventas_getlistado():
-    listado = pgdict(con,f"select id, fecha, cc, ic::integer, p, pmovto  , comprado::integer, idvdor, primera, (select sum(cnt) from detvta where idvta= ventas.id) as cnt, (select string_agg(art,' | ')  from detvta where idvta=ventas.id) as art from ventas order by id desc limit 200")
+    listado = pgdict(con,f"select id, fecha, cc, ic::integer, p, pmovto  , comprado::integer, idvdor, primera, (select sum(cnt) from detvta where idvta= ventas.id) as cnt, (select string_agg(art,' | ')  from detvta where idvta=ventas.id) as art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<now() - interval '4 month') as count from ventas order by id desc limit 200")
     return jsonify(listado=listado)
 
 

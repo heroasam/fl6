@@ -3,7 +3,16 @@
 {% block title %}Listado de Ventas{% endblock %}
 {% block style %}
 <style>
-    .color1 {
+.cur::before {
+    content:"$";
+}
+.cur{
+    text-align: right !important;
+}
+.deudora{
+    background-color: tomato;
+}
+ .color1 {
     background-color: rgb(178, 42, 32);
     color: black;
     text-align: center;
@@ -79,22 +88,24 @@
                 <th>primera</th>
                 <th>cnt</th>
                 <th>art</th>
+                <th v-show="0">count</th>
             </tr>
         </thead>
         <tbody>
-            <tr v-for="item in listado">
+            <tr v-for="item in listado" :class="item[11]>0?'deudora':'nodeudora'">
                 <td><button type="button" class="button is-danger is-outlined is-small" @click="borrarVenta(item[0])">Borrar</button></td>
                 <td>|item[0]|</td>
                 <td :class="dia(item[1])" style="min-width: 100px;">|item[1]|</td>
                 <td>|item[2]|</td>
-                <td>|item[3]|</td>
+                <td :class="'cur'">|item[3]|</td>
                 <td>|item[4]|</td>
                 <td style="min-width: 100px;">|item[5]|</td>
-                <td>|item[6]|</td>
+                <td :class="'cur'">|item[6]|</td>
                 <td>|item[7]|</td>
                 <td style="min-width: 100px;">|item[8]|</td>
                 <td>|item[9]|</td>
                 <td>|item[10]|</td>
+                <td v-show="0">|item[11]|</td>
             </tr>
         </tbody>
     </table>
