@@ -22,39 +22,37 @@ endblock %} {% block style %}
 {% endblock %} {% block content %}
 <div class="conteiner-fluid">
 <div id="app">
-  <div class="row">
+  <div class="buttons">
     <div v-for="cobrador in cobradores">
-      <button class="btn btn-info ml-1" @click="muestraZonas(cobrador[0])">
+      <button class="button is-info ml-1" @click="muestraZonas(cobrador[0])">
         |cobrador[0]|
       </button>
     </div>
   </div>
-  <div class="row">
+  <div class="buttons">
     <div v-for="zona in zonas">
       <button
-        class="btn btn-success ml-1 mt-1"
+        class="button is-success ml-1 mt-1"
         @click="muestraClientes('normales',zona[0]);zonaactual=zona[0]"
       >
         |zona[0]|
       </button>
     </div>
   </div>
-  <div class="row  d-flex">
-    <button class="btn bnt-success" @click="seleccionarHoy()">
-      Seleccionar Hoy
-    </button>
-    <button class="btn bnt-danger" @click="imprimir()">Imprimir</button>
-    <button class="btn btn-warning" @click="muestraClientes('gestion',zonaactual)">Gestion</button>
-    <button class="btn btn-dark" @click="muestraClientes('antiguos',zonaactual)">Antiguos</button>
-    <button class="btn btn-success" @click="verZonas==true?verZonas=false:verZonas=true">Zonas</button>
+  <div class="buttons">
+    <button class="button is-success" @click="seleccionarHoy()">Seleccionar Hoy</button>
+    <button class="button is-danger" @click="imprimir()">Imprimir</button>
+    <button class="button is-warning" @click="muestraClientes('gestion',zonaactual)">Gestion</button>
+    <button class="button is-dark" @click="muestraClientes('antiguos',zonaactual)">Antiguos</button>
+    <button class="button is-success" @click="verZonas==true?verZonas=false:verZonas=true">Zonas</button>
     <input type="text" name="zona" v-model="zona" list="zonalist" autocomplete="off" v-if="verZonas">
                   <datalist id="zonalist">
                     <option v-for="zona in listazonas">|zona[0]|</option>
                 </datalist>
-    <button class="btn btn-success" @click="cambiarZona(zona)" v-if="verZonas">Cambiar Zonas</button>
+    <button class="button is-success" @click="cambiarZona(zona)" v-if="verZonas">Cambiar Zonas</button>
   </div>
   <div class="row">
-    <table id="table" class="table table-sm">
+    <table id="table" class="table is-narrow">
       <thead>
         <tr>
           <th>Nombre</th>
@@ -84,118 +82,119 @@ endblock %} {% block style %}
           <td>|cliente[10]|</td>
           <td>|cliente[14]|</td>
           <td>|cliente[15]|</td>
-          <td><button class="btn btn-success btn-sm" v-if="cliente[5]||cliente[11]">|cliente[5]==1?'SEVEN':cliente[11]==1?'SUBE':null|</button></td>
-          <td><button class="btn btn-primary btn-sm" v-if="cliente[6]">|cliente[6]==1?'NV+':null|</button></td>
-          <td><button class="btn btn-info btn-sm" v-if="cliente[7]">|cliente[7]==1?'GESTION':null|</button></td>
-          <td><button class="btn btn-warning btn-sm" v-if="cliente[8]">|cliente[8]==1?'MUDO':null|</button></td>
-          <td><button class="btn btn-danger btn-sm" v-if="cliente[9]">|cliente[9]==1?'INC':''|</button></td>
-          <td><button class="btn btn-outline-primary btn-sm" @click="toggleSube(cliente[10])">SU</button></td>
-          <td><button class="btn btn-outline-primary btn-sm" @click="toggleLN(cliente[10])">NV</button></td>
-          <td><button class="btn btn-outline-primary btn-sm" @click="toggleGestion(cliente[10])">Ge</button></td>
-          <td><button class="btn btn-outline-primary btn-sm" @click="toggleMudo(cliente[10])">Mu</button></td>
-          <td><button class="btn btn-outline-primary btn-sm" @click="toggleInc(cliente[10]);">IN</button></td>
+          <td><button class="button is-success is-small" v-if="cliente[5]||cliente[11]">|cliente[5]==1?'SEVEN':cliente[11]==1?'SUBE':null|</button></td>
+          <td><button class="button is-primary is-small" v-if="cliente[6]">|cliente[6]==1?'NV+':null|</button></td>
+          <td><button class="button is-info is-small" v-if="cliente[7]">|cliente[7]==1?'GESTION':null|</button></td>
+          <td><button class="button is-warning is-small" v-if="cliente[8]">|cliente[8]==1?'MUDO':null|</button></td>
+          <td><button class="button is-danger is-small" v-if="cliente[9]">|cliente[9]==1?'INC':''|</button></td>
+          <td><button class="button is-outline-primary is-small" @click="toggleSube(cliente[10])">SU</button></td>
+          <td><button class="button is-outline-primary is-small" @click="toggleLN(cliente[10])">NV</button></td>
+          <td><button class="button is-outline-primary is-small" @click="toggleGestion(cliente[10])">Ge</button></td>
+          <td><button class="button is-outline-primary is-small" @click="toggleMudo(cliente[10])">Mu</button></td>
+          <td><button class="button is-outline-primary is-small" @click="toggleInc(cliente[10]);">IN</button></td>
           
         </tr>
       </tbody>
     </table>
+    <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
   </div>
 </div>
 </div>
 {% endblock %} {% block script %}
 <script>
-  const sortGrid = (colNum, dir) => {
-    let tbody = table.querySelector("tbody");
-    let rowsArray = Array.from(tbody.rows);
-    let compare;
-    let compareAsc;
-    compareAsc = function (rowA, rowB) {
-      return rowA.cells[colNum].innerHTML.localeCompare(
-        rowB.cells[colNum].innerHTML
-      );
-    };
-    let compareDesc;
-    compareDesc = function (rowA, rowB) {
-      return (
-        rowA.cells[colNum].innerHTML.localeCompare(
-          rowB.cells[colNum].innerHTML
-        ) * -1
-      );
-    };
-    if (dir === "ASC") {
-      compare = compareAsc;
-    } else {
-      compare = compareDesc;
-    }
-    rowsArray.sort(compare);
-    tbody.append(...rowsArray);
-  };
-  const sortGridNumerica = (colNum, dir) => {
-    let tbody = table.querySelector("tbody");
-    let rowsArray = Array.from(tbody.rows);
-    let compare;
-    let compareAsc;
-    compareAsc = function (rowA, rowB) {
-      return rowA.cells[colNum].innerHTML - rowB.cells[colNum].innerHTML;
-    };
-    let compareDesc;
-    compareDesc = function (rowA, rowB) {
-      return rowB.cells[colNum].innerHTML - rowA.cells[colNum].innerHTML;
-    };
-    if (dir === "ASC") {
-      compare = compareAsc;
-    } else {
-      compare = compareDesc;
-    }
-    rowsArray.sort(compare);
-    tbody.append(...rowsArray);
-  };
-  document.addEventListener("click", () => {
-    if (event.target.tagName === "TH") {
-      let th = event.target;
-      console.log(th.cellIndex);
-      sortGrid(th.cellIndex, "ASC");
-    }
-    if (event.target.tagName === "TH" && event.ctrlKey === true) {
-      let th = event.target;
-      sortGridNumerica(th.cellIndex, "ASC");
-    }
-  });
-  document.addEventListener("contextmenu", () => {
-    event.preventDefault();
-    if (event.target.tagName === "TH") {
-      let th = event.target;
-      sortGrid(th.cellIndex, "DESC");
-    }
-    if (event.target.tagName === "TH" && event.ctrlKey === true) {
-      let th = event.target;
-      sortGridNumerica(th.cellIndex, "DESC");
-    }
-  });
-  document.addEventListener("mouseover", () => {
-    if (event.target.tagName === "TD") {
-      if (event.buttons === 1) {
-        markSelected(1);
-      }
-    }
-  });
-  document.addEventListener("mousedown", () => {
-    if (event.target.tagName === "TD") event.preventDefault();
-    if (event.target.tagName === "TH") event.preventDefault();
-    // prevenimos la accion de seleccionar valores
-    // de la tabla que es molesto y no sirve para nada.
-  });
-  document.addEventListener("click", () => {
-    if (event.target.tagName === "TD") {
-      markSelected();
-    }
-  });
-  const markSelected = () => {
-    if (event.target.parentElement.parentElement.tagName != "TBODY") return;
-    const $row = event.target.parentElement;
-    $row.classList.toggle("selected");
-  };
+  // const sortGrid = (colNum, dir) => {
+  //   let tbody = table.querySelector("tbody");
+  //   let rowsArray = Array.from(tbody.rows);
+  //   let compare;
+  //   let compareAsc;
+  //   compareAsc = function (rowA, rowB) {
+  //     return rowA.cells[colNum].innerHTML.localeCompare(
+  //       rowB.cells[colNum].innerHTML
+  //     );
+  //   };
+  //   let compareDesc;
+  //   compareDesc = function (rowA, rowB) {
+  //     return (
+  //       rowA.cells[colNum].innerHTML.localeCompare(
+  //         rowB.cells[colNum].innerHTML
+  //       ) * -1
+  //     );
+  //   };
+  //   if (dir === "ASC") {
+  //     compare = compareAsc;
+  //   } else {
+  //     compare = compareDesc;
+  //   }
+  //   rowsArray.sort(compare);
+  //   tbody.append(...rowsArray);
+  // };
+  // const sortGridNumerica = (colNum, dir) => {
+  //   let tbody = table.querySelector("tbody");
+  //   let rowsArray = Array.from(tbody.rows);
+  //   let compare;
+  //   let compareAsc;
+  //   compareAsc = function (rowA, rowB) {
+  //     return rowA.cells[colNum].innerHTML - rowB.cells[colNum].innerHTML;
+  //   };
+  //   let compareDesc;
+  //   compareDesc = function (rowA, rowB) {
+  //     return rowB.cells[colNum].innerHTML - rowA.cells[colNum].innerHTML;
+  //   };
+  //   if (dir === "ASC") {
+  //     compare = compareAsc;
+  //   } else {
+  //     compare = compareDesc;
+  //   }
+  //   rowsArray.sort(compare);
+  //   tbody.append(...rowsArray);
+  // };
+  // document.addEventListener("click", () => {
+  //   if (event.target.tagName === "TH") {
+  //     let th = event.target;
+  //     console.log(th.cellIndex);
+  //     sortGrid(th.cellIndex, "ASC");
+  //   }
+  //   if (event.target.tagName === "TH" && event.ctrlKey === true) {
+  //     let th = event.target;
+  //     sortGridNumerica(th.cellIndex, "ASC");
+  //   }
+  // });
+  // document.addEventListener("contextmenu", () => {
+  //   event.preventDefault();
+  //   if (event.target.tagName === "TH") {
+  //     let th = event.target;
+  //     sortGrid(th.cellIndex, "DESC");
+  //   }
+  //   if (event.target.tagName === "TH" && event.ctrlKey === true) {
+  //     let th = event.target;
+  //     sortGridNumerica(th.cellIndex, "DESC");
+  //   }
+  // });
+  // document.addEventListener("mouseover", () => {
+  //   if (event.target.tagName === "TD") {
+  //     if (event.buttons === 1) {
+  //       markSelected(1);
+  //     }
+  //   }
+  // });
+  // document.addEventListener("mousedown", () => {
+  //   if (event.target.tagName === "TD") event.preventDefault();
+  //   if (event.target.tagName === "TH") event.preventDefault();
+  //   // prevenimos la accion de seleccionar valores
+  //   // de la tabla que es molesto y no sirve para nada.
+  // });
+  // document.addEventListener("click", () => {
+  //   if (event.target.tagName === "TD") {
+  //     markSelected();
+  //   }
+  // });
+  // const markSelected = () => {
+  //   if (event.target.parentElement.parentElement.tagName != "TBODY") return;
+  //   const $row = event.target.parentElement;
+  //   $row.classList.toggle("selected");
+  // };
 
-  Vue.use(Toasted)
+  
   const app = new Vue({
     el: "#app",
     delimiters: ["|", "|"],
@@ -251,6 +250,7 @@ endblock %} {% block style %}
           }
         });
  
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
         axios({
           method: "POST",
           url: "/fichaje/imprimir",
@@ -275,12 +275,12 @@ endblock %} {% block style %}
         axios.get('/buscador/toggleinc/'+dni)
         .then(res=>{
           //console.log(res);
-          let toast = this.$toasted.success(res.data, { 
-                theme: "outline", 
-                position: "top-right", 
-                duration : 3000,
-                fullWidth: true,
-                });
+          // let toast = this.$toasted.success(res.data, { 
+          //       theme: "outline", 
+          //       position: "top-right", 
+          //       duration : 3000,
+          //       fullWidth: true,
+          //       });
         })
       },
       toggleSube(dni){
@@ -288,19 +288,19 @@ endblock %} {% block style %}
         .then(res=>{
           //console.log(res);
           if (res.data=='No se sube pq ya esta en el seven'){
-          let toast = this.$toasted.error(res.data, { 
-                theme: "outline", 
-                position: "top-right", 
-                duration : 3000,
-                fullWidth: true,
-                });
+          // let toast = this.$toasted.error(res.data, { 
+          //       theme: "outline", 
+          //       position: "top-right", 
+          //       duration : 3000,
+          //       fullWidth: true,
+          //       });
               }else{
-          let toast = this.$toasted.success(res.data, { 
-                theme: "outline", 
-                position: "top-right", 
-                duration : 3000,
-                fullWidth: true,
-                });
+          // let toast = this.$toasted.success(res.data, { 
+          //       theme: "outline", 
+          //       position: "top-right", 
+          //       duration : 3000,
+          //       fullWidth: true,
+          //       });
               }
         })
       
@@ -309,36 +309,36 @@ endblock %} {% block style %}
         axios.get('/buscador/togglegestion/'+dni)
         .then(res=>{
           //console.log(res);
-          let toast = this.$toasted.success(res.data, { 
-                theme: "outline", 
-                position: "top-right", 
-                duration : 3000,
-                fullWidth: true,
-                });
+          // let toast = this.$toasted.success(res.data, { 
+          //       theme: "outline", 
+          //       position: "top-right", 
+          //       duration : 3000,
+          //       fullWidth: true,
+          //       });
         })
       },
       toggleMudo(dni){
         axios.get('/buscador/togglemudado/'+dni)
         .then(res=>{
           //console.log(res);
-          let toast = this.$toasted.success(res.data, { 
-                theme: "outline", 
-                position: "top-right", 
-                duration : 3000,
-                fullWidth: true,
-                });
+          // let toast = this.$toasted.success(res.data, { 
+          //       theme: "outline", 
+          //       position: "top-right", 
+          //       duration : 3000,
+          //       fullWidth: true,
+          //       });
         })
       },
       toggleLN(dni){
         axios.get('/buscador/toggleln/'+dni)
         .then(res=>{
           //console.log(res);
-          let toast = this.$toasted.success(res.data, { 
-                theme: "outline", 
-                position: "top-right", 
-                duration : 3000,
-                fullWidth: true,
-                });
+          // let toast = this.$toasted.success(res.data, { 
+          //       theme: "outline", 
+          //       position: "top-right", 
+          //       duration : 3000,
+          //       fullWidth: true,
+          //       });
         })
       },
       cargarZonas(){
