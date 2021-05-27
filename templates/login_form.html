@@ -17,6 +17,11 @@
                         {{ errorpassword }}
                     </div>
                 {% endif %}
+                {% if errorauth %}
+                    <div class="notification is-danger">
+                        {{ errorauth }}
+                    </div>
+                {% endif %}
                 <div class="field">
                     <div class="control">
                         <input class="input is-large" type="email" name="email" placeholder="Your Email" autofocus="" v-model="email">

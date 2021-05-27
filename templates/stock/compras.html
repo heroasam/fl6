@@ -131,7 +131,7 @@
           <tr v-for="compra in compras">
               <td><button class="button is-danger is-small" @click="borrarCompra(compra[0])">Borrar</button></td>
               <td>|compra[0]|</td>
-              <td :class="dia(compra[1])">|compra[1]|</td>
+              <td :class="dia(compra[1])" style="min-width: 100px;">|compra[1]| </td>
               <td>|compra[2]|</td>
               <td>|compra[3]|</td>
               <td>|compra[4]|</td>

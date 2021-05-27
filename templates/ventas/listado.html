@@ -85,14 +85,14 @@
             <tr v-for="item in listado">
                 <td><button type="button" class="button is-danger is-outlined is-small" @click="borrarVenta(item[0])">Borrar</button></td>
                 <td>|item[0]|</td>
-                <td :class="dia(item[1])">|item[1]|</td>
+                <td :class="dia(item[1])" style="min-width: 100px;">|item[1]|</td>
                 <td>|item[2]|</td>
                 <td>|item[3]|</td>
                 <td>|item[4]|</td>
-                <td>|item[5]|</td>
+                <td style="min-width: 100px;">|item[5]|</td>
                 <td>|item[6]|</td>
                 <td>|item[7]|</td>
-                <td>|item[8]|</td>
+                <td style="min-width: 100px;">|item[8]|</td>
                 <td>|item[9]|</td>
                 <td>|item[10]|</td>
             </tr>

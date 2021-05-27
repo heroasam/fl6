@@ -41,12 +41,12 @@ app.register_blueprint(buscador)
 app.register_blueprint(fichaje)
 
 class User(UserMixin):
-    def __init__(self, id, name, email, password, is_admin=False):
+    def __init__(self, id, name, email, password, auth=0):
         self.id = id
         self.name = name
         self.email = email
         self.password = password
-        self.is_admin = is_admin
+        self.auth = auth
     def set_password(self, password):
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
     def check_password(self, password):
@@ -58,8 +58,8 @@ class User(UserMixin):
 @login.user_loader
 def load_user(id):
     try:
-        log = pgdict(con, f"select id,name,email,password from users where id={id}")
-        user = User(log[0][0],log[0][1], log[0][2],log[0][3])
+        log = pgdict(con, f"select id,name,email,password,auth from users where id={id}")
+        user = User(log[0][0],log[0][1], log[0][2],log[0][3],log[0][4])
         return user
     except:
         return None
@@ -71,17 +71,19 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        log = pgdict(con, f"select id,name,email,password from users where email='{email}'")
+        log = pgdict(con, f"select id,name,email,password,auth from users where email='{email}'")
         errormail = "Ese email no existe en la base de datos. Registrese"
         errorpassword = "Ha ingresado una contraseña incorrecta"
+        errorauth = "Ese email no esta autorizado a ingresar"
         if log==[]:
             return render_template('login_form.html', errormail=errormail)
-        user = User(log[0][0],log[0][1], log[0][2],log[0][3])
+        user = User(log[0][0],log[0][1], log[0][2],log[0][3],log[0][4])
         if not user.check_password(password):
             return render_template('login_form.html', errorpassword=errorpassword)
-        if user is not None and user.check_password(password) :
+        if user.auth==0:
+            return render_template('login_form.html',errorauth=errorauth)
+        if user is not None and user.check_password(password) and user.auth :
             login_user(user,remember=True)
-            current = user.name
             next_page = request.args.get('next')
             if not next_page or url_parse(next_page).netloc != '':
                 next_page = url_for('buscador.buscador_')
@@ -91,9 +93,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    
     logout_user()
-    current = None
     return redirect(url_for('login'))
 
 
