@@ -137,3 +137,30 @@ def ventas_borrardetvta(id):
 def ventas_getarticulos():
     articulos = pglflat(con, f"select art from articulos where activo=1")
     return jsonify(articulos=articulos)
+
+
+@ventas.route('/ventas/getlistado')
+def ventas_getlistado():
+    listado = pgdict(con,f"select id, fecha, cc, ic::integer, p, pmovto  , comprado::integer, idvdor, primera, (select sum(cnt) from detvta where idvta= ventas.id) as cnt, (select string_agg(art,' | ')  from detvta where idvta=ventas.id) as art from ventas order by id desc limit 200")
+    return jsonify(listado=listado)
+
+
+@ventas.route('/ventas/listado')
+def ventas_listado():
+    return render_template("ventas/listado.html")
+
+
+@ventas.route('/ventas/borrarventa/<int:id>')
+def ventas_borrarventa(id):
+    stm = f"delete from ventas where id={id}"
+    cur = con.cursor()
+    try:
+        cur.execute(stm)
+    except psycopg2.Error as e:
+        con.rollback()
+        error = e.pgerror
+        return make_response(error,400)
+    else:
+        con.commit()
+        cur.close()
+        return 'OK'

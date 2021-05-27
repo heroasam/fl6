@@ -10,10 +10,13 @@
 
 <div id="app" class="container">
     <p class="title is-1">Pasar Ventas</p>
+    <div class="buttons">
+      <a href="/ventas/listado" class="button is-outlined is-primary">Listado</a>
+    </div>
     <div class="field is-horizontal box">
       <input type="search" placeholder="Buscar en Romitex" size="73" class="input" v-model="buscar" @keyup.enter="buscarCliente" @focus="nuevoCliente" ref="buscar">
       <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
-      <button type="button" @click="nuevoCliente" class="button is-danger">Nuevo</button>
+      <button type="button" @click="nuevoCliente" class="button is-danger" :disabled="!verVtaTerminada">Nuevo</button>
     </div>
 
   <div class="buttons" v-if="buscar">

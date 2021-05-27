@@ -104,7 +104,7 @@ thead th {
 
 
 <div>
-    <table id="table" class="table is-narrow">
+    <table id="table" class="table is-narrow" v-show="rbosPagos.length">
         <thead>
             <tr>
                 <th>Op</th>
@@ -144,7 +144,7 @@ thead th {
 </div>
 
 <div class="row">
-    <table class="table">
+    <table class="table" v-show="planillas.length">
         <thead>
             <tr>
                 <th>fecha</th>

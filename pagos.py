@@ -66,7 +66,7 @@ def loterbo_delete(id):
     cur.execute("delete from loterbos where id={0}".format(id))
     con.commit()
     cur.close()
-    return redirect(url_for('loterbo_ver'))
+    return redirect(url_for('pagos.loterbo_ver'))
 
 @pagos.route('/loterbo/buscanombrecobr/<int:cobr>')
 def loterbo_buscanombrecobr(cobr):

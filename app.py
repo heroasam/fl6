@@ -84,7 +84,7 @@ def login():
             current = user.name
             next_page = request.args.get('next')
             if not next_page or url_parse(next_page).netloc != '':
-                next_page = url_for('buscador')
+                next_page = url_for('buscador.buscador_')
             return redirect(next_page)
     return render_template('login_form.html')
 

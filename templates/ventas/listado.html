@@ -1,0 +1,151 @@
+{% extends "base_template.html" %}
+
+{% block title %}Listado de Ventas{% endblock %}
+{% block style %}
+<style>
+    .color1 {
+    background-color: rgb(178, 42, 32);
+    color: black;
+    text-align: center;
+}
+.color2 {
+    background-color: rgb(178, 127, 32);
+    color: black;
+    text-align: center;
+}
+.color3 {
+    background-color: rgb(176, 178, 32);
+    color: black;
+    text-align: center;
+}
+.color4 {
+    background-color: rgb(32, 178, 98);
+    color: black;
+    text-align: center;
+}
+.color5 {
+    background-color: rgb(147, 196, 193);
+    color: black;
+    text-align: center;
+}
+.color6 {
+    background-color: orange;
+    color: black;
+    text-align: center;
+}
+.color7 {
+    background-color: rgb(80, 89, 214);
+    color: black;
+    text-align: center;
+}
+.color8 {
+    background-color: rgb(13, 130, 148);
+    color: black;
+    text-align: center;
+}
+.color9 {
+    background-color: rgb(141, 11, 104);
+    color: black;
+    text-align: center;
+}
+.color0 {
+    background-color: rgb(127, 19, 189);
+    color: black;
+    text-align: center;
+}
+  </style>
+  {% endblock %}
+  
+{% block content %}
+
+<div id="app" class="container">
+    <p class="title is-1">Listado de Ventas</p>
+    <div class="buttons">
+        <a href="/ventas/pasarventas" class="button is-outlined is-primary">Pasar Ventas</a>
+      </div>
+
+    <table id="table" class="table is-narrow">
+        <thead>
+            <tr>
+                <th>op</th>
+                <th>idvta</th>
+                <th>fecha</th>
+                <th>cc</th>
+                <th>ic</th>
+                <th>p</th>
+                <th>pmovto</th>
+                <th>comprado</th>
+                <th>idvdor</th>
+                <th>primera</th>
+                <th>cnt</th>
+                <th>art</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="item in listado">
+                <td><button type="button" class="button is-danger is-outlined is-small" @click="borrarVenta(item[0])">Borrar</button></td>
+                <td>|item[0]|</td>
+                <td :class="dia(item[1])">|item[1]|</td>
+                <td>|item[2]|</td>
+                <td>|item[3]|</td>
+                <td>|item[4]|</td>
+                <td>|item[5]|</td>
+                <td>|item[6]|</td>
+                <td>|item[7]|</td>
+                <td>|item[8]|</td>
+                <td>|item[9]|</td>
+                <td>|item[10]|</td>
+            </tr>
+        </tbody>
+    </table>
+
+
+
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  const app = new Vue({
+    el:"#app",
+    delimiters:['|','|'],
+    data:{
+        listado:[],
+    },
+    methods:{
+        getListado(){
+            axios.get('/ventas/getlistado')
+            .then(res=>{
+                const arrayListado = Array.from(res.data.listado)
+                arrayListado.forEach(row => {
+                    row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD')
+                    row[5]=dayjs.utc(row[5]).format('YYYY-MM-DD')
+                    row[8]=dayjs.utc(row[8]).format('YYYY-MM-DD')
+                });
+                this.listado=arrayListado
+            })
+        },
+        borrarVenta(id){
+            axios.get('/ventas/borrarventa/'+id)
+            .then(res=>{
+                bulmaToast.toast({message:"Venta borrada con exito", type:"is-success"})
+                this.getListado()
+            })
+            .catch(error=>{
+                bulmaToast.toast({message:error, type:"is-danger"})
+
+            })
+        },
+        dia(day){
+            //formamos el nombre de la clase con la palabra color mas
+            //el ultimo digito de los dias para tener solo diez colores
+            return "color" + dayjs.utc(day).format('DD').slice(1,2)
+        },
+    },
+    created:function(){
+        this.getListado()
+    }
+  })
+  </script>
+  {% endblock %}
