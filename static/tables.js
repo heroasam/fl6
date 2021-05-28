@@ -148,6 +148,8 @@ document.addEventListener('click', ()=>{
 
 document.addEventListener('click', ()=>{
     if(!event.target.parentElement.parentElement.parentElement.classList.contains('nototal')){
+        // este if condiciona a que la tabla no tenga la clase nototal
+        // o sea la funcion seleccionar y totalizar etc. funcionan con tablas sin la clase nototal
         if(event.target.tagName==='TD') {
             markSelected(1)
         };
@@ -168,23 +170,43 @@ document.addEventListener('mousedown',()=>{
 });
 
 document.addEventListener('mouseover',()=>{
-    if(event.target.tagName==='TD') {
-        if(event.buttons===1){
-        markSelected(1)
-        }
-    };
+        if(event.target.tagName==='TD') {
+            if(!event.target.parentElement.parentElement.parentElement.classList.contains('nototal')){
+            // este if condiciona a que la tabla no tenga la clase nototal
+            // o sea la funcion seleccionar y totalizar etc. funcionan con tablas sin la clase nototal
+                if(event.buttons===1){
+                markSelected(1)
+                }
+            }
+        };
     })
 
 
 document.addEventListener('contextmenu', ()=>{
+        // sort tabla por columnas con boton derecho en el encabezado
         event.preventDefault()
+        // prevenDefault para que no funcione como esta predeterminado
         if(event.target.tagName=== 'TD'){
             t=event.target.parentElement.parentElement.parentElement
             restaurar(t)
         };
+        // el event.target entrega el elemento clickado, si su tagName es TD
+        // buscampos el parent del parent del parent que es la tabla
+        // y lanzamos la funcion restaurar(tabla)
         if(event.target.tagName!= 'TH') return;
+        // luego si no es un TH terminamos
+        if(event.target.tagName=== 'TH') {
         let th = event.target;
         sortGrid(th.cellIndex,'DESC')
+        }
+        // si es un TH lanzamos la funcion sortGrid 
+        if(event.target.tagName=== 'TH' && event.ctrlKey===true) {
+            let th = event.target;
+            sortGridNumerica(th.cellIndex,'DESC')
+            }
+        // si es un TH con la tecla ctrl presionada lanzamos la funcion
+        // sortGridNumerica
+        
     });
 
 // document.addEventListener('keydown',(e)=>{
