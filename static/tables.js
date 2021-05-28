@@ -82,14 +82,19 @@ const restaurar = (tableId)=>{
         })
     };
 
-const markSelected = (only=0)=>{
-        if (event.target.parentElement.parentElement.tagName!='TBODY') return;
-        const $row = event.target.parentElement;
-        if(only===0) {
-        $row.classList.remove('selected');
-        }else{
-        $row.classList.add('selected');
-        }
+// const markSelected = (only=0)=>{
+//         if (event.target.parentElement.parentElement.tagName!='TBODY') return;
+//         const $row = event.target.parentElement;
+//         if(only===0) {
+//         $row.classList.remove('selected');
+//         }else{
+//         $row.classList.add('selected');
+//         }
+// }
+const markSelected = ()=>{
+    if (event.target.parentElement.parentElement.tagName!='TBODY') return;
+    const $row = event.target.parentElement;
+    $row.classList.toggle('selected');
 }
 
 const sortGrid = (colNum,dir)=>{
@@ -151,11 +156,11 @@ document.addEventListener('click', ()=>{
         // este if condiciona a que la tabla no tenga la clase nototal
         // o sea la funcion seleccionar y totalizar etc. funcionan con tablas sin la clase nototal
         if(event.target.tagName==='TD') {
-            markSelected(1)
+            markSelected()
         };
         if(event.target.tagName=== 'TD' && event.ctrlKey===true){
             t=event.target.parentElement.parentElement.parentElement
-            totalizar(t)
+            restaurar(t)
         };
     }
 })
@@ -169,18 +174,26 @@ document.addEventListener('mousedown',()=>{
     // de la tabla que es molesto y no sirve para nada.
 });
 
+// document.addEventListener('mouseover',()=>{
+//         if(event.target.tagName==='TD') {
+//             if(!event.target.parentElement.parentElement.parentElement.classList.contains('nototal')){
+//             // este if condiciona a que la tabla no tenga la clase nototal
+//             // o sea la funcion seleccionar y totalizar etc. funcionan con tablas sin la clase nototal
+//                 if(event.buttons===1){
+//                 markSelected()
+//                 }
+//             }
+//         };
+//     })
 document.addEventListener('mouseover',()=>{
-        if(event.target.tagName==='TD') {
-            if(!event.target.parentElement.parentElement.parentElement.classList.contains('nototal')){
-            // este if condiciona a que la tabla no tenga la clase nototal
-            // o sea la funcion seleccionar y totalizar etc. funcionan con tablas sin la clase nototal
-                if(event.buttons===1){
-                markSelected(1)
-                }
-            }
-        };
-    })
-
+    if(event.target.tagName==='TD' &&  event.ctrlKey===true) {
+                    if(!event.target.parentElement.parentElement.parentElement.classList.contains('nototal')){
+                    // este if condiciona a que la tabla no tenga la clase nototal
+                    // o sea la funcion seleccionar y totalizar etc. funcionan con tablas sin la clase nototal
+                        markSelected()
+                    }
+                };
+})
 
 document.addEventListener('contextmenu', ()=>{
         // sort tabla por columnas con boton derecho en el encabezado
@@ -188,7 +201,7 @@ document.addEventListener('contextmenu', ()=>{
         // prevenDefault para que no funcione como esta predeterminado
         if(event.target.tagName=== 'TD'){
             t=event.target.parentElement.parentElement.parentElement
-            restaurar(t)
+            totalizar(t)
         };
         // el event.target entrega el elemento clickado, si su tagName es TD
         // buscampos el parent del parent del parent que es la tabla
@@ -209,16 +222,3 @@ document.addEventListener('contextmenu', ()=>{
         
     });
 
-// document.addEventListener('keydown',(e)=>{
-//         t=e.target.parentElement.parentElement.parentElement
-//         switch (e.key) {
-//             case 't' : {
-//                 totalizar(t)
-//                 break
-//             };
-//             case 'r': {
-//                 restaurar(t)
-//                 break
-//             }
-//         };
-//     })

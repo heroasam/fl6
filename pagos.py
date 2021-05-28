@@ -318,7 +318,7 @@ def pagos_comisiones():
     df = pd.DataFrame(dat)
     tbl = pd.pivot_table(df, values=['comision','cobranza'],index='fecha',columns='cobr',aggfunc='sum').sort_index(0, 'fecha',False)
     tbl = tbl.fillna("")
-    tbl = tbl.to_html(table_id="table",classes="table table-sm")
+    tbl = tbl.to_html(table_id="tablecomisiones",classes="table")
     return render_template("pagos/comisiones.html", tbl=tbl )
 
 
