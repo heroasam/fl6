@@ -164,3 +164,25 @@ def ventas_borrarventa(id):
         con.commit()
         cur.close()
         return 'OK'
+
+@ventas.route('/ventas/datosventa/<int:id>')
+def ventas_datosventa(id):
+    venta = pgdict(con, f"select fecha,cc,ic::integer,p,pmovto,idvdor,primera from ventas where id={id}")
+    return jsonify(venta=venta)
+
+
+@ventas.route('/ventas/guardaredicionventa', methods=['POST'])
+def ventas_guardaredicionvta():
+    d = ast.literal_eval(request.data.decode("UTF-8"))
+    upd = f"update ventas set fecha='{d['fecha']}',cc={d['cc']},ic={d['ic']},p={d['p']},pmovto='{d['pmovto']}',idvdor={d['idvdor']},primera='{d['primera']}' where id={d['id']}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except psycopg2.Error as e:
+        con.rollback()
+        error = e.pgerror
+        return make_response(error,400)
+    else:
+        con.commit()
+        cur.close()
+        return 'OK'   

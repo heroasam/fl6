@@ -134,35 +134,54 @@
 
 
 <div class="modal" :class="{'is-active':toggleModal}">
-<div class="modal-background"></div>
-<div class="modal-content">
-  <div class="block">
-          <div class="field is-horizontal">
-              <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
-              <div class="control">
-                <label class="label" style="color:white;">Articulo</label>
-                <input type="text" v-model="arted" class="input" :class='{"is-danger":!arted}' placeholder="Articulo" @keyup.enter="$refs.costoed.focus()" size="25" ref="arted">
-                <p v-show="!arted" class="help is-danger">Requerido</p>
-              </div>
-              <div class="control">
-                <label class="label" style="color:white;">Costo</label>
-                  <input type="text" v-model="costoed" class="input" size="5" placeholder="Costo" ref="costoed" @keyup.enter="$refs.activoed.focus()" :class='{"is-danger":!costoed}'>
-                  <p v-show="!costoed" class="help is-danger">Requerido</p>
-              </div>
-              <div class="control">
-                <label class="label" style="color:white;">Activo</label>
-                <input type="text" v-model="activoed" class="input" size="5" placeholder="Activo" ref="activoed" @keyup.enter="$refs.guardared.focus()" :class='{"is-danger":activoed==""}'>
-                  <p v-show="activoed==''" class="help is-danger">Requerido</p>
-              </div>
-            </div>
-            <button type="button" class="button is-primary" @click="validarEdicion()" ref="guardared" id="guardar">Guardar</button>
-
-              
-              
-  </div>
-</div>
-<button class="modal-close is-large" aria-label="close" @click="modal"></button>
-</div>
+    <div class="modal-background"></div>
+    <div class="modal-content">
+        <div class="modal-card">
+         <section class="modal-card-body">     
+                  <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
+                 
+                    <form >
+                        <div class="field">
+                            <div class="control">
+                                <label class="label" style="color:black;">Articulo</label>
+                                <input type="text" v-model="arted" class="input is-narrow" :class='{"is-danger":!arted}' placeholder="Articulo" @keyup.enter="$refs.costoed.focus()" size="25" ref="arted">
+                                <p v-show="!arted" class="help is-danger">Requerido</p>
+                              </div>
+                        </div>
+                     
+                     
+                        <div class="field">
+                            <div class="control">
+                                <label class="label" style="color:black;">Costo</label>
+                                  <input type="text" v-model="costoed" class="input is-narrow" size="5" placeholder="Costo" ref="costoed" @keyup.enter="$refs.activoed.focus()" :class='{"is-danger":!costoed}'>
+                                  <p v-show="!costoed" class="help is-danger">Requerido</p>
+                              </div>
+                        </div>
+                      
+                     
+                        <div class="field">
+                            <div class="control">
+                                <label class="label" style="color:black;">Activo</label>
+                                <input type="text" v-model="activoed" class="input is-narrow" size="5" placeholder="Activo" ref="activoed" @keyup.enter="$refs.guardared.focus()" :class='{"is-danger":activoed==""}'>
+                                  <p v-show="activoed==''" class="help is-danger">Requerido</p>
+                              </div>
+                        </div>
+                      
+                        <div class="field">
+                            <div class="control">
+                                <button type="button" class="button is-primary" @click="validarEdicion()" ref="guardared" id="guardar">Guardar</button>
+                            </div> 
+                        </div> 
+                    </form>
+                </section>
+    
+                  
+                  
+      
+    </div>
+    <button class="modal-close is-large" aria-label="close" @click="modal"></button>
+    </div>
+    </div>
 
 </div>
 {% endblock %}

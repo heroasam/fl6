@@ -77,6 +77,7 @@
         <thead>
             <tr>
                 <th>op</th>
+                <th>op</th>
                 <th>idvta</th>
                 <th>fecha</th>
                 <th>cc</th>
@@ -94,6 +95,7 @@
         <tbody>
             <tr v-for="item in listado" :class="item[11]>0?'deudora':'nodeudora'">
                 <td><button type="button" class="button is-danger is-outlined is-small" @click="borrarVenta(item[0])">Borrar</button></td>
+                <td><button type="button" class="button is-info is-outlined is-small" @click="editarVenta(item[0])">Editar</button></td>
                 <td>|item[0]|</td>
                 <td :class="dia(item[1])" style="min-width: 100px;">|item[1]|</td>
                 <td>|item[2]|</td>
@@ -110,6 +112,87 @@
         </tbody>
     </table>
 
+    <div class="modal" :class="{'is-active':toggleModal}">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="modal-card">
+             <section class="modal-card-body p-6">     
+                      <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
+                     
+                        <form >
+                            <div class="field">
+                                <div class="control">
+                                    <label class="label" style="color:black;">Fecha de Venta</label>
+                                    <input type="date" v-model="fecha" class="input is-narrow" :class='{"is-danger":!fecha}'  @keyup.enter="$refs.cc.focus()" size="25" ref="fecha">
+                                    <p v-show="!fecha" class="help is-danger">Requerido</p>
+                                  </div>
+                            </div>
+                         
+                         
+                            <div class="field">
+                                <div class="control">
+                                    <label class="label" style="color:black;">Cnt de Cuotas</label>
+                                      <input type="text" v-model="cc" class="input is-narrow"   ref="cc" @keyup.enter="$refs.ic.focus()" :class='{"is-danger":!cc}'>
+                                      <p v-show="!cc" class="help is-danger">Requerido</p>
+                                  </div>
+                            </div>
+                          
+                         
+                            <div class="field">
+                                <div class="control">
+                                    <label class="label" style="color:black;">Imp de Cuota</label>
+                                    <input type="text" v-model="ic" class="input is-narrow"   ref="ic" @keyup.enter="$refs.p.focus()" :class='{"is-danger":ic==""}'>
+                                      <p v-show="ic==''" class="help is-danger">Requerido</p>
+                                  </div>
+                            </div>
+
+                            <div class="field">
+                                <div class="control">
+                                    <label class="label" style="color:black;">Periodicidad</label>
+                                    <input type="text" v-model="p" class="input is-narrow"   ref="p" @keyup.enter="$refs.pmovto.focus()" :class='{"is-danger":p==""}'>
+                                      <p v-show="p==''" class="help is-danger">Requerido</p>
+                                  </div>
+                            </div>
+
+                            <div class="field">
+                                <div class="control">
+                                    <label class="label" style="color:black;">PmoVto</label>
+                                    <input type="date" v-model="pmovto" class="input is-narrow"   ref="pmovto" @keyup.enter="$refs.idvdor.focus()" :class='{"is-danger":pmovto==""}'>
+                                      <p v-show="pmovto==''" class="help is-danger">Requerido</p>
+                                  </div>
+                            </div>
+
+                            <div class="field">
+                                <div class="control">
+                                    <label class="label" style="color:black;">IdVdor</label>
+                                    <input type="text" v-model="idvdor" class="input is-narrow"   ref="idvdor" @keyup.enter="$refs.primera.focus()" :class='{"is-danger":idvdor==""}'>
+                                      <p v-show="idvdor==''" class="help is-danger">Requerido</p>
+                                  </div>
+                            </div>
+
+                            <div class="field">
+                                <div class="control">
+                                    <label class="label" style="color:black;">Fecha Primera</label>
+                                    <input type="date" v-model="primera" class="input is-narrow"  ref="primera" @keyup.enter="$refs.guardared.focus()" :class='{"is-danger":primera==""}'>
+                                      <p v-show="primera==''" class="help is-danger">Requerido</p>
+                                  </div>
+                            </div>
+                          
+                            <div class="field">
+                                <div class="control">
+                                    <button type="button" class="button is-primary" @click="validarEdicion()" ref="guardared" id="guardar">Guardar</button>
+                                </div> 
+                            </div> 
+                        </form>
+                    </section>
+        
+                      
+                      
+          
+        </div>
+        <button class="modal-close is-large" aria-label="close" @click="modal"></button>
+        </div>
+        </div>
 
 
 
@@ -123,6 +206,14 @@
     delimiters:['|','|'],
     data:{
         listado:[],
+        toggleModal: false,
+        fecha:'',
+        cc:'',
+        ic:'',
+        p:'',
+        pmovto:'',
+        idvdor:'',
+        primera:'',
     },
     methods:{
         getListado(){
@@ -152,6 +243,56 @@
             //formamos el nombre de la clase con la palabra color mas
             //el ultimo digito de los dias para tener solo diez colores
             return "color" + dayjs.utc(day).format('DD').slice(1,2)
+        },
+        modal(){
+          this.toggleModal=!this.toggleModal
+        },
+        editarVenta(id){
+            this.id = id
+            this.modal()
+            axios.get('/ventas/datosventa/'+id)
+            .then(res=>{
+                this.fecha=dayjs.utc(res.data.venta[0][0]).format('YYYY-MM-DD')
+                this.cc=res.data.venta[0][1]
+                this.ic=res.data.venta[0][2]
+                this.p=res.data.venta[0][3]
+                this.pmovto=dayjs.utc(res.data.venta[0][4]).format('YYYY-MM-DD')
+                this.idvdor=res.data.venta[0][5]
+                this.primera=dayjs.utc(res.data.venta[0][6]).format('YYYY-MM-DD')
+            })
+        },
+        validarEdicion(){
+            if(this.fecha!=''&&this.cc!=''&&this.ic!=''&&this.p!=''&&this.pmovto!=''&&this.idvdor!=''&&this.primera!=''){
+                this.guardarEdicion()
+            }else{
+                bulmaToast.toast({ message: 'Complete los datos faltantes', type: 'is-danger' })
+            }
+        },
+        guardarEdicion(){
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+          axios({
+              method:'POST',
+              url: '/ventas/guardaredicionventa',
+              data:{
+                  id:this.id,
+                  fecha:this.fecha,
+                  cc: this.cc,
+                  ic: this.ic,
+                  p: this.p,
+                  pmovto: this.pmovto,
+                  idvdor: this.idvdor,
+                  primera: this.primera,
+              }
+          })
+          .then(res=>{
+            this.modal()
+            this.getListado()
+            bulmaToast.toast({message:"Edicion procesada con exito", type:'is-success'})
+          })
+          .catch(error=>{
+            //console.log('El error es:',error.request.response)
+            bulmaToast.toast({message:error.request.response, type:'is-danger'})
+          })
         },
     },
     created:function(){
