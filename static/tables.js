@@ -147,16 +147,15 @@ document.addEventListener('click', ()=>{
     });
 
 document.addEventListener('click', ()=>{
-    if(event.target.tagName==='TD') {
-        markSelected(1)
-    };
-    if(event.target.tagName==='TD'&& event.shiftKey===true) {
-        markSelected()
-    };
-    if(event.target.tagName=== 'TD' && event.ctrlKey===true){
-        t=event.target.parentElement.parentElement.parentElement
-        totalizar(t)
-    };
+    if(!event.target.parentElement.parentElement.parentElement.classList.contains('nototal')){
+        if(event.target.tagName==='TD') {
+            markSelected(1)
+        };
+        if(event.target.tagName=== 'TD' && event.ctrlKey===true){
+            t=event.target.parentElement.parentElement.parentElement
+            totalizar(t)
+        };
+    }
 })
 
 
