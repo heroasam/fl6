@@ -1,0 +1,165 @@
+{% extends "base_template.html" %}
+
+{% block title %}Calles{% endblock %}
+{% block style %}
+<style>
+  </style>
+  {% endblock %}
+  
+{% block content %}
+
+<div id="app" class="container">
+    <p class="title is-1">Gestion de Calles</p>
+    <div class="buttons">
+        <a href="/ventas/pasarventas" class="button is-outlined is-primary">Pasar Ventas</a>
+        <a href="/ventas/listado" class="button is-outlined is-primary">Listado</a>
+        <a href="/ventas/clientes" class="button is-outlined is-primary">Clientes</a>
+        <a href="/ventas/barrios" class="button is-outlined is-primary">Barrios</a>
+        <a href="/ventas/zonas" class="button is-outlined is-primary">Zonas</a>
+      </div>
+
+      <form class="block field is-horizontal">
+          <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
+          <input type="text" v-model="calle" class="input is-narrow" style="width: 400px;">
+          <button type="button" class="button is-danger" @click="guardarCalleNueva">Guardar</button>
+      </form>
+
+      <table class="table is-narrow">
+          <thead>
+              <tr>
+                  <th>op</th>
+                  <th>op</th>
+                  <th>id</th>
+                  <th>calle</th>
+              </tr>
+          </thead>
+          <tbody>
+              <tr v-for="calle in calles">
+                  <td><button type="button" class="button is-danger is-small" @click="borrarCalle(calle[0])">Borrar</button></td>
+                  <td><button type="button" class="button is-info is-small" @click="editarCalle(calle[0],calle[1])">Editar</button></td>
+                  <td>|calle[0]|</td>
+                  <td>|calle[1]|</td>
+              </tr>
+          </tbody>
+      </table>
+
+      <div class="modal" :class="{'is-active':toggleModal}">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="modal-card">
+             <section class="modal-card-body">     
+                      <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
+                     
+                        <form >
+                            <div class="field">
+                                <div class="control">
+                                    <label class="label" style="color:black;">Calle</label>
+                                    <input type="text" v-model="calle" class="input is-narrow" :class='{"is-danger":!calle}'  @keyup.enter="$refs.guardared.focus()"  ref="calle">
+                                    <p v-show="!calle" class="help is-danger">Requerido</p>
+                                  </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <button type="button" class="button is-primary" @click="guardarEdicion()" ref="guardared" id="guardar">Guardar</button>
+                                </div> 
+                            </div> 
+                        </form>
+                    </section>
+        
+                      
+                      
+          
+        </div>
+        <button class="modal-close is-large" aria-label="close" @click="modal"></button>
+        </div>
+        </div>
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  const app = new Vue({
+    el:"#app",
+    delimiters:['|','|'],
+    data:{
+        calles:[],
+        id:'',
+        calle:'',
+        toggleModal: false,
+    },
+    methods:{
+        getCalles(){
+            axios.get('/ventas/getcallesconid')
+            .then(res=>{
+                this.calles = res.data.calles
+            })
+
+        },
+        borrarCalle(id){
+            axios.get('/ventas/borrarcalle/'+id)
+            .then(res=>{
+                this.getCalles()
+                bulmaToast.toast({message:"Borrado procesado con exito", type:'is-success'})
+            })
+            .catch(error=>{
+                bulmaToast.toast({message:error.request.response, type:'is-danger'})
+            })
+
+        },
+        editarCalle(id,calle){
+            this.id = id
+            this.calle = calle
+            this.modal()
+
+        },
+        guardarEdicion(){
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+          axios({
+              method:'POST',
+              url: '/ventas/guardaredicioncalle',
+              data:{
+                  id:this.id,
+                  calle:this.calle,
+              }
+          })
+          .then(res=>{
+            this.modal()
+            this.getCalles()
+            bulmaToast.toast({message:"Edicion procesada con exito", type:'is-success'})
+          })
+          .catch(error=>{
+            //console.log('El error es:',error.request.response)
+            bulmaToast.toast({message:error.request.response, type:'is-danger'})
+          })
+        },
+        guardarCalleNueva(){
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+          axios({
+              method:'POST',
+              url: '/ventas/guardarcallenueva',
+              data:{
+                  calle:this.calle,
+              }
+          })
+          .then(res=>{
+            this.getCalles()
+            this.calle=''
+            this.id=''
+            bulmaToast.toast({message:"Calle agregada con exito", type:'is-success'})
+          })
+          .catch(error=>{
+            //console.log('El error es:',error.request.response)
+            bulmaToast.toast({message:error.request.response, type:'is-danger'})
+          })
+        },
+        modal(){
+          this.toggleModal=!this.toggleModal
+        },
+    },
+    created:function(){
+        this.getCalles()
+    }
+  })
+  </script>
+  {% endblock %}

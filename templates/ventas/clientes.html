@@ -1,0 +1,76 @@
+{% extends "base_template.html" %}
+
+{% block title %}Ver Clientes{% endblock %}
+{% block style %}
+<style>
+  </style>
+  {% endblock %}
+  
+{% block content %}
+
+<div id="app" class="container">
+    <p class="title is-1">Ver Clientes</p>
+    <div class="buttons">
+        <a href="/ventas/pasarventas" class="button is-outlined is-primary">Pasar Ventas</a>
+        <a href="/ventas/listado" class="button is-outlined is-primary">Listado</a>
+        <a href="/ventas/calles" class="button is-outlined is-primary">Calles</a>
+        <a href="/ventas/barrios" class="button is-outlined is-primary">Barrios</a>
+        <a href="/ventas/zonas" class="button is-outlined is-primary">Zonas</a>
+      </div>
+
+      <table class="table is-narrow">
+          <thead>
+              <tr>
+                  <th>idvta</th>
+                  <th>nombre</th>
+                  <th>calle</th>
+                  <th>num</th>
+                  <th>zona</th>
+                  <th>gestion</th>
+                  <th>mudo</th>
+                  <th>incobrable</th>
+                  <th>acla</th>
+              </tr>
+          </thead>
+          <tbody>
+              <tr v-for="cliente in clientes">
+                  <td>|cliente[0]|</td>
+                  <td>|cliente[1]|</td>
+                  <td>|cliente[2]|</td>
+                  <td>|cliente[3]|</td>
+                  <td>|cliente[4]|</td>
+                  <td><button type="button"  class="button is-danger is-small" v-show="cliente[5]==1">Gestion</button></td>
+                  <td><button type="button"  class="button is-danger is-small" v-show="cliente[6]==1">Mudado</button></td>
+                  <td><button type="button"  class="button is-danger is-small" v-show="cliente[7]==1">Incobrable</button></td>
+                  <td>|cliente[8]|</td>
+              </tr>
+          </tbody>
+      </table>
+
+
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  const app = new Vue({
+    el:"#app",
+    delimiters:['|','|'],
+    data:{
+        clientes:[],
+    },
+    methods:{
+        getClientes(){
+            axios.get('/ventas/getclientes')
+            .then(res=>{
+                this.clientes=res.data.clientes
+            })
+        },
+    },
+    created:function(){
+        this.getClientes()
+    },
+  })
+  </script>
+  {% endblock %}

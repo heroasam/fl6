@@ -1,0 +1,165 @@
+{% extends "base_template.html" %}
+
+{% block title %}Zonas{% endblock %}
+{% block style %}
+<style>
+  </style>
+  {% endblock %}
+  
+{% block content %}
+
+<div id="app" class="container">
+    <p class="title is-1">Gestion de Zonas</p>
+    <div class="buttons">
+        <a href="/ventas/pasarventas" class="button is-outlined is-primary">Pasar Ventas</a>
+        <a href="/ventas/listado" class="button is-outlined is-primary">Listado</a>
+        <a href="/ventas/clientes" class="button is-outlined is-primary">Clientes</a>
+        <a href="/ventas/calles" class="button is-outlined is-primary">Calles</a>
+        <a href="/ventas/barrios" class="button is-outlined is-primary">Barrios</a>
+      </div>
+
+      <form class="block field is-horizontal">
+          <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
+          <input type="text" v-model="zona" class="input is-narrow" style="width: 400px;">
+          <button type="button" class="button is-danger" @click="guardarZonaNueva">Guardar</button>
+      </form>
+
+      <table class="table is-narrow">
+          <thead>
+              <tr>
+                  <th>op</th>
+                  <th>op</th>
+                  <th>id</th>
+                  <th>zona</th>
+              </tr>
+          </thead>
+          <tbody>
+              <tr v-for="zona in zonas">
+                  <td><button type="button" class="button is-danger is-small" @click="borrarZona(zona[0])">Borrar</button></td>
+                  <td><button type="button" class="button is-info is-small" @click="editarZona(zona[0],zona[1])">Editar</button></td>
+                  <td>|zona[0]|</td>
+                  <td>|zona[1]|</td>
+              </tr>
+          </tbody>
+      </table>
+
+      <div class="modal" :class="{'is-active':toggleModal}">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="modal-card">
+             <section class="modal-card-body">     
+                      <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
+                     
+                        <form >
+                            <div class="field">
+                                <div class="control">
+                                    <label class="label" style="color:black;">Zona</label>
+                                    <input type="text" v-model="zona" class="input is-narrow" :class='{"is-danger":!zona}'  @keyup.enter="$refs.guardared.focus()"  ref="zona">
+                                    <p v-show="!zona" class="help is-danger">Requerido</p>
+                                  </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <button type="button" class="button is-primary" @click="guardarEdicion()" ref="guardared" id="guardar">Guardar</button>
+                                </div> 
+                            </div> 
+                        </form>
+                    </section>
+        
+                      
+                      
+          
+        </div>
+        <button class="modal-close is-large" aria-label="close" @click="modal"></button>
+        </div>
+        </div>
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  const app = new Vue({
+    el:"#app",
+    delimiters:['|','|'],
+    data:{
+        zonas:[],
+        id:'',
+        zona:'',
+        toggleModal: false,
+    },
+    methods:{
+        getZonas(){
+            axios.get('/ventas/getzonasconid')
+            .then(res=>{
+                this.zonas = res.data.zonas
+            })
+
+        },
+        borrarZona(id){
+            axios.get('/ventas/borrarzona/'+id)
+            .then(res=>{
+                this.getZonas()
+                bulmaToast.toast({message:"Borrado procesado con exito", type:'is-success'})
+            })
+            .catch(error=>{
+                bulmaToast.toast({message:error.request.response, type:'is-danger'})
+            })
+
+        },
+        editarZona(id,zona){
+            this.id = id
+            this.zona = zona
+            this.modal()
+
+        },
+        guardarEdicion(){
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+          axios({
+              method:'POST',
+              url: '/ventas/guardaredicionzona',
+              data:{
+                  id:this.id,
+                  zona:this.zona,
+              }
+          })
+          .then(res=>{
+            this.modal()
+            this.getZonas()
+            bulmaToast.toast({message:"Edicion procesada con exito", type:'is-success'})
+          })
+          .catch(error=>{
+            //console.log('El error es:',error.request.response)
+            bulmaToast.toast({message:error.request.response, type:'is-danger'})
+          })
+        },
+        guardarZonaNueva(){
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+          axios({
+              method:'POST',
+              url: '/ventas/guardarzonanueva',
+              data:{
+                  zona:this.zona,
+              }
+          })
+          .then(res=>{
+            this.getZonas()
+            this.zona=''
+            this.id=''
+            bulmaToast.toast({message:"Zona agregada con exito", type:'is-success'})
+          })
+          .catch(error=>{
+            //console.log('El error es:',error.request.response)
+            bulmaToast.toast({message:error.request.response, type:'is-danger'})
+          })
+        },
+        modal(){
+          this.toggleModal=!this.toggleModal
+        },
+    },
+    created:function(){
+        this.getZonas()
+    }
+  })
+  </script>
+  {% endblock %}
