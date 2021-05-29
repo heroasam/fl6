@@ -22,7 +22,7 @@ endblock %} {% block style %}
 {% endblock %} {% block content %}
 <div class="conteiner-fluid">
 <div id="app">
-  <div class="buttons">
+  <div class="buttons mt-3">
     <div v-for="cobrador in cobradores">
       <button class="button is-info ml-1" @click="muestraZonas(cobrador[0])">
         |cobrador[0]|
@@ -41,15 +41,15 @@ endblock %} {% block style %}
   </div>
   <div class="buttons">
     <button class="button is-success" @click="seleccionarHoy()">Seleccionar Hoy</button>
-    <button class="button is-danger" @click="imprimir()">Imprimir</button>
+    <button class="button is-info" @click="imprimir()">Imprimir</button>
     <button class="button is-warning" @click="muestraClientes('gestion',zonaactual)">Gestion</button>
     <button class="button is-dark" @click="muestraClientes('antiguos',zonaactual)">Antiguos</button>
-    <button class="button is-success" @click="verZonas==true?verZonas=false:verZonas=true">Zonas</button>
+    <button class="button is-danger" @click="verZonas==true?verZonas=false:verZonas=true">Cambiar Zonas</button>
     <input type="text" name="zona" v-model="zona" list="zonalist" autocomplete="off" v-if="verZonas">
                   <datalist id="zonalist">
                     <option v-for="zona in listazonas">|zona[0]|</option>
                 </datalist>
-    <button class="button is-success" @click="cambiarZona(zona)" v-if="verZonas">Cambiar Zonas</button>
+    <button class="button is-danger" @click="cambiarZona(zona)" v-if="verZonas">Guardar</button>
   </div>
   <div class="row">
     <table id="table" class="table is-narrow">
@@ -75,23 +75,23 @@ endblock %} {% block style %}
           <td>|cliente[0]|</td>
           <td>|cliente[1]|</td>
           <td>|cliente[2]|</td>
-          <td>|cliente[3]|</td>
-          <td>|cliente[4]|</td>
+          <td style="min-width: 100px;">|cliente[3]|</td>
+          <td style="min-width: 100px;">|cliente[4]|</td>
           <td>|cliente[12]|</td>
           <td>|cliente[13]|</td>
           <td>|cliente[10]|</td>
           <td>|cliente[14]|</td>
           <td>|cliente[15]|</td>
-          <td><button class="button is-success is-small" v-if="cliente[5]||cliente[11]">|cliente[5]==1?'SEVEN':cliente[11]==1?'SUBE':null|</button></td>
+          <td><button class="button is-success is-small" v-show="cliente[5]||cliente[11]">|cliente[5]==1?'SEVEN':cliente[11]==1?'SUBE':null|</button></td>
           <td><button class="button is-primary is-small" v-if="cliente[6]">|cliente[6]==1?'NV+':null|</button></td>
           <td><button class="button is-info is-small" v-if="cliente[7]">|cliente[7]==1?'GESTION':null|</button></td>
           <td><button class="button is-warning is-small" v-if="cliente[8]">|cliente[8]==1?'MUDO':null|</button></td>
           <td><button class="button is-danger is-small" v-if="cliente[9]">|cliente[9]==1?'INC':''|</button></td>
-          <td><button class="button is-outline-primary is-small" @click="toggleSube(cliente[10])">SU</button></td>
-          <td><button class="button is-outline-primary is-small" @click="toggleLN(cliente[10])">NV</button></td>
-          <td><button class="button is-outline-primary is-small" @click="toggleGestion(cliente[10])">Ge</button></td>
-          <td><button class="button is-outline-primary is-small" @click="toggleMudo(cliente[10])">Mu</button></td>
-          <td><button class="button is-outline-primary is-small" @click="toggleInc(cliente[10]);">IN</button></td>
+          <td><button class="button is-outlined is-primary is-small" @click="toggleSube(cliente[10])">SU</button></td>
+          <td><button class="button is-outlined is-primary is-small" @click="toggleLN(cliente[10])">NV</button></td>
+          <td><button class="button is-outlined is-primary is-small" @click="toggleGestion(cliente[10])">Ge</button></td>
+          <td><button class="button is-outlined is-primary is-small" @click="toggleMudo(cliente[10])">Mu</button></td>
+          <td><button class="button is-outlined is-primary is-small" @click="toggleInc(cliente[10]);">IN</button></td>
           
         </tr>
       </tbody>
@@ -206,22 +206,26 @@ endblock %} {% block style %}
       verZonas: false,
       zona:'',
       listazonas:[],
+      ultimazona:'',
+      ultimotipo:'',
     },
     methods: {
       getCobradores() {
-        axios.get("/fichaje/getcobradores").then((res) => {
+        axios.get("/fichas/getcobradores").then((res) => {
           //console.log(res.data.cobradores);
           this.cobradores = res.data.cobradores;
         });
       },
       muestraZonas(cobr) {
-        axios.get("/fichaje/muestrazonas/" + cobr).then((res) => {
+        axios.get("/fichas/muestrazonas/" + cobr).then((res) => {
           //console.log(res.data.zonas)
           this.zonas = res.data.zonas;
         });
       },
       muestraClientes(tipo,zona) {
-        axios.get("/fichaje/muestraclientes/"+ tipo +'/'+ zona).then((res) => {
+        this.ultimotipo = tipo
+        this.ultimazona = zona
+        axios.get("/fichas/muestraclientes/"+ tipo +'/'+ zona).then((res) => {
           //console.log(res.data.clientes)
           /* nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni */
           arrayClientes = Array.from(res.data.clientes);
@@ -253,7 +257,7 @@ endblock %} {% block style %}
         axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
         axios({
           method: "POST",
-          url: "/fichaje/imprimir",
+          url: "/fichas/imprimir",
           responseType: "blob",
           data: ids,
         }).then((res) => {
@@ -274,13 +278,8 @@ endblock %} {% block style %}
       toggleInc(dni){
         axios.get('/buscador/toggleinc/'+dni)
         .then(res=>{
-          //console.log(res);
-          // let toast = this.$toasted.success(res.data, { 
-          //       theme: "outline", 
-          //       position: "top-right", 
-          //       duration : 3000,
-          //       fullWidth: true,
-          //       });
+          this.muestraClientes(this.ultimotipo,this.ultimazona)
+          if(this.ultimotipo=="normales") bulmaToast.toast({message:"Movido a Gestion",type:"is-warning"})
         })
       },
       toggleSube(dni){
@@ -288,19 +287,9 @@ endblock %} {% block style %}
         .then(res=>{
           //console.log(res);
           if (res.data=='No se sube pq ya esta en el seven'){
-          // let toast = this.$toasted.error(res.data, { 
-          //       theme: "outline", 
-          //       position: "top-right", 
-          //       duration : 3000,
-          //       fullWidth: true,
-          //       });
+          bulmaToast.toast({message:res.data,type:"is-danger"})
               }else{
-          // let toast = this.$toasted.success(res.data, { 
-          //       theme: "outline", 
-          //       position: "top-right", 
-          //       duration : 3000,
-          //       fullWidth: true,
-          //       });
+                muestraClientes(this.ultimotipo,this.ultimazona)
               }
         })
       
@@ -308,37 +297,21 @@ endblock %} {% block style %}
       toggleGestion(dni){
         axios.get('/buscador/togglegestion/'+dni)
         .then(res=>{
-          //console.log(res);
-          // let toast = this.$toasted.success(res.data, { 
-          //       theme: "outline", 
-          //       position: "top-right", 
-          //       duration : 3000,
-          //       fullWidth: true,
-          //       });
+          this.muestraClientes(this.ultimotipo,this.ultimazona)
+          if(this.ultimotipo=="normales") bulmaToast.toast({message:"Movido a Gestion",type:"is-warning"})
         })
       },
       toggleMudo(dni){
         axios.get('/buscador/togglemudado/'+dni)
         .then(res=>{
-          //console.log(res);
-          // let toast = this.$toasted.success(res.data, { 
-          //       theme: "outline", 
-          //       position: "top-right", 
-          //       duration : 3000,
-          //       fullWidth: true,
-          //       });
+          this.muestraClientes(this.ultimotipo,this.ultimazona)
+          if(this.ultimotipo=="normales") bulmaToast.toast({message:"Movido a Gestion",type:"is-warning"})
         })
       },
       toggleLN(dni){
         axios.get('/buscador/toggleln/'+dni)
         .then(res=>{
-          //console.log(res);
-          // let toast = this.$toasted.success(res.data, { 
-          //       theme: "outline", 
-          //       position: "top-right", 
-          //       duration : 3000,
-          //       fullWidth: true,
-          //       });
+         this.muestraClientes(this.ultimotipo,this.ultimazona)
         })
       },
       cargarZonas(){

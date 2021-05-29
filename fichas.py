@@ -5,27 +5,27 @@ import ast
 from con import con
 from formularios import *
 
-fichaje = Blueprint('fichaje',__name__)
+fichas = Blueprint('fichas',__name__)
 
-@fichaje.route('/fichaje')
-def fichaje_():
-    return render_template("fichaje.html")
+@fichas.route('/fichas')
+def fichas_():
+    return render_template("fichas/fichaje.html")
 
 
-@fichaje.route('/fichaje/getcobradores')
-def fichaje_getcobradores():
+@fichas.route('/fichas/getcobradores')
+def fichas_getcobradores():
     cobradores = pgdict(con,f"select id from cobr where activo=1 and prom=0 and id>15")
     return jsonify(cobradores=cobradores)
 
 
-@fichaje.route('/fichaje/muestrazonas/<int:cobr>')
-def fichaje_muestrazona(cobr):
+@fichas.route('/fichas/muestrazonas/<int:cobr>')
+def fichas_muestrazona(cobr):
     zonas = pgdict(con,f"select zona from zonas where asignado={cobr}")
     return jsonify(zonas=zonas)
 
 
-@fichaje.route('/fichaje/muestraclientes/<string:tipo>/<string:zona>')
-def fichaje_muestraclientes(tipo,zona):
+@fichas.route('/fichas/muestraclientes/<string:tipo>/<string:zona>')
+def fichas_muestraclientes(tipo,zona):
     if tipo=='normales':
         clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado::integer,deuda::integer,zona,barrio from clientes where zona='{zona}' and ultpago>now()-interval '12 month' and deuda>0  and gestion=0 and incobrable=0 and mudo=0 order by pmovto")
     elif tipo=='gestion':
@@ -35,8 +35,8 @@ def fichaje_muestraclientes(tipo,zona):
     return jsonify(clientes=clientes)
 
 
-@fichaje.route('/fichaje/imprimir', methods = ['POST'])
-def fichaje_imprimir():
+@fichas.route('/fichas/imprimir', methods = ['POST'])
+def fichas_imprimir():
     listadni = ast.literal_eval(request.data.decode("UTF-8"))
     # aca se el ast.literal entrega la lista enviada por el axios-post directamente
 

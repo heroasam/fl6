@@ -19,7 +19,7 @@ from ventas import ventas
 from stock import stock
 from pagos import pagos
 from buscador import buscador
-from fichaje import fichaje
+from fichas import fichas
 from con import con
 
 
@@ -38,7 +38,7 @@ app.register_blueprint(ventas)
 app.register_blueprint(stock)
 app.register_blueprint(pagos)
 app.register_blueprint(buscador)
-app.register_blueprint(fichaje)
+app.register_blueprint(fichas)
 
 class User(UserMixin):
     def __init__(self, id, name, email, password, auth=0):
