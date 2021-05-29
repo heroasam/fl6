@@ -199,7 +199,7 @@ endblock %} {% block style %}
           if (res.data=='No se sube pq ya esta en el seven'){
           bulmaToast.toast({message:res.data,type:"is-danger"})
               }else{
-                muestraClientes(this.ultimotipo,this.ultimazona)
+                this.muestraClientes(this.ultimotipo,this.ultimazona)
               }
         })
       

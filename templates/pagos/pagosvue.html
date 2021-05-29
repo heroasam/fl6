@@ -6,10 +6,10 @@
 .center{
     text-align:center;
 }
-.normal{
+/* .normal{
     background-color:gainsboro;
     color: black;
-}
+} */
 .cancelada{
     background-color:pink;
     color: black;
@@ -104,7 +104,7 @@ thead th {
 
 
 <div>
-    <table id="table" class="table is-narrow" v-show="rbosPagos.length">
+    <table id="table1" class="table is-narrow" v-show="rbosPagos.length">
         <thead>
             <tr>
                 <th>Op</th>
@@ -173,7 +173,6 @@ thead th {
 {% endblock %}
 {% block script %}
 <script>
-
 
 const app = new Vue({
     el:"#app",

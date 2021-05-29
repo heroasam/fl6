@@ -52,7 +52,6 @@ const totalizar = (tableId)=>{
         let $cell0 = $rowTotal.insertCell(0);
         $cell0.innerHTML = "SubTotal";
         $rowTotal.classList.add('subtotal');
-        //console.log($rowTotal)
 
         const cols = rowsArray[0].children.length // determino la cant columnas
         for(let i=1;i<cols;i++){
@@ -60,7 +59,7 @@ const totalizar = (tableId)=>{
         rowIndex.forEach((ix)=>{
             col.push(nop(tbody.rows[ix].cells[i].innerText))
         });
-        let total = col.reduce((a,b)=>Number(a)+Number(b));
+        let total = col.reduce((a,b)=>Number(a)+Number(b),0);
         let $cell = $rowTotal.insertCell(i);
         if (!(Number.isNaN(total))) $cell.innerHTML = total
         }
