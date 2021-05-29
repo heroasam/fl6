@@ -1,0 +1,112 @@
+{% extends "base_template.html" %}
+
+{% block title %}Estadisticas{% endblock %}
+{% block style %}
+<style>
+.cur::before {
+    content:"$";
+}
+.cur{
+    text-align: right !important;
+}
+.right{
+    text-align: right !important;
+}
+  </style>
+  {% endblock %}
+  
+{% block content %}
+
+<div id="app" class="container">
+    <p class="title is-1">Estadisticas de Venta</p>
+    <div class="buttons">
+        <a href="/ventas/pasarventas" class="button is-outlined is-primary">Pasar Ventas</a>
+        <a href="/ventas/listado" class="button is-outlined is-primary">Listado</a>
+        <a href="/ventas/clientes" class="button is-outlined is-primary">Clientes</a>
+        <a href="/ventas/calles" class="button is-outlined is-primary">Calles</a>
+        <a href="/ventas/barrios" class="button is-outlined is-primary">Barrios</a>
+        <a href="/ventas/zonas" class="button is-outlined is-primary">Zonas</a>
+    </div>
+    <div class="columns">
+        <div class="column is-6">
+            <table class="table is-narrow">
+                <thead>
+                    <tr>
+                        <th>op</th>
+                        <th>year</th>
+                        <th>comprado</th>
+                        <th>saldo</th>
+                        <th>inc</th>
+                        <th>cnt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="anual in est_anuales">
+                        <td><button type="button" class="button is-info is-small" @click="verYear(anual[0])">Ver</button></td>
+                        <td>|anual[0]|</td>
+                        <td class="cur">|anual[1]|</td>
+                        <td class="cur">|anual[2]|</td>
+                        <td class="right">|(anual[3]*100).toFixed(2)+"%"|</td>
+                        <td class="right">|anual[4]|</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="column is-6">
+            <table class="table is-narrow">
+                <thead>
+                    <tr>
+                        <th>mes</th>
+                        <th>comprado</th>
+                        <th>saldo</th>
+                        <th>inc</th>
+                        <th>cnt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="mes in est_mensuales">
+                        <td>|mes[0]|</td>
+                        <td class="cur">|mes[1]|</td>
+                        <td class="cur">|mes[2]|</td>
+                        <td class="right">|(mes[3]*100).toFixed(2)+"%"|</td>
+                        <td class="right">|mes[4]|</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  const app = new Vue({
+    el:"#app",
+    delimiters:['|','|'],
+    data:{
+        est_anuales:[],
+        est_mensuales:[],
+    },
+    methods:{
+        getEstAnuales(){
+            axios.get('/ventas/estadisticasanuales')
+            .then(res=>{
+                this.est_anuales = res.data.est_anuales
+            })
+        },
+        verYear(year){
+            axios.get('/ventas/estadisticasmensuales/'+year)
+            .then(res=>{
+                this.est_mensuales = res.data.est_mensuales
+            })
+
+        },
+    },
+    created:function(){
+        this.getEstAnuales()
+    }
+  })
+  </script>
+  {% endblock %}

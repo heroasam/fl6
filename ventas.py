@@ -3,6 +3,7 @@ from flask_login import login_required
 from lib import *
 import ast
 from con import con
+import pandas as pd
 
 ventas = Blueprint('ventas',__name__)
 
@@ -381,3 +382,23 @@ def ventas_guardarzonanueva():
         con.commit()
         cur.close()
         return 'OK'
+
+
+@ventas.route('/ventas/estadisticas')
+@login_required
+def ventas_estadisticas():
+    return render_template('ventas/estadisticas.html')
+
+
+@ventas.route('/ventas/estadisticasanuales')
+@login_required
+def ventas_estadisticasanuales():
+    est_anuales = pgdict(con,f"select y(fecha) as y, sum(comprado::integer), sum(saldo::integer), sum(saldo::float)/sum(comprado::float) as inc,sum(cnt) from ventas group by y order by y desc")
+    return jsonify(est_anuales=est_anuales)
+
+
+@ventas.route('/ventas/estadisticasmensuales/<string:year>')
+@login_required
+def ventas_estadisticasmensuales(year):
+    est_mensuales = pgdict(con,f"select ym(fecha) as ym, sum(comprado::integer), sum(saldo::integer), sum(saldo::float)/sum(comprado::float) as inc,sum(cnt) from ventas where y(fecha)='{year}' group by ym order by ym")
+    return jsonify(est_mensuales=est_mensuales)
