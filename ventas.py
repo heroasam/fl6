@@ -107,6 +107,7 @@ def ventas_guardardetvta():
     else:
         con.commit()
         cur.close()
+        detvta_trigger(con,d['idvta'])
         detvta = pgdict(con,f"select id,cnt,art,cc,ic::integer from detvta where idvta={d['idvta']}")
         sumic = pgonecolumn(con,f"select sum(ic::integer) from detvta where idvta={d['idvta']}")
         return jsonify(detvta=detvta,sumic=sumic)
@@ -126,6 +127,7 @@ def ventas_borrardetvta(id):
     else:
         con.commit()
         cur.close()
+        detvta_trigger(con,idvta)
         detvta = pgdict(con,f"select id,cnt,art,cc,ic::integer from detvta where idvta={idvta}")
         sumic = pgonecolumn(con,f"select sum(ic::integer) from detvta where idvta={idvta}")
         if sumic is None:

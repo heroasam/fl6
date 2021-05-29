@@ -198,7 +198,14 @@ def venta_trigger(con,idvta):
     con.commit()
     cur.close()
 
-
+def detvta_trigger(con,idvta):
+    cur = con.cursor()
+    upd1 = f"update ventas set cnt=(select sum(cnt) from detvta where idvta={idvta}) where id={idvta}"
+    upd2 = f"update ventas set costo=(select sum(costo) from detvta where idvta={idvta}) where id={idvta}"
+    cur.execute(upd1)
+    cur.execute(upd2)
+    con.commit()
+    cur.close()
 
 def venta_trigger_delete(con,idcliente):
     cur = con.cursor()
