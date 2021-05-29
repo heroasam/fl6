@@ -42,3 +42,24 @@ def fichas_imprimir():
 
     ficha(con, listadni)
     return send_file('ficha.pdf')
+
+
+@fichas.route('/fichas/cambiarzona/<string:zona>',methods=['POST'])
+def fichas_cambiarzona(zona):
+    listadni = ast.literal_eval(request.data.decode("UTF-8"))
+    lpg ='('
+    for dni in listadni:
+        lpg+="'"+dni+"'"+","
+    lpg = lpg[0:-1]+")"
+    upd = f"update clientes set zona='{zona}' where dni in {lpg}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except psycopg2.Error as e:
+        con.rollback()
+        error = e.pgerror
+        return make_response(error,400)
+    else:
+        con.commit()
+        cur.close()
+        return 'OK'

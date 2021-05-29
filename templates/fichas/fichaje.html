@@ -52,7 +52,7 @@ endblock %} {% block style %}
     <button class="button is-danger" @click="cambiarZona(zona)" v-if="verZonas">Guardar</button>
   </div>
   <div class="row">
-    <table id="table" class="table is-narrow">
+    <table id="table" class="table is-narrow nototal">
       <thead>
         <tr>
           <th>Nombre</th>
@@ -102,97 +102,7 @@ endblock %} {% block style %}
 </div>
 {% endblock %} {% block script %}
 <script>
-  // const sortGrid = (colNum, dir) => {
-  //   let tbody = table.querySelector("tbody");
-  //   let rowsArray = Array.from(tbody.rows);
-  //   let compare;
-  //   let compareAsc;
-  //   compareAsc = function (rowA, rowB) {
-  //     return rowA.cells[colNum].innerHTML.localeCompare(
-  //       rowB.cells[colNum].innerHTML
-  //     );
-  //   };
-  //   let compareDesc;
-  //   compareDesc = function (rowA, rowB) {
-  //     return (
-  //       rowA.cells[colNum].innerHTML.localeCompare(
-  //         rowB.cells[colNum].innerHTML
-  //       ) * -1
-  //     );
-  //   };
-  //   if (dir === "ASC") {
-  //     compare = compareAsc;
-  //   } else {
-  //     compare = compareDesc;
-  //   }
-  //   rowsArray.sort(compare);
-  //   tbody.append(...rowsArray);
-  // };
-  // const sortGridNumerica = (colNum, dir) => {
-  //   let tbody = table.querySelector("tbody");
-  //   let rowsArray = Array.from(tbody.rows);
-  //   let compare;
-  //   let compareAsc;
-  //   compareAsc = function (rowA, rowB) {
-  //     return rowA.cells[colNum].innerHTML - rowB.cells[colNum].innerHTML;
-  //   };
-  //   let compareDesc;
-  //   compareDesc = function (rowA, rowB) {
-  //     return rowB.cells[colNum].innerHTML - rowA.cells[colNum].innerHTML;
-  //   };
-  //   if (dir === "ASC") {
-  //     compare = compareAsc;
-  //   } else {
-  //     compare = compareDesc;
-  //   }
-  //   rowsArray.sort(compare);
-  //   tbody.append(...rowsArray);
-  // };
-  // document.addEventListener("click", () => {
-  //   if (event.target.tagName === "TH") {
-  //     let th = event.target;
-  //     console.log(th.cellIndex);
-  //     sortGrid(th.cellIndex, "ASC");
-  //   }
-  //   if (event.target.tagName === "TH" && event.ctrlKey === true) {
-  //     let th = event.target;
-  //     sortGridNumerica(th.cellIndex, "ASC");
-  //   }
-  // });
-  // document.addEventListener("contextmenu", () => {
-  //   event.preventDefault();
-  //   if (event.target.tagName === "TH") {
-  //     let th = event.target;
-  //     sortGrid(th.cellIndex, "DESC");
-  //   }
-  //   if (event.target.tagName === "TH" && event.ctrlKey === true) {
-  //     let th = event.target;
-  //     sortGridNumerica(th.cellIndex, "DESC");
-  //   }
-  // });
-  // document.addEventListener("mouseover", () => {
-  //   if (event.target.tagName === "TD") {
-  //     if (event.buttons === 1) {
-  //       markSelected(1);
-  //     }
-  //   }
-  // });
-  // document.addEventListener("mousedown", () => {
-  //   if (event.target.tagName === "TD") event.preventDefault();
-  //   if (event.target.tagName === "TH") event.preventDefault();
-  //   // prevenimos la accion de seleccionar valores
-  //   // de la tabla que es molesto y no sirve para nada.
-  // });
-  // document.addEventListener("click", () => {
-  //   if (event.target.tagName === "TD") {
-  //     markSelected();
-  //   }
-  // });
-  // const markSelected = () => {
-  //   if (event.target.parentElement.parentElement.tagName != "TBODY") return;
-  //   const $row = event.target.parentElement;
-  //   $row.classList.toggle("selected");
-  // };
+  
 
   
   const app = new Vue({
@@ -318,11 +228,32 @@ endblock %} {% block style %}
         axios.get('/buscador/getzonas')
             .then(res=>{
                 this.listazonas=res.data.zonas
-                console.log(this.listazonas)
+                //console.log(this.listazonas)
             })
       },
       cambiarZona(zona){
-        console.log(zona);
+        let ids = [];
+        let tbody = table.querySelector("tbody");
+        let rowsArray = Array.from(tbody.rows);
+        rowsArray.forEach((row) => {
+          if (row.classList.contains("selected")) {
+            ids.push(row.cells[7].innerHTML);
+            //la celda que corresponda a dni OJO
+          }
+        });
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+        axios({
+          method:'POST',
+          url:'/fichas/cambiarzona/'+zona,
+          data:ids,
+        })
+        .then(res=>{
+          this.muestraClientes(this.ultimotipo,this.ultimazona)
+          bulmaToast.toast({message:"Zona cambiada",type:"is-success"})
+        })
+        .catch(error=>{
+          bulmaToast.toast({message:error.request.response,type:"is-danger"})
+        })
       },
     },
     created: function () {

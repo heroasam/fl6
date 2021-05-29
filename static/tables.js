@@ -152,15 +152,15 @@ document.addEventListener('click', ()=>{
     });
 
 document.addEventListener('click', ()=>{
+    if(event.target.tagName==='TD') {
+        markSelected()
+    };
     if(!event.target.parentElement.parentElement.parentElement.classList.contains('nototal')){
         // este if condiciona a que la tabla no tenga la clase nototal
         // o sea la funcion seleccionar y totalizar etc. funcionan con tablas sin la clase nototal
-        if(event.target.tagName==='TD') {
-            markSelected()
-        };
         if(event.target.tagName=== 'TD' && event.ctrlKey===true){
             t=event.target.parentElement.parentElement.parentElement
-            restaurar(t)
+            totalizar(t)
         };
     }
 })
@@ -201,7 +201,7 @@ document.addEventListener('contextmenu', ()=>{
         // prevenDefault para que no funcione como esta predeterminado
         if(event.target.tagName=== 'TD'){
             t=event.target.parentElement.parentElement.parentElement
-            totalizar(t)
+            restaurar(t)
         };
         // el event.target entrega el elemento clickado, si su tagName es TD
         // buscampos el parent del parent del parent que es la tabla
