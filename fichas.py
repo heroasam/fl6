@@ -156,3 +156,31 @@ def fichas_guardarcobrador():
         con.commit()
         cur.close()
         return 'OK'
+
+
+@fichas.route('/fichas/fechador')
+def fichas_fechador():
+    return render_template('fichas/fechador.html')
+
+
+@fichas.route('/fichas/buscacuenta/<int:idvta>')
+def fichas_buscacuenta(idvta):
+    cuenta = pgdict(con, f"select nombre, clientes.pmovto from clientes, ventas where clientes.id=ventas.idcliente and ventas.id={idvta}")
+    return jsonify(cuenta=cuenta)
+
+
+@fichas.route('/fichas/guardarfechado/<int:idvta>/<string:pmovto>')
+def fichas_guardarfechado(idvta,pmovto):
+    idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
+    upd = f"update clientes set pmovto='{pmovto}' where id = {idcliente}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except psycopg2.Error as e:
+        con.rollback()
+        error = e.pgerror
+        return make_response(error,400)
+    else:
+        con.commit()
+        cur.close()
+        return 'OK'

@@ -1,0 +1,88 @@
+{% extends "base_template.html" %} {% block title %}Fechador{% endblock %} {%
+    block style %}
+    <style></style>
+    {% endblock %} {% block content %}
+    
+    <div class="container">
+        <p class="title is-1">Fechador</p>
+        <div class="buttons">
+            <a href="/fichas" class="button is-outlined is-primary">Fichas</a>
+            <a href="/fichas/cobrador" class="button is-outlined is-primary">Cobradores</a>
+          </div>
+    
+        <div x-data="main()">
+            <div class="columns">
+                <div class="column is-3">
+                    <input type="text" class="input is-large" x-model="idvta" @keyup.enter="buscaCuenta(idvta);$refs.pmovto.focus()" x-ref="idvta">
+                </div>
+                <div class="column is-9">
+                    <span class="tag is-large is-danger" x-text="nombre" x-show="nombre"></span>
+                </div>
+            </div>
+            <div class="columns">
+                <div class="column is-3">
+                    <input type="date" class="input is-large" x-model="pmovto" @keyup=fechar(event) @keyup.enter=guardarFechado(idvta,pmovto) x-ref="pmovto">
+                </div>
+            </div>
+            
+        </div>
+
+
+
+    </div>
+    {% endblock %} {% block script %}
+    <script>
+        function main(){
+            return {
+                idvta:'',
+                pmovto:'',
+                nombre:'',
+                buscaCuenta:function(idvta){
+                    axios.get('/fichas/buscacuenta/'+idvta)
+                    .then(res=>{
+                        if(res.data.cuenta.length===0) {
+                            bulmaToast.toast({
+                                message: "El Num de Cuenta no existe o no tiene saldo",
+                                type: "is-danger"
+                            })
+                            this.$refs.idvta.focus()
+                        }else{
+                            this.nombre = res.data.cuenta[0][0]
+                            this.pmovto = dayjs.utc(res.data.cuenta[0][1]).format('YYYY-MM-DD')
+                        }
+                    })
+                },
+                fechar: function(e){
+                    if(e.key==='.') this.pmovto = dayjs.utc().format('YYYY-MM-DD')
+                    if(e.key==='+') this.pmovto = dayjs.utc(this.pmovto).add(1,'day').format('YYYY-MM-DD')
+                    if(e.key==='-') this.pmovto = dayjs.utc(this.pmovto).add(-1,'day').format('YYYY-MM-DD')
+                    if(e.key==='*') this.pmovto = dayjs.utc(this.pmovto).add(7,'day').format('YYYY-MM-DD')
+                    if(e.key==='/') this.pmovto = dayjs.utc(this.pmovto).add(-7,'day').format('YYYY-MM-DD')
+                    if(e.key==='PageUp') this.pmovto = dayjs.utc(this.pmovto).add(1,'month').format('YYYY-MM-DD')
+                    if(e.key==='PageDown') this.pmovto = dayjs.utc(this.pmovto).add(-1,'month').format('YYYY-MM-DD')
+                },
+                guardarFechado: function(idvta,pmovto){
+                    axios.get('/fichas/guardarfechado/'+idvta+'/'+pmovto)
+                    .then(res=>{
+                        bulmaToast.toast({
+                        message: "Fechado guardado",
+                        type: "is-success"
+                        })
+                        this.idvta=''
+                        this.nombre=''
+                        this.pmovto=''
+                        this.$refs.idvta.focus()
+                    })
+                    .catch(error=>{
+                        bulmaToast.toast({
+                            message: error.request.response,
+                            type: "is-danger"
+                        })
+                    })
+                },
+            }
+        }
+        
+    </script>
+    {% endblock %}
+    
