@@ -63,3 +63,96 @@ def fichas_cambiarzona(zona):
         con.commit()
         cur.close()
         return 'OK'
+
+
+@fichas.route('/fichas/cobradores')
+def fichas_cobradores():
+    return render_template('fichas/cobr.html')
+
+
+@fichas.route('/fichas/getfullcobradores')
+def fichas_getfullcobradores():
+    cobradores = pgdict(con,f"select id,dni,nombre,direccion,telefono,fechanac,desde,activo,prom from cobr order by id desc")
+    return jsonify(cobradores=cobradores)
+
+
+@fichas.route('/fichas/toggleactivo/<int:id>')
+def fichas_toggleactivo(id):
+    activo = pgonecolumn(con, f"select activo from cobr where id={id}")
+    if activo:
+        upd = f"update cobr set activo=0 where id={id}"
+    else:
+        upd = f"update cobr set activo=1 where id={id}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except psycopg2.Error as e:
+        con.rollback()
+        error = e.pgerror
+        return make_response(error,400)
+    else:
+        con.commit()
+        cur.close()
+        return 'OK'
+
+
+@fichas.route('/fichas/toggleprom/<int:id>')
+def fichas_toggleprom(id):
+    prom = pgonecolumn(con, f"select prom from cobr where id={id}")
+    if prom:
+        upd = f"update cobr set prom=0 where id={id}"
+    else:
+        upd = f"update cobr set prom=1 where id={id}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except psycopg2.Error as e:
+        con.rollback()
+        error = e.pgerror
+        return make_response(error,400)
+    else:
+        con.commit()
+        cur.close()
+        return 'OK'
+
+
+@fichas.route('/fichas/borrarcobrador/<int:id>')
+def fichas_borrarcobrador(id):
+    stm = f"delete from cobr where id={id}"
+    cur = con.cursor()
+    try:
+        cur.execute(stm)
+    except psycopg2.Error as e:
+        con.rollback()
+        error = e.pgerror
+        return make_response(error,400)
+    else:
+        con.commit()
+        cur.close()
+        return 'OK'
+
+
+@fichas.route('/fichas/getcobradorbyid/<int:id>')
+def fichas_getcobradorbyid(id):
+    cobrador = pgdict(con, f"select id,dni,nombre,direccion,telefono,fechanac, desde, activo,prom from cobr where id={id}")
+    return jsonify(cobrador=cobrador)
+
+
+@fichas.route('/fichas/guardarcobrador' , methods=['POST'])
+def fichas_guardarcobrador():
+    d = ast.literal_eval(request.data.decode("UTF-8"))
+    if d['id']!='':
+        stm = f"update cobr set dni='{d['dni']}', nombre='{d['nombre']}', direccion='{d['direccion']}', telefono='{d['telefono']}', fechanac='{d['fechanac']}', desde='{d['desde']}', activo={d['activo']}, prom={d['prom']} where id= {d['id']}"
+    else:
+        stm = f"insert into cobr(dni,nombre, direccion, telefono, fechanac,desde,activo,prom) values('{d['dni']}','{d['nombre']}','{d['direccion']}','{d['telefono']}','{d['fechanac']}', '{d['desde']}', {d['activo']}, {d['prom']})"
+    cur = con.cursor()
+    try:
+        cur.execute(stm)
+    except psycopg2.Error as e:
+        con.rollback()
+        error = e.pgerror
+        return make_response(error,400)
+    else:
+        con.commit()
+        cur.close()
+        return 'OK'

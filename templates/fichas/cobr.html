@@ -1,0 +1,254 @@
+{% extends "base_template.html" %}
+
+{% block title %}Cobradores{% endblock %}
+{% block style %}
+<style>
+  </style>
+  {% endblock %}
+  
+{% block content %}
+
+<div id="app" class="container">
+    <p class="title is-1">Gestion de Cobradores</p>
+    <div class="buttons">
+        <a href="/fichas" class="button is-outlined is-primary">Fichas</a>
+        
+      </div>
+
+      <button type="button" class="button is-danger" @click="agregarCobr">Agregar Nuevo</button>
+      <table id="table" class="table is-narrow nototal noselected">
+          <thead>
+              <tr>
+                  <th>op</th>
+                  <th>op</th>
+                  <th>id</th>
+                  <th>dni</th>
+                  <th>nombre</th>
+                  <th>direccion</th>
+                  <th>telefono</th>
+                  <th>fechanac</th>
+                  <th>desde</th>
+                  <th>activo</th>
+                  <th>prom</th>
+                  <th>op</th>
+                  <th>op</th>
+              </tr>
+          </thead>
+          <tbody>
+              <tr v-for="cobr in cobradores">
+                  <td><button type="button" class="button is-danger is-small is-outlined" @click="borrarCobr(cobr[0])">Borrar</button></td>
+                  <td><button type="button" class="button is-info is-small is-outlined" @click="editarCobr(cobr[0])">Editar</button></td>
+                  <td>|cobr[0]|</td>
+                  <td>|cobr[1]|</td>
+                  <td>|cobr[2]|</td>
+                  <td>|cobr[3]|</td>
+                  <td>|cobr[4]|</td>
+                  <td style="min-width: 100px;">|cobr[5]|</td>
+                  <td style="min-width: 100px;">|cobr[6]|</td>
+                  <td><span class="tag is-small is-danger" v-show="cobr[7]" @click="cobr[7]=0">Activo</span></td>
+                  <td><span class="tag is-small is-warning" v-show="cobr[8]">Prom</span></td>
+                  <td><button type="button" class="button is-small is-danger is-outlined" @click="toggleActivo(cobr[0])">Act.</button></td>
+                  <td><button type="button" class="button is-small is-warning is-outlined" @click="toggleProm(cobr[0])">Prom</button></td>
+              </tr>
+          </tbody>
+      </table>
+
+      <div class="modal" :class="{'is-active':toggleModal}">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="modal-card">
+             <section class="modal-card-body">     
+                      <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
+                     
+                        <form >
+                            <div class="field">
+                                <div class="control">
+                                    <label class="label" >DNI</label>
+                                    <input type="text" v-model="dni" class="input is-narrow" :class='{"is-danger":!dni}'  @keyup.enter="$refs.nombre.focus()"  ref="dni">
+                                    <p v-show="!dni" class="help is-danger">Requerido</p>
+                                  </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <label class="label" >Nombre</label>
+                                    <input type="text" v-model="nombre" class="input is-narrow" :class='{"is-danger":!nombre}'  @keyup.enter="$refs.direccion.focus()"  ref="nombre">
+                                    <p v-show="!nombre" class="help is-danger">Requerido</p>
+                                  </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <label class="label" >Direccion</label>
+                                    <input type="text" v-model="direccion" class="input is-narrow" :class='{"is-danger":!direccion}'  @keyup.enter="$refs.telefono.focus()"  ref="direccion">
+                                    <p v-show="!direccion" class="help is-danger">Requerido</p>
+                                  </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <label class="label" >Telefono</label>
+                                    <input type="text" v-model="telefono" class="input is-narrow" :class='{"is-danger":!telefono}'  @keyup.enter="$refs.fechanac.focus()"  ref="telefono">
+                                    <p v-show="!telefono" class="help is-danger">Requerido</p>
+                                  </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <label class="label" >Fecha Nacimiento</label>
+                                    <input type="date" v-model="fechanac" class="input is-narrow" :class='{"is-danger":!fechanac}'  @keyup.enter="$refs.desde.focus()"  ref="fechanac">
+                                    <p v-show="!fechanac" class="help is-danger">Requerido</p>
+                                  </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <label class="label" >Desde</label>
+                                    <input type="date" v-model="desde" class="input is-narrow" :class='{"is-danger":!desde}'  @keyup.enter="$refs.activo.focus()"  ref="desde">
+                                    <p v-show="!desde" class="help is-danger">Requerido</p>
+                                  </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <label class="label" >Activo</label>
+                                    <input type="text" v-model="activo" class="input is-narrow"   @keyup.enter="$refs.prom.focus()"  ref="activo">
+                                  </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <label class="label" >Prom</label>
+                                    <input type="text" v-model="prom" class="input is-narrow"   @keyup.enter="$refs.guardared.focus()"  ref="prom">
+                                  </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <button type="button" class="button is-primary" @click="guardarEdicion()" ref="guardared" id="guardar">Guardar</button>
+                                </div> 
+                            </div> 
+                        </form>
+                    </section>
+        
+                      
+                      
+          
+        </div>
+        <button class="modal-close is-large" aria-label="close" @click="modal"></button>
+        </div>
+        </div>
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  const app = new Vue({
+    el:"#app",
+    delimiters:['|','|'],
+    data:{
+        cobradores:[],
+        dni:'',
+        nombre:'',
+        direccion:'',
+        telefono:'',
+        fechanac:'',
+        desde:'',
+        activo:'',
+        prom:'',
+        toggleModal: false,
+    },
+    methods:{
+        getCobrs(){
+            axios.get('/fichas/getfullcobradores')
+            .then(res=>{
+                this.cobradores = res.data.cobradores
+                this.cobradores.forEach(row => {
+                    if(row[5]!==null) row[5]=dayjs.utc(row[5]).format('YYYY-MM-DD')
+                    if(row[6]!==null) row[6]=dayjs.utc(row[6]).format('YYYY-MM-DD')
+                });
+            })
+
+        },
+        borrarCobr(id){
+            axios.get('/fichas/borrarcobrador/'+id)
+            .then(res=>{
+                this.getCobrs()
+                bulmaToast.toast({message:"Borrado procesado con exito", type:'is-success'})
+            })
+            .catch(error=>{
+                bulmaToast.toast({message:error.request.response, type:'is-danger'})
+            })
+
+        },
+        agregarCobr(){
+            this.modal()
+            this.id = ''
+            this.dni = ''
+            this.nombre = ''
+            this.direccion = ''
+            this.telefono = ''
+            this.fechanac = ''
+            this.desde = ''
+            this.activo = ''
+            this.prom = ''
+        },
+        editarCobr(id){
+            axios.get('/fichas/getcobradorbyid/'+id)
+            .then(res=>{
+                this.id = res.data.cobrador[0][0]
+                this.dni = res.data.cobrador[0][1]
+                this.nombre = res.data.cobrador[0][2]
+                this.direccion = res.data.cobrador[0][3]
+                this.telefono = res.data.cobrador[0][4]
+                this.fechanac = dayjs.utc(res.data.cobrador[0][5]).format('YYYY-MM-DD')
+                this.desde = dayjs.utc(res.data.cobrador[0][6]).format('YYYY-MM-DD')
+                this.activo = res.data.cobrador[0][7]
+                this.prom = res.data.cobrador[0][8]
+                this.modal()
+            })
+            
+
+        },
+        guardarEdicion(){
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+          axios({
+              method:'POST',
+              url: '/fichas/guardarcobrador',
+              data:{
+                  id:this.id,
+                  dni:this.dni,
+                  nombre:this.nombre,
+                  direccion: this.direccion,
+                  telefono: this.telefono,
+                  fechanac: this.fechanac,
+                  desde: this.desde,
+                  activo: this.activo,
+                  prom: this.prom,
+              }
+          })
+          .then(res=>{
+            this.modal()
+            this.getCobrs()
+            bulmaToast.toast({message:"Operacion procesada con exito", type:'is-success'})
+          })
+          .catch(error=>{
+            //console.log('El error es:',error.request.response)
+            bulmaToast.toast({message:error.request.response, type:'is-danger'})
+          })
+        },
+        toggleActivo(id){
+            axios.get('/fichas/toggleactivo/'+id)
+            .then(res=>{
+                this.getCobrs()
+            })
+        },
+        toggleProm(id){
+            axios.get('/fichas/toggleprom/'+id)
+            .then(res=>{
+                this.getCobrs()
+            })
+        },
+        modal(){
+          this.toggleModal=!this.toggleModal
+        },
+    },
+    created:function(){
+        this.getCobrs()
+    }
+  })
+  </script>
+  {% endblock %}

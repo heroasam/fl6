@@ -151,9 +151,11 @@ document.addEventListener('click', ()=>{
     });
 
 document.addEventListener('click', ()=>{
-    if(event.target.tagName==='TD') {
-        markSelected()
-    };
+    if(!event.target.parentElement.parentElement.parentElement.classList.contains('noselected')){
+        if(event.target.tagName==='TD') {
+            markSelected()
+        };
+    }
     if(!event.target.parentElement.parentElement.parentElement.classList.contains('nototal')){
         // este if condiciona a que la tabla no tenga la clase nototal
         // o sea la funcion seleccionar y totalizar etc. funcionan con tablas sin la clase nototal

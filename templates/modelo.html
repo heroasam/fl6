@@ -1,31 +1,18 @@
-{% extends "base_template.html" %}
-
-{% block title %}VerZonas{% endblock %}
-{% block style %}
-<style>
-  </style>
-  {% endblock %}
-  
-{% block content %}
+{% extends "base_template.html" %} {% block title %}VerZonas{% endblock %} {%
+block style %}
+<style></style>
+{% endblock %} {% block content %}
 
 <div id="app" class="container">
-    <p class="title is-1">Ver Zonas Asignadas</p>
-
-
-
-
+	<p class="title is-1">Ver Zonas Asignadas</p>
 </div>
-{% endblock %}
-
-{% block script %}
+{% endblock %} {% block script %}
 <script>
-  const app = new Vue({
-    el:"#app",
-    delimiters:['|','|'],
-    data:{
-    },
-    methods:{
-    },
-  })
-  </script>
-  {% endblock %}
+	const app = new Vue({
+		el: '#app',
+		delimiters: ['|', '|'],
+		data: {},
+		methods: {},
+	});
+</script>
+{% endblock %}

@@ -22,6 +22,9 @@ endblock %} {% block style %}
 {% endblock %} {% block content %}
 <div class="conteiner-fluid">
 <div id="app">
+  <div class="buttons">
+    <a href="/fichas/cobradores" class="button is-outlined is-primary">Cobradores</a>
+  </div>
   <div class="buttons mt-3">
     <div v-for="cobrador in cobradores">
       <button class="button is-info ml-1" @click="muestraZonas(cobrador[0])">
