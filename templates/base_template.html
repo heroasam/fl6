@@ -13,7 +13,7 @@
         {% block style %} {% endblock %}
       </head>
     <body>
-      <nav class="navbar" role="navigation" aria-label="main navigation">
+      <!-- <nav class="navbar" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
     <a class="navbar-item" href="#">
       <img src="{{ url_for('static', filename='logoromitex.jpg') }}" width="40" height="40">
@@ -51,7 +51,6 @@
           <a class="navbar-item" href="/pagos">
             Pagos
           </a>
-          <!-- <hr class="navbar-divider"> -->
           <a class="navbar-item" href="/stock/asientos">
             Asientos
           </a>
@@ -86,6 +85,27 @@
       </div>
     </div>
   </div>
+</nav> -->
+
+<span class="nav-bar" id="btnMenu"><i class="fa fa-bars"></i></span>
+<nav class="main-nav">
+  <ul class="menu" id="menu">
+    <li class="menu__item"><a href="/buscador" class="menu__link">Clientes</a></li>
+    <li class="menu__item"><a href="/ventas/pasarventas" class="menu__link">Ventas</a></li>
+    <li class="menu__item"><a href="/pagos" class="menu__link">Pagos</a></li>
+    <li class="menu__item"><a href="/fichas" class="menu__link">Fichas</a></li>
+    <li class="menu__item"><a href="/stock/asientos" class="menu__link">Stock</a></li>
+    <li class="menu__item"><a href="#" class="menu__link" role="button" onclick="toggleTheme()">Theme</a></li>
+    {% if not current_user.email %}
+    <li class="menu__itemright"><a href="/signup" class="menu__link">Registrarse</a></li>
+    <li class="menu__itemright"><a href="/login" class="menu__link">Login</a></li>
+    {% endif %}
+    {% if current_user.email %}
+    <li class="menu__item"><a href="#" class="menu__link">{{current_user.email}}</a></li>
+    <li class="menu__item"><a href="/logout" class="menu__link">LogOut</a></li>
+    {% endif %}
+  </ul>
+
 </nav>
 
         {% block content %}{% endblock %}
@@ -106,32 +126,41 @@
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-toasted/1.1.28/vue-toasted.min.js" integrity="sha512-ppEwcE3RIllTMJ1E2jcRaW3iiIIG1nuAQpNK7aK81724D1++4yhh2Ta/iIIhkPpB+teCHD0LEtK0O7hNs6K9Tw==" crossorigin="anonymous"></script> -->
 <!-- <script src="https://unpkg.com/buefy/dist/buefy.min.js"></script> -->
 <script src="https://unpkg.com/buefy/dist/components/autocomplete"></script>
+<script src="https://use.fontawesome.com/6d1e679f7b.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+//   document.addEventListener('DOMContentLoaded', () => {
 
-// Get all "navbar-burger" elements
-const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+// // Get all "navbar-burger" elements
+// const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
 
-// Check if there are any navbar burgers
-if ($navbarBurgers.length > 0) {
+// // Check if there are any navbar burgers
+// if ($navbarBurgers.length > 0) {
 
-  // Add a click event on each of them
-  $navbarBurgers.forEach( el => {
-    el.addEventListener('click', () => {
+//   // Add a click event on each of them
+//   $navbarBurgers.forEach( el => {
+//     el.addEventListener('click', () => {
 
-      // Get the target from the "data-target" attribute
-      const target = el.dataset.target;
-      const $target = document.getElementById(target);
+//       // Get the target from the "data-target" attribute
+//       const target = el.dataset.target;
+//       const $target = document.getElementById(target);
 
-      // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
-      el.classList.toggle('is-active');
-      $target.classList.toggle('is-active');
+//       // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+//       el.classList.toggle('is-active');
+//       $target.classList.toggle('is-active');
 
-    });
-  });
-}
+//     });
+//   });
+// }
 
+// });
+
+const btnMenu = document.getElementById("btnMenu")
+const menu = document.getElementById("menu")
+btnMenu.addEventListener('click',()=>{
+
+  menu.classList.toggle('mostrar')
 });
+
 function toggleTheme() {
             var theme = document.getElementById('bulma');
             // Change the value of href attribute 

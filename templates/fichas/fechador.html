@@ -1,7 +1,9 @@
 {% extends "base_template.html" %} {% block title %}Fechador{% endblock %} {%
     block style %}
     <style></style>
-    {% endblock %} {% block content %}
+    {% endblock %} 
+    
+    {% block content %}
     
     <div class="container">
         <p class="title is-1">Fechador</p>
@@ -25,9 +27,38 @@
                 </div>
             </div>
             
+        <div class="columns">
+            <div class="column is-4">
+                <div class="box" x-show="listFechados.length">
+                    <span class="tag is-small is-dark" x-text="`${listFechados.length} Fechados`" ></span>
+                    <span class="tag is-small is-info" x-text="`${sumaCobr(750)} Cobr750`"></span>
+                    <span class="tag is-small is-success" x-text="`${sumaCobr(796)} Cobr796`"></span>
+                    <span class="tag is-small is-warning" x-text="`${sumaCobr(800)} Cobr800`"></span>
+                    <span class="tag is-small is-danger" x-text="`${sumaCobr(815)} Cobr815`"></span>
+                </div>
+            </div>
         </div>
-
-
+        <table class=" block table is-narrow">
+            <thead>
+                <tr>
+                    <th>idvta</th>
+                    <th>nombre</th>
+                    <th>pmovto</th>
+                    <th>cobr</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template x-for="item in listFechados" :key="item">
+                    <tr>
+                        <td x-text="item[0]"></td>
+                        <td x-text="item[1]"></td>
+                        <td x-text="item[2]"></td>
+                        <td x-text="item[3]"></td>
+                    </tr>
+                    </template>
+            </tbody>
+        </table>
+    </div>
 
     </div>
     {% endblock %} {% block script %}
@@ -37,6 +68,8 @@
                 idvta:'',
                 pmovto:'',
                 nombre:'',
+                listFechados:[],
+                cobr:'',
                 buscaCuenta:function(idvta){
                     axios.get('/fichas/buscacuenta/'+idvta)
                     .then(res=>{
@@ -49,6 +82,7 @@
                         }else{
                             this.nombre = res.data.cuenta[0][0]
                             this.pmovto = dayjs.utc(res.data.cuenta[0][1]).format('YYYY-MM-DD')
+                            this.cobr = res.data.cuenta[0][2]
                         }
                     })
                 },
@@ -62,11 +96,13 @@
                     if(e.key==='PageDown') this.pmovto = dayjs.utc(this.pmovto).add(-1,'month').format('YYYY-MM-DD')
                 },
                 guardarFechado: function(idvta,pmovto){
+                    this.listFechados.push([this.idvta,this.nombre,this.pmovto,this.cobr])
                     axios.get('/fichas/guardarfechado/'+idvta+'/'+pmovto)
                     .then(res=>{
                         bulmaToast.toast({
                         message: "Fechado guardado",
-                        type: "is-success"
+                        type: "is-success",
+                        position: "top-left",
                         })
                         this.idvta=''
                         this.nombre=''
@@ -79,6 +115,18 @@
                             type: "is-danger"
                         })
                     })
+                },
+                sumaCobr(id){
+                    if(this.listFechados.length){
+                    let col=[]
+                    this.listFechados.forEach(row=>{
+                        col.push(row[3])
+                    })
+                    let colid = col.filter(el=>el===id)
+                    return colid.length
+                    } else{
+                        return
+                    }
                 },
             }
         }

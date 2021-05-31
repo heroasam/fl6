@@ -165,7 +165,7 @@ def fichas_fechador():
 
 @fichas.route('/fichas/buscacuenta/<int:idvta>')
 def fichas_buscacuenta(idvta):
-    cuenta = pgdict(con, f"select nombre, clientes.pmovto from clientes, ventas where clientes.id=ventas.idcliente and ventas.id={idvta}")
+    cuenta = pgdict(con, f"select nombre, clientes.pmovto,asignado from clientes, ventas,zonas where clientes.id=ventas.idcliente and clientes.zona=zonas.zona and ventas.id={idvta}")
     return jsonify(cuenta=cuenta)
 
 
