@@ -2,7 +2,7 @@ import psycopg2
 import psycopg2.extras
 import os
 
-DATABASE_URL = os.environ['DATABASE_URL']
+DATABASE_URL = os.environ['HEROKU_POSTGRESQL_TEAL']
 con = psycopg2.connect(DATABASE_URL, sslmode='require')
 
 
