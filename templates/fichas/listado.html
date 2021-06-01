@@ -12,24 +12,33 @@
 {% block content %}
 
 
-	<p class="title is-1">Listado a Visitar</p>
-    <div x-data="main()" x-init="getZonas()" class="container">
+<div x-data="main()" x-init="getZonas()" class="container">
+	<div class="columns">
+        <div class="column is-6">
+            <p class="title is-1">Listado a Visitar</p>
+        </div>
+        <div class="column is-6">
+            <p class="title is-1" x-text="zonatitle"></p>
+        </div>
+    </div>
         <div class="buttons">
             <template x-for="zona in zonas" :key="zona">
-                <button  class="button is-danger is-small" x-text="zona" @click="getListado(zona);$event.target.classList.toggle('is-dark');$event.target.classList.toggle('is-danger')"></button>
+                <button  class="button is-danger is-small" x-text="zona" @click="getListado(zona);$event.target.classList.toggle('is-dark');limpiarToggles()"></button>
             </template>
         </div>
-        <div class="buttons">
+        <div class="buttons" id="btnYear">
             <template x-for="year in Object.keys(resumenjs)">
                 <button class="button is-info is-small" x-text="`${year} |${resumenjs[year]}`" @click="seleccionar(year);$event.target.classList.toggle('is-dark');$event.target.classList.toggle('is-info')"></button>
             </template>
         </div>
+        <button class="button is-success" @click="limpiarToggles();imprimirListado()">Imprimir</button>
 
         <table class="table isnarrow">
             <thead>
                 <tr>
                     <th>year</th>
-                    <th>pmovto</th>
+                    <th>ultpago</th>
+                    <th>dni</th>
                     <th>nombre</th>
                     <th>direccion</th>
                 </tr>
@@ -41,11 +50,12 @@
                         <td x-text="row[1]"></td>
                         <td x-text="row[2]"></td>
                         <td x-text="row[3]"></td>
+                        <td x-text="row[4]"></td>
                     </tr>
                 </template>
             </tbody>
         </table>
-
+        <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
 
 
     </div>
@@ -60,6 +70,8 @@
             listado:[],
             resumen:[],
             resumenjs:{},
+            zonatitle:'',
+            listImprimir:[],
             getZonas(){
                 axios.get('/fichas/getzonas')
                 .then(res=>{
@@ -74,6 +86,7 @@
                     this.listado.map(row=>row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD'))
                     this.getResumenJs(res.data.listado)
                     this.limpiarSelected()
+                    this.zonatitle = zona
                 })
                 
             },
@@ -106,7 +119,36 @@
                 arrayRows = Array.from($tbody.children)
                 arrayRows = arrayRows.slice(1,arrayRows.length)
                 arrayRows.forEach(row=>row.classList.remove('selected'))
-            }
+            },
+            limpiarToggles(){
+                $btnYear = document.getElementById('btnYear')
+                Array.from($btnYear.children).slice(1).forEach(btn=>{
+                    btn.classList.remove('is-dark')
+                    btn.classList.add('is-info')
+                })
+            },
+            listaSeleccionados(){
+                this.listImprimir = []
+                $tbody = document.querySelector('tbody')
+                Array.from($tbody.children).slice(1).forEach(row=>{
+                    if(row.classList.contains='selected'){
+                        this.listImprimir.push(row.cells[2].innerHTML)
+                    }
+                })
+            },
+            imprimirListado(){
+                this.listaSeleccionados()
+                axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
+                axios({
+                method: "POST",
+                url: "/fichas/imprimirlistado",
+                responseType: "blob",
+                data: this.listImprimir,
+                }).then((res) => {
+                let url = window.URL.createObjectURL(res.data);
+                window.open(url);
+                });
+            },
     }
 }
 	// const app = new Vue({

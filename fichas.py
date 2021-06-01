@@ -199,7 +199,7 @@ def fichas_getzonas():
 
 @fichas.route('/fichas/getlistado/<string:zona>')
 def fichas_getlistado(zona):
-    listado = pgdict(con, f"select y(ultpago), ultpago, nombre, calle||' '||num as direccion from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and ultpago>'2010-01-01' order by ultpago desc")
+    listado = pgdict(con, f"select y(ultpago), ultpago, dni,nombre, calle||' '||num as direccion from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and comprado>0 and ultpago>'2010-01-01' and calle||num not in (select calle||num from clientes where deuda>300) order by ultpago desc")
     return jsonify(listado=listado)
 
 
@@ -208,3 +208,10 @@ def fichas_getresumen(zona):
     resumen = pgdict(con, f"select y(ultpago) as y, count(*) as cnt from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and ultpago>'2010-01-01' group by y order by y")
     print(resumen)
     return jsonify(resumen=resumen)
+
+
+@fichas.route('/fichas/imprimirlistado', methods=['POST'])
+def fichas_imprimirlistado():
+    listadni = ast.literal_eval(request.data.decode("UTF-8"))
+    print(listadni)
+    return 'ok'
