@@ -68,6 +68,14 @@ thead th {
 }
 .menu__link:hover{
     background: #444;
+    color: white;
+}
+.email__link{
+    display:block;
+    padding: 20px;
+    color: antiquewhite;
+    font-size: 1.2em;
+    text-decoration: none;
 }
 .mostrar {
     margin-left:0;

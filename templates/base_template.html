@@ -101,7 +101,7 @@
     <a href="/login" class="menu__link">Login</a>
     {% endif %}
     {% if current_user.email %}
-    <a href="#" class="menu__link">{{current_user.email}}</a>
+    <label class="email__link">{{current_user.email}}</label>
     <a href="/logout" class="menu__link">LogOut</a>
     {% endif %}
   </div>
