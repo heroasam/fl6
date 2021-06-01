@@ -2,7 +2,11 @@
 {% block title %}Listado{% endblock %}
 
 {% block style %}
-<style></style>
+<style>
+    .clicked{
+        background: grey;
+    }
+</style>
 {% endblock %} 
 
 {% block content %}
@@ -12,12 +16,12 @@
     <div x-data="main()" x-init="getZonas()" class="container">
         <div class="buttons">
             <template x-for="zona in zonas" :key="zona">
-                <button class="button is-danger is-small" x-text="zona" @click="getListado(zona)"></button>
+                <button  class="button is-danger is-small" x-text="zona" @click="getListado(zona);$event.target.classList.toggle('is-dark');$event.target.classList.toggle('is-danger')"></button>
             </template>
         </div>
         <div class="buttons">
             <template x-for="year in Object.keys(resumenjs)">
-                <button class="button is-info is-small" x-text="`${year} |${resumenjs[year]}`" @click="seleccionar(year)"></button>
+                <button class="button is-info is-small" x-text="`${year} |${resumenjs[year]}`" @click="seleccionar(year);$event.target.classList.toggle('is-dark');$event.target.classList.toggle('is-info')"></button>
             </template>
         </div>
 
