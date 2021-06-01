@@ -89,22 +89,22 @@
 
 <span class="nav-bar" id="btnMenu"><i class="fa fa-bars"></i></span>
 <nav class="main-nav">
-  <ul class="menu" id="menu">
-    <li class="menu__item"><a href="/buscador" class="menu__link">Clientes</a></li>
-    <li class="menu__item"><a href="/ventas/pasarventas" class="menu__link">Ventas</a></li>
-    <li class="menu__item"><a href="/pagos" class="menu__link">Pagos</a></li>
-    <li class="menu__item"><a href="/fichas" class="menu__link">Fichas</a></li>
-    <li class="menu__item"><a href="/stock/asientos" class="menu__link">Stock</a></li>
-    <li class="menu__item"><a href="#" class="menu__link" role="button" onclick="toggleTheme()">Theme</a></li>
+  <div class="menu" id="menu">
+    <a href="/buscador" class="menu__link">Clientes</a>
+    <a href="/ventas/pasarventas" class="menu__link">Ventas</a>
+    <a href="/pagos" class="menu__link">Pagos</a>
+    <a href="/fichas" class="menu__link">Fichas</a>
+    <a href="/stock/asientos" class="menu__link">Stock</a>
+    <a href="#" class="menu__link" role="button" onclick="toggleTheme()">Theme</a>
     {% if not current_user.email %}
-    <li class="menu__itemright"><a href="/signup" class="menu__link">Registrarse</a></li>
-    <li class="menu__itemright"><a href="/login" class="menu__link">Login</a></li>
+    <a href="/signup" class="menu__link">Registrarse</a>
+    <a href="/login" class="menu__link">Login</a>
     {% endif %}
     {% if current_user.email %}
-    <li class="menu__item"><a href="#" class="menu__link">{{current_user.email}}</a></li>
-    <li class="menu__item"><a href="/logout" class="menu__link">LogOut</a></li>
+    <a href="#" class="menu__link">{{current_user.email}}</a>
+    <a href="/logout" class="menu__link">LogOut</a>
     {% endif %}
-  </ul>
+  </div>
 
 </nav>
 

@@ -184,3 +184,27 @@ def fichas_guardarfechado(idvta,pmovto):
         con.commit()
         cur.close()
         return 'OK'
+
+
+@fichas.route('/fichas/listado')
+def fichas_listado():
+    return render_template('fichas/listado.html')
+
+
+@fichas.route('/fichas/getzonas')
+def fichas_getzonas():
+    zonas = pglflat(con,f"select zona from zonas where asignado>700 and asignado !=820 order by zona")
+    return jsonify(zonas=zonas)
+
+
+@fichas.route('/fichas/getlistado/<string:zona>')
+def fichas_getlistado(zona):
+    listado = pgdict(con, f"select y(ultpago), ultpago, nombre, calle||' '||num as direccion from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and ultpago>'2010-01-01' order by ultpago desc")
+    return jsonify(listado=listado)
+
+
+@fichas.route('/fichas/getresumen/<string:zona>')
+def fichas_getresumen(zona):
+    resumen = pgdict(con, f"select y(ultpago) as y, count(*) as cnt from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and ultpago>'2010-01-01' group by y order by y")
+    print(resumen)
+    return jsonify(resumen=resumen)

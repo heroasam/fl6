@@ -1,0 +1,98 @@
+{% extends "base_template.html" %}
+{% block title %}Listado{% endblock %}
+
+{% block style %}
+<style></style>
+{% endblock %} 
+
+{% block content %}
+
+
+	<p class="title is-1">Listado a Visitar</p>
+    <div x-data="main()" x-init="getZonas()" class="container">
+        <div class="buttons">
+            <template x-for="zona in zonas" :key="zona">
+                <button class="button is-danger is-small" x-text="zona" @click="getListado(zona)"></button>
+            </template>
+        </div>
+        <div class="buttons">
+            <template x-for="year in resumen" :key="year">
+                <button class="button is-info is-small" x-text="`${year[0]} |${year[1]}`" @click="seleccionar(year[0])"></button>
+            </template>
+        </div>
+
+        <table class="table isnarrow">
+            <thead>
+                <tr>
+                    <th>year</th>
+                    <th>pmovto</th>
+                    <th>nombre</th>
+                    <th>direccion</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template x-for="row in listado">
+                    <tr>
+                        <td x-text="row[0]"></td>
+                        <td x-text="row[1]"></td>
+                        <td x-text="row[2]"></td>
+                        <td x-text="row[3]"></td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+
+
+
+    </div>
+
+{% endblock %} 
+
+{% block script %}
+<script>
+    function main(){
+        return {
+            zonas:[],
+            listado:[],
+            resumen:[],
+            getZonas(){
+                axios.get('/fichas/getzonas')
+                .then(res=>{
+                    this.zonas=res.data.zonas
+                })
+
+            },
+            getListado(zona){
+                axios.get('/fichas/getlistado/'+zona)
+                .then(res=>{
+                    this.listado=res.data.listado
+                    this.listado.map(row=>row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD'))
+                    this.getResumen(zona)
+                })
+            },
+            getResumen(zona){
+                axios.get('/fichas/getresumen/'+zona)
+                .then(res=>{
+                    this.resumen=res.data.resumen
+                })
+            },
+            seleccionar(year){
+                $tbody = document.querySelector('tbody')
+                arrayRows = Array.from($tbody.children)
+                arrayRows = arrayRows.slice(1,arrayRows.length)
+                arrayRows.forEach(row=>{
+                    if(Array.from(row.children)[0].innerHTML===year){
+                        row.classList.toggle('selected')
+                    }
+                })
+            },
+    }
+}
+	// const app = new Vue({
+	// 	el: '#app',
+	// 	delimiters: ['|', '|'],
+	// 	data: {},
+	// 	methods: {},
+	// });
+</script>
+{% endblock %}
