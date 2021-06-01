@@ -131,10 +131,11 @@
                 this.listImprimir = []
                 $tbody = document.querySelector('tbody')
                 Array.from($tbody.children).slice(1).forEach(row=>{
-                    if(row.classList.contains='selected'){
+                    if(row.classList.contains('selected')){
                         this.listImprimir.push(row.cells[2].innerHTML)
                     }
                 })
+                console.log(this.listImprimir.length);
             },
             imprimirListado(){
                 this.listaSeleccionados()

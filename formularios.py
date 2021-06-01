@@ -182,6 +182,27 @@ def loterbo(con, lrbo, fecha, cobr, idlote):
     pdf.cell(25,6,'$',1,1)
     pdf.output("loterbo.pdf")
 
+
+def listado(con, ldni):
+    pdf = MyFPDF()
+    pdf.set_margins(30,30)
+    pdf.add_page()
+    pdf.set_font("Helvetica","",10)
+    lpg ='('
+    for dni in ldni:
+        lpg+=dni+','
+    lpg = lpg[0:-1]+')'
+    listdni = pglflat(con,f"select dni from clientes where dni::numeric in {lpg} order by calle,num")
+
+    for dni in listdni:
+        cliente = pgdict0(con, f"select * from clientes where dni='{dni}'")
+        pdf.cell(10,6,str(round(int(cliente['dni'])/1000000)),0,0)
+        pdf.cell(80,6,cliente['nombre'][0:38],0,0)
+        pdf.cell(80,6,cliente['calle']+' '+cliente['num'], 0, 1)
+        pdf.cell(160,6,cliente['acla'],0,1)
+        pdf.line(10,pdf.get_y(),200,pdf.get_y())
+    pdf.output("listado.pdf")
+
     
 
     
