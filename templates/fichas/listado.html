@@ -16,8 +16,8 @@
             </template>
         </div>
         <div class="buttons">
-            <template x-for="year in resumen" :key="year">
-                <button class="button is-info is-small" x-text="`${year[0]} |${year[1]}`" @click="seleccionar(year[0])"></button>
+            <template x-for="year in Object.keys(resumenjs)">
+                <button class="button is-info is-small" x-text="`${year} |${resumenjs[year]}`" @click="seleccionar(year)"></button>
             </template>
         </div>
 
@@ -55,6 +55,7 @@
             zonas:[],
             listado:[],
             resumen:[],
+            resumenjs:{},
             getZonas(){
                 axios.get('/fichas/getzonas')
                 .then(res=>{
@@ -67,14 +68,24 @@
                 .then(res=>{
                     this.listado=res.data.listado
                     this.listado.map(row=>row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD'))
-                    this.getResumen(zona)
+                    this.getResumenJs(res.data.listado)
+                    this.limpiarSelected()
                 })
+                
             },
             getResumen(zona){
                 axios.get('/fichas/getresumen/'+zona)
                 .then(res=>{
                     this.resumen=res.data.resumen
                 })
+            },
+            getResumenJs(array){
+                this.resumenjs = {}
+                array.forEach(row=>{
+                    let y = row[0]
+                    this.resumenjs[y]=this.resumenjs[y]?this.resumenjs[y]+=1:1
+                })
+                
             },
             seleccionar(year){
                 $tbody = document.querySelector('tbody')
@@ -86,6 +97,12 @@
                     }
                 })
             },
+            limpiarSelected(){
+                $tbody = document.querySelector('tbody')
+                arrayRows = Array.from($tbody.children)
+                arrayRows = arrayRows.slice(1,arrayRows.length)
+                arrayRows.forEach(row=>row.classList.remove('selected'))
+            }
     }
 }
 	// const app = new Vue({
