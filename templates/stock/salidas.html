@@ -170,11 +170,14 @@ const app = new Vue({
         },
 
         borrarSalida(id){
-            axios.get('/stock/deletesalida/'+id)
-            .then(res=>{
-                console.log(res)
-                this.getSalidas()
-            })
+            const borrar = confirm("¿Esta seguro que quiere borrar permanentemente esta fila?")
+            if(borrar){
+                axios.get('/stock/deletesalida/'+id)
+                .then(res=>{
+                    console.log(res)
+                    this.getSalidas()
+                })
+            }
         },
         validarSalida(){
             if(this.fecha!=''&&this.cnt!=''&&this.art!=''&&this.costo!=''){

@@ -138,11 +138,14 @@ const app = new Vue({
             })
         },
         borrarAsiento(id,cuenta){
-            axios.get('/stock/deleteasiento/'+id)
-            .then(res=>{
-                //console.log(res)
-                this.getAsientos(cuenta)
-            })
+            const borrar = confirm("¿Esta seguro que quiere borrar permanentemente esta fila?")
+            if(borrar){
+                axios.get('/stock/deleteasiento/'+id)
+                .then(res=>{
+                    //console.log(res)
+                    this.getAsientos(cuenta)
+                })
+            }
         },
         getCuentas(){
             axios.get('/stock/getcuentas')

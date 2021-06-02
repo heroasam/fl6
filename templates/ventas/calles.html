@@ -11,12 +11,12 @@
 <div id="app" class="container">
     <p class="title is-1">Gestion de Calles</p>
     <div class="buttons">
-        <a href="/ventas/pasarventas" class="button is-outlined is-primary">Pasar Ventas</a>
-        <a href="/ventas/listado" class="button is-outlined is-primary">Listado</a>
-        <a href="/ventas/clientes" class="button is-outlined is-primary">Clientes</a>
-        <a href="/ventas/barrios" class="button is-outlined is-primary">Barrios</a>
-        <a href="/ventas/zonas" class="button is-outlined is-primary">Zonas</a>
-        <a href="/ventas/estadisticas" class="button is-outlined is-primary">Estadisticas</a>
+        <a href="/ventas/pasarventas" class="button  is-primary">Pasar Ventas</a>
+        <a href="/ventas/listado" class="button  is-primary">Listado</a>
+        <a href="/ventas/clientes" class="button  is-primary">Clientes</a>
+        <a href="/ventas/barrios" class="button  is-primary">Barrios</a>
+        <a href="/ventas/zonas" class="button  is-primary">Zonas</a>
+        <a href="/ventas/estadisticas" class="button  is-primary">Estadisticas</a>
       </div>
 
       <form class="block field is-horizontal">
@@ -98,14 +98,17 @@
 
         },
         borrarCalle(id){
-            axios.get('/ventas/borrarcalle/'+id)
-            .then(res=>{
-                this.getCalles()
-                bulmaToast.toast({message:"Borrado procesado con exito", type:'is-success'})
-            })
-            .catch(error=>{
-                bulmaToast.toast({message:error.request.response, type:'is-danger'})
-            })
+            const borrar = confirm("¿Esta seguro que quiere borrar permanentemente esta fila?")
+            if(borrar){
+                axios.get('/ventas/borrarcalle/'+id)
+                .then(res=>{
+                    this.getCalles()
+                    bulmaToast.toast({message:"Borrado procesado con exito", type:'is-success'})
+                })
+                .catch(error=>{
+                    bulmaToast.toast({message:error.request.response, type:'is-danger'})
+                })
+            }
 
         },
         editarCalle(id,calle){

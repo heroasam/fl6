@@ -212,11 +212,14 @@ const app = new Vue({
         },
 
         borrarArticulo(id){
-            axios.get('/stock/deletearticulo/'+id)
-            .then(res=>{
-                console.log(res)
-                this.getArticulos()
-            })
+            const borrar = confirm("¿Esta seguro que quiere borrar permanentemente esta fila?")
+            if(borrar){
+                axios.get('/stock/deletearticulo/'+id)
+                .then(res=>{
+                    console.log(res)
+                    this.getArticulos()
+                })
+            }
         },
         validarArticulo(){
             if(this.art!=''&&this.activo!=''&&this.costo!=''){

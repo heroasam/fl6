@@ -70,12 +70,12 @@
 <div id="app" class="container">
     <p class="title is-1">Listado de Ventas</p>
     <div class="buttons">
-        <a href="/ventas/pasarventas" class="button is-outlined is-primary">Pasar Ventas</a>
-        <a href="/ventas/clientes" class="button is-outlined is-primary">Clientes</a>
-        <a href="/ventas/calles" class="button is-outlined is-primary">Calles</a>
-        <a href="/ventas/barrios" class="button is-outlined is-primary">Barrios</a>
-        <a href="/ventas/zonas" class="button is-outlined is-primary">Zonas</a>
-        <a href="/ventas/estadisticas" class="button is-outlined is-primary">Estadisticas</a>
+        <a href="/ventas/pasarventas" class="button is-primary">Pasar Ventas</a>
+        <a href="/ventas/clientes" class="button is-primary">Clientes</a>
+        <a href="/ventas/calles" class="button is-primary">Calles</a>
+        <a href="/ventas/barrios" class="button is-primary">Barrios</a>
+        <a href="/ventas/zonas" class="button is-primary">Zonas</a>
+        <a href="/ventas/estadisticas" class="button is-primary">Estadisticas</a>
       </div>
 
     <table id="table" class="table is-narrow">
@@ -234,15 +234,18 @@ const app = new Vue({
             })
         },
         borrarVenta(id){
-            axios.get('/ventas/borrarventa/'+id)
-            .then(res=>{
-                bulmaToast.toast({message:"Venta borrada con exito", type:"is-success"})
-                this.getListado()
-            })
-            .catch(error=>{
-                bulmaToast.toast({message:error, type:"is-danger"})
+            const borrar = confirm("¿Esta seguro que quiere borrar permanentemente esta fila?")
+            if(borrar){
+                axios.get('/ventas/borrarventa/'+id)
+                .then(res=>{
+                    bulmaToast.toast({message:"Venta borrada con exito", type:"is-success"})
+                    this.getListado()
+                })
+                .catch(error=>{
+                    bulmaToast.toast({message:error, type:"is-danger"})
 
-            })
+                })
+            }
         },
         dia(day){
             //formamos el nombre de la clase con la palabra color mas

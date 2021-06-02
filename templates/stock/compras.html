@@ -82,6 +82,7 @@
 </div>
 <div class="block">
         <div class="field is-horizontal">
+            <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
             <div class="control">
                 <input type="date" v-model="fecha" class="input" :class='{"is-danger":!fecha}'>
                 <p v-show="!fecha" class="help is-danger">Requerido</p>
@@ -91,10 +92,21 @@
               <p v-show="!cnt" class="help is-danger">Requerido</p>
             </div>
             <div class="control">
-                <input type="text" class="input" size="40" name="art" list="artlist" value="" autocomplete="off" v-model="art" placeholder="Articulo" ref="art" @keyup.enter="$refs.costo.focus()" :class='{"is-danger":!art}'>
+                <!-- <input type="text" class="input" size="40" name="art" list="artlist" value="" autocomplete="off" v-model="art" placeholder="Articulo" ref="art" @keyup.enter="$refs.costo.focus()" :class='{"is-danger":!art}'>
                 <datalist id="artlist">
                     <option v-for="art in articulos">|art|</option>
-                </datalist>
+                </datalist> -->
+                <b-autocomplete
+                ref="art"
+                @keyup.enter.native="$refs.costo.focus()"
+                v-model="art"
+                :data="artsFiltradasArray"
+                placeholder="Cuenta"
+                clearable
+                keep-first
+                @select="option => selected = option">
+                <template #empty>No se encontraron resultados</template>
+                </b-autocomplete>
                 <p v-show="!art" class="help is-danger">Requerido</p>
             </div>
             <div class="control">
@@ -181,6 +193,7 @@ const app = new Vue({
         articulos:[],
         saldosorpresa:'',
         depositos: [],
+        selected: null,
     },
     methods: {
         getCompras(){
@@ -217,12 +230,15 @@ const app = new Vue({
           })
         },
         borrarCompra(id){
-            axios.get('/stock/deletecompra/'+id)
-            .then(res=>{
-                console.log(res)
-                this.getCompras()
-                this.getSaldo()
-            })
+            const borrar = confirm("¿Esta seguro que quiere borrar permanentemente esta fila?")
+            if(borrar){
+                axios.get('/stock/deletecompra/'+id)
+                .then(res=>{
+                    console.log(res)
+                    this.getCompras()
+                    this.getSaldo()
+                })
+            }
         },
         validarCompra(){
             if(this.fecha!=''&&this.cnt!=''&&this.art!=''&&this.costo!=''&&this.proveedor!=''){
@@ -232,6 +248,7 @@ const app = new Vue({
             }
         },
         guardarCompra(){
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
             axios({
                 method:'POST',
                 url: '/stock/guardarcompra',
@@ -263,6 +280,16 @@ const app = new Vue({
         },
 
 
+    },
+    computed: {
+        artsFiltradasArray() {
+            return this.articulos.filter((option) => {
+                return option
+                    .toString()
+                    .toLowerCase()
+                    .indexOf(this.art.toLowerCase()) >= 0
+            })
+        },
     },
     created: function(){
         this.getCompras();
