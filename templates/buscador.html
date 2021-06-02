@@ -97,7 +97,7 @@ caption{
         <button class="button is-outlined is-danger is-small"@click="toggleLN">LN</button>
         <button class="button is-outlined is-danger is-small"@click="toggleLlamar">Llamar</button>
         <button class="button is-outlined is-danger is-small"@click="toggleSeguir">Seguir</button>
-        
+        <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
     </div>
     <!-- tabla ventas -->
     <div class="block" v-if="verCard">
@@ -131,25 +131,28 @@ caption{
         </table>
     </div>
     <!-- tabla cuotas a pagar -->
-    <div class="field is-horizontal" v-if="verCard" >
-        <table class="table table-sm"  style="width: 300px;" v-show="cuotas.length">
-            <caption>Cuotas a pagar</caption>
-            <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Fecha</th>
-                    <th>Saldo</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="cuota in cuotas">
-                    <td>|cuota[0]|</td>
-                    <td>|cuota[1]|</td>
-                    <td>$|cuota[2]|</td>
-                </tr>
-            </tbody>
-        </table>
-        <!-- tabla cuotas pagadas -->
+    <div class="columns is-mobile" v-if="verCard" >
+        <div class="column is-3-desktop is-6-mobile">
+            <table class="table table-sm"  style="width: 300px;" v-show="cuotas.length">
+                <caption>Cuotas a pagar</caption>
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Fecha</th>
+                        <th>Saldo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="cuota in cuotas">
+                        <td>|cuota[0]|</td>
+                        <td>|cuota[1]|</td>
+                        <td>$|cuota[2]|</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="column is-4-desktop is-6-mobile">
+            <!-- tabla cuotas pagadas -->
         <table class="table table-sm ml-5"  style="min-width: 300px;" v-show="pagadas.length">
             <caption>Pagos Realizados</caption>
             <thead>
@@ -171,6 +174,7 @@ caption{
                 </tr>
             </tbody>
         </table>
+        </div>
     </div>
     <!-- tabla comentarios -->
     <div class="block" v-if="verCard && comentarios.length">
@@ -514,12 +518,10 @@ const app = new Vue({
             axios.get('/buscador/fecharpmovto/'+this.dni+'/'+this.pmovto)
             .then(res=>{
                 //console.log(res);
-                let toast = this.$toasted.success("PmoVto actualizado con exito", {
-                theme: "outline",
-                position: "top-right",
-                duration : 3000,
-                fullWidth: true,
-            });
+              bulmaToast.toast({
+                  message:"PmoVto establecido",
+                  type: "is-success"
+              })
             })
         },
         cargarWapp(){
@@ -539,23 +541,19 @@ const app = new Vue({
                 messaje = this.nombre.concat(': ',text,' ',`(Por compra de ${articulos} realizada en '${this.direccion}' el dia ${dayjs.utc(fecha).format('DD-MM-YYYY')})`)
                 //console.log(messaje);
                 textToClipboard(messaje)
-                let toast = this.$toasted.success("Notificacion copiada en el portapapeles", {
-                theme: "outline",
-                position: "top-right",
-                duration : 3000,
-                fullWidth: true,
-                });
+                bulmaToast.toast({
+                    message: "Notificacion copiada al portapapeles",
+                    type: "is-success"
+                })
             })
         },
         cargarDatos(){
             let text = this.dni+'\n'+this.direccion+'\n'+this.barrio+'\n'+this.wapp
             textToClipboard(text)
-                let toast = this.$toasted.success("Datos copiados en el portapapeles", {
-                theme: "outline",
-                position: "top-right",
-                duration : 3000,
-                fullWidth: true,
-                });
+            bulmaToast.toast({
+                    message: "Datos copiados al portapapeles",
+                    type: "is-success"
+                })
         },
         toggleSube(){
             axios.get('/buscador/togglesube/'+this.dni)
@@ -645,6 +643,7 @@ const app = new Vue({
         imprimirFicha(){
             let ids = [];
             ids.push(this.dni);
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
             axios({
                 method:"POST",
                 url:"/buscador/imprimirficha",
