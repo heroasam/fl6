@@ -21,29 +21,21 @@ def buscar_cuenta(buscar):
     rcuenta = r'^[0-9]{5}$'
     rdni = r'^[0-9]{7,8}$'
     if (re.match(rcuenta,buscar)):
-        clientes = pgdict(con,f"select dni,nombre,calle||' '||num,barrio,tel,wapp,clientes.zona,clientes.pmovto,deuda::integer,sev,incobrable,gestion,subirseven,novendermas,seguir,mudo,llamar,acla,horario,mjecobr,infoseven,sex from clientes,ventas where clientes.id=ventas.idcliente and ventas.id={buscar}")
+        clientes = pgdict(con,f"select dni,nombre,calle||' '||num,barrio,tel,wapp,clientes.zona,clientes.pmovto,deuda::integer,sev,incobrable,gestion,subirseven,novendermas,seguir,mudo,llamar,acla,horario,mjecobr,infoseven,sex,clientes.id as id from clientes,ventas where clientes.id=ventas.idcliente and ventas.id={buscar}")
     elif (re.match(rdni,buscar)):
-        clientes = pgdict(con,f"select dni,nombre,calle,num,barrio,tel,wapp,zona,pmovto,deuda::integer,sev,incobrable,gestion,subirseven,novendermas,seguir,mudo,llamar,acla,horario,mjecobr,infoseven,sex from clientes where dni='{buscar}'")
+        clientes = pgdict(con,f"select dni,nombre,calle,num,barrio,tel,wapp,zona,pmovto,deuda::integer,sev,incobrable,gestion,subirseven,novendermas,seguir,mudo,llamar,acla,horario,mjecobr,infoseven,sex,clientes.id as id from clientes where dni='{buscar}'")
     else:
         buscar = '%'+buscar.replace(' ','%')+'%'
         clientes = pgdict(con,f"select dni,nombre,calle||' '||num from clientes where nombre||calle||num||barrio ilike '{buscar}'")
     if len(clientes)==0:
-        print('No hay respuesta')
-        return make_response("No existe ese DNI en Romitex",400)
+        return make_response("No hay respuesta para esa busqueda",400)
     return jsonify(clientes=clientes)
 
 
-@buscador.route('/buscador/pedirventas/<string:dni>')
-def buscar_ventas(dni):
-    idcliente = pgonecolumn(con,f"select id from clientes where dni='{dni}'")
-    ventas = pgdict(con,f"select id,fecha,cc,ic::integer,p,idvdor,saldo::integer,comprado::integer,pp,pcc,pic::integer,pper,devuelta,condonada,cnt,art,pagado::integer,primera,pprimera,ppagado from ventas where idcliente={idcliente}")
+@buscador.route('/buscador/pedirventas/<int:id>')
+def buscar_ventas(id):
+    ventas = pgdict(con,f"select id,fecha,cc,ic::integer,p,idvdor,saldo::integer,comprado::integer,pp,pcc,pic::integer,pper,devuelta,condonada,cnt,art,pagado::integer,primera,pprimera,ppagado from ventas where idcliente={id}")
     return jsonify(ventas=ventas)
-
-
-@buscador.route('/buscador/pedirarticulos/<int:idvta>')
-def buscar_articulos(idvta):
-    articulos = pgdict(con,f"select cnt,art,cc||' '||'x$'||ic from detvta where idvta={idvta}")
-    return jsonify(articulos=articulos)
 
 
 @buscador.route('/buscador/pedircuotas/<string:dni>')
@@ -58,6 +50,12 @@ def buscar_cuotas(dni):
     pagadas = pgdict(con, f"select fecha,rbo,imp::integer,rec::integer,cobr from pagos where idcliente={idcliente} and \
              idvta in (select id from ventas where saldo>0) order by fecha desc")
     return jsonify(cuotas=cuotas,pagadas=pagadas)
+
+
+@buscador.route('/buscador/pedirpagadas/<int:id>')
+def buscador_pedirpagadas(id):
+    pagadas = pgdict(con, f"select fecha,rbo,imp::integer,rec::integer,cobr from pagos where idcliente={id} order by fecha desc")
+    return jsonify(pagadas=pagadas)
 
 
 @buscador.route('/buscador/fecharpmovto/<string:dni>/<string:pmovto>')
@@ -221,8 +219,7 @@ def busca_editardatos(dni):
     return 'ok'
 
 
-@buscador.route('/buscador/pedircomentarios/<string:dni>')
-def buscar_pedircomentarios(dni):
-    idcliente = pgonecolumn(con,f"select id from clientes where dni='{dni}'")
-    comentarios=pgdict(con,f"select fechahora,comentario from comentarios where idcliente={idcliente}")
+@buscador.route('/buscador/pedircomentarios/<int:id>')
+def buscar_pedircomentarios(id):
+    comentarios=pgdict(con,f"select fechahora,comentario from comentarios where idcliente={id}")
     return jsonify(comentarios=comentarios)

@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <title>{% block title %}{% endblock %}</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='tables.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <!-- <link rel="stylesheet" href="{{ url_for('static', filename='bulmaswatch.min.css') }}"> -->
         <link rel="stylesheet" href="https://unpkg.com/buefy/dist/buefy.min.css">
         <link id="bulma" rel="stylesheet" href="https://unpkg.com/bulmaswatch/slate/bulmaswatch.min.css">
@@ -87,7 +88,7 @@
   </div>
 </nav> -->
 
-<span class="nav-bar" id="btnMenu"><i class="fa fa-bars"></i></span>
+<span class="nav-bar" id="btnMenu"><span class="icon-menu"></span></span>
 <nav class="main-nav">
   <div class="menu" id="menu">
     <a href="/buscador" class="menu__link">Clientes</a>

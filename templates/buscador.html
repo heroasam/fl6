@@ -290,6 +290,7 @@ const app = new Vue({
         verCard:false,
         buscar:'',
         clientes: [],
+        id:'',
         sexo:'',
         dni:'',
         nombre:'',
@@ -335,13 +336,19 @@ const app = new Vue({
                 this.clientes = res.data.clientes
                 if(this.clientes.length==1) this.buscaCuentaporDni(this.clientes[0][0])
             })
+            .catch(error=>{
+                bulmaToast.toast({
+                    message:error.request.response,
+                    type: "is-danger"
+                })
+            })
         },
         buscaCuentaporDni(dni){
             axios.get('/buscador/'+dni)
             .then(res=>{
                 /* dni[0],nombre[1],calle[2],num[3],barrio[4],tel[5],wapp[6],zona[7],pmovto[8],deuda[9]
                 ,sev[10],incobrable[11],gestion[12],subirseven[13],novendermas[14],seguir[15],
-                mudo[16],llamar[17],acla[18],horario[19],mjecobr[20],infoseven[21],sex[22] */
+                mudo[16],llamar[17],acla[18],horario[19],mjecobr[20],infoseven[21],sex[22],id[23] */
                 this.clientes = res.data.clientes
                 this.dni = this.clientes[0][0]
                 this.nombre = this.clientes[0][1]
@@ -367,12 +374,13 @@ const app = new Vue({
                 this.mjecobr = this.clientes[0][20]
                 this.infoseven = this.clientes[0][21]
                 this.sexo = this.clientes[0][22]
+                this.id = this.clientes[0][23]
 
                 this.verCard = true;
                 this.buscar = '';
                 this.clientes = [];
-                this.pedirVentas(this.dni)
-                this.pedirComentarios(this.dni)
+                this.pedirVentas(this.id)
+                this.pedirComentarios(this.id)
 
                 //botones de historial
                 let agregar=true;
@@ -387,9 +395,16 @@ const app = new Vue({
                     this.historial.unshift([this.dni,this.nombre])
                 }
             })
+            .catch(error=>{
+                bulmaToast.toast({
+                    message:error.request.response,
+                    type: "is-danger"
+                })
+            })
+
         },
-        pedirVentas(dni){
-            axios.get('/buscador/pedirventas/'+dni)
+        pedirVentas(id){
+            axios.get('/buscador/pedirventas/'+id)
             .then(res=>{
                 //console.log(res.data.ventas);
                 this.arrayVentas = Array.from(res.data.ventas)
@@ -416,12 +431,12 @@ const app = new Vue({
                 })
                 console.log(this.arrayVentas);
                 this.ventas=arrayTblVtas;
-                this.pedirCuotas(dni)
-                this.hacerCuotas()
+                this.cuotas = this.hacerCuotas()
+                this.pedirPagadas(this.id)
             })
         },
-        pedirComentarios(dni){
-            axios.get('/buscador/pedircomentarios/'+dni)
+        pedirComentarios(id){
+            axios.get('/buscador/pedircomentarios/'+id)
             .then(res=>{
                 //console.log(res.data.comentarios);
                 arrayComentarios = Array.from(res.data.comentarios)
@@ -470,25 +485,32 @@ const app = new Vue({
                     }
                 }
             })
-            console.log(tblCuota);
+            return tblCuota
         },
-        pedirCuotas(dni){
-            axios.get('/buscador/pedircuotas/'+dni)
+        pedirPagadas(id){
+            axios.get('/buscador/pedirpagadas/'+id)
             .then(res=>{
-                //console.log(res.data.cuotas);
-                /* nc,vto,ic */
-                arrayCuotas = Array.from(res.data.cuotas)
-                arrayCuotas.forEach(row=>{
-                    row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD')
-                })
-                this.cuotas=arrayCuotas;
-                arrayPagadas = Array.from(res.data.pagadas)
-                arrayPagadas.forEach(row=>{
-                    row[0]=dayjs.utc(row[0]).format('YYYY-MM-DD')
-                })
-                this.pagadas=arrayPagadas;
+                this.pagadas = res.data.pagadas
+                this.pagadas.map(row=>row[0]=dayjs.utc(row[0]).format('YYYY-MM-DD'))
             })
         },
+        // pedirCuotas(dni){
+        //     axios.get('/buscador/pedircuotas/'+dni)
+        //     .then(res=>{
+        //         //console.log(res.data.cuotas);
+        //         /* nc,vto,ic */
+        //         arrayCuotas = Array.from(res.data.cuotas)
+        //         arrayCuotas.forEach(row=>{
+        //             row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD')
+        //         })
+        //         this.cuotas=arrayCuotas;
+        //         arrayPagadas = Array.from(res.data.pagadas)
+        //         arrayPagadas.forEach(row=>{
+        //             row[0]=dayjs.utc(row[0]).format('YYYY-MM-DD')
+        //         })
+        //         this.pagadas=arrayPagadas;
+        //     })
+        // },
         fecharPmoVto(){
             axios.get('/buscador/fecharpmovto/'+this.dni+'/'+this.pmovto)
             .then(res=>{
