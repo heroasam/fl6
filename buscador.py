@@ -196,9 +196,9 @@ def buscar_toggleseguir(dni):
 
 @buscador.route('/buscador/gettablas')
 def buscar_gettablas():
-    calles = pgdict(con,f"select calle from calles order by calle")
-    barrios = pgdict(con,f"select barrio from barrios order by barrio")
-    zonas = pgdict(con,f"select zona from zonas order by zona")
+    calles = pglflat(con,f"select calle from calles order by calle")
+    barrios = pglflat(con,f"select barrio from barrios order by barrio")
+    zonas = pglflat(con,f"select zona from zonas order by zona")
     return jsonify(calles=calles,barrios=barrios,zonas=zonas)
 
 

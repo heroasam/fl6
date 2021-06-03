@@ -64,6 +64,11 @@ def ventas_guardarcliente():
             id = pgonecolumn(con,f"select id from clientes order by id desc limit 1")
         else:
             id = d['id']
+            ins = f"insert into logcambiodireccion(idcliente,calle,num,barrio,tel,acla,fecha,nombre,dni,wapp) values({d['id']},'{d['calle']}','{d['num']}','{d['barrio']}','{d['tel']}','{d['acla']}',now(),'{d['nombre']}','{d['dni']}','{d['wapp']}')"
+            cur = con.cursor()
+            cur.execute(ins)
+            con.commit()
+            cur.close()
         return jsonify(id=id)
 
 

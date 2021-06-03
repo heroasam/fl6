@@ -184,91 +184,109 @@ caption{
     </div>
 
   <!-- Modal Edicion de datos Clientes -->
-  <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1"        aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="staticBackdropLabel">Editar Datos Cliente</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-            <div class="form-row">
-                <div class="form-group col-md-1">
-                    <label for="sex">Sexo</label>
-                    <input type="text" class="form-control" name="sex" v-model="sexo" value="">
+  <div class="modal" :class="{'is-active':toggleModal}">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+        
+         
+            <form class="box" id="EditarForm">
+                <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
+                <div class="columns">
+                  <div class="column is-1">
+                    <input type="text" v-model="sex" placeholder="Sexo" size="1" class="input" ref="sex" @keyup.enter="$refs.dni.focus()" @blur="validarSex">
+                    <p v-show="!sex" class="help is-danger">Requerido</p>
                   </div>
-                  <div class="form-group col-md-2">
-                    <label for="dni">DNI</label>
-                    <input type="text" class="form-control" name="dni" v-model="dni" value="">
+                  <div class="column is-2">
+                    <input type="text" v-model="dni" placeholder="DNI" size="6" class="input" ref="dni" @keyup.enter="$refs.nombre.focus()">
+                    <p v-show="!dni" class="help is-danger">Requerido</p>
                   </div>
-                <div class="form-group col-md-5">
-                  <label for="nombre">Nombre</label>
-                  <input type="text" class="form-control" name="nombre" v-model="nombre" value="">
+                  <div class="column is-5">
+                    <input type="text" v-model="nombre" placeholder="Nombre" size="60" class="input" ref="nombre" @keyup.enter="$refs.tel.focus()">
+                    <p v-show="!nombre" class="help is-danger">Requerido</p>
+                  </div>
+                  <div class="column is-2">
+                    <input type="text" v-model="tel" placeholder="Telefono" size="20" class="input" ref="tel" @keyup.enter="$refs.wapp.focus()">
+                  </div>
+                  <div class="column is-2">
+                    <input type="text" v-model="wapp" placeholder="WhatApp" size="20" class="input" ref="wapp" @keyup.enter="$refs.calle.focus()">
+                  </div>
                 </div>
-                <div class="form-group col-md-2">
-                  <label for="tel">Tel</label>
-                  <input type="text" class="form-control" name="tel" v-model="tel" value="">
-                </div>
-                <div class="form-group col-md-2">
-                  <label for="wapp">WhasApp</label>
-                  <input type="text" class="form-control" name="wapp" v-model="wapp" value="">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group col-md-4">
-                  <label for="calle">Calle</label>
-                  <input type="text" class="form-control" name="calle" v-model="calle" list="callelist" autocomplete="off">
-                  <datalist id="callelist">
-                    <option v-for="calle in calles">|calle[0]|</option>
-                </datalist>
-                </div>
-                <div class="form-group col-md-1">
-                    <label for="num">Num</label>
-                    <input type="text" class="form-control" name="num" v-model="num" >
+                <div class="columns">
+                  <div class="column is-4">
+                      <b-autocomplete
+                            ref="calle"
+                            @keyup.enter.native="$refs.num.focus()"
+                            v-model="calle"
+                            :data="callesFiltradasArray"
+                            placeholder="Calle"
+                            clearable
+                            keep-first
+                            @select="option => selected = option">
+                            <template #empty>No se encontraron resultados</template>
+                        </b-autocomplete>
+                      <p v-show="!calle" class="help is-danger">Requerido</p>
                   </div>
-                  <div class="form-group col-md-4">
-                    <label for="barrio">Barrio</label>
-                    <input type="text" class="form-control" name="barrio" v-model="barrio" list="barriolist" autocomplete="off">
-                    <datalist id="barriolist">
-                        <option v-for="barrio in barrios">|barrio[0]|</option>
-                    </datalist>
+                  <div class="column is-1">
+                    <input type="text" v-model="num" placeholder="Num" size="10" class="input" ref="num" @keyup.enter="$refs.barrio.focus()" >
+                    <p v-show="!num" class="help is-danger">Requerido</p>
                   </div>
-                <div class="form-group col-md-3">
-                  <label for="zona">Zona</label>
-                  <input type="text" class="form-control" name="zona" v-model="zona" list="zonalist" autocomplete="off">
-                  <datalist id="zonalist">
-                    <option v-for="zona in zonas">|zona[0]|</option>
-                </datalist>
+                  <div class="column is-4">
+                  <b-autocomplete
+                            ref="barrio"
+                            @keyup.enter.native="$refs.zona.focus()"
+                            v-model="barrio"
+                            :data="barriosFiltradasArray"
+                            placeholder="Barrio"
+                            clearable
+                            keep-first
+                            @select="option => selected = option">
+                            <template #empty>No se encontraron resultados</template>
+                        </b-autocomplete>
+                  <p v-show="!barrio" class="help is-danger">Requerido</p>
+                  </div>
+                  <div class="column is-3">
+                  <b-autocomplete
+                            ref="zona"
+                            @keyup.enter.native="$refs.acla.focus()"
+                            v-model="zona"
+                            :data="zonasFiltradasArray"
+                            placeholder="Zona"
+                            clearable
+                            keep-first
+                            @select="option => selected = option">
+                            <template #empty>No se encontraron resultados</template>
+                        </b-autocomplete>
+                  <p v-show="!zona" class="help is-danger">Requerido</p>
+                  </div>
                 </div>
-            </div>
-            <div class="form-row">
-                  <div class="form-group col-md-3">
-                    <label for="acla">Aclaracion</label>
-                    <input type="text" class="form-control" name="acla" v-model="acla" value="">
+                <div class="columns">
+                  <div class="column is-3">
+                    <input type="text" v-model="acla" placeholder="Aclaracion" size="30" class="input" ref="acla" @keyup.enter="$refs.horario.focus()">
                   </div>
-                  <div class="form-group col-md-3">
-                    <label for="horario">Horario</label>
-                    <input type="text" class="form-control" name="horario" v-model="horario" value="">
+                  <div class="column is-3">
+                    <input type="text" v-model="horario" placeholder="Horario" size="30" class="input" ref="horario" @keyup.enter="$refs.mjecobr.focus()">
                   </div>
-                  <div class="form-group col-md-3">
-                    <label for="mjecobr">MjeCobr</label>
-                    <input type="text" class="form-control" name="mjecobr" v-model="mjecobr" value="">
+                  <div class="column is-3">
+                    <input type="text" v-model="mjecobr" placeholder="Mje Cobrador" size="30" class="input" ref="mjecobr" @keyup.enter="$refs.infoseven.focus()">
                   </div>
-                <div class="form-group col-md-3">
-                  <label for="infoseven">InfoSeven</label>
-                  <input type="text" class="form-control" name="infoseven" v-model="infoseven" value="">
+                  <div class="column is-3">
+                    <input type="text" v-model="infoseven" placeholder="InfoSeven" size="30" class="input" ref="infoseven" @keyup.enter="$refs.guardarcliente.focus()">
+                  </div>
                 </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-          <button type="button" class="btn btn-primary" @click="guardarEdicion">Guardar</button>
-        </div>
-      </div>
+                <div class="columns">
+                  <div class="column is-1" >
+                    <button type="button" class="button is-danger" ref="guardarcliente" @click="validarCliente" @keyup.space="$refs.fecha.focus()">Guardar</button>
+                  </div>
+                </div>
+              </form>
+
+       
     </div>
-  </div>
-  </div>
+    <button class="modal-close is-large" aria-label="close" @click="modal"></button>
+   
+    </div>
+
+
 </div>
 </div>
 {% endblock %}
@@ -291,7 +309,7 @@ const app = new Vue({
         buscar:'',
         clientes: [],
         id:'',
-        sexo:'',
+        sex:'',
         dni:'',
         nombre:'',
         calle:'',
@@ -327,6 +345,8 @@ const app = new Vue({
         comentarios:[],
         darkmode:'', 
         arrayVentas:[],   
+        toggleModal: false,
+        selected: null,
 
     },
     methods: {
@@ -373,7 +393,7 @@ const app = new Vue({
                 this.horario = this.clientes[0][19]
                 this.mjecobr = this.clientes[0][20]
                 this.infoseven = this.clientes[0][21]
-                this.sexo = this.clientes[0][22]
+                this.sex = this.clientes[0][22]
                 this.id = this.clientes[0][23]
 
                 this.verCard = true;
@@ -494,23 +514,6 @@ const app = new Vue({
                 this.pagadas.map(row=>row[0]=dayjs.utc(row[0]).format('YYYY-MM-DD'))
             })
         },
-        // pedirCuotas(dni){
-        //     axios.get('/buscador/pedircuotas/'+dni)
-        //     .then(res=>{
-        //         //console.log(res.data.cuotas);
-        //         /* nc,vto,ic */
-        //         arrayCuotas = Array.from(res.data.cuotas)
-        //         arrayCuotas.forEach(row=>{
-        //             row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD')
-        //         })
-        //         this.cuotas=arrayCuotas;
-        //         arrayPagadas = Array.from(res.data.pagadas)
-        //         arrayPagadas.forEach(row=>{
-        //             row[0]=dayjs.utc(row[0]).format('YYYY-MM-DD')
-        //         })
-        //         this.pagadas=arrayPagadas;
-        //     })
-        // },
         fecharPmoVto(){
             axios.get('/buscador/fecharpmovto/'+this.dni+'/'+this.pmovto)
             .then(res=>{
@@ -595,7 +598,7 @@ const app = new Vue({
             })
         },
         editarDatos(){
-            console.log('editando datos');
+            this.modal()
         },
         getTablas(){
             axios.get('/buscador/gettablas')
@@ -605,37 +608,6 @@ const app = new Vue({
                 this.barrios=res.data.barrios
                 this.zonas=res.data.zonas
             })
-        },
-        guardarEdicion(){
-            axios({
-                method:'POST',
-                url:'/buscador/editardatos/'+this.dni,
-                data:{
-                    sex:this.sexo,
-                    dni:this.dni,
-                    nombre:this.nombre,
-                    calle:this.calle,
-                    num:this.num,
-                    barrio:this.barrio,
-                    zona:this.zona,
-                    tel:this.tel,
-                    wapp:this.wapp,
-                    acla:this.acla,
-                    mjecobr:this.mjecobr,
-                    horario:this.horario,
-                    infoseven:this.infoseven,
-                }
-            })
-            .then(res=>{
-                console.log(res);
-                let toast = this.$toasted.success("Edicion realizada con exito", {
-                theme: "outline",
-                position: "top-right",
-                duration : 3000,
-                fullWidth: true,
-                });
-            })
-
         },
         imprimirFicha(){
             let ids = [];
@@ -652,8 +624,84 @@ const app = new Vue({
             })
 
         },
+        validarSex(){
+            if(this.sex==''){
+            bulmaToast.toast({message:"este campo es requerido", type:'is-danger'})
+            this.$refs.sex.focus()
+            }
+            if(this.sex!='f'&&this.sex!='F'&&this.sex!='m'&&this.sex!='M'){
+            bulmaToast.toast({message:"unicamente se aceptan F o M", type:'is-danger'})
+            this.$refs.sex.focus()
+            }
+            this.sex = this.sex.toUpperCase()
+        },
+        validarCliente(){
+            if(this.sex!=''&&this.dni!=''&&this.nombre!=''&&this.calle!=''&&this.num!=''&&this.barrio!=''&&this.zona!=''){
+            this.guardarCliente()
+            }else{
+            bulmaToast.toast({message:"Complete los datos minimos requeridos", type:'is-danger'})
+            }
+        },
+        guardarCliente(){
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+            axios({
+                method:'POST',
+                url:'/ventas/guardarcliente',
+                data:{
+                    id:this.id,
+                    sex:this.sex,
+                    dni:this.dni,
+                    nombre:this.nombre,
+                    calle:this.calle,
+                    num:this.num,
+                    barrio:this.barrio,
+                    zona:this.zona,
+                    acla:this.acla,
+                    horario:this.horario,
+                    mjecobr:this.mjecobr,
+                    infoseven:this.infoseven,
+                    tel:this.tel,
+                    wapp:this.wapp,
+                }
+                })
+                .then(res=>{
+                  bulmaToast.toast({message:"Cliente editado con exito", type:'is-success'})
+                  this.modal()
+                })
+                .catch(error=>{
+                  bulmaToast.toast({message:error.request.response, type:'is-danger'})
+                })
+      },
+        modal(){
+          this.toggleModal=!this.toggleModal
+        },
     },
-
+    computed: {
+        callesFiltradasArray() {
+            return this.calles.filter((option) => {
+                return option
+                    .toString()
+                    .toLowerCase()
+                    .indexOf(this.calle.toLowerCase()) >= 0
+            })
+        },
+        barriosFiltradasArray() {
+            return this.barrios.filter((option) => {
+                return option
+                    .toString()
+                    .toLowerCase()
+                    .indexOf(this.barrio.toLowerCase()) >= 0
+            })
+        },
+        zonasFiltradasArray() {
+            return this.zonas.filter((option) => {
+                return option
+                    .toString()
+                    .toLowerCase()
+                    .indexOf(this.zona.toLowerCase()) >= 0
+            })
+        },
+    },
     created: function(){
         this.getTablas();
     },

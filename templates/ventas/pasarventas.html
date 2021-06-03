@@ -55,10 +55,6 @@
     </div>
     <div class="columns">
       <div class="column is-4">
-        <!-- <input type="text" v-model="calle" placeholder="Calle" size="30" class="input" list="callelist" ref="calle" @keyup.enter="$refs.num.focus()" :class='{"is-danger":!calle}'>
-        <datalist id="callelist">
-          <option v-for="calle in calles">|calle|</option>
-          </datalist> -->
           <b-autocomplete
                 ref="calle"
                 @keyup.enter.native="$refs.num.focus()"
@@ -77,10 +73,6 @@
         <p v-show="!num" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-4">
-        <!-- <input type="text" v-model="barrio" placeholder="Barrio" size="30" class="input" list="barriolist" ref="barrio" @keyup.enter="$refs.zona.focus()" :class='{"is-danger":!barrio}'>
-        <datalist id="barriolist">
-          <option v-for="barrio in barrios">|barrio|</option>
-      </datalist> -->
       <b-autocomplete
                 ref="barrio"
                 @keyup.enter.native="$refs.zona.focus()"
@@ -95,10 +87,6 @@
       <p v-show="!barrio" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-3">
-        <!-- <input type="text" v-model="zona" placeholder="Zona" size="20" class="input" list="zonalist" ref="zona" @keyup.enter="$refs.acla.focus()" :class='{"is-danger":!zona}'>
-        <datalist id="zonalist">
-          <option v-for="zona in zonas">|zona|</option>
-      </datalist> -->
       <b-autocomplete
                 ref="zona"
                 @keyup.enter.native="$refs.acla.focus()"
