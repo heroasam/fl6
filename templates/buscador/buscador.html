@@ -56,13 +56,13 @@ caption{
                     <button class="button is-warning " v-if="gestion">|gestion|</button>
                     <button class="button is-danger " v-if="incobrable">|incobrable|</button>
                     <button class="button is-info " v-if="seguir">|seguir|</button>
-                    <button class="button is-dark " v-if="llamar">|llamar|</button>
+                    <button class="button is-warning " v-if="llamar">|llamar|</button>
                 </div>
                     <span class="tag is-danger is-large" >PmoVto</span>
                     <input type="date" v-model="pmovto" class="input" style="width: 200px;">
                     <button class="button is-outlined is-success" @click="fecharPmoVto">Fechar</button>
                     <button class="button is-info ">Deuda $|deuda|</button>
-                    <button type="button" class="button is-dark" data-toggle="modal" data-target="#staticBackdrop" @click="editarDatos">Editar</button>
+                    <button type="button" class="button is-dark" @click="editarDatos">Editar</button>
                     
                
          
@@ -283,9 +283,9 @@ caption{
        
     </div>
     <button class="modal-close is-large" aria-label="close" @click="modal"></button>
-   
-    </div>
+   </div>
 
+   
 
 </div>
 </div>
@@ -672,9 +672,9 @@ const app = new Vue({
                   bulmaToast.toast({message:error.request.response, type:'is-danger'})
                 })
       },
-        modal(){
-          this.toggleModal=!this.toggleModal
-        },
+      modal(){
+        this.toggleModal=!this.toggleModal
+      },
     },
     computed: {
         callesFiltradasArray() {

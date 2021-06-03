@@ -13,7 +13,7 @@ buscador = Blueprint('buscador',__name__)
 @buscador.route('/buscador', methods = ['GET','POST'])
 @login_required
 def buscador_():
-    return render_template("buscador.html")
+    return render_template("buscador/buscador.html")
 
 
 @buscador.route('/buscador/<string:buscar>')
@@ -223,3 +223,30 @@ def busca_editardatos(dni):
 def buscar_pedircomentarios(id):
     comentarios=pgdict(con,f"select fechahora,comentario from comentarios where idcliente={id}")
     return jsonify(comentarios=comentarios)
+
+
+@buscador.route('/buscador/planpago')
+def buscar_planpago():
+    return render_template("buscador/planpago.html")
+
+
+@buscador.route('/buscador/getvtaspp/<int:id>')
+def buscar_getvtaspp(id):
+    idcliente = pgonecolumn(con, f"select idcliente from ventas where id={id}")
+    ventas = pgdict(con, f"select id, cc, ic::integer, saldo::integer, pmovto, pp, pfecha, pcc, pic::integer, pper, pprimera, pcondo from ventas where saldo>0 and idcliente={idcliente}")
+    return jsonify(ventas=ventas)
+
+
+@buscador.route('/buscador/generarplan/<int:idvta>', methods=['POST'])
+def buscar_generarplan(idvta):
+    d = ast.literal_eval(request.data.decode("UTF-8"))
+    print(d)
+    idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
+    upd = f"update ventas set pp=1, pfecha='{d['pfecha']}', pcc={d['pcc']},pic={d['pic']},pper={d['pper']},pprimera='{d['pprimera']}', saldo={int(d['pcc'])*int(d['pic'])} where id={idvta}"
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    upd1 = f"update ventas set pcondo=1, saldo=0 where idcliente={idcliente} and pp=0 and saldo>0"
+    cur.execute(upd1)
+    con.commit()
+    return 'ok'
