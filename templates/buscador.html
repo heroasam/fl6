@@ -24,7 +24,7 @@ caption{
       <div class="columns">
           <div class="column is-8">
             <div class="field is-horizontal">
-                <input type="search" placeholder="Buscar en Romitex" size="73" class="input" v-model="buscar" @keyup.enter="buscarCliente" @focus="buscar='';verCard=false">
+                <input type="search" placeholder="Buscar en Romitex" class="input" v-model="buscar" @keyup.enter="buscarCliente" @focus="buscar='';verCard=false" style="width: 400px;">
                 <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
               </div>
           </div>
@@ -37,22 +37,18 @@ caption{
         </div>
     </div>
     <!-- card datos clientes -->
-    <div class="block"  v-if="verCard">
-        <div class="card mt-2" style="width: 52rem;">
-            <div class="card-header">
-              <div class="card-header-title">
+    <div class="box"  v-if="verCard">
+        
+            
                 <p class="title is-2">|nombre|  |dni|</p>
-              </div>
-            </div>
-              <div class="card-content">
                 <p class="subtitle is-4">|calle+' '+num|  |barrio|  zona:|zona|</p>
-                <p class="">tel:|tel| wapp:|wapp|</p>
-                <p class="" v-if="acla"><span class="tag is-info" >acla  </span>|acla|</p>
-                <p class="" v-if="mjecobr"><span class="tag is-danger " >mjecobr  </span>|mjecobr|</p>
-                <p class="" v-if="horario"><span class="tag is-info " >horario  </span>|horario|</p>
-                <p class="" v-if="infoseven"><span class="tag is-success " >infoseven  </span>|infoseven|</p>
+                <p class="subtitle is-4">tel:|tel| wapp:|wapp|</p>
+              
+                <p class="" v-if="acla">|acla|</p>
+                <p class="" v-if="mjecobr">|mjecobr|</p>
+                <p class="" v-if="horario">|horario|</p>
+                <p class="" v-if="infoseven">|infoseven|</p>
                 <div class="buttons">
-                    
                     <button class="button is-danger " v-if="novendermas">|novendermas|</button>
                     <button class="button is-success " v-if="sev">|sev|</button>
                     <button class="button is-info " v-if="subirseven">|subirseven|</button>
@@ -60,27 +56,16 @@ caption{
                     <button class="button is-warning " v-if="gestion">|gestion|</button>
                     <button class="button is-danger " v-if="incobrable">|incobrable|</button>
                     <button class="button is-info " v-if="seguir">|seguir|</button>
-                    <button class="button is-primary " v-if="llamar">|llamar|</button>
+                    <button class="button is-dark " v-if="llamar">|llamar|</button>
                 </div>
-                <div class="columns field is-horizontal">
-                    <div class="column is-2">
-                        <span class="tag is-danger is-large" >PmoVto</span>
-                    </div>
-                    <div class="column is-3">
-                        <input type="date" v-model="pmovto" size="12" class="input is-narrow">
-                    </div>
-                    <div class="column is-2">
-                        <button class="button is-outlined is-success" @click="fecharPmoVto">Fechar</button>
-                    </div>
-                    <div class="column is-3">
-                        <button class="button is-info ">Deuda $|deuda|</button>
-                    </div>
-                    <div class="column is-2">
-                        <button type="button" class="button is-primary" data-toggle="modal" data-target="#staticBackdrop" @click="editarDatos">Editar</button>
-                    </div>
-                </div>
-                </div>
-          </div>
+                    <span class="tag is-danger is-large" >PmoVto</span>
+                    <input type="date" v-model="pmovto" class="input" style="width: 200px;">
+                    <button class="button is-outlined is-success" @click="fecharPmoVto">Fechar</button>
+                    <button class="button is-info ">Deuda $|deuda|</button>
+                    <button type="button" class="button is-dark" data-toggle="modal" data-target="#staticBackdrop" @click="editarDatos">Editar</button>
+                    
+               
+         
     </div>
     <!-- botonera funcional -->
     <div class="block" v-if="verCard">
@@ -111,11 +96,13 @@ caption{
                 <th>Compra</th>
                 <th>vdor</th>
                 <th>info</th>
+                <th>cnt</th>
+                <th>art</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="venta in ventas" v-if="venta[3]||verVentas">
-                <td><button class="button is-outlined is-primary is-small" @click="toggleVerArticulos(venta[0])">|venta[0]|</button></td>
+                <td>|venta[0]|</td>
                 <td>|venta[1]|</td>
                 <td>|venta[2]|</td>
                 <td>$|venta[3]|</td>
@@ -126,6 +113,8 @@ caption{
                     <button class="button is-success is-small" v-if="venta[7]">|venta[7]|</button>
                     <button class="button is-primary is-small" v-if="venta[8]">|venta[8]|</button>
                 </td>
+                <td>|venta[9]|</td>
+                <td>|venta[10]|</td>
                 </tr>
             </tbody>
         </table>
@@ -335,7 +324,8 @@ const app = new Vue({
         barrios:[],
         zonas:[],
         comentarios:[],
-        darkmode:'',    
+        darkmode:'', 
+        arrayVentas:[],   
 
     },
     methods: {
@@ -402,10 +392,10 @@ const app = new Vue({
             axios.get('/buscador/pedirventas/'+dni)
             .then(res=>{
                 //console.log(res.data.ventas);
-                arrayVentas = Array.from(res.data.ventas)
+                this.arrayVentas = Array.from(res.data.ventas)
                 let arrayTblVtas = []
-                arrayVentas.forEach(vta=>{
-                    /* id,fecha,cc,ic,p,idvdor,saldo,comprado,pp,pcc,pic,pper,devuelta,condonada */
+                this.arrayVentas.forEach(vta=>{
+                    /* id,fecha,cc,ic,p,idvdor,saldo,comprado,pp,pcc,pic,pper,devuelta,condonada,cnt,art,pagado,primera */
                     let array = []
                     array.push(vta[0])
                     array.push(dayjs.utc(vta[1]).format('YYYY-MM-DD'))
@@ -420,11 +410,14 @@ const app = new Vue({
                     array.push(vta[8]==1?'PLAN DE PAGO':null)
                     array.push(vta[12]==1?'DEVUELTA':null)
                     array.push(vta[13]==1?'CONDONADA':null)
+                    array.push(vta[14])
+                    array.push(vta[15])
                     arrayTblVtas.push(array)
                 })
-                //console.log(arrayTblVtas);
+                console.log(this.arrayVentas);
                 this.ventas=arrayTblVtas;
                 this.pedirCuotas(dni)
+                this.hacerCuotas()
             })
         },
         pedirComentarios(dni){
@@ -438,64 +431,46 @@ const app = new Vue({
                 this.comentarios=arrayComentarios
             })
         },
-        toggleVerArticulos(idvta){
-            if(this.buscarRowArticulos(idvta)){
-                this.borrarRowArticulos(idvta)
-            }else{
-                this.muestraArt(idvta)
-            }
-        },
-        borrarRowArticulos(idvta){
-            let $tbody = document.querySelector('tbody')
-            arrayRows = Array.from($tbody.children)
-            arrayRows.forEach(row=>{
-                if(row.classList.contains(idvta)){
-                    row.remove();
-                }
-            })
-        },
-        buscarRowArticulos(idvta){
-            let $tbody = document.querySelector('tbody');
-            let value;
-            arrayRows = Array.from($tbody.children)
-            arrayRows.forEach(row=>{
-                if (row.classList.contains(idvta)==true){
-                    value =  true;
-                }
-            })
-            return value;
-        },
-        muestraArt(idvta){
-            axios.get('/buscador/pedirarticulos/'+idvta)
-            .then(res=>{
-                //console.log(res.data.articulos);
-                this.articulos=res.data.articulos
-
-                let $tbody = document.querySelector('tbody');
-                let rowInd;
-                arrayRows = Array.from($tbody.children)
-                arrayRows.forEach(row=>{
-                    if(row.innerHTML.includes(idvta)){
-                        rowInd = row.rowIndex
+        hacerCuotas(){
+            /* id,fecha,cc,ic,p,idvdor,saldo,comprado,pp,pcc,pic,pper,devuelta,condonada,cnt,art,pagado,primera,pprimera,ppagado */
+            tblCuota=[]
+            let vto
+            this.arrayVentas.forEach(row=>{
+                saldo = row[6]
+                pp = row[8]
+                if(pp===0){
+                    if(saldo!==0){
+                        pagado = row[16]
+                        cc = row[2]
+                        ic = row[3]
+                        p = row[4]
+                        primera = row[17]
+                        for (let i=1; i<=cc ;i++){
+                            if(p===1) vto = dayjs.utc(primera).add(i-1,'month').format('YYYY-MM-DD')
+                            if(p===2) vto = dayjs.utc(primera).add((i-1)*2,'week').format('YYYY-MM-DD')
+                            if(p===3) vto = dayjs.utc(primera).add(i-1,'week').format('YYYY-MM-DD')
+                            tblCuota.push([i,vto,pagado>=ic?0:pagado<=0?ic:ic-pagado])
+                            pagado = pagado - ic
+                        }
                     }
-                })
-                for(let articulo of this.articulos){
-                    //console.log(articulo);
-                    let $row = $tbody.insertRow(rowInd)
-                    $row.classList.add(idvta)
-                    $row.classList.add('articulos')
-                    let $cell0 = $row.insertCell(0);
-                    let $cell1 = $row.insertCell(1);
-                    let $cell2 = $row.insertCell(2);
-                    $cell1.colSpan = "2"
-                    $cell0.innerHTML = articulo[0];
-                    $cell1.innerHTML = articulo[1];
-                    $cell2.innerHTML = articulo[2];
+                }else{
+                    if(saldo!==0){
+                        pagado = row[19]
+                        cc = row[9]
+                        ic = row[10]
+                        p = row[11]
+                        primera = row[18]
+                        for (let i=1; i<=cc ;i++){
+                            if(p===1) vto = dayjs.utc(primera).add(i-1,'month').format('YYYY-MM-DD')
+                            if(p===2) vto = dayjs.utc(primera).add((i-1)*2,'week').format('YYYY-MM-DD')
+                            if(p===3) vto = dayjs.utc(primera).add(i-1,'week').format('YYYY-MM-DD')
+                            tblCuota.push([i,vto,pagado>=ic?0:pagado<=0?ic:ic-pagado])
+                            pagado = pagado - ic
+                        }
+                    }
                 }
-            //console.log(this.buscarRowArticulos(idvta));
             })
-
-
+            console.log(tblCuota);
         },
         pedirCuotas(dni){
             axios.get('/buscador/pedircuotas/'+dni)
