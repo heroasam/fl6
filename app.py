@@ -1,13 +1,13 @@
 from flask import Flask, json
-from flask import render_template,url_for,request,redirect, make_response, session, flash
+from flask import render_template,url_for,request,redirect, make_response, session, flash,g
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_user, current_user, logout_user
 from flask_bcrypt import Bcrypt
 from flask_login import UserMixin
 from flask_cors import CORS
 from werkzeug.urls import url_parse
-import psycopg2
-import psycopg2.extras
+# import psycopg2
+# import psycopg2.extras
 from lib import *
 from formularios import *
 # import pandas as pd
@@ -20,13 +20,23 @@ from stock import stock
 from pagos import pagos
 from buscador import buscador
 from fichas import fichas
-from con import con
-
+from flaskext.mysql import MySQL
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 CORS(app)
+
+con = MySQL()
+con.init_app(app)
+app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_DATABASE_USER'] = 'hero'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'ata'
+app.config['MYSQL_DATABASE_DB'] = 'hero'
+
+
+
+
 
 csrf = CSRFProtect(app)
 login = LoginManager(app)
@@ -71,16 +81,18 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        log = pgdict(con, f"select id,name,email,password,auth from users where email='{email}'")
+        sel = f"select id,name,email,password,auth from users where email='{email}'"
+        log = pgdict(con,sel)
+        print(log)
         errormail = "Ese email no existe en la base de datos. Registrese"
         errorpassword = "Ha ingresado una contraseña incorrecta"
         errorauth = "Ese email no esta autorizado a ingresar"
-        if log==[]:
+        if not log:
             return render_template('login_form.html', errormail=errormail)
         user = User(log[0][0],log[0][1], log[0][2],log[0][3],log[0][4])
         if not user.check_password(password):
             return render_template('login_form.html', errorpassword=errorpassword)
-        if user.auth==0:
+        if not user.auth:
             return render_template('login_form.html',errorauth=errorauth)
         if user is not None and user.check_password(password) and user.auth :
             login_user(user,remember=True)

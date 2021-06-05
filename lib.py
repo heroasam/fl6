@@ -2,6 +2,7 @@ import psycopg2
 import psycopg2.extras
 from dateutil.relativedelta import relativedelta
 
+
 def pgdict0(con, sel):
     """Funcion que entrega una lista de valores en formato lista plana
        o flat list entregado por el fetchall sobre un cursor"""
@@ -14,10 +15,10 @@ def pgdict0(con, sel):
 def pgdict(con, sel):
     """Funcion que entrega una lista de valores en formato list of list
        entregado por el fetchall sobre un cursor"""
-    dict_cur = con.cursor()
-    dict_cur.execute(sel)
-    rec = dict_cur.fetchall()
-    dict_cur.close()
+    cur = con.get_db().cursor()
+    cur.execute(sel)
+    rec = cur.fetchall()
+    cur.close()
     return rec
 
 
@@ -27,7 +28,7 @@ def pgonecolumn(con, sel):
     el cur.fetchone() = None damos por resultado "", sino damos [0] que
     es el primer elemento de la tupla que normalmente fetchone entrega
     obteniendo con eso un resultado flat para uso directo """
-    cur = con.cursor()
+    cur = con.get_db().cursor()
     cur.execute(sel)
     res = cur.fetchone()
     if res is None:
@@ -41,10 +42,10 @@ def pgonecolumn(con, sel):
 def pgddict(con, sel):
     """Funcion que entrega una lista de valores en formato list of list
        entregado por el fetchall sobre un cursor"""
-    dict_cur = con.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    dict_cur.execute(sel)
-    rec = dict_cur.fetchall()
-    dict_cur.close()
+    cur = con.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute(sel)
+    rec = cur.fetchall()
+    cur.close()
     return rec
 
 
@@ -122,7 +123,8 @@ def pmovto(con,idvta):
     #if {$saldo==0} {return {}} ;# este criterio de saldo cero deja pendiente el problema de los saldos negativos
     # y la resolucion de pago>comprado no sirve para esto pq no contempla los planes de pago.
     if ventas['saldo']<=0:
-        return None
+        return ""
+        #aca decia return None y lo cambie or return ""
     # o sea si esta cancela o por algun motivo tiene saldo negativo
     #if {$pago>=$comprado} {return {}} ;# Es erroneo en los planes de pago pq el comprado es bajo y el pago supera antes de cancelar
     if period==1:
@@ -175,8 +177,9 @@ def trigger_pago(con,idvta):
 
 def venta_trigger(con,idvta):
     cur = con.cursor()
-    upd1 = f"update ventas set comprado=(ic*cc) where id={idvta}"
     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
+    pp = pgonecolumn(con, f"select pp from ventas where id={idvta}")
+    upd1 = f"update ventas set comprado=(ic*cc) where id={idvta}"
     upd2 = f"update clientes set comprado=COALESCE((select sum(comprado) from ventas where idcliente={idcliente}),0) where id={idcliente}"
     upd3 = f"update ventas set saldo=(ic*cc)-ent-pagado where id={idvta}"
     upd4 = f"update clientes set deuda=COALESCE((select sum(saldo) from ventas where idcliente={idcliente}),0) where id={idcliente}"

@@ -2,11 +2,11 @@ from flask import Blueprint,render_template,jsonify,make_response, request,send_
 from flask_login import login_required
 from lib import *
 import ast
-from con import con
 import re
 from formularios import *
 
 buscador = Blueprint('buscador',__name__)
+from app import get_db
 
 
 @buscador.route('/')
@@ -21,9 +21,9 @@ def buscar_cuenta(buscar):
     rcuenta = r'^[0-9]{5}$'
     rdni = r'^[0-9]{7,8}$'
     if (re.match(rcuenta,buscar)):
-        clientes = pgdict(con,f"select dni,nombre,calle||' '||num,barrio,tel,wapp,clientes.zona,clientes.pmovto,deuda::integer,sev,incobrable,gestion,subirseven,novendermas,seguir,mudo,llamar,acla,horario,mjecobr,infoseven,sex,clientes.id as id from clientes,ventas where clientes.id=ventas.idcliente and ventas.id={buscar}")
+        clientes = pgdict(con,f"select dni,nombre,calle||' '||num,barrio,tel,wapp,clientes.zona,clientes.pmovto,floor(deuda),sev,incobrable,gestion,subirseven,novendermas,seguir,mudo,llamar,acla,horario,mjecobr,infoseven,sex,clientes.id as id from clientes,ventas where clientes.id=ventas.idcliente and ventas.id={buscar}")
     elif (re.match(rdni,buscar)):
-        clientes = pgdict(con,f"select dni,nombre,calle,num,barrio,tel,wapp,zona,pmovto,deuda::integer,sev,incobrable,gestion,subirseven,novendermas,seguir,mudo,llamar,acla,horario,mjecobr,infoseven,sex,clientes.id as id from clientes where dni='{buscar}'")
+        clientes = pgdict(con,f"select dni,nombre,calle,num,barrio,tel,wapp,zona,pmovto,floor(deuda),sev,incobrable,gestion,subirseven,novendermas,seguir,mudo,llamar,acla,horario,mjecobr,infoseven,sex,clientes.id as id from clientes where dni='{buscar}'")
     else:
         buscar = '%'+buscar.replace(' ','%')+'%'
         clientes = pgdict(con,f"select dni,nombre,calle||' '||num from clientes where nombre||calle||num||barrio ilike '{buscar}'")
@@ -34,7 +34,8 @@ def buscar_cuenta(buscar):
 
 @buscador.route('/buscador/pedirventas/<int:id>')
 def buscar_ventas(id):
-    ventas = pgdict(con,f"select id,fecha,cc,ic::integer,p,idvdor,saldo::integer,comprado::integer,pp,pcc,pic::integer,pper,devuelta,condonada,cnt,art,pagado::integer,primera,pprimera,ppagado from ventas where idcliente={id}")
+    sel = f"select id,fecha,cc,floor(ic),p,idvdor,floor(saldo),floor(comprado),pp,devuelta,condonada,cnt,art,floor(pagado),primera from ventas where idcliente={id}"
+    ventas = pgdict(con, sel)
     return jsonify(ventas=ventas)
 
 
@@ -46,15 +47,15 @@ def buscar_cuotas(dni):
     for v in ventas:
         cur.execute(f"select gc({v[0]})")
     cur.close()
-    cuotas = pgdict(con, f"select nc,vto,ic::integer,idvta from cuotas where debe>0 and idcliente={idcliente} order by vto")
-    pagadas = pgdict(con, f"select fecha,rbo,imp::integer,rec::integer,cobr from pagos where idcliente={idcliente} and \
+    cuotas = pgdict(con, f"select nc,vto,floor(ic),idvta from cuotas where debe>0 and idcliente={idcliente} order by vto")
+    pagadas = pgdict(con, f"select fecha,rbo,floor(imp),floor(rec),cobr from pagos where idcliente={idcliente} and \
              idvta in (select id from ventas where saldo>0) order by fecha desc")
     return jsonify(cuotas=cuotas,pagadas=pagadas)
 
 
 @buscador.route('/buscador/pedirpagadas/<int:id>')
 def buscador_pedirpagadas(id):
-    pagadas = pgdict(con, f"select fecha,rbo,imp::integer,rec::integer,cobr from pagos where idcliente={id} order by fecha desc")
+    pagadas = pgdict(con, f"select fecha,rbo,floor(imp),floor(rec),cobr from pagos where idcliente={id} order by fecha desc")
     return jsonify(pagadas=pagadas)
 
 
@@ -84,8 +85,10 @@ def buscar_datosultvta(dni):
 
 @buscador.route('/buscador/togglesube/<string:dni>')
 def buscar_togglesube(dni):
-    sube = pgonecolumn(con,f"select subirseven from clientes where dni='{dni}'")
-    sev = pgonecolumn(con,f"select sev from clientes where dni='{dni}'")
+    selsube = f"select subirseven from clientes where dni='{dni}'"
+    selsev = f"select sev from clientes where dni='{dni}'"
+    sube = pgonecolumn(con, selsube)
+    sev = pgonecolumn(con, selsev)
     if sev==0:
         if sube:
             upd = f"update clientes set subirseven=0 where dni='{dni}'"
@@ -104,7 +107,8 @@ def buscar_togglesube(dni):
 
 @buscador.route('/buscador/togglegestion/<string:dni>')
 def buscar_togglegestion(dni):
-    sube = pgonecolumn(con,f"select gestion from clientes where dni='{dni}'")
+    sel = f"select gestion from clientes where dni='{dni}'"
+    sube = pgonecolumn(con, sel)
     if sube:
         upd = f"update clientes set gestion=0 where dni='{dni}'"
         msg = "Registro desmarcado como Gestion"
@@ -120,7 +124,8 @@ def buscar_togglegestion(dni):
 
 @buscador.route('/buscador/togglemudado/<string:dni>')
 def buscar_togglemudado(dni):
-    sube = pgonecolumn(con,f"select mudo from clientes where dni='{dni}'")
+    sel = f"select mudo from clientes where dni='{dni}'"
+    sube = pgonecolumn(con, sel)
     if sube:
         upd = f"update clientes set mudo=0 where dni='{dni}'"
         msg = "Registro desmarcado como Mudado"
@@ -128,15 +133,20 @@ def buscar_togglemudado(dni):
         upd = f"update clientes set mudo=1 where dni='{dni}'"
         msg = "Registro marcado como Mudado"
     cur = con.cursor()
-    cur.execute(upd)
-    con.commit()
-    cur.close()
-    return msg
+    try:
+        cur.execute(upd)
+    except:
+        return make_response("un error se ha producido",400)
+    else:
+        con.commit()
+        cur.close()
+        return msg
 
 
 @buscador.route('/buscador/toggleinc/<string:dni>')
 def buscar_toggleinc(dni):
-    sube = pgonecolumn(con,f"select incobrable from clientes where dni='{dni}'")
+    sel = f"select incobrable from clientes where dni='{dni}'"
+    sube = pgonecolumn(con, sel)
     if sube:
         upd = f"update clientes set incobrable=0 where dni='{dni}'"
         msg = "Registro desmarcado como Incobrable"
@@ -152,7 +162,8 @@ def buscar_toggleinc(dni):
 
 @buscador.route('/buscador/toggleln/<string:dni>')
 def buscar_toggleln(dni):
-    sube = pgonecolumn(con,f"select novendermas from clientes where dni='{dni}'")
+    sel = f"select novendermas from clientes where dni='{dni}'"
+    sube = pgonecolumn(con, sel)
     if sube:
         upd = f"update clientes set novendermas=0 where dni='{dni}'"
         msg = "Registro desmarcado como No Vender Mas"
@@ -168,7 +179,8 @@ def buscar_toggleln(dni):
 
 @buscador.route('/buscador/togglellamar/<string:dni>')
 def buscar_togglellamar(dni):
-    sube = pgonecolumn(con,f"select llamar from clientes where dni='{dni}'")
+    sel = f"select llamar from clientes where dni='{dni}'"
+    sube = pgonecolumn(con, sel)
     if sube:
         upd = f"update clientes set llamar=0 where dni='{dni}'"
     else:
@@ -182,7 +194,8 @@ def buscar_togglellamar(dni):
 
 @buscador.route('/buscador/toggleseguir/<string:dni>')
 def buscar_toggleseguir(dni):
-    sube = pgonecolumn(con,f"select seguir from clientes where dni='{dni}'")
+    sel = f"select seguir from clientes where dni='{dni}'"
+    sube = pgonecolumn(con, sel)
     if sube:
         upd = f"update clientes set seguir=0 where dni='{dni}'"
     else:
@@ -221,7 +234,8 @@ def busca_editardatos(dni):
 
 @buscador.route('/buscador/pedircomentarios/<int:id>')
 def buscar_pedircomentarios(id):
-    comentarios=pgdict(con,f"select fechahora,comentario from comentarios where idcliente={id}")
+    sel = f"select fechahora,comentario from comentarios where idcliente={id}"
+    comentarios=pgdict(con, sel)
     return jsonify(comentarios=comentarios)
 
 
@@ -233,7 +247,7 @@ def buscar_planpago():
 @buscador.route('/buscador/getvtaspp/<int:id>')
 def buscar_getvtaspp(id):
     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={id}")
-    ventas = pgdict(con, f"select id, cc, ic::integer, saldo::integer, pmovto, pp, pfecha, pcc, pic::integer, pper, pprimera, pcondo from ventas where saldo>0 and idcliente={idcliente}")
+    ventas = pgdict(con, f"select id, cc, floor(ic), floor(saldo), pmovto, pp, pfecha, pcc, floor(pic), pper, pprimera, pcondo from ventas where saldo>0 and idcliente={idcliente}")
     return jsonify(ventas=ventas)
 
 
@@ -246,7 +260,12 @@ def buscar_generarplan(idvta):
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
+    venta_trigger(con,idvta)
+    # idotrasvtas = pglflat(con, f"select id from ventas where idcliente={idcliente} and pp=0 and saldo>0")
     upd1 = f"update ventas set pcondo=1, saldo=0 where idcliente={idcliente} and pp=0 and saldo>0"
     cur.execute(upd1)
     con.commit()
+    # if len(idotrasvtas)>0:
+    #     for id in idotrasvtas:
+    #         venta_trigger(con,id)
     return 'ok'

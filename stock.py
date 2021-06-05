@@ -2,7 +2,7 @@ from flask import Blueprint,render_template,jsonify,make_response, request
 from flask_login import login_required
 from lib import *
 import ast
-from con import con
+#from con import con
 import pandas as pd
 
 stock = Blueprint('stock',__name__)

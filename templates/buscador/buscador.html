@@ -63,6 +63,7 @@ caption{
                     <button class="button is-outlined is-success" @click="fecharPmoVto">Fechar</button>
                     <button class="button is-info ">Deuda $|deuda|</button>
                     <button type="button" class="button is-dark" @click="editarDatos">Editar</button>
+                    <a href="/buscador/planpago" class="button is-dark">Plan Pagos</a>
                     
                
          
@@ -430,23 +431,21 @@ const app = new Vue({
                 this.arrayVentas = Array.from(res.data.ventas)
                 let arrayTblVtas = []
                 this.arrayVentas.forEach(vta=>{
-                    /* id,fecha,cc,ic,p,idvdor,saldo,comprado,pp,pcc,pic,pper,devuelta,condonada,cnt,art,pagado,primera */
+                    /* id,fecha,cc,ic,p,idvdor,saldo,comprado,pp,devuelta,condonada,cnt,art,pagado,primera */
                     let array = []
                     array.push(vta[0])
                     array.push(dayjs.utc(vta[1]).format('YYYY-MM-DD'))
-                    if(vta[8]==0){
-                        array.push(`${vta[2]} cuotas ${vta[4]==1?'MEN':'SEM'} de $${vta[3]}`)
-                    }else{
-                        array.push(`${vta[9]} cuotas ${vta[11]==1?'MEN':'SEM'} de $${vta[10]}`)
-                    }
+                    array.push(`${vta[2]} cuotas ${vta[4]==1?'MEN':'SEM'} de $${vta[3]}`)
                     array.push(vta[6])
                     array.push(vta[7])
                     array.push(vta[5])
                     array.push(vta[8]==1?'PLAN DE PAGO':null)
-                    array.push(vta[12]==1?'DEVUELTA':null)
-                    array.push(vta[13]==1?'CONDONADA':null)
+                    array.push(vta[9]==1?'DEVUELTA':null)
+                    array.push(vta[10]==1?'CONDONADA':null)
+                    array.push(vta[11])
+                    array.push(vta[12])
+                    array.push(vta[13])
                     array.push(vta[14])
-                    array.push(vta[15])
                     arrayTblVtas.push(array)
                 })
                 console.log(this.arrayVentas);

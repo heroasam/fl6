@@ -2,7 +2,7 @@ from flask import Blueprint,render_template,jsonify,make_response, request, send
 from flask_login import login_required
 from lib import *
 import ast
-from con import con
+#from con import con
 from formularios import *
 
 fichas = Blueprint('fichas',__name__)
