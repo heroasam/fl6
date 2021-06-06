@@ -1,9 +1,10 @@
 from flask import Blueprint,render_template,jsonify,make_response, request, send_file
 from flask_login import login_required
 from lib import *
-import ast
-#from con import con
+import json
+from con import con
 from formularios import *
+import mysql.connector
 
 fichas = Blueprint('fichas',__name__)
 
@@ -37,7 +38,7 @@ def fichas_muestraclientes(tipo,zona):
 
 @fichas.route('/fichas/imprimir', methods = ['POST'])
 def fichas_imprimir():
-    listadni = ast.literal_eval(request.data.decode("UTF-8"))
+    listadni = json.loads(request.data.decode("UTF-8"))
     # aca se el ast.literal entrega la lista enviada por el axios-post directamente
 
     ficha(con, listadni)
@@ -46,7 +47,7 @@ def fichas_imprimir():
 
 @fichas.route('/fichas/cambiarzona/<string:zona>',methods=['POST'])
 def fichas_cambiarzona(zona):
-    listadni = ast.literal_eval(request.data.decode("UTF-8"))
+    listadni = json.loads(request.data.decode("UTF-8"))
     lpg ='('
     for dni in listadni:
         lpg+="'"+dni+"'"+","
@@ -55,7 +56,7 @@ def fichas_cambiarzona(zona):
     cur = con.cursor()
     try:
         cur.execute(upd)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -86,7 +87,7 @@ def fichas_toggleactivo(id):
     cur = con.cursor()
     try:
         cur.execute(upd)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -106,7 +107,7 @@ def fichas_toggleprom(id):
     cur = con.cursor()
     try:
         cur.execute(upd)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -122,7 +123,7 @@ def fichas_borrarcobrador(id):
     cur = con.cursor()
     try:
         cur.execute(stm)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -140,7 +141,7 @@ def fichas_getcobradorbyid(id):
 
 @fichas.route('/fichas/guardarcobrador' , methods=['POST'])
 def fichas_guardarcobrador():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    d = json.loads(request.data.decode("UTF-8"))
     if d['id']!='':
         stm = f"update cobr set dni='{d['dni']}', nombre='{d['nombre']}', direccion='{d['direccion']}', telefono='{d['telefono']}', fechanac='{d['fechanac']}', desde='{d['desde']}', activo={d['activo']}, prom={d['prom']} where id= {d['id']}"
     else:
@@ -148,7 +149,7 @@ def fichas_guardarcobrador():
     cur = con.cursor()
     try:
         cur.execute(stm)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -176,7 +177,7 @@ def fichas_guardarfechado(idvta,pmovto):
     cur = con.cursor()
     try:
         cur.execute(upd)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -212,7 +213,7 @@ def fichas_getresumen(zona):
 
 @fichas.route('/fichas/imprimirlistado', methods=['POST'])
 def fichas_imprimirlistado():
-    listadni = ast.literal_eval(request.data.decode("UTF-8"))
+    listadni = json.loads(request.data.decode("UTF-8"))
     listado(con, listadni)
     print(len(listadni))
     return send_file('listado.pdf')

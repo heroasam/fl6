@@ -1,12 +1,13 @@
 from flask import Blueprint,render_template,jsonify,make_response, request,send_file
 from flask_login import login_required
 from lib import *
-import ast
+import json
 import re
 from formularios import *
+from con import con, get_con
 
 buscador = Blueprint('buscador',__name__)
-from app import get_db
+
 
 
 @buscador.route('/')
@@ -18,6 +19,7 @@ def buscador_():
 
 @buscador.route('/buscador/<string:buscar>')
 def buscar_cuenta(buscar):
+    con = get_con()
     rcuenta = r'^[0-9]{5}$'
     rdni = r'^[0-9]{7,8}$'
     if (re.match(rcuenta,buscar)):
@@ -34,6 +36,7 @@ def buscar_cuenta(buscar):
 
 @buscador.route('/buscador/pedirventas/<int:id>')
 def buscar_ventas(id):
+    con = get_con()
     sel = f"select id,fecha,cc,floor(ic),p,idvdor,floor(saldo),floor(comprado),pp,devuelta,condonada,cnt,art,floor(pagado),primera from ventas where idcliente={id}"
     ventas = pgdict(con, sel)
     return jsonify(ventas=ventas)
@@ -55,6 +58,7 @@ def buscar_cuotas(dni):
 
 @buscador.route('/buscador/pedirpagadas/<int:id>')
 def buscador_pedirpagadas(id):
+    con = get_con()
     pagadas = pgdict(con, f"select fecha,rbo,floor(imp),floor(rec),cobr from pagos where idcliente={id} order by fecha desc")
     return jsonify(pagadas=pagadas)
 
@@ -71,7 +75,7 @@ def buscar_fecharpmovto(dni,pmovto):
 
 @buscador.route('/buscador/imprimirficha' , methods = ['POST'])
 def buscar_imprimirficha():
-    dni = ast.literal_eval(request.data.decode("UTF-8"))
+    dni = json.loads(request.data.decode("UTF-8"))
     ficha(con,dni)
     return send_file('ficha.pdf')
 
@@ -124,6 +128,7 @@ def buscar_togglegestion(dni):
 
 @buscador.route('/buscador/togglemudado/<string:dni>')
 def buscar_togglemudado(dni):
+    con = get_con()
     sel = f"select mudo from clientes where dni='{dni}'"
     sube = pgonecolumn(con, sel)
     if sube:
@@ -209,6 +214,7 @@ def buscar_toggleseguir(dni):
 
 @buscador.route('/buscador/gettablas')
 def buscar_gettablas():
+    con = get_con()
     calles = pglflat(con,f"select calle from calles order by calle")
     barrios = pglflat(con,f"select barrio from barrios order by barrio")
     zonas = pglflat(con,f"select zona from zonas order by zona")
@@ -223,7 +229,7 @@ def buscar_getzonas():
 
 @buscador.route('/buscador/editardatos/<string:dni>' , methods = ['POST'])
 def busca_editardatos(dni):
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    d = json.loads(request.data.decode("UTF-8"))
     upd = f"update clientes set sex='{d['sex']}', dni='{d['dni']}', nombre='{d['nombre']}', calle='{d['calle']}', num={d['num']}, barrio='{d['barrio']}', zona='{d['zona']}', tel='{d['tel']}', wapp={d['wapp']}, acla='{d['acla']}', mjecobr='{d['mjecobr']}', horario='{d['horario']}', infoseven='{d['infoseven']}' where dni='{dni}'"
     cur = con.cursor()
     cur.execute(upd)
@@ -234,6 +240,7 @@ def busca_editardatos(dni):
 
 @buscador.route('/buscador/pedircomentarios/<int:id>')
 def buscar_pedircomentarios(id):
+    con = get_con()
     sel = f"select fechahora,comentario from comentarios where idcliente={id}"
     comentarios=pgdict(con, sel)
     return jsonify(comentarios=comentarios)
@@ -253,7 +260,7 @@ def buscar_getvtaspp(id):
 
 @buscador.route('/buscador/generarplan/<int:idvta>', methods=['POST'])
 def buscar_generarplan(idvta):
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    d = json.loads(request.data.decode("UTF-8"))
     print(d)
     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
     upd = f"update ventas set pp=1, pfecha='{d['pfecha']}', pcc={d['pcc']},pic={d['pic']},pper={d['pper']},pprimera='{d['pprimera']}', saldo={int(d['pcc'])*int(d['pic'])} where id={idvta}"

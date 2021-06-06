@@ -20,20 +20,12 @@ from stock import stock
 from pagos import pagos
 from buscador import buscador
 from fichas import fichas
-from flaskext.mysql import MySQL
+from con import con
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 CORS(app)
-
-con = MySQL()
-con.init_app(app)
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
-app.config['MYSQL_DATABASE_USER'] = 'hero'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'ata'
-app.config['MYSQL_DATABASE_DB'] = 'hero'
-
 
 
 

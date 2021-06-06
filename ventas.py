@@ -1,9 +1,10 @@
 from flask import Blueprint,render_template,jsonify,make_response, request
 from flask_login import login_required
 from lib import *
-import ast
-#from con import con
+from con import get_con
 import pandas as pd
+import simplejson as json
+import mysql.connector
 
 ventas = Blueprint('ventas',__name__)
 
@@ -15,27 +16,31 @@ def ventas_pasarventas():
 
 @ventas.route('/ventas/getcalles')
 def ventas_getcalles():
+    con = get_con()
     calles = pglflat(con, f"select calle from calles order by calle")
     return jsonify(calles= calles)
 
 
 @ventas.route('/ventas/getbarrios')
 def ventas_getbarrios():
+    con = get_con()
     barrios = pglflat(con, f"select barrio from barrios order by barrio")
     return jsonify(barrios= barrios)
 
 
 @ventas.route('/ventas/getzonas')
 def ventas_getzonas():
+    con = get_con()
     zonas = pglflat(con, f"select zona from zonas order by zona")
     return jsonify(zonas= zonas)
 
 
 @ventas.route('/ventas/getcuentapordni/<string:dni>')
 def ventas_getcuentaspordni(dni):
+    con = get_con()
     try:
         clientes = pgdict(con,f"select sex,dni,nombre,calle,num,barrio,zona,tel,wapp,acla,horario,mjecobr,infoseven,id from clientes where dni='{dni}'")
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -45,15 +50,19 @@ def ventas_getcuentaspordni(dni):
 
 @ventas.route('/ventas/guardarcliente', methods=['POST'])
 def ventas_guardarcliente():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    con = get_con()
+    # d = json.loads(request.data.decode("UTF-8"))
+    d = json.loads(request.data.decode("UTF-8"))
+    # print(d)
     if d['id']=="":
         stm = f"insert into clientes(sex,dni,nombre,calle,num,barrio,zona,tel,wapp,acla,horario,mjecobr,infoseven) values('{d['sex']}','{d['dni']}','{d['nombre']}','{d['calle']}','{d['num']}','{d['barrio']}','{d['zona']}','{d['tel']}','{d['wapp']}','{d['acla']}','{d['horario']}','{d['mjecobr']}','{d['infoseven']}')"
     else:
         stm = f"update clientes set sex='{d['sex']}', dni='{d['dni']}', nombre='{d['nombre']}',calle='{d['calle']}',num='{d['num']}',barrio='{d['barrio']}', zona='{d['zona']}',tel='{d['tel']}', wapp='{d['wapp']}', acla='{d['acla']}', horario='{d['horario']}', mjecobr='{d['mjecobr']}', infoseven='{d['infoseven']}' where id={d['id']}"
     cur = con.cursor()
+    print(stm)
     try:
         cur.execute(stm)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -74,7 +83,8 @@ def ventas_guardarcliente():
 
 @ventas.route('/ventas/guardarventa', methods=['POST'])
 def ventas_guardarventa():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
     per = d['p']
     if per=='mensual':
         p=1
@@ -86,7 +96,7 @@ def ventas_guardarventa():
     cur = con.cursor()
     try:
         cur.execute(ins)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -99,13 +109,14 @@ def ventas_guardarventa():
 
 @ventas.route('/ventas/guardardetvta', methods=['POST'])
 def ventas_guardardetvta():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
     costo = pgonecolumn(con, f"select costo from articulos where art='{d['art']}'")
     ins = f"insert into detvta(idvta,cnt,art,cc,ic,costo) values({d['idvta']},{d['cnt']},'{d['art']}',{d['cc']},{d['ic']},{costo})"
     cur = con.cursor()
     try:
         cur.execute(ins)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -113,19 +124,20 @@ def ventas_guardardetvta():
         con.commit()
         cur.close()
         detvta_trigger(con,d['idvta'])
-        detvta = pgdict(con,f"select id,cnt,art,cc,ic::integer from detvta where idvta={d['idvta']}")
-        sumic = pgonecolumn(con,f"select sum(ic::integer) from detvta where idvta={d['idvta']}")
+        detvta = pgdict(con,f"select id,cnt,art,cc,int(ic) from detvta where idvta={d['idvta']}")
+        sumic = pgonecolumn(con,f"select sum(int(ic)) from detvta where idvta={d['idvta']}")
         return jsonify(detvta=detvta,sumic=sumic)
 
 
 @ventas.route('/ventas/borrardetvta/<int:id>')
 def ventas_borrardetvta(id):
+    con = get_con()
     idvta= pgonecolumn(con,f"select idvta from detvta where id={id}")
     stm = f"delete from detvta where id={id}"
     cur = con.cursor()
     try:
         cur.execute(stm)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -133,8 +145,8 @@ def ventas_borrardetvta(id):
         con.commit()
         cur.close()
         detvta_trigger(con,idvta)
-        detvta = pgdict(con,f"select id,cnt,art,cc,ic::integer from detvta where idvta={idvta}")
-        sumic = pgonecolumn(con,f"select sum(ic::integer) from detvta where idvta={idvta}")
+        detvta = pgdict(con,f"select id,cnt,art,cc,int(ic) from detvta where idvta={idvta}")
+        sumic = pgonecolumn(con,f"select sum(int(ic)) from detvta where idvta={idvta}")
         if sumic is None:
             sumic=0
         return jsonify(detvta=detvta,sumic=sumic)
@@ -143,14 +155,15 @@ def ventas_borrardetvta(id):
 
 @ventas.route('/ventas/getarticulos')
 def ventas_getarticulos():
+    con = get_con()
     articulos = pglflat(con, f"select art from articulos where activo=1")
     return jsonify(articulos=articulos)
 
 
 @ventas.route('/ventas/getlistado')
 def ventas_getlistado():
-    #listado = pgdict(con,f"select id, fecha, cc, ic::integer, p, pmovto  , comprado::integer, idvdor, primera, (select sum(cnt) from detvta where idvta= ventas.id) as cnt, (select string_agg(art,' | ')  from detvta where idvta=ventas.id) as art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<now() - interval '4 month') as count from ventas order by id desc limit 200")
-    listado = pgdict(con,f"select id, fecha, cc, ic::integer, p, pmovto  , comprado::integer, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<now() - interval '4 month') as count from ventas order by id desc limit 200")
+    con = get_con()
+    listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count from ventas order by id desc limit 200")
     return jsonify(listado=listado)
 
 
@@ -161,11 +174,12 @@ def ventas_listado():
 
 @ventas.route('/ventas/borrarventa/<int:id>')
 def ventas_borrarventa(id):
+    con = get_con()
     stm = f"delete from ventas where id={id}"
     cur = con.cursor()
     try:
         cur.execute(stm)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -176,18 +190,20 @@ def ventas_borrarventa(id):
 
 @ventas.route('/ventas/datosventa/<int:id>')
 def ventas_datosventa(id):
-    venta = pgdict(con, f"select fecha,cc,ic::integer,p,pmovto,idvdor,primera from ventas where id={id}")
+    con = get_con()
+    venta = pgdict(con, f"select fecha,cc,int(ic),p,pmovto,idvdor,primera from ventas where id={id}")
     return jsonify(venta=venta)
 
 
 @ventas.route('/ventas/guardaredicionventa', methods=['POST'])
 def ventas_guardaredicionvta():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
     upd = f"update ventas set fecha='{d['fecha']}',cc={d['cc']},ic={d['ic']},p={d['p']},pmovto='{d['pmovto']}',idvdor={d['idvdor']},primera='{d['primera']}' where id={d['id']}"
     cur = con.cursor()
     try:
         cur.execute(upd)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -203,6 +219,7 @@ def ventas_clientes():
 
 @ventas.route('/ventas/getclientes')
 def ventas_getclientes():
+    con = get_con()
     clientes = pgdict(con, f"select ventas.id, nombre, calle,num, zona, gestion, mudo, incobrable,acla from ventas, clientes where ventas.idcliente=clientes.id order by ventas.id desc limit 200")
     return jsonify(clientes=clientes)
 
@@ -224,30 +241,34 @@ def zonas_calles():
 
 @ventas.route('/ventas/getcallesconid')
 def ventas_getcallesconid():
+    con = get_con()
     calles = pgdict(con, f"select id,calle from calles order by calle")
     return jsonify(calles= calles)
 
 
 @ventas.route('/ventas/getbarriosconid')
 def ventas_getbarriosconid():
+    con = get_con()
     barrios = pgdict(con, f"select id,barrio from barrios order by barrio")
     return jsonify(barrios= barrios)
 
 
 @ventas.route('/ventas/getzonasconid')
 def ventas_getzonasconid():
+    con = get_con()
     zonas = pgdict(con, f"select id,zona from zonas order by zona")
     return jsonify(zonas= zonas)
 
 
 @ventas.route('/ventas/guardaredicioncalle', methods=['POST'])
 def ventas_guardaredicioncalle():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
     upd = f"update calles set calle='{d['calle']}' where id={d['id']}"
     cur = con.cursor()
     try:
         cur.execute(upd)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -260,12 +281,13 @@ def ventas_guardaredicioncalle():
 
 @ventas.route('/ventas/guardaredicionbarrio', methods=['POST'])
 def ventas_guardaredicionbarrio():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
     upd = f"update barrios set barrio='{d['barrio']}' where id={d['id']}"
     cur = con.cursor()
     try:
         cur.execute(upd)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -277,12 +299,13 @@ def ventas_guardaredicionbarrio():
 
 @ventas.route('/ventas/guardaredicionzona', methods=['POST'])
 def ventas_guardaredicionzona():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
     upd = f"update zonas set zona='{d['zona']}' where id={d['id']}"
     cur = con.cursor()
     try:
         cur.execute(upd)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -294,11 +317,12 @@ def ventas_guardaredicionzona():
 
 @ventas.route('/ventas/borrarcalle/<int:id>')  
 def ventas_borrarcalle(id):
+    con = get_con()
     stm = f"delete from calles where id={id}"
     cur = con.cursor()
     try:
         cur.execute(stm)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -311,11 +335,12 @@ def ventas_borrarcalle(id):
 
 @ventas.route('/ventas/borrarbarrio/<int:id>')  
 def ventas_borrarbarrio(id):
+    con = get_con()
     stm = f"delete from barrios where id={id}"
     cur = con.cursor()
     try:
         cur.execute(stm)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -327,11 +352,12 @@ def ventas_borrarbarrio(id):
 
 @ventas.route('/ventas/borrarzona/<int:id>')  
 def ventas_borrarzona(id):
+    con = get_con()
     stm = f"delete from zonas where id={id}"
     cur = con.cursor()
     try:
         cur.execute(stm)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -342,12 +368,13 @@ def ventas_borrarzona(id):
 
 @ventas.route('/ventas/guardarcallenueva', methods=['POST'])
 def ventas_guardarcallenueva():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
     ins = f"insert into calles(calle) values('{d['calle']}')"
     cur = con.cursor()
     try:
         cur.execute(ins)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -360,12 +387,13 @@ def ventas_guardarcallenueva():
 
 @ventas.route('/ventas/guardarbarrionueva', methods=['POST'])
 def ventas_guardarbarrionueva():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
     ins = f"insert into barrios(barrio) values('{d['barrio']}')"
     cur = con.cursor()
     try:
         cur.execute(ins)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -377,12 +405,13 @@ def ventas_guardarbarrionueva():
 
 @ventas.route('/ventas/guardarzonanueva', methods=['POST'])
 def ventas_guardarzonanueva():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
     ins = f"insert into zonas(zona) values('{d['zona']}')"
     cur = con.cursor()
     try:
         cur.execute(ins)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -401,12 +430,15 @@ def ventas_estadisticas():
 @ventas.route('/ventas/estadisticasanuales')
 @login_required
 def ventas_estadisticasanuales():
-    est_anuales = pgdict(con,f"select y(fecha) as y, sum(comprado::integer), sum(saldo::integer), sum(saldo::float)/sum(comprado::float) as inc,sum(cnt) from ventas group by y order by y desc")
+    con = get_con()
+    est_anuales = pgdict(con,f"select date_format(fecha,'%Y') as y, sum(comprado), sum(saldo), sum(saldo)/sum(comprado) as inc,sum(cnt) from ventas group by y order by y desc")
+    print(est_anuales)
     return jsonify(est_anuales=est_anuales)
 
 
 @ventas.route('/ventas/estadisticasmensuales/<string:year>')
 @login_required
 def ventas_estadisticasmensuales(year):
-    est_mensuales = pgdict(con,f"select ym(fecha) as ym, sum(comprado::integer), sum(saldo::integer), sum(saldo::float)/sum(comprado::float) as inc,sum(cnt) from ventas where y(fecha)='{year}' group by ym order by ym")
+    con = get_con()
+    est_mensuales = pgdict(con,f"select date_format(fecha,'%Y-%M') as ym, sum(comprado), sum(saldo), sum(saldo)/sum(comprado) as inc,sum(cnt) from ventas where date_format(fecha,'%Y')='{year}' group by ym order by ym")
     return jsonify(est_mensuales=est_mensuales)

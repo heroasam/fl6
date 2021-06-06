@@ -1,9 +1,10 @@
 from flask import Blueprint,render_template,jsonify,make_response, request
 from flask_login import login_required
 from lib import *
-import ast
-#from con import con
+import json
+from con import con
 import pandas as pd
+import mysql.connector
 
 stock = Blueprint('stock',__name__)
 
@@ -38,7 +39,7 @@ def stock_getcuentas():
 
 @stock.route('/stock/guardarasiento' , methods = ['POST'])
 def stock_guardarasiento():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    d = json.loads(request.data.decode("UTF-8"))
     tipo = pgonecolumn(con, f"select tipo from ctas where cuenta='{d['cuenta']}'")
     print('tipo',tipo)
     if tipo==0:
@@ -118,7 +119,7 @@ def stock_deletecompra(id):
 
 @stock.route('/stock/guardarcompra' , methods = ['POST'])
 def stock_guardarcompra():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    d = json.loads(request.data.decode("UTF-8"))
     ins = f"insert into artcomprado(fecha,cnt,art,costo,total,proveedor) values('{d['fecha']}',{d['cnt']},'{d['art']}',{d['costo']},{d['total']},'{d['proveedor']}')"
     cur = con.cursor()
     cur.execute(ins)
@@ -182,7 +183,7 @@ def stock_deletesalida(id):
 
 @stock.route('/stock/guardarsalida' , methods = ['POST'])
 def stock_guardarsalida():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    d = json.loads(request.data.decode("UTF-8"))
     ins = f"insert into detsalida(fecha,cnt,art,costo,comentario) values('{d['fecha']}',{d['cnt']},'{d['art']}',{d['costo']},'{d['comentario']}')"
     cur = con.cursor()
     cur.execute(ins)
@@ -204,12 +205,12 @@ def stock_articulos():
 
 @stock.route('/stock/guardararticulo' , methods = ['POST'])
 def stock_guardararticulo():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    d = json.loads(request.data.decode("UTF-8"))
     ins = f"insert into articulos(art, costo, activo) values('{d['art']}',{d['costo']},{d['activo']})"
     cur = con.cursor()
     try:
         cur.execute(ins)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -245,12 +246,12 @@ def stock_articulotoggleactivo(id):
 
 @stock.route('/stock/guardaredicionarticulo' , methods = ['POST'])
 def stock_guardaredicionarticulo():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    d = json.loads(request.data.decode("UTF-8"))
     upd = f"update articulos set art='{d['arted']}', costo= {d['costoed']}, activo= {d['activoed']} where id={d['ided']}"
     cur = con.cursor()
     try:
         cur.execute(upd)
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)

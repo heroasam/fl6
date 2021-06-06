@@ -1,15 +1,14 @@
-import psycopg2
-import psycopg2.extras
 import os
-#import pymysql
-
-# DATABASE_URL = os.environ['DATABASE_URL']
-# con = psycopg2.connect(DATABASE_URL, sslmode='require')
+import mysql.connector
 
 
-#con = psycopg2.connect(dbname='hero', user='hero', host='localhost', password='ata', port=5432)
+con = mysql.connector.connect(host='localhost',database='hero',user='hero',password='ata')
 
-#con = pymysql.connect(host='localhost',user='hero',password='ata',db='hero')
+def get_con():
+    con = mysql.connector.connect(host='localhost',database='hero',user='hero',password='ata')
+    return con
+
+
 
 
 

@@ -1,11 +1,12 @@
 from flask import Blueprint,render_template,jsonify,make_response, request, send_file,url_for,redirect
 from flask_login import login_required
 from lib import *
-import ast
-#from con import con
+import json
+from con import con
 import pandas as pd
 import re
 from formularios import *
+import mysql.connector
 
 pagos = Blueprint('pagos',__name__)
 
@@ -17,7 +18,7 @@ def loterbo_():
 
 @pagos.route('/loterbo/guardarlote/<string:fecha>/<string:cobr>', methods = ['POST'])
 def guardarlote(fecha,cobr):
-    listarbos = ast.literal_eval(request.data.decode("UTF-8"))
+    listarbos = json.loads(request.data.decode("UTF-8"))
     cnt = len(listarbos)
     print(listarbos)
     ins = f"insert into loterbos(fecha,cobr,cnt,procesado) values('{fecha}',{cobr},{cnt},0)"
@@ -39,7 +40,7 @@ def obtenerlastid():
 
 @pagos.route('/loterbo/imprimir/<string:fecha>/<string:cobr>/<int:idlote>', methods = ['POST'])
 def loterbo_imprimir(fecha,cobr,idlote):
-    listarbo = ast.literal_eval(request.data.decode("UTF-8"))
+    listarbo = json.loads(request.data.decode("UTF-8"))
     # aca se el ast.literal entrega la lista enviada por el axios-post directamente
 
     loterbo(con, listarbo,fecha,cobr,idlote)
@@ -121,7 +122,7 @@ def pagos_traerficha(idvta):
 
 @pagos.route('/pagos/pasarpagos' , methods = ['POST'])
 def pagos_pasarpagos():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    d = json.loads(request.data.decode("UTF-8"))
     idcliente = pgonecolumn(con,f"select idcliente from ventas where id={d['idvta']}")
     if(d['rec']==''):
         d['rec']=0
@@ -145,7 +146,7 @@ def pagos_borrarpago(idpago):
 
 @pagos.route('/pagos/pasarplanilla', methods = ['POST'])
 def pagos_pasarplanilla():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    d = json.loads(request.data.decode("UTF-8"))
     idplanilla = pgonecolumn(con,f"select id from planillas where fecha = '{d['fecha']}' and idcobr={d['idcobr']}")
     if(d['viatico']==""):
         d['viatico']=0
@@ -178,7 +179,7 @@ def pagos_getplanillashoy(fecha):
 
 @pagos.route('/pagos/procesarplanilla', methods = ['POST'])
 def pagos_procesarplanilla():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    d = json.loads(request.data.decode("UTF-8"))
     fecha = d['fecha']
     ins1 = f"insert into caja(fecha,cuenta,imp,comentario) values('{fecha}','cobranza',{d['cobrado']},'global')"
     ins2 = f"insert into caja(fecha,cuenta,imp,comentario) values('{fecha}','cobranza',{-1*d['comision']},'com')"
@@ -209,7 +210,7 @@ def pagos_obtenerregrbo(buscar):
         reg = pgdict(con, f"select id, fecha, idvta, imp::integer, rec::integer, rbo, cobr, idcliente from pagos where rbo={buscar}")
         idcliente = pgonecolumn(con, f"select idcliente from pagos where rbo={buscar}")
         nombre = pgonecolumn(con, f"select nombre from clientes where id={idcliente}")
-    except psycopg2.Error as e:
+    except mysql.connector.Error as e:
         con.rollback()
         error = e.pgerror
         return make_response(error,400)
@@ -230,7 +231,7 @@ def pagos_borrarrbo(id):
 
 @pagos.route('/pagos/guardaredicionrbo' , methods = ['POST'])
 def pagos_guardaredicionrbo():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    d = json.loads(request.data.decode("UTF-8"))
     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={d['idvta']}")
     upd = f"update pagos set fecha='{d['fecha']}', idvta={d['idvta']}, imp={d['imp']}, rec={d['rec']}, rbo={d['rbo']}, cobr={d['cobr']}, idcliente={idcliente} where id={d['id']}"
     cur = con.cursor()
@@ -256,7 +257,7 @@ def pagos_verzona():
 
 @pagos.route('/pagos/editarasignado', methods = ['POST'])
 def pagos_editarasignado():
-    d = ast.literal_eval(request.data.decode("UTF-8"))
+    d = json.loads(request.data.decode("UTF-8"))
     upd = f"update zonas set asignado={d['asignado']} where id={d['id']}"
     cur = con.cursor()
     cur.execute(upd)

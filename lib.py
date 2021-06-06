@@ -1,12 +1,10 @@
-import psycopg2
-import psycopg2.extras
 from dateutil.relativedelta import relativedelta
 
 
 def pgdict0(con, sel):
     """Funcion que entrega una lista de valores en formato lista plana
        o flat list entregado por el fetchall sobre un cursor"""
-    dict_cur = con.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    dict_cur = con.cursor()
     dict_cur.execute(sel)
     rec = dict_cur.fetchone()
     dict_cur.close()
@@ -15,7 +13,7 @@ def pgdict0(con, sel):
 def pgdict(con, sel):
     """Funcion que entrega una lista de valores en formato list of list
        entregado por el fetchall sobre un cursor"""
-    cur = con.get_db().cursor()
+    cur = con.cursor()
     cur.execute(sel)
     rec = cur.fetchall()
     cur.close()
@@ -28,7 +26,7 @@ def pgonecolumn(con, sel):
     el cur.fetchone() = None damos por resultado "", sino damos [0] que
     es el primer elemento de la tupla que normalmente fetchone entrega
     obteniendo con eso un resultado flat para uso directo """
-    cur = con.get_db().cursor()
+    cur = con.cursor()
     cur.execute(sel)
     res = cur.fetchone()
     if res is None:
@@ -42,7 +40,7 @@ def pgonecolumn(con, sel):
 def pgddict(con, sel):
     """Funcion que entrega una lista de valores en formato list of list
        entregado por el fetchall sobre un cursor"""
-    cur = con.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur = con.cursor()
     cur.execute(sel)
     rec = cur.fetchall()
     cur.close()
@@ -50,7 +48,7 @@ def pgddict(con, sel):
 
 
 def pgllist(con, sel):
-    cur = con.cursor()
+    cur = con.cursor(buffered=True)
     cur.execute(sel)
     res = cur.fetchall()
     cur.close()

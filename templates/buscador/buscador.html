@@ -466,7 +466,7 @@ const app = new Vue({
             })
         },
         hacerCuotas(){
-            /* id,fecha,cc,ic,p,idvdor,saldo,comprado,pp,pcc,pic,pper,devuelta,condonada,cnt,art,pagado,primera,pprimera,ppagado */
+            /* id,fecha,cc2,ic3,p4,idvdor,saldo6,comprado,pp8,devuelta,condonada,cnt,art,pagado13,primera14, */
             tblCuota=[]
             let vto
             this.arrayVentas.forEach(row=>{
@@ -474,26 +474,11 @@ const app = new Vue({
                 pp = row[8]
                 if(pp===0){
                     if(saldo!==0){
-                        pagado = row[16]
+                        pagado = row[13]
                         cc = row[2]
                         ic = row[3]
                         p = row[4]
-                        primera = row[17]
-                        for (let i=1; i<=cc ;i++){
-                            if(p===1) vto = dayjs.utc(primera).add(i-1,'month').format('YYYY-MM-DD')
-                            if(p===2) vto = dayjs.utc(primera).add((i-1)*2,'week').format('YYYY-MM-DD')
-                            if(p===3) vto = dayjs.utc(primera).add(i-1,'week').format('YYYY-MM-DD')
-                            tblCuota.push([i,vto,pagado>=ic?0:pagado<=0?ic:ic-pagado])
-                            pagado = pagado - ic
-                        }
-                    }
-                }else{
-                    if(saldo!==0){
-                        pagado = row[19]
-                        cc = row[9]
-                        ic = row[10]
-                        p = row[11]
-                        primera = row[18]
+                        primera = row[14]
                         for (let i=1; i<=cc ;i++){
                             if(p===1) vto = dayjs.utc(primera).add(i-1,'month').format('YYYY-MM-DD')
                             if(p===2) vto = dayjs.utc(primera).add((i-1)*2,'week').format('YYYY-MM-DD')
