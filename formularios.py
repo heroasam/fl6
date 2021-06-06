@@ -10,7 +10,7 @@ class MyFPDF(FPDF):
         self.ln(10)
     def footer(self):
         pass
-def ficha(con, ldni):
+def ficha(con,ldni):
     pdf=MyFPDF()
     pdf.set_margins(30,30)
     pdf.add_page()
@@ -31,80 +31,78 @@ def ficha(con, ldni):
         if (pdf.get_y()>250):
             pdf.add_page()
             pdf.set_y(15)
-        cliente = pgdict0(con,f"select * from clientes where dni='{dni}'")
-        print(type(cliente))
+        cliente = pgdict0(con,f"select nombre,calle,num,tel,wapp,pmovto,barrio,zona,acla,mjecobr,horario,id from clientes where dni='{dni}'")
+        print(cliente[4])
         pdf.set_font_size(12)
         pdf.set_x(10)
         pdf.cell(20,6,str(i),0,0)
         # dictPos[i]=pdf.page_no()
-        pdf.cell(100,6,cliente['nombre'][0:38],0,0)
-        # dictNombre[i]=cliente['nombre'][0:38]
+        pdf.cell(100,6,cliente[0][0:38],0,0)
         pdf.set_font_size(10)
-        pdf.cell(30,6,desnull(cliente['tel'][0:8]),1,0,'C')
-        pdf.cell(30,6,desnull(cliente['wapp']),1,1,'C')
-        pdf.cell(80,6,cliente['calle'],1,0)
-        pdf.cell(10,6,cliente['num'][0:4],1,0)
-        # dictDir[i]=cliente['calle']+' '+cliente['num']
-        if cliente['pmovto']<date.today():
+        pdf.cell(30,6,cliente[3][0:8],1,0,'C')
+        pdf.cell(30,6,cliente[4],1,1,'C')
+        pdf.cell(80,6,cliente[1],1,0)
+        pdf.cell(10,6,cliente[2][0:4],1,0)
+        if cliente[5]<date.today():
             pmovto = date.today().strftime('%Y-%m-%d')
         else:
-            pmovto = cliente['pmovto']
-        lisdatos.append((i,cliente['nombre'][0:38],cliente['calle']+' '+cliente['num'],pdf.page_no(),pmovto))
-        pdf.cell(70,6,cliente['barrio'],1,1)
-        if cliente['acla']:
+            pmovto = cliente[5]
+        lisdatos.append((i,cliente[0][0:38],cliente[1]+' '+cliente[2],pdf.page_no(),pmovto))
+        pdf.cell(70,6,cliente[6],1,1)
+        if cliente[8]:
             pdf.set_font_size(7)
-            pdf.cell(0,4,cliente['acla'],0,1)
-        if cliente['mjecobr']:
+            pdf.cell(0,4,cliente[8],0,1)
+        if cliente[9]:
             pdf.set_font_size(7)
-            pdf.cell(0,4,cliente['mjecobr'],0,1)
-        if cliente['horario']:
+            pdf.cell(0,4,cliente[9],0,1)
+        if cliente[10]:
             pdf.set_font_size(7)
-            pdf.cell(0,4,cliente['horario'],0,1)
-        if len(cliente['num'])>4:
+            pdf.cell(0,4,cliente[10],0,1)
+        if len(cliente[2])>4:
             pdf.set_font_size(7)
-            pdf.cell(0,4,f"En numero se registra lo siguiente:{cliente['num']}",0,1) 
-        if len(cliente['tel'])>8:
+            pdf.cell(0,4,f"En numero se registra lo siguiente:{cliente[2]}",0,1) 
+        if len(cliente[3])>8:
             pdf.set_font_size(7)
-            pdf.cell(0,4,f"En telefono se registra lo siguiente:{cliente['tel']}",0,1)       
+            pdf.cell(0,4,f"En telefono se registra lo siguiente:{cliente[3]}",0,1)       
         pdf.ln(2)
 
-        ventas=pgddict(con,f"select * from ventas where saldo>0 and idcliente={cliente['id']}")
+        ventas=pgddict(con,f"select id,fecha,cc,ic,p,saldo from ventas where saldo>0 and idcliente={cliente[11]}")
         for venta in ventas:
             pdf.set_font_size(10)
-            pdf.cell(15,6,f"{venta['id']}",1,0,'C')
-            pdf.cell(25,6,f"{venta['fecha']}",1,0,'C')
-            pdf.cell(50,6,f"{venta['cc']} cuotas de ${venta['ic']} {per(venta['p'])}",1,0,'C')
-            pdf.cell(35,6,f"Saldo ${venta['saldo']}",1,1,'C')
-            detvtas=pgddict(con,f"select * from detvta where idvta={venta['id']}")
+            pdf.cell(15,6,f"{venta[0]}",1,0,'C')
+            pdf.cell(25,6,f"{venta[1]}",1,0,'C')
+            pdf.cell(50,6,f"{venta[2]} cuotas de ${venta[3]} {per(venta[4])}",1,0,'C')
+            pdf.cell(35,6,f"Saldo ${venta[5]}",1,1,'C')
+            detvtas=pgddict(con,f"select cnt,art,cc,ic from detvta where idvta={venta[0]}")
             for detvta in detvtas:
                 pdf.set_font_size(8)
-                pdf.cell(10,4,f"{detvta['cnt']}",1,0,'C')
-                pdf.cell(80,4,f"{detvta['art']}",1,0)
-                pdf.cell(35,4,f"{detvta['cc']} cuotas de ${detvta['ic']}",1,1,'C')
+                pdf.cell(10,4,f"{detvta[0]}",1,0,'C')
+                pdf.cell(80,4,f"{detvta[1]}",1,0)
+                pdf.cell(35,4,f"{detvta[2]} cuotas de ${detvta[3]}",1,1,'C')
             cur =con.cursor()
-            cur.execute(f"select gc({venta['id']})")
+            #cur.execute(f"select gc({venta['id']})")
             cur.close()
-            cuotas = pgddict(con, f"select * from cuotas where debe>0 and idvta={venta['id']}")
-            pagadas = pgddict(con, f"select * from pagos where idvta={venta['id']} order by fecha")
+            #cuotas = pgddict(con, f"select * from cuotas where debe>0 and idvta={venta['id']}")
+            pagadas = pgddict(con, f"select fecha,imp,rec,rbo,cobr from pagos where idvta={venta[0]} order by fecha")
             # Calculo el largo total que tendra la grilla de pagos
-            if (len(cuotas)>len(pagadas)):
-                max=len(cuotas)
-            else:
-                max=len(pagadas)
+            # if (len(cuotas)>len(pagadas)):
+            #     max=len(cuotas)
+            # else:
+            #     max=len(pagadas)
             # Formula para el calculo del espacio ocupable
-            if ((pdf.get_y()+max*7)>280):
-                pdf.add_page()
-                pdf.set_y(15)
+            # if ((pdf.get_y()+max*7)>280):
+            #     pdf.add_page()
+            #     pdf.set_y(15)
 
             pdf.ln(2)
             pdf.set_font_size(10)
             y0 = pdf.get_y()
-            pdf.cell(80,6,"Cuotas a Pagar",0,1)
-            pdf.set_font_size(8)
-            for cuota in cuotas:
-                pdf.cell(5,4,f"{cuota['nc']}",1,0,'C')
-                pdf.cell(25,4,f"{cuota['vto']}",1,0,'C')
-                pdf.cell(15,4,f"${cuota['debe']}",1,1,'C')
+            # pdf.cell(80,6,"Cuotas a Pagar",0,1)
+            # pdf.set_font_size(8)
+            # for cuota in cuotas:
+            #     pdf.cell(5,4,f"{cuota['nc']}",1,0,'C')
+            #     pdf.cell(25,4,f"{cuota['vto']}",1,0,'C')
+            #     pdf.cell(15,4,f"${cuota['debe']}",1,1,'C')
             pdf.ln(2)    
             y1=pdf.get_y()
             pgy1 = pdf.page_no()
@@ -115,11 +113,11 @@ def ficha(con, ldni):
             pdf.set_font_size(8)
             for pagada in pagadas:
                 pdf.set_x(90)
-                pdf.cell(25,4,f"{pagada['fecha']}",1,0,'C')
-                pdf.cell(20,4,f"${pagada['imp']}",1,0,'C')
-                pdf.cell(15,4,f"${pagada['rec']}",1,0,'C')
-                pdf.cell(20,4,f"{pagada['rbo']}",1,0,'C')
-                pdf.cell(10,4,f"{pagada['cobr']}",1,1,'C')
+                pdf.cell(25,4,f"{pagada[0]}",1,0,'C')
+                pdf.cell(20,4,f"${pagada[1]}",1,0,'C')
+                pdf.cell(15,4,f"${pagada[2]}",1,0,'C')
+                pdf.cell(20,4,f"{pagada[3]}",1,0,'C')
+                pdf.cell(10,4,f"{pagada[4]}",1,1,'C')
             if (y1>pdf.get_y() and pgy1==pdf.page_no()):
                 pdf.set_y(y1)
             if (y1<pdf.get_y() and pgy1<pdf.page_no()):
@@ -196,11 +194,11 @@ def listado(con, ldni):
     listdni = pglflat(con,f"select dni from clientes where dni in {lpg} order by calle,num")
 
     for dni in listdni:
-        cliente = pgdict0(con, f"select * from clientes where dni='{dni}'")
-        pdf.cell(10,6,str(round(int(cliente['dni'])/1000000)),0,0)
-        pdf.cell(80,6,cliente['nombre'][0:38],0,0)
-        pdf.cell(80,6,cliente['calle']+' '+cliente['num'], 0, 1)
-        pdf.cell(160,6,cliente['acla'],0,1)
+        cliente = pgdict0(con, f"select nombre,calle,num,acla,dni from clientes where dni='{dni}'")
+        pdf.cell(10,6,str(round(int(cliente[4])/1000000)),0,0)
+        pdf.cell(80,6,cliente[0][0:38],0,0)
+        pdf.cell(80,6,cliente[1]+' '+cliente[2], 0, 1)
+        pdf.cell(160,6,cliente[3],0,1)
         pdf.line(10,pdf.get_y(),200,pdf.get_y())
     pdf.output("listado.pdf")
 

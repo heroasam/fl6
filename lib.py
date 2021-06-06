@@ -8,7 +8,6 @@ def pgdict0(con, sel):
     cur.execute(sel)
     rec = cur.fetchone()
     cur.close()
-    con.close()
     return rec
 
 def pgdict(con, sel):
@@ -18,7 +17,6 @@ def pgdict(con, sel):
     cur.execute(sel)
     rec = cur.fetchall()
     cur.close()
-    con.close()
     return rec
 
 
@@ -36,7 +34,6 @@ def pgonecolumn(con, sel):
     else:
         return res[0]
     cur.close()
-    con.close()
     return res
 
 
@@ -55,7 +52,6 @@ def pgllist(con, sel):
     cur.execute(sel)
     res = cur.fetchall()
     cur.close()
-    con.close()
     return res
 
 

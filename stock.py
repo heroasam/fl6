@@ -74,7 +74,7 @@ def stock_getmayor(cuenta):
 @stock.route('/stock/pivotcuentas')
 def stock_pivotcuentas():
     con = get_con()
-    sql="select ym(fecha) as fecha,cuenta,imp from caja order by id desc"
+    sql="select date_format(fecha,'%Y-%m') as fecha,cuenta,imp from caja order by id desc"
     pd.options.display.float_format = '{:20.0f}'.format
     dat = pd.read_sql_query(sql, con)
     df = pd.DataFrame(dat)
@@ -87,7 +87,7 @@ def stock_pivotcuentas():
 @stock.route('/stock/retiros')
 def stock_retiros():
     con = get_con()
-    sql="select ym(fecha) as fecha,cuenta,imp from caja where cuenta in ('retiro papi', 'retiro fede') order by id desc"
+    sql="select date_format(fecha,'%Y-%m') as fecha,cuenta,imp from caja where cuenta in ('retiro papi', 'retiro fede') order by id desc"
     pd.options.display.float_format = '{:20.0f}'.format
     dat = pd.read_sql_query(sql, con)
     df = pd.DataFrame(dat)
@@ -143,7 +143,7 @@ def stock_guardarcompra():
 def stock_saldosorpresa():
     con = get_con()
     pagado = pgonecolumn(con, f"select sum(imp) from caja where cuenta = 'depositos sorpresa'")
-    comprado = pgonecolumn(con, f"select sum(total) from artcomprado where proveedor ilike 'Sorpresa' and fecha>'2015-09-20'")
+    comprado = pgonecolumn(con, f"select sum(total) from artcomprado where lower(proveedor) like lower('Sorpresa') and fecha>'2015-09-20'")
     saldosorpresa = 122031 + comprado + pagado
     return jsonify(saldosorpresa=saldosorpresa)
 

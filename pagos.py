@@ -300,8 +300,8 @@ def pagos_gettotaleszonas():
 def pagos_cobrostotales():
     con = get_con()
     pd.options.display.float_format = '{:.0f}'.format
-    sql="select ym(fecha) as fp,imp+rec as cuota,cobr from pagos where fecha >date_sub(curdate(),interval 365 day)"
-    sql1="select ym(fecha) as fp,imp+rec as cuota,pagos.cobr as cobr,zona,(select asignado from zonas where zona=clientes.zona) as asignado from pagos,clientes where clientes.id=pagos.idcliente and fecha >date_sub(curdate(),interval 365 day) and zona not like '-%'"
+    sql="select date_format(fecha,'%Y-%m') as fp,imp+rec as cuota,cobr from pagos where fecha >date_sub(curdate(),interval 365 day)"
+    sql1="select date_format(fecha,'%Y-%m') as fp,imp+rec as cuota,pagos.cobr as cobr,zona,(select asignado from zonas where zona=clientes.zona) as asignado from pagos,clientes where clientes.id=pagos.idcliente and fecha >date_sub(curdate(),interval 365 day) and zona not like '-%'"
     dat = pd.read_sql_query(sql, con)
     dat1= pd.read_sql_query(sql1,con)
     df = pd.DataFrame(dat)
@@ -320,8 +320,8 @@ def pagos_cobrostotales():
 def pagos_estimados():
     con = get_con()
     pd.options.display.float_format = '{:.0f}'.format
-    sql="select ym(pmovto) as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%'"
-    sql1="select ym(pmovto) as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%'"
+    sql="select date_format(pmovto,'%Y-%m') as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%'"
+    sql1="select date_format(pmovto,'%Y-%m') as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%'"
     dat = pd.read_sql_query(sql, con)
     dat1= pd.read_sql_query(sql1,con)
     df = pd.DataFrame(dat)
@@ -340,7 +340,7 @@ def pagos_estimados():
 def pagos_comisiones():
     con = get_con()
     pd.options.display.float_format = '${:.0f}'.format
-    sql="select ym(fecha) as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,816) and fecha>'2018-07-31'"
+    sql="select date_format(fecha,'%Y-%m') as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,816) and fecha>'2018-07-31'"
     dat = pd.read_sql_query(sql, con)
     df = pd.DataFrame(dat)
     tbl = pd.pivot_table(df, values=['comision','cobranza'],index='fecha',columns='cobr',aggfunc='sum').sort_index(0, 'fecha',False)
@@ -352,7 +352,7 @@ def pagos_comisiones():
 @pagos.route('/pivot/pagos_cobr')
 def pivot_pagos_cobr():
     con = get_con()
-    sql="select ym(fecha) as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,816) and fecha>'2018-07-31'"
+    sql="select date_format(fecha,'%Y-%m') as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,816) and fecha>'2018-07-31'"
     dat = pd.read_sql_query(sql, con)
     df = pd.DataFrame(dat)
     tbl = pd.pivot_table(df, values=['comision','cobranza'],index='fecha',columns='cobr',aggfunc='sum')
@@ -364,7 +364,7 @@ def pivot_pagos_cobr():
 @pagos.route('/pivot/retiros')
 def pivot_retiros():
     con = get_con()
-    sql="select ym(fecha) as fecha, cuenta, imp from caja where cuenta like 'retiro%'"
+    sql="select date_format(fecha,'%Y-%m') as fecha, cuenta, imp from caja where cuenta like 'retiro%'"
     dat = pd.read_sql_query(sql, con)
     df = pd.DataFrame(dat)
     tbl = pd.pivot_table(df, values='imp',index='fecha',columns='cuenta',aggfunc='sum')
@@ -376,7 +376,7 @@ def pivot_retiros():
 @pagos.route('/pivot/retiros/excel')
 def pivot_retiros_excel():
     con = get_con()
-    sql="select ym(fecha) as fecha, cuenta, imp from caja where cuenta like 'retiro%'"
+    sql="select date_format(fecha,'%Y-%m') as fecha, cuenta, imp from caja where cuenta like 'retiro%'"
     dat = pd.read_sql_query(sql, con)
     df = pd.DataFrame(dat)
     tbl = pd.pivot_table(df, values='imp',index='fecha',columns='cuenta',aggfunc='sum')

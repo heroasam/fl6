@@ -215,14 +215,14 @@ def fichas_getzonas():
 @fichas.route('/fichas/getlistado/<string:zona>')
 def fichas_getlistado(zona):
     con = get_con()
-    listado = pgdict(con, f"select y(ultpago), ultpago, dni,nombre, calle||' '||num as direccion from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and comprado>0 and ultpago>'2010-01-01' and calle||num not in (select calle||num from clientes where deuda>300) order by ultpago desc")
+    listado = pgdict(con, f"select date_format(ultpago,'%Y'), ultpago, dni,nombre, concat(calle,' ',num) as direccion from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and comprado>0 and ultpago>'2010-01-01' and concat(calle,num) not in (select concat(calle,num) from clientes where deuda>300) order by ultpago desc")
     return jsonify(listado=listado)
 
 
 @fichas.route('/fichas/getresumen/<string:zona>')
 def fichas_getresumen(zona):
     con = get_con()
-    resumen = pgdict(con, f"select y(ultpago) as y, count(*) as cnt from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and ultpago>'2010-01-01' group by y order by y")
+    resumen = pgdict(con, f"select date_format(ultpago,'%Y') as y, count(*) as cnt from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and ultpago>'2010-01-01' group by y order by y")
     print(resumen)
     return jsonify(resumen=resumen)
 
