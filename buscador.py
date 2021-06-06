@@ -4,7 +4,7 @@ from lib import *
 import json
 import re
 from formularios import *
-from con import con, get_con
+from con import get_con
 
 buscador = Blueprint('buscador',__name__)
 
@@ -44,6 +44,7 @@ def buscar_ventas(id):
 
 @buscador.route('/buscador/pedircuotas/<string:dni>')
 def buscar_cuotas(dni):
+    con = get_con()
     idcliente = pgonecolumn(con,f"select id from clientes where dni='{dni}'")
     ventas = pgdict(con,f"select id from ventas where idcliente={idcliente} and saldo>0")
     cur = con.cursor()
@@ -65,6 +66,7 @@ def buscador_pedirpagadas(id):
 
 @buscador.route('/buscador/fecharpmovto/<string:dni>/<string:pmovto>')
 def buscar_fecharpmovto(dni,pmovto):
+    con = get_con()
     upd = f"update clientes set pmovto='{pmovto}' where dni='{dni}'"
     cur = con.cursor()
     cur.execute(upd)
@@ -75,6 +77,7 @@ def buscar_fecharpmovto(dni,pmovto):
 
 @buscador.route('/buscador/imprimirficha' , methods = ['POST'])
 def buscar_imprimirficha():
+    con = get_con()
     dni = json.loads(request.data.decode("UTF-8"))
     ficha(con,dni)
     return send_file('ficha.pdf')
@@ -82,6 +85,7 @@ def buscar_imprimirficha():
 
 @buscador.route('/buscador/datosultvta/<string:dni>')
 def buscar_datosultvta(dni):
+    con = get_con()
     idcliente = pgonecolumn(con,f"select id from clientes where dni='{dni}'")
     ultvta = pgdict(con,f"select fecha, (select max(art) from detvta where idvta=ventas.id) from ventas where idcliente={idcliente} order by id desc")
     return jsonify(ultvta=ultvta)
@@ -89,6 +93,7 @@ def buscar_datosultvta(dni):
 
 @buscador.route('/buscador/togglesube/<string:dni>')
 def buscar_togglesube(dni):
+    con = get_con()
     selsube = f"select subirseven from clientes where dni='{dni}'"
     selsev = f"select sev from clientes where dni='{dni}'"
     sube = pgonecolumn(con, selsube)
@@ -111,6 +116,7 @@ def buscar_togglesube(dni):
 
 @buscador.route('/buscador/togglegestion/<string:dni>')
 def buscar_togglegestion(dni):
+    con = get_con()
     sel = f"select gestion from clientes where dni='{dni}'"
     sube = pgonecolumn(con, sel)
     if sube:
@@ -150,6 +156,7 @@ def buscar_togglemudado(dni):
 
 @buscador.route('/buscador/toggleinc/<string:dni>')
 def buscar_toggleinc(dni):
+    con = get_con()
     sel = f"select incobrable from clientes where dni='{dni}'"
     sube = pgonecolumn(con, sel)
     if sube:
@@ -167,6 +174,7 @@ def buscar_toggleinc(dni):
 
 @buscador.route('/buscador/toggleln/<string:dni>')
 def buscar_toggleln(dni):
+    con = get_con()
     sel = f"select novendermas from clientes where dni='{dni}'"
     sube = pgonecolumn(con, sel)
     if sube:
@@ -184,6 +192,7 @@ def buscar_toggleln(dni):
 
 @buscador.route('/buscador/togglellamar/<string:dni>')
 def buscar_togglellamar(dni):
+    con = get_con()
     sel = f"select llamar from clientes where dni='{dni}'"
     sube = pgonecolumn(con, sel)
     if sube:
@@ -199,6 +208,7 @@ def buscar_togglellamar(dni):
 
 @buscador.route('/buscador/toggleseguir/<string:dni>')
 def buscar_toggleseguir(dni):
+    con = get_con()
     sel = f"select seguir from clientes where dni='{dni}'"
     sube = pgonecolumn(con, sel)
     if sube:
@@ -223,12 +233,14 @@ def buscar_gettablas():
 
 @buscador.route('/buscador/getzonas')
 def buscar_getzonas():
+    con = get_con()
     zonas = pgdict(con,f"select zona from zonas order by zona")
     return jsonify(zonas=zonas)
 
 
 @buscador.route('/buscador/editardatos/<string:dni>' , methods = ['POST'])
 def busca_editardatos(dni):
+    con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     upd = f"update clientes set sex='{d['sex']}', dni='{d['dni']}', nombre='{d['nombre']}', calle='{d['calle']}', num={d['num']}, barrio='{d['barrio']}', zona='{d['zona']}', tel='{d['tel']}', wapp={d['wapp']}, acla='{d['acla']}', mjecobr='{d['mjecobr']}', horario='{d['horario']}', infoseven='{d['infoseven']}' where dni='{dni}'"
     cur = con.cursor()
@@ -253,6 +265,7 @@ def buscar_planpago():
 
 @buscador.route('/buscador/getvtaspp/<int:id>')
 def buscar_getvtaspp(id):
+    con = get_con()
     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={id}")
     ventas = pgdict(con, f"select id, cc, floor(ic), floor(saldo), pmovto, pp, pfecha, pcc, floor(pic), pper, pprimera, pcondo from ventas where saldo>0 and idcliente={idcliente}")
     return jsonify(ventas=ventas)
@@ -260,6 +273,7 @@ def buscar_getvtaspp(id):
 
 @buscador.route('/buscador/generarplan/<int:idvta>', methods=['POST'])
 def buscar_generarplan(idvta):
+    con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     print(d)
     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")

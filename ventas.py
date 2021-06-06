@@ -42,7 +42,7 @@ def ventas_getcuentaspordni(dni):
         clientes = pgdict(con,f"select sex,dni,nombre,calle,num,barrio,zona,tel,wapp,acla,horario,mjecobr,infoseven,id from clientes where dni='{dni}'")
     except mysql.connector.Error as e:
         con.rollback()
-        error = e.pgerror
+        error = e.msg
         return make_response(error,400)
     else:
         return jsonify(clientes=clientes)
@@ -64,7 +64,7 @@ def ventas_guardarcliente():
         cur.execute(stm)
     except mysql.connector.Error as e:
         con.rollback()
-        error = e.pgerror
+        error = e.msg
         return make_response(error,400)
     else:
         con.commit()
@@ -73,7 +73,7 @@ def ventas_guardarcliente():
             id = pgonecolumn(con,f"select id from clientes order by id desc limit 1")
         else:
             id = d['id']
-            ins = f"insert into logcambiodireccion(idcliente,calle,num,barrio,tel,acla,fecha,nombre,dni,wapp) values({d['id']},'{d['calle']}','{d['num']}','{d['barrio']}','{d['tel']}','{d['acla']}',now(),'{d['nombre']}','{d['dni']}','{d['wapp']}')"
+            ins = f"insert into logcambiodireccion(idcliente,calle,num,barrio,tel,acla,fecha,nombre,dni,wapp) values({d['id']},'{d['calle']}','{d['num']}','{d['barrio']}','{d['tel']}','{d['acla']}',curdate(),'{d['nombre']}','{d['dni']}','{d['wapp']}')"
             cur = con.cursor()
             cur.execute(ins)
             con.commit()
@@ -98,7 +98,7 @@ def ventas_guardarventa():
         cur.execute(ins)
     except mysql.connector.Error as e:
         con.rollback()
-        error = e.pgerror
+        error = e.msg
         return make_response(error,400)
     else:
         con.commit()
@@ -118,7 +118,7 @@ def ventas_guardardetvta():
         cur.execute(ins)
     except mysql.connector.Error as e:
         con.rollback()
-        error = e.pgerror
+        error = e.msg
         return make_response(error,400)
     else:
         con.commit()
@@ -139,7 +139,7 @@ def ventas_borrardetvta(id):
         cur.execute(stm)
     except mysql.connector.Error as e:
         con.rollback()
-        error = e.pgerror
+        error = e.msg
         return make_response(error,400)
     else:
         con.commit()
@@ -181,7 +181,7 @@ def ventas_borrarventa(id):
         cur.execute(stm)
     except mysql.connector.Error as e:
         con.rollback()
-        error = e.pgerror
+        error = e.msg
         return make_response(error,400)
     else:
         con.commit()
@@ -205,7 +205,7 @@ def ventas_guardaredicionvta():
         cur.execute(upd)
     except mysql.connector.Error as e:
         con.rollback()
-        error = e.pgerror
+        error = e.msg
         return make_response(error,400)
     else:
         con.commit()
@@ -270,7 +270,7 @@ def ventas_guardaredicioncalle():
         cur.execute(upd)
     except mysql.connector.Error as e:
         con.rollback()
-        error = e.pgerror
+        error = e.msg
         return make_response(error,400)
     else:
         con.commit()
@@ -289,7 +289,7 @@ def ventas_guardaredicionbarrio():
         cur.execute(upd)
     except mysql.connector.Error as e:
         con.rollback()
-        error = e.pgerror
+        error = e.msg
         return make_response(error,400)
     else:
         con.commit()
@@ -307,7 +307,7 @@ def ventas_guardaredicionzona():
         cur.execute(upd)
     except mysql.connector.Error as e:
         con.rollback()
-        error = e.pgerror
+        error = e.msg
         return make_response(error,400)
     else:
         con.commit()
@@ -324,7 +324,7 @@ def ventas_borrarcalle(id):
         cur.execute(stm)
     except mysql.connector.Error as e:
         con.rollback()
-        error = e.pgerror
+        error = e.msg
         return make_response(error,400)
     else:
         con.commit()
@@ -342,7 +342,7 @@ def ventas_borrarbarrio(id):
         cur.execute(stm)
     except mysql.connector.Error as e:
         con.rollback()
-        error = e.pgerror
+        error = e.msg
         return make_response(error,400)
     else:
         con.commit()
@@ -359,7 +359,7 @@ def ventas_borrarzona(id):
         cur.execute(stm)
     except mysql.connector.Error as e:
         con.rollback()
-        error = e.pgerror
+        error = e.msg
         return make_response(error,400)
     else:
         con.commit()
@@ -376,7 +376,7 @@ def ventas_guardarcallenueva():
         cur.execute(ins)
     except mysql.connector.Error as e:
         con.rollback()
-        error = e.pgerror
+        error = e.msg
         return make_response(error,400)
     else:
         con.commit()
@@ -395,7 +395,7 @@ def ventas_guardarbarrionueva():
         cur.execute(ins)
     except mysql.connector.Error as e:
         con.rollback()
-        error = e.pgerror
+        error = e.msg
         return make_response(error,400)
     else:
         con.commit()
@@ -413,7 +413,7 @@ def ventas_guardarzonanueva():
         cur.execute(ins)
     except mysql.connector.Error as e:
         con.rollback()
-        error = e.pgerror
+        error = e.msg
         return make_response(error,400)
     else:
         con.commit()

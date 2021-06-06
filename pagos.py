@@ -2,7 +2,7 @@ from flask import Blueprint,render_template,jsonify,make_response, request, send
 from flask_login import login_required
 from lib import *
 import json
-from con import con
+from con import get_con
 import pandas as pd
 import re
 from formularios import *
@@ -18,6 +18,7 @@ def loterbo_():
 
 @pagos.route('/loterbo/guardarlote/<string:fecha>/<string:cobr>', methods = ['POST'])
 def guardarlote(fecha,cobr):
+    con = get_con()
     listarbos = json.loads(request.data.decode("UTF-8"))
     cnt = len(listarbos)
     print(listarbos)
@@ -35,11 +36,13 @@ def guardarlote(fecha,cobr):
 
 @pagos.route('/loterbo/obtenerlastid')
 def obtenerlastid():
+    con = get_con()
     idlote = str(pgonecolumn(con, f"select max(id) from loterbos"))
     return jsonify(idlote=idlote)
 
 @pagos.route('/loterbo/imprimir/<string:fecha>/<string:cobr>/<int:idlote>', methods = ['POST'])
 def loterbo_imprimir(fecha,cobr,idlote):
+    con = get_con()
     listarbo = json.loads(request.data.decode("UTF-8"))
     # aca se el ast.literal entrega la lista enviada por el axios-post directamente
 
@@ -48,6 +51,7 @@ def loterbo_imprimir(fecha,cobr,idlote):
 
 @pagos.route('/loterbo/reimprimir/<string:fecha>/<string:cobr>/<int:idlote>')
 def loterbo_reimprimir(fecha,cobr,idlote):
+    con = get_con()
     listarbo = pglflat(con, f"select rbo from rbos where idloterbos={idlote}")
     print(listarbo)
     loterbo(con, listarbo, fecha,cobr,idlote)
@@ -57,12 +61,13 @@ def loterbo_reimprimir(fecha,cobr,idlote):
 @pagos.route('/loterbo/ver')
 @login_required
 def loterbo_ver():
-    
+    con = get_con()
     lotesrbo = pgddict(con,f"select id,fecha,cobr,cnt from loterbos order by id desc limit 100")
     return render_template("pagos/loterbover.html", lotesrbo=lotesrbo )
 
 @pagos.route('/loterbo/delete/<string:id>')
 def loterbo_delete(id):
+    con = get_con()
     cur = con.cursor()
     cur.execute("delete from loterbos where id={0}".format(id))
     con.commit()
@@ -71,6 +76,7 @@ def loterbo_delete(id):
 
 @pagos.route('/loterbo/buscanombrecobr/<int:cobr>')
 def loterbo_buscanombrecobr(cobr):
+    con = get_con()
     nombrecobr = pgonecolumn(con, f"select nombre from cobr where id={cobr}")
     return jsonify(nombrecobr=nombrecobr)
 
@@ -83,7 +89,8 @@ def pagos_():
 
 @pagos.route('/pagos/planilla/<string:fechapago>/<int:cobrador>')
 def pagos_planilla(fechapago,cobrador):
-    planilla = pgdict(con,f"select pagos.id as id, rbo, fecha, idvta,imp::INTEGER as imp, rec::INTEGER as rec, (imp+rec)::INTEGER as total, nombre, calle||' '||num as direccion, zona,deuda::INTEGER as deuda from pagos, clientes where clientes.id=pagos.idcliente and fecha='{fechapago}' and pagos.cobr={cobrador} order by id desc")
+    con = get_con()
+    planilla = pgdict(con,f"select pagos.id as id, rbo, fecha, idvta,imp as imp, rec as rec, (imp+rec) as total, nombre, calle||' '||num as direccion, zona,deuda as deuda from pagos, clientes where clientes.id=pagos.idcliente and fecha='{fechapago}' and pagos.cobr={cobrador} order by id desc")
     lote = pgonecolumn(con,f"select lote from pagos where fecha='{fechapago}' and cobr={cobrador}")
     if lote=='':
         cntrbos = 0
@@ -94,6 +101,7 @@ def pagos_planilla(fechapago,cobrador):
 
 @pagos.route('/pagos/buscar/<string:cuenta>')
 def pagos_buscar(cuenta):
+    con = get_con()
     rcuenta = r'^[0-9]{5}$'
     rdni = r'^[0-9]{7,8}$'
     if (re.match(rcuenta,cuenta)):
@@ -109,6 +117,7 @@ def pagos_buscar(cuenta):
 
 @pagos.route('/pagos/idvtas/<string:dni>')
 def pagos_idvtas(dni):
+    con = get_con()
     sel = f"select ventas.id as id,calle||' '||num from ventas,clientes where clientes.id=ventas.idcliente and dni='{dni}' and saldo>0"
     idvtas = pgdict(con,sel)
     return jsonify(idvtas=idvtas)
@@ -116,12 +125,14 @@ def pagos_idvtas(dni):
 
 @pagos.route('/pagos/traerficha/<int:idvta>')
 def pagos_traerficha(idvta):
-    ficha = pgdict(con,f"select id,case when saldo::integer<ic::integer then saldo::integer else ic::integer end as imp,ic::integer,saldo::integer from ventas where id={idvta}")
+    con = get_con()
+    ficha = pgdict(con,f"select id,case when saldo<ic then saldo else ic end as imp,ic,saldo from ventas where id={idvta}")
     return jsonify(ficha=ficha)
 
 
 @pagos.route('/pagos/pasarpagos' , methods = ['POST'])
 def pagos_pasarpagos():
+    con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     idcliente = pgonecolumn(con,f"select idcliente from ventas where id={d['idvta']}")
     if(d['rec']==''):
@@ -136,6 +147,7 @@ def pagos_pasarpagos():
 
 @pagos.route('/pagos/borrarpago/<int:idpago>')
 def pagos_borrarpago(idpago):
+    con = get_con()
     stm = f"delete from pagos where id={idpago}"
     cur = con.cursor()
     idvta = pgonecolumn(con,f"select idvta from pagos where id={idpago}")
@@ -146,6 +158,7 @@ def pagos_borrarpago(idpago):
 
 @pagos.route('/pagos/pasarplanilla', methods = ['POST'])
 def pagos_pasarplanilla():
+    con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     idplanilla = pgonecolumn(con,f"select id from planillas where fecha = '{d['fecha']}' and idcobr={d['idcobr']}")
     if(d['viatico']==""):
@@ -167,18 +180,21 @@ def pagos_verplanillas():
 
 @pagos.route('/pagos/getplanillas')
 def pagos_getplanillas():
-    planillas = pgdict(con,f"select planillas.fecha as fecha,sum(cobrado::integer),sum(comision::integer),sum(viatico::integer),sum(cntrbos),(select imp::integer from caja where comentario='global' and cuenta='cobranza' and fecha=planillas.fecha) from planillas group by planillas.fecha order by planillas.fecha desc limit 100")
+    con = get_con()
+    planillas = pgdict(con,f"select planillas.fecha as fecha,sum(cobrado),sum(comision),sum(viatico),sum(cntrbos),(select imp from caja where comentario='global' and cuenta='cobranza' and fecha=planillas.fecha) from planillas group by planillas.fecha order by planillas.fecha desc limit 100")
     return jsonify(planillas=planillas)
 
 
 @pagos.route('/pagos/getplanillas/<string:fecha>')
 def pagos_getplanillashoy(fecha):
-    planillas = pgdict(con,f"select fecha,idcobr,cobrado::integer,comision::integer,viatico::integer,cntrbos,idlote from planillas where fecha='{fecha}'")
+    con = get_con()
+    planillas = pgdict(con,f"select fecha,idcobr,cobrado,comision,viatico,cntrbos,idlote from planillas where fecha='{fecha}'")
     return jsonify(planillas=planillas)
 
 
 @pagos.route('/pagos/procesarplanilla', methods = ['POST'])
 def pagos_procesarplanilla():
+    con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     fecha = d['fecha']
     ins1 = f"insert into caja(fecha,cuenta,imp,comentario) values('{fecha}','cobranza',{d['cobrado']},'global')"
@@ -200,19 +216,21 @@ def pagos_editarrbo():
 
 @pagos.route('/pagos/obtenerrbo/<int:id>')
 def pagos_obtenerrbo(id):
-    reg = pgdict(con, f"select fecha, idvta, imp::integer, rec::integer, rbo, cobr, id, (select nombre from clientes where clientes.id=pagos.idcliente) as nombre from pagos where id={id}")
+    con = get_con()
+    reg = pgdict(con, f"select fecha, idvta, imp, rec, rbo, cobr, id, (select nombre from clientes where clientes.id=pagos.idcliente) as nombre from pagos where id={id}")
     return jsonify (reg=reg)
 
 
 @pagos.route('/pagos/obtenerregrbo/<int:buscar>')
 def pagos_obtenerregrbo(buscar):
+    con = get_con()
     try:
-        reg = pgdict(con, f"select id, fecha, idvta, imp::integer, rec::integer, rbo, cobr, idcliente from pagos where rbo={buscar}")
+        reg = pgdict(con, f"select id, fecha, idvta, imp, rec, rbo, cobr, idcliente from pagos where rbo={buscar}")
         idcliente = pgonecolumn(con, f"select idcliente from pagos where rbo={buscar}")
         nombre = pgonecolumn(con, f"select nombre from clientes where id={idcliente}")
     except mysql.connector.Error as e:
         con.rollback()
-        error = e.pgerror
+        error = e.msg
         return make_response(error,400)
     else:
         return jsonify (reg=reg, nombre=nombre)
@@ -220,6 +238,7 @@ def pagos_obtenerregrbo(buscar):
 
 @pagos.route('/pagos/borrarrbo/<int:id>')
 def pagos_borrarrbo(id):
+    con = get_con()
     stm = f"delete from pagos where id={id}"
     cur = con.cursor()
     cur.execute(stm)
@@ -231,6 +250,7 @@ def pagos_borrarrbo(id):
 
 @pagos.route('/pagos/guardaredicionrbo' , methods = ['POST'])
 def pagos_guardaredicionrbo():
+    con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={d['idvta']}")
     upd = f"update pagos set fecha='{d['fecha']}', idvta={d['idvta']}, imp={d['imp']}, rec={d['rec']}, rbo={d['rbo']}, cobr={d['cobr']}, idcliente={idcliente} where id={d['id']}"
@@ -245,7 +265,8 @@ def pagos_guardaredicionrbo():
 
 @pagos.route('/pagos/getzonasasignadas')
 def pagos_getzonasasignadas():
-    zonas = pgddict(con, f"select zonas.id as id,zonas.zona as zona,asignado,(select nombre from cobr where cobr.id=asignado) as nombre, count(*) as cnt, sum(cuota::integer) as cuota from zonas,clientes where clientes.zona=zonas.zona and pmovto>=now()-interval '3 month' and zonas.zona not like '-%' group by zonas.id order by asignado")
+    con = get_con()
+    zonas = pgddict(con, f"select zonas.id as id,zonas.zona as zona,asignado,(select nombre from cobr where cobr.id=asignado) as nombre, count(*) as cnt, sum(cuota) as cuota from zonas,clientes where clientes.zona=zonas.zona and pmovto>=date_sub(curdate(),interval 90 day) and zonas.zona not like '-%' group by zonas.id order by asignado")
     return jsonify(zonas=zonas)
 
 
@@ -257,6 +278,7 @@ def pagos_verzona():
 
 @pagos.route('/pagos/editarasignado', methods = ['POST'])
 def pagos_editarasignado():
+    con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     upd = f"update zonas set asignado={d['asignado']} where id={d['id']}"
     cur = con.cursor()
@@ -268,16 +290,18 @@ def pagos_editarasignado():
 
 @pagos.route('/pagos/gettotaleszonas')
 def pagos_gettotaleszonas():
-    totales = pgddict(con, f"select asignado,(select nombre from cobr where cobr.id=asignado) as nombre, sum(cuota::integer) as cuota from zonas,clientes where clientes.zona=zonas.zona and pmovto>=now()-interval '3 month' and zonas.zona not like '-%' group by asignado order by asignado")
+    con = get_con()
+    totales = pgddict(con, f"select asignado,(select nombre from cobr where cobr.id=asignado) as nombre, sum(cuota) as cuota from zonas,clientes where clientes.zona=zonas.zona and pmovto>=date_sub(curdate(),interval 90 day) and zonas.zona not like '-%' group by asignado order by asignado")
     return jsonify(totales=totales)
 
 
 @pagos.route('/pagos/cobrostotales')
 @login_required
 def pagos_cobrostotales():
+    con = get_con()
     pd.options.display.float_format = '{:.0f}'.format
-    sql="select ym(fecha) as fp,imp+rec as cuota,cobr from pagos where fecha >now() -interval '12 months'"
-    sql1="select ym(fecha) as fp,imp+rec as cuota,pagos.cobr as cobr,zona,(select asignado from zonas where zona=clientes.zona) as asignado from pagos,clientes where clientes.id=pagos.idcliente and fecha >now()- interval '12 months' and zona not like '-%'"
+    sql="select ym(fecha) as fp,imp+rec as cuota,cobr from pagos where fecha >date_sub(curdate(),interval 365 day)"
+    sql1="select ym(fecha) as fp,imp+rec as cuota,pagos.cobr as cobr,zona,(select asignado from zonas where zona=clientes.zona) as asignado from pagos,clientes where clientes.id=pagos.idcliente and fecha >date_sub(curdate(),interval 365 day) and zona not like '-%'"
     dat = pd.read_sql_query(sql, con)
     dat1= pd.read_sql_query(sql1,con)
     df = pd.DataFrame(dat)
@@ -294,9 +318,10 @@ def pagos_cobrostotales():
 @pagos.route('/pagos/estimados')
 @login_required
 def pagos_estimados():
+    con = get_con()
     pd.options.display.float_format = '{:.0f}'.format
-    sql="select ym(pmovto) as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>now()- interval '6 months'  and zonas.zona not like '-%'"
-    sql1="select ym(pmovto) as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>now()-interval '6 months'  and zonas.zona not like '-%'"
+    sql="select ym(pmovto) as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%'"
+    sql1="select ym(pmovto) as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%'"
     dat = pd.read_sql_query(sql, con)
     dat1= pd.read_sql_query(sql1,con)
     df = pd.DataFrame(dat)
@@ -313,6 +338,7 @@ def pagos_estimados():
 @pagos.route('/pagos/comisiones')
 @login_required
 def pagos_comisiones():
+    con = get_con()
     pd.options.display.float_format = '${:.0f}'.format
     sql="select ym(fecha) as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,816) and fecha>'2018-07-31'"
     dat = pd.read_sql_query(sql, con)
@@ -325,6 +351,7 @@ def pagos_comisiones():
 
 @pagos.route('/pivot/pagos_cobr')
 def pivot_pagos_cobr():
+    con = get_con()
     sql="select ym(fecha) as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,816) and fecha>'2018-07-31'"
     dat = pd.read_sql_query(sql, con)
     df = pd.DataFrame(dat)
@@ -336,6 +363,7 @@ def pivot_pagos_cobr():
 
 @pagos.route('/pivot/retiros')
 def pivot_retiros():
+    con = get_con()
     sql="select ym(fecha) as fecha, cuenta, imp from caja where cuenta like 'retiro%'"
     dat = pd.read_sql_query(sql, con)
     df = pd.DataFrame(dat)
@@ -347,6 +375,7 @@ def pivot_retiros():
 
 @pagos.route('/pivot/retiros/excel')
 def pivot_retiros_excel():
+    con = get_con()
     sql="select ym(fecha) as fecha, cuenta, imp from caja where cuenta like 'retiro%'"
     dat = pd.read_sql_query(sql, con)
     df = pd.DataFrame(dat)

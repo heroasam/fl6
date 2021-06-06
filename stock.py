@@ -2,7 +2,7 @@ from flask import Blueprint,render_template,jsonify,make_response, request
 from flask_login import login_required
 from lib import *
 import json
-from con import con
+from con import get_con
 import pandas as pd
 import mysql.connector
 
@@ -15,13 +15,15 @@ def stock_asientos():
 
 @stock.route('/stock/getasientos')
 def stock_getasientos():
-    asientos=pgddict(con, f"select id,fecha, cuenta, imp::integer, comentario from caja order by id desc limit 100")
+    con = get_con()
+    asientos=pgddict(con, f"select id,fecha, cuenta, imp, comentario from caja order by id desc limit 100")
     saldo = pgonecolumn(con, f"select sum(imp::int) from caja")
     return jsonify(asientos=asientos,saldo=saldo)
 
 
 @stock.route('/stock/deleteasiento/<int:id>')
 def stock_deleteasiento(id):
+    con = get_con()
     stm=f'delete from caja where id={id}'
     cur = con.cursor()
     cur.execute(stm)
@@ -32,6 +34,7 @@ def stock_deleteasiento(id):
 
 @stock.route('/stock/getcuentas')
 def stock_getcuentas():
+    con = get_con()
     cuentas = pglflat(con, f"select cuenta from ctas order by cuenta")
     print(cuentas)
     return jsonify(cuentas=cuentas)
@@ -39,6 +42,7 @@ def stock_getcuentas():
 
 @stock.route('/stock/guardarasiento' , methods = ['POST'])
 def stock_guardarasiento():
+    con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     tipo = pgonecolumn(con, f"select tipo from ctas where cuenta='{d['cuenta']}'")
     print('tipo',tipo)
@@ -62,12 +66,14 @@ def stock_mayor():
 
 @stock.route('/stock/getmayor/<string:cuenta>')
 def stock_getmayor(cuenta):
-    asientos=pgddict(con, f"select id,fecha, cuenta, imp::integer, comentario from caja where cuenta='{cuenta}' order by id desc")
+    con = get_con()
+    asientos=pgddict(con, f"select id,fecha, cuenta, imp, comentario from caja where cuenta='{cuenta}' order by id desc")
     return jsonify(asientos=asientos)
 
 
 @stock.route('/stock/pivotcuentas')
 def stock_pivotcuentas():
+    con = get_con()
     sql="select ym(fecha) as fecha,cuenta,imp from caja order by id desc"
     pd.options.display.float_format = '{:20.0f}'.format
     dat = pd.read_sql_query(sql, con)
@@ -80,6 +86,7 @@ def stock_pivotcuentas():
 
 @stock.route('/stock/retiros')
 def stock_retiros():
+    con = get_con()
     sql="select ym(fecha) as fecha,cuenta,imp from caja where cuenta in ('retiro papi', 'retiro fede') order by id desc"
     pd.options.display.float_format = '{:20.0f}'.format
     dat = pd.read_sql_query(sql, con)
@@ -92,12 +99,14 @@ def stock_retiros():
 
 @stock.route('/stock/getcompras')
 def stock_getcompras():
-    compras=pgddict(con, f"select id,fecha,art,cnt::integer, costo::integer,total::integer,proveedor from artcomprado order by id desc limit 200")
+    con = get_con()
+    compras=pgddict(con, f"select id,fecha,art,cnt, costo,total,proveedor from artcomprado order by id desc limit 200")
     return jsonify(compras=compras)
 
 
 @stock.route('/stock/getarticulos')
 def stock_getarticulos():
+    con = get_con()
     articulos=pglflat(con, f"select art from articulos")
     return jsonify(articulos=articulos)
 
@@ -109,6 +118,7 @@ def stock_compras():
 
 @stock.route('/stock/deletecompra/<int:id>')
 def stock_deletecompra(id):
+    con = get_con()
     stm=f'delete from artcomprado where id={id}'
     cur = con.cursor()
     cur.execute(stm)
@@ -119,6 +129,7 @@ def stock_deletecompra(id):
 
 @stock.route('/stock/guardarcompra' , methods = ['POST'])
 def stock_guardarcompra():
+    con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     ins = f"insert into artcomprado(fecha,cnt,art,costo,total,proveedor) values('{d['fecha']}',{d['cnt']},'{d['art']}',{d['costo']},{d['total']},'{d['proveedor']}')"
     cur = con.cursor()
@@ -130,20 +141,23 @@ def stock_guardarcompra():
 
 @stock.route('/stock/saldosorpresa')
 def stock_saldosorpresa():
-    pagado = pgonecolumn(con, f"select sum(imp::integer) from caja where cuenta = 'depositos sorpresa'")
-    comprado = pgonecolumn(con, f"select sum(total::integer) from artcomprado where proveedor ilike 'Sorpresa' and fecha>'2015-09-20'")
+    con = get_con()
+    pagado = pgonecolumn(con, f"select sum(imp) from caja where cuenta = 'depositos sorpresa'")
+    comprado = pgonecolumn(con, f"select sum(total) from artcomprado where proveedor ilike 'Sorpresa' and fecha>'2015-09-20'")
     saldosorpresa = 122031 + comprado + pagado
     return jsonify(saldosorpresa=saldosorpresa)
 
 
 @stock.route('/stock/getdepositos')
 def stock_getdepositos():
-    depositos=pgddict(con, f"select fecha,imp::integer from caja where cuenta='depositos sorpresa' order by id desc")
+    con = get_con()
+    depositos=pgddict(con, f"select fecha,imp from caja where cuenta='depositos sorpresa' order by id desc")
     return jsonify(depositos=depositos)
 
 
 @stock.route('/stock/generarstock')
 def stock_generarstock():
+    con = get_con()
     cur = con.cursor()
     cur.execute('drop table if exists detalles')
     cur.execute("create temp table if not exists detalles as select cnt,art from detvta where idvta>55203 and devuelta=0 UNION ALL select cnt,art from detsalida")
@@ -167,12 +181,14 @@ def stock_salidas():
 
 @stock.route('/stock/getsalidas')
 def stock_getsalidas():
-    salidas=pgddict(con, f"select id,fecha,cnt,art,costo::integer,comentario from detsalida order by id desc limit 200")
+    con = get_con()
+    salidas=pgddict(con, f"select id,fecha,cnt,art,costo,comentario from detsalida order by id desc limit 200")
     return jsonify(salidas=salidas)
 
 
 @stock.route('/stock/deletesalida/<int:id>')
 def stock_deletesalida(id):
+    con = get_con()
     stm=f'delete from detsalida where id={id}'
     cur = con.cursor()
     cur.execute(stm)
@@ -183,6 +199,7 @@ def stock_deletesalida(id):
 
 @stock.route('/stock/guardarsalida' , methods = ['POST'])
 def stock_guardarsalida():
+    con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     ins = f"insert into detsalida(fecha,cnt,art,costo,comentario) values('{d['fecha']}',{d['cnt']},'{d['art']}',{d['costo']},'{d['comentario']}')"
     cur = con.cursor()
@@ -194,7 +211,8 @@ def stock_guardarsalida():
 
 @stock.route('/stock/getlistaarticulos')
 def stock_getlistaarticulos():
-    articulos=pgddict(con, f"select id,art,costo::integer,activo from articulos order by id desc" )
+    con = get_con()
+    articulos=pgddict(con, f"select id,art,costo,activo from articulos order by id desc" )
     return jsonify(articulos=articulos)
 
 
@@ -205,6 +223,7 @@ def stock_articulos():
 
 @stock.route('/stock/guardararticulo' , methods = ['POST'])
 def stock_guardararticulo():
+    con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     ins = f"insert into articulos(art, costo, activo) values('{d['art']}',{d['costo']},{d['activo']})"
     cur = con.cursor()
@@ -212,7 +231,7 @@ def stock_guardararticulo():
         cur.execute(ins)
     except mysql.connector.Error as e:
         con.rollback()
-        error = e.pgerror
+        error = e.msg
         return make_response(error,400)
     else:
         con.commit()
@@ -222,6 +241,7 @@ def stock_guardararticulo():
 
 @stock.route('/stock/deletearticulo/<int:id>')
 def stock_deletearticulo(id):
+    con = get_con()
     stm=f'delete from articulos where id={id}'
     cur = con.cursor()
     cur.execute(stm)
@@ -232,6 +252,7 @@ def stock_deletearticulo(id):
 
 @stock.route('/stock/articulotoggleactivo/<int:id>')
 def stock_articulotoggleactivo(id):
+    con = get_con()
     activo = pgonecolumn(con, f"select activo from articulos where id={id}")
     if activo==1:
         stm = f"update articulos set activo=0 where id={id}"
@@ -246,6 +267,7 @@ def stock_articulotoggleactivo(id):
 
 @stock.route('/stock/guardaredicionarticulo' , methods = ['POST'])
 def stock_guardaredicionarticulo():
+    con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     upd = f"update articulos set art='{d['arted']}', costo= {d['costoed']}, activo= {d['activoed']} where id={d['ided']}"
     cur = con.cursor()
@@ -253,7 +275,7 @@ def stock_guardaredicionarticulo():
         cur.execute(upd)
     except mysql.connector.Error as e:
         con.rollback()
-        error = e.pgerror
+        error = e.msg
         return make_response(error,400)
     else:
         con.commit()

@@ -242,7 +242,7 @@ const app = new Vue({
                     this.getListado()
                 })
                 .catch(error=>{
-                    bulmaToast.toast({message:error, type:"is-danger"})
+                    bulmaToast.toast({message:error.request.response, type:"is-danger"})
 
                 })
             }

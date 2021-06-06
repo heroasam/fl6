@@ -126,7 +126,7 @@ def signup():
                 cur.execute(ins)
             except psycopg2.Error as e:
                 con.rollback()
-                error = e.pgerror
+                error = e.msg
                 return make_response(error,400)
             else:
                 con.commit()

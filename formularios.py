@@ -19,8 +19,8 @@ def ficha(con, ldni):
     for dni in ldni:
         lpg+=dni+','
     lpg = lpg[0:-1]+')'
-    listdni = pglflat(con,f"select dni from clientes where dni::numeric in {lpg} order by calle,num")
-
+    listdni = pglflat(con,f"select dni from clientes where dni in {lpg} order by calle,num")
+    
     i=1
     lisdatos = [] # lista que contendra los datos del resumen
     # dictPos = {} # diccionario de posisiones de ficha en paginas
@@ -32,6 +32,7 @@ def ficha(con, ldni):
             pdf.add_page()
             pdf.set_y(15)
         cliente = pgdict0(con,f"select * from clientes where dni='{dni}'")
+        print(type(cliente))
         pdf.set_font_size(12)
         pdf.set_x(10)
         pdf.cell(20,6,str(i),0,0)
@@ -192,7 +193,7 @@ def listado(con, ldni):
     for dni in ldni:
         lpg+=dni+','
     lpg = lpg[0:-1]+')'
-    listdni = pglflat(con,f"select dni from clientes where dni::numeric in {lpg} order by calle,num")
+    listdni = pglflat(con,f"select dni from clientes where dni in {lpg} order by calle,num")
 
     for dni in listdni:
         cliente = pgdict0(con, f"select * from clientes where dni='{dni}'")

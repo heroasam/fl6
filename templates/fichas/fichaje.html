@@ -141,7 +141,7 @@ endblock %} {% block style %}
         this.ultimotipo = tipo
         this.ultimazona = zona
         axios.get("/fichas/muestraclientes/"+ tipo +'/'+ zona).then((res) => {
-          //console.log(res.data.clientes)
+          console.log(res.data.clientes)
           /* nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni */
           arrayClientes = Array.from(res.data.clientes);
           arrayClientes.forEach((row) => {

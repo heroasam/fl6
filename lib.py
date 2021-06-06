@@ -4,10 +4,11 @@ from dateutil.relativedelta import relativedelta
 def pgdict0(con, sel):
     """Funcion que entrega una lista de valores en formato lista plana
        o flat list entregado por el fetchall sobre un cursor"""
-    dict_cur = con.cursor()
-    dict_cur.execute(sel)
-    rec = dict_cur.fetchone()
-    dict_cur.close()
+    cur = con.cursor()
+    cur.execute(sel)
+    rec = cur.fetchone()
+    cur.close()
+    con.close()
     return rec
 
 def pgdict(con, sel):
@@ -17,6 +18,7 @@ def pgdict(con, sel):
     cur.execute(sel)
     rec = cur.fetchall()
     cur.close()
+    con.close()
     return rec
 
 
@@ -34,6 +36,7 @@ def pgonecolumn(con, sel):
     else:
         return res[0]
     cur.close()
+    con.close()
     return res
 
 
@@ -52,6 +55,7 @@ def pgllist(con, sel):
     cur.execute(sel)
     res = cur.fetchall()
     cur.close()
+    con.close()
     return res
 
 
