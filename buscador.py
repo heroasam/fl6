@@ -1,10 +1,10 @@
 from flask import Blueprint,render_template,jsonify,make_response, request,send_file
 from flask_login import login_required
-from lib import *
-import json
+from .lib import *
+import simplejson as json
 import re
-from formularios import *
-from con import get_con
+from .formularios import *
+from .con import get_con
 
 buscador = Blueprint('buscador',__name__)
 
@@ -80,7 +80,7 @@ def buscar_imprimirficha():
     con = get_con()
     dni = json.loads(request.data.decode("UTF-8"))
     ficha(con,dni)
-    return send_file('ficha.pdf')
+    return send_file('/tmp/ficha.pdf')
 
 
 @buscador.route('/buscador/datosultvta/<string:dni>')
@@ -281,7 +281,6 @@ def buscar_generarplan(idvta):
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
-    venta_trigger(con,idvta)
     # idotrasvtas = pglflat(con, f"select id from ventas where idcliente={idcliente} and pp=0 and saldo>0")
     upd1 = f"update ventas set pcondo=1, saldo=0 where idcliente={idcliente} and pp=0 and saldo>0"
     cur.execute(upd1)

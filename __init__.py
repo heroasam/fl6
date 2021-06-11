@@ -8,19 +8,19 @@ from flask_cors import CORS
 from werkzeug.urls import url_parse
 # import psycopg2
 # import psycopg2.extras
-from lib import *
-from formularios import *
+from .lib import *
+from .formularios import *
 # import pandas as pd
 # import numpy as np
 # import re
 # import ast
 # import os
-from ventas import ventas
-from stock import stock
-from pagos import pagos
-from buscador import buscador
-from fichas import fichas
-from con import con
+from .ventas import ventas
+from .stock import stock
+from .pagos import pagos
+from .buscador import buscador
+from .fichas import fichas
+from .con import con
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'

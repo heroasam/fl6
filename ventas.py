@@ -1,7 +1,7 @@
 from flask import Blueprint,render_template,jsonify,make_response, request
 from flask_login import login_required
-from lib import *
-from con import get_con
+from .lib import *
+from .con import get_con
 import pandas as pd
 import simplejson as json
 import mysql.connector
@@ -104,7 +104,6 @@ def ventas_guardarventa():
         con.commit()
         cur.close()
         idvta = pgonecolumn(con,f"select id from ventas order by id desc limit 1")
-        venta_trigger(con,idvta)
         return jsonify(idvta=idvta)
 
 @ventas.route('/ventas/guardardetvta', methods=['POST'])
@@ -123,9 +122,8 @@ def ventas_guardardetvta():
     else:
         con.commit()
         cur.close()
-        detvta_trigger(con,d['idvta'])
-        detvta = pgdict(con,f"select id,cnt,art,cc,int(ic) from detvta where idvta={d['idvta']}")
-        sumic = pgonecolumn(con,f"select sum(int(ic)) from detvta where idvta={d['idvta']}")
+        detvta = pgdict(con,f"select id,cnt,art,cc,ic from detvta where idvta={d['idvta']}")
+        sumic = pgonecolumn(con,f"select sum(ic) from detvta where idvta={d['idvta']}")
         return jsonify(detvta=detvta,sumic=sumic)
 
 
@@ -144,9 +142,8 @@ def ventas_borrardetvta(id):
     else:
         con.commit()
         cur.close()
-        detvta_trigger(con,idvta)
-        detvta = pgdict(con,f"select id,cnt,art,cc,int(ic) from detvta where idvta={idvta}")
-        sumic = pgonecolumn(con,f"select sum(int(ic)) from detvta where idvta={idvta}")
+        detvta = pgdict(con,f"select id,cnt,art,cc,ic from detvta where idvta={idvta}")
+        sumic = pgonecolumn(con,f"select sum(ic) from detvta where idvta={idvta}")
         if sumic is None:
             sumic=0
         return jsonify(detvta=detvta,sumic=sumic)
@@ -191,7 +188,7 @@ def ventas_borrarventa(id):
 @ventas.route('/ventas/datosventa/<int:id>')
 def ventas_datosventa(id):
     con = get_con()
-    venta = pgdict(con, f"select fecha,cc,int(ic),p,pmovto,idvdor,primera from ventas where id={id}")
+    venta = pgdict(con, f"select fecha,cc,ic,p,pmovto,idvdor,primera from ventas where id={id}")
     return jsonify(venta=venta)
 
 

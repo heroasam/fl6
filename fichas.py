@@ -1,14 +1,15 @@
 from flask import Blueprint,render_template,jsonify,make_response, request, send_file
 from flask_login import login_required
-from lib import *
-import json
-from con import get_con
-from formularios import *
+from .lib import *
+import simplejson as json
+from .con import get_con
+from .formularios import *
 import mysql.connector
 
 fichas = Blueprint('fichas',__name__)
 
 @fichas.route('/fichas')
+@login_required
 def fichas_():
     return render_template("fichas/fichaje.html")
 

@@ -1,14 +1,15 @@
 from flask import Blueprint,render_template,jsonify,make_response, request
 from flask_login import login_required
-from lib import *
-import json
-from con import get_con
+from .lib import *
+import simplejson as json
+from .con import get_con
 import pandas as pd
 import mysql.connector
 
 stock = Blueprint('stock',__name__)
 
 @stock.route('/stock/asientos')
+@login_required
 def stock_asientos():
     return render_template('stock/asientos.html')
 
@@ -17,7 +18,7 @@ def stock_asientos():
 def stock_getasientos():
     con = get_con()
     asientos=pgddict(con, f"select id,fecha, cuenta, imp, comentario from caja order by id desc limit 100")
-    saldo = pgonecolumn(con, f"select sum(imp::int) from caja")
+    saldo = pgonecolumn(con, f"select sum(imp) from caja")
     return jsonify(asientos=asientos,saldo=saldo)
 
 
@@ -160,7 +161,7 @@ def stock_generarstock():
     con = get_con()
     cur = con.cursor()
     cur.execute('drop table if exists detalles')
-    cur.execute("create temp table if not exists detalles as select cnt,art from detvta where idvta>55203 and devuelta=0 UNION ALL select cnt,art from detsalida")
+    cur.execute("create temp table if not exists detalles as select cnt,art from detvta where idvta>55203 and devuelta=0 UNION ALL select cnt,art from detallesalida")
     cur.execute('drop table if exists stockactual')
     cur.execute("create temp table if not exists stockactual as select art,sum(cnt) as ingreso,(select sum(cnt) from detalles where art=artcomprado.art) as egreso from artcomprado where  fecha>'2015-09-15' group by art order by art")
     con.commit()
@@ -182,7 +183,7 @@ def stock_salidas():
 @stock.route('/stock/getsalidas')
 def stock_getsalidas():
     con = get_con()
-    salidas=pgddict(con, f"select id,fecha,cnt,art,costo,comentario from detsalida order by id desc limit 200")
+    salidas=pgddict(con, f"select id,fecha,cnt,art,costo,comentario from detallesalida order by id desc limit 200")
     return jsonify(salidas=salidas)
 
 

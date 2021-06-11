@@ -148,28 +148,28 @@ block style %}
 					placeholder="Importe"
 					class="input center"
 					v-model="importe"
-					size="6"
+					style="width: 100px;"
 				/>
 				<input
 					type="text"
 					placeholder="Recargo"
 					class="input center"
-					size="6"
 					v-model="recargo"
+					style="width: 100px;"
 				/>
 				<input
 					type="text"
 					placeholder="Total"
 					class="input center"
-					size="6"
 					:value="+importe+(+recargo)"
+					style="width: 100px;"
 				/>
 				<input
 					id="recibo"
 					type="text"
 					placeholder="Recibo N°"
 					class="input center"
-					size="6"
+					style="width: 100px;"
 					v-model="recibo"
 					@keyup.up="recibo++"
 					@keyup.down="recibo--"
@@ -345,7 +345,8 @@ block style %}
 					.then(res => {
 						//console.log(res.data.planilla)
 						//this.llenarTable(res.data.planilla)
-						this.lote = res.data.lote;
+						//this.lote = res.data.lote;
+						//this.lote = 0
 						//transformar columna fecha malformada
 						arrayPagos = Array.from(res.data.planilla);
 						arrayPagos.forEach(row => {

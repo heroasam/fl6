@@ -48,7 +48,7 @@ def pgddict(con, sel):
 
 
 def pgllist(con, sel):
-    cur = con.cursor(buffered=True)
+    cur = con.cursor()
     cur.execute(sel)
     res = cur.fetchall()
     cur.close()
@@ -106,122 +106,122 @@ def desnull(cadena):
         return cadena
 
 
-def pmovto(con,idvta):
-    ventas = pgdict0(con,f"select * from ventas where id={idvta}")
-    print(ventas)
-    print(ventas['id'])
-    pago = ventas['ent']+ventas['pagado'] if ventas['pp']==0 else ventas['ppagado']
-    icuota = ventas['ic'] if ventas['pp']==0 else ventas['pic']
-    period = ventas['p'] if ventas['pp']==0  else ventas['pper']
-    cntcuotas= ventas['cc'] if ventas['pp']==0  else ventas['pcc']
-    fechainic = ventas['primera'] if ventas['pp']==0 else ventas['pprimera']
-    enteras=round(pago/icuota)
-    if enteras==0:
-        return fechainic
-    #if {$saldo==0} {return {}} ;# este criterio de saldo cero deja pendiente el problema de los saldos negativos
-    # y la resolucion de pago>comprado no sirve para esto pq no contempla los planes de pago.
-    if ventas['saldo']<=0:
-        return ""
-        #aca decia return None y lo cambie or return ""
-    # o sea si esta cancela o por algun motivo tiene saldo negativo
-    #if {$pago>=$comprado} {return {}} ;# Es erroneo en los planes de pago pq el comprado es bajo y el pago supera antes de cancelar
-    if period==1:
-        return fechainic+relativedelta(months=enteras)
-    if period==3:
-        return fechainic+relativedelta(weeks=enteras)
-    if period==2:
-        return fechainic+relativedelta(weeks=enteras*2)
+# def pmovto(con,idvta):
+#     ventas = pgdict0(con,f"select * from ventas where id={idvta}")
+#     print(ventas)
+#     print(ventas['id'])
+#     pago = ventas['ent']+ventas['pagado'] if ventas['pp']==0 else ventas['ppagado']
+#     icuota = ventas['ic'] if ventas['pp']==0 else ventas['pic']
+#     period = ventas['p'] if ventas['pp']==0  else ventas['pper']
+#     cntcuotas= ventas['cc'] if ventas['pp']==0  else ventas['pcc']
+#     fechainic = ventas['primera'] if ventas['pp']==0 else ventas['pprimera']
+#     enteras=round(pago/icuota)
+#     if enteras==0:
+#         return fechainic
+#     #if {$saldo==0} {return {}} ;# este criterio de saldo cero deja pendiente el problema de los saldos negativos
+#     # y la resolucion de pago>comprado no sirve para esto pq no contempla los planes de pago.
+#     if ventas['saldo']<=0:
+#         return ""
+#         #aca decia return None y lo cambie or return ""
+#     # o sea si esta cancela o por algun motivo tiene saldo negativo
+#     #if {$pago>=$comprado} {return {}} ;# Es erroneo en los planes de pago pq el comprado es bajo y el pago supera antes de cancelar
+#     if period==1:
+#         return fechainic+relativedelta(months=enteras)
+#     if period==3:
+#         return fechainic+relativedelta(weeks=enteras)
+#     if period==2:
+#         return fechainic+relativedelta(weeks=enteras*2)
 
 
-def trigger_pago(con,idvta):
-    cur = con.cursor()
-    pp = pgonecolumn(con, f"select pp from ventas where id={idvta}")
-    if pp==0:
-        upd1 = f"update ventas set pagado=COALESCE((select sum(imp) from pagos where idvta={idvta}),0) where id={idvta}"
-    else:
-        upd1 = f"update ventas set ppagado=COALESCE((select sum(imp) from pagos where idvta={idvta} and fecha>=ventas.pfecha),0) where id={idvta}"
-    upd3 = f"update ventas set ultpago=COALESCE((select max(fecha) from pagos where idvta={idvta}),NULL) where id={idvta}"
-    cur.execute(upd1)
-    cur.execute(upd3)
-    con.commit()
-    # Saldo segun si es cuenta normal o PLAN DE PAGOS
-    pp = pgonecolumn(con, f"select pp from ventas where id={idvta}")
-    if pp==0:
-        upd4 = f"update ventas set saldo=comprado-ent-pagado where id={idvta}"
-    else:
-        upd4 = f"update ventas set saldo=(pic*pcc)-ppagado where id={idvta}"
-    cur.execute(upd4)
-    con.commit()
-    # fin sector saldo
-    fpmovto = pmovto(con, idvta)
-    if fpmovto is None:
-        upd5 = f"update ventas set pmovto=NULL where id={idvta}"
-    else:
-        upd5 = f"update ventas set pmovto='{fpmovto}' where id={idvta}"
-    cur.execute(upd5)
-    con.commit()
-    idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
-    upd6 = f"update pagos set idcliente={idcliente} where idvta={idvta}"
-    upd7 = f"update clientes set deuda=COALESCE((select sum(saldo) from ventas where idcliente={idcliente}),0) where id={idcliente}"
-    upd8 = f"update clientes set pmovto=COALESCE((select max(pmovto) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
-    upd9 = f"update clientes set ultpago=COALESCE((select max(ultpago) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
-    cur.execute(upd6)
-    cur.execute(upd7)
-    cur.execute(upd8)
-    cur.execute(upd9)
-    con.commit()
-    cur.close()
+# def trigger_pago(con,idvta):
+#     cur = con.cursor()
+#     pp = pgonecolumn(con, f"select pp from ventas where id={idvta}")
+#     if pp==0:
+#         upd1 = f"update ventas set pagado=COALESCE((select sum(imp) from pagos where idvta={idvta}),0) where id={idvta}"
+#     else:
+#         upd1 = f"update ventas set ppagado=COALESCE((select sum(imp) from pagos where idvta={idvta} and fecha>=ventas.pfecha),0) where id={idvta}"
+#     upd3 = f"update ventas set ultpago=COALESCE((select max(fecha) from pagos where idvta={idvta}),NULL) where id={idvta}"
+#     cur.execute(upd1)
+#     cur.execute(upd3)
+#     con.commit()
+#     # Saldo segun si es cuenta normal o PLAN DE PAGOS
+#     pp = pgonecolumn(con, f"select pp from ventas where id={idvta}")
+#     if pp==0:
+#         upd4 = f"update ventas set saldo=comprado-ent-pagado where id={idvta}"
+#     else:
+#         upd4 = f"update ventas set saldo=(pic*pcc)-ppagado where id={idvta}"
+#     cur.execute(upd4)
+#     con.commit()
+#     # fin sector saldo
+#     fpmovto = pmovto(con, idvta)
+#     if fpmovto is None:
+#         upd5 = f"update ventas set pmovto=NULL where id={idvta}"
+#     else:
+#         upd5 = f"update ventas set pmovto='{fpmovto}' where id={idvta}"
+#     cur.execute(upd5)
+#     con.commit()
+#     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
+#     upd6 = f"update pagos set idcliente={idcliente} where idvta={idvta}"
+#     upd7 = f"update clientes set deuda=COALESCE((select sum(saldo) from ventas where idcliente={idcliente}),0) where id={idcliente}"
+#     upd8 = f"update clientes set pmovto=COALESCE((select max(pmovto) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
+#     upd9 = f"update clientes set ultpago=COALESCE((select max(ultpago) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
+#     cur.execute(upd6)
+#     cur.execute(upd7)
+#     cur.execute(upd8)
+#     cur.execute(upd9)
+#     con.commit()
+#     cur.close()
 
 
-def venta_trigger(con,idvta):
-    cur = con.cursor()
-    idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
-    pp = pgonecolumn(con, f"select pp from ventas where id={idvta}")
-    upd1 = f"update ventas set comprado=(ic*cc) where id={idvta}"
-    upd2 = f"update clientes set comprado=COALESCE((select sum(comprado) from ventas where idcliente={idcliente}),0) where id={idcliente}"
-    upd3 = f"update ventas set saldo=(ic*cc)-ent-pagado where id={idvta}"
-    upd4 = f"update clientes set deuda=COALESCE((select sum(saldo) from ventas where idcliente={idcliente}),0) where id={idcliente}"
-    fpmovto = pmovto(con,idvta)
-    upd5 = f"update ventas set pmovto='{fpmovto}' where id={idvta}"
-    upd6 = f"update clientes set pmovto=COALESCE((select min(pmovto) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
-    upd7 = f"update ventas set ultpago=fecha where id={idvta}"
-    upd8 = f"update clientes set ultcompra=COALESCE((select max(fecha) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
-    upd9 = f"update clientes set cuota=COALESCE((select sum(ic) from ventas where idcliente={idcliente} and saldo>0),0) where id={idcliente}"
-    cur.execute(upd1)
-    cur.execute(upd2)
-    cur.execute(upd3)
-    cur.execute(upd4)
-    cur.execute(upd5)
-    cur.execute(upd6)
-    cur.execute(upd7)
-    cur.execute(upd8)
-    cur.execute(upd9)
-    con.commit()
-    cur.close()
+# def venta_trigger(con,idvta):
+#     cur = con.cursor()
+#     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
+#     pp = pgonecolumn(con, f"select pp from ventas where id={idvta}")
+#     upd1 = f"update ventas set comprado=(ic*cc) where id={idvta}"
+#     upd2 = f"update clientes set comprado=COALESCE((select sum(comprado) from ventas where idcliente={idcliente}),0) where id={idcliente}"
+#     upd3 = f"update ventas set saldo=(ic*cc)-ent-pagado where id={idvta}"
+#     upd4 = f"update clientes set deuda=COALESCE((select sum(saldo) from ventas where idcliente={idcliente}),0) where id={idcliente}"
+#     fpmovto = pmovto(con,idvta)
+#     upd5 = f"update ventas set pmovto='{fpmovto}' where id={idvta}"
+#     upd6 = f"update clientes set pmovto=COALESCE((select min(pmovto) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
+#     upd7 = f"update ventas set ultpago=fecha where id={idvta}"
+#     upd8 = f"update clientes set ultcompra=COALESCE((select max(fecha) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
+#     upd9 = f"update clientes set cuota=COALESCE((select sum(ic) from ventas where idcliente={idcliente} and saldo>0),0) where id={idcliente}"
+#     cur.execute(upd1)
+#     cur.execute(upd2)
+#     cur.execute(upd3)
+#     cur.execute(upd4)
+#     cur.execute(upd5)
+#     cur.execute(upd6)
+#     cur.execute(upd7)
+#     cur.execute(upd8)
+#     cur.execute(upd9)
+#     con.commit()
+#     cur.close()
 
-def detvta_trigger(con,idvta):
-    cur = con.cursor()
-    upd1 = f"update ventas set cnt=(select sum(cnt) from detvta where idvta={idvta}) where id={idvta}"
-    upd2 = f"update ventas set costo=(select sum(costo) from detvta where idvta={idvta}) where id={idvta}"
-    cur.execute(upd1)
-    cur.execute(upd2)
-    con.commit()
-    cur.close()
+# def detvta_trigger(con,idvta):
+#     cur = con.cursor()
+#     upd1 = f"update ventas set cnt=(select sum(cnt) from detvta where idvta={idvta}) where id={idvta}"
+#     upd2 = f"update ventas set costo=(select sum(costo) from detvta where idvta={idvta}) where id={idvta}"
+#     cur.execute(upd1)
+#     cur.execute(upd2)
+#     con.commit()
+#     cur.close()
 
-def venta_trigger_delete(con,idcliente):
-    cur = con.cursor()
-    upd1 = f"update clientes set comprado=COALESCE((select sum(comprado) from ventas where idcliente={idcliente}),0) where id={idcliente}"
-    upd2 = f"update clientes set deuda=COALESCE((select sum(saldo) from ventas where idcliente={idcliente}),0) where id={idcliente}"
-    upd3 = f"update clientes set pmovto=COALESCE((select min(pmovto) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
-    upd4 = f"update clientes set ultcompra=COALESCE((select max(fecha) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
-    upd5 = f"update clientes set cuota=COALESCE((select sum(ic) from ventas where idcliente={idcliente} and saldo>0),0) where id={idcliente}"
-    cur.execute(upd1)
-    cur.execute(upd2)
-    cur.execute(upd3)
-    cur.execute(upd4)
-    cur.execute(upd5)
-    con.commit()
-    cur.close()
+# def venta_trigger_delete(con,idcliente):
+#     cur = con.cursor()
+#     upd1 = f"update clientes set comprado=COALESCE((select sum(comprado) from ventas where idcliente={idcliente}),0) where id={idcliente}"
+#     upd2 = f"update clientes set deuda=COALESCE((select sum(saldo) from ventas where idcliente={idcliente}),0) where id={idcliente}"
+#     upd3 = f"update clientes set pmovto=COALESCE((select min(pmovto) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
+#     upd4 = f"update clientes set ultcompra=COALESCE((select max(fecha) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
+#     upd5 = f"update clientes set cuota=COALESCE((select sum(ic) from ventas where idcliente={idcliente} and saldo>0),0) where id={idcliente}"
+#     cur.execute(upd1)
+#     cur.execute(upd2)
+#     cur.execute(upd3)
+#     cur.execute(upd4)
+#     cur.execute(upd5)
+#     con.commit()
+#     cur.close()
 
 
 def venta_trigger_condonada(con,idvta):

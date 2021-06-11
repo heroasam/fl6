@@ -1,5 +1,5 @@
 from fpdf import FPDF 
-from lib import pgdict0, pgddict, per, desnull,pglflat
+from .lib import pgdict0, pgddict, per, desnull,pglflat
 from datetime import date
 
 class MyFPDF(FPDF):
@@ -17,7 +17,7 @@ def ficha(con,ldni):
     pdf.set_font("Helvetica","",10)
     lpg ='('
     for dni in ldni:
-        lpg+=dni+','
+        lpg+=str(dni)+','
     lpg = lpg[0:-1]+')'
     listdni = pglflat(con,f"select dni from clientes where dni in {lpg} order by calle,num")
     
@@ -140,7 +140,7 @@ def ficha(con,ldni):
             pdf.cell(60,5,row[1],1,0,'L')
             pdf.cell(60,5,row[2],1,0,'L')
             pdf.cell(20,5,'Pag N°'+ str(row[3]),1,1,'C')
-    pdf.output("ficha.pdf")
+    pdf.output("/tmp/ficha.pdf")
 
 def loterbo(con, lrbo, fecha, cobr, idlote):
     pdf=FPDF()
@@ -179,7 +179,7 @@ def loterbo(con, lrbo, fecha, cobr, idlote):
     # pdf.set_x(150)
     pdf.cell(28,6,'A RENDIR',1,0,'R')
     pdf.cell(25,6,'$',1,1)
-    pdf.output("loterbo.pdf")
+    pdf.output("/tmp/loterbo.pdf")
 
 
 def listado(con, ldni):
@@ -200,7 +200,7 @@ def listado(con, ldni):
         pdf.cell(80,6,cliente[1]+' '+cliente[2], 0, 1)
         pdf.cell(160,6,cliente[3],0,1)
         pdf.line(10,pdf.get_y(),200,pdf.get_y())
-    pdf.output("listado.pdf")
+    pdf.output("/tmp/listado.pdf")
 
     
 

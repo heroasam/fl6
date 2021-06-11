@@ -1,11 +1,11 @@
 from flask import Blueprint,render_template,jsonify,make_response, request, send_file,url_for,redirect
 from flask_login import login_required
-from lib import *
-import json
-from con import get_con
+from .lib import *
+import simplejson as json
+from .con import get_con
 import pandas as pd
 import re
-from formularios import *
+from .formularios import *
 import mysql.connector
 
 pagos = Blueprint('pagos',__name__)
@@ -47,7 +47,7 @@ def loterbo_imprimir(fecha,cobr,idlote):
     # aca se el ast.literal entrega la lista enviada por el axios-post directamente
 
     loterbo(con, listarbo,fecha,cobr,idlote)
-    return send_file('loterbo.pdf')
+    return send_file('/tmp/loterbo.pdf')
 
 @pagos.route('/loterbo/reimprimir/<string:fecha>/<string:cobr>/<int:idlote>')
 def loterbo_reimprimir(fecha,cobr,idlote):
@@ -55,7 +55,7 @@ def loterbo_reimprimir(fecha,cobr,idlote):
     listarbo = pglflat(con, f"select rbo from rbos where idloterbos={idlote}")
     print(listarbo)
     loterbo(con, listarbo, fecha,cobr,idlote)
-    return send_file('loterbo.pdf')
+    return send_file('/tmp/loterbo.pdf')
 
 
 @pagos.route('/loterbo/ver')
@@ -90,13 +90,15 @@ def pagos_():
 @pagos.route('/pagos/planilla/<string:fechapago>/<int:cobrador>')
 def pagos_planilla(fechapago,cobrador):
     con = get_con()
-    planilla = pgdict(con,f"select pagos.id as id, rbo, fecha, idvta,imp as imp, rec as rec, (imp+rec) as total, nombre, calle||' '||num as direccion, zona,deuda as deuda from pagos, clientes where clientes.id=pagos.idcliente and fecha='{fechapago}' and pagos.cobr={cobrador} order by id desc")
-    lote = pgonecolumn(con,f"select lote from pagos where fecha='{fechapago}' and cobr={cobrador}")
-    if lote=='':
-        cntrbos = 0
-    else:
-        cntrbos = pgonecolumn(con, f"select count(*) from (select distinct rbo from pagos where lote={lote}) as foo")
-    return jsonify(planilla=planilla,lote=lote,cntrbos=cntrbos)
+    planilla = pgdict(con,f"select pagos.id as id, rbo, fecha, idvta,imp as imp, rec as rec, (imp+rec) as total, nombre, concat(calle,' ',num) as direccion, zona,deuda as deuda from pagos, clientes where clientes.id=pagos.idcliente and fecha='{fechapago}' and pagos.cobr={cobrador} order by id desc")
+    # lote = pgonecolumn(con,f"select lote from pagos where fecha='{fechapago}' and cobr={cobrador}")
+    # if lote is None:
+    #     cntrbos = 0
+    # else:
+        # cntrbos = pgonecolumn(con, f"select count(*) from (select distinct rbo from pagos where lote={lote}) as foo")
+    cntrbos = pgonecolumn(con, f"select count(*) from (select distinct rbo from pagos where fecha='{fechapago}' and cobr={cobrador}) as foo")
+    print(cntrbos)
+    return jsonify(planilla=planilla,cntrbos=cntrbos)
 
 
 @pagos.route('/pagos/buscar/<string:cuenta>')
@@ -105,20 +107,20 @@ def pagos_buscar(cuenta):
     rcuenta = r'^[0-9]{5}$'
     rdni = r'^[0-9]{7,8}$'
     if (re.match(rcuenta,cuenta)):
-        clientes = pgdict(con,f"select nombre,calle||' '||num as direccion,dni from clientes,ventas where clientes.id=ventas.idcliente and ventas.id={cuenta}")
+        clientes = pgdict(con,f"select nombre,concat(calle,' ',num) as direccion,dni from clientes,ventas where clientes.id=ventas.idcliente and ventas.id={cuenta}")
     elif (re.match(rdni,cuenta)):
-        clientes = pgdict(con,f"select nombre,calle||' '||num as direccion,dni from clientes where dni='{cuenta}'")
+        clientes = pgdict(con,f"select nombre,concat(calle,' ',num) as direccion,dni from clientes where dni='{cuenta}'")
     else:
         cuenta = '%'+cuenta.replace(' ','%')+'%'
         print(cuenta)
-        clientes = pgdict(con,f"select nombre,calle||' '||num as direccion,dni from clientes where nombre||calle||num||barrio ilike '{cuenta}' and deuda>0")
+        clientes = pgdict(con,f"select nombre,concat(calle,' ',num) as direccion,dni from clientes where lower(concat(nombre,calle,num,barrio)) like lower('{cuenta}') and deuda>0")
     return jsonify(clientes=clientes)
 
 
 @pagos.route('/pagos/idvtas/<string:dni>')
 def pagos_idvtas(dni):
     con = get_con()
-    sel = f"select ventas.id as id,calle||' '||num from ventas,clientes where clientes.id=ventas.idcliente and dni='{dni}' and saldo>0"
+    sel = f"select ventas.id as id,concat(calle,' ',num) from ventas,clientes where clientes.id=ventas.idcliente and dni='{dni}' and saldo>0"
     idvtas = pgdict(con,sel)
     return jsonify(idvtas=idvtas)
 
@@ -137,11 +139,10 @@ def pagos_pasarpagos():
     idcliente = pgonecolumn(con,f"select idcliente from ventas where id={d['idvta']}")
     if(d['rec']==''):
         d['rec']=0
-    ins = f"insert into pagos(idvta,fecha,imp,rec,rbo,cobr,idcliente,lote) values({d['idvta']},'{d['fecha']}',{d['imp']},{d['rec']},{d['rbo']},{d['cobr']},{idcliente},{d['lote']})"
+    ins = f"insert into pagos(idvta,fecha,imp,rec,rbo,cobr,idcliente) values({d['idvta']},'{d['fecha']}',{d['imp']},{d['rec']},{d['rbo']},{d['cobr']},{idcliente})"
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
-    trigger_pago(con, d['idvta'])
     return 'ok'
 
 
@@ -153,7 +154,6 @@ def pagos_borrarpago(idpago):
     idvta = pgonecolumn(con,f"select idvta from pagos where id={idpago}")
     cur.execute(stm)
     con.commit()
-    trigger_pago(con, idvta)
     return 'ok'
 
 @pagos.route('/pagos/pasarplanilla', methods = ['POST'])
@@ -245,7 +245,6 @@ def pagos_borrarrbo(id):
     con.commit()
     cur.close()
     idvta = pgonecolumn(con,f"select idvta from pagos where id={id}")
-    trigger_pago(con, idvta)
     return 'ok'
 
 @pagos.route('/pagos/guardaredicionrbo' , methods = ['POST'])
@@ -259,7 +258,6 @@ def pagos_guardaredicionrbo():
     con.commit()
     cur.close()
     idvta = pgonecolumn(con,f"select idvta from pagos where id={d['id']}")
-    trigger_pago(con, idvta)
     return 'OK'
 
 
