@@ -277,10 +277,13 @@ def ventas_getzonasconid():
 def ventas_guardaredicioncalle():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    upd = f"update calles set calle='{d['calle']}' where id={d['id']}"
+    if d['id']=='':
+        stm = f"insert into calles(calle) values('{d['calle']}')"
+    else:
+        stm = f"update calles set calle='{d['calle']}' where id={d['id']}"
     cur = con.cursor()
     try:
-        cur.execute(upd)
+        cur.execute(stm)
     except mysql.connector.Error as e:
         con.rollback()
         error = e.msg
@@ -289,7 +292,10 @@ def ventas_guardaredicioncalle():
         con.commit()
         cur.close()
         con.close()
-        return 'OK'   
+        if d['id']=='':
+            return 'Se creo una calle con exito'
+        else:
+            return 'Se edito la calle con exito'
 
 
 
@@ -466,3 +472,11 @@ def ventas_estadisticasmensuales(year):
     est_mensuales = pgdict(con,f"select date_format(fecha,'%Y-%M') as ym, sum(comprado), sum(saldo), sum(saldo)/sum(comprado) as inc,sum(cnt) from ventas where date_format(fecha,'%Y')='{year}' group by ym order by ym")
     con.close()
     return jsonify(est_mensuales=est_mensuales)
+
+
+@ventas.route('/ventas/filtracalles/<string:buscar>')
+def ventas_filtracalles(buscar):
+    con = get_con()
+    buscar = '%'+buscar.replace(' ','%')+'%'
+    listacalles = pgdict(con,f"select id,calle from calles where lower(calle) like lower('{buscar}')")
+    return jsonify(listacalles=listacalles)

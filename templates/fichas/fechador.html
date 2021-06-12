@@ -98,6 +98,7 @@
                 },
                 guardarFechado: function(idvta,pmovto){
                     this.listFechados.push([this.idvta,this.nombre,this.pmovto,this.cobr])
+                    this.listFechados = this.listFechados.reverse()
                     axios.get('/fichas/guardarfechado/'+idvta+'/'+pmovto)
                     .then(res=>{
                         bulmaToast.toast({

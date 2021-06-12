@@ -71,6 +71,7 @@
 
   
   <form v-on:submit.prevent class="box field is-horizontal">
+    <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
     <div class="field">
       <label class="label">Fecha</label>
       <input type="date" v-model="fecha" style="width: 150px;" class="input is-narrow">
@@ -159,6 +160,7 @@
         }
       },
       guardarEdicionRbo(){
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
         axios({
                 method:'POST',
                 url:'/pagos/guardaredicionrbo',

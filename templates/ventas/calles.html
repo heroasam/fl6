@@ -1,169 +1,125 @@
-{% extends "base_template.html" %}
-
-{% block title %}Calles{% endblock %}
-{% block style %}
-<style>
-  </style>
-  {% endblock %}
-  
-{% block content %}
-
-<div id="app" class="container">
-    <p class="title is-1">Gestion de Calles</p>
-    <div class="buttons">
-        <a href="/ventas/pasarventas" class="button  is-primary">Pasar Ventas</a>
-        <a href="/ventas/listado" class="button  is-primary">Listado</a>
-        <a href="/ventas/clientes" class="button  is-primary">Clientes</a>
-        <a href="/ventas/barrios" class="button  is-primary">Barrios</a>
-        <a href="/ventas/zonas" class="button  is-primary">Zonas</a>
-        <a href="/ventas/estadisticas" class="button  is-primary">Estadisticas</a>
-      </div>
-
-      <form class="block field is-horizontal">
-          <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
-          <input type="text" v-model="calle" class="input is-narrow" style="width: 400px;">
-          <button type="button" class="button is-danger" @click="guardarCalleNueva">Guardar</button>
-      </form>
-
-      <table class="table is-narrow nototal">
-          <thead>
-              <tr>
-                  <th>op</th>
-                  <th>op</th>
-                  <th>id</th>
-                  <th>calle</th>
-              </tr>
-          </thead>
-          <tbody>
-              <tr v-for="calle in calles">
-                  <td><button type="button" class="button is-danger is-small" @click="borrarCalle(calle[0])">Borrar</button></td>
-                  <td><button type="button" class="button is-info is-small" @click="editarCalle(calle[0],calle[1])">Editar</button></td>
-                  <td>|calle[0]|</td>
-                  <td>|calle[1]|</td>
-              </tr>
-          </tbody>
-      </table>
-
-      <div class="modal" :class="{'is-active':toggleModal}">
-        <div class="modal-background"></div>
-        <div class="modal-content">
-            <div class="modal-card">
-             <section class="modal-card-body">     
-                      <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
-                     
-                        <form >
-                            <div class="field">
-                                <div class="control">
-                                    <label class="label" style="color:black;">Calle</label>
-                                    <input type="text" v-model="calle" class="input is-narrow" :class='{"is-danger":!calle}'  @keyup.enter="$refs.guardared.focus()"  ref="calle">
-                                    <p v-show="!calle" class="help is-danger">Requerido</p>
-                                  </div>
-                            </div>
-                            <div class="field">
-                                <div class="control">
-                                    <button type="button" class="button is-primary" @click="guardarEdicion()" ref="guardared" id="guardar">Guardar</button>
-                                </div> 
-                            </div> 
-                        </form>
-                    </section>
-        
-                      
-                      
-          
-        </div>
-        <button class="modal-close is-large" aria-label="close" @click="modal"></button>
-        </div>
+{% extends "base_template.html" %} {% block title %}Calles{% endblock %} {%
+    block style %}
+    <style></style>
+    {% endblock %} 
+    
+    {% block content %}
+    
+    <div class="container">
+        <p class="title is-1">Calles</p>
+        <div class="buttons">
+            <a href="/ventas/pasarventas" class="button  is-primary">Pasar Ventas</a>
+            <a href="/ventas/listado" class="button  is-primary">Listado</a>
+            <a href="/ventas/clientes" class="button  is-primary">Clientes</a>
+            <a href="/ventas/barrios" class="button  is-primary">Barrios</a>
+            <a href="/ventas/zonas" class="button  is-primary">Zonas</a>
+            <a href="/ventas/estadisticas" class="button  is-primary">Estadisticas</a>
+          </div>
+    
+        <div x-data="main()">
+            <div class="columns">
+                <div class="column is-8">
+                  <div class="field is-horizontal">
+                      <input type="search" placeholder="Buscar Calle" class="input" x-model="buscar" @keyup.enter="buscarCalle" @focus="buscar=''" style="width: 400px;">
+                      <button type="button" @click="buscarCalle" class="button is-primary">Buscar</button>
+                      <button type="button" @click="nuevaCalle" class="button is-danger">Nuevo</button>
+                    </div>
+                </div>
+            </div>
+            <div class="columns">
+                <div class="column is-8">
+                  <div class="field is-horizontal" x-show="showEdit">
+                      <input type="input" placeholder="Calle" class="input" x-model="calle" @keyup.enter="guardarCalle" style="width: 400px;">
+                      <button type="button" @click="guardarCalle" class="button is-danger">Guardar</button>
+                    </div>
+                </div>
+            </div>
+            <table class="table" x-show="listaCalles.length">
+                <thead>
+                    <tr>
+                        <th>op</th>
+                        <th>op</th>
+                        <th>id</th>
+                        <th>calle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template x-for="calles in listaCalles">
+                    <tr>
+                        <td><button class="button is-danger is-small" @click="borrarCalle(calles[0])">Borrar</button></td>
+                        <td><button class="button is-info is-small" @click="editarCalle(calles[0],calles[1])">Editar</button></td>
+                        <td x-text="calles[0]"></td>
+                        <td x-text="calles[1]"></td>
+                    </tr>
+                    </template>
+                </tbody>
+            </table>
+            <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
         </div>
 
-</div>
-{% endblock %}
+    </div>
+    {% endblock %} {% block script %}
+    <script>
+        function main(){
+            return {
+                buscar:'',
+                listaCalles:[],
+                showEdit:false,
+                calle:'',
+                id:'',
+                buscarCalle(){
+                    axios.get('/ventas/filtracalles/'+this.buscar)
+                    .then(res=>{
+                        //console.log(res.data.listacalles)
+                        this.listaCalles=res.data.listacalles
+                    })
 
-{% block script %}
-<script>
-  const app = new Vue({
-    el:"#app",
-    delimiters:['|','|'],
-    data:{
-        calles:[],
-        id:'',
-        calle:'',
-        toggleModal: false,
-    },
-    methods:{
-        getCalles(){
-            axios.get('/ventas/getcallesconid')
-            .then(res=>{
-                this.calles = res.data.calles
-            })
-
-        },
-        borrarCalle(id){
-            const borrar = confirm("¿Esta seguro que quiere borrar permanentemente esta fila?")
-            if(borrar){
-                axios.get('/ventas/borrarcalle/'+id)
-                .then(res=>{
-                    this.getCalles()
-                    bulmaToast.toast({message:"Borrado procesado con exito", type:'is-success'})
-                })
-                .catch(error=>{
-                    bulmaToast.toast({message:error.request.response, type:'is-danger'})
-                })
+                },
+                editarCalle(id,calle){
+                    this.showEdit=true
+                    this.id = id
+                    this.calle = calle
+                },
+                guardarCalle(){
+                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+                    axios({
+                    method:'POST',
+                    url: '/ventas/guardaredicioncalle',
+                    data:{
+                        id:this.id,
+                        calle:this.calle,
+                    }
+                    })
+                    .then(res=>{
+                        bulmaToast.toast({
+                            message: res.request.response,
+                            type: "is-success"
+                        })
+                        this.showEdit=false
+                    })
+                },
+                nuevaCalle(){
+                    this.showEdit=true
+                },
+                borrarCalle(id){
+                    axios.get('/ventas/borrarcalle/'+id)
+                    .then(res=>{
+                        bulmaToast.toast({
+                            message:"Calle borrada con exito",
+                            type: "is-success"
+                        })
+                    })
+                    .catch(error=>{
+                        bulmaToast.toast({
+                            message:error.request.response,
+                            type:"is-danger"
+                        })
+                    })
+                },
+                
             }
-
-        },
-        editarCalle(id,calle){
-            this.id = id
-            this.calle = calle
-            this.modal()
-
-        },
-        guardarEdicion(){
-            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-          axios({
-              method:'POST',
-              url: '/ventas/guardaredicioncalle',
-              data:{
-                  id:this.id,
-                  calle:this.calle,
-              }
-          })
-          .then(res=>{
-            this.modal()
-            this.getCalles()
-            bulmaToast.toast({message:"Edicion procesada con exito", type:'is-success'})
-          })
-          .catch(error=>{
-            //console.log('El error es:',error.request.response)
-            bulmaToast.toast({message:error.request.response, type:'is-danger'})
-          })
-        },
-        guardarCalleNueva(){
-            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-          axios({
-              method:'POST',
-              url: '/ventas/guardarcallenueva',
-              data:{
-                  calle:this.calle,
-              }
-          })
-          .then(res=>{
-            this.getCalles()
-            this.calle=''
-            this.id=''
-            bulmaToast.toast({message:"Calle agregada con exito", type:'is-success'})
-          })
-          .catch(error=>{
-            //console.log('El error es:',error.request.response)
-            bulmaToast.toast({message:error.request.response, type:'is-danger'})
-          })
-        },
-        modal(){
-          this.toggleModal=!this.toggleModal
-        },
-    },
-    created:function(){
-        this.getCalles()
-    }
-  })
-  </script>
-  {% endblock %}
+        }
+        
+    </script>
+    {% endblock %}
+    
