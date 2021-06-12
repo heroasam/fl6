@@ -19,6 +19,7 @@ def stock_getasientos():
     con = get_con()
     asientos=pgddict(con, f"select id,fecha, cuenta, imp, comentario from caja order by id desc limit 100")
     saldo = pgonecolumn(con, f"select sum(imp) from caja")
+    con.close()
     return jsonify(asientos=asientos,saldo=saldo)
 
 
@@ -30,6 +31,7 @@ def stock_deleteasiento(id):
     cur.execute(stm)
     con.commit()
     cur.close()
+    con.close()
     return 'el registro ha sido borrado'
 
 
@@ -37,7 +39,8 @@ def stock_deleteasiento(id):
 def stock_getcuentas():
     con = get_con()
     cuentas = pglflat(con, f"select cuenta from ctas order by cuenta")
-    print(cuentas)
+    # print(cuentas)
+    con.close()
     return jsonify(cuentas=cuentas)
 
 
@@ -46,7 +49,7 @@ def stock_guardarasiento():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     tipo = pgonecolumn(con, f"select tipo from ctas where cuenta='{d['cuenta']}'")
-    print('tipo',tipo)
+    # print('tipo',tipo)
     if tipo==0:
         importe = int(d['imp'])*(-1)
     else:
@@ -57,6 +60,7 @@ def stock_guardarasiento():
     cur.execute(ins)
     con.commit()
     cur.close()
+    con.close()
     return 'OK'
 
 
@@ -69,6 +73,7 @@ def stock_mayor():
 def stock_getmayor(cuenta):
     con = get_con()
     asientos=pgddict(con, f"select id,fecha, cuenta, imp, comentario from caja where cuenta='{cuenta}' order by id desc")
+    con.close()
     return jsonify(asientos=asientos)
 
 
@@ -82,6 +87,7 @@ def stock_pivotcuentas():
     tbl = pd.pivot_table(df, values=['imp'],index='cuenta',columns='fecha',aggfunc='sum').sort_index(1, 'fecha',False)
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="table",classes="table table-sm")
+    con.close()
     return render_template("stock/pivot_cuentas.html", tbl=tbl)
 
 
@@ -95,6 +101,7 @@ def stock_retiros():
     tbl = pd.pivot_table(df, values=['imp'],index='fecha',columns='cuenta',aggfunc='sum')
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="table",classes="table table-sm")
+    con.close()
     return render_template("stock/retiros.html", tbl=tbl)
 
 
@@ -102,6 +109,7 @@ def stock_retiros():
 def stock_getcompras():
     con = get_con()
     compras=pgddict(con, f"select id,fecha,art,cnt, costo,total,proveedor from artcomprado order by id desc limit 200")
+    con.close()
     return jsonify(compras=compras)
 
 
@@ -109,6 +117,7 @@ def stock_getcompras():
 def stock_getarticulos():
     con = get_con()
     articulos=pglflat(con, f"select art from articulos")
+    con.close()
     return jsonify(articulos=articulos)
 
 
@@ -125,6 +134,7 @@ def stock_deletecompra(id):
     cur.execute(stm)
     con.commit()
     cur.close()
+    con.close()
     return 'el registro ha sido borrado'
 
 
@@ -137,6 +147,7 @@ def stock_guardarcompra():
     cur.execute(ins)
     con.commit()
     cur.close()
+    con.close()
     return 'OK'
 
 
@@ -146,6 +157,7 @@ def stock_saldosorpresa():
     pagado = pgonecolumn(con, f"select sum(imp) from caja where cuenta = 'depositos sorpresa'")
     comprado = pgonecolumn(con, f"select sum(total) from artcomprado where lower(proveedor) like lower('Sorpresa') and fecha>'2015-09-20'")
     saldosorpresa = 122031 + comprado + pagado
+    con.close()
     return jsonify(saldosorpresa=saldosorpresa)
 
 
@@ -153,6 +165,7 @@ def stock_saldosorpresa():
 def stock_getdepositos():
     con = get_con()
     depositos=pgddict(con, f"select fecha,imp from caja where cuenta='depositos sorpresa' order by id desc")
+    con.close()
     return jsonify(depositos=depositos)
 
 
@@ -167,6 +180,7 @@ def stock_generarstock():
     con.commit()
     cur.close()
     stock = pgddict(con, f"select art, ingreso, egreso, ingreso-egreso as stock from stockactual")
+    con.close()
     return jsonify(stock=stock)
 
 
@@ -184,6 +198,7 @@ def stock_salidas():
 def stock_getsalidas():
     con = get_con()
     salidas=pgddict(con, f"select id,fecha,cnt,art,costo,comentario from detallesalida order by id desc limit 200")
+    con.close()
     return jsonify(salidas=salidas)
 
 
@@ -195,6 +210,7 @@ def stock_deletesalida(id):
     cur.execute(stm)
     con.commit()
     cur.close()
+    con.close()
     return 'el registro ha sido borrado'
 
 
@@ -207,6 +223,7 @@ def stock_guardarsalida():
     cur.execute(ins)
     con.commit()
     cur.close()
+    con.close()
     return 'OK'
 
 
@@ -214,6 +231,7 @@ def stock_guardarsalida():
 def stock_getlistaarticulos():
     con = get_con()
     articulos=pgddict(con, f"select id,art,costo,activo from articulos order by id desc" )
+    con.close()
     return jsonify(articulos=articulos)
 
 
@@ -237,6 +255,7 @@ def stock_guardararticulo():
     else:
         con.commit()
         cur.close()
+        con.close()
         return 'OK'
 
 
@@ -248,6 +267,7 @@ def stock_deletearticulo(id):
     cur.execute(stm)
     con.commit()
     cur.close()
+    con.close()
     return 'el registro ha sido borrado'
 
 
@@ -263,6 +283,7 @@ def stock_articulotoggleactivo(id):
     cur.execute(stm)
     con.commit()
     cur.close()
+    con.close()
     return 'OK'
 
 
@@ -281,4 +302,5 @@ def stock_guardaredicionarticulo():
     else:
         con.commit()
         cur.close()
+        con.close()
         return 'OK'

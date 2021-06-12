@@ -31,6 +31,7 @@ def buscar_cuenta(buscar):
         clientes = pgdict(con,f"select dni,nombre,calle||' '||num from clientes where nombre||calle||num||barrio ilike '{buscar}'")
     if len(clientes)==0:
         return make_response("No hay respuesta para esa busqueda",400)
+    con.close()
     return jsonify(clientes=clientes)
 
 
@@ -39,6 +40,7 @@ def buscar_ventas(id):
     con = get_con()
     sel = f"select id,fecha,cc,floor(ic),p,idvdor,floor(saldo),floor(comprado),pp,devuelta,condonada,cnt,art,floor(pagado),primera from ventas where idcliente={id}"
     ventas = pgdict(con, sel)
+    con.close()
     return jsonify(ventas=ventas)
 
 
@@ -54,6 +56,7 @@ def buscar_cuotas(dni):
     cuotas = pgdict(con, f"select nc,vto,floor(ic),idvta from cuotas where debe>0 and idcliente={idcliente} order by vto")
     pagadas = pgdict(con, f"select fecha,rbo,floor(imp),floor(rec),cobr from pagos where idcliente={idcliente} and \
              idvta in (select id from ventas where saldo>0) order by fecha desc")
+    con.close()
     return jsonify(cuotas=cuotas,pagadas=pagadas)
 
 
@@ -61,6 +64,7 @@ def buscar_cuotas(dni):
 def buscador_pedirpagadas(id):
     con = get_con()
     pagadas = pgdict(con, f"select fecha,rbo,floor(imp),floor(rec),cobr from pagos where idcliente={id} order by fecha desc")
+    con.close()
     return jsonify(pagadas=pagadas)
 
 
@@ -72,6 +76,7 @@ def buscar_fecharpmovto(dni,pmovto):
     cur.execute(upd)
     con.commit()
     cur.close()
+    con.close()
     return 'ok'
 
 
@@ -80,6 +85,7 @@ def buscar_imprimirficha():
     con = get_con()
     dni = json.loads(request.data.decode("UTF-8"))
     ficha(con,dni)
+    con.close()
     return send_file('/tmp/ficha.pdf')
 
 
@@ -88,6 +94,7 @@ def buscar_datosultvta(dni):
     con = get_con()
     idcliente = pgonecolumn(con,f"select id from clientes where dni='{dni}'")
     ultvta = pgdict(con,f"select fecha, (select max(art) from detvta where idvta=ventas.id) from ventas where idcliente={idcliente} order by id desc")
+    con.close()
     return jsonify(ultvta=ultvta)
 
 
@@ -111,6 +118,7 @@ def buscar_togglesube(dni):
         cur.close()
         return msg
     else:
+        con.close()
         return 'No se sube pq ya esta en el seven'
 
 
@@ -129,6 +137,7 @@ def buscar_togglegestion(dni):
     cur.execute(upd)
     con.commit()
     cur.close()
+    con.close()
     return msg
 
 
@@ -151,6 +160,7 @@ def buscar_togglemudado(dni):
     else:
         con.commit()
         cur.close()
+        con.close()
         return msg
 
 
@@ -169,6 +179,7 @@ def buscar_toggleinc(dni):
     cur.execute(upd)
     con.commit()
     cur.close()
+    con.close()
     return msg
 
 
@@ -187,6 +198,7 @@ def buscar_toggleln(dni):
     cur.execute(upd)
     con.commit()
     cur.close()
+    con.close()
     return msg
 
 
@@ -203,6 +215,7 @@ def buscar_togglellamar(dni):
     cur.execute(upd)
     con.commit()
     cur.close()
+    con.close()
     return 'ok'
 
 
@@ -219,6 +232,7 @@ def buscar_toggleseguir(dni):
     cur.execute(upd)
     con.commit()
     cur.close()
+    con.close()
     return 'ok'
 
 
@@ -228,6 +242,7 @@ def buscar_gettablas():
     calles = pglflat(con,f"select calle from calles order by calle")
     barrios = pglflat(con,f"select barrio from barrios order by barrio")
     zonas = pglflat(con,f"select zona from zonas order by zona")
+    con.close()
     return jsonify(calles=calles,barrios=barrios,zonas=zonas)
 
 
@@ -235,6 +250,7 @@ def buscar_gettablas():
 def buscar_getzonas():
     con = get_con()
     zonas = pgdict(con,f"select zona from zonas order by zona")
+    con.close()
     return jsonify(zonas=zonas)
 
 
@@ -247,6 +263,7 @@ def busca_editardatos(dni):
     cur.execute(upd)
     con.commit()
     cur.close()
+    con.close()
     return 'ok'
 
 
@@ -255,6 +272,7 @@ def buscar_pedircomentarios(id):
     con = get_con()
     sel = f"select fechahora,comentario from comentarios where idcliente={id}"
     comentarios=pgdict(con, sel)
+    con.close()
     return jsonify(comentarios=comentarios)
 
 
@@ -268,6 +286,7 @@ def buscar_getvtaspp(id):
     con = get_con()
     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={id}")
     ventas = pgdict(con, f"select id, cc, floor(ic), floor(saldo), pmovto, pp, pfecha, pcc, floor(pic), pper, pprimera, pcondo from ventas where saldo>0 and idcliente={idcliente}")
+    con.close()
     return jsonify(ventas=ventas)
 
 
@@ -288,4 +307,5 @@ def buscar_generarplan(idvta):
     # if len(idotrasvtas)>0:
     #     for id in idotrasvtas:
     #         venta_trigger(con,id)
+    con.close()
     return 'ok'

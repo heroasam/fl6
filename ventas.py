@@ -18,6 +18,7 @@ def ventas_pasarventas():
 def ventas_getcalles():
     con = get_con()
     calles = pglflat(con, f"select calle from calles order by calle")
+    con.close()
     return jsonify(calles= calles)
 
 
@@ -25,6 +26,7 @@ def ventas_getcalles():
 def ventas_getbarrios():
     con = get_con()
     barrios = pglflat(con, f"select barrio from barrios order by barrio")
+    con.close()
     return jsonify(barrios= barrios)
 
 
@@ -32,6 +34,7 @@ def ventas_getbarrios():
 def ventas_getzonas():
     con = get_con()
     zonas = pglflat(con, f"select zona from zonas order by zona")
+    con.close()
     return jsonify(zonas= zonas)
 
 
@@ -45,6 +48,7 @@ def ventas_getcuentaspordni(dni):
         error = e.msg
         return make_response(error,400)
     else:
+        con.close()
         return jsonify(clientes=clientes)
 
 
@@ -59,7 +63,6 @@ def ventas_guardarcliente():
     else:
         stm = f"update clientes set sex='{d['sex']}', dni='{d['dni']}', nombre='{d['nombre']}',calle='{d['calle']}',num='{d['num']}',barrio='{d['barrio']}', zona='{d['zona']}',tel='{d['tel']}', wapp='{d['wapp']}', acla='{d['acla']}', horario='{d['horario']}', mjecobr='{d['mjecobr']}', infoseven='{d['infoseven']}' where id={d['id']}"
     cur = con.cursor()
-    print(stm)
     try:
         cur.execute(stm)
     except mysql.connector.Error as e:
@@ -78,6 +81,7 @@ def ventas_guardarcliente():
             cur.execute(ins)
             con.commit()
             cur.close()
+        con.close()
         return jsonify(id=id)
 
 
@@ -104,6 +108,7 @@ def ventas_guardarventa():
         con.commit()
         cur.close()
         idvta = pgonecolumn(con,f"select id from ventas order by id desc limit 1")
+        con.close()
         return jsonify(idvta=idvta)
 
 @ventas.route('/ventas/guardardetvta', methods=['POST'])
@@ -124,6 +129,7 @@ def ventas_guardardetvta():
         cur.close()
         detvta = pgdict(con,f"select id,cnt,art,cc,ic from detvta where idvta={d['idvta']}")
         sumic = pgonecolumn(con,f"select sum(ic) from detvta where idvta={d['idvta']}")
+        con.close()
         return jsonify(detvta=detvta,sumic=sumic)
 
 
@@ -146,6 +152,7 @@ def ventas_borrardetvta(id):
         sumic = pgonecolumn(con,f"select sum(ic) from detvta where idvta={idvta}")
         if sumic is None:
             sumic=0
+        con.close()
         return jsonify(detvta=detvta,sumic=sumic)
 
 
@@ -154,6 +161,7 @@ def ventas_borrardetvta(id):
 def ventas_getarticulos():
     con = get_con()
     articulos = pglflat(con, f"select art from articulos where activo=1")
+    con.close()
     return jsonify(articulos=articulos)
 
 
@@ -161,6 +169,7 @@ def ventas_getarticulos():
 def ventas_getlistado():
     con = get_con()
     listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count from ventas order by id desc limit 200")
+    con.close()
     return jsonify(listado=listado)
 
 
@@ -183,12 +192,14 @@ def ventas_borrarventa(id):
     else:
         con.commit()
         cur.close()
+        con.close()
         return 'OK'
 
 @ventas.route('/ventas/datosventa/<int:id>')
 def ventas_datosventa(id):
     con = get_con()
     venta = pgdict(con, f"select fecha,cc,ic,p,pmovto,idvdor,primera from ventas where id={id}")
+    con.close()
     return jsonify(venta=venta)
 
 
@@ -207,6 +218,7 @@ def ventas_guardaredicionvta():
     else:
         con.commit()
         cur.close()
+        con.close()
         return 'OK'   
 
 @ventas.route('/ventas/clientes')
@@ -218,6 +230,7 @@ def ventas_clientes():
 def ventas_getclientes():
     con = get_con()
     clientes = pgdict(con, f"select ventas.id, nombre, calle,num, zona, gestion, mudo, incobrable,acla from ventas, clientes where ventas.idcliente=clientes.id order by ventas.id desc limit 200")
+    con.close()
     return jsonify(clientes=clientes)
 
 
@@ -240,6 +253,7 @@ def zonas_calles():
 def ventas_getcallesconid():
     con = get_con()
     calles = pgdict(con, f"select id,calle from calles order by calle")
+    con.close()
     return jsonify(calles= calles)
 
 
@@ -247,6 +261,7 @@ def ventas_getcallesconid():
 def ventas_getbarriosconid():
     con = get_con()
     barrios = pgdict(con, f"select id,barrio from barrios order by barrio")
+    con.close()
     return jsonify(barrios= barrios)
 
 
@@ -254,6 +269,7 @@ def ventas_getbarriosconid():
 def ventas_getzonasconid():
     con = get_con()
     zonas = pgdict(con, f"select id,zona from zonas order by zona")
+    con.close()
     return jsonify(zonas= zonas)
 
 
@@ -272,6 +288,7 @@ def ventas_guardaredicioncalle():
     else:
         con.commit()
         cur.close()
+        con.close()
         return 'OK'   
 
 
@@ -291,6 +308,7 @@ def ventas_guardaredicionbarrio():
     else:
         con.commit()
         cur.close()
+        con.close()
         return 'OK'    
 
 
@@ -309,6 +327,7 @@ def ventas_guardaredicionzona():
     else:
         con.commit()
         cur.close()
+        con.close()
         return 'OK'   
 
 
@@ -326,6 +345,7 @@ def ventas_borrarcalle(id):
     else:
         con.commit()
         cur.close()
+        con.close()
         return 'OK'
 
 
@@ -344,6 +364,7 @@ def ventas_borrarbarrio(id):
     else:
         con.commit()
         cur.close()
+        con.close()
         return 'OK'
 
 
@@ -361,6 +382,7 @@ def ventas_borrarzona(id):
     else:
         con.commit()
         cur.close()
+        con.close()
         return 'OK'
 
 @ventas.route('/ventas/guardarcallenueva', methods=['POST'])
@@ -378,6 +400,7 @@ def ventas_guardarcallenueva():
     else:
         con.commit()
         cur.close()
+        con.close()
         return 'OK'
 
 
@@ -397,6 +420,7 @@ def ventas_guardarbarrionueva():
     else:
         con.commit()
         cur.close()
+        con.close()
         return 'OK'
 
 
@@ -415,6 +439,7 @@ def ventas_guardarzonanueva():
     else:
         con.commit()
         cur.close()
+        con.close()
         return 'OK'
 
 
@@ -429,7 +454,8 @@ def ventas_estadisticas():
 def ventas_estadisticasanuales():
     con = get_con()
     est_anuales = pgdict(con,f"select date_format(fecha,'%Y') as y, sum(comprado), sum(saldo), sum(saldo)/sum(comprado) as inc,sum(cnt) from ventas group by y order by y desc")
-    print(est_anuales)
+    # print(est_anuales)
+    con.close()
     return jsonify(est_anuales=est_anuales)
 
 
@@ -438,4 +464,5 @@ def ventas_estadisticasanuales():
 def ventas_estadisticasmensuales(year):
     con = get_con()
     est_mensuales = pgdict(con,f"select date_format(fecha,'%Y-%M') as ym, sum(comprado), sum(saldo), sum(saldo)/sum(comprado) as inc,sum(cnt) from ventas where date_format(fecha,'%Y')='{year}' group by ym order by ym")
+    con.close()
     return jsonify(est_mensuales=est_mensuales)

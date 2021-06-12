@@ -32,13 +32,9 @@ def guardarlote(fecha,cobr):
         cur.execute(ins)
     con.commit()
     cur.close()
-    return "OK"
-
-@pagos.route('/loterbo/obtenerlastid')
-def obtenerlastid():
-    con = get_con()
-    idlote = str(pgonecolumn(con, f"select max(id) from loterbos"))
+    con.close()
     return jsonify(idlote=idlote)
+
 
 @pagos.route('/loterbo/imprimir/<string:fecha>/<string:cobr>/<int:idlote>', methods = ['POST'])
 def loterbo_imprimir(fecha,cobr,idlote):
@@ -47,6 +43,7 @@ def loterbo_imprimir(fecha,cobr,idlote):
     # aca se el ast.literal entrega la lista enviada por el axios-post directamente
 
     loterbo(con, listarbo,fecha,cobr,idlote)
+    con.close()
     return send_file('/tmp/loterbo.pdf')
 
 @pagos.route('/loterbo/reimprimir/<string:fecha>/<string:cobr>/<int:idlote>')
@@ -55,6 +52,7 @@ def loterbo_reimprimir(fecha,cobr,idlote):
     listarbo = pglflat(con, f"select rbo from rbos where idloterbos={idlote}")
     print(listarbo)
     loterbo(con, listarbo, fecha,cobr,idlote)
+    con.close()
     return send_file('/tmp/loterbo.pdf')
 
 
@@ -63,6 +61,7 @@ def loterbo_reimprimir(fecha,cobr,idlote):
 def loterbo_ver():
     con = get_con()
     lotesrbo = pgddict(con,f"select id,fecha,cobr,cnt from loterbos order by id desc limit 100")
+    con.close()
     return render_template("pagos/loterbover.html", lotesrbo=lotesrbo )
 
 @pagos.route('/loterbo/delete/<string:id>')
@@ -72,12 +71,14 @@ def loterbo_delete(id):
     cur.execute("delete from loterbos where id={0}".format(id))
     con.commit()
     cur.close()
+    con.close()
     return redirect(url_for('pagos.loterbo_ver'))
 
 @pagos.route('/loterbo/buscanombrecobr/<int:cobr>')
 def loterbo_buscanombrecobr(cobr):
     con = get_con()
     nombrecobr = pgonecolumn(con, f"select nombre from cobr where id={cobr}")
+    con.close()
     return jsonify(nombrecobr=nombrecobr)
 
 
@@ -97,7 +98,7 @@ def pagos_planilla(fechapago,cobrador):
     # else:
         # cntrbos = pgonecolumn(con, f"select count(*) from (select distinct rbo from pagos where lote={lote}) as foo")
     cntrbos = pgonecolumn(con, f"select count(*) from (select distinct rbo from pagos where fecha='{fechapago}' and cobr={cobrador}) as foo")
-    print(cntrbos)
+    con.close()
     return jsonify(planilla=planilla,cntrbos=cntrbos)
 
 
@@ -114,6 +115,7 @@ def pagos_buscar(cuenta):
         cuenta = '%'+cuenta.replace(' ','%')+'%'
         print(cuenta)
         clientes = pgdict(con,f"select nombre,concat(calle,' ',num) as direccion,dni from clientes where lower(concat(nombre,calle,num,barrio)) like lower('{cuenta}') and deuda>0")
+    con.close()
     return jsonify(clientes=clientes)
 
 
@@ -122,6 +124,7 @@ def pagos_idvtas(dni):
     con = get_con()
     sel = f"select ventas.id as id,concat(calle,' ',num) from ventas,clientes where clientes.id=ventas.idcliente and dni='{dni}' and saldo>0"
     idvtas = pgdict(con,sel)
+    con.close()
     return jsonify(idvtas=idvtas)
 
 
@@ -129,6 +132,7 @@ def pagos_idvtas(dni):
 def pagos_traerficha(idvta):
     con = get_con()
     ficha = pgdict(con,f"select id,case when saldo<ic then saldo else ic end as imp,ic,saldo from ventas where id={idvta}")
+    con.close()
     return jsonify(ficha=ficha)
 
 
@@ -143,6 +147,7 @@ def pagos_pasarpagos():
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
+    con.close()
     return 'ok'
 
 
@@ -154,6 +159,7 @@ def pagos_borrarpago(idpago):
     idvta = pgonecolumn(con,f"select idvta from pagos where id={idpago}")
     cur.execute(stm)
     con.commit()
+    con.close()
     return 'ok'
 
 @pagos.route('/pagos/pasarplanilla', methods = ['POST'])
@@ -171,6 +177,7 @@ def pagos_pasarplanilla():
     else:
         cur.execute(upd)
     con.commit()
+    con.close()
     return 'ok'
 
 
@@ -182,6 +189,7 @@ def pagos_verplanillas():
 def pagos_getplanillas():
     con = get_con()
     planillas = pgdict(con,f"select planillas.fecha as fecha,sum(cobrado),sum(comision),sum(viatico),sum(cntrbos),(select imp from caja where comentario='global' and cuenta='cobranza' and fecha=planillas.fecha) from planillas group by planillas.fecha order by planillas.fecha desc limit 100")
+    con.close()
     return jsonify(planillas=planillas)
 
 
@@ -189,6 +197,7 @@ def pagos_getplanillas():
 def pagos_getplanillashoy(fecha):
     con = get_con()
     planillas = pgdict(con,f"select fecha,idcobr,cobrado,comision,viatico,cntrbos,idlote from planillas where fecha='{fecha}'")
+    con.close()
     return jsonify(planillas=planillas)
 
 
@@ -206,6 +215,7 @@ def pagos_procesarplanilla():
     cur.execute(ins3)
     con.commit()
     cur.close()
+    con.close()
     return "OK"
 
 @pagos.route('/pagos/editarrbo')
@@ -218,6 +228,7 @@ def pagos_editarrbo():
 def pagos_obtenerrbo(id):
     con = get_con()
     reg = pgdict(con, f"select fecha, idvta, imp, rec, rbo, cobr, id, (select nombre from clientes where clientes.id=pagos.idcliente) as nombre from pagos where id={id}")
+    con.close()
     return jsonify (reg=reg)
 
 
@@ -233,6 +244,7 @@ def pagos_obtenerregrbo(buscar):
         error = e.msg
         return make_response(error,400)
     else:
+        con.close()
         return jsonify (reg=reg, nombre=nombre)
 
 
@@ -245,6 +257,7 @@ def pagos_borrarrbo(id):
     con.commit()
     cur.close()
     idvta = pgonecolumn(con,f"select idvta from pagos where id={id}")
+    con.close()
     return 'ok'
 
 @pagos.route('/pagos/guardaredicionrbo' , methods = ['POST'])
@@ -258,6 +271,7 @@ def pagos_guardaredicionrbo():
     con.commit()
     cur.close()
     idvta = pgonecolumn(con,f"select idvta from pagos where id={d['id']}")
+    con.close()
     return 'OK'
 
 
@@ -265,6 +279,7 @@ def pagos_guardaredicionrbo():
 def pagos_getzonasasignadas():
     con = get_con()
     zonas = pgddict(con, f"select zonas.id as id,zonas.zona as zona,asignado,(select nombre from cobr where cobr.id=asignado) as nombre, count(*) as cnt, sum(cuota) as cuota from zonas,clientes where clientes.zona=zonas.zona and pmovto>=date_sub(curdate(),interval 90 day) and zonas.zona not like '-%' group by zonas.id order by asignado")
+    con.close()
     return jsonify(zonas=zonas)
 
 
@@ -283,6 +298,7 @@ def pagos_editarasignado():
     cur.execute(upd)
     con.commit()
     cur.close()
+    con.close()
     return 'ok'
 
 
@@ -290,6 +306,7 @@ def pagos_editarasignado():
 def pagos_gettotaleszonas():
     con = get_con()
     totales = pgddict(con, f"select asignado,(select nombre from cobr where cobr.id=asignado) as nombre, sum(cuota) as cuota from zonas,clientes where clientes.zona=zonas.zona and pmovto>=date_sub(curdate(),interval 90 day) and zonas.zona not like '-%' group by asignado order by asignado")
+    con.close()
     return jsonify(totales=totales)
 
 
@@ -310,6 +327,7 @@ def pagos_cobrostotales():
     tbl1 = tbl1.fillna("")
     tbl = tbl.to_html(table_id="totales",classes="table")
     tbl1 = tbl1.to_html(table_id="totaleszona",classes="table")
+    con.close()
     return render_template("pagos/totales.html", tbl=tbl, tbl1=tbl1 )
 
 
@@ -330,6 +348,7 @@ def pagos_estimados():
     tbl1 = tbl1.fillna("")
     tbl = tbl.to_html(table_id="totales",classes="table")
     tbl1 = tbl1.to_html(table_id="totaleszona",classes="table")
+    con.close()
     return render_template("pagos/estimados.html", tbl=tbl, tbl1=tbl1 ) 
 
 
@@ -344,6 +363,7 @@ def pagos_comisiones():
     tbl = pd.pivot_table(df, values=['comision','cobranza'],index='fecha',columns='cobr',aggfunc='sum').sort_index(0, 'fecha',False)
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="tablecomisiones",classes="table")
+    con.close()
     return render_template("pagos/comisiones.html", tbl=tbl )
 
 
@@ -356,6 +376,7 @@ def pivot_pagos_cobr():
     tbl = pd.pivot_table(df, values=['comision','cobranza'],index='fecha',columns='cobr',aggfunc='sum')
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="table",classes="table table-sm")
+    con.close()
     return render_template("pivot_cobr.html", tbl=tbl)
 
 
@@ -368,6 +389,7 @@ def pivot_retiros():
     tbl = pd.pivot_table(df, values='imp',index='fecha',columns='cuenta',aggfunc='sum')
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="table",classes="table  table-sm")
+    con.close()
     return render_template("pivot_retiros.html", tbl=tbl)
 
 
@@ -380,4 +402,5 @@ def pivot_retiros_excel():
     tbl = pd.pivot_table(df, values='imp',index='fecha',columns='cuenta',aggfunc='sum')
     tbl = tbl.fillna("")
     tbl = tbl.to_excel('retiros.xlsx', index=False)
+    con.close()
     return send_file('retiros.xlsx')

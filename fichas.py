@@ -18,6 +18,7 @@ def fichas_():
 def fichas_getcobradores():
     con = get_con()
     cobradores = pgdict(con,f"select id from cobr where activo=1 and prom=0 and id>15")
+    con.close()
     return jsonify(cobradores=cobradores)
 
 
@@ -25,6 +26,7 @@ def fichas_getcobradores():
 def fichas_muestrazona(cobr):
     con = get_con()
     zonas = pgdict(con,f"select zona from zonas where asignado={cobr}")
+    con.close()
     return jsonify(zonas=zonas)
 
 
@@ -37,6 +39,7 @@ def fichas_muestraclientes(tipo,zona):
         clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda,zona,barrio from clientes where zona='{zona}' and ultpago>date_sub(curdate(),interval 365 day) and deuda>0  and (gestion=1 or incobrable=1 or mudo=1) order by pmovto")
     elif tipo=='antiguos':
         clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda,zona,barrio from clientes where zona='{zona}' and ultpago<=date_sub(curdate(),interval 365 day) and deuda>0  order by ultpago desc")
+    con.close()
     return jsonify(clientes=clientes)
 
 
@@ -47,6 +50,7 @@ def fichas_imprimir():
     # aca se el ast.literal entrega la lista enviada por el axios-post directamente
 
     ficha(con, listadni)
+    con.close()
     return send_file('ficha.pdf')
 
 
@@ -69,6 +73,7 @@ def fichas_cambiarzona(zona):
     else:
         con.commit()
         cur.close()
+        con.close()
         return 'OK'
 
 
@@ -81,6 +86,7 @@ def fichas_cobradores():
 def fichas_getfullcobradores():
     con = get_con()
     cobradores = pgdict(con,f"select id,dni,nombre,direccion,telefono,fechanac,desde,activo,prom from cobr order by id desc")
+    con.close()
     return jsonify(cobradores=cobradores)
 
 
@@ -102,6 +108,7 @@ def fichas_toggleactivo(id):
     else:
         con.commit()
         cur.close()
+        con.close()
         return 'OK'
 
 
@@ -123,6 +130,7 @@ def fichas_toggleprom(id):
     else:
         con.commit()
         cur.close()
+        con.close()
         return 'OK'
 
 
@@ -140,6 +148,7 @@ def fichas_borrarcobrador(id):
     else:
         con.commit()
         cur.close()
+        con.close()
         return 'OK'
 
 
@@ -147,6 +156,7 @@ def fichas_borrarcobrador(id):
 def fichas_getcobradorbyid(id):
     con = get_con()
     cobrador = pgdict(con, f"select id,dni,nombre,direccion,telefono,fechanac, desde, activo,prom from cobr where id={id}")
+    con.close()
     return jsonify(cobrador=cobrador)
 
 
@@ -168,6 +178,7 @@ def fichas_guardarcobrador():
     else:
         con.commit()
         cur.close()
+        con.close()
         return 'OK'
 
 
@@ -180,6 +191,7 @@ def fichas_fechador():
 def fichas_buscacuenta(idvta):
     con = get_con()
     cuenta = pgdict(con, f"select nombre, clientes.pmovto,asignado from clientes, ventas,zonas where clientes.id=ventas.idcliente and clientes.zona=zonas.zona and ventas.id={idvta}")
+    con.close()
     return jsonify(cuenta=cuenta)
 
 
@@ -198,6 +210,7 @@ def fichas_guardarfechado(idvta,pmovto):
     else:
         con.commit()
         cur.close()
+        con.close()
         return 'OK'
 
 
@@ -210,6 +223,7 @@ def fichas_listado():
 def fichas_getzonas():
     con = get_con()
     zonas = pglflat(con,f"select zona from zonas where asignado>700 and asignado !=820 order by zona")
+    con.close()
     return jsonify(zonas=zonas)
 
 
@@ -217,6 +231,7 @@ def fichas_getzonas():
 def fichas_getlistado(zona):
     con = get_con()
     listado = pgdict(con, f"select date_format(ultpago,'%Y'), ultpago, dni,nombre, concat(calle,' ',num) as direccion from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and comprado>0 and ultpago>'2010-01-01' and concat(calle,num) not in (select concat(calle,num) from clientes where deuda>300) order by ultpago desc")
+    con.close()
     return jsonify(listado=listado)
 
 
@@ -224,7 +239,8 @@ def fichas_getlistado(zona):
 def fichas_getresumen(zona):
     con = get_con()
     resumen = pgdict(con, f"select date_format(ultpago,'%Y') as y, count(*) as cnt from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and ultpago>'2010-01-01' group by y order by y")
-    print(resumen)
+    # print(resumen)
+    con.close()
     return jsonify(resumen=resumen)
 
 
@@ -233,5 +249,6 @@ def fichas_imprimirlistado():
     con = get_con()
     listadni = json.loads(request.data.decode("UTF-8"))
     listado(con, listadni)
-    print(len(listadni))
+    # print(len(listadni))
+    con.close()
     return send_file('listado.pdf')

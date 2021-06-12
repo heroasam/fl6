@@ -6,20 +6,14 @@ from flask_bcrypt import Bcrypt
 from flask_login import UserMixin
 from flask_cors import CORS
 from werkzeug.urls import url_parse
-# import psycopg2
-# import psycopg2.extras
 from .lib import *
 from .formularios import *
-# import pandas as pd
-# import numpy as np
-# import re
-# import ast
-# import os
 from .ventas import ventas
 from .stock import stock
 from .pagos import pagos
 from .buscador import buscador
 from .fichas import fichas
+import mysql.connector
 from .con import con
 
 app = Flask(__name__)
@@ -124,7 +118,7 @@ def signup():
             cur = con.cursor()
             try:
                 cur.execute(ins)
-            except psycopg2.Error as e:
+            except mysql.connector.Error as e:
                 con.rollback()
                 error = e.msg
                 return make_response(error,400)

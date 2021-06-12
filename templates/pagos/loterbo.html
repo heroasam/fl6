@@ -35,6 +35,7 @@
       </div>
 
     <form v-on:submit.prevent class="field is-horizontal">
+        <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
         <button type="button" class="button is-danger" @click="limpiarForm">Limpiar</button>
         <input id="fechapago" type="date"  class="input input1 is-narrow" v-model="fechapago">
         <input id="cobrador" type="text"  class="input input1 is-narrow" size= 10 placeholder="Cobrador" v-model="cobrador" @blur="buscaNombreCobr">
@@ -103,19 +104,17 @@ const app = new Vue({
         },
         // una vez validado se hace el guardarlote
         guardarLote(){
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
             axios({
                 method:'POST',
                 url:'/loterbo/guardarlote/'+this.fechapago+'/'+this.cobrador,
-                responseType: "blob",
                 data:this.arrayRbos,
 
             })
-            .then(axios.get('/loterbo/obtenerlastid')
             .then(res=>{
-                //console.log(res.data)
+                //console.log(res.data.idlote)
                 this.idloterbo = res.data.idlote
             })
-            )
         },
         imprimirLote(){
             axios({
