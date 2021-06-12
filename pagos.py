@@ -92,14 +92,14 @@ def pagos_():
 def pagos_planilla(fechapago,cobrador):
     con = get_con()
     planilla = pgdict(con,f"select pagos.id as id, rbo, fecha, idvta,imp as imp, rec as rec, (imp+rec) as total, nombre, concat(calle,' ',num) as direccion, zona,deuda as deuda from pagos, clientes where clientes.id=pagos.idcliente and fecha='{fechapago}' and pagos.cobr={cobrador} order by id desc")
-    # lote = pgonecolumn(con,f"select lote from pagos where fecha='{fechapago}' and cobr={cobrador}")
+    #lote = pgonecolumn(con,f"select lote from pagos where fecha='{fechapago}' and cobr={cobrador}")
     # if lote is None:
     #     cntrbos = 0
     # else:
         # cntrbos = pgonecolumn(con, f"select count(*) from (select distinct rbo from pagos where lote={lote}) as foo")
-    cntrbos = pgonecolumn(con, f"select count(*) from (select distinct rbo from pagos where fecha='{fechapago}' and cobr={cobrador}) as foo")
+    #cntrbos = pgonecolumn(con, f"select count(*) from (select distinct rbo from pagos where fecha='{fechapago}' and cobr={cobrador}) as foo")
     con.close()
-    return jsonify(planilla=planilla,cntrbos=cntrbos)
+    return jsonify(planilla=planilla)
 
 
 @pagos.route('/pagos/buscar/<string:cuenta>')
@@ -169,8 +169,8 @@ def pagos_pasarplanilla():
     idplanilla = pgonecolumn(con,f"select id from planillas where fecha = '{d['fecha']}' and idcobr={d['idcobr']}")
     if(d['viatico']==""):
         d['viatico']=0
-    ins = f"insert into planillas(fecha, idcobr, idlote,cobrado, comision, viatico, cntrbos) values('{d['fecha']}','{d['idcobr']}',{d['idlote']},{d['cobrado']},{d['comision']},{d['viatico']},{d['cntrbos']})"
-    upd = f"update planillas set fecha='{d['fecha']}', idcobr='{d['idcobr']}',idlote={d['idlote']},cobrado={d['cobrado']},comision={d['comision']},viatico={d['viatico']},cntrbos={d['cntrbos']} where id={idplanilla}"
+    ins = f"insert into planillas(fecha, idcobr, idlote,cobrado, comision, viatico, cntrbos) values('{d['fecha']}','{d['idcobr']}',0,{d['cobrado']},{d['comision']},{d['viatico']},{d['cntrbos']})"
+    upd = f"update planillas set fecha='{d['fecha']}', idcobr='{d['idcobr']}',idlote=0,cobrado={d['cobrado']},comision={d['comision']},viatico={d['viatico']},cntrbos={d['cntrbos']} where id={idplanilla}"
     cur = con.cursor()
     if(idplanilla==""):
         cur.execute(ins)

@@ -82,14 +82,14 @@ block style %}
 			>
 				Cargar Planilla
 			</button>
-			<input
+			<!-- <input
 				type="text"
 				id="lote"
 				style="width: 300px"
 				class="input is-narrow"
 				placeholder="Lote Recibos N°"
 				v-model="lote"
-			/>
+			/> -->
 		</form>
 		<input
 			type="hidden"
@@ -352,10 +352,14 @@ block style %}
 						arrayPagos.forEach(row => {
 							row[2] = dayjs.utc(row[2]).format('YYYY-MM-DD');
 						});
-						this.rbosPagos = arrayPagos;
+						let rbos = []
+						arrayPagos.forEach(row=>{
+							rbos.push(row[1])
+						})
+						let setrbos = new Set(rbos)
+						this.cntRbos = setrbos.size
 
-						//this.cntRbos = res.data.planilla.length
-						this.cntRbos = res.data.cntrbos;
+						this.rbosPagos = arrayPagos;
 						let arrayRow = [];
 						this.rbosPagos.forEach(row => {
 							arrayRow.push(row[6]);
@@ -402,7 +406,7 @@ block style %}
 				});
 			},
 			validatePasarPagos() {
-				$lote = document.getElementById('lote');
+				// $lote = document.getElementById('lote');
 				$importe = document.getElementById('importe');
 				$recibo = document.getElementById('recibo');
 				$fechapago = document.getElementById('fechapago');
@@ -417,11 +421,6 @@ block style %}
 				} else {
 					$cobrador.classList.remove('required');
 				}
-				if (this.lote == '') {
-					$lote.classList.add('required');
-				} else {
-					$lote.classList.remove('required');
-				}
 				if (this.importe == '') {
 					$importe.classList.add('required');
 				} else {
@@ -433,7 +432,7 @@ block style %}
 					$recibo.classList.remove('required');
 				}
 				if (
-					this.lote != '' &&
+					// this.lote != '' &&
 					this.importe != '' &&
 					this.recibo != '' &&
 					this.fechapago != '' &&
@@ -459,7 +458,7 @@ block style %}
 						rec: this.recargo,
 						rbo: this.recibo,
 						cobr: this.cobrador,
-						lote: this.lote,
+						// lote: this.lote,
 						fecha: this.fechapago,
 					},
 				}).then(res => {
