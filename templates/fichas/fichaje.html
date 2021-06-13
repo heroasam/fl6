@@ -2,7 +2,6 @@
 endblock %} {% block style %}
 <style>
   body{
-    
     margin: auto;
   }
   thead th {
@@ -18,6 +17,9 @@ endblock %} {% block style %}
     color: black;
     cursor: pointer;
   }
+  .flex{
+    display:flex;
+  }
 </style>
 {% endblock %} {% block content %}
 <div class="conteiner-fluid">
@@ -27,24 +29,15 @@ endblock %} {% block style %}
     <a href="/fichas/fechador" class="button is-primary">Fechador</a>
     <a href="/fichas/listado" class="button is-primary">Listado</a>
   </div>
-  <div class="buttons mt-3">
-    <div v-for="cobrador in cobradores">
-      <button class="button is-info ml-1" @click="muestraZonas(cobrador[0])">
-        |cobrador[0]|
-      </button>
+  
+    <div>
+      <button v-for="cobrador in cobradores" class="button is-info ml-1" @click="muestraZonas(cobrador[0])">|cobrador[0]|</button>
     </div>
-  </div>
-  <div class="buttons">
-    <div v-for="zona in zonas">
-      <button
-        class="button is-success ml-1 mt-1"
-        @click="muestraClientes('normales',zona[0]);zonaactual=zona[0]"
-      >
-        |zona[0]|
-      </button>
+    <div>
+      <button v-for="zona in zonas" class="button is-success ml-1 mt-1" @click="muestraClientes('normales',zona[0]);zonaactual=zona[0]">|zona[0]|</button>
     </div>
-  </div>
-  <div class="buttons">
+  
+  <div class="ml-1 mt-1 mb-1">
     <button class="button is-success" @click="seleccionarHoy()">Seleccionar Hoy</button>
     <button class="button is-info" @click="imprimir()">Imprimir</button>
     <button class="button is-warning" @click="muestraClientes('gestion',zonaactual)">Gestion</button>
@@ -56,8 +49,8 @@ endblock %} {% block style %}
                 </datalist>
     <button class="button is-danger" @click="cambiarZona(zona)" v-if="verZonas">Guardar</button>
   </div>
-  <div class="row">
-    <table id="table" class="table is-narrow nototal">
+  
+    <table id="table" class="table is-narrow nototal ml-1">
       <thead>
         <tr>
           <th>Nombre</th>
@@ -102,7 +95,7 @@ endblock %} {% block style %}
       </tbody>
     </table>
     <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
-  </div>
+  
 </div>
 </div>
 {% endblock %} {% block script %}
