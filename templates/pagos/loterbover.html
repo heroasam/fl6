@@ -34,12 +34,12 @@
         {% if lotesrbo != None %}
         {% for lr in lotesrbo %}
         <tr>
-        <td>{{ lr['id'] }}</td>
-        <td>{{ lr['fecha'] }}</td>
-        <td>{{ lr['cobr'] }}</td>
-        <td>{{ lr['cnt'] }}</td>
-        <td><a href="/loterbo/delete/{{lr['id']}}" class="button is-danger is-small">Borrar</a></td>
-        <td><a href="/loterbo/reimprimir/{{lr['fecha']}}/{{lr['cobr']}}/{{lr['id']}}" class="button is-success is-small">Imprimir</a></td>
+        <td>{{ lr[0] }}</td>
+        <td>{{ lr[1] }}</td>
+        <td>{{ lr[2] }}</td>
+        <td>{{ lr[3] }}</td>
+        <td><a href="/loterbo/delete/{{lr[0]}}" class="button is-danger is-small">Borrar</a></td>
+        <td><a href="/loterbo/reimprimir/{{lr[1]}}/{{lr[2]}}/{{lr[0]}}" class="button is-success is-small">Imprimir</a></td>
         </tr>
         {% endfor %}
         {% endif %}

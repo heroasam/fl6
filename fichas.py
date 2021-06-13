@@ -51,7 +51,7 @@ def fichas_imprimir():
 
     ficha(con, listadni)
     con.close()
-    return send_file('ficha.pdf')
+    return send_file('/tmp/ficha.pdf')
 
 
 @fichas.route('/fichas/cambiarzona/<string:zona>',methods=['POST'])
@@ -251,4 +251,4 @@ def fichas_imprimirlistado():
     listado(con, listadni)
     # print(len(listadni))
     con.close()
-    return send_file('listado.pdf')
+    return send_file('/tmp/listado.pdf')
