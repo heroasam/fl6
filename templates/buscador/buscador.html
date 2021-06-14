@@ -72,7 +72,7 @@ caption{
     <div class="block" v-if="verCard">
         <button class="button is-outlined is-info is-small" @click="verVentas=!verVentas">Ver Ventas</button>
         
-        <button class="button is-outlined is-warning is-small" @click="imprimirFicha">Impr Ficha</button>
+        <button class="button is-outlined is-warning is-small" @click="imprimirFicha" :disabled="!deuda">Impr Ficha</button>
         <a href="#" class="button is-outlined is-warning is-small">Intimar</a>
         <button class="button is-outlined is-success is-small" @click="cargarWapp">Wapp</button>
         <button class="button is-outlined is-success is-small" @click="cargarDatos">Datos</button>

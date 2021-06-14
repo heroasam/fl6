@@ -1,6 +1,24 @@
 from fpdf import FPDF 
-from .lib import pgdict0, pgddict, per, desnull,pglflat
+from .lib import pgdict0, pgddict, per, desnull,pglflat,pgdict
 from datetime import date
+from dateutil.relativedelta import relativedelta
+
+def cuotaje(con,idvta):
+    venta = pgdict0(con, f"select id,fecha,cc,ic,saldo,pagado,primera,p from ventas where id={idvta}")
+    listcuotas = []
+    saldo = venta[4]
+    if saldo!=0:
+        pagado=venta[5]
+        cc=venta[2]
+        ic=venta[3]
+        p=venta[7]
+        primera=venta[6]
+        for i in range(1,cc+1):
+            if p==1:
+                vto = primera + relativedelta(months=+(i-1))
+            listcuotas.append([i,vto,0 if pagado>=ic else (ic if pagado<=0 else ic-pagado)])
+            pagado = pagado - ic
+    return listcuotas
 
 class MyFPDF(FPDF):
     def header(self):
@@ -79,30 +97,28 @@ def ficha(con,ldni):
                 pdf.cell(10,4,f"{detvta[0]}",1,0,'C')
                 pdf.cell(80,4,f"{detvta[1]}",1,0)
                 pdf.cell(35,4,f"{detvta[2]} cuotas de ${detvta[3]}",1,1,'C')
-            cur =con.cursor()
-            #cur.execute(f"select gc({venta['id']})")
-            cur.close()
-            #cuotas = pgddict(con, f"select * from cuotas where debe>0 and idvta={venta['id']}")
+            
+            cuotas = cuotaje(con,venta[0])
             pagadas = pgddict(con, f"select fecha,imp,rec,rbo,cobr from pagos where idvta={venta[0]} order by fecha")
             # Calculo el largo total que tendra la grilla de pagos
-            # if (len(cuotas)>len(pagadas)):
-            #     max=len(cuotas)
-            # else:
-            #     max=len(pagadas)
+            if (len(cuotas)>len(pagadas)):
+                max=len(cuotas)
+            else:
+                max=len(pagadas)
             # Formula para el calculo del espacio ocupable
-            # if ((pdf.get_y()+max*7)>280):
-            #     pdf.add_page()
-            #     pdf.set_y(15)
+            if ((pdf.get_y()+max*7)>280):
+                pdf.add_page()
+                pdf.set_y(15)
 
             pdf.ln(2)
             pdf.set_font_size(10)
             y0 = pdf.get_y()
-            # pdf.cell(80,6,"Cuotas a Pagar",0,1)
-            # pdf.set_font_size(8)
-            # for cuota in cuotas:
-            #     pdf.cell(5,4,f"{cuota['nc']}",1,0,'C')
-            #     pdf.cell(25,4,f"{cuota['vto']}",1,0,'C')
-            #     pdf.cell(15,4,f"${cuota['debe']}",1,1,'C')
+            pdf.cell(80,6,"Cuotas a Pagar",0,1)
+            pdf.set_font_size(8)
+            for cuota in cuotas:
+                pdf.cell(5,4,f"{cuota[0]}",1,0,'C')
+                pdf.cell(25,4,f"{cuota[1]}",1,0,'C')
+                pdf.cell(15,4,f"${cuota[2]}",1,1,'C')
             pdf.ln(2)    
             y1=pdf.get_y()
             pgy1 = pdf.page_no()
