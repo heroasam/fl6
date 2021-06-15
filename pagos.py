@@ -404,3 +404,68 @@ def pivot_retiros_excel():
     tbl = tbl.to_excel('retiros.xlsx', index=False)
     con.close()
     return send_file('retiros.xlsx')
+
+
+@pagos.route('/pagos/altas')
+def pagos_altas():
+    return render_template('pagos/altas.html')
+
+@pagos.route('/pagos/loadaltas')
+def pagos_loadaltas():
+    con = get_con()
+    listaltas = pgdict(con, f"select id,nombre,dni,sex, calle,num,deuda,ultpago,subirseven from clientes where subirseven=1 and alta is null order by deuda")
+    con.close()
+    return jsonify(listaltas=listaltas)
+
+
+@pagos.route('/pagos/togglesube/<int:id>')
+def pagos_togglesube(id):
+    con = get_con()
+    subir = pgonecolumn(con, f"select subirseven from clientes where id={id}")
+    if subir==1:
+        upd = f"update clientes set subirseven=0 where id={id}"
+    else:
+        upd = f"update clientes set subirseven=1 where id={id}"
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    cur.close()
+    con.close()
+    return 'OK'
+
+
+@pagos.route('/pagos/sevenaltas')
+def pagos_sevenaltas():
+    con = get_con()
+    sevenaltas = pgdict(con, f"select 2210,dni,dni,3,sex,'','',nombre,concat(calle,' ',num),5000,barrio,'Cordoba','Cordoba','M', date_format(current_date(),'%Y-%m-%d'),0,'01','',wapp from clientes where subirseven=1 and alta is null")
+    con.close()
+    return jsonify(sevenaltas=sevenaltas)
+
+
+@pagos.route('/pagos/marcarsubidos', methods=['POST'])
+def pagos_marcarsubidos():
+    con = get_con()
+    listadni = json.loads(request.data.decode("UTF-8"))
+    lpg ='('
+    for dni in listadni:
+        lpg+=str(dni)+','
+    lpg = lpg[0:-1]+')'
+    upd = f"update clientes set subirseven=0,sev=1,alta=date_format(current_date(),'%Y-%m-%d') where dni in {lpg}"
+    print(upd)
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+        for dni in listadni:
+            idcliente = pgonecolumn(con, f"select id from clientes where dni={dni}")
+            ins = f"insert into seven(idcliente,codigo,fecha) values({idcliente},'A',date_format(current_date(),'%Y-%m-%d'))"
+            cur.execute(ins)
+    except mysql.connector.Error as e:
+        con.rollback()
+        error = e.msg
+        return make_response(error,400)
+    else:
+        con.commit()
+        cur.close()
+        con.close()
+        return 'OK'
+

@@ -16,6 +16,10 @@ def cuotaje(con,idvta):
         for i in range(1,cc+1):
             if p==1:
                 vto = primera + relativedelta(months=+(i-1))
+            if p==3:
+                vto = primera + relativedelta(weeks= +(i-1))
+            if p==2:
+                vto = primera + relativedelta(weeks= +((i-1)*2))
             listcuotas.append([i,vto,0 if pagado>=ic else (ic if pagado<=0 else ic-pagado)])
             pagado = pagado - ic
     return listcuotas
