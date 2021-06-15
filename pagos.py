@@ -469,3 +469,41 @@ def pagos_marcarsubidos():
         con.close()
         return 'OK'
 
+
+@pagos.route('/pagos/loadbajas')
+def pagos_loadbajas():
+    con = get_con()
+    listbajas = pgdict(con, f"select dni,nombre,dni,'Cancelado',ultpago from clientes where sev=1 and deuda=0")
+    return jsonify(listbajas=listbajas)
+
+
+@pagos.route('/pagos/bajas')
+def pagos_bajas():
+    return render_template('pagos/bajas.html')
+
+
+@pagos.route('/pagos/marcarbajados', methods=['POST'])
+def pagos_marcarbajados():
+    con = get_con()
+    listadni = json.loads(request.data.decode("UTF-8"))
+    lpg ='('
+    for dni in listadni:
+        lpg+=str(dni)+','
+    lpg = lpg[0:-1]+')'
+    upd = f"update clientes set sev=0,baja=date_format(current_date(),'%Y-%m-%d') where dni in {lpg}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+        for dni in listadni:
+            idcliente = pgonecolumn(con, f"select id from clientes where dni={dni}")
+            ins = f"insert into seven(idcliente,codigo,fecha) values({idcliente},'B',date_format(current_date(),'%Y-%m-%d'))"
+            cur.execute(ins)
+    except mysql.connector.Error as e:
+        con.rollback()
+        error = e.msg
+        return make_response(error,400)
+    else:
+        con.commit()
+        cur.close()
+        con.close()
+        return 'OK'
