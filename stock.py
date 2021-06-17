@@ -205,7 +205,7 @@ def stock_getsalidas():
 @stock.route('/stock/deletesalida/<int:id>')
 def stock_deletesalida(id):
     con = get_con()
-    stm=f'delete from detsalida where id={id}'
+    stm=f'delete from detallesalida where id={id}'
     cur = con.cursor()
     cur.execute(stm)
     con.commit()
@@ -218,7 +218,7 @@ def stock_deletesalida(id):
 def stock_guardarsalida():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    ins = f"insert into detsalida(fecha,cnt,art,costo,comentario) values('{d['fecha']}',{d['cnt']},'{d['art']}',{d['costo']},'{d['comentario']}')"
+    ins = f"insert into detallesalida(fecha,cnt,art,costo,comentario) values('{d['fecha']}',{d['cnt']},'{d['art']}',{d['costo']},'{d['comentario']}')"
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
