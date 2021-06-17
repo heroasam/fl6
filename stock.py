@@ -100,7 +100,7 @@ def stock_retiros():
     df = pd.DataFrame(dat)
     tbl = pd.pivot_table(df, values=['imp'],index='fecha',columns='cuenta',aggfunc='sum')
     tbl = tbl.fillna("")
-    tbl = tbl.to_html(table_id="table",classes="table table-sm")
+    tbl = tbl.to_html(table_id="retiros",classes="table is-narrow")
     con.close()
     return render_template("stock/retiros.html", tbl=tbl)
 

@@ -93,7 +93,7 @@ const restaurar = (tableId)=>{
 const markSelected = ()=>{
     if (event.target.parentElement.parentElement.tagName!='TBODY') return;
     const $row = event.target.parentElement;
-    $row.classList.toggle('selected');
+    $row.classList.add('selected');
 }
 
 const sortGrid = (colNum,dir)=>{
@@ -161,7 +161,7 @@ document.addEventListener('click', ()=>{
         // o sea la funcion seleccionar y totalizar etc. funcionan con tablas sin la clase nototal
         if(event.target.tagName=== 'TD' && event.ctrlKey===true){
             t=event.target.parentElement.parentElement.parentElement
-            totalizar(t)
+            restaurar(t)
         };
     }
 })
@@ -202,7 +202,7 @@ document.addEventListener('contextmenu', ()=>{
         // prevenDefault para que no funcione como esta predeterminado
         if(event.target.tagName=== 'TD'){
             t=event.target.parentElement.parentElement.parentElement
-            restaurar(t)
+            totalizar(t)
         };
         // el event.target entrega el elemento clickado, si su tagName es TD
         // buscampos el parent del parent del parent que es la tabla
