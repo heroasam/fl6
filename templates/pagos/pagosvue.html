@@ -108,6 +108,7 @@ block style %}
 					v-model="cuenta"
 					@keyup.enter="buscaCuenta(cuenta)"
 					@focus="cuenta='';verInputsPagos=false"
+					ref="cuenta"
 				/>
 			</div>
 			<div class="column">
@@ -151,6 +152,7 @@ block style %}
 					class="input center"
 					v-model="importe"
 					style="width: 100px;"
+					@keyup.enter="$refs.recibo.focus()"
 				/>
 				<input
 					type="text"
@@ -176,6 +178,7 @@ block style %}
 					@keyup.up="recibo++"
 					@keyup.down="recibo--"
 					@keyup.enter="validatePasarPagos"
+					ref="recibo"
 				/>
 				<button
 					class="button is-danger"
@@ -475,6 +478,7 @@ block style %}
 					});
 					this.verBtnClientes = false;
 					this.cuenta = '';
+					this.$refs.cuenta.focus()
 				});
 			},
 			pasarPlanilla() {
