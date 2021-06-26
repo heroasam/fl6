@@ -23,12 +23,12 @@ def buscar_cuenta(buscar):
     rcuenta = r'^[0-9]{5}$'
     rdni = r'^[0-9]{7,8}$'
     if (re.match(rcuenta,buscar)):
-        clientes = pgdict(con,f"select dni,nombre,calle||' '||num,barrio,tel,wapp,clientes.zona,clientes.pmovto,floor(deuda),sev,incobrable,gestion,subirseven,novendermas,seguir,mudo,llamar,acla,horario,mjecobr,infoseven,sex,clientes.id as id from clientes,ventas where clientes.id=ventas.idcliente and ventas.id={buscar}")
+        clientes = pgdict(con,f"select dni,nombre,concat(calle,' ',num),barrio,tel,wapp,clientes.zona,clientes.pmovto,floor(deuda),sev,incobrable,gestion,subirseven,novendermas,seguir,mudo,llamar,acla,horario,mjecobr,infoseven,sex,clientes.id as id from clientes,ventas where clientes.id=ventas.idcliente and ventas.id={buscar}")
     elif (re.match(rdni,buscar)):
         clientes = pgdict(con,f"select dni,nombre,calle,num,barrio,tel,wapp,zona,pmovto,floor(deuda),sev,incobrable,gestion,subirseven,novendermas,seguir,mudo,llamar,acla,horario,mjecobr,infoseven,sex,clientes.id as id from clientes where dni='{buscar}'")
     else:
         buscar = '%'+buscar.replace(' ','%')+'%'
-        clientes = pgdict(con,f"select dni,nombre,calle||' '||num from clientes where nombre||calle||num||barrio ilike '{buscar}'")
+        clientes = pgdict(con,f"select dni,nombre,concat(calle,' ',num),deuda from clientes where lower(concat(nombre,calle,num,barrio)) like lower('{buscar}')")
     if len(clientes)==0:
         return make_response("No hay respuesta para esa busqueda",400)
     con.close()
@@ -309,3 +309,8 @@ def buscar_generarplan(idvta):
     #         venta_trigger(con,id)
     con.close()
     return 'ok'
+
+
+@buscador.route('/buscar')
+def buscar():
+    return render_template('buscador/buscar.html')
