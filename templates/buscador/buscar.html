@@ -1,0 +1,355 @@
+{% extends "base_template.html" %}
+
+{% block title %}Clientes{% endblock %}
+{% block style %}
+<style>
+.grid-buscar{
+    display: grid;
+    grid-template-columns: 1fr 20%;
+}
+.micard {
+    padding: 24px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 6px 0px 10px gray ;
+}
+.modal-container{
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0,0,0,0.3);
+}
+.modal{
+    display:flex;
+    flex-direction: column;
+    position: relative;
+}
+.btn-close{
+    color:purple;
+    background-color: white;
+    border: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+</style>
+{% endblock %}
+{% block content %}
+<div x-data="main()" class="container">
+    
+          <div class="grid-buscar ml-3 mr-3 mt-2">
+              <input type="search" placeholder="Buscar en Romitex" class="input" x-model="buscar" @keyup.enter="buscarCliente" @focus="buscar='';verCard=false" >
+              <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
+          </div>
+          <!-- <table class="table table-sm">
+              <thead>
+                  <tr>
+                      <th>Nombre</th>
+                      <th>Direccion</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <template x-for="cliente in listaClientes">
+                  <tr>
+                      <td x-text="cliente[1]"></td>
+                      <td x-text="cliente[2]"></td>
+                  </tr>
+                </template>
+              </tbody>
+          </table> -->
+          <div class="buttons m-3" >
+            <template x-for="cliente in listaClientes" x-show="!verCard">
+                <!-- [dni,nombre,direccion] -->
+            <button class="button is-info is-small" @mouseover="buscar=cliente.calle+' '+cliente.num" @click="buscaCuentaporDni(cliente.dni)" x-text="cliente.nombre"></button>
+            </template>
+          </div>
+
+          <!-- card datos clientes -->
+           <!-- dni[0],nombre[1],calle[2],num[3],barrio[4],tel[5],wapp[6],zona[7],pmovto[8],deuda[9]
+                ,sev[10],incobrable[11],gestion[12],subirseven[13],novendermas[14],seguir[15],
+                mudo[16],llamar[17],acla[18],horario[19],mjecobr[20],infoseven[21],sex[22],id[23]  -->
+    <div class="box"  x-show="verCard">
+        <p class="title is-2" x-text="Cliente.nombre+'  '+Cliente.dni"></p>
+        <p class="subtitle is-4" x-text="Cliente.calle+' '+Cliente.num+' '+Cliente.barrio+' '+Cliente.zona"></p>
+        <p class="subtitle is-4"x-text="'tel:'+Cliente.tel+' wapp:'+Cliente.wapp"></p>
+      
+        <p class="" x-show="Cliente.acla" x-text="Cliente.acla"></p>
+        <p class="" x-show="Cliente.mjecobr" x-text="Cliente.mjecobr"></p>
+        <p class="" x-show="Cliente.horario" x-text="Cliente.horario"></p>
+        <p class="" x-show="Cliente.infoseven" x-text="Cliente.infoseven"></p>
+        <div class="buttons">
+            <button class="button is-danger is-small" x-show="Cliente.novendermas">LN</button>
+            <button class="button is-success is-small" x-show="Cliente.sev">SEVEN</button>
+            <button class="button is-info is-small" x-show="Cliente.subirseven">SUBE</button>
+            <button class="button is-danger is-small" x-show="Cliente.mudo">MUDO</button>
+            <button class="button is-warning is-small" x-show="Cliente.gestion">GESTION</button>
+            <button class="button is-danger is-small" x-show="Cliente.incobrable">INC</button>
+            <button class="button is-info is-small" x-show="Cliente.seguir">SEGUIR</button>
+            <button class="button is-warning is-small" x-show="Cliente.llamar">LLAMAR</button>
+        </div>
+        <div style="display: flex; align-items:center;">
+            <h2 x-text="'$'+Cliente.deuda" class="title is-3 mb-1" x-show="Cliente.deuda"></h2>
+            <h2 x-text="'PmoVto: '+Cliente.pmovto" class="subtitle is-5 mt-1 ml-3" x-show="Cliente.pmovto"></h2>
+        </div>
+    </div>
+    <div class="buttons ml-3 mr-3 mb-1" x-show="verCard">
+        <button class="button is-secondary is-small" x-show="!Cliente.sev" @click="toggleSube()">SUBE</button>
+        <button class="button is-secondary is-small"  @click="toggleInc()">INC</button>
+        <button class="button is-secondary is-small"  @click="toggleNvm()">LN</button>
+        <button class="button is-secondary is-small"  @click="toggleGestion()">GESTION</button>
+        <button class="button is-secondary is-small"  @click="toggleMudo()">MUDO</button>
+        <button class="button is-secondary is-small"  @click="toggleSeguir()">SEGUIR</button>
+        <button class="button is-primary is-small" @click="imprimirFicha(Cliente.dni)">IMPRIMIR</button>
+        <button class="button is-primary is-small" @click="intimarCliente(Cliente.id)">INTIM</button>
+        <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${messajeWapp}` class="button is-success is-small" target="blank" style="text-decoration: none;">WAPP</a>
+        <button class="button is-success is-small" @click="clipDatos(Cliente.id)">DATOS</button>
+        <button class="button is-info is-small" @click="fecharPmovto(Cliente.id)">FECHAR</button>
+        <button class="button is-info is-small" @click="editarCliente(Cliente.id)">EDITAR</button>
+        <button class="button is-info is-small" @click="agregarComentario()">COMENTAR</button>
+        <button class="button is-info is-small" @click="agregarPlanPago()">PLAN PAGOS</button>
+        <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+    </div>   
+    <div x-bind:class="verModalPmovto?'modal-container':''">
+        <div class=" micard modal" x-show="verModalPmovto">
+            <button class="btn-close" @click="verModalPmovto=false"><i class="fa fa-times" aria-hidden="true"></i></button>
+            <h1 class="title is-3">Fechar PmoVto</h1>
+            <input type="date" class="input mb-3" x-model="Cliente.pmovto">
+            <button class="button button-primary" @click="guardarPmovto">Fechar</button>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    function textToClipboard (text) {
+        var dummy = document.createElement("textarea");
+        document.body.appendChild(dummy);
+        dummy.value = text;
+        dummy.select();
+        document.execCommand("copy");
+        document.body.removeChild(dummy);
+    }
+    function main(){
+        return{
+            listaClientes:[],
+            listaVentas:[],
+            listaCuotas:[],
+            listaVentasCanceladas:[],
+            listaComentarios:[],
+            listaLogCambioDireccion:[],
+            listaPagadas:[],
+            buscar:'',
+            verCard:false,
+            messajeWapp:'',
+            Cliente:{},
+            verModalPmovto:false,
+            verModalEdicion:false,
+            verModalComentario:false,
+            verModalPlanPago:false,
+            buscarCliente(){
+                axios.get('/buscador/'+this.buscar)
+                .then(res=>{
+                    //console.log(res.data.clientes)
+                    this.listaClientes=res.data.clientes
+                    if(this.listaClientes.length==1) this.abrirCliente(res.data.clientes[0].dni)
+                })
+                .catch(error=>{
+                    //Toast.show(error.request.response,'error')
+                })
+            },
+            buscaCuentaporDni(dni){
+                //console.log(dni);
+                this.listaClientes.map(row=>row.pmovto=dayjs.utc(row.pmovto).format('YYYY-MM-DD'))
+                this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
+                //console.log(this.Cliente);
+                //this.clipWapp(this.Cliente.dni);//genero el message wapp para el cliente por si es necesario
+                this.obtenerVentas(this.Cliente.id)
+                this.verCard = true;
+            },
+            clipWapp(dni){
+            let text,
+                messaje;
+            let direccion = this.Cliente.calle.concat(' ',this.Cliente.num)
+            axios.get('/buscador/datosultvta/'+dni)
+            .then(res=>{
+                let fecha = res.data.ultvta.fecha;
+                let articulos = res.data.ultvta.art;
+                if (this.Cliente.sev){
+                text=
+                `Nos comunicamos de la empresa ROMITEX por una deuda que usted tiene con la firma. Usted fue subido al SEVEN hasta regularizar su cuenta. Puede hacer un plan de pagos. Consulte por Wapp. Una vez cancelado en 24hs se lo elimina del SEVEN. De no desmostrar interes nos vemos obligados a cobrar su pagare por via JUDICIAL. Atte. *Departamento de cobranzas de ROMITEX*`
+                } else {
+                    text=
+                    `Nos comunicamos de la empresa ROMITEX por una deuda que usted tiene con la firma. En los proximos dias deberemos informar al SEVEN el atraso de su cuenta. Le proponemos un plan de pagos que podemos realizar por este medio.`
+                }
+                messaje = this.Cliente.nombre.concat(': ',text,' ',`(Por compra de ${articulos} realizada en '${direccion}' el dia ${dayjs.utc(fecha).format('DD-MM-YYYY')})`)
+                console.log(messaje);
+                this.messajeWapp = messaje.replaceAll(' ','%20')
+            })
+            },
+            clipDatos(idcliente){
+                let text = this.Cliente.dni+'\n'+this.Cliente.calle+' '+this.Cliente.num+'\n'+this.Cliente.barrio+'\n'+this.Cliente.wapp
+                textToClipboard(text)
+                bulmaToast.toast({
+                    message:"Datos copiados al portapapeles",
+                    type: "is-success"
+                    })
+            },
+            obtenerVentas(idcliente){
+                axios.get('/buscador/obtenerventasporidcliente/'+idcliente)
+                .then(res=>{
+                    //console.log(res.data.ventas);
+                    let arrayVentas=res.data.ventas
+                    arrayVentas.map(row=>{
+                        row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD')
+                        row.p=1?'MEN':3?'SEM':'QUI'
+                    })
+                    this.listaVentas = arrayVentas
+                    this.listaCuotas = this.hacerCuotas()
+                    if(this.listaVentas.length===0) bulmaToast.toast({message:'Este cliente no tiene cuentas activas',type:'is-danger'})
+                    this.pedirPagadas(idcliente)
+                    this.obtenerVentasCanceladas(idcliente)
+                    this.pedirComentarios(idcliente)
+                    this.pedirLogCambioDireccion(idcliente)
+                })
+            },
+            obtenerVentasCanceladas(idcliente){
+                axios.get('/buscador/obtenerventascanceladasporidcliente/'+idcliente)
+                .then(res=>{
+                    let arrayVentasCanceladas=res.data.ventascanceladas
+                    arrayVentasCanceladas.map(row=>{
+                        row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD')
+                        row.p=1?'MEN':3?'SEM':'QUI'
+                    })
+                    this.listaVentasCanceladas = arrayVentasCanceladas
+                })
+            },
+            pedirComentarios(idcliente){
+                axios.get('/buscador/pedircomentarios/'+idcliente)
+                .then(res=>{
+                    let arrayComentarios = res.data.comentarios 
+                    arrayComentarios.map(row=>row.fechahora=dayjs.utc(row.fechahora).format('YYYY-MM-DD'))
+                    this.listaComentarios = arrayComentarios
+                })
+            },
+            pedirLogCambioDireccion(idcliente){
+                axios.get('/buscador/pedirlogcambiodireccion/'+idcliente)
+                .then(res=>{
+                    this.listaLogCambioDireccion = res.data.logcambiodireccion
+                    this.listaLogCambioDireccion.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                })
+            },
+            hacerCuotas(){
+            /* id,fecha,cc2,ic3,p4,idvdor,saldo6,comprado,pp8,devuelta,condonada,cnt,art,pagado13,primera14, */
+            tblCuota=[]
+            let vto
+            this.listaVentas.forEach(row=>{
+                saldo = row.saldo
+                    if(saldo!==0){
+                        pagado = row.pagado
+                        cc = row.cc
+                        ic = row.ic
+                        p = row.p
+                        //console.log(p);
+                        primera = row.primera
+                        for (let i=1; i<=cc ;i++){
+                            if(p==='MEN') vto = dayjs.utc(primera).add(i-1,'month').format('YYYY-MM-DD')
+                            if(p==='QUI') vto = dayjs.utc(primera).add((i-1)*2,'week').format('YYYY-MM-DD')
+                            if(p==='SEM') vto = dayjs.utc(primera).add(i-1,'week').format('YYYY-MM-DD')
+                            tblCuota.push([i,vto,pagado>=ic?0:pagado<=0?ic:ic-pagado])
+                            pagado = pagado - ic
+                        }
+                    }
+                
+            })
+            return tblCuota
+            },
+            pedirPagadas(idcliente){
+                axios.get('/buscador/pedirpagadasporidcliente/'+idcliente)
+                .then(res=>{
+                    //console.log(res.data.pagadas);
+                    this.listaPagadas=res.data.pagadas
+                    this.listaPagadas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                })
+            },
+            toggleInc(){
+            axios.get('/buscador/toggleinc/'+this.Cliente.dni)
+            .then(res=>{
+               bulmaToast.toast({message:res.data.msg,type:"is-success"}) 
+               this.Cliente.incobrable = !this.Cliente.incobrable
+            })
+            },
+            toggleNvm(){
+                axios.get('/buscador/togglenvm/'+this.Cliente.dni)
+                .then(res=>{
+                    bulmaToast.toast({message:res.data.msg,type:"is-success"})  
+                    this.Cliente.novendermas = !this.Cliente.novendermas
+                })
+            },
+            toggleSube(){
+                axios.get('/buscador/togglesube/'+this.Cliente.dni)
+                .then(res=>{
+                    bulmaToast.toast({message:res.data.msg,type:"is-success"})  
+                    this.Cliente.subirseven = !this.Cliente.subirseven
+                })
+            },
+            toggleGestion(){
+                axios.get('/buscador/togglegestion/'+this.Cliente.dni)
+                .then(res=>{
+                    bulmaToast.toast({message:res.data.msg,type:"is-success"}) 
+                    this.Cliente.gestion = !this.Cliente.gestion
+                })
+            },
+            toggleMudo(){
+                axios.get('/buscador/togglemudo/'+this.Cliente.dni)
+                .then(res=>{
+                    console.log(res.data.msg);
+                    bulmaToast.toast({message:res.data.msg,type:"is-success"})
+                    this.Cliente.mudo = !this.Cliente.mudo
+                })
+            },
+            toggleSeguir(){
+                axios.get('/buscador/toggleseguir/'+this.Cliente.dni)
+                .then(res=>{
+                    bulmaToast.toast({message:res.data.msg,type:"is-success"})
+                    this.Cliente.seguir = !this.Cliente.seguir
+                })
+            },
+            imprimirFicha(dni){
+            let ids = [];
+            ids.push(dni);
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+            axios({
+                method:"POST",
+                url:"/buscador/imprimirficha",
+                responseType: "blob",
+                data: ids,
+            }).then((res)=>{
+                let url = window.URL.createObjectURL(res.data);
+                window.open(url);
+            })
+            },
+            intimarCliente(idcliente){
+
+            },
+            fecharPmovto(idcliente){
+            this.verModalPmovto=true
+            },
+            guardarPmovto(){
+                this.verModalPmovto=false
+                axios.get('/buscador/guardarpmovto/'+this.Cliente.id+'/'+this.Cliente.pmovto)
+                .then(res=>{
+                    bulmaToast.toast({message:"Fechado realizado",type:"is-success"})
+                })
+            },
+
+        }
+    }
+</script>
+{% endblock %}

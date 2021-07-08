@@ -14,7 +14,7 @@ buscador = Blueprint('buscador',__name__)
 @buscador.route('/buscador', methods = ['GET','POST'])
 @login_required
 def buscador_():
-    return render_template("buscador/buscador.html")
+    return render_template("buscador/buscar.html")
 
 
 @buscador.route('/buscador/<string:buscar>')
@@ -23,59 +23,143 @@ def buscar_cuenta(buscar):
     rcuenta = r'^[0-9]{5}$'
     rdni = r'^[0-9]{7,8}$'
     if (re.match(rcuenta,buscar)):
-        clientes = pgdict(con,f"select dni,nombre,concat(calle,' ',num),barrio,tel,wapp,clientes.zona,clientes.pmovto,floor(deuda),sev,incobrable,gestion,subirseven,novendermas,seguir,mudo,llamar,acla,horario,mjecobr,infoseven,sex,clientes.id as id from clientes,ventas where clientes.id=ventas.idcliente and ventas.id={buscar}")
+        cur = con.cursor()
+        cur.execute(f'select idcliente from ventas where id={buscar}')
+        idcliente = cur.fetchone()[0]
+        sql = f"select * from clientes where id={idcliente}"
     elif (re.match(rdni,buscar)):
-        clientes = pgdict(con,f"select dni,nombre,calle,num,barrio,tel,wapp,zona,pmovto,floor(deuda),sev,incobrable,gestion,subirseven,novendermas,seguir,mudo,llamar,acla,horario,mjecobr,infoseven,sex,clientes.id as id from clientes where dni='{buscar}'")
+        sql = f"select * from clientes where dni='{buscar}'"
     else:
         buscar = '%'+buscar.replace(' ','%')+'%'
-        clientes = pgdict(con,f"select dni,nombre,concat(calle,' ',num),deuda from clientes where lower(concat(nombre,calle,num,barrio)) like lower('{buscar}')")
+        sql = f"select * from clientes where lower(concat(nombre,calle,num,barrio)) like lower('{buscar}')"
+    cur = con.cursor(dictionary=True)
+    cur.execute(sql)
+    clientes = cur.fetchall()
     if len(clientes)==0:
         return make_response("No hay respuesta para esa busqueda",400)
     con.close()
     return jsonify(clientes=clientes)
 
 
-@buscador.route('/buscador/pedirventas/<int:id>')
-def buscar_ventas(id):
-    con = get_con()
-    sel = f"select id,fecha,cc,floor(ic),p,idvdor,floor(saldo),floor(comprado),pp,devuelta,condonada,cnt,art,floor(pagado),primera from ventas where idcliente={id}"
-    ventas = pgdict(con, sel)
-    con.close()
-    return jsonify(ventas=ventas)
+# @buscador.route('/buscador/pedirventas/<int:id>')
+# def buscar_ventas(id):
+#     con = get_con()
+#     sel = f"select id,fecha,cc,floor(ic),p,idvdor,floor(saldo),floor(comprado),pp,devuelta,condonada,cnt,art,floor(pagado),primera from ventas where idcliente={id}"
+#     ventas = pgdict(con, sel)
+#     con.close()
+    
 
 
-@buscador.route('/buscador/pedircuotas/<string:dni>')
-def buscar_cuotas(dni):
+# @buscador.route('/buscador/pedircuotas/<string:dni>')
+# def buscar_cuotas(dni):
+#     con = get_con()
+#     idcliente = pgonecolumn(con,f"select id from clientes where dni='{dni}'")
+#     ventas = pgdict(con,f"select id from ventas where idcliente={idcliente} and saldo>0")
+#     cur = con.cursor()
+#     for v in ventas:
+#         cur.execute(f"select gc({v[0]})")
+#     cur.close()
+#     cuotas = pgdict(con, f"select nc,vto,floor(ic),idvta from cuotas where debe>0 and idcliente={idcliente} order by vto")
+#     pagadas = pgdict(con, f"select fecha,rbo,floor(imp),floor(rec),cobr from pagos where idcliente={idcliente} and \
+#              idvta in (select id from ventas where saldo>0) order by fecha desc")
+#     con.close()
+#     return jsonify(cuotas=cuotas,pagadas=pagadas)
+
+
+# @buscador.route('/buscador/pedirpagadas/<int:id>')
+# def buscador_pedirpagadas(id):
+#     con = get_con()
+#     pagadas = pgdict(con, f"select fecha,rbo,floor(imp),floor(rec),cobr from pagos where idcliente={id} order by fecha desc")
+#     con.close()
+#     return jsonify(pagadas=pagadas)
+
+@buscador.route('/buscador/pedirpagadasporidcliente/<int:idcliente>')
+def buscar_pedirpagadasporidcliente(idcliente):
+    sql = f"select * from pagos where idcliente={idcliente} order by id desc"
     con = get_con()
-    idcliente = pgonecolumn(con,f"select id from clientes where dni='{dni}'")
-    ventas = pgdict(con,f"select id from ventas where idcliente={idcliente} and saldo>0")
     cur = con.cursor()
-    for v in ventas:
-        cur.execute(f"select gc({v[0]})")
-    cur.close()
-    cuotas = pgdict(con, f"select nc,vto,floor(ic),idvta from cuotas where debe>0 and idcliente={idcliente} order by vto")
-    pagadas = pgdict(con, f"select fecha,rbo,floor(imp),floor(rec),cobr from pagos where idcliente={idcliente} and \
-             idvta in (select id from ventas where saldo>0) order by fecha desc")
-    con.close()
-    return jsonify(cuotas=cuotas,pagadas=pagadas)
-
-
-@buscador.route('/buscador/pedirpagadas/<int:id>')
-def buscador_pedirpagadas(id):
-    con = get_con()
-    pagadas = pgdict(con, f"select fecha,rbo,floor(imp),floor(rec),cobr from pagos where idcliente={id} order by fecha desc")
+    cur.execute(sql)
+    pagadas = cur.fetchall()
     con.close()
     return jsonify(pagadas=pagadas)
 
 
-@buscador.route('/buscador/fecharpmovto/<string:dni>/<string:pmovto>')
-def buscar_fecharpmovto(dni,pmovto):
+@buscador.route('/buscador/obtenerventasporidcliente/<int:idcliente>')
+def buscar_obtenerventasporidcliente(idcliente):
+    sql = f"select * from ventas where idcliente={idcliente} and saldo>0"
     con = get_con()
-    upd = f"update clientes set pmovto='{pmovto}' where dni='{dni}'"
     cur = con.cursor()
-    cur.execute(upd)
+    cur.execute(sql)
+    ventas = cur.fetchall()
+    con.close()
+    return jsonify(ventas=ventas)
+
+
+@buscador.route('/buscador/pedircomentarios/<int:idcliente>')
+def buscar_pedircomentarios(idcliente):
+    sql = f"select fechahora,comentario from comentarios where idcliente={idcliente}"
+    con = get_con()
+    cur = con.cursor()
+    cur.execute(sql)
+    comentarios = cur.fetchall()
+    con.close()
+    return jsonify(comentarios=comentarios)
+
+
+@buscador.route('/buscador/guardarcomentario/<int:idcliente>', methods=['POST'])
+def buscar_guardarcomentario(idcliente):
+    d = json.loads(request.data.decode("UTF-8"))
+    ins = f"insert into comentarios(idcliente,fechahora,comentario) values({idcliente},'{d['fechahora']}','{d['comentario']}')"
+    con = get_con()
+    cur = con.cursor()
+    cur.execute(ins)
     con.commit()
-    cur.close()
+    con.close()
+    return 'ok'
+
+
+@buscador.route('/buscador/pedirlogcambiodireccion/<int:idcliente>')
+def buscar_logcambiodireccion(idcliente):
+    sql = f"select fecha,calle,num,wapp,acla from logcambiodireccion where idcliente={idcliente}"
+    con = get_con()
+    cur = con.cursor()
+    cur.execute(sql)
+    logcambiodireccion = cur.fetchall()
+    con.close()
+    return jsonify(logcambiodireccion=logcambiodireccion)
+
+
+@buscador.route('/buscador/obtenerventascanceladasporidcliente/<int:idcliente>')
+def buscar_obtenerventascanceladasporidcliente(idcliente):
+    sql = f"select * from ventas where idcliente={idcliente} and saldo=0"
+    con = get_con()
+    cur = con.cursor()
+    cur.execute(sql)
+    ventascanceladas = cur.fetchall()
+    con.close()
+    return jsonify(ventascanceladas=ventascanceladas)
+
+
+
+# @buscador.route('/buscador/fecharpmovto/<string:dni>/<string:pmovto>')
+# def buscar_fecharpmovto(dni,pmovto):
+#     con = get_con()
+#     upd = f"update clientes set pmovto='{pmovto}' where dni='{dni}'"
+#     cur = con.cursor()
+#     cur.execute(upd)
+#     con.commit()
+#     cur.close()
+#     con.close()
+#     return 'ok'
+
+
+@buscador.route('/buscador/guardarpmovto/<int:idcliente>/<string:pmovto>')
+def buscar_guardarpmovto(idcliente,pmovto):
+    con = get_con()
+    sql = f"update clientes set pmovto='{pmovto}' where id={idcliente}"
+    cur = con.cursor()
+    cur.execute(sql)
+    con.commit()
     con.close()
     return 'ok'
 
@@ -93,7 +177,7 @@ def buscar_imprimirficha():
 def buscar_datosultvta(dni):
     con = get_con()
     idcliente = pgonecolumn(con,f"select id from clientes where dni='{dni}'")
-    ultvta = pgdict(con,f"select fecha, (select max(art) from detvta where idvta=ventas.id) from ventas where idcliente={idcliente} order by id desc")
+    ultvta = pgdict(con,f"select fecha, (select max(art) from detvta where idvta=ventas.id) as art from ventas where idcliente={idcliente} order by id desc")
     con.close()
     return jsonify(ultvta=ultvta)
 
@@ -116,10 +200,11 @@ def buscar_togglesube(dni):
         cur.execute(upd)
         con.commit()
         cur.close()
-        return msg
+        return jsonify(msg=msg)
     else:
         con.close()
-        return 'No se sube pq ya esta en el seven'
+        msg =  'No se sube pq ya esta en el seven'
+        return jsonify(msg=msg)
 
 
 @buscador.route('/buscador/togglegestion/<string:dni>')
@@ -138,10 +223,10 @@ def buscar_togglegestion(dni):
     con.commit()
     cur.close()
     con.close()
-    return msg
+    return jsonify(msg=msg)
 
 
-@buscador.route('/buscador/togglemudado/<string:dni>')
+@buscador.route('/buscador/togglemudo/<string:dni>')
 def buscar_togglemudado(dni):
     con = get_con()
     sel = f"select mudo from clientes where dni='{dni}'"
@@ -161,7 +246,7 @@ def buscar_togglemudado(dni):
         con.commit()
         cur.close()
         con.close()
-        return msg
+        return jsonify(msg=msg)
 
 
 @buscador.route('/buscador/toggleinc/<string:dni>')
@@ -180,11 +265,11 @@ def buscar_toggleinc(dni):
     con.commit()
     cur.close()
     con.close()
-    return msg
+    return jsonify(msg=msg)
 
 
-@buscador.route('/buscador/toggleln/<string:dni>')
-def buscar_toggleln(dni):
+@buscador.route('/buscador/togglenvm/<string:dni>')
+def buscar_togglenvm(dni):
     con = get_con()
     sel = f"select novendermas from clientes where dni='{dni}'"
     sube = pgonecolumn(con, sel)
@@ -199,7 +284,7 @@ def buscar_toggleln(dni):
     con.commit()
     cur.close()
     con.close()
-    return msg
+    return jsonify(msg=msg)
 
 
 @buscador.route('/buscador/togglellamar/<string:dni>')
@@ -209,14 +294,16 @@ def buscar_togglellamar(dni):
     sube = pgonecolumn(con, sel)
     if sube:
         upd = f"update clientes set llamar=0 where dni='{dni}'"
+        msg = "Registro desmarcado para Llamar"
     else:
         upd = f"update clientes set llamar=1 where dni='{dni}'"
+        msg = "Registro marcado para Llamar"
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
     cur.close()
     con.close()
-    return 'ok'
+    return jsonify(msg=msg)
 
 
 @buscador.route('/buscador/toggleseguir/<string:dni>')
@@ -226,14 +313,16 @@ def buscar_toggleseguir(dni):
     sube = pgonecolumn(con, sel)
     if sube:
         upd = f"update clientes set seguir=0 where dni='{dni}'"
+        msg = "Registro desmarcado para Seguir"
     else:
         upd = f"update clientes set seguir=1 where dni='{dni}'"
+        msg = "Registro marcado para Seguir"
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
     cur.close()
     con.close()
-    return 'ok'
+    return jsonify(msg=msg)
 
 
 @buscador.route('/buscador/gettablas')
@@ -267,13 +356,13 @@ def busca_editardatos(dni):
     return 'ok'
 
 
-@buscador.route('/buscador/pedircomentarios/<int:id>')
-def buscar_pedircomentarios(id):
-    con = get_con()
-    sel = f"select fechahora,comentario from comentarios where idcliente={id}"
-    comentarios=pgdict(con, sel)
-    con.close()
-    return jsonify(comentarios=comentarios)
+# @buscador.route('/buscador/pedircomentarios/<int:id>')
+# def buscar_pedircomentarios(id):
+#     con = get_con()
+#     sel = f"select fechahora,comentario from comentarios where idcliente={id}"
+#     comentarios=pgdict(con, sel)
+#     con.close()
+#     return jsonify(comentarios=comentarios)
 
 
 @buscador.route('/buscador/planpago')

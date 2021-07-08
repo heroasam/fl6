@@ -3,6 +3,7 @@
 {% block title %}Ventas{% endblock %}
 {% block style %}
 <style>
+ 
   </style>
   {% endblock %}
   
@@ -33,7 +34,7 @@
 
   <form class="box" id="EditarForm">
     <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
-    <div class="columns">
+    <div class="columns is-desktop">
       <div class="column is-1">
         <input type="text" v-model="sex" placeholder="Sexo" size="1" class="input" ref="sex" @keyup.enter="$refs.dni.focus()" @blur="validarSex">
         <p v-show="!sex" class="help is-danger">Requerido</p>

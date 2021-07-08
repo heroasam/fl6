@@ -121,9 +121,9 @@ caption{
         </table>
     </div>
     <!-- tabla cuotas a pagar -->
-    <div class="columns is-mobile" v-if="verCard" >
-        <div class="column is-3-desktop is-6-mobile">
-            <table class="table table-sm"  style="width: 300px;" v-show="cuotas.length">
+    <div class="columns" v-if="verCard" >
+        <div class="column">
+            <table class="table table-sm"   v-show="cuotas.length">
                 <caption>Cuotas a pagar</caption>
                 <thead>
                     <tr>
@@ -141,9 +141,9 @@ caption{
                 </tbody>
             </table>
         </div>
-        <div class="column is-4-desktop is-6-mobile">
+        <div class="column">
             <!-- tabla cuotas pagadas -->
-        <table class="table table-sm ml-5"  style="min-width: 300px;" v-show="pagadas.length">
+        <table class="table table-sm ml-5"   v-show="pagadas.length">
             <caption>Pagos Realizados</caption>
             <thead>
                 <tr>
