@@ -37,6 +37,18 @@
     top: 0;
     right: 0;
 }
+.textarea {
+        border: solid 1px purple;
+        border-radius: 5px;
+    }
+.textarea:focus{
+        border: solid 1px turquoise;
+        border-radius: 5px;
+}
+.input:focus{
+        border: solid 1px turquoise;
+        border-radius: 5px;
+}
 </style>
 {% endblock %}
 {% block content %}
@@ -119,9 +131,18 @@
             <button class="btn-close" @click="verModalPmovto=false"><i class="fa fa-times" aria-hidden="true"></i></button>
             <h1 class="title is-3">Fechar PmoVto</h1>
             <input type="date" class="input mb-3" x-model="Cliente.pmovto">
-            <button class="button button-primary" @click="guardarPmovto">Fechar</button>
+            <button class="button is-primary" @click="guardarPmovto">Fechar</button>
         </div>
     </div>
+    <div x-bind:class="verModalComentario?'modal-container':''">
+        <div class=" micard modal" x-show="verModalComentario">
+            <button class="btn-close" @click="verModalComentario=false"><i class="fa fa-times" aria-hidden="true"></i></button>
+            <h3 class="title is-4">Agregar Comentario</h3>
+            <input type="date" class="input mb-3" x-model="Comentario.fechahora">
+            <textarea class="textarea mb-3" rows="4" x-model="Comentario.comentario"></textarea>
+            <button class="button is-primary" @click="guardarComentario">Guardar</button>
+        </div>
+    </div> 
 
 </div>
 {% endblock %}
@@ -149,6 +170,7 @@
             verCard:false,
             messajeWapp:'',
             Cliente:{},
+            Comentario:{fechahora:dayjs.utc().format('YYYY-MM-DD')},
             verModalPmovto:false,
             verModalEdicion:false,
             verModalComentario:false,
@@ -158,7 +180,7 @@
                 .then(res=>{
                     //console.log(res.data.clientes)
                     this.listaClientes=res.data.clientes
-                    if(this.listaClientes.length==1) this.abrirCliente(res.data.clientes[0].dni)
+                    if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
                 })
                 .catch(error=>{
                     //Toast.show(error.request.response,'error')
@@ -347,6 +369,22 @@
                 .then(res=>{
                     bulmaToast.toast({message:"Fechado realizado",type:"is-success"})
                 })
+            },
+            agregarComentario(){
+                this.verModalComentario=true
+            },
+            guardarComentario(){
+                this.verModalComentario=false
+                axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+                    axios({
+                    method:'POST',
+                    url:'/buscador/guardarcomentario/'+this.Cliente.id,
+                    data:this.Comentario
+                    })
+                    .then(res=>{
+                        bulmaToast.toast({message:'Comentario agregado',type:'is-success'})
+                        this.pedirComentarios(this.Cliente.id)
+                    })
             },
 
         }
