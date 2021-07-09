@@ -49,10 +49,28 @@
         border: solid 1px turquoise;
         border-radius: 5px;
 }
+.suggestions{
+    max-height: 200px;
+    width: 100%;
+    border-radius: 5px;
+    overflow: auto;
+}
+.suggestions>div{
+    padding: 5px;
+    padding-left: 15px;
+    font-size: 0.75em;
+    color: #999;
+    cursor: pointer;
+}
+.suggestions>div:hover{
+    background: black;
+    color: white;
+}
+
 </style>
 {% endblock %}
 {% block content %}
-<div x-data="main()" class="container">
+<div x-data="main()" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();" class="container">
     
           <div class="grid-buscar ml-3 mr-3 mt-2">
               <input type="search" placeholder="Buscar en Romitex" class="input" x-model="buscar" @keyup.enter="buscarCliente" @focus="buscar='';verCard=false" >
@@ -143,6 +161,65 @@
             <button class="button is-primary" @click="guardarComentario">Guardar</button>
         </div>
     </div> 
+    <div x-bind:class="verModalEdicion?'modal-container':''">
+        <div class="micard modal" x-show="verModalEdicion">
+            <div class="flex justify-content-end">
+                <button class="btn-close" @click="verModalEdicion=false"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </div>
+            <h1 class="title is-3">Editar Cliente</h1>
+            <input type="text" class="input mb-1" x-model="Cliente.dni">
+            <input type="text" class="input mb-1" x-model="Cliente.nombre">
+
+            <div class="grid col-1 gap-0"">
+            <input type="text" class="input mb-1" x-model="Cliente.calle" id="searchCalle" autocomplete="off">
+            <div id="suggestionsCalle" class="suggestions"></div>
+            </div>
+
+            <input type="text" class="input mb-1" x-model="Cliente.num">
+
+            <div class="grid col-1 gap-0"">
+                <input type="text" class="input mb-1" x-model="Cliente.barrio" id="searchBarrio" autocomplete="off">
+                <div id="suggestionsBarrio" class="suggestions"></div>
+            </div>
+
+            <div class="grid col-1 gap-0"">
+                <input type="text" class="input mb-1" x-model="Cliente.zona" id="searchZona" autocomplete="off">
+                <div id="suggestionsZona" class="suggestions"></div>
+            </div>
+
+            <input type="text" class="input mb-1" x-model="Cliente.tel" placeholder="telefono">
+            <input type="text" class="input mb-1" x-model="Cliente.wapp" placeholder="wapp">
+            <input type="text" class="input mb-1" x-model="Cliente.acla" placeholder="aclaracion">
+            <input type="text" class="input mb-1" x-model="Cliente.horario" placeholder="horario">
+            <input type="text" class="input mb-1" x-model="Cliente.mjecobr" placeholder="mjecobrador">
+            <input type="text" class="input mb-1" x-model="Cliente.infoseven" placeholder="infoseven">
+            <button class="button is-primary" @click="guardarEdicion">Guardar</button>
+        </div>
+    </div>
+    <div x-bind:class="verModalPlanPago?'modal-container':''">
+        <div class=" micard modal" x-show="verModalPlanPago">
+            <button class="btn-close" @click="verModalPlanPago=false"><i class="fa fa-times" aria-hidden="true"></i></button>
+            <h1 class="title is-3">Plan Pagos</h1>
+            <label for="fecha" class="label">Fecha</label>
+            <input type="date" class="input mb-3" x-model="Venta.fecha" id="fecha" autocomplete="off">
+            <label for="cc" class="label">Cuotas</label>
+            <input type="text" class="input mb-3" x-model="Venta.cc" id="cc" autocomplete="off">
+            <label for="ic" class="label">Importe</label>
+            <input type="text" class="input mb-3" x-model="Venta.ic" id="ic" autocomplete="off">
+            <label for="p" class="label">Periodicidad</label>
+            <input list="per" id="p" class="input mb-3" x-model="Venta.p" autocomplete="off">
+                <datalist id="per">
+                <option value="Mensual"></option>
+                <option value="Quincenal"></option>
+                <option value="Semanal"></option>
+                </datalist>
+            <label for="fechaprimer" class="label">Fecha Primer Cuota</label>
+            <input type="date" class="input mb-3" x-model="Venta.primera" id="fechaprimer">
+            
+            <button class="btn btn-primary" @click="guardarPlanPagos">Generar</button>
+        </div>
+    </div> 
+
 
 </div>
 {% endblock %}
@@ -170,6 +247,7 @@
             verCard:false,
             messajeWapp:'',
             Cliente:{},
+            Venta:{fecha:dayjs.utc().format('YYYY-MM-DD'),p:'Mensual'},
             Comentario:{fechahora:dayjs.utc().format('YYYY-MM-DD')},
             verModalPmovto:false,
             verModalEdicion:false,
@@ -386,6 +464,131 @@
                         this.pedirComentarios(this.Cliente.id)
                     })
             },
+            editarCliente(idcliente){
+            this.verModalEdicion=true
+            },
+            guardarEdicion(){
+                this.verModalEdicion=false
+                axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+                axios({
+                    method:'POST',
+                    url:'/buscador/guardaredicioncliente/'+this.Cliente.id,
+                    data:this.Cliente
+                    })
+                    .then(res=>{
+                    bulmaToast.toast({message:"Cliente editado con exito",type: 'is-success'})
+                    })
+                    .catch(error=>{
+                    bulmaToast.toast({message:error.request.response,type: 'is-danger'})
+                    })
+            },
+            obtenerCalles(){
+                axios.get('/buscador/obtenerlistacalles')
+                .then(res=>{
+                    const calles = res.data.calles
+                    const $input = document.getElementById('searchCalle')
+                    const $suggestions = document.getElementById('suggestionsCalle')
+                    $input.addEventListener('keyup',(e)=>{
+                    const input = $input.value 
+                    $suggestions.innerHTML='';
+                    const suggestions = calles.filter(calle=>{
+                        return calle.calle.toLocaleLowerCase().includes(input.toLocaleLowerCase())
+                    })
+                    suggestions.forEach(suggested=>{
+                        const $div = document.createElement('div');
+                        $div.innerHTML = suggested.calle;
+                        $suggestions.appendChild($div)
+                    })
+                    if(input==='') $suggestions.innerHTML=''
+                    if(e.key==='Enter'){
+                        this.Cliente.calle = $suggestions.firstChild.innerHTML
+                        $suggestions.innerHTML=''
+                    }
+                    })
+                    $suggestions.addEventListener('click',(e)=>{
+                        this.Cliente.calle=e.target.innerHTML
+                        $suggestions.innerHTML=''
+                    })
+                    })
+                },
+            obtenerBarrios(){
+                axios.get('/buscador/obtenerlistabarrios')
+                .then(res=>{
+                    const barrios = res.data.barrios
+                    const $input = document.getElementById('searchBarrio')
+                    const $suggestions = document.getElementById('suggestionsBarrio')
+                    $input.addEventListener('keyup',(e)=>{
+                    const input = $input.value 
+                    $suggestions.innerHTML='';
+                    const suggestions = barrios.filter(barrio=>{
+                        return barrio.barrio.toLocaleLowerCase().includes(input.toLocaleLowerCase())
+                    })
+                    suggestions.forEach(suggested=>{
+                        const $div = document.createElement('div');
+                        $div.innerHTML = suggested.barrio;
+                        $suggestions.appendChild($div)
+                    })
+                    if(input==='') $suggestions.innerHTML=''
+                    if(e.key==='Enter'){
+                        this.Cliente.barrio = $suggestions.firstChild.innerHTML
+                        $suggestions.innerHTML=''
+                    }
+                    })
+                    $suggestions.addEventListener('click',(e)=>{
+                        this.Cliente.barrio=e.target.innerHTML
+                        $suggestions.innerHTML=''
+                    })
+                    })
+                },
+            obtenerZonas(){
+                axios.get('/buscador/obtenerlistazonas')
+                .then(res=>{
+                    const zonas = res.data.zonas
+                    const $input = document.getElementById('searchZona')
+                    const $suggestions = document.getElementById('suggestionsZona')
+                    $input.addEventListener('keyup',(e)=>{
+                    const input = $input.value 
+                    $suggestions.innerHTML='';
+                    const suggestions = zonas.filter(zona=>{
+                        return zona.zona.toLocaleLowerCase().includes(input.toLocaleLowerCase())
+                    })
+                    suggestions.forEach(suggested=>{
+                        const $div = document.createElement('div');
+                        $div.innerHTML = suggested.zona;
+                        $suggestions.appendChild($div)
+                    })
+                    if(input==='') $suggestions.innerHTML=''
+                    if(e.key==='Enter'){
+                        this.Cliente.zona = $suggestions.firstChild.innerHTML
+                        $suggestions.innerHTML=''
+                    }
+                    })
+                    $suggestions.addEventListener('click',(e)=>{
+                        this.Cliente.zona=e.target.innerHTML
+                        $suggestions.innerHTML=''
+                    })
+                    })
+                },
+                agregarPlanPago(){
+                this.verModalPlanPago=true
+                },
+                guardarPlanPagos(){
+                    this.Venta.p = this.Venta.p=="Mensual"?1:this.Venta.p=="Quincenal"?2:3
+                    this.verModalPlanPago=false
+                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+                    axios({
+                    method:'POST',
+                        url:'/buscador/generarplandepagos/'+this.Cliente.id,
+                        data:this.Venta
+                        })
+                        .then(res=>{
+                        bulmaToast.toast({message:"Plan de pagos generado",type: 'is-success'})
+                        })
+                        .catch(error=>{
+                        bulmaToast.toast({message:error.request.response, type:'is-danger'})
+                        })
+
+                },
 
         }
     }

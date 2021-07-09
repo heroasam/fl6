@@ -343,11 +343,11 @@ def buscar_getzonas():
     return jsonify(zonas=zonas)
 
 
-@buscador.route('/buscador/editardatos/<string:dni>' , methods = ['POST'])
-def busca_editardatos(dni):
+@buscador.route('/buscador/guardaredicioncliente/<int:idcliente>' , methods = ['POST'])
+def busca_guardaredicioncliente(idcliente):
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    upd = f"update clientes set sex='{d['sex']}', dni='{d['dni']}', nombre='{d['nombre']}', calle='{d['calle']}', num={d['num']}, barrio='{d['barrio']}', zona='{d['zona']}', tel='{d['tel']}', wapp={d['wapp']}, acla='{d['acla']}', mjecobr='{d['mjecobr']}', horario='{d['horario']}', infoseven='{d['infoseven']}' where dni='{dni}'"
+    upd = f"update clientes set sex='{d['sex']}', dni='{d['dni']}', nombre='{d['nombre']}', calle='{d['calle']}', num={d['num']}, barrio='{d['barrio']}', zona='{d['zona']}', tel='{d['tel']}', wapp={d['wapp']}, acla='{d['acla']}', mjecobr='{d['mjecobr']}', horario='{d['horario']}', infoseven='{d['infoseven']}' where id={idcliente}"
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
@@ -365,9 +365,9 @@ def busca_editardatos(dni):
 #     return jsonify(comentarios=comentarios)
 
 
-@buscador.route('/buscador/planpago')
-def buscar_planpago():
-    return render_template("buscador/planpago.html")
+# @buscador.route('/buscador/planpago')
+# def buscar_planpago():
+#     return render_template("buscador/planpago.html")
 
 
 @buscador.route('/buscador/getvtaspp/<int:id>')
@@ -379,27 +379,72 @@ def buscar_getvtaspp(id):
     return jsonify(ventas=ventas)
 
 
-@buscador.route('/buscador/generarplan/<int:idvta>', methods=['POST'])
-def buscar_generarplan(idvta):
+# @buscador.route('/buscador/generarplan/<int:idvta>', methods=['POST'])
+# def buscar_generarplan(idvta):
+#     con = get_con()
+#     d = json.loads(request.data.decode("UTF-8"))
+#     print(d)
+#     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
+#     upd = f"update ventas set pp=1, pfecha='{d['pfecha']}', pcc={d['pcc']},pic={d['pic']},pper={d['pper']},pprimera='{d['pprimera']}', saldo={int(d['pcc'])*int(d['pic'])} where id={idvta}"
+#     cur = con.cursor()
+#     cur.execute(upd)
+#     con.commit()
+#     # idotrasvtas = pglflat(con, f"select id from ventas where idcliente={idcliente} and pp=0 and saldo>0")
+#     upd1 = f"update ventas set pcondo=1, saldo=0 where idcliente={idcliente} and pp=0 and saldo>0"
+#     cur.execute(upd1)
+#     con.commit()
+#     # if len(idotrasvtas)>0:
+#     #     for id in idotrasvtas:
+#     #         venta_trigger(con,id)
+#     con.close()
+#     return 'ok'
+
+
+@buscador.route('/buscador/obtenerlistacalles')
+def buscar_obtenerlistacalles():
     con = get_con()
+    sql = f"select calle from calles order by calle"
+    cur = con.cursor(dictionary=True)
+    cur.execute(sql)
+    calles = cur.fetchall()
+    con.close()
+    return jsonify(calles=calles)
+
+
+@buscador.route('/buscador/obtenerlistabarrios')
+def buscar_obtenerlistabarrios():
+    con = get_con()
+    sql = f"select barrio from barrios order by barrio"
+    cur = con.cursor(dictionary=True)
+    cur.execute(sql)
+    barrios = cur.fetchall()
+    con.close()
+    return jsonify(barrios=barrios)
+
+
+
+@buscador.route('/buscador/obtenerlistazonas')
+def buscar_obtenerlistazonas():
+    con = get_con()
+    sql = f"select zona from zonas order by zona"
+    cur = con.cursor(dictionary=True)
+    cur.execute(sql)
+    zonas = cur.fetchall()
+    con.close()
+    return jsonify(zonas=zonas)
+
+
+@buscador.route('/buscador/generarplandepagos/<int:idcliente>', methods=['POST'])
+def buscar_generarplandepagos(idcliente):
     d = json.loads(request.data.decode("UTF-8"))
-    print(d)
-    idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
-    upd = f"update ventas set pp=1, pfecha='{d['pfecha']}', pcc={d['pcc']},pic={d['pic']},pper={d['pper']},pprimera='{d['pprimera']}', saldo={int(d['pcc'])*int(d['pic'])} where id={idvta}"
+    upd = f"update ventas set saldo=0, pcondo=1 where idcliente={idcliente} and saldo>0"
+    con = get_con()
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
-    # idotrasvtas = pglflat(con, f"select id from ventas where idcliente={idcliente} and pp=0 and saldo>0")
-    upd1 = f"update ventas set pcondo=1, saldo=0 where idcliente={idcliente} and pp=0 and saldo>0"
-    cur.execute(upd1)
+    ins = f"insert into ventas(fecha,cc,ic,p,primera,pp,idvdor,idcliente) values('{d['fecha']}',{d['cc']},{d['ic']},{d['p']},'{d['primera']}',1,10,{idcliente})"
+    print(ins)
+    cur.execute(ins)
     con.commit()
-    # if len(idotrasvtas)>0:
-    #     for id in idotrasvtas:
-    #         venta_trigger(con,id)
     con.close()
     return 'ok'
-
-
-@buscador.route('/buscar')
-def buscar():
-    return render_template('buscador/buscar.html')
