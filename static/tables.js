@@ -161,11 +161,18 @@ document.addEventListener('click', ()=>{
         // o sea la funcion seleccionar y totalizar etc. funcionan con tablas sin la clase nototal
         if(event.target.tagName=== 'TD' && event.ctrlKey===true){
             t=event.target.parentElement.parentElement.parentElement
+            
             restaurar(t)
         };
     }
 })
 
+document.addEventListener('click', ()=>{
+    if(event.target.parentElement.classList.contains('subtotal')){
+        t=event.target.parentElement.parentElement.parentElement
+        restaurar(t)
+    }
+})
 
 
 document.addEventListener('mousedown',()=>{

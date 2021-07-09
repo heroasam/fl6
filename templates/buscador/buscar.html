@@ -143,7 +143,153 @@
         <button class="button is-info is-small" @click="agregarComentario()">COMENTAR</button>
         <button class="button is-info is-small" @click="agregarPlanPago()">PLAN PAGOS</button>
         <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
-    </div>   
+    </div> 
+    <table class="table table-sm m-3" x-show="verCard && listaVentas.length">
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>fecha</th>
+                <th>plan</th>
+                <th>saldo/comprado</th>
+                <th>vdor</th>
+                <th>cnt/art</th>
+            </tr>
+        </thead>
+        <tbody>
+            <template x-for="venta in listaVentas">
+            <tr>
+                <td x-text="venta.id"></td>
+                <td x-text="venta.fecha" style="min-width: 150px;"></td>
+                <td x-text="venta.cc+' CUO de $'+venta.ic+' '+venta.p" style="min-width: 200px;"></td>
+                <td x-text="venta.saldo+'/'+venta.comprado"></td>
+                <td x-text="venta.idvdor"></td>
+                <td x-text="venta.cnt+'/'+venta.art" x-show="venta.cnt"></td>
+                <td x-text="'PLAN DE PAGOS'" x-show="venta.pp" class="tag-danger"></td>
+            </tr>
+           </template>
+        </tbody>
+    </table>
+    <div class="columns m-2">
+        <div>
+            <h3 class="title is-3 text-center m-2" x-show="verCard && listaCuotas.length">Cuotas a pagar</h3>
+            <table class="table  " x-show="verCard && listaCuotas.length" >
+                <thead>
+                    <tr>
+                        <th>N</th>
+                        <th>Fecha</th>
+                        <th>Saldo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template x-for="cuota in listaCuotas">
+                    <tr x-show="cuota[2]">
+                        <td x-text="cuota[0]"></td>
+                        <td x-text="cuota[1]" style="min-width: 100px;"></td>
+                        <td x-text="cuota[2]"></td>
+                    </tr>
+                   </template>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <h3 class="title is-3 text-center m-2" x-show="verCard && listaPagadas.length">Cuotas pagadas</h3>
+            <table class="table " x-show="verCard && listaPagadas.length">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Rbo</th>
+                        <th>Imp</th>
+                        <th>Rec</th>
+                        <th>Cobr</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template x-for="paga in listaPagadas">
+                    <tr>
+                        <td x-text="paga.fecha" style="min-width: 100px;"></td>
+                        <td x-text="paga.rbo"></td>
+                        <td x-text="paga.imp"></td>
+                        <td x-text="paga.rec"></td>
+                        <td x-text="paga.cobr"></td>
+                    </tr>
+                </template>
+                </tbody>
+            </table>
+        </div>
+       
+     </div> 
+     <h3 class="title is-3 m-1" x-show="verCard && listaVentasCanceladas.length">Ventas Canceladas</h3>
+     <table class="table table-sm" x-show="verCard && listaVentasCanceladas.length">
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>fecha</th>
+                <th>plan</th>
+                <th>comprado</th>
+                <th>vdor</th>
+                <th>cnt/art</th>
+                <th>info</th>
+            </tr>
+        </thead>
+        <tbody>
+            <template x-for="venta in listaVentasCanceladas">
+            <tr>
+                <td data-titulo="cuenta" x-text="venta.id"></td>
+                <td data-titulo="fecha vta"x-text="venta.fecha" style="min-width: 100px;"></td>
+                <td data-titulo="plan" x-text="venta.cc+' CUO de $'+venta.ic+' '+venta.p" style="min-width: 200px;"></td>
+                <td data-titulo="comprado" x-text="venta.comprado"></td>
+                <td data-titulo="vdor" x-text="venta.idvdor"></td>
+                <td data-titulo="arts" x-text="venta.cnt+'/'+venta.art"></td>
+                <td x-show="venta.pcondo" x-text="'CUENTA INCLUIDA EN UN PLAN DE PAGOS'" class="tag-danger"></td>
+            </tr>
+            </template>
+         </tbody>
+       </table>
+
+       <h3 class="title is-3 m-1" x-show="verCard && listaComentarios.length">Comentarios</h3>
+       <table class="table table-sm" x-show="verCard && listaComentarios.length">
+           <thead>
+               <tr>
+                   <th>Fecha</th>
+                   <th>Comentario</th>
+               </tr>
+           </thead>
+           <tbody>
+               <template x-for="comentario in listaComentarios">
+               <tr>
+                   <td  x-text="comentario.fechahora" style="min-width: 100px;"></td>
+                   <td  x-text="comentario.comentario"></td>
+               </tr>
+            </template>
+           </tbody>
+       </table>
+
+       <h3 class="title is-3 m-1" x-show="verCard && listaLogCambioDireccion.length">LogCambioDireccion</h3>
+       <table class="table table-sm" x-show="verCard && listaLogCambioDireccion.length">
+           <thead>
+               <tr>
+                   <th>Fecha</th>
+                   <th>calle</th>
+                   <th>num</th>
+                   <th>wapp</th>
+                   <th>acla</th>
+               </tr>
+           </thead>
+           <tbody>
+               <template x-for="log in listaLogCambioDireccion">
+               <tr>
+                   <td  x-text="log.fecha" style="min-width: 100px;"></td>
+                   <td  x-text="log.calle"></td>
+                   <td  x-text="log.num"></td>
+                   <td  x-text="log.wapp"></td>
+                   <td  x-text="log.acla"></td>
+               </tr>
+            </template>
+           </tbody>
+       </table>
+
+
+
     <div x-bind:class="verModalPmovto?'modal-container':''">
         <div class=" micard modal" x-show="verModalPmovto">
             <button class="btn-close" @click="verModalPmovto=false"><i class="fa fa-times" aria-hidden="true"></i></button>
@@ -304,7 +450,7 @@
             obtenerVentas(idcliente){
                 axios.get('/buscador/obtenerventasporidcliente/'+idcliente)
                 .then(res=>{
-                    //console.log(res.data.ventas);
+                    console.log(res.data.ventas);
                     let arrayVentas=res.data.ventas
                     arrayVentas.map(row=>{
                         row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD')

@@ -77,7 +77,7 @@ def buscar_cuenta(buscar):
 def buscar_pedirpagadasporidcliente(idcliente):
     sql = f"select * from pagos where idcliente={idcliente} order by id desc"
     con = get_con()
-    cur = con.cursor()
+    cur = con.cursor(dictionary=True)
     cur.execute(sql)
     pagadas = cur.fetchall()
     con.close()
@@ -88,7 +88,7 @@ def buscar_pedirpagadasporidcliente(idcliente):
 def buscar_obtenerventasporidcliente(idcliente):
     sql = f"select * from ventas where idcliente={idcliente} and saldo>0"
     con = get_con()
-    cur = con.cursor()
+    cur = con.cursor(dictionary=True)
     cur.execute(sql)
     ventas = cur.fetchall()
     con.close()
@@ -99,7 +99,7 @@ def buscar_obtenerventasporidcliente(idcliente):
 def buscar_pedircomentarios(idcliente):
     sql = f"select fechahora,comentario from comentarios where idcliente={idcliente}"
     con = get_con()
-    cur = con.cursor()
+    cur = con.cursor(dictionary=True)
     cur.execute(sql)
     comentarios = cur.fetchall()
     con.close()
@@ -122,7 +122,7 @@ def buscar_guardarcomentario(idcliente):
 def buscar_logcambiodireccion(idcliente):
     sql = f"select fecha,calle,num,wapp,acla from logcambiodireccion where idcliente={idcliente}"
     con = get_con()
-    cur = con.cursor()
+    cur = con.cursor(dictionary=True)
     cur.execute(sql)
     logcambiodireccion = cur.fetchall()
     con.close()
@@ -133,7 +133,7 @@ def buscar_logcambiodireccion(idcliente):
 def buscar_obtenerventascanceladasporidcliente(idcliente):
     sql = f"select * from ventas where idcliente={idcliente} and saldo=0"
     con = get_con()
-    cur = con.cursor()
+    cur = con.cursor(dictionary=True)
     cur.execute(sql)
     ventascanceladas = cur.fetchall()
     con.close()
