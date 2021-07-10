@@ -42,11 +42,11 @@
         border-radius: 5px;
     }
 .textarea:focus{
-        border: solid 1px turquoise;
+        border: solid 2px turquoise;
         border-radius: 5px;
 }
 .input:focus{
-        border: solid 1px turquoise;
+        border: solid 2px turquoise;
         border-radius: 5px;
 }
 .suggestions{
@@ -76,22 +76,7 @@
               <input type="search" placeholder="Buscar en Romitex" class="input" x-model="buscar" @keyup.enter="buscarCliente" @focus="buscar='';verCard=false" >
               <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
           </div>
-          <!-- <table class="table table-sm">
-              <thead>
-                  <tr>
-                      <th>Nombre</th>
-                      <th>Direccion</th>
-                  </tr>
-              </thead>
-              <tbody>
-                  <template x-for="cliente in listaClientes">
-                  <tr>
-                      <td x-text="cliente[1]"></td>
-                      <td x-text="cliente[2]"></td>
-                  </tr>
-                </template>
-              </tbody>
-          </table> -->
+          
           <div class="buttons m-3" >
             <template x-for="cliente in listaClientes" x-show="!verCard">
                 <!-- [dni,nombre,direccion] -->
@@ -100,9 +85,7 @@
           </div>
 
           <!-- card datos clientes -->
-           <!-- dni[0],nombre[1],calle[2],num[3],barrio[4],tel[5],wapp[6],zona[7],pmovto[8],deuda[9]
-                ,sev[10],incobrable[11],gestion[12],subirseven[13],novendermas[14],seguir[15],
-                mudo[16],llamar[17],acla[18],horario[19],mjecobr[20],infoseven[21],sex[22],id[23]  -->
+          
     <div class="box"  x-show="verCard">
         <p class="title is-2" x-text="Cliente.nombre+'  '+Cliente.dni"></p>
         <p class="subtitle is-4" x-text="Cliente.calle+' '+Cliente.num+' '+Cliente.barrio+' '+Cliente.zona"></p>
@@ -218,78 +201,84 @@
         </div>
        
      </div> 
-     <h3 class="title is-3 m-1" x-show="verCard && listaVentasCanceladas.length">Ventas Canceladas</h3>
-     <table class="table table-sm" x-show="verCard && listaVentasCanceladas.length">
-        <thead>
-            <tr>
-                <th>id</th>
-                <th>fecha</th>
-                <th>plan</th>
-                <th>comprado</th>
-                <th>vdor</th>
-                <th>cnt/art</th>
-                <th>info</th>
-            </tr>
-        </thead>
-        <tbody>
-            <template x-for="venta in listaVentasCanceladas">
-            <tr>
-                <td data-titulo="cuenta" x-text="venta.id"></td>
-                <td data-titulo="fecha vta"x-text="venta.fecha" style="min-width: 100px;"></td>
-                <td data-titulo="plan" x-text="venta.cc+' CUO de $'+venta.ic+' '+venta.p" style="min-width: 200px;"></td>
-                <td data-titulo="comprado" x-text="venta.comprado"></td>
-                <td data-titulo="vdor" x-text="venta.idvdor"></td>
-                <td data-titulo="arts" x-text="venta.cnt+'/'+venta.art"></td>
-                <td x-show="venta.pcondo" x-text="'CUENTA INCLUIDA EN UN PLAN DE PAGOS'" class="tag-danger"></td>
-            </tr>
-            </template>
-         </tbody>
-       </table>
-
-       <h3 class="title is-3 m-1" x-show="verCard && listaComentarios.length">Comentarios</h3>
-       <table class="table table-sm" x-show="verCard && listaComentarios.length">
+     <div class="m-2">
+        <h3 class="title is-3 m-2" x-show="verCard && listaVentasCanceladas.length">Ventas Canceladas</h3>
+        <table class="table" x-show="verCard && listaVentasCanceladas.length">
            <thead>
                <tr>
-                   <th>Fecha</th>
-                   <th>Comentario</th>
+                   <th>id</th>
+                   <th>fecha</th>
+                   <th>plan</th>
+                   <th>comprado</th>
+                   <th>vdor</th>
+                   <th>cnt/art</th>
+                   <th>info</th>
                </tr>
            </thead>
            <tbody>
-               <template x-for="comentario in listaComentarios">
+               <template x-for="venta in listaVentasCanceladas">
                <tr>
-                   <td  x-text="comentario.fechahora" style="min-width: 100px;"></td>
-                   <td  x-text="comentario.comentario"></td>
+                   <td data-titulo="cuenta" x-text="venta.id"></td>
+                   <td data-titulo="fecha vta"x-text="venta.fecha" style="min-width: 100px;"></td>
+                   <td data-titulo="plan" x-text="venta.cc+' CUO de $'+venta.ic+' '+venta.p" style="min-width: 200px;"></td>
+                   <td data-titulo="comprado" x-text="venta.comprado"></td>
+                   <td data-titulo="vdor" x-text="venta.idvdor"></td>
+                   <td data-titulo="arts" x-text="venta.cnt+'/'+venta.art"></td>
+                   <td x-show="venta.pcondo" x-text="'CUENTA INCLUIDA EN UN PLAN DE PAGOS'" class="tag-danger"></td>
                </tr>
-            </template>
-           </tbody>
-       </table>
+               </template>
+            </tbody>
+          </table>
+     </div>
 
-       <h3 class="title is-3 m-1" x-show="verCard && listaLogCambioDireccion.length">LogCambioDireccion</h3>
-       <table class="table table-sm" x-show="verCard && listaLogCambioDireccion.length">
-           <thead>
-               <tr>
-                   <th>Fecha</th>
-                   <th>calle</th>
-                   <th>num</th>
-                   <th>wapp</th>
-                   <th>acla</th>
-               </tr>
-           </thead>
-           <tbody>
-               <template x-for="log in listaLogCambioDireccion">
-               <tr>
-                   <td  x-text="log.fecha" style="min-width: 100px;"></td>
-                   <td  x-text="log.calle"></td>
-                   <td  x-text="log.num"></td>
-                   <td  x-text="log.wapp"></td>
-                   <td  x-text="log.acla"></td>
-               </tr>
-            </template>
-           </tbody>
-       </table>
+       <div class="m-2">
+        <h3 class="title is-3 m-2" x-show="verCard && listaComentarios.length">Comentarios</h3>
+        <table class="table " x-show="verCard && listaComentarios.length">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Comentario</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template x-for="comentario in listaComentarios">
+                <tr>
+                    <td  x-text="comentario.fechahora" style="min-width: 100px;"></td>
+                    <td  x-text="comentario.comentario"></td>
+                </tr>
+             </template>
+            </tbody>
+        </table>
+       </div>
+
+       <div class="m-2">
+        <h3 class="title is-3 m-2" x-show="verCard && listaLogCambioDireccion.length">LogCambioDireccion</h3>
+        <table class="table " x-show="verCard && listaLogCambioDireccion.length">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>calle</th>
+                    <th>num</th>
+                    <th>wapp</th>
+                    <th>acla</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template x-for="log in listaLogCambioDireccion">
+                <tr>
+                    <td  x-text="log.fecha" style="min-width: 100px;"></td>
+                    <td  x-text="log.calle"></td>
+                    <td  x-text="log.num"></td>
+                    <td  x-text="log.wapp"></td>
+                    <td  x-text="log.acla"></td>
+                </tr>
+             </template>
+            </tbody>
+        </table>
+       </div>
 
 
-
+    <!-- MODALES -->
     <div x-bind:class="verModalPmovto?'modal-container':''">
         <div class=" micard modal" x-show="verModalPmovto">
             <button class="btn-close" @click="verModalPmovto=false"><i class="fa fa-times" aria-hidden="true"></i></button>
@@ -415,18 +404,18 @@
                 this.listaClientes.map(row=>row.pmovto=dayjs.utc(row.pmovto).format('YYYY-MM-DD'))
                 this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
                 //console.log(this.Cliente);
-                //this.clipWapp(this.Cliente.dni);//genero el message wapp para el cliente por si es necesario
                 this.obtenerVentas(this.Cliente.id)
+                
                 this.verCard = true;
             },
-            clipWapp(dni){
+            clipWapp(){
             let text,
                 messaje;
             let direccion = this.Cliente.calle.concat(' ',this.Cliente.num)
-            axios.get('/buscador/datosultvta/'+dni)
-            .then(res=>{
-                let fecha = res.data.ultvta.fecha;
-                let articulos = res.data.ultvta.art;
+            ultvta = this.listaVentas[0]
+            
+                let fecha = ultvta.fecha;
+                let articulos = ultvta.art;
                 if (this.Cliente.sev){
                 text=
                 `Nos comunicamos de la empresa ROMITEX por una deuda que usted tiene con la firma. Usted fue subido al SEVEN hasta regularizar su cuenta. Puede hacer un plan de pagos. Consulte por Wapp. Una vez cancelado en 24hs se lo elimina del SEVEN. De no desmostrar interes nos vemos obligados a cobrar su pagare por via JUDICIAL. Atte. *Departamento de cobranzas de ROMITEX*`
@@ -437,7 +426,7 @@
                 messaje = this.Cliente.nombre.concat(': ',text,' ',`(Por compra de ${articulos} realizada en '${direccion}' el dia ${dayjs.utc(fecha).format('DD-MM-YYYY')})`)
                 console.log(messaje);
                 this.messajeWapp = messaje.replaceAll(' ','%20')
-            })
+            
             },
             clipDatos(idcliente){
                 let text = this.Cliente.dni+'\n'+this.Cliente.calle+' '+this.Cliente.num+'\n'+this.Cliente.barrio+'\n'+this.Cliente.wapp
@@ -463,6 +452,7 @@
                     this.obtenerVentasCanceladas(idcliente)
                     this.pedirComentarios(idcliente)
                     this.pedirLogCambioDireccion(idcliente)
+                    this.clipWapp();//genero el message wapp para el cliente por si es necesario
                 })
             },
             obtenerVentasCanceladas(idcliente){

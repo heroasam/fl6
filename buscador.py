@@ -41,38 +41,6 @@ def buscar_cuenta(buscar):
     return jsonify(clientes=clientes)
 
 
-# @buscador.route('/buscador/pedirventas/<int:id>')
-# def buscar_ventas(id):
-#     con = get_con()
-#     sel = f"select id,fecha,cc,floor(ic),p,idvdor,floor(saldo),floor(comprado),pp,devuelta,condonada,cnt,art,floor(pagado),primera from ventas where idcliente={id}"
-#     ventas = pgdict(con, sel)
-#     con.close()
-    
-
-
-# @buscador.route('/buscador/pedircuotas/<string:dni>')
-# def buscar_cuotas(dni):
-#     con = get_con()
-#     idcliente = pgonecolumn(con,f"select id from clientes where dni='{dni}'")
-#     ventas = pgdict(con,f"select id from ventas where idcliente={idcliente} and saldo>0")
-#     cur = con.cursor()
-#     for v in ventas:
-#         cur.execute(f"select gc({v[0]})")
-#     cur.close()
-#     cuotas = pgdict(con, f"select nc,vto,floor(ic),idvta from cuotas where debe>0 and idcliente={idcliente} order by vto")
-#     pagadas = pgdict(con, f"select fecha,rbo,floor(imp),floor(rec),cobr from pagos where idcliente={idcliente} and \
-#              idvta in (select id from ventas where saldo>0) order by fecha desc")
-#     con.close()
-#     return jsonify(cuotas=cuotas,pagadas=pagadas)
-
-
-# @buscador.route('/buscador/pedirpagadas/<int:id>')
-# def buscador_pedirpagadas(id):
-#     con = get_con()
-#     pagadas = pgdict(con, f"select fecha,rbo,floor(imp),floor(rec),cobr from pagos where idcliente={id} order by fecha desc")
-#     con.close()
-#     return jsonify(pagadas=pagadas)
-
 @buscador.route('/buscador/pedirpagadasporidcliente/<int:idcliente>')
 def buscar_pedirpagadasporidcliente(idcliente):
     sql = f"select * from pagos where idcliente={idcliente} order by id desc"
@@ -86,7 +54,7 @@ def buscar_pedirpagadasporidcliente(idcliente):
 
 @buscador.route('/buscador/obtenerventasporidcliente/<int:idcliente>')
 def buscar_obtenerventasporidcliente(idcliente):
-    sql = f"select * from ventas where idcliente={idcliente} and saldo>0"
+    sql = f"select * from ventas where idcliente={idcliente} and saldo>0 order by id desc"
     con = get_con()
     cur = con.cursor(dictionary=True)
     cur.execute(sql)
@@ -131,26 +99,13 @@ def buscar_logcambiodireccion(idcliente):
 
 @buscador.route('/buscador/obtenerventascanceladasporidcliente/<int:idcliente>')
 def buscar_obtenerventascanceladasporidcliente(idcliente):
-    sql = f"select * from ventas where idcliente={idcliente} and saldo=0"
+    sql = f"select * from ventas where idcliente={idcliente} and saldo=0 order by id desc"
     con = get_con()
     cur = con.cursor(dictionary=True)
     cur.execute(sql)
     ventascanceladas = cur.fetchall()
     con.close()
     return jsonify(ventascanceladas=ventascanceladas)
-
-
-
-# @buscador.route('/buscador/fecharpmovto/<string:dni>/<string:pmovto>')
-# def buscar_fecharpmovto(dni,pmovto):
-#     con = get_con()
-#     upd = f"update clientes set pmovto='{pmovto}' where dni='{dni}'"
-#     cur = con.cursor()
-#     cur.execute(upd)
-#     con.commit()
-#     cur.close()
-#     con.close()
-#     return 'ok'
 
 
 @buscador.route('/buscador/guardarpmovto/<int:idcliente>/<string:pmovto>')
@@ -171,15 +126,6 @@ def buscar_imprimirficha():
     ficha(con,dni)
     con.close()
     return send_file('/tmp/ficha.pdf')
-
-
-@buscador.route('/buscador/datosultvta/<string:dni>')
-def buscar_datosultvta(dni):
-    con = get_con()
-    idcliente = pgonecolumn(con,f"select id from clientes where dni='{dni}'")
-    ultvta = pgdict(con,f"select fecha, (select max(art) from detvta where idvta=ventas.id) as art from ventas where idcliente={idcliente} order by id desc")
-    con.close()
-    return jsonify(ultvta=ultvta)
 
 
 @buscador.route('/buscador/togglesube/<string:dni>')
@@ -325,24 +271,6 @@ def buscar_toggleseguir(dni):
     return jsonify(msg=msg)
 
 
-@buscador.route('/buscador/gettablas')
-def buscar_gettablas():
-    con = get_con()
-    calles = pglflat(con,f"select calle from calles order by calle")
-    barrios = pglflat(con,f"select barrio from barrios order by barrio")
-    zonas = pglflat(con,f"select zona from zonas order by zona")
-    con.close()
-    return jsonify(calles=calles,barrios=barrios,zonas=zonas)
-
-
-@buscador.route('/buscador/getzonas')
-def buscar_getzonas():
-    con = get_con()
-    zonas = pgdict(con,f"select zona from zonas order by zona")
-    con.close()
-    return jsonify(zonas=zonas)
-
-
 @buscador.route('/buscador/guardaredicioncliente/<int:idcliente>' , methods = ['POST'])
 def busca_guardaredicioncliente(idcliente):
     con = get_con()
@@ -354,50 +282,6 @@ def busca_guardaredicioncliente(idcliente):
     cur.close()
     con.close()
     return 'ok'
-
-
-# @buscador.route('/buscador/pedircomentarios/<int:id>')
-# def buscar_pedircomentarios(id):
-#     con = get_con()
-#     sel = f"select fechahora,comentario from comentarios where idcliente={id}"
-#     comentarios=pgdict(con, sel)
-#     con.close()
-#     return jsonify(comentarios=comentarios)
-
-
-# @buscador.route('/buscador/planpago')
-# def buscar_planpago():
-#     return render_template("buscador/planpago.html")
-
-
-@buscador.route('/buscador/getvtaspp/<int:id>')
-def buscar_getvtaspp(id):
-    con = get_con()
-    idcliente = pgonecolumn(con, f"select idcliente from ventas where id={id}")
-    ventas = pgdict(con, f"select id, cc, floor(ic), floor(saldo), pmovto, pp, pfecha, pcc, floor(pic), pper, pprimera, pcondo from ventas where saldo>0 and idcliente={idcliente}")
-    con.close()
-    return jsonify(ventas=ventas)
-
-
-# @buscador.route('/buscador/generarplan/<int:idvta>', methods=['POST'])
-# def buscar_generarplan(idvta):
-#     con = get_con()
-#     d = json.loads(request.data.decode("UTF-8"))
-#     print(d)
-#     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
-#     upd = f"update ventas set pp=1, pfecha='{d['pfecha']}', pcc={d['pcc']},pic={d['pic']},pper={d['pper']},pprimera='{d['pprimera']}', saldo={int(d['pcc'])*int(d['pic'])} where id={idvta}"
-#     cur = con.cursor()
-#     cur.execute(upd)
-#     con.commit()
-#     # idotrasvtas = pglflat(con, f"select id from ventas where idcliente={idcliente} and pp=0 and saldo>0")
-#     upd1 = f"update ventas set pcondo=1, saldo=0 where idcliente={idcliente} and pp=0 and saldo>0"
-#     cur.execute(upd1)
-#     con.commit()
-#     # if len(idotrasvtas)>0:
-#     #     for id in idotrasvtas:
-#     #         venta_trigger(con,id)
-#     con.close()
-#     return 'ok'
 
 
 @buscador.route('/buscador/obtenerlistacalles')
