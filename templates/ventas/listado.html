@@ -62,6 +62,38 @@
     color: black;
     text-align: center;
 }
+.micard {
+    padding: 24px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 6px 0px 10px gray ;
+}
+.modal-container{
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0,0,0,0.3);
+}
+.modal{
+    display:flex;
+    flex-direction: column;
+    position: relative;
+    align-items: stretch;
+}
+.btn-close{
+    color:purple;
+    background-color: white;
+    border: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
   </style>
   {% endblock %}
   
@@ -78,7 +110,7 @@
         <a href="/ventas/estadisticas" class="button is-primary">Estadisticas</a>
       </div>
 
-    <table id="table" class="table is-narrow">
+    <table class="table is-narrow">
         <thead>
             <tr>
                 <th>op</th>
@@ -117,18 +149,18 @@
         </tbody>
     </table>
 
-    <div class="modal" :class="{'is-active':toggleModal}">
-        <div class="modal-background"></div>
-        <div class="modal-content">
-            <div class="modal-card">
-             <section class="modal-card-body p-6">     
+<!-- Modal Editar Ventas -->
+	    <div :class="verModalEditarVenta?'modal-container':''">
+        <div class=" micard modal" v-show="verModalEditarVenta">
+            <button class="btn-close" @click="verModalEditarVenta=false"><i class="fa fa-times" aria-hidden="true"></i></button>
+            <h1 class="title is-3">Editar Venta</h1>
+ 
                       <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
                      
-                        <form >
                             <div class="field">
                                 <div class="control">
                                     <label class="label" style="color:black;">Fecha de Venta</label>
-                                    <input type="date" v-model="fecha" class="input is-narrow" :class='{"is-danger":!fecha}'  @keyup.enter="$refs.cc.focus()" size="25" ref="fecha">
+                                    <input type="date" v-model="fecha" class="input" :class='{"is-danger":!fecha}'  @keyup.enter="$refs.cc.focus()"  ref="fecha">
                                     <p v-show="!fecha" class="help is-danger">Requerido</p>
                                   </div>
                             </div>
@@ -188,16 +220,14 @@
                                     <button type="button" class="button is-primary" @click="validarEdicion()" ref="guardared" id="guardar">Guardar</button>
                                 </div> 
                             </div> 
-                        </form>
-                    </section>
+
+	 </div>
+    </div>
+<!-- Fin Modal -->
         
                       
                       
           
-        </div>
-        <button class="modal-close is-large" aria-label="close" @click="modal"></button>
-        </div>
-        </div>
 
 
 
@@ -219,6 +249,8 @@ const app = new Vue({
         pmovto:'',
         idvdor:'',
         primera:'',
+	verModalEditarVenta:false,
+
     },
     methods:{
         getListado(){
@@ -257,7 +289,7 @@ const app = new Vue({
         },
         editarVenta(id){
             this.id = id
-            this.modal()
+            this.verModalEditarVenta=true
             axios.get('/ventas/datosventa/'+id)
             .then(res=>{
                 this.fecha=dayjs.utc(res.data.venta[0][0]).format('YYYY-MM-DD')

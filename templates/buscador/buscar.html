@@ -71,12 +71,12 @@
 {% endblock %}
 {% block content %}
 <div x-data="main()" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();" class="container">
-    
+
           <div class="grid-buscar ml-3 mr-3 mt-2">
               <input type="search" placeholder="Buscar en Romitex" class="input" x-model="buscar" @keyup.enter="buscarCliente" @focus="buscar='';verCard=false" >
               <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
           </div>
-          
+
           <div class="buttons m-3" >
             <template x-for="cliente in listaClientes" x-show="!verCard">
                 <!-- [dni,nombre,direccion] -->
@@ -85,12 +85,12 @@
           </div>
 
           <!-- card datos clientes -->
-          
+
     <div class="box"  x-show="verCard">
         <p class="title is-2" x-text="Cliente.nombre+'  '+Cliente.dni"></p>
         <p class="subtitle is-4" x-text="Cliente.calle+' '+Cliente.num+' '+Cliente.barrio+' '+Cliente.zona"></p>
         <p class="subtitle is-4"x-text="'tel:'+Cliente.tel+' wapp:'+Cliente.wapp"></p>
-      
+
         <p class="" x-show="Cliente.acla" x-text="Cliente.acla"></p>
         <p class="" x-show="Cliente.mjecobr" x-text="Cliente.mjecobr"></p>
         <p class="" x-show="Cliente.horario" x-text="Cliente.horario"></p>
@@ -126,7 +126,7 @@
         <button class="button is-info is-small" @click="agregarComentario()">COMENTAR</button>
         <button class="button is-info is-small" @click="agregarPlanPago()">PLAN PAGOS</button>
         <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
-    </div> 
+    </div>
     <table class="table table-sm m-3" x-show="verCard && listaVentas.length">
         <thead>
             <tr>
@@ -199,8 +199,8 @@
                 </tbody>
             </table>
         </div>
-       
-     </div> 
+
+     </div>
      <div class="m-2">
         <h3 class="title is-3 m-2" x-show="verCard && listaVentasCanceladas.length">Ventas Canceladas</h3>
         <table class="table" x-show="verCard && listaVentasCanceladas.length">
@@ -295,7 +295,7 @@
             <textarea class="textarea mb-3" rows="4" x-model="Comentario.comentario"></textarea>
             <button class="button is-primary" @click="guardarComentario">Guardar</button>
         </div>
-    </div> 
+    </div>
     <div x-bind:class="verModalEdicion?'modal-container':''">
         <div class="micard modal" x-show="verModalEdicion">
             <div class="flex justify-content-end">
@@ -317,7 +317,7 @@
                 <div id="suggestionsBarrio" class="suggestions"></div>
             </div>
 
-            <div class="grid col-1 gap-0"">
+            <div class="grid col-1 gap-0">
                 <input type="text" class="input mb-1" x-model="Cliente.zona" id="searchZona" autocomplete="off">
                 <div id="suggestionsZona" class="suggestions"></div>
             </div>
@@ -350,10 +350,10 @@
                 </datalist>
             <label for="fechaprimer" class="label">Fecha Primer Cuota</label>
             <input type="date" class="input mb-3" x-model="Venta.primera" id="fechaprimer">
-            
+
             <button class="btn btn-primary" @click="guardarPlanPagos">Generar</button>
         </div>
-    </div> 
+    </div>
 
 
 </div>
@@ -405,7 +405,7 @@
                 this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
                 //console.log(this.Cliente);
                 this.obtenerVentas(this.Cliente.id)
-                
+
                 this.verCard = true;
             },
             clipWapp(){
@@ -413,7 +413,7 @@
                 messaje;
             let direccion = this.Cliente.calle.concat(' ',this.Cliente.num)
             ultvta = this.listaVentas[0]
-            
+
                 let fecha = ultvta.fecha;
                 let articulos = ultvta.art;
                 if (this.Cliente.sev){
@@ -426,7 +426,7 @@
                 messaje = this.Cliente.nombre.concat(': ',text,' ',`(Por compra de ${articulos} realizada en '${direccion}' el dia ${dayjs.utc(fecha).format('DD-MM-YYYY')})`)
                 console.log(messaje);
                 this.messajeWapp = messaje.replaceAll(' ','%20')
-            
+
             },
             clipDatos(idcliente){
                 let text = this.Cliente.dni+'\n'+this.Cliente.calle+' '+this.Cliente.num+'\n'+this.Cliente.barrio+'\n'+this.Cliente.wapp
@@ -469,7 +469,7 @@
             pedirComentarios(idcliente){
                 axios.get('/buscador/pedircomentarios/'+idcliente)
                 .then(res=>{
-                    let arrayComentarios = res.data.comentarios 
+                    let arrayComentarios = res.data.comentarios
                     arrayComentarios.map(row=>row.fechahora=dayjs.utc(row.fechahora).format('YYYY-MM-DD'))
                     this.listaComentarios = arrayComentarios
                 })
@@ -502,7 +502,7 @@
                             pagado = pagado - ic
                         }
                     }
-                
+
             })
             return tblCuota
             },
@@ -517,28 +517,28 @@
             toggleInc(){
             axios.get('/buscador/toggleinc/'+this.Cliente.dni)
             .then(res=>{
-               bulmaToast.toast({message:res.data.msg,type:"is-success"}) 
+               bulmaToast.toast({message:res.data.msg,type:"is-success"})
                this.Cliente.incobrable = !this.Cliente.incobrable
             })
             },
             toggleNvm(){
                 axios.get('/buscador/togglenvm/'+this.Cliente.dni)
                 .then(res=>{
-                    bulmaToast.toast({message:res.data.msg,type:"is-success"})  
+                    bulmaToast.toast({message:res.data.msg,type:"is-success"})
                     this.Cliente.novendermas = !this.Cliente.novendermas
                 })
             },
             toggleSube(){
                 axios.get('/buscador/togglesube/'+this.Cliente.dni)
                 .then(res=>{
-                    bulmaToast.toast({message:res.data.msg,type:"is-success"})  
+                    bulmaToast.toast({message:res.data.msg,type:"is-success"})
                     this.Cliente.subirseven = !this.Cliente.subirseven
                 })
             },
             toggleGestion(){
                 axios.get('/buscador/togglegestion/'+this.Cliente.dni)
                 .then(res=>{
-                    bulmaToast.toast({message:res.data.msg,type:"is-success"}) 
+                    bulmaToast.toast({message:res.data.msg,type:"is-success"})
                     this.Cliente.gestion = !this.Cliente.gestion
                 })
             },
@@ -625,7 +625,7 @@
                     const $input = document.getElementById('searchCalle')
                     const $suggestions = document.getElementById('suggestionsCalle')
                     $input.addEventListener('keyup',(e)=>{
-                    const input = $input.value 
+                    const input = $input.value
                     $suggestions.innerHTML='';
                     const suggestions = calles.filter(calle=>{
                         return calle.calle.toLocaleLowerCase().includes(input.toLocaleLowerCase())
@@ -654,7 +654,7 @@
                     const $input = document.getElementById('searchBarrio')
                     const $suggestions = document.getElementById('suggestionsBarrio')
                     $input.addEventListener('keyup',(e)=>{
-                    const input = $input.value 
+                    const input = $input.value
                     $suggestions.innerHTML='';
                     const suggestions = barrios.filter(barrio=>{
                         return barrio.barrio.toLocaleLowerCase().includes(input.toLocaleLowerCase())
@@ -683,7 +683,7 @@
                     const $input = document.getElementById('searchZona')
                     const $suggestions = document.getElementById('suggestionsZona')
                     $input.addEventListener('keyup',(e)=>{
-                    const input = $input.value 
+                    const input = $input.value
                     $suggestions.innerHTML='';
                     const suggestions = zonas.filter(zona=>{
                         return zona.zona.toLocaleLowerCase().includes(input.toLocaleLowerCase())
