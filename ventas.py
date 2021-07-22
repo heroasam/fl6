@@ -480,3 +480,21 @@ def ventas_filtracalles(buscar):
     buscar = '%'+buscar.replace(' ','%')+'%'
     listacalles = pgdict(con,f"select id,calle from calles where lower(calle) like lower('{buscar}')")
     return jsonify(listacalles=listacalles)
+
+@ventas.route('/ventas/getmorosidadprimercuota')
+def ventas_getmorosidadprimercuota():
+    con = get_con()
+    upd = "update ventas set vencido=(truncate(datediff(now(),primera)/30,0)+1)*ic where primera < now() and id>79999"
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    sel = "select ventas.id as id,vencido,ventas.pagado as pagado,ventas.pmovto as pmovto,vencido-ventas.pagado as mora, nombre,asignado from ventas,clientes,zonas where ventas.idcliente=clientes.id and clientes.zona=zonas.zona and ventas.id>79999 and primera<now() and cc>1 order by mora desc"
+    cur.execute(sel)
+    morosidad = cur.fetchall()
+    con.close()
+    return jsonify(morosidad=morosidad)
+
+
+@ventas.route('/ventas/morosidad')
+def ventas_morosidad():
+    return render_template('ventas/morosidad.html')

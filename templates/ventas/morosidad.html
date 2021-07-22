@@ -1,0 +1,64 @@
+{% extends "base_template.html" %} {% block title %}Morosidad{% endblock %} {%
+block style %}
+<style></style>
+{% endblock %} 
+
+{% block content %}
+<div class="container">
+        <p class="title is-1">Morosidad</p>
+        <div class="buttons">
+            <a href="/ventas/pasarventas" class="button  is-primary">Pasar Ventas</a>
+            <a href="/ventas/listado" class="button  is-primary">Listado</a>
+            <a href="/ventas/clientes" class="button  is-primary">Clientes</a>
+	    <a href="/ventas/calles" class="button is-primary">Calles</a>
+            <a href="/ventas/barrios" class="button  is-primary">Barrios</a>
+            <a href="/ventas/zonas" class="button  is-primary">Zonas</a>
+            <a href="/ventas/estadisticas" class="button  is-primary">Estadisticas</a>
+        </div>
+    
+        <div x-data="main()" x-init="getMorosidadPrimerCuota()">
+	    <table class="table" id="table">
+		<thead>
+		    <tr>
+		    <th>id</th>
+		    <th>vencido</th>
+		    <th>pagado</th>
+		    <th>pmovto</th>
+		    <th>mora</th>
+		    <th>nombre</th>
+		    <th>cobr</th>
+		    </tr>
+		</thead>
+		<tbody>
+		    <template x-for="mora in morosidad">
+			<tr>
+			    <td x-text="mora[0]"></td>
+			    <td x-text="mora[1]"></td>
+			    <td x-text="mora[2]"></td>
+			    <td x-text="mora[3]"></td>
+			    <td x-text="mora[4]"></td>
+			    <td x-text="mora[5]"></td>
+			    <td x-text="mora[6]"></td>
+			</tr>
+		    </template>
+		</tbody>
+	    </table>
+	</div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+ function main(){
+     return{
+	 morosidad:[],
+	 getMorosidadPrimerCuota(){
+	     axios.get('/ventas/getmorosidadprimercuota')
+		  .then(res=>{
+		      this.morosidad = res.data.morosidad
+		      console.log(res.data.morosidad)
+		      this.morosidad.map(row=>{row[3]=dayjs.utc(row[3]).format('YYYY-MM-DD')})
+	 })}
+     }
+ }
+</script>
+{% endblock %}
