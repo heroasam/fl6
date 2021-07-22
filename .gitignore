@@ -3,5 +3,5 @@ venv/
 __pychache__/
 *.pyc
 *.xlsx
-#formularios.py#
+#*#
 .vscode/settings.json

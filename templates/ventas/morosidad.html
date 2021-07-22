@@ -15,18 +15,31 @@ block style %}
             <a href="/ventas/zonas" class="button  is-primary">Zonas</a>
             <a href="/ventas/estadisticas" class="button  is-primary">Estadisticas</a>
         </div>
-    
-        <div x-data="main()" x-init="getMorosidadPrimerCuota()">
+
+    <div x-data="main()" x-init="getMorosidadPrimerCuota()">
+	    <div class="buttons">
+		<template x-for="mes in meses">
+		    <button x-text="mes" class="button is-primary" @click="filterByMonth(mes)"></button>
+		</template>
+	    </div>
+        <div class="buttons">
+		<template x-for="cob in cobr">
+		    <button x-text="cob" class="button is-primary" @click="filterByCobr(cob)"></button>
+		</template>
+	    </div>
+
 	    <table class="table" id="table">
 		<thead>
 		    <tr>
-		    <th>id</th>
-		    <th>vencido</th>
-		    <th>pagado</th>
-		    <th>pmovto</th>
-		    <th>mora</th>
-		    <th>nombre</th>
-		    <th>cobr</th>
+			<th>id</th>
+			<th>fecha</th>
+			<th>cuota</th>
+			<th>vencido</th>
+			<th>pagado</th>
+			<th>pmovto</th>
+			<th>mora</th>
+			<th>nombre</th>
+			<th>cobr</th>
 		    </tr>
 		</thead>
 		<tbody>
@@ -39,6 +52,8 @@ block style %}
 			    <td x-text="mora[4]"></td>
 			    <td x-text="mora[5]"></td>
 			    <td x-text="mora[6]"></td>
+			    <td x-text="mora[7]"></td>
+			    <td x-text="mora[8]"></td>
 			</tr>
 		    </template>
 		</tbody>
@@ -50,15 +65,38 @@ block style %}
 <script>
  function main(){
      return{
+     morosidad_:[],
 	 morosidad:[],
+	 meses:[],
+     cobr:[],
 	 getMorosidadPrimerCuota(){
 	     axios.get('/ventas/getmorosidadprimercuota')
 		  .then(res=>{
 		      this.morosidad = res.data.morosidad
 		      console.log(res.data.morosidad)
-		      this.morosidad.map(row=>{row[3]=dayjs.utc(row[3]).format('YYYY-MM-DD')})
-	 })}
-     }
- }
+		      this.morosidad.map(row=>{
+			  row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD')
+			  row[5]=dayjs.utc(row[5]).format('YYYY-MM-DD')
+		      })
+              this.morosidad_=this.morosidad
+		      this.morosidad.forEach(row=>{
+			      this.meses.push(row[9])
+		      })
+		      var a = new Set(this.meses)
+		      this.meses = [...a]
+		      this.meses.sort()
+              this.morosidad.forEach(row=>{
+                  this.cobr.push(row[8])
+              })
+              var b = new Set(this.cobr)
+              this.cobr = [...b]
+	 })},
+	 filterByMonth(month){
+         this.morosidad = this.morosidad_.filter(row=>row[9]==month)
+        },
+         filterByCobr(cobr){
+             this.morosidad = this.morosidad_.filter(row=>row[8]==cobr)
+         }
+     }}
 </script>
 {% endblock %}

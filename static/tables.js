@@ -141,11 +141,11 @@ const sortGridNumerica = (colNum,dir)=>{
 document.addEventListener('click', ()=>{
     if(event.target.tagName=== 'TH'){
         let th = event.target;
-        sortGrid(th.cellIndex,'ASC')
+        sortGridNumerica(th.cellIndex,'ASC')
     }
     if(event.target.tagName=== 'TH' && event.ctrlKey===true){
         let th = event.target;
-        sortGridNumerica(th.cellIndex,'ASC')
+        sortGrid(th.cellIndex,'ASC')
     }
 
     });
@@ -161,7 +161,6 @@ document.addEventListener('click', ()=>{
         // o sea la funcion seleccionar y totalizar etc. funcionan con tablas sin la clase nototal
         if(event.target.tagName=== 'TD' && event.ctrlKey===true){
             t=event.target.parentElement.parentElement.parentElement
-            
             restaurar(t)
         };
     }
@@ -218,15 +217,14 @@ document.addEventListener('contextmenu', ()=>{
         // luego si no es un TH terminamos
         if(event.target.tagName=== 'TH') {
         let th = event.target;
-        sortGrid(th.cellIndex,'DESC')
+        sortGridNumerica(th.cellIndex,'DESC')
         }
-        // si es un TH lanzamos la funcion sortGrid 
+        // si es un TH lanzamos la funcion sortGrid
         if(event.target.tagName=== 'TH' && event.ctrlKey===true) {
             let th = event.target;
-            sortGridNumerica(th.cellIndex,'DESC')
+            sortGrid(th.cellIndex,'DESC')
             }
         // si es un TH con la tecla ctrl presionada lanzamos la funcion
         // sortGridNumerica
-        
     });
 

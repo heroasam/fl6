@@ -488,7 +488,7 @@ def ventas_getmorosidadprimercuota():
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
-    sel = "select ventas.id as id,vencido,ventas.pagado as pagado,ventas.pmovto as pmovto,vencido-ventas.pagado as mora, nombre,asignado from ventas,clientes,zonas where ventas.idcliente=clientes.id and clientes.zona=zonas.zona and ventas.id>79999 and primera<now() and cc>1 order by mora desc"
+    sel = "select ventas.id as id,fecha,ic,vencido,ventas.pagado as pagado,ventas.pmovto as pmovto,vencido-ventas.pagado as mora, nombre,asignado,EXTRACT(YEAR_MONTH FROM fecha) as ym from ventas,clientes,zonas where ventas.idcliente=clientes.id and clientes.zona=zonas.zona and ventas.id>79999 and primera<now() and cc>1 order by mora desc"
     cur.execute(sel)
     morosidad = cur.fetchall()
     con.close()
