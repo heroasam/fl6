@@ -1,7 +1,7 @@
 {% extends "base_template.html" %} {% block title %}Morosidad{% endblock %} {%
 block style %}
 <style></style>
-{% endblock %} 
+{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -73,7 +73,7 @@ block style %}
 	     axios.get('/ventas/getmorosidadprimercuota')
 		  .then(res=>{
 		      this.morosidad = res.data.morosidad
-		      console.log(res.data.morosidad)
+		      //console.log(res.data.morosidad)
 		      this.morosidad.map(row=>{
 			  row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD')
 			  row[5]=dayjs.utc(row[5]).format('YYYY-MM-DD')
@@ -93,10 +93,10 @@ block style %}
 	 })},
 	 filterByMonth(month){
          this.morosidad = this.morosidad_.filter(row=>row[9]==month)
-        },
-         filterByCobr(cobr){
-             this.morosidad = this.morosidad_.filter(row=>row[8]==cobr)
-         }
+     },
+     filterByCobr(cobr){
+         this.morosidad = this.morosidad_.filter(row=>row[8]==cobr)
+     }
      }}
 </script>
 {% endblock %}

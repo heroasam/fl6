@@ -1,0 +1,106 @@
+{% extends "base_template.html" %}
+
+{% block title %}PasarPagos{% endblock %}
+
+{% block style %}
+<style>
+ .cancelada{
+     background-color:pink;
+     color: grey;
+ }
+</style>
+{% endblock %}
+
+{% block content %}
+<div x-data="main()" class="container">
+        <p class="title is-1">Pasar Pagos</p>
+        <div class="buttons">
+            <a href="/pagos/verplanillas" class="button is-primary">Planillas</a>
+            <a href="/loterbo" class="button is-primary">Registrar Lote Rbos</a>
+            <a href="/loterbo/ver" class="button is-primary">Ver Lote Rbos</a>
+            <a href="/pagos/editarrbo" class="button is-primary">Editar Rbo</a>
+            <a href="/pagos/verzona" class="button is-primary">Ver Zona</a>
+            <a href="/pagos/cobrostotales" class="button is-primary">Totales</a>
+            <a href="/pagos/estimados" class="button is-primary">Estimados</a>
+            <a href="/pagos/comisiones" class="button is-primary">Comisiones</a>
+            <a href="/pagos/altas" class="button is-primary">Altas</a>
+            <a href="/pagos/bajas" class="button is-primary">Bajas</a>
+          </div>
+
+          <div style="display:flex;">
+                <input type="date" x-model="Pagos.fecha" class="input" style="width:200px;">
+                <input type="text" x-model="Pagos.cobr" class="input" style="width:100px;"
+                 @keyup.enter="buscaCobrador(Pagos.cobr)">
+                <button class="button is-primary" @click="cargarListado()">Cargar Planilla</button>
+                <h2 x-text="nombrecobrador" x-show="nombrecobrador" class="title is-2 ml-5"></h2>
+          </div>
+	  <div class="my-3">
+	      <input type="text" x-model="buscar" class="input" style="width:300px;">
+	      <button class="button is-primary" @click="buscarCliente()">Buscar</button>
+	  </div>
+	  <table class="table" x-show="listado.length">
+	      <thead>
+		  <tr>
+		      <th>id</th>
+		      <th>rbo</th>
+		      <th>fecha</th>
+		      <th>idvta</th>
+		      <th>imp</th>
+		      <th>rec</th>
+		      <th>total</th>
+		      <th>nombre</th>
+		      <th>direccion</th>
+		      <th>zona</th>
+		      <th>deuda</th>
+		  </tr>
+	      </thead>
+	      <tbody>
+		  <template x-for="lista in listado">
+		  <tr :class="lista.deuda==0?'cancelada':'normal'">
+		      <td x-text="lista.id"></td>
+		      <td x-text="lista.rbo"></td>
+		      <td x-text="lista.fecha"></td>
+		      <td x-text="lista.idvta"></td>
+		      <td x-text="lista.imp"></td>
+		      <td x-text="lista.rec"></td>
+		      <td x-text="lista.total"></td>
+		      <td x-text="lista.nombre"></td>
+		      <td x-text="lista.direccion"></td>
+		      <td x-text="lista.zona"></td>
+		      <td x-text="lista.deuda"></td>
+		  </tr>
+		  </template>
+	      </tbody>
+	  </table> 
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    function main(){
+        return{
+            nombrecobrador:'',
+	    buscar:'',
+	    listado:[],
+            Pagos:{fecha:dayjs.utc().format('YYYY-MM-DD'),cobr:'',},
+            buscaCobrador(cobr){
+                //console.log(cobr)
+                axios.get('/loterbo/buscanombrecobr/'+cobr)
+                    .then(res=>{
+                        this.nombrecobrador=res.data.nombrecobr
+                    })
+            },
+	    cargarListado(){
+		axios.get('/pagos/planilla/'+this.Pagos.fecha+'/'+this.Pagos.cobr)
+		     .then(res=>{
+			console.log(res.data.planilla)
+			this.listado = res.data.planilla 
+			this.listado.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+		     })
+	    },
+        }
+    }
+</script>
+
+{% endblock %}

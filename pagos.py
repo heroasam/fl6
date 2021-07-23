@@ -82,22 +82,19 @@ def loterbo_buscanombrecobr(cobr):
     return jsonify(nombrecobr=nombrecobr)
 
 
-
 @pagos.route('/pagos')
 @login_required
 def pagos_():
-    return render_template("pagos/pagosvue.html" )
+    return render_template("pagos/pagos.html")
+
 
 @pagos.route('/pagos/planilla/<string:fechapago>/<int:cobrador>')
-def pagos_planilla(fechapago,cobrador):
+def pagos_planilla(fechapago, cobrador):
     con = get_con()
-    planilla = pgdict(con,f"select pagos.id as id, rbo, fecha, idvta,imp as imp, rec as rec, (imp+rec) as total, nombre, concat(calle,' ',num) as direccion, zona,deuda as deuda from pagos, clientes where clientes.id=pagos.idcliente and fecha='{fechapago}' and pagos.cobr={cobrador} order by id desc")
-    #lote = pgonecolumn(con,f"select lote from pagos where fecha='{fechapago}' and cobr={cobrador}")
-    # if lote is None:
-    #     cntrbos = 0
-    # else:
-        # cntrbos = pgonecolumn(con, f"select count(*) from (select distinct rbo from pagos where lote={lote}) as foo")
-    #cntrbos = pgonecolumn(con, f"select count(*) from (select distinct rbo from pagos where fecha='{fechapago}' and cobr={cobrador}) as foo")
+    sql = f"select pagos.id as id, rbo, fecha, idvta,imp as imp, rec as rec, (imp+rec) as total, nombre, concat(calle,' ',num) as direccion, zona,deuda as deuda from pagos, clientes where clientes.id=pagos.idcliente and fecha='{fechapago}' and pagos.cobr={cobrador} order by id desc"
+    cur = con.cursor(dictionary=True)
+    cur.execute(sql)
+    planilla = cur.fetchall()
     con.close()
     return jsonify(planilla=planilla)
 
