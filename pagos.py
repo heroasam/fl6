@@ -105,13 +105,15 @@ def pagos_buscar(cuenta):
     rcuenta = r'^[0-9]{5}$'
     rdni = r'^[0-9]{7,8}$'
     if (re.match(rcuenta,cuenta)):
-        clientes = pgdict(con,f"select nombre,concat(calle,' ',num) as direccion,dni from clientes,ventas where clientes.id=ventas.idcliente and ventas.id={cuenta}")
+        sql = f"select nombre,concat(calle,' ',num) as direccion,dni from clientes,ventas where clientes.id=ventas.idcliente and ventas.id={cuenta}"
     elif (re.match(rdni,cuenta)):
-        clientes = pgdict(con,f"select nombre,concat(calle,' ',num) as direccion,dni from clientes where dni='{cuenta}'")
+        sql = f"select nombre,concat(calle,' ',num) as direccion,dni from clientes where dni='{cuenta}'"
     else:
         cuenta = '%'+cuenta.replace(' ','%')+'%'
-        print(cuenta)
-        clientes = pgdict(con,f"select nombre,concat(calle,' ',num) as direccion,dni from clientes where lower(concat(nombre,calle,num,barrio)) like lower('{cuenta}') and deuda>0")
+        sql = f"select nombre,concat(calle,' ',num) as direccion,dni from clientes where lower(concat(nombre,calle,num,barrio)) like lower('{cuenta}') and deuda>0"
+    cur = con.cursor(dictionary=True)
+    cur.execute(sql)
+    clientes = cur.fetchall()
     con.close()
     return jsonify(clientes=clientes)
 
@@ -128,7 +130,10 @@ def pagos_idvtas(dni):
 @pagos.route('/pagos/traerficha/<int:idvta>')
 def pagos_traerficha(idvta):
     con = get_con()
-    ficha = pgdict(con,f"select id,case when saldo<ic then saldo else ic end as imp,ic,saldo from ventas where id={idvta}")
+    sql = f"select id,case when saldo<ic then saldo else ic end as imp,ic,saldo from ventas where id={idvta}"
+    cur = con.cursor(dictionary=True)
+    cur.execute(sql)
+    ficha = cur.fetchone()
     con.close()
     return jsonify(ficha=ficha)
 

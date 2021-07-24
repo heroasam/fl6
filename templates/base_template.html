@@ -92,12 +92,12 @@ function toggleTheme() {
             var theme = document.getElementById('bulma');
             // Change the value of href attribute 
             // to change the css sheet.
-            if (theme.getAttribute('href') == "https://unpkg.com/bulmaswatch/simplex/bulmaswatch.min.css") {
+            if (theme.getAttribute('href') == "https://unpkg.com/bulmaswatch/minty/bulmaswatch.min.css") {
                 theme.setAttribute('href', "https://unpkg.com/bulmaswatch/slate/bulmaswatch.min.css");
                 localStorage.setItem("bulma", "https://unpkg.com/bulmaswatch/slate/bulmaswatch.min.css");
             } else {
-                theme.setAttribute('href', "https://unpkg.com/bulmaswatch/simplex/bulmaswatch.min.css");
-                localStorage.setItem("bulma", "https://unpkg.com/bulmaswatch/simplex/bulmaswatch.min.css");
+                theme.setAttribute('href', "https://unpkg.com/bulmaswatch/minty/bulmaswatch.min.css");
+                localStorage.setItem("bulma", "https://unpkg.com/bulmaswatch/minty/bulmaswatch.min.css");
             }
         }
 document.addEventListener("DOMContentLoaded",(e)=>{

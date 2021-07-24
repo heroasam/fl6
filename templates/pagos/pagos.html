@@ -30,14 +30,33 @@
           <div style="display:flex;">
                 <input type="date" x-model="Pagos.fecha" class="input" style="width:200px;">
                 <input type="text" x-model="Pagos.cobr" class="input" style="width:100px;"
-                 @keyup.enter="buscaCobrador(Pagos.cobr)">
+                 @keyup.enter="buscaCobrador(Pagos.cobr)" >
                 <button class="button is-primary" @click="cargarListado()">Cargar Planilla</button>
                 <h2 x-text="nombrecobrador" x-show="nombrecobrador" class="title is-2 ml-5"></h2>
           </div>
 	  <div class="my-3">
-	      <input type="text" x-model="buscar" class="input" style="width:300px;">
+	      <input type="text" x-model="buscar" class="input" style="width:300px;" @keyup.enter="buscarCliente();$refs.imp.focus()" @focus="Clientes=[];Ventas=[]">
 	      <button class="button is-primary" @click="buscarCliente()">Buscar</button>
 	  </div>
+      <div class="buttons">
+          <template x-for="cliente in Clientes">
+              <button class="button is-primary" x-text="cliente.nombre" @click="Clientes=[];Clientes[0]=cliente;pedirVentas(cliente.dni)"></button>
+          </template>
+          <template x-for="venta in Ventas">
+              <button class="button is-danger" x-text="venta[0]" @click="obtenerVenta(venta[0])"></button>
+          </template>
+      </div>
+
+      <div class="field is-horizontal">
+				<span class="tag is-danger is-large" x-text="`Saldo ${Venta.saldo?Venta.saldo:''}`"></span>
+				<span class="tag is-secondary is-large" x-text="`Cuota ${Venta.ic?Venta.ic:''}`"></span>
+				<input id="importe" type="text" placeholder="Importe" class="input center" x-model="Venta.imp" style="width: 100px;" @keyup.enter="$refs.recibo.focus()" x-ref="imp"/>
+				<input type="text" placeholder="Recargo" class="input center" x-model="Venta.rec" style="width: 100px;"/>
+				<input type="text" placeholder="Total" class="input center" :value="+(Venta.imp?Venta.imp:0)+(+(Venta.rec?Venta.rec:0))" style="width: 100px;"/>
+				<input id="recibo" type="text" placeholder="Recibo N°" class="input center" style="width: 100px;" x-model="Venta.rbo" @keyup.up="Venta.recibo++" @keyup.down="Venta.recibo--" @keyup.enter="validatePasarPagos" x-ref="recibo"/>
+				<button class="button is-danger" type="button" @click="validatePasarPagos">Pasar</button>
+	  </div>
+
 	  <table class="table" x-show="listado.length">
 	      <thead>
 		  <tr>
@@ -71,7 +90,7 @@
 		  </tr>
 		  </template>
 	      </tbody>
-	  </table> 
+	  </table>
 
 </div>
 {% endblock %}
@@ -81,8 +100,11 @@
     function main(){
         return{
             nombrecobrador:'',
-	    buscar:'',
-	    listado:[],
+	        buscar:'',
+	        listado:[],
+            Clientes:[],
+            Ventas:[],
+            Venta:{},
             Pagos:{fecha:dayjs.utc().format('YYYY-MM-DD'),cobr:'',},
             buscaCobrador(cobr){
                 //console.log(cobr)
@@ -91,14 +113,36 @@
                         this.nombrecobrador=res.data.nombrecobr
                     })
             },
-	    cargarListado(){
-		axios.get('/pagos/planilla/'+this.Pagos.fecha+'/'+this.Pagos.cobr)
+	        cargarListado(){
+		    axios.get('/pagos/planilla/'+this.Pagos.fecha+'/'+this.Pagos.cobr)
 		     .then(res=>{
 			console.log(res.data.planilla)
-			this.listado = res.data.planilla 
+			this.listado = res.data.planilla
 			this.listado.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
 		     })
-	    },
+	        },
+                buscarCliente(){
+                        axios.get('/pagos/buscar/'+this.buscar)
+                            .then(res=>{
+                                    this.Clientes=res.data.clientes
+                                    if(this.Clientes.length==1) this.pedirVentas(this.Clientes[0].dni)
+                                })
+                    },
+                pedirVentas(dni){
+                        axios.get('/pagos/idvtas/'+dni)
+                            .then(res=>{
+                                    //console.log(res.data.idvtas)
+                                    this.Ventas=res.data.idvtas
+                                    this.obtenerVenta(this.Ventas[0][0])
+                                })
+                    },
+                obtenerVenta(idvta){
+                        axios.get('/pagos/traerficha/'+idvta)
+                            .then(res=>{
+                                    this.Venta=res.data.ficha
+                                })
+
+                    },
         }
     }
 </script>
