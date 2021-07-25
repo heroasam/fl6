@@ -130,7 +130,7 @@ def pagos_idvtas(dni):
 @pagos.route('/pagos/traerficha/<int:idvta>')
 def pagos_traerficha(idvta):
     con = get_con()
-    sql = f"select id,case when saldo<ic then saldo else ic end as imp,ic,saldo from ventas where id={idvta}"
+    sql = f"select id,case when saldo<ic then saldo else ic end as imp,ic,saldo,idcliente from ventas where id={idvta}"
     cur = con.cursor(dictionary=True)
     cur.execute(sql)
     ficha = cur.fetchone()
@@ -142,10 +142,9 @@ def pagos_traerficha(idvta):
 def pagos_pasarpagos():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    idcliente = pgonecolumn(con,f"select idcliente from ventas where id={d['idvta']}")
     if(d['rec']==''):
         d['rec']=0
-    ins = f"insert into pagos(idvta,fecha,imp,rec,rbo,cobr,idcliente) values({d['idvta']},'{d['fecha']}',{d['imp']},{d['rec']},{d['rbo']},{d['cobr']},{idcliente})"
+    ins = f"insert into pagos(idvta,fecha,imp,rec,rbo,cobr,idcliente) values({d['idvta']},'{d['fecha']}',{d['imp']},{d['rec']},{d['rbo']},{d['cobr']},{d['idcliente']})"
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
