@@ -157,7 +157,6 @@ def pagos_borrarpago(idpago):
     con = get_con()
     stm = f"delete from pagos where id={idpago}"
     cur = con.cursor()
-    idvta = pgonecolumn(con,f"select idvta from pagos where id={idpago}")
     cur.execute(stm)
     con.commit()
     con.close()

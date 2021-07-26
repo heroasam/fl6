@@ -117,6 +117,7 @@ const sortGrid = (colNum,dir)=>{
         tbody.append(...rowsArray);
 }
 
+
 const sortGridNumerica = (colNum,dir)=>{
         let tbody = table.querySelector('tbody');
         let rowsArray = Array.from(tbody.rows);
@@ -138,6 +139,7 @@ const sortGridNumerica = (colNum,dir)=>{
         tbody.append(...rowsArray);
 }
 
+
 document.addEventListener('click', ()=>{
     if(event.target.tagName=== 'TH'){
         let th = event.target;
@@ -151,7 +153,7 @@ document.addEventListener('click', ()=>{
     });
 
 document.addEventListener('click', ()=>{
-    if(!event.target.parentElement.parentElement.parentElement.classList.contains('noselected')){
+    if(!event.target.parentElement.parentElement.parentElement.classList.contains('nototal')){
         if(event.target.tagName==='TD') {
             markSelected()
         };
@@ -206,10 +208,12 @@ document.addEventListener('contextmenu', ()=>{
         // sort tabla por columnas con boton derecho en el encabezado
         event.preventDefault()
         // prevenDefault para que no funcione como esta predeterminado
+        if(!event.target.parentElement.parentElement.parentElement.classList.contains('nototal')){
         if(event.target.tagName=== 'TD'){
             t=event.target.parentElement.parentElement.parentElement
             totalizar(t)
         };
+        }
         // el event.target entrega el elemento clickado, si su tagName es TD
         // buscampos el parent del parent del parent que es la tabla
         // y lanzamos la funcion restaurar(tabla)

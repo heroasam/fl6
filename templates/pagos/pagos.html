@@ -30,7 +30,7 @@
           <div style="display:flex;">
                 <input type="date" x-model="Pagos.fecha" class="input" style="width:200px;">
                 <input type="text" x-model="Pagos.cobr" class="input" style="width:100px;"
-                 @keyup.enter="buscaCobrador(Pagos.cobr)" >
+                 @keyup.enter="cargarListado()" >
                 <button class="button is-primary" @click="cargarListado()">Cargar Planilla</button>
                 <h2 x-text="nombrecobrador" x-show="nombrecobrador" class="title is-2 ml-5"></h2>
           </div>
@@ -51,16 +51,30 @@
                 <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
 				<span class="tag is-danger is-large" x-text="`Saldo ${Venta.saldo?Venta.saldo:''}`"></span>
 				<span class="tag is-secondary is-large" x-text="`Cuota ${Venta.ic?Venta.ic:''}`"></span>
-				<input id="importe" type="text" placeholder="Importe" class="input center" x-model="Pagos.imp" style="width: 100px;" @keyup.enter="$refs.recibo.focus()" x-ref="imp"/>
+				<input id="importe" type="text" placeholder="Importe" class="input center" x-model="Pagos.imp" style="width: 100px;" @keyup.enter="$refs.recibo.focus()" x-ref="imp" />
 				<input type="text" placeholder="Recargo" class="input center" x-model="Pagos.rec" style="width: 100px;"/>
 				<input type="text" placeholder="Total" class="input center" :value="+(Pagos.imp?Pagos.imp:0)+(+(Pagos.rec?Pagos.rec:0))" style="width: 100px;"/>
 				<input id="recibo" type="text" placeholder="Recibo N°" class="input center" style="width: 100px;" x-model="Pagos.rbo" @keyup.page-up="+Pagos.rbo++" @keyup.page-down="+Pagos.rbo--" @keyup.enter="validatePasarPagos" x-ref="recibo"/>
 				<button class="button is-danger" type="button" @click="validatePasarPagos">Pasar</button>
 	  </div>
+	<div class="block" x-show="cntRbos">
+			<form @submit.prevent class="field is-horizontal">
+                <span class="tag is-success is-large" x-text="'Cnt Rbos'+cntRbos"></span>
+                <span class="tag is-warning is-large" x-text="'Cobrado $'+cobrado"></span>
+                <span class="tag is-info is-large" x-text="'Comision $'+comision"></span>
+				<div class="field is-narrow">
+					<input type="text" placeholder="Viaticos" class="input" size="6" x-model="viatico"/>
+				</div>
+				<button class="button is-outined is-primary" @click="pasarPlanilla">Guardar Planilla</button>
+			</form>
+		</div>
 
-	  <table class="table" x-show="listado.length">
+
+
+	  <table class="table nototal is-narrow" x-show="listado.length">
 	      <thead>
 		  <tr>
+              <th>op</th>
 		      <th>id</th>
 		      <th>rbo</th>
 		      <th>fecha</th>
@@ -77,6 +91,7 @@
 	      <tbody>
 		  <template x-for="lista in listado">
 		  <tr :class="lista.deuda==0?'cancelada':'normal'">
+              <td class="button is-danger is-outlined is-small" @click="borrarPago(lista.id)">Borrar</td>
 		      <td x-text="lista.id"></td>
 		      <td x-text="lista.rbo"></td>
 		      <td x-text="lista.fecha"></td>
@@ -107,6 +122,11 @@
                 Ventas:[],
                 Venta:{},
                 Pagos:{fecha:dayjs.utc().format('YYYY-MM-DD'),cobr:'',rec:''},
+                cntRbos:'',
+                cobrado:'',
+                comision:'',
+                viatico:'',
+
                 buscaCobrador(cobr){
                 //console.log(cobr)
                 axios.get('/loterbo/buscanombrecobr/'+cobr)
@@ -117,9 +137,22 @@
                 cargarListado(){
                 axios.get('/pagos/planilla/'+this.Pagos.fecha+'/'+this.Pagos.cobr)
                  .then(res=>{
-                console.log(res.data.planilla)
-                this.listado = res.data.planilla
-                this.listado.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                        //console.log(res.data.planilla)
+                        this.listado = res.data.planilla
+                        this.listado.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                        this.buscaCobrador(this.Pagos.cobr)
+                        let rbos = []
+                        let imppagos = []
+					    this.listado.forEach(row=>{
+							rbos.push(row.rbo)
+                            imppagos.push(row.total)
+						})
+                        console.log(rbos,imppagos)
+						let setrbos = new Set(rbos)
+						this.cntRbos = setrbos.size
+
+						this.cobrado = imppagos.reduce((a, b) => Number(a) + Number(b), 0);
+						this.comision = Math.round(this.cobrado * 0.15);
                  })
                 },
                 buscarCliente(){
@@ -172,8 +205,23 @@
                                     this.$refs.buscar.focus()
                                 })
                     },
-        }
-    }
+                borrarPago(idpago){
+                    const borrar = confirm("¿Esta seguro que quiere borrar este pago?")
+                    if(borrar){
+                    axios.get('/pagos/borrarpago/'+idpago)
+                            .then(res=>{
+                                    bulmaToast.toast({
+                                            message:'Registro borrado',
+                                            type:'is-success'
+                                        })
+                                    this.cargarListado()
+                                })
+                    }
+                    },
+            }}
+//los botones borrar de la tabla pagos pasados no se dibujan bien
+//el event up/down no funciona para cambio de numero de recibo
+//fue imposible hacer select al importe cuando obtiene el focus
 </script>
 
 {% endblock %}
