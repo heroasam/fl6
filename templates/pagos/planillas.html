@@ -65,6 +65,7 @@ thead th {
             </tr>
         </tbody>
     </table>
+                <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
 </div>
 
 {% endblock %}
@@ -91,6 +92,7 @@ const app = new Vue({
         procesarPlanilla(fecha,cobrado,comision,viatico,procesado){
             //console.log('procesado',procesado)
             //proceso unicamente cuando la columna procesada esta en null
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
             if (procesado==null){
             axios({
                 method:'POST',

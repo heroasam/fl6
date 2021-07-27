@@ -59,7 +59,7 @@
 	  </div>
 	<div class="block" x-show="cntRbos">
 			<form @submit.prevent class="field is-horizontal">
-                <span class="tag is-primary is-large" x-text="'Cnt Rbos'+cntRbos"></span>
+                <span class="tag is-primary is-large" x-text="'Cnt Rbos  '+cntRbos"></span>
                 <span class="tag is-primary is-large" x-text="'Cobrado $'+cobrado"></span>
                 <span class="tag is-primary is-large" x-text="'Comision $'+comision"></span>
 				<div class="field is-narrow">
@@ -217,6 +217,27 @@
                                     this.cargarListado()
                                 })
                     }
+                    },
+                pasarPlanilla(){
+                   	axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
+				    axios({
+					method: 'POST',
+					url: '/pagos/pasarplanilla',
+					data: {
+						fecha: this.Pagos.fecha,
+						idcobr: this.Pagos.cobr,
+						cobrado: this.cobrado,
+						comision: this.comision,
+						viatico: this.viatico,
+						cntrbos: this.cntRbos,
+					},
+				}).then(res => {
+					//console.log(res)
+					bulmaToast.toast({
+						message: 'Planilla agregada/corregida con exito',
+						type: 'is-success',
+					})
+				})
                     },
             }}
 //el event up/down no funciona para cambio de numero de recibo
