@@ -32,10 +32,10 @@
                 <input type="text" x-model="Pagos.cobr" class="input" style="width:100px;"
                  @keyup.enter="cargarListado()" >
                 <button class="button is-primary" @click="cargarListado()">Cargar Planilla</button>
-                <h2 x-text="nombrecobrador" x-show="nombrecobrador" class="title is-2 ml-5"></h2>
+                <!-- <h2 x-text="nombrecobrador" x-show="nombrecobrador" class="title is-2 ml-5"></h2> -->
           </div>
 	  <div class="my-3">
-	      <input type="text" x-model="buscar" class="input" style="width:300px;" @keyup.enter="buscarCliente();$refs.imp.focus();$refs.imp.select()" @focus="Clientes=[];Ventas=[]" x-ref="buscar">
+          <input type="text" x-model="buscar" class="input" style="width:300px;" @keyup.enter="buscarCliente();$refs.imp.focus();setTimeout(()=>{$refs.imp.select()},300)" @focus="Clientes=[];Ventas=[]" x-ref="buscar">
 	      <button class="button is-primary" @click="buscarCliente()">Buscar</button>
 	  </div>
       <div class="buttons">
@@ -63,7 +63,7 @@
                 <span class="tag is-primary is-large" x-text="'Cobrado $'+cobrado"></span>
                 <span class="tag is-primary is-large" x-text="'Comision $'+comision"></span>
 				<div class="field is-narrow">
-					<input type="text" placeholder="Viaticos" class="input" size="6" x-model="viatico"/>
+					<input type="text" placeholder="Viaticos" class="input" size="6" x-model="viatico" style="width: 100px;"/>
 				</div>
 				<button class="button is-primary" @click="pasarPlanilla">Guardar Planilla</button>
 			</form>
@@ -241,7 +241,6 @@
                     },
             }}
 //el event up/down no funciona para cambio de numero de recibo
-//fue imposible hacer select al importe cuando obtiene el focus
 </script>
 
 {% endblock %}

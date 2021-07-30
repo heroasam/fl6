@@ -50,18 +50,16 @@ thead th {
                 <th>comision</th>
                 <th>viatico</th>
                 <th>cntrbos</th>
-                <th>procesado</th>
             </tr>
         </thead>
         <tbody>
-            <tr v-for="planilla in planillas" :class="planilla[1]!=planilla[5]?'noprocesada':'procesada'">
-                <td><button class="btn btn-outline-primary btn-sm" @click="procesarPlanilla(planilla[0],planilla[1],planilla[2],planilla[3],planilla[5])">Procesar</button></td>
+            <tr v-for="planilla in planillas" :class="planilla[1]!=planilla[5]||planilla[3]!=planilla[6]?'noprocesada':'procesada'">
+                <td><button class="btn btn-outline-primary btn-sm" @click="procesarPlanilla(planilla[0],planilla[1],planilla[2],planilla[3])">Procesar</button></td>
                 <td>|planilla[0]|</td>
                 <td>|planilla[1]|</td>
                 <td>|planilla[2]|</td>
                 <td>|planilla[3]|</td>
                 <td>|planilla[4]|</td>
-                <td>|planilla[5]|</td>
             </tr>
         </tbody>
     </table>
@@ -89,11 +87,10 @@ const app = new Vue({
                 //console.log(this.planillas);
             })
         },
-        procesarPlanilla(fecha,cobrado,comision,viatico,procesado){
+        procesarPlanilla(fecha,cobrado,comision,viatico){
             //console.log('procesado',procesado)
             //proceso unicamente cuando la columna procesada esta en null
             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
-            if (procesado==null){
             axios({
                 method:'POST',
                 url:'/pagos/procesarplanilla',
@@ -108,7 +105,6 @@ const app = new Vue({
                 console.log(res);
                 this.getPlanillas();
             })
-            }
         },
     },
     created: function(){

@@ -188,7 +188,7 @@ def pagos_verplanillas():
 @pagos.route('/pagos/getplanillas')
 def pagos_getplanillas():
     con = get_con()
-    planillas = pgdict(con,f"select planillas.fecha as fecha,sum(cobrado),sum(comision),sum(viatico),sum(cntrbos),(select imp from caja where comentario='global' and cuenta='cobranza' and fecha=planillas.fecha) from planillas  where planillas.fecha>date_sub(curdate(), interval 60 day) group by planillas.fecha order by planillas.fecha desc")
+    planillas = pgdict(con,f"select planillas.fecha as fecha,sum(cobrado),sum(comision),sum(viatico),sum(cntrbos),(select imp from caja where comentario='global' and cuenta='cobranza' and fecha=planillas.fecha) as cobradocaja, (-1)*(select imp from caja where comentario='via' and cuenta='cobranza' and fecha=planillas.fecha) as viaticocaja from planillas  where planillas.fecha>date_sub(curdate(), interval 60 day) group by planillas.fecha order by planillas.fecha desc")
     con.close()
     return jsonify(planillas=planillas)
 
@@ -206,10 +206,13 @@ def pagos_procesarplanilla():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     fecha = d['fecha']
+    stmdel = f"delete from caja where cuenta='cobranza' and fecha='{fecha}'"
     ins1 = f"insert into caja(fecha,cuenta,imp,comentario) values('{fecha}','cobranza',{d['cobrado']},'global')"
     ins2 = f"insert into caja(fecha,cuenta,imp,comentario) values('{fecha}','cobranza',{-1*d['comision']},'com')"
     ins3 = f"insert into caja(fecha,cuenta,imp,comentario) values('{fecha}','cobranza',{-1*d['viatico']},'via')"
     cur = con.cursor()
+    cur.execute(stmdel)
+    con.commit()
     cur.execute(ins1)
     cur.execute(ins2)
     cur.execute(ins3)
