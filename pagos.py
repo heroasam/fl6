@@ -201,6 +201,14 @@ def pagos_getplanillashoy(fecha):
     return jsonify(planillas=planillas)
 
 
+@pagos.route('/pagos/getplanillascobr')
+def pagos_getplanillascobr():
+    con = get_con()
+    planillascobr = pgdict(con, f"select fecha,idcobr,cobrado,comision,viatico,cntrbos from planillas order by id desc limit 100")
+    con.close()
+    return jsonify(planillascobr=planillascobr)
+
+
 @pagos.route('/pagos/procesarplanilla', methods = ['POST'])
 def pagos_procesarplanilla():
     con = get_con()

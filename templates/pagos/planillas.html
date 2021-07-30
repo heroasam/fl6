@@ -63,6 +63,26 @@ thead th {
             </tr>
         </tbody>
     </table>
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th>fecha</th>
+                <th>cobrado</th>
+                <th>comision</th>
+                <th>viatico</th>
+                <th>cntrbos</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="plcobr in planillascobr">
+                <td>|plcobr[0]|</td>
+                <td>|plcobr[1]|</td>
+                <td>|plcobr[2]|</td>
+                <td>|plcobr[3]|</td>
+                <td>|plcobr[4]|</td>
+            </tr>
+        </tbody>
+    </table>
                 <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
 </div>
 
@@ -74,6 +94,7 @@ const app = new Vue({
     delimiters:['|','|'],
     data:{
         planillas:[],
+        planillascobr:[],
     },
     methods: {
         getPlanillas(){
@@ -87,6 +108,14 @@ const app = new Vue({
                 //console.log(this.planillas);
             })
         },
+            getPlanillasCobr(){
+                axios.get('/pagos/getplanillascobr')
+                        .then(res=>{
+                                this.planillascobr = res.data.planillascobr
+                                this.planillascobr.map(row=>row[0]=dayjs.utc(row[0]).format('YYYY-MM-DD'))
+                                //console.log(this.planillascobr)
+                            })
+                },
         procesarPlanilla(fecha,cobrado,comision,viatico){
             //console.log('procesado',procesado)
             //proceso unicamente cuando la columna procesada esta en null
@@ -109,6 +138,7 @@ const app = new Vue({
     },
     created: function(){
         this.getPlanillas();
+        this.getPlanillasCobr();
     },
 })
 
