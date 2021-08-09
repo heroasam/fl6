@@ -50,7 +50,7 @@ endblock %} {% block style %}
     <button class="button is-danger" @click="cambiarZona(zona)" v-if="verZonas">Guardar</button>
   </div>
   
-    <table id="table" class="table is-narrow nototal ml-1">
+    <table id="tablefichaje" class="table is-narrow nototal ml-1">
       <thead>
         <tr>
           <th>Nombre</th>
@@ -100,9 +100,19 @@ endblock %} {% block style %}
 </div>
 {% endblock %} {% block script %}
 <script>
-  
+const markSelected1 = ()=>{
+    console.log('hola')
+    if (event.target.parentElement.parentElement.tagName!='TBODY') return;
+    const $row = event.target.parentElement;
+    $row.classList.toggle('selected');
+}
+document.addEventListener('click',()=>{
+        if(event.target.tagName==='TD') {
+            markSelected1()
+        }
+        })
 
-  
+
   const app = new Vue({
     el: "#app",
     delimiters: ["|", "|"],
