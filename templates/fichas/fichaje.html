@@ -29,17 +29,18 @@ endblock %} {% block style %}
     <a href="/fichas/fechador" class="button is-primary">Fechador</a>
     <a href="/fichas/listado" class="button is-primary">Listado</a>
   </div>
-  
+
     <div>
       <button v-for="cobrador in cobradores" class="button is-info ml-1" @click="muestraZonas(cobrador[0])">|cobrador[0]|</button>
     </div>
     <div>
       <button v-for="zona in zonas" class="button is-success ml-1 mt-1" @click="muestraClientes('normales',zona[0]);zonaactual=zona[0]">|zona[0]|</button>
     </div>
-  
+
   <div class="ml-1 mt-1 mb-1">
     <button class="button is-success" @click="seleccionarHoy()">Seleccionar Hoy</button>
     <button class="button is-info" @click="imprimir()">Imprimir</button>
+    <button class="button is-danger" @click="intimar()">Intimar</button>
     <button class="button is-warning" @click="muestraClientes('gestion',zonaactual)">Gestion</button>
     <button class="button is-dark" @click="muestraClientes('antiguos',zonaactual)">Antiguos</button>
     <button class="button is-danger" @click="verZonas==true?verZonas=false:verZonas=true">Cambiar Zonas</button>
@@ -49,8 +50,8 @@ endblock %} {% block style %}
                 </datalist>
     <button class="button is-danger" @click="cambiarZona(zona)" v-if="verZonas">Guardar</button>
   </div>
-  
-    <table id="tablefichaje" class="table is-narrow nototal ml-1">
+
+    <table id="table" class="table is-narrow nototal ml-1">
       <thead>
         <tr>
           <th>Nombre</th>
@@ -159,6 +160,29 @@ document.addEventListener('click',()=>{
             }
           });
           this.clientes = arrayClientes;
+        });
+      },
+      intimar() {
+        let ids = [];
+        let tbody = table.querySelector("tbody");
+        let rowsArray = Array.from(tbody.rows);
+        rowsArray.forEach((row) => {
+          if (row.classList.contains("selected")) {
+            ids.push(row.cells[7].innerHTML);
+            //la celda que corresponda a dni OJO
+          }
+        });
+ 
+        console.log(ids)
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
+        axios({
+          method: "POST",
+          url: "/fichas/intimar",
+          responseType: "blob",
+          data: ids,
+        }).then((res) => {
+          let url = window.URL.createObjectURL(res.data);
+          window.open(url);
         });
       },
       imprimir() {

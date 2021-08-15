@@ -42,7 +42,7 @@ def ficha(con,ldni):
         lpg+=str(dni)+','
     lpg = lpg[0:-1]+')'
     listdni = pglflat(con,f"select dni from clientes where dni in {lpg} order by calle,num")
-    
+
     i=1
     lisdatos = [] # lista que contendra los datos del resumen
     # dictPos = {} # diccionario de posisiones de ficha en paginas
@@ -161,6 +161,32 @@ def ficha(con,ldni):
             pdf.cell(60,5,row[2],1,0,'L')
             pdf.cell(20,5,'Pag N°'+ str(row[3]),1,1,'C')
     pdf.output("/tmp/ficha.pdf")
+
+
+def intimacion(con,ldni):
+    pdf=MyFPDF()
+    pdf.set_margins(30,30)
+    pdf.add_page()
+    pdf.set_font("Helvetica","",10)
+    lpg ='('
+    for dni in ldni:
+        lpg+=str(dni)+','
+    lpg = lpg[0:-1]+')'
+    listdni = pglflat(con,f"select dni from clientes where dni in {lpg} order by calle,num")
+
+    for dni in listdni:
+        if (pdf.get_y()>250):
+            pdf.add_page()
+            pdf.set_y(15)
+        cliente = pgdict0(con,f"select nombre,calle,num,tel,wapp,pmovto,barrio,zona,acla,mjecobr,horario,id from clientes where dni='{dni}'")
+        print(cliente[4])
+        pdf.set_font_size(12)
+        pdf.set_x(10)
+        # dictPos[i]=pdf.page_no()
+        pdf.cell(100,6,cliente[0][0:38],0,1)
+    pdf.output("/tmp/intimacion.pdf")
+
+
 
 def loterbo(con, lrbo, fecha, cobr, idlote):
     pdf=FPDF()

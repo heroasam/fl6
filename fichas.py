@@ -54,6 +54,17 @@ def fichas_imprimir():
     return send_file('/tmp/ficha.pdf')
 
 
+@fichas.route('/fichas/intimar', methods = ['POST'])
+def fichas_intimar():
+    con = get_con()
+    listadni = json.loads(request.data.decode("UTF-8"))
+    # aca se el ast.literal entrega la lista enviada por el axios-post directamente
+
+    intimacion(con, listadni)
+    con.close()
+    return send_file('/tmp/intimacion.pdf')
+
+
 @fichas.route('/fichas/cambiarzona/<string:zona>',methods=['POST'])
 def fichas_cambiarzona(zona):
     con = get_con()

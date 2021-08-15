@@ -1,10 +1,10 @@
 {% extends "base_template.html" %} {% block title %}Fechador{% endblock %} {%
     block style %}
     <style></style>
-    {% endblock %} 
-    
+    {% endblock %}
+
     {% block content %}
-    
+
     <div class="container">
         <p class="title is-1">Fechador</p>
         <div class="buttons">
@@ -12,7 +12,7 @@
             <a href="/fichas/cobradores" class="button is-primary">Cobradores</a>
             <a href="/fichas/listado" class="button is-primary">Listado</a>
           </div>
-    
+
         <div x-data="main()">
             <div class="columns">
                 <div class="column is-3">
@@ -27,7 +27,7 @@
                     <input type="date" class="input is-large" x-model="pmovto" @keyup=fechar(event) @keyup.enter=guardarFechado(idvta,pmovto) x-ref="pmovto">
                 </div>
             </div>
-            
+
         <div class="columns">
             <div class="column is-4">
                 <div class="box" x-show="listFechados.length">
