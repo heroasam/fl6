@@ -1,6 +1,6 @@
 from fpdf import FPDF 
-from .lib import pgdict0, pgddict, per, desnull,pglflat,pgdict
-from datetime import date
+from .lib import pgdict0, pgddict, per, desnull,pglflat,pgdict,pgonecolumn
+from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 
 def cuotaje(con,idvta):
@@ -164,26 +164,59 @@ def ficha(con,ldni):
 
 
 def intimacion(con,ldni):
-    pdf=MyFPDF()
+    today = datetime.today().strftime('%Y-%m-%d')
+    intim1 = """
+    Por la presente le recordamos que segun nuestros registros mantiene una DEUDA VENCIDA E IMPAGA con nuestra empresa.
+    A pesar de las numerosas visitas de cobro que hemos realizado no hemos podido obtener repuesta de su parte, por lo que nos vemos en la obligacion de concluir que no existe voluntad de su parte de pagar la cuenta segun lo acordado. 
+    Cumplimos en avisarle que su nombre sera informado al registro de morosos SEVEN en los proximos dias. El sistema de informacion de morosos SEVEN mantiene una base de datos de morosos de nuestra ciudad, por lo cual se inclusion en el mismo le trabara y/o dificultara cualquier operacion comercial presente o futura.
+    """
+    intim2 = """
+    Por la presente le recordamos que segun nuestros registros mantiene una DEUDA VENCIDA E IMPAGA con nuestra empresa.
+    A pesar de las numerosas visitas de cobro que hemos realizado no hemos podido obtener repuesta de su parte, por lo que nos vemos en la obligacion de concluir que no existe voluntad de su parte de pagar la cuenta segun lo acordado.
+    Cumplimos en avisarle que su nombre fue informado al registro de morosos SEVEN. El sistema de informacion de morosos SEVEN mantiene una base de datos de morosos de nuestra ciudad, por lo cual se inclusion en el mismo le trabara y/o dificultara cualquier operacion comercial presente o futura.
+    
+    En el caso de querer regularizar su deuda puede solicitar un plan de pagos por WhatsApp al 351-388-2892.
+    Una vez cancelada la cuenta se informa inmediatamente al SEVEN para proceder a eliminar su nombre de dicho registro.
+    """
+    pdf=FPDF()
     pdf.set_margins(30,30)
     pdf.add_page()
     pdf.set_font("Helvetica","",10)
-    lpg ='('
-    for dni in ldni:
-        lpg+=str(dni)+','
-    lpg = lpg[0:-1]+')'
-    listdni = pglflat(con,f"select dni from clientes where dni in {lpg} order by calle,num")
+    listdni = []
+    if isinstance(ldni,int):
+        listdni.append(ldni)
+    else:
+        lpg ='('
+        for dni in ldni:
+            lpg+=str(dni)+','
+        lpg = lpg[0:-1]+')'
+        listdni = pglflat(con,f"select dni from clientes where dni in {lpg} order by calle,num")
 
     for dni in listdni:
         if (pdf.get_y()>250):
             pdf.add_page()
             pdf.set_y(15)
-        cliente = pgdict0(con,f"select nombre,calle,num,tel,wapp,pmovto,barrio,zona,acla,mjecobr,horario,id from clientes where dni='{dni}'")
-        print(cliente[4])
+        cliente = pgdict0(con,f"select nombre,concat(calle,num,barrio),sev from clientes where dni='{dni}'")
+        pdf.set_font_size(22)
+        pdf.cell(100,12,"INTIMACION DE PAGO", 0, 1, 'L')
         pdf.set_font_size(12)
-        pdf.set_x(10)
-        # dictPos[i]=pdf.page_no()
+        pdf.cell(150,8,today,0,1,'R')
+        pdf.cell(150,8,"Ref. DEUDA CON ROMITEX", 0, 1, 'R')
         pdf.cell(100,6,cliente[0][0:38],0,1)
+        pdf.cell(100,6,cliente[1],0,1)
+        pdf.ln(5)
+        if cliente[2]:
+            intim = intim2
+        else:
+            intim = intim1
+        pdf.multi_cell(0, 8, intim , border = 0, 
+                align = 'J', fill = False)
+        pdf.ln(3)
+        pdf.cell(150,6,"GESTION DE COBRO ROMITEX", 0, 1, 'R')
+        pdf.set_y(260)
+        pdf.set_font_size(18)
+        pdf.cell(150,12,"WhatsApp 351-388-2892 - Tel 153-882-892", 0, 1, 'L')
+        pdf.set_font_size(12)
     pdf.output("/tmp/intimacion.pdf")
 
 

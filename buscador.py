@@ -332,3 +332,10 @@ def buscar_generarplandepagos(idcliente):
     con.commit()
     con.close()
     return 'ok'
+
+@buscador.route('/buscador/intimar', methods=['POST'])
+def buscador_intimar():
+    con = get_con()
+    dni = json.loads(request.data.decode("UTF-8"))
+    intimacion(con,dni)
+    return send_file('/tmp/intimacion.pdf')

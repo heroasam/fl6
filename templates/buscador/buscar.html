@@ -118,7 +118,7 @@
         <button class="button is-secondary is-small"  @click="toggleMudo()">MUDO</button>
         <button class="button is-secondary is-small"  @click="toggleSeguir()">SEGUIR</button>
         <button class="button is-primary is-small" @click="imprimirFicha(Cliente.dni)">IMPRIMIR</button>
-        <button class="button is-primary is-small" @click="intimarCliente(Cliente.id)">INTIM</button>
+        <button class="button is-primary is-small" @click="intimarCliente(Cliente.dni)">INTIM</button>
         <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${messajeWapp}` class="button is-success is-small" target="blank" style="text-decoration: none;">WAPP</a>
         <button class="button is-success is-small" @click="clipDatos(Cliente.id)">DATOS</button>
         <button class="button is-info is-small" @click="fecharPmovto(Cliente.id)">FECHAR</button>
@@ -571,8 +571,16 @@
                 window.open(url);
             })
             },
-            intimarCliente(idcliente){
-
+            intimarCliente(dni){
+		axios({
+		method: "POST",
+		url: "/buscador/intimar",
+		responseType: "blob",
+		data: dni,
+		}).then((res) => {
+		let url = window.URL.createObjectURL(res.data);
+		window.open(url);
+		});
             },
             fecharPmovto(idcliente){
             this.verModalPmovto=true
