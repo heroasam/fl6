@@ -182,15 +182,11 @@ def intimacion(con,ldni):
     pdf.set_margins(30,30)
     pdf.add_page()
     pdf.set_font("Helvetica","",10)
-    listdni = []
-    if isinstance(ldni,int):
-        listdni.append(ldni)
-    else:
-        lpg ='('
-        for dni in ldni:
-            lpg+=str(dni)+','
-        lpg = lpg[0:-1]+')'
-        listdni = pglflat(con,f"select dni from clientes where dni in {lpg} order by calle,num")
+    lpg ='('
+    for dni in ldni:
+        lpg+=str(dni)+','
+    lpg = lpg[0:-1]+')'
+    listdni = pglflat(con,f"select dni from clientes where dni in {lpg} order by calle,num")
 
     for dni in listdni:
         if (pdf.get_y()>250):
