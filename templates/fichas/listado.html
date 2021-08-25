@@ -51,11 +51,11 @@
             <tbody>
                 <template x-for="row in listado">
                     <tr>
-                        <td x-text="row[0]"></td>
-                        <td x-text="row[1]"></td>
-                        <td x-text="row[2]"></td>
-                        <td x-text="row[3]"></td>
-                        <td x-text="row[4]"></td>
+                        <td x-text="row['year']"></td>
+                        <td x-text="row['ultpago']"></td>
+                        <td x-text="row['dni']"></td>
+                        <td x-text="row['nombre']"></td>
+                        <td x-text="row['direccion']"></td>
                     </tr>
                 </template>
             </tbody>
@@ -88,7 +88,7 @@
                 axios.get('/fichas/getlistado/'+zona)
                 .then(res=>{
                     this.listado=res.data.listado
-                    this.listado.map(row=>row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD'))
+                    this.listado.map(row=>row['ultpago']=dayjs.utc(row['ultpago']).format('YYYY-MM-DD'))
                     this.getResumenJs(res.data.listado)
                     this.limpiarSelected()
                     this.zonatitle = zona
@@ -104,7 +104,7 @@
             getResumenJs(array){
                 this.resumenjs = {}
                 array.forEach(row=>{
-                    let y = row[0]
+                    let y = row['year']
                     this.resumenjs[y]=this.resumenjs[y]?this.resumenjs[y]+=1:1
                 })
                 

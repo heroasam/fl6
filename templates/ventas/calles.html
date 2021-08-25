@@ -47,10 +47,10 @@
                 <tbody>
                     <template x-for="calles in listaCalles">
                     <tr>
-                        <td><button class="button is-danger is-small" @click="borrarCalle(calles[0])">Borrar</button></td>
-                        <td><button class="button is-info is-small" @click="editarCalle(calles[0],calles[1])">Editar</button></td>
-                        <td x-text="calles[0]"></td>
-                        <td x-text="calles[1]"></td>
+                        <td><button class="button is-danger is-small" @click="borrarCalle(calles['id'])">Borrar</button></td>
+                        <td><button class="button is-info is-small" @click="editarCalle(calles['id'],calles['calle'])">Editar</button></td>
+                        <td x-text="calles['id']"></td>
+                        <td x-text="calles['calle']"></td>
                     </tr>
                     </template>
                 </tbody>

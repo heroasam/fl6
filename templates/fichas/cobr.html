@@ -38,19 +38,19 @@
           </thead>
           <tbody>
               <tr v-for="cobr in cobradores">
-                  <td><button type="button" class="button is-danger is-small is-outlined" @click="borrarCobr(cobr[0])">Borrar</button></td>
-                  <td><button type="button" class="button is-info is-small is-outlined" @click="editarCobr(cobr[0])">Editar</button></td>
-                  <td>|cobr[0]|</td>
-                  <td>|cobr[1]|</td>
-                  <td>|cobr[2]|</td>
-                  <td>|cobr[3]|</td>
-                  <td style="max-width: 120px;">|cobr[4]|</td>
-                  <td style="min-width: 100px;">|cobr[5]|</td>
-                  <td style="min-width: 100px;">|cobr[6]|</td>
-                  <td><span class="tag is-small is-danger" v-show="cobr[7]" @click="cobr[7]=0">Activo</span></td>
-                  <td><span class="tag is-small is-warning" v-show="cobr[8]">Prom</span></td>
-                  <td><button type="button" class="button is-small is-danger is-outlined" @click="toggleActivo(cobr[0])">Act.</button></td>
-                  <td><button type="button" class="button is-small is-warning is-outlined" @click="toggleProm(cobr[0])">Prom</button></td>
+                  <td><button type="button" class="button is-danger is-small is-outlined" @click="borrarCobr(cobr['id'])">Borrar</button></td>
+                  <td><button type="button" class="button is-info is-small is-outlined" @click="editarCobr(cobr['id'])">Editar</button></td>
+                  <td>|cobr['id']|</td>
+                  <td>|cobr['dni']|</td>
+                  <td>|cobr['nombre']|</td>
+                  <td>|cobr['direccion']|</td>
+                  <td style="max-width: 120px;">|cobr['telefono']|</td>
+                  <td style="min-width: 100px;">|cobr['fechanac']|</td>
+                  <td style="min-width: 100px;">|cobr['desde']|</td>
+                  <td><span class="tag is-small is-danger" v-show="cobr['activo']" @click="cobr['activo']=0">Activo</span></td>
+                  <td><span class="tag is-small is-warning" v-show="cobr['prom']">Prom</span></td>
+                  <td><button type="button" class="button is-small is-danger is-outlined" @click="toggleActivo(cobr['id'])">Act.</button></td>
+                  <td><button type="button" class="button is-small is-warning is-outlined" @click="toggleProm(cobr['id'])">Prom</button></td>
               </tr>
           </tbody>
       </table>
@@ -159,8 +159,8 @@
             .then(res=>{
                 this.cobradores = res.data.cobradores
                 this.cobradores.forEach(row => {
-                    if(row[5]!==null) row[5]=dayjs.utc(row[5]).format('YYYY-MM-DD')
-                    if(row[6]!==null) row[6]=dayjs.utc(row[6]).format('YYYY-MM-DD')
+                    if(row['fechanac']!==null) row['fechanac']=dayjs.utc(row['fechanac']).format('YYYY-MM-DD')
+                    if(row['desde']!==null) row['desde']=dayjs.utc(row['desde']).format('YYYY-MM-DD')
                 });
             })
 
@@ -191,15 +191,15 @@
         editarCobr(id){
             axios.get('/fichas/getcobradorbyid/'+id)
             .then(res=>{
-                this.id = res.data.cobrador[0][0]
-                this.dni = res.data.cobrador[0][1]
-                this.nombre = res.data.cobrador[0][2]
-                this.direccion = res.data.cobrador[0][3]
-                this.telefono = res.data.cobrador[0][4]
-                this.fechanac = dayjs.utc(res.data.cobrador[0][5]).format('YYYY-MM-DD')
-                this.desde = dayjs.utc(res.data.cobrador[0][6]).format('YYYY-MM-DD')
-                this.activo = res.data.cobrador[0][7]
-                this.prom = res.data.cobrador[0][8]
+                this.id = res.data.cobrador['id']
+                this.dni = res.data.cobrador['dni']
+                this.nombre = res.data.cobrador['nombre']
+                this.direccion = res.data.cobrador['direccion']
+                this.telefono = res.data.cobrador['telefono']
+                this.fechanac = dayjs.utc(res.data.cobrador['fechanac']).format('YYYY-MM-DD')
+                this.desde = dayjs.utc(res.data.cobrador['desde']).format('YYYY-MM-DD')
+                this.activo = res.data.cobrador['activo']
+                this.prom = res.data.cobrador['prom']
                 this.modal()
             })
             

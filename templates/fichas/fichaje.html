@@ -31,10 +31,10 @@ endblock %} {% block style %}
   </div>
 
     <div>
-      <button v-for="cobrador in cobradores" class="button is-info ml-1" @click="muestraZonas(cobrador[0])">|cobrador[0]|</button>
+      <button v-for="cobrador in cobradores" class="button is-info ml-1" @click="muestraZonas(cobrador['id'])">|cobrador['id']|</button>
     </div>
     <div>
-      <button v-for="zona in zonas" class="button is-success ml-1 mt-1" @click="muestraClientes('normales',zona[0]);zonaactual=zona[0]">|zona[0]|</button>
+      <button v-for="zona in zonas" class="button is-success ml-1 mt-1" @click="muestraClientes('normales',zona['zona']);zonaactual=zona['zona']">|zona['zona']|</button>
     </div>
 
   <div class="ml-1 mt-1 mb-1">
@@ -46,7 +46,7 @@ endblock %} {% block style %}
     <button class="button is-danger" @click="verZonas==true?verZonas=false:verZonas=true">Cambiar Zonas</button>
     <input type="text" name="zona" v-model="zona" list="zonalist" autocomplete="off" v-if="verZonas">
                   <datalist id="zonalist">
-                    <option v-for="zona in listazonas">|zona[0]|</option>
+                    <option v-for="zona in listazonas">|zona['zona']|</option>
                 </datalist>
     <button class="button is-danger" @click="cambiarZona(zona)" v-if="verZonas">Guardar</button>
   </div>
@@ -71,26 +71,26 @@ endblock %} {% block style %}
       <tbody>
         <tr v-for="cliente in clientes">
           <!-- nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni[10],subirseven,comprado,deuda,zona,barrio -->
-          <td>|cliente[0]|</td>
-          <td>|cliente[1]|</td>
-          <td>|cliente[2]|</td>
-          <td style="min-width: 100px;">|cliente[3]|</td>
-          <td style="min-width: 100px;">|cliente[4]|</td>
-          <td>|cliente[12]|</td>
-          <td>|cliente[13]|</td>
-          <td>|cliente[10]|</td>
-          <td>|cliente[14]|</td>
-          <td>|cliente[15]|</td>
-          <td><button class="button is-success is-small" v-show="cliente[5]||cliente[11]">|cliente[5]==1?'SEVEN':cliente[11]==1?'SUBE':null|</button></td>
-          <td><button class="button is-primary is-small" v-if="cliente[6]">|cliente[6]==1?'NV+':null|</button></td>
-          <td><button class="button is-info is-small" v-if="cliente[7]">|cliente[7]==1?'GESTION':null|</button></td>
-          <td><button class="button is-warning is-small" v-if="cliente[8]">|cliente[8]==1?'MUDO':null|</button></td>
-          <td><button class="button is-danger is-small" v-if="cliente[9]">|cliente[9]==1?'INC':''|</button></td>
-          <td><button class="button is-outlined is-primary is-small" @click="toggleSube(cliente[10])">SU</button></td>
-          <td><button class="button is-outlined is-primary is-small" @click="toggleLN(cliente[10])">NV</button></td>
-          <td><button class="button is-outlined is-primary is-small" @click="toggleGestion(cliente[10])">Ge</button></td>
-          <td><button class="button is-outlined is-primary is-small" @click="toggleMudo(cliente[10])">Mu</button></td>
-          <td><button class="button is-outlined is-primary is-small" @click="toggleInc(cliente[10]);">IN</button></td>
+          <td>|cliente['nombre']|</td>
+          <td>|cliente['calle']|</td>
+          <td>|cliente['num']|</td>
+          <td style="min-width: 100px;">|cliente['ultpago']|</td>
+          <td style="min-width: 100px;">|cliente['pmovto']|</td>
+          <td>|cliente['comprado']|</td>
+          <td>|cliente['deuda']|</td>
+          <td>|cliente['dni']|</td>
+          <td>|cliente['zona']|</td>
+          <td>|cliente['barrio']|</td>
+          <td><button class="button is-success is-small" v-show="cliente['sev']||cliente[11]">|cliente['sev']==1?'SEVEN':cliente[11]==1?'SUBE':null|</button></td>
+          <td><button class="button is-primary is-small" v-if="cliente['novendermas']">|cliente['novendermas']==1?'NV+':null|</button></td>
+          <td><button class="button is-info is-small" v-if="cliente['gestion']">|cliente['gestion']==1?'GESTION':null|</button></td>
+          <td><button class="button is-warning is-small" v-if="cliente['mudo']">|cliente['mudo']==1?'MUDO':null|</button></td>
+          <td><button class="button is-danger is-small" v-if="cliente['incobrable']">|cliente['incobrable']==1?'INC':''|</button></td>
+          <td><button class="button is-outlined is-primary is-small" @click="toggleSube(cliente['dni'])">SU</button></td>
+          <td><button class="button is-outlined is-primary is-small" @click="toggleLN(cliente['dni'])">NV</button></td>
+          <td><button class="button is-outlined is-primary is-small" @click="toggleGestion(cliente['dni'])">Ge</button></td>
+          <td><button class="button is-outlined is-primary is-small" @click="toggleMudo(cliente['dni'])">Mu</button></td>
+          <td><button class="button is-outlined is-primary is-small" @click="toggleInc(cliente['dni']);">IN</button></td>
           
         </tr>
       </tbody>
@@ -149,8 +149,8 @@ document.addEventListener('click',()=>{
           /* nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni */
           arrayClientes = Array.from(res.data.clientes);
           arrayClientes.forEach((row) => {
-            row[3] = dayjs.utc(row[3]).format("YYYY-MM-DD");
-            row[4] = dayjs.utc(row[4]).format("YYYY-MM-DD");
+            row['ultpago'] = dayjs.utc(row['ultpago']).format("YYYY-MM-DD");
+            row['pmovto'] = dayjs.utc(row['pmovto']).format("YYYY-MM-DD");
           });
           const $tbody = document.querySelector("tbody");
           arrayRows = Array.from($tbody.children);

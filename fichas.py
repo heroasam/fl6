@@ -166,7 +166,7 @@ def fichas_borrarcobrador(id):
 @fichas.route('/fichas/getcobradorbyid/<int:id>')
 def fichas_getcobradorbyid(id):
     con = get_con()
-    cobrador = pgdict(con, f"select id,dni,nombre,direccion,telefono,fechanac, desde, activo,prom from cobr where id={id}")
+    cobrador = pgdict(con, f"select id,dni,nombre,direccion,telefono,fechanac, desde, activo,prom from cobr where id={id}")[0]
     con.close()
     return jsonify(cobrador=cobrador)
 
@@ -201,7 +201,7 @@ def fichas_fechador():
 @fichas.route('/fichas/buscacuenta/<int:idvta>')
 def fichas_buscacuenta(idvta):
     con = get_con()
-    cuenta = pgdict(con, f"select nombre, clientes.pmovto,asignado from clientes, ventas,zonas where clientes.id=ventas.idcliente and clientes.zona=zonas.zona and ventas.id={idvta}")
+    cuenta = pgdict(con, f"select nombre, clientes.pmovto as pmovto,asignado from clientes, ventas,zonas where clientes.id=ventas.idcliente and clientes.zona=zonas.zona and ventas.id={idvta}")[0]
     con.close()
     return jsonify(cuenta=cuenta)
 
@@ -241,7 +241,7 @@ def fichas_getzonas():
 @fichas.route('/fichas/getlistado/<string:zona>')
 def fichas_getlistado(zona):
     con = get_con()
-    listado = pgdict(con, f"select date_format(ultpago,'%Y'), ultpago, dni,nombre, concat(calle,' ',num) as direccion from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and comprado>0 and ultpago>'2010-01-01' and concat(calle,num) not in (select concat(calle,num) from clientes where deuda>300) order by ultpago desc")
+    listado = pgdict(con, f"select date_format(ultpago,'%Y') as year, ultpago, dni,nombre, concat(calle,' ',num) as direccion from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and comprado>0 and ultpago>'2010-01-01' and concat(calle,num) not in (select concat(calle,num) from clientes where deuda>300) order by ultpago desc")
     con.close()
     return jsonify(listado=listado)
 

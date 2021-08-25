@@ -54,8 +54,8 @@ class User(UserMixin):
 @login.user_loader
 def load_user(id):
     try:
-        log = pgdict(con, f"select id,name,email,password,auth from users where id={id}")
-        user = User(log[0][0],log[0][1], log[0][2],log[0][3],log[0][4])
+        log = pgdict(con, f"select id,name,email,password,auth from users where id={id}")[0]
+        user = User(log['id'],log['name'], log['email'],log['password'],log['auth'])
         print('load_user',user.name)
         return user
     except:
@@ -69,14 +69,14 @@ def login():
         email = request.form['email']
         password = request.form['password']
         sel = f"select id,name,email,password,auth from users where email='{email}'"
-        log = pgdict(con,sel)
+        log = pgdict(con,sel)[0]
         print(log)
         errormail = "Ese email no existe en la base de datos. Registrese"
         errorpassword = "Ha ingresado una contraseña incorrecta"
         errorauth = "Ese email no esta autorizado a ingresar"
         if not log:
             return render_template('login_form.html', errormail=errormail)
-        user = User(log[0][0],log[0][1], log[0][2],log[0][3],log[0][4])
+        user = User(log['id'],log['name'], log['email'],log['password'],log['auth'])
         if not user.check_password(password):
             return render_template('login_form.html', errorpassword=errorpassword)
         if not user.auth:

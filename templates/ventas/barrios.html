@@ -37,10 +37,10 @@
           </thead>
           <tbody>
               <tr v-for="barrio in barrios">
-                  <td><button type="button" class="button is-danger is-small" @click="borrarBarrio(barrio[0])">Borrar</button></td>
-                  <td><button type="button" class="button is-info is-small" @click="editarBarrio(barrio[0],barrio[1])">Editar</button></td>
-                  <td>|barrio[0]|</td>
-                  <td>|barrio[1]|</td>
+                  <td><button type="button" class="button is-danger is-small" @click="borrarBarrio(barrio['id'])">Borrar</button></td>
+                  <td><button type="button" class="button is-info is-small" @click="editarBarrio(barrio['id'],barrio['barrio'])">Editar</button></td>
+                  <td>|barrio['id']|</td>
+                  <td>|barrio['barrio']|</td>
               </tr>
           </tbody>
       </table>

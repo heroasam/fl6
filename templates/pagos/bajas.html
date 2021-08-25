@@ -17,7 +17,7 @@
             <a href="/pagos/cobrostotales" class="button is-primary">Totales</a>
             <a href="/pagos/estimados" class="button is-primary">Estimados</a>
             <a href="/pagos/comisiones" class="button is-primary">Comisiones</a>
-            <a href="/pagos/bajas" class="button is-primary">Bajas</a>
+            <a href="/pagos/altas" class="button is-primary">Altas</a>
           </div>
     
         <div x-data="main()" x-init="loadBajas()">
@@ -38,11 +38,11 @@
                 <tbody>
                     <template x-for="item in listBajas">
                     <tr>
-                        <td x-text="item[0]"></td>
-                        <td x-text="item[1]"></td>
-                        <td x-text="item[2]"></td>
-                        <td x-text="item[3]"></td>
-                        <td x-text="item[4]"></td>
+                        <td x-text="item['dni']"></td>
+                        <td x-text="item['nombre']"></td>
+                        <td x-text="item['dni']"></td>
+                        <td x-text="item['canc']"></td>
+                        <td x-text="item['ultpago']"></td>
                     </tr>
                     </template>
                 </tbody>
@@ -60,7 +60,7 @@
                     axios.get('/pagos/loadbajas')
                     .then(res=>{
                         this.listBajas=res.data.listbajas
-                        this.listBajas.map(row=>row[4]=dayjs.utc(row[4]).format('YYYY-MM-DD'))
+                        this.listBajas.map(row=>row['ultpago']=dayjs.utc(row['ultpago']).format('YYYY-MM-DD'))
                     })
                 },
                 generarCSV(){
@@ -95,7 +95,7 @@
                     this.loadBajas()
                     let listdni=[]
                     this.listBajas.forEach(row=>{
-                        listdni.push(row[0])
+                        listdni.push(row['dni'])
                     })
                     
                     axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value

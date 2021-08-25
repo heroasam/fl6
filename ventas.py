@@ -43,6 +43,8 @@ def ventas_getcuentaspordni(dni):
     con = get_con()
     try:
         clientes = pgdict(con,f"select sex,dni,nombre,calle,num,barrio,zona,tel,wapp,acla,horario,mjecobr,infoseven,id from clientes where dni='{dni}'")
+        if len(clientes)==1:
+            clientes = clientes[0]
     except mysql.connector.Error as e:
         con.rollback()
         error = e.msg
@@ -198,7 +200,7 @@ def ventas_borrarventa(id):
 @ventas.route('/ventas/datosventa/<int:id>')
 def ventas_datosventa(id):
     con = get_con()
-    venta = pgdict(con, f"select fecha,cc,ic,p,pmovto,idvdor,primera from ventas where id={id}")
+    venta = pgdict(con, f"select fecha,cc,ic,p,pmovto,idvdor,primera from ventas where id={id}")[0]
     con.close()
     return jsonify(venta=venta)
 
@@ -229,7 +231,7 @@ def ventas_clientes():
 @ventas.route('/ventas/getclientes')
 def ventas_getclientes():
     con = get_con()
-    clientes = pgdict(con, f"select ventas.id, nombre, calle,num, zona, gestion, mudo, incobrable,acla from ventas, clientes where ventas.idcliente=clientes.id order by ventas.id desc limit 200")
+    clientes = pgdict(con, f"select ventas.id as idvta, nombre, calle,num, zona, gestion, mudo, incobrable,acla from ventas, clientes where ventas.idcliente=clientes.id order by ventas.id desc limit 200")
     con.close()
     return jsonify(clientes=clientes)
 
@@ -459,7 +461,7 @@ def ventas_estadisticas():
 @login_required
 def ventas_estadisticasanuales():
     con = get_con()
-    est_anuales = pgdict(con,f"select date_format(fecha,'%Y') as y, sum(comprado), sum(saldo), sum(saldo)/sum(comprado) as inc,sum(cnt) from ventas group by y order by y desc")
+    est_anuales = pgdict(con,f"select date_format(fecha,'%Y') as y, sum(comprado) as comprado, sum(saldo) as saldo, sum(saldo)/sum(comprado) as inc,sum(cnt) as cnt from ventas group by y order by y desc")
     # print(est_anuales)
     con.close()
     return jsonify(est_anuales=est_anuales)
@@ -469,7 +471,8 @@ def ventas_estadisticasanuales():
 @login_required
 def ventas_estadisticasmensuales(year):
     con = get_con()
-    est_mensuales = pgdict(con,f"select date_format(fecha,'%Y-%m') as ym, sum(comprado), sum(saldo), sum(saldo)/sum(comprado) as inc,sum(cnt) from ventas where date_format(fecha,'%Y')='{year}' group by ym order by ym")
+    est_mensuales = pgdict(con,f"select date_format(fecha,'%Y-%m') as ym, sum(comprado) as comprado, sum(saldo) as saldo, sum(saldo)/sum(comprado) as inc,sum(cnt) as cnt from ventas where date_format(fecha,'%Y')='{year}' group by ym order by ym")
+    print(est_mensuales)
     con.close()
     return jsonify(est_mensuales=est_mensuales)
 

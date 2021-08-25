@@ -49,7 +49,7 @@
                 </tr>
             </thead>
             <tbody>
-                <template x-for="item in listFechados" :key="item">
+                <template x-for="item in listFechados" :key="item[0]">
                     <tr>
                         <td x-text="item[0]"></td>
                         <td x-text="item[1]"></td>
@@ -81,9 +81,9 @@
                             })
                             this.$refs.idvta.focus()
                         }else{
-                            this.nombre = res.data.cuenta[0][0]
-                            this.pmovto = dayjs.utc(res.data.cuenta[0][1]).format('YYYY-MM-DD')
-                            this.cobr = res.data.cuenta[0][2]
+                            this.nombre = res.data.cuenta['nombre']
+                            this.pmovto = dayjs.utc(res.data.cuenta['pmovto']).format('YYYY-MM-DD')
+                            this.cobr = res.data.cuenta['asignado']
                         }
                     })
                 },

@@ -13,7 +13,7 @@ def pgdict0(con, sel):
 def pgdict(con, sel):
     """Funcion que entrega una lista de valores en formato list of list
        entregado por el fetchall sobre un cursor"""
-    cur = con.cursor()
+    cur = con.cursor(dictionary=True)
     cur.execute(sel)
     rec = cur.fetchall()
     cur.close()

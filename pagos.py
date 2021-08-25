@@ -484,7 +484,7 @@ def pagos_marcarsubidos():
 @pagos.route('/pagos/loadbajas')
 def pagos_loadbajas():
     con = get_con()
-    listbajas = pgdict(con, f"select dni,nombre,dni,'Cancelado',ultpago from clientes where sev=1 and deuda=0")
+    listbajas = pgdict(con, f"select dni,nombre,dni,'Cancelado' as canc,ultpago from clientes where sev=1 and deuda=0")
     return jsonify(listbajas=listbajas)
 
 

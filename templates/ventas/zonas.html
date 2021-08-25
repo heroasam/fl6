@@ -37,10 +37,10 @@
           </thead>
           <tbody>
               <tr v-for="zona in zonas">
-                  <td><button type="button" class="button is-danger is-small" @click="borrarZona(zona[0])">Borrar</button></td>
-                  <td><button type="button" class="button is-info is-small" @click="editarZona(zona[0],zona[1])">Editar</button></td>
-                  <td>|zona[0]|</td>
-                  <td>|zona[1]|</td>
+                  <td><button type="button" class="button is-danger is-small" @click="borrarZona(zona['id'])">Borrar</button></td>
+                  <td><button type="button" class="button is-info is-small" @click="editarZona(zona['id'],zona['zona'])">Editar</button></td>
+                  <td>|zona['id']|</td>
+                  <td>|zona['zona']|</td>
               </tr>
           </tbody>
       </table>

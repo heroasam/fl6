@@ -36,15 +36,15 @@
           </thead>
           <tbody>
               <tr v-for="cliente in clientes">
-                  <td>|cliente[0]|</td>
-                  <td>|cliente[1]|</td>
-                  <td>|cliente[2]|</td>
-                  <td>|cliente[3]|</td>
-                  <td>|cliente[4]|</td>
-                  <td><button type="button"  class="button is-danger is-small" v-show="cliente[5]==1">Gestion</button></td>
-                  <td><button type="button"  class="button is-danger is-small" v-show="cliente[6]==1">Mudado</button></td>
-                  <td><button type="button"  class="button is-danger is-small" v-show="cliente[7]==1">Incobrable</button></td>
-                  <td>|cliente[8]|</td>
+                  <td>|cliente['idvta']|</td>
+                  <td>|cliente['nombre']|</td>
+                  <td>|cliente['calle']|</td>
+                  <td>|cliente['num']|</td>
+                  <td>|cliente['zona']|</td>
+                  <td><button type="button"  class="button is-danger is-small" v-show="cliente['gestion']==1">Gestion</button></td>
+                  <td><button type="button"  class="button is-danger is-small" v-show="cliente['mudo']==1">Mudado</button></td>
+                  <td><button type="button"  class="button is-danger is-small" v-show="cliente['incobrable']==1">Incobrable</button></td>
+                  <td>|cliente['acla']|</td>
               </tr>
           </tbody>
       </table>

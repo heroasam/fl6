@@ -21,7 +21,7 @@
       <a href="/ventas/morosidad" class="button is-primary">Morosidad</a>
     </div>
     <div class="field is-horizontal box">
-      <input type="search" placeholder="Buscar en Romitex" size="73" class="input" v-model="buscar" @keyup.enter="buscarCliente" @focus="nuevoCliente" ref="buscar">
+      <input type="search" placeholder="Buscar en Romitex" size="73" class="input" v-model="buscar" @keyup.enter="buscarCliente"  ref="buscar">
       <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
       <button type="button" @click="nuevoCliente" class="button is-danger" :disabled="!verVtaTerminada">Nuevo</button>
     </div>
@@ -29,7 +29,7 @@
   <div class="buttons" v-if="buscar">
       <div v-for="cliente in clientes">
           <!-- [dni,nombre,direccion] -->
-      <button class="button is-info" @mouseover="buscar=cliente[2]" @click="buscaCuentaporDni(cliente[0])">|cliente[1]|</button>
+      <button class="button is-info" @mouseover="buscar=cliente.direccion" @click="buscaCuentaporDni(cliente.dni)">|cliente.nombre|</button>
       </div>
   </div>
 
@@ -37,7 +37,7 @@
     <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
     <div class="columns is-desktop">
       <div class="column is-1">
-        <input type="text" v-model="sex" placeholder="Sexo" size="1" class="input" ref="sex" @keyup.enter="$refs.dni.focus()" @blur="validarSex">
+        <input type="text" v-model="sex" placeholder="Sexo" size="1" class="input" ref="sex" @keyup.enter="$refs.dni.focus()">
         <p v-show="!sex" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-2">
@@ -229,11 +229,11 @@
           <tbody>
             <tr v-for="dv in detvta">
               <td><button type="button" class="button is-danger is-small" @click="borrarDetVta(dv[0])">Borrar</button></td>
-              <td>|dv[0]|</td>
-              <td>|dv[1]|</td>
-              <td>|dv[2]|</td>
-              <td>|dv[3]|</td>
-              <td>|dv[4]|</td>
+              <td>|dv['id']|</td>
+              <td>|dv['cnt']|</td>
+              <td>|dv['art']|</td>
+              <td>|dv['cc']|</td>
+              <td>|dv['ic']|</td>
             </tr>
           </tbody>
         </table>
@@ -303,7 +303,7 @@ const app = new Vue({
             axios.get('/buscador/'+this.buscar)
             .then(res=>{
                 this.clientes = res.data.clientes
-                //if(this.clientes.length==1) this.buscaCuentaporDni(this.clientes[0][0])
+                if(this.clientes.length==1) this.buscaCuentaporDni(this.clientes.dni)
             })
             .catch(error=>{
               bulmaToast.toast({message:error.request.response,type:"is-danger"})
@@ -315,21 +315,21 @@ const app = new Vue({
             axios.get('/ventas/getcuentapordni/'+dni)
             .then(res=>{
                 this.clientes = res.data.clientes
-                this.sex = this.clientes[0][0]
-                this.dni = this.clientes[0][1]
-                this.nombre = this.clientes[0][2]
-                this.calle = this.clientes[0][3]
-                this.num = this.clientes[0][4]
+                this.sex = this.clientes['sex']
+                this.dni = this.clientes['dni']
+                this.nombre = this.clientes['nombre']
+                this.calle = this.clientes['calle']
+                this.num = this.clientes['num']
                 this.direccion = this.calle+' '+this.num
-                this.barrio = this.clientes[0][5]
-                this.zona = this.clientes[0][6]
-                this.tel = this.clientes[0][7]
-                this.wapp = this.clientes[0][8]
-                this.acla = this.clientes[0][9]
-                this.horario = this.clientes[0][10]
-                this.mjecobr = this.clientes[0][11]
-                this.infoseven = this.clientes[0][12]
-                this.id = this.clientes[0][13]
+                this.barrio = this.clientes['barrio']
+                this.zona = this.clientes['zona']
+                this.tel = this.clientes['tel']
+                this.wapp = this.clientes['wapp']
+                this.acla = this.clientes['acla']
+                this.horario = this.clientes['horario']
+                this.mjecobr = this.clientes['mjecobr']
+                this.infoseven = this.clientes['infoseven']
+                this.id = this.clientes['id']
 
                 this.buscar = '';
                 this.clientes = [];
