@@ -15,7 +15,6 @@
 {% block content %}
 <div id="app" class="container">
   <p class="title is-1">Editar Recibos</p>
-  <p class="subtitle is-3" v-show="nombre">|nombre|</p>
 
   <div class="buttons">
     <a href="/pagos" class="button is-primary">Pagos</a>
@@ -46,6 +45,7 @@
         <th>rbo</th>
         <th>cobr</th>
         <th>idcliente</th>
+        <th>nombre</th>
       </tr>
     </thead>
     <tbody>
@@ -60,6 +60,7 @@
         <td>|rbo['rbo']|</td>
         <td>|rbo['cobr']|</td>
         <td>|rbo['idcliente']|</td>
+        <td>|rbo['nombre']|</td>
       </tr>
     </tbody>
   </table>
@@ -134,7 +135,6 @@
                     row['fecha']=dayjs.utc(row['fecha']).format('YYYY-MM-DD')
                 })
                 this.rbos = arrayRbos
-                this.nombre = res.data.nombre
         })
         .catch(error=>{
           bulmaToast.toast({message:"No hay registros para ese recibo", type:"is-danger"})

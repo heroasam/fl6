@@ -120,9 +120,10 @@ def ficha(con,ldni):
             pdf.cell(80,6,"Cuotas a Pagar",0,1)
             pdf.set_font_size(8)
             for cuota in cuotas:
-                pdf.cell(5,4,f"{cuota[0]}",1,0,'C')
-                pdf.cell(25,4,f"{cuota[1]}",1,0,'C')
-                pdf.cell(15,4,f"${cuota[2]}",1,1,'C')
+                if cuota[2]:
+                    pdf.cell(5,4,f"{cuota[0]}",1,0,'C')
+                    pdf.cell(25,4,f"{cuota[1]}",1,0,'C')
+                    pdf.cell(15,4,f"${cuota[2]}",1,1,'C')
             pdf.ln(2)    
             y1=pdf.get_y()
             pgy1 = pdf.page_no()

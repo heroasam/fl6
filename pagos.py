@@ -247,16 +247,16 @@ def pagos_obtenerrbo(id):
 def pagos_obtenerregrbo(buscar):
     con = get_con()
     try:
-        reg = pgdict(con, f"select id, fecha, idvta, imp, rec, rbo, cobr, idcliente from pagos where rbo={buscar}")
-        idcliente = pgonecolumn(con, f"select idcliente from pagos where rbo={buscar}")
-        nombre = pgonecolumn(con, f"select nombre from clientes where id={idcliente}")
+        reg = pgdict(con, f"select pagos.id as id, fecha, idvta, imp, rec, rbo, cobr, idcliente, nombre from pagos,clientes where clientes.id=pagos.idcliente and  rbo={buscar}")
+        # idcliente = pgonecolumn(con, f"select idcliente from pagos where rbo={buscar}")
+        # nombre = pgonecolumn(con, f"select nombre from clientes where id={idcliente}")
     except mysql.connector.Error as e:
         con.rollback()
         error = e.msg
         return make_response(error,400)
     else:
         con.close()
-        return jsonify (reg=reg, nombre=nombre)
+        return jsonify (reg=reg)
 
 
 @pagos.route('/pagos/borrarrbo/<int:id>')
@@ -277,6 +277,7 @@ def pagos_guardaredicionrbo():
     d = json.loads(request.data.decode("UTF-8"))
     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={d['idvta']}")
     upd = f"update pagos set fecha='{d['fecha']}', idvta={d['idvta']}, imp={d['imp']}, rec={d['rec']}, rbo={d['rbo']}, cobr={d['cobr']}, idcliente={idcliente} where id={d['id']}"
+    print(upd)
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
