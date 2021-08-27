@@ -43,7 +43,7 @@
               <button class="button is-primary" x-text="cliente.nombre" @click="Clientes=[];Clientes[0]=cliente;pedirVentas(cliente.dni)"></button>
           </template>
           <template x-for="venta in Ventas">
-              <button class="button is-danger" x-text="venta[0]" @click="obtenerVenta(venta[0])"></button>
+              <button class="button is-danger" x-text="venta['id']" @click="obtenerVenta(venta['id'])"></button>
           </template>
       </div>
 
@@ -167,7 +167,7 @@
                             .then(res=>{
                                     //console.log(res.data.idvtas)
                                     this.Ventas=res.data.idvtas
-                                    this.obtenerVenta(this.Ventas[0][0])
+                                    this.obtenerVenta(this.Ventas[0]['id'])
                                 })
                     },
                 obtenerVenta(idvta){

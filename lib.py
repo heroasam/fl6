@@ -19,6 +19,14 @@ def pgdict(con, sel):
     cur.close()
     return rec
 
+def pglist(con, sel):
+    """Funcion que entrega una lista de valores en formato list of list
+       entregado por el fetchall sobre un cursor"""
+    cur = con.cursor()
+    cur.execute(sel)
+    rec = cur.fetchall()
+    cur.close()
+    return rec
 
 def pgonecolumn(con, sel):
     """Funcion que entrega un solo valor como el onecolumn de sqlite

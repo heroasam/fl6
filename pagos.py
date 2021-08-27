@@ -448,7 +448,7 @@ def pagos_togglesube(id):
 @pagos.route('/pagos/sevenaltas')
 def pagos_sevenaltas():
     con = get_con()
-    sevenaltas = pgdict(con, f"select 2210,dni,dni,3,sex,'','',nombre,concat(calle,' ',num),5000,barrio,'Cordoba','Cordoba','M', date_format(current_date(),'%Y-%m-%d'),0,'01','',wapp from clientes where subirseven=1 and alta is null")
+    sevenaltas = pglist(con, f"select 2210,dni,dni,3,sex,'','',nombre,concat(calle,' ',num),5000,barrio,'Cordoba','Cordoba','M', date_format(current_date(),'%Y-%m-%d'),0,'01','',wapp from clientes where subirseven=1 and alta is null")
     con.close()
     return jsonify(sevenaltas=sevenaltas)
 
@@ -484,8 +484,16 @@ def pagos_marcarsubidos():
 @pagos.route('/pagos/loadbajas')
 def pagos_loadbajas():
     con = get_con()
-    listbajas = pgdict(con, f"select dni,nombre,dni,'Cancelado' as canc,ultpago from clientes where sev=1 and deuda=0")
+    listbajas = pgdict(con, f"select dni,nombre,dni, 'Cancelado' as canc, ultpago from clientes where sev=1 and deuda=0")
+    con.close()
     return jsonify(listbajas=listbajas)
+
+
+@pagos.route('/pagos/sevenbajas')
+def pagos_sevenbajas():
+    con = get_con()
+    sevenbajas = pglist(con, f"select dni,nombre,dni,'Cancelado' as canc,ultpago from clientes where sev=1 and deuda=0")
+    return jsonify(sevenbajas=sevenbajas)
 
 
 @pagos.route('/pagos/bajas')

@@ -64,9 +64,11 @@
                     })
                 },
                 generarCSV(){
-                    axios.get('/pagos/sevenaltas')
+                    axios.get('/pagos/sevenbajas')
                     .then(res=>{
-                        let listaBajas = [...this.listBajas]
+                        /* let listaBajas = [...this.listBajas] */
+			let listaBajas = res.data.sevenbajas
+			listaBajas.map(row=>row[4]=dayjs.utc(row[4]).format('YYYY-MM-DD'))
                         let enc = []
                         enc.push(['Cordoba',dayjs.utc().format('YYYY-MM-DD'),'','',''])
                         enc.push(['','','','',''])

@@ -50,16 +50,16 @@
     </thead>
     <tbody>
       <tr v-for="rbo in rbos">
-        <td><button class="button is-danger is-small" @click="borrarRbo(rbo[0])">Borrar</button></td>
-        <td><button class="button is-info is-small" @click="obtenerRbo(rbo[0])">Editar</button></td>
-        <td>|rbo[0]|</td>
-        <td>|rbo[1]|</td>
-        <td>|rbo[2]|</td>
-        <td>|rbo[3]|</td>
-        <td>|rbo[4]|</td>
-        <td>|rbo[5]|</td>
-        <td>|rbo[6]|</td>
-        <td>|rbo[7]|</td>
+        <td><button class="button is-danger is-small" @click="borrarRbo(rbo['id'])">Borrar</button></td>
+        <td><button class="button is-info is-small" @click="obtenerRbo(rbo['id'])">Editar</button></td>
+        <td>|rbo['id']|</td>
+        <td>|rbo['fecha']|</td>
+        <td>|rbo['idvta']|</td>
+        <td>|rbo['imp']|</td>
+        <td>|rbo['rec']|</td>
+        <td>|rbo['rbo']|</td>
+        <td>|rbo['cobr']|</td>
+        <td>|rbo['idcliente']|</td>
       </tr>
     </tbody>
   </table>
@@ -131,7 +131,7 @@
         .then(res=>{
           let arrayRbos = Array.from(res.data.reg)
                 arrayRbos.forEach(row=>{
-                    row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD')
+                    row['fecha']=dayjs.utc(row['fecha']).format('YYYY-MM-DD')
                 })
                 this.rbos = arrayRbos
                 this.nombre = res.data.nombre
@@ -145,14 +145,14 @@
         axios.get('/pagos/obtenerrbo/'+id)
         .then(res=>{
           console.log(res.data.reg)
-          this.fecha = dayjs.utc(res.data.reg[0][0]).format('YYYY-MM-DD')
-          this.idvta = res.data.reg[0][1]
-          this.imp = res.data.reg[0][2]
-          this.rec = res.data.reg[0][3]
-          this.rbo = res.data.reg[0][4]
-          this.cobr = res.data.reg[0][5]
-          this.id = res.data.reg[0][6]
-          this.nombre = res.data.reg[0][7]
+          this.fecha = dayjs.utc(res.data.reg[0]['fecha']).format('YYYY-MM-DD')
+          this.idvta = res.data.reg[0]['idvta']
+          this.imp = res.data.reg[0]['imp']
+          this.rec = res.data.reg[0]['rec']
+          this.rbo = res.data.reg[0]['rbo']
+          this.cobr = res.data.reg[0]['cobr']
+          this.id = res.data.reg[0]['id']
+          this.nombre = res.data.reg[0]['nombre']
         })
       },
       validarEdicionRbo(){
