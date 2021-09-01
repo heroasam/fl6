@@ -188,7 +188,7 @@ def pagos_verplanillas():
 @pagos.route('/pagos/getplanillas')
 def pagos_getplanillas():
     con = get_con()
-    planillas = pgdict(con,f"select planillas.fecha as fecha,sum(cobrado),sum(comision),sum(viatico),sum(cntrbos),(select imp from caja where comentario='global' and cuenta='cobranza' and fecha=planillas.fecha) as cobradocaja, (-1)*(select imp from caja where comentario='via' and cuenta='cobranza' and fecha=planillas.fecha) as viaticocaja from planillas  where planillas.fecha>date_sub(curdate(), interval 60 day) group by planillas.fecha order by planillas.fecha desc")
+    planillas = pgdict(con,f"select planillas.fecha as fecha,sum(cobrado) as cobrado,sum(comision) as comision,sum(viatico) as viatico,sum(cntrbos) as cntrbos,(select imp from caja where comentario='global' and cuenta='cobranza' and fecha=planillas.fecha) as cobradocaja, (-1)*(select imp from caja where comentario='via' and cuenta='cobranza' and fecha=planillas.fecha) as viaticocaja from planillas  where planillas.fecha>date_sub(curdate(), interval 60 day) group by planillas.fecha order by planillas.fecha desc")
     con.close()
     return jsonify(planillas=planillas)
 
@@ -204,7 +204,7 @@ def pagos_getplanillashoy(fecha):
 @pagos.route('/pagos/getplanillascobr')
 def pagos_getplanillascobr():
     con = get_con()
-    planillascobr = pgdict(con, f"select fecha,idcobr,cobrado,comision,viatico,cntrbos from planillas order by id desc limit 100")
+    planillascobr = pgdict(con, f"select fecha,idcobr,cobrado,comision,viatico,cntrbos from planillas order by fecha desc limit 100")
     con.close()
     return jsonify(planillascobr=planillascobr)
 

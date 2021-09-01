@@ -405,8 +405,11 @@
                 this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
                 //console.log(this.Cliente);
                 this.obtenerVentas(this.Cliente.id)
-
                 this.verCard = true;
+		axios.get('/buscador/clientesdireccion/'+this.Cliente.calle+'/'+this.Cliente.num)
+		     .then(res=>{
+			 this.listaClientes=res.data.clientes
+		     })
             },
             clipWapp(){
             let text,

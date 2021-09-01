@@ -53,13 +53,13 @@ thead th {
             </tr>
         </thead>
         <tbody>
-            <tr v-for="planilla in planillas" :class="planilla[1]!=planilla[5]||planilla[3]!=planilla[6]?'noprocesada':'procesada'">
-                <td><button class="btn btn-outline-primary btn-sm" @click="procesarPlanilla(planilla[0],planilla[1],planilla[2],planilla[3])">Procesar</button></td>
-                <td>|planilla[0]|</td>
-                <td>|planilla[1]|</td>
-                <td>|planilla[2]|</td>
-                <td>|planilla[3]|</td>
-                <td>|planilla[4]|</td>
+            <tr v-for="planilla in planillas" :class="planilla['cobrado']!=planilla['cobradocaja']||planilla['viatico']!=planilla['viaticocaja']?'noprocesada':'procesada'">
+                <td><button class="btn btn-outline-primary btn-sm" @click="procesarPlanilla(planilla['fecha'],planilla['cobrado'],planilla['comision'],planilla['viatico'])">Procesar</button></td>
+                <td>|planilla['fecha']|</td>
+                <td>|planilla['cobrado']|</td>
+                <td>|planilla['comision']|</td>
+                <td>|planilla['viatico']|</td>
+                <td>|planilla['cntrbos']|</td>
             </tr>
         </tbody>
     </table>
@@ -67,6 +67,7 @@ thead th {
         <thead>
             <tr>
                 <th>fecha</th>
+                <th>cobr</th>
                 <th>cobrado</th>
                 <th>comision</th>
                 <th>viatico</th>
@@ -75,11 +76,12 @@ thead th {
         </thead>
         <tbody>
             <tr v-for="plcobr in planillascobr">
-                <td>|plcobr[0]|</td>
-                <td>|plcobr[1]|</td>
-                <td>|plcobr[2]|</td>
-                <td>|plcobr[3]|</td>
-                <td>|plcobr[4]|</td>
+                <td>|plcobr['fecha']|</td>
+                <td>|plcobr['idcobr']|</td>
+                <td>|plcobr['cobrado']|</td>
+                <td>|plcobr['comision']|</td>
+                <td>|plcobr['viatico']|</td>
+                <td>|plcobr['cntrbos']|</td>
             </tr>
         </tbody>
     </table>
@@ -102,7 +104,7 @@ const app = new Vue({
             .then(res=>{
                 arrayPlanillas = Array.from(res.data.planillas)
                 arrayPlanillas.forEach(row=>{
-                    row[0]=dayjs.utc(row[0]).format('YYYY-MM-DD')
+                    row['fecha']=dayjs.utc(row['fecha']).format('YYYY-MM-DD')
                 })
                 this.planillas = arrayPlanillas
                 //console.log(this.planillas);
@@ -112,7 +114,7 @@ const app = new Vue({
                 axios.get('/pagos/getplanillascobr')
                         .then(res=>{
                                 this.planillascobr = res.data.planillascobr
-                                this.planillascobr.map(row=>row[0]=dayjs.utc(row[0]).format('YYYY-MM-DD'))
+                                this.planillascobr.map(row=>row['fecha']=dayjs.utc(row['fecha']).format('YYYY-MM-DD'))
                                 //console.log(this.planillascobr)
                             })
                 },

@@ -41,6 +41,18 @@ def buscar_cuenta(buscar):
     return jsonify(clientes=clientes)
 
 
+@buscador.route('/buscador/clientesdireccion/<string:calle>/<string:num>')
+def clientesdireccion(calle,num):
+    con = get_con()
+    cur = con.cursor(dictionary=True)
+    cur.execute(f"select * from clientes where calle='{calle}' and num='{num}'")
+    clientes = cur.fetchall()
+    con.close()
+    return jsonify(clientes=clientes)
+
+
+
+
 @buscador.route('/buscador/pedirpagadasporidcliente/<int:idcliente>')
 def buscar_pedirpagadasporidcliente(idcliente):
     sql = f"select * from pagos where idcliente={idcliente} order by id desc"
