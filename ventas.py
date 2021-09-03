@@ -1,7 +1,7 @@
 from flask import Blueprint,render_template,jsonify,make_response, request
 from flask_login import login_required
 from .lib import *
-from .con import get_con
+from .con import get_con, log
 import pandas as pd
 import simplejson as json
 import mysql.connector
@@ -73,6 +73,7 @@ def ventas_guardarcliente():
         return make_response(error,400)
     else:
         con.commit()
+        log(stm)
         cur.close()
         if d['id']=="":
             id = pgonecolumn(con,f"select id from clientes order by id desc limit 1")
@@ -82,6 +83,7 @@ def ventas_guardarcliente():
             cur = con.cursor()
             cur.execute(ins)
             con.commit()
+            log(ins)
             cur.close()
         con.close()
         return jsonify(id=id)
@@ -108,6 +110,7 @@ def ventas_guardarventa():
         return make_response(error,400)
     else:
         con.commit()
+        log(ins)
         cur.close()
         idvta = pgonecolumn(con,f"select id from ventas order by id desc limit 1")
         con.close()
@@ -128,6 +131,7 @@ def ventas_guardardetvta():
         return make_response(error,400)
     else:
         con.commit()
+        log(ins)
         cur.close()
         detvta = pgdict(con,f"select id,cnt,art,cc,ic from detvta where idvta={d['idvta']}")
         sumic = pgonecolumn(con,f"select sum(ic) from detvta where idvta={d['idvta']}")
@@ -149,6 +153,7 @@ def ventas_borrardetvta(id):
         return make_response(error,400)
     else:
         con.commit()
+        log(stm)
         cur.close()
         detvta = pgdict(con,f"select id,cnt,art,cc,ic from detvta where idvta={idvta}")
         sumic = pgonecolumn(con,f"select sum(ic) from detvta where idvta={idvta}")
@@ -193,6 +198,7 @@ def ventas_borrarventa(id):
         return make_response(error,400)
     else:
         con.commit()
+        log(stm)
         cur.close()
         con.close()
         return 'OK'
@@ -219,6 +225,7 @@ def ventas_guardaredicionvta():
         return make_response(error,400)
     else:
         con.commit()
+        log(upd)
         cur.close()
         con.close()
         return 'OK'   
@@ -292,6 +299,7 @@ def ventas_guardaredicioncalle():
         return make_response(error,400)
     else:
         con.commit()
+        log(stm)
         cur.close()
         con.close()
         if d['id']=='':
@@ -315,6 +323,7 @@ def ventas_guardaredicionbarrio():
         return make_response(error,400)
     else:
         con.commit()
+        log(upd)
         cur.close()
         con.close()
         return 'OK'    
@@ -334,6 +343,7 @@ def ventas_guardaredicionzona():
         return make_response(error,400)
     else:
         con.commit()
+        log(upd)
         cur.close()
         con.close()
         return 'OK'   
@@ -352,6 +362,7 @@ def ventas_borrarcalle(id):
         return make_response(error,400)
     else:
         con.commit()
+        log(stm)
         cur.close()
         con.close()
         return 'OK'
@@ -371,6 +382,7 @@ def ventas_borrarbarrio(id):
         return make_response(error,400)
     else:
         con.commit()
+        log(stm)
         cur.close()
         con.close()
         return 'OK'
@@ -389,6 +401,7 @@ def ventas_borrarzona(id):
         return make_response(error,400)
     else:
         con.commit()
+        log(stm)
         cur.close()
         con.close()
         return 'OK'
@@ -407,6 +420,7 @@ def ventas_guardarcallenueva():
         return make_response(error,400)
     else:
         con.commit()
+        log(ins)
         cur.close()
         con.close()
         return 'OK'
@@ -427,6 +441,7 @@ def ventas_guardarbarrionueva():
         return make_response(error,400)
     else:
         con.commit()
+        log(ins)
         cur.close()
         con.close()
         return 'OK'
@@ -446,6 +461,7 @@ def ventas_guardarzonanueva():
         return make_response(error,400)
     else:
         con.commit()
+        log(ins)
         cur.close()
         con.close()
         return 'OK'

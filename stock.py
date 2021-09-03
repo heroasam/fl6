@@ -30,6 +30,7 @@ def stock_deleteasiento(id):
     cur = con.cursor()
     cur.execute(stm)
     con.commit()
+    log(stm)
     cur.close()
     con.close()
     return 'el registro ha sido borrado'
@@ -59,6 +60,7 @@ def stock_guardarasiento():
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
+    log(ins)
     cur.close()
     con.close()
     return 'OK'
@@ -133,6 +135,7 @@ def stock_deletecompra(id):
     cur = con.cursor()
     cur.execute(stm)
     con.commit()
+    log(stm)
     cur.close()
     con.close()
     return 'el registro ha sido borrado'
@@ -146,6 +149,7 @@ def stock_guardarcompra():
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
+    log(ins)
     cur.close()
     con.close()
     return 'OK'
@@ -209,6 +213,7 @@ def stock_deletesalida(id):
     cur = con.cursor()
     cur.execute(stm)
     con.commit()
+    log(stm)
     cur.close()
     con.close()
     return 'el registro ha sido borrado'
@@ -222,6 +227,7 @@ def stock_guardarsalida():
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
+    log(ins)
     cur.close()
     con.close()
     return 'OK'
@@ -254,6 +260,7 @@ def stock_guardararticulo():
         return make_response(error,400)
     else:
         con.commit()
+        log(ins)
         cur.close()
         con.close()
         return 'OK'
@@ -266,6 +273,7 @@ def stock_deletearticulo(id):
     cur = con.cursor()
     cur.execute(stm)
     con.commit()
+    log(stm)
     cur.close()
     con.close()
     return 'el registro ha sido borrado'
@@ -282,6 +290,7 @@ def stock_articulotoggleactivo(id):
     cur = con.cursor()
     cur.execute(stm)
     con.commit()
+    log(stm)
     cur.close()
     con.close()
     return 'OK'
@@ -301,6 +310,7 @@ def stock_guardaredicionarticulo():
         return make_response(error,400)
     else:
         con.commit()
+        log(upd)
         cur.close()
         con.close()
         return 'OK'

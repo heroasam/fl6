@@ -1,5 +1,6 @@
 import os
 import mysql.connector
+from flask_login import current_user
 #import pymysql
 
 
@@ -12,6 +13,13 @@ def get_con():
     return con
 
 
+def log(stmt):
+    con = get_con()
+    cur = con.cursor()
+    ins = f'insert into log(fecha, user, stmt) values(CURRENT_TIMESTAMP,"{current_user.email}","{stmt}")'
+    cur.execute(ins)
+    con.commit()
+    con.close()
 
 
 

@@ -2,7 +2,7 @@ from flask import Blueprint,render_template,jsonify,make_response, request, send
 from flask_login import login_required
 from .lib import *
 import simplejson as json
-from .con import get_con
+from .con import get_con, log
 from .formularios import *
 import mysql.connector
 
@@ -83,6 +83,7 @@ def fichas_cambiarzona(zona):
         return make_response(error,400)
     else:
         con.commit()
+        log(upd)
         cur.close()
         con.close()
         return 'OK'
@@ -118,6 +119,7 @@ def fichas_toggleactivo(id):
         return make_response(error,400)
     else:
         con.commit()
+        log(upd)
         cur.close()
         con.close()
         return 'OK'
@@ -140,6 +142,7 @@ def fichas_toggleprom(id):
         return make_response(error,400)
     else:
         con.commit()
+        log(upd)
         cur.close()
         con.close()
         return 'OK'
@@ -158,6 +161,7 @@ def fichas_borrarcobrador(id):
         return make_response(error,400)
     else:
         con.commit()
+        log(stm)
         cur.close()
         con.close()
         return 'OK'
@@ -188,6 +192,7 @@ def fichas_guardarcobrador():
         return make_response(error,400)
     else:
         con.commit()
+        log(stm)
         cur.close()
         con.close()
         return 'OK'
@@ -220,6 +225,7 @@ def fichas_guardarfechado(idvta,pmovto):
         return make_response(error,400)
     else:
         con.commit()
+        log(upd)
         cur.close()
         con.close()
         return 'OK'

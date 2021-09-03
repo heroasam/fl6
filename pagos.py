@@ -2,7 +2,7 @@ from flask import Blueprint,render_template,jsonify,make_response, request, send
 from flask_login import login_required
 from .lib import *
 import simplejson as json
-from .con import get_con
+from .con import get_con, log
 import pandas as pd
 import re
 from .formularios import *
@@ -10,6 +10,7 @@ import mysql.connector
 
 pagos = Blueprint('pagos',__name__)
 
+    
 @pagos.route('/loterbo')
 @login_required
 def loterbo_():
@@ -21,7 +22,6 @@ def guardarlote(fecha,cobr):
     con = get_con()
     listarbos = json.loads(request.data.decode("UTF-8"))
     cnt = len(listarbos)
-    print(listarbos)
     ins = f"insert into loterbos(fecha,cobr,cnt,procesado) values('{fecha}',{cobr},{cnt},0)"
     cur = con.cursor()
     cur.execute(ins)
@@ -145,10 +145,12 @@ def pagos_pasarpagos():
     if(d['rec']==''):
         d['rec']=0
     ins = f"insert into pagos(idvta,fecha,imp,rec,rbo,cobr,idcliente) values({d['idvta']},'{d['fecha']}',{d['imp']},{d['rec']},{d['rbo']},{d['cobr']},{d['idcliente']})"
+    print(ins)
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
     con.close()
+    log(ins)
     return 'ok'
 
 
@@ -159,6 +161,7 @@ def pagos_borrarpago(idpago):
     cur = con.cursor()
     cur.execute(stm)
     con.commit()
+    log(stm)
     con.close()
     return 'ok'
 
@@ -174,8 +177,10 @@ def pagos_pasarplanilla():
     cur = con.cursor()
     if(idplanilla==""):
         cur.execute(ins)
+        log(ins)
     else:
         cur.execute(upd)
+        log(upd)
     con.commit()
     con.close()
     return 'ok'
@@ -224,6 +229,9 @@ def pagos_procesarplanilla():
     cur.execute(ins1)
     cur.execute(ins2)
     cur.execute(ins3)
+    log(ins1)
+    log(ins2)
+    log(ins3)
     con.commit()
     cur.close()
     con.close()
@@ -266,6 +274,7 @@ def pagos_borrarrbo(id):
     cur = con.cursor()
     cur.execute(stm)
     con.commit()
+    log(stm)
     cur.close()
     idvta = pgonecolumn(con,f"select idvta from pagos where id={id}")
     con.close()
@@ -277,10 +286,10 @@ def pagos_guardaredicionrbo():
     d = json.loads(request.data.decode("UTF-8"))
     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={d['idvta']}")
     upd = f"update pagos set fecha='{d['fecha']}', idvta={d['idvta']}, imp={d['imp']}, rec={d['rec']}, rbo={d['rbo']}, cobr={d['cobr']}, idcliente={idcliente} where id={d['id']}"
-    print(upd)
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
+    log(upd)
     cur.close()
     idvta = pgonecolumn(con,f"select idvta from pagos where id={d['id']}")
     con.close()
@@ -309,6 +318,7 @@ def pagos_editarasignado():
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
+    log(upd)
     cur.close()
     con.close()
     return 'ok'
@@ -441,6 +451,7 @@ def pagos_togglesube(id):
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
+    log(upd)
     cur.close()
     con.close()
     return 'OK'
@@ -463,14 +474,15 @@ def pagos_marcarsubidos():
         lpg+=str(dni)+','
     lpg = lpg[0:-1]+')'
     upd = f"update clientes set subirseven=0,sev=1,alta=date_format(current_date(),'%Y-%m-%d') where dni in {lpg}"
-    print(upd)
     cur = con.cursor()
     try:
         cur.execute(upd)
+        log(upd)
         for dni in listadni:
             idcliente = pgonecolumn(con, f"select id from clientes where dni={dni}")
             ins = f"insert into seven(idcliente,codigo,fecha) values({idcliente},'A',date_format(current_date(),'%Y-%m-%d'))"
             cur.execute(ins)
+            log(ins)
     except mysql.connector.Error as e:
         con.rollback()
         error = e.msg
@@ -514,10 +526,12 @@ def pagos_marcarbajados():
     cur = con.cursor()
     try:
         cur.execute(upd)
+        log(upd)
         for dni in listadni:
             idcliente = pgonecolumn(con, f"select id from clientes where dni={dni}")
             ins = f"insert into seven(idcliente,codigo,fecha) values({idcliente},'B',date_format(current_date(),'%Y-%m-%d'))"
             cur.execute(ins)
+            log(ins)
     except mysql.connector.Error as e:
         con.rollback()
         error = e.msg

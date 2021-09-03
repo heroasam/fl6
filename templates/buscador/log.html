@@ -1,0 +1,45 @@
+{% extends "base_template.html" %}
+{% block title %}Log{% endblock %}
+
+{% block content %}
+<div x-data="main()" x-init="obtenerLogs()">
+    <table class="table">
+	<thead>
+	    <tr>
+		<th>id</th>
+		<th>fecha</th>
+		<th>user</th>
+		<th>stmt</th>
+	    </tr>
+	</thead>
+	<tbody>
+	    <template x-for="log in listadoLog">
+		<tr>
+		    <td x-text="log['id']"></td>
+		    <td x-text="log['fecha']"></td>
+		    <td x-text="log['user']"></td>
+		    <td x-text="log['stmt']"></td>
+		</tr>
+	    </template>
+	</tbody>
+    </table>
+    
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+ function main(){
+     return{
+	 listadoLog:[],
+	 obtenerLogs(){
+	     axios.get('/buscador/obtenerlogs')
+		  .then(res=>{
+		      this.listadoLog=res.data.logs
+		  })
+	 },
+     }
+ }
+</script>
+{% endblock %}

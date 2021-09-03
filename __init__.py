@@ -69,8 +69,9 @@ def login():
         email = request.form['email']
         password = request.form['password']
         sel = f"select id,name,email,password,auth from users where email='{email}'"
-        log = pgdict(con,sel)[0]
-        print(log)
+        log = pgdict(con,sel)
+        if log:
+            log = log[0]
         errormail = "Ese email no existe en la base de datos. Registrese"
         errorpassword = "Ha ingresado una contraseña incorrecta"
         errorauth = "Ese email no esta autorizado a ingresar"

@@ -4,7 +4,7 @@ from .lib import *
 import simplejson as json
 import re
 from .formularios import *
-from .con import get_con
+from .con import get_con, log
 
 buscador = Blueprint('buscador',__name__)
 
@@ -94,6 +94,7 @@ def buscar_guardarcomentario(idcliente):
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
+    log(ins)
     con.close()
     return 'ok'
 
@@ -127,6 +128,7 @@ def buscar_guardarpmovto(idcliente,pmovto):
     cur = con.cursor()
     cur.execute(sql)
     con.commit()
+    log(sql)
     con.close()
     return 'ok'
 
@@ -157,6 +159,7 @@ def buscar_togglesube(dni):
         cur = con.cursor()
         cur.execute(upd)
         con.commit()
+        log(upd)
         cur.close()
         return jsonify(msg=msg)
     else:
@@ -179,6 +182,7 @@ def buscar_togglegestion(dni):
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
+    log(upd)
     cur.close()
     con.close()
     return jsonify(msg=msg)
@@ -202,6 +206,7 @@ def buscar_togglemudado(dni):
         return make_response("un error se ha producido",400)
     else:
         con.commit()
+        log(upd)
         cur.close()
         con.close()
         return jsonify(msg=msg)
@@ -221,6 +226,7 @@ def buscar_toggleinc(dni):
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
+    log(upd)
     cur.close()
     con.close()
     return jsonify(msg=msg)
@@ -240,6 +246,7 @@ def buscar_togglenvm(dni):
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
+    log(upd)
     cur.close()
     con.close()
     return jsonify(msg=msg)
@@ -259,6 +266,7 @@ def buscar_togglellamar(dni):
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
+    log(upd)
     cur.close()
     con.close()
     return jsonify(msg=msg)
@@ -278,6 +286,7 @@ def buscar_toggleseguir(dni):
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
+    log(upd)
     cur.close()
     con.close()
     return jsonify(msg=msg)
@@ -338,10 +347,11 @@ def buscar_generarplandepagos(idcliente):
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
+    log(upd)
     ins = f"insert into ventas(fecha,cc,ic,p,primera,pp,idvdor,idcliente) values('{d['fecha']}',{d['cc']},{d['ic']},{d['p']},'{d['primera']}',1,10,{idcliente})"
-    print(ins)
     cur.execute(ins)
     con.commit()
+    log(ins)
     con.close()
     return 'ok'
 
@@ -350,6 +360,19 @@ def buscar_generarplandepagos(idcliente):
 def buscador_intimar():
     con = get_con()
     dni = json.loads(request.data.decode("UTF-8"))
-    print(dni)
     intimacion(con,dni)
     return send_file('/tmp/intimacion.pdf')
+
+
+@buscador.route('/log')
+@login_required
+def log():
+    return render_template('buscador/log.html')
+
+
+@buscador.route('/buscador/obtenerlogs')
+def buscador_obtenerlogs():
+    con = get_con()
+    logs = pgdict(con, f"select * from log order by id desc limit 1000")
+    con.close()
+    return jsonify(logs=logs)
