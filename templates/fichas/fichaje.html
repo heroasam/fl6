@@ -38,7 +38,8 @@ endblock %} {% block style %}
     </div>
 
   <div class="ml-1 mt-1 mb-1">
-    <button class="button is-success" @click="seleccionarHoy()">Seleccionar Hoy</button>
+    <button class="button is-success" @click="seleccionarHasta()">Seleccionar</button>
+    <input type="date" name="hasta" v-model="hasta" class="input" style="width:140px;" />
     <button class="button is-info" @click="imprimir()">Imprimir</button>
     <button class="button is-danger" @click="intimar()">Intimar</button>
     <button class="button is-warning" @click="muestraClientes('gestion',zonaactual)">Gestion</button>
@@ -127,6 +128,7 @@ document.addEventListener('click',()=>{
       listazonas:[],
       ultimazona:'',
       ultimotipo:'',
+      hasta:dayjs.utc().format('YYYY-MM-DD'),
     },
     methods: {
       getCobradores() {
@@ -207,12 +209,15 @@ document.addEventListener('click',()=>{
           window.open(url);
         });
       },
-      seleccionarHoy() {
+      seleccionarHasta() {
         const $tbody = document.querySelector("tbody");
         arrayRows = Array.from($tbody.children);
         arrayRows.forEach((row) => {
-          let pmovto = dayjs(row.cells[4].innerHTML);
-          if (pmovto.unix() < dayjs().unix()) {
+          let pmovto = dayjs(row.cells[4].innerHTML).format('YYYY-MM-DD');
+	    console.log(this.hasta)
+	    console.log(pmovto)
+	    console.log(pmovto<=this.hasta)
+          if (pmovto <= this.hasta) {
             row.classList.add("selected");
           }
         });

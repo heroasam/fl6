@@ -366,7 +366,7 @@ def buscador_intimar():
 
 @buscador.route('/log')
 @login_required
-def log():
+def buscador_log():
     return render_template('buscador/log.html')
 
 
