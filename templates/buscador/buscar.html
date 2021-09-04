@@ -80,7 +80,7 @@
           <div class="buttons m-3" >
             <template x-for="cliente in listaClientes" x-show="!verCard">
                 <!-- [dni,nombre,direccion] -->
-            <button class="button is-info is-small" @mouseover="buscar=cliente.calle+' '+cliente.num" @click="buscaCuentaporDni(cliente.dni)" x-text="cliente.nombre"></button>
+            <button class="button is-small" @mouseover="buscar=cliente.calle+' '+cliente.num" @click="buscaCuentaporDni(cliente.dni)" x-text="cliente.nombre" x-bind:class="cliente.deuda?'is-danger':'is-info'"></button>
             </template>
           </div>
 

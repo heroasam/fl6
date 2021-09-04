@@ -82,7 +82,7 @@ endblock %} {% block style %}
           <td>|cliente['dni']|</td>
           <td>|cliente['zona']|</td>
           <td>|cliente['barrio']|</td>
-          <td><button class="button is-success is-small" v-show="cliente['sev']||cliente[11]">|cliente['sev']==1?'SEVEN':cliente[11]==1?'SUBE':null|</button></td>
+          <td><button class="button is-success is-small" v-show="cliente['sev']||cliente['subirseven']">|cliente['sev']==1?'SEVEN':cliente['subirseven']==1?'SUBE':null|</button></td>
           <td><button class="button is-primary is-small" v-if="cliente['novendermas']">|cliente['novendermas']==1?'NV+':null|</button></td>
           <td><button class="button is-info is-small" v-if="cliente['gestion']">|cliente['gestion']==1?'GESTION':null|</button></td>
           <td><button class="button is-warning is-small" v-if="cliente['mudo']">|cliente['mudo']==1?'MUDO':null|</button></td>
@@ -249,14 +249,14 @@ document.addEventListener('click',()=>{
         })
       },
       toggleMudo(dni){
-        axios.get('/buscador/togglemudado/'+dni)
+        axios.get('/buscador/togglemudo/'+dni)
         .then(res=>{
           this.muestraClientes(this.ultimotipo,this.ultimazona)
           if(this.ultimotipo=="normales") bulmaToast.toast({message:"Movido a Gestion",type:"is-warning"})
         })
       },
       toggleLN(dni){
-        axios.get('/buscador/toggleln/'+dni)
+        axios.get('/buscador/togglenvm/'+dni)
         .then(res=>{
          this.muestraClientes(this.ultimotipo,this.ultimazona)
         })
