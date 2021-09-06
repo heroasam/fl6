@@ -2,7 +2,7 @@ from flask import Blueprint,render_template,jsonify,make_response, request
 from flask_login import login_required
 from .lib import *
 import simplejson as json
-from .con import get_con
+from .con import get_con, log
 import pandas as pd
 import mysql.connector
 
