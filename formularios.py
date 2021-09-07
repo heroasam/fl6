@@ -24,6 +24,23 @@ def cuotaje(con,idvta):
             pagado = pagado - ic
     return listcuotas
 
+def calc(con, idcliente):
+    sql =  f"select id from ventas where idcliente={idcliente} and saldo>0"
+    cur = con.cursor()
+    cur.execute(sql)
+    ventas = cur.fetchall()[0]
+    cnt = 0
+    for v in ventas:
+        dv = pgonecolumn(con, f"select count(*) from detvta where idvta={v}")
+        pagadas = pgonecolumn(con, f"select count(*) from pagos where idvta={v}")
+        cuotas = 6
+        if pagadas>cuotas:
+            c = pagadas
+        else:
+            c = cuotas
+        cnt += dv + c + 1
+    return cnt
+    
 class MyFPDF(FPDF):
     def header(self):
         self.set_font('Helvetica', '', 10)
@@ -34,7 +51,7 @@ class MyFPDF(FPDF):
         pass
 def ficha(con,ldni):
     pdf=MyFPDF()
-    pdf.set_margins(30,30)
+    pdf.set_margins(30,15)
     pdf.add_page()
     pdf.set_font("Helvetica","",10)
     lpg ='('
@@ -50,11 +67,12 @@ def ficha(con,ldni):
     # dictDir = {} # dicc que guarda la direccion para el resumen
     for dni in listdni:
         #regla para que no comience un encabezado con poco espacio
-        if (pdf.get_y()>250):
+        cliente = pgdict0(con,f"select nombre,calle,num,tel,wapp,pmovto,barrio,zona,acla,mjecobr,horario,id from clientes where dni='{dni}'")
+        estimado = calc(con, cliente[11])
+        estimado += 7 # estimado bruto de los distintos encabezados
+        if (pdf.get_y()+(estimado*6)>285):
             pdf.add_page()
             pdf.set_y(15)
-        cliente = pgdict0(con,f"select nombre,calle,num,tel,wapp,pmovto,barrio,zona,acla,mjecobr,horario,id from clientes where dni='{dni}'")
-        print(cliente[4])
         pdf.set_font_size(12)
         pdf.set_x(10)
         pdf.cell(20,6,str(i),0,0)
@@ -109,10 +127,11 @@ def ficha(con,ldni):
                 max=len(cuotas)
             else:
                 max=len(pagadas)
+            
             # Formula para el calculo del espacio ocupable
-            if ((pdf.get_y()+max*7)>280):
-                pdf.add_page()
-                pdf.set_y(15)
+            # if ((pdf.get_y()+max*7)>280):
+            #     pdf.add_page()
+            #     pdf.set_y(15)
 
             pdf.ln(2)
             pdf.set_font_size(10)
