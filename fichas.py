@@ -211,11 +211,13 @@ def fichas_buscacuenta(idvta):
     return jsonify(cuenta=cuenta)
 
 
-@fichas.route('/fichas/guardarfechado/<int:idvta>/<string:pmovto>')
-def fichas_guardarfechado(idvta,pmovto):
+@fichas.route('/fichas/guardarfechado/<int:idvta>/<string:pmovto>/<int:cobr>')
+def fichas_guardarfechado(idvta,pmovto,cobr):
     con = get_con()
     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
+    expmovto = pgonecolumn(con, f"select pmovto from clientes where id={idcliente}")
     upd = f"update clientes set pmovto='{pmovto}' where id = {idcliente}"
+    ins = f"insert into fechados(fecha,idcliente,expmovto,pmovto,cobr) values(current_date(),{idcliente},'{expmovto}','{pmovto}',{cobr})"
     cur = con.cursor()
     try:
         cur.execute(upd)
@@ -224,6 +226,7 @@ def fichas_guardarfechado(idvta,pmovto):
         error = e.msg
         return make_response(error,400)
     else:
+        cur.execute(ins)
         con.commit()
         log(upd)
         cur.close()
@@ -269,3 +272,11 @@ def fichas_imprimirlistado():
     # print(len(listadni))
     con.close()
     return send_file('/tmp/listado.pdf')
+
+
+@fichas.route('/fichas/obtenerlistadofechados')
+def fichas_obtenerlistadofechados():
+    con = get_con()
+    listado = pgdict(con, f"select fechados.id as id,nombre,expmovto,fechados.pmovto as pmovto,cobr from fechados,clientes where clientes.id=fechados.idcliente and fecha=current_date() order by fechados.id desc")
+    con.close()
+    return jsonify(listado=listado)

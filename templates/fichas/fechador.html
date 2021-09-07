@@ -13,7 +13,7 @@
             <a href="/fichas/listado" class="button is-primary">Listado</a>
           </div>
 
-        <div x-data="main()">
+        <div x-data="main()" x-init="llenaListado()">
             <div class="columns">
                 <div class="column is-3">
                     <input type="text" class="input is-large" x-model="idvta" @keyup.enter="buscaCuenta(idvta);$refs.pmovto.focus()" x-ref="idvta">
@@ -29,7 +29,7 @@
             </div>
 
         <div class="columns">
-            <div class="column is-4">
+            <div class="column is-6">
                 <div class="box" x-show="listFechados.length">
                     <span class="tag is-small is-dark" x-text="`${listFechados.length} Fechados`" ></span>
                     <span class="tag is-small is-info" x-text="`${sumaCobr(750)} Cobr750`"></span>
@@ -42,19 +42,21 @@
         <table class=" block table is-narrow">
             <thead>
                 <tr>
-                    <th>idvta</th>
+                    <th>id</th>
                     <th>nombre</th>
+                    <th>expmovto</th>
                     <th>pmovto</th>
                     <th>cobr</th>
                 </tr>
             </thead>
             <tbody>
-                <template x-for="item in listFechados" :key="item[0]">
+                <template x-for="item in listFechados" :key="item['id']">
                     <tr>
-                        <td x-text="item[0]"></td>
-                        <td x-text="item[1]"></td>
-                        <td x-text="item[2]"></td>
-                        <td x-text="item[3]"></td>
+                        <td x-text="item['id']"></td>
+                        <td x-text="item['nombre']"></td>
+                        <td x-text="item['expmovto']"></td>
+                        <td x-text="item['pmovto']"></td>
+                        <td x-text="item['cobr']"></td>
                     </tr>
                     </template>
             </tbody>
@@ -97,9 +99,7 @@
                     if(e.key==='PageDown') this.pmovto = dayjs.utc(this.pmovto).add(-1,'month').format('YYYY-MM-DD')
                 },
                 guardarFechado: function(idvta,pmovto){
-                    this.listFechados.push([this.idvta,this.nombre,this.pmovto,this.cobr])
-                    this.listFechados = this.listFechados.reverse()
-                    axios.get('/fichas/guardarfechado/'+idvta+'/'+pmovto)
+                    axios.get('/fichas/guardarfechado/'+idvta+'/'+pmovto+'/'+this.cobr)
                     .then(res=>{
                         bulmaToast.toast({
                         message: "Fechado guardado",
@@ -110,6 +110,7 @@
                         this.nombre=''
                         this.pmovto=''
                         this.$refs.idvta.focus()
+			this.llenaListado()
                     })
                     .catch(error=>{
                         bulmaToast.toast({
@@ -118,11 +119,22 @@
                         })
                     })
                 },
+		llenaListado(){
+		    axios.get('/fichas/obtenerlistadofechados')
+			 .then(res=>{
+			     this.listFechados=res.data.listado
+			     this.listFechados.map(row=>{
+				 row['fecha']=dayjs.utc(row['fecha']).format('YYYY-MM-DD')
+				 row['expmovto']=dayjs.utc(row['expmovto']).format('YYYY-MM-DD')
+				 row['pmovto']=dayjs.utc(row['pmovto']).format('YYYY-MM-DD')
+			     })
+			 })
+		},
                 sumaCobr(id){
                     if(this.listFechados.length){
                     let col=[]
                     this.listFechados.forEach(row=>{
-                        col.push(row[3])
+                        col.push(row['cobr'])
                     })
                     let colid = col.filter(el=>el===id)
                     return colid.length
