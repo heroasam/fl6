@@ -1,5 +1,5 @@
 from flask import Blueprint,render_template,jsonify,make_response, request
-from flask_login import login_required
+from flask_login import login_required, current_user
 from .lib import *
 from .con import get_con, log
 import pandas as pd
@@ -517,3 +517,80 @@ def ventas_getmorosidadprimercuota():
 @ventas.route('/ventas/morosidad')
 def ventas_morosidad():
     return render_template('ventas/morosidad.html')
+
+
+@ventas.route('/ventas/devolucion')
+def ventas_devoluciones():
+    return render_template('ventas/devolucion.html')
+
+@ventas.route('/ventas/devolucion/buscarcliente/<int:idvta>')
+def ventas_devolucion_buscarcliente(idvta):
+    con = get_con()
+    idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
+    nombre = pgonecolumn(con, f"select nombre from clientes where id={idcliente}")
+    arts = pgdict(con, f"select * from detvta where idvta={idvta}")
+    return jsonify(nombre=nombre, arts=arts)
+
+
+@ventas.route('/ventas/devolucion/borrararticulo/<int:id>')
+def ventas_devolucion_borrararticulo(id):
+    con = get_con()
+    stm = f"delete from detvta where id={id}"
+    cur = con.cursor()
+    cur.execute(stm)
+    con.commit()
+    con.close()
+    log(stm)
+    return 'ok'
+
+
+@ventas.route('/ventas/devolucion/obtenerlistaarticulos')
+def ventas_devolucion_obtenerlistaarticulos():
+    con = get_con()
+    arts = pglflat(con, f"select art from articulos where activo=1")
+    con.close()
+    return jsonify(arts=arts)
+
+
+@ventas.route('/ventas/devolucion/procesar', methods=['POST'])
+def ventas_devolucion_procesar():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    idvta = d['idvta']
+    comprado = pgonecolumn(con, f"select comprado from ventas where id={idvta}")  
+    cc = int(d['cc'])
+    ic = int(d['imp'])
+    fechadev = d['fechadev']
+    cobr = d['cobr']
+    comprdejado = d['comprdejado']
+    rbon = d['rbon']
+    totparcial = d['totparcial']
+    novendermas = d['novendermas']
+    vdor = pgonecolumn(con, f"select idvdor from ventas where id={idvta}")
+    mesvta = pgonecolumn(con, f"select date_format(fecha, '%Y-%m') from ventas where id={idvta}")
+    if totparcial=='Total':
+        montodev=comprado
+    else:
+        montodev = comprado - (cc*ic)
+    registro = current_user.email
+
+    cnt = pgonecolumn(con, f"select sum(cnt) from detvta where idvta={idvta}")
+    art = pgonecolumn(con, f"select concat(art,'|') from detvta where idvta={idvta}")
+    
+    # update ventas cc/ic/cnt/art para una devolucion parcial
+    if totparcial=='Parcial':
+        updvta = f"update ventas set cc={cc},ic={ic},cnt={cnt},art='{art}' where id={idvta}"
+        print(updvta)
+        cur = con.cursor()
+        cur.execute(updvta)
+        con.commit()
+        log(updvta)
+        con.close()
+
+    # TODO: update ventas devuelta=1 saldo=0 para una devolucion total
+
+    # TODO: update ventas novendermas segun el valor de dicha variable
+    
+    # TODO: insert devoluciones con todos los datos de la devolucion
+
+    return 'ok'
