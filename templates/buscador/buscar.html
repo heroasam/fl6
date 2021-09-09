@@ -136,6 +136,7 @@
                 <th>saldo/comprado</th>
                 <th>vdor</th>
                 <th>cnt/art</th>
+		<th>op</th>
             </tr>
         </thead>
         <tbody>
@@ -148,6 +149,7 @@
                 <td x-text="venta.idvdor"></td>
                 <td x-text="venta.cnt+'/'+venta.art" x-show="venta.cnt"></td>
                 <td x-text="'PLAN DE PAGOS'" x-show="venta.pp" class="tag-danger"></td>
+		<td><button class="button is-primary is-small" @click="condonarVenta(venta.id)">Condonar</button></td>
             </tr>
            </template>
         </tbody>
@@ -742,6 +744,11 @@
                         })
 
                 },
+		condonarVenta(id){
+		    axios.get('/ventas/condonar/'+id)
+			 .then(res=>{
+				 this.buscaCuentaporDni(this.Cliente.dni)			 })
+		},
 
         }
     }

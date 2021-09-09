@@ -612,3 +612,15 @@ def ventas_devolucion_procesar():
     con.close()
 
     return 'ok'
+
+
+@ventas.route('/ventas/condonar/<int:id>')
+def ventas_condonar(id):
+    con = get_con()
+    upd = f"update ventas set condonada=1, saldo=0 where id={id}"
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    log(upd)
+    con.close()
+    return 'ok'
