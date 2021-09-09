@@ -557,40 +557,58 @@ def ventas_devolucion_procesar():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     idvta = d['idvta']
+    idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
     comprado = pgonecolumn(con, f"select comprado from ventas where id={idvta}")  
     cc = int(d['cc'])
     ic = int(d['imp'])
     fechadev = d['fechadev']
     cobr = d['cobr']
     comprdejado = d['comprdejado']
-    rbon = d['rbon']
-    totparcial = d['totparcial']
-    novendermas = d['novendermas']
+    rboN = d['rbon'] or 0
+    totparc = d['totparcial']
+    novendermas = d['novendermas'] or 0
     vdor = pgonecolumn(con, f"select idvdor from ventas where id={idvta}")
     mesvta = pgonecolumn(con, f"select date_format(fecha, '%Y-%m') from ventas where id={idvta}")
-    if totparcial=='Total':
+    if totparc=='Total':
         montodev=comprado
     else:
         montodev = comprado - (cc*ic)
     registro = current_user.email
 
     cnt = pgonecolumn(con, f"select sum(cnt) from detvta where idvta={idvta}")
-    art = pgonecolumn(con, f"select concat(art,'|') from detvta where idvta={idvta}")
+    art = pgonecolumn(con, f"select group_concat(art,'|') from detvta where idvta={idvta}")
     
     # update ventas cc/ic/cnt/art para una devolucion parcial
-    if totparcial=='Parcial':
+    # update ventas devuelta=1, saldo=0 para una devolucion total
+    cur = con.cursor(buffered=True)
+    if totparc=='Parcial':
         updvta = f"update ventas set cc={cc},ic={ic},cnt={cnt},art='{art}' where id={idvta}"
-        print(updvta)
-        cur = con.cursor()
         cur.execute(updvta)
         con.commit()
         log(updvta)
-        con.close()
-
-    # TODO: update ventas devuelta=1 saldo=0 para una devolucion total
-
-    # TODO: update ventas novendermas segun el valor de dicha variable
-    
-    # TODO: insert devoluciones con todos los datos de la devolucion
+    else:   # totparc=='Total'
+        updvta = f"update ventas set devuelta=1, saldo=0 where id={idvta}"
+        cur.execute(updvta)
+        con.commit()
+        log(updvta)
+    #   update detvta poner devuelta=1 a los articulos devueltos en una devolucion total
+        upddetvta = f"update detvta set devuelta=1 where idvta={idvta}"
+        cur.execute(upddetvta)
+        con.commit()
+        log(upddetvta)
+    #  update ventas novendermas segun el valor de dicha variable
+    if novendermas:
+        updnvm = f"update clientes set novendermas=1 where id={idcliente}"
+        cur.execute(updnvm)
+        con.commit()
+        log(updnvm)
+        
+    # insert devoluciones con todos los datos de la devolucion
+    ins = f"insert into devoluciones(idvta,fechadev,cobr,comprdejado,rboN,totparc,novendermas,vdor,mesvta,montodev,registro) values({idvta},'{fechadev}',{cobr},'{comprdejado}','{rboN}','{totparc}',{novendermas}, {vdor}, '{mesvta}', {montodev},'{registro}')" 
+    print(ins)
+    cur.execute(ins)
+    con.commit()
+    log(ins)
+    con.close()
 
     return 'ok'

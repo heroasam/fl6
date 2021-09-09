@@ -224,7 +224,9 @@
                    <td data-titulo="comprado" x-text="venta.comprado"></td>
                    <td data-titulo="vdor" x-text="venta.idvdor"></td>
                    <td data-titulo="arts" x-text="venta.cnt+'/'+venta.art"></td>
-                   <td x-show="venta.pcondo" x-text="'CUENTA INCLUIDA EN UN PLAN DE PAGOS'" class="tag-danger"></td>
+                   <td x-show="venta.pcondo" x-text="'CUENTA INCLUIDA EN UN PLAN DE PAGOS'" class="button is-info"></td>
+                   <td x-show="venta.devuelta" x-text="'DEVUELTA'" class="button is-danger"></td>
+                   <td x-show="venta.condonada" x-text="'CONDONADA'" class="button is-danger"></td>
                </tr>
                </template>
             </tbody>
@@ -450,12 +452,15 @@
                     })
                     this.listaVentas = arrayVentas
                     this.listaCuotas = this.hacerCuotas()
-                    if(this.listaVentas.length===0) bulmaToast.toast({message:'Este cliente no tiene cuentas activas',type:'is-danger'})
+                    if(this.listaVentas.length===0) {
+			bulmaToast.toast({message:'Este cliente no tiene cuentas activas',type:'is-danger'})
+		    }else{
+                    this.clipWapp();//genero el message wapp para el cliente por si es necesario
+		    }
                     this.pedirPagadas(idcliente)
                     this.obtenerVentasCanceladas(idcliente)
                     this.pedirComentarios(idcliente)
                     this.pedirLogCambioDireccion(idcliente)
-                    this.clipWapp();//genero el message wapp para el cliente por si es necesario
                 })
             },
             obtenerVentasCanceladas(idcliente){
