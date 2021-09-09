@@ -73,7 +73,9 @@
 <div x-data="main()" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();" class="container">
 
           <div class="grid-buscar ml-3 mr-3 mt-2">
-              <input type="search" placeholder="Buscar en Romitex" class="input" x-model="buscar" @keyup.enter="buscarCliente" @focus="buscar='';verCard=false" >
+              <input  placeholder="DNI o N° Cuenta" class="input" x-model="buscar1" @keyup.enter="buscarCliente" @focus="buscar='';verCard=false" type="number" pattern="[0-9]*" inputmode="numeric">
+              <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
+              <input type="search" placeholder="Busca: Nombre Calle Num" class="input" x-model="buscar" @focus="buscar1=''" @keyup.enter="buscarCliente";verCard=false">
               <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
           </div>
 
@@ -383,6 +385,7 @@
             listaLogCambioDireccion:[],
             listaPagadas:[],
             buscar:'',
+	    buscar1:'',
             verCard:false,
             messajeWapp:'',
             Cliente:{},
@@ -393,7 +396,8 @@
             verModalComentario:false,
             verModalPlanPago:false,
             buscarCliente(){
-                axios.get('/buscador/'+this.buscar)
+		buscar = this.buscar1 || this.buscar
+                axios.get('/buscador/'+buscar)
                 .then(res=>{
                     //console.log(res.data.clientes)
                     this.listaClientes=res.data.clientes
@@ -436,7 +440,7 @@
 
             },
             clipDatos(idcliente){
-                let text = this.Cliente.dni+'\n'+this.Cliente.calle+' '+this.Cliente.num+'\n'+this.Cliente.barrio+'\n'+this.Cliente.wapp
+                let text = this.Cliente.nombre+'\n'+this.Cliente.dni+'\n'+this.Cliente.calle+' '+this.Cliente.num+'\n'+this.Cliente.barrio+'\n'+this.Cliente.wapp
                 textToClipboard(text)
                 bulmaToast.toast({
                     message:"Datos copiados al portapapeles",
