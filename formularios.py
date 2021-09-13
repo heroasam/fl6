@@ -69,7 +69,7 @@ def ficha(con,ldni):
         #regla para que no comience un encabezado con poco espacio
         cliente = pgdict0(con,f"select nombre,calle,num,tel,wapp,pmovto,barrio,zona,acla,mjecobr,horario,id from clientes where dni='{dni}'")
         estimado = calc(con, cliente[11])
-        estimado += 7 # estimado bruto de los distintos encabezados
+        estimado += 9 # estimado bruto de los distintos encabezados
         if (pdf.get_y()+(estimado*6)>285):
             pdf.add_page()
             pdf.set_y(15)
@@ -105,6 +105,8 @@ def ficha(con,ldni):
             pdf.set_font_size(7)
             pdf.cell(0,4,f"En telefono se registra lo siguiente:{cliente[3]}",0,1)       
         pdf.ln(2)
+        pdf.set_font_size(10)
+        pdf.cell(40,6,f'Visitar el {pmovto}',1,1)
 
         ventas=pgddict(con,f"select id,fecha,cc,ic,p,saldo from ventas where saldo>0 and idcliente={cliente[11]}")
         for venta in ventas:
@@ -163,8 +165,8 @@ def ficha(con,ldni):
             if (y1<pdf.get_y() and pgy1<pdf.page_no()):
                 pdf.set_y(pdf.get_y())
             pdf.set_x(30)
-            pdf.ln(10)
-        pdf.line(10,pdf.get_y()-5,200,pdf.get_y()-5)
+            pdf.ln(5)
+        pdf.line(10,pdf.get_y(),200,pdf.get_y())
         i+=1
     
     if (len(ldni)>1):
@@ -175,10 +177,10 @@ def ficha(con,ldni):
         #     pdf.cell(60,5,dictDir[x],1,0,'L') 
         #     pdf.cell(20,5,'Pag N°'+str(dictPos[x]),1,1,'C')
         for row in lisdatos:
-            pdf.cell(25,5,str(row[4]),1,0,'C')
+            pdf.cell(20,5,str(row[4]),1,0,'C')
             pdf.cell(10,5,str(row[0]),1,0,'C')
             pdf.cell(60,5,row[1],1,0,'L')
-            pdf.cell(60,5,row[2],1,0,'L')
+            pdf.cell(50,5,row[2],1,0,'L')
             pdf.cell(20,5,'Pag N°'+ str(row[3]),1,1,'C')
     pdf.output("/tmp/ficha.pdf")
 
