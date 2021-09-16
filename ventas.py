@@ -175,7 +175,7 @@ def ventas_getarticulos():
 @ventas.route('/ventas/getlistado')
 def ventas_getlistado():
     con = get_con()
-    listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count from ventas order by id desc limit 200")
+    listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count from ventas where pp=0 order by id desc limit 200")
     con.close()
     return jsonify(listado=listado)
 
@@ -477,7 +477,7 @@ def ventas_estadisticas():
 @login_required
 def ventas_estadisticasanuales():
     con = get_con()
-    est_anuales = pgdict(con,f"select date_format(fecha,'%Y') as y, sum(comprado) as comprado, sum(saldo) as saldo, sum(saldo)/sum(comprado) as inc,sum(cnt) as cnt from ventas group by y order by y desc")
+    est_anuales = pgdict(con,f"select date_format(fecha,'%Y') as y, sum(comprado) as comprado, sum(saldo) as saldo, sum(saldo)/sum(comprado) as inc,sum(cnt) as cnt from ventas where devuelta=0 and pp=0 group by y order by y desc")
     # print(est_anuales)
     con.close()
     return jsonify(est_anuales=est_anuales)
@@ -487,7 +487,7 @@ def ventas_estadisticasanuales():
 @login_required
 def ventas_estadisticasmensuales(year):
     con = get_con()
-    est_mensuales = pgdict(con,f"select date_format(fecha,'%Y-%m') as ym, sum(comprado) as comprado, sum(saldo) as saldo, sum(saldo)/sum(comprado) as inc,sum(cnt) as cnt from ventas where date_format(fecha,'%Y')='{year}' group by ym order by ym")
+    est_mensuales = pgdict(con,f"select date_format(fecha,'%Y-%m') as ym, sum(comprado) as comprado, sum(saldo) as saldo, sum(saldo)/sum(comprado) as inc,sum(cnt) as cnt from ventas where devuelta=0 and pp=0 and date_format(fecha,'%Y')='{year}' group by ym order by ym")
     print(est_mensuales)
     con.close()
     return jsonify(est_mensuales=est_mensuales)

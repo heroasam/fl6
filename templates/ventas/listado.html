@@ -96,7 +96,7 @@
 
   </style>
   {% endblock %}
-  
+
 {% block content %}
 
 <div id="app" class="container">
@@ -156,9 +156,9 @@
         <div class=" micard modal" v-show="verModalEditarVenta">
             <button class="btn-close" @click="verModalEditarVenta=false"><i class="fa fa-times" aria-hidden="true"></i></button>
             <h1 class="title is-3">Editar Venta</h1>
- 
+
                       <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
-                     
+
                             <div class="field">
                                 <div class="control">
                                     <label class="label" style="color:black;">Fecha de Venta</label>
@@ -166,8 +166,6 @@
                                     <p v-show="!fecha" class="help is-danger">Requerido</p>
                                   </div>
                             </div>
-                         
-                         
                             <div class="field">
                                 <div class="control">
                                     <label class="label" style="color:black;">Cnt de Cuotas</label>
@@ -175,8 +173,6 @@
                                       <p v-show="!cc" class="help is-danger">Requerido</p>
                                   </div>
                             </div>
-                          
-                         
                             <div class="field">
                                 <div class="control">
                                     <label class="label" style="color:black;">Imp de Cuota</label>
@@ -216,20 +212,15 @@
                                       <p v-show="primera==''" class="help is-danger">Requerido</p>
                                   </div>
                             </div>
-                          
                             <div class="field">
                                 <div class="control">
                                     <button type="button" class="button is-primary" @click="validarEdicion()" ref="guardared" id="guardar">Guardar</button>
-                                </div> 
-                            </div> 
+                                </div>
+                            </div>
 
 	 </div>
     </div>
 <!-- Fin Modal -->
-        
-                      
-                      
-          
 
 
 
