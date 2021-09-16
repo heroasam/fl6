@@ -42,6 +42,7 @@
         <table class=" block table is-narrow">
             <thead>
                 <tr>
+                    <th>op</th>
                     <th>id</th>
                     <th>nombre</th>
                     <th>expmovto</th>
@@ -52,6 +53,7 @@
             <tbody>
                 <template x-for="item in listFechados" :key="item['id']">
                     <tr>
+                        <td><button class="button is-danger is-small" @click="borraFechado(item['id'])">Borrar</button></td>
                         <td x-text="item['id']"></td>
                         <td x-text="item['nombre']"></td>
                         <td x-text="item['expmovto']"></td>
@@ -142,9 +144,17 @@
                         return
                     }
                 },
+                        borraFechado(id){
+                                    axios.get('/fichas/borrarfechado/'+id)
+                                        .then(res=>{
+                                                    bulmaToast.toast({
+                                                                message:"Fechado borrado correctamente",
+                                                                type: "is-success"
+                                                            })
+                                                                this.llenaListado()
+                                                })
+                                },
             }
         }
-        
     </script>
     {% endblock %}
-    

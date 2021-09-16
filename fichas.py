@@ -280,3 +280,19 @@ def fichas_obtenerlistadofechados():
     listado = pgdict(con, f"select fechados.id as id,nombre,expmovto,fechados.pmovto as pmovto,cobr from fechados,clientes where clientes.id=fechados.idcliente and fecha=current_date() order by fechados.id desc")
     con.close()
     return jsonify(listado=listado)
+
+
+@fichas.route('/fichas/borrarfechado/<int:id>')
+def fichas_borrarfechado(id):
+    con = get_con()
+    fechado = pgdict(con, f"select * from fechados where id={id}")[0]
+    stm = f"delete from fechados where id={id}"
+    upd = f"update clientes set pmovto = '{fechado['expmovto']}' where id={fechado['idcliente']}"
+    cur = con.cursor()
+    cur.execute(stm)
+    cur.execute(upd)
+    log(stm)
+    log(upd)
+    con.commit()
+    con.close()
+    return 'OK'
