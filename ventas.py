@@ -624,3 +624,18 @@ def ventas_condonar(id):
     log(upd)
     con.close()
     return 'ok'
+
+
+@ventas.route('/ventas/pordia')
+@login_required
+def ventas_pordia():
+    con = get_con()
+    pd.options.display.float_format = '${:.0f}'.format
+    sql="select fecha,comprado,idvdor from ventas where devuelta=0 and pp=0 order by id desc limit 1000"
+    dat = pd.read_sql_query(sql, con)
+    df = pd.DataFrame(dat)
+    tbl = pd.pivot_table(df, values=['comprado'],index='fecha',columns='idvdor',aggfunc='sum').sort_index(0, 'fecha',False)
+    tbl = tbl.fillna("")
+    tbl = tbl.to_html(table_id="tableventas",classes="table")
+    con.close()
+    return render_template("ventas/pordia.html", tbl=tbl )
