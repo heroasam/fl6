@@ -1,0 +1,54 @@
+{% extends "base_template.html" %}
+
+{% block title %}Pivot devoluciones{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <p class="title is-1">Devoluciones por mes de venta</p>
+
+    <div class="buttons">
+            <a href="/ventas/pasarventas" class="button  is-primary">Pasar Ventas</a>
+            <a href="/ventas/listado" class="button  is-primary">Listado</a>
+            <a href="/ventas/clientes" class="button  is-primary">Clientes</a>
+            <a href="/ventas/calles" class="button is-primary">Calles</a>
+            <a href="/ventas/barrios" class="button  is-primary">Barrios</a>
+            <a href="/ventas/zonas" class="button  is-primary">Zonas</a>
+            <a href="/ventas/estadisticas" class="button  is-primary">Estadisticas</a>
+            <a href="/ventas/morosidad" class="button is-primary">Morosidad</a>
+            <a href="/ventas/devolucion" class="button is-primary">Devoluciones</a>
+    </div>
+
+    {{tbl|safe}}
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+   let tableId = document.getElementById('pivotdevoluciones')
+   let tbody = tableId.querySelector('tbody');
+        let rowsArray = Array.from(tbody.rows);
+        let rowIndex=[];
+        rowsArray.forEach((row)=>{
+                rowIndex.push(row.rowIndex-1)
+        });
+        let maxRow = Math.max(...rowIndex)+1;
+        let $rowTotal = tbody.insertRow(maxRow);
+        let $cell0 = $rowTotal.insertCell(0);
+        $cell0.innerHTML = "Total";
+        $rowTotal.classList.add('total');
+
+        const cols = rowsArray[0].children.length // determino la cant columnas
+        for(let i=1;i<cols;i++){
+        let col = [];
+        rowIndex.forEach((ix)=>{
+            col.push(nop(tbody.rows[ix].cells[i].innerText))
+        });
+        let total = col.reduce((a,b)=>Number(a)+Number(b));
+        let $cell = $rowTotal.insertCell(i);
+        if (!(Number.isNaN(total))) $cell.innerHTML = total
+        }
+  </script>
+  {% endblock %}

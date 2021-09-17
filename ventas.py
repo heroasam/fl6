@@ -639,3 +639,18 @@ def ventas_pordia():
     tbl = tbl.to_html(table_id="tableventas",classes="table")
     con.close()
     return render_template("ventas/pordia.html", tbl=tbl )
+
+
+@ventas.route('/ventas/pivotdevoluciones')
+@login_required
+def ventas_pivotdevoluciones():
+    con = get_con()
+    pd.options.display.float_format = '${:.0f}'.format
+    sql="select montodev,vdor,mesvta from devoluciones"
+    dat = pd.read_sql_query(sql, con)
+    df = pd.DataFrame(dat)
+    tbl = pd.pivot_table(df, values=['montodev'],index='mesvta',columns='vdor',aggfunc='sum').sort_index(0, 'mesvta',False)
+    tbl = tbl.fillna("")
+    tbl = tbl.to_html(table_id="pivotdevoluciones",classes="table")
+    con.close()
+    return render_template("ventas/pivotdevoluciones.html", tbl=tbl )
