@@ -14,9 +14,15 @@ def get_con():
 
 
 def log(stmt):
+    print(current_user.is_anonymous)
+    if not current_user.is_anonymous:
+        current = current_user.email
+    else:
+        current = "no user yet"
     con = get_con()
     cur = con.cursor()
-    ins = f'insert into log(fecha, user, stmt) values(CURRENT_TIMESTAMP,"{current_user.email}","{stmt}")'
+    ins = f'insert into log(fecha, user, stmt) \
+    values(CURRENT_TIMESTAMP,"{current}","{stmt}")'
     cur.execute(ins)
     con.commit()
     con.close()

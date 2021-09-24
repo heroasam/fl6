@@ -124,6 +124,7 @@
         <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${messajeWapp}` class="button is-success is-small" target="blank" style="text-decoration: none;">INT</a>
         <button class="button is-success is-small" @click="clipDatos(Cliente.id)">DATOS</button>
         <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${Cliente.nombre}` class="button is-success is-small" target="blank" style="text-decoration: none;">WAPP</a>
+        <button class="button is-success is-small" @click="hacerLlamada(Cliente.wapp||Cliente.tel)">CALL</button>
         <button class="button is-info is-small" @click="fecharPmovto(Cliente.id)">FECHAR</button>
         <button class="button is-info is-small" @click="editarCliente(Cliente.id)">EDITAR</button>
         <button class="button is-info is-small" @click="agregarComentario()">COMENTAR</button>
@@ -756,6 +757,9 @@
 			 .then(res=>{
 				 this.buscaCuentaporDni(this.Cliente.dni)			 })
 		},
+        hacerLlamada(tel){
+                window.location.href = 'tel:' + tel;
+        },  
 
         }
     }

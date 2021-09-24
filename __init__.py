@@ -14,7 +14,7 @@ from .pagos import pagos
 from .buscador import buscador
 from .fichas import fichas
 import mysql.connector
-from .con import con
+from .con import con, log
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
@@ -69,21 +69,23 @@ def login():
         email = request.form['email']
         password = request.form['password']
         sel = f"select id,name,email,password,auth from users where email='{email}'"
-        log = pgdict(con,sel)
-        if log:
-            log = log[0]
+        logs = pgdict(con,sel)
+        if logs:
+            logs = logs[0]
         errormail = "Ese email no existe en la base de datos. Registrese"
         errorpassword = "Ha ingresado una contraseña incorrecta"
         errorauth = "Ese email no esta autorizado a ingresar"
-        if not log:
+        if not logs:
             return render_template('login_form.html', errormail=errormail)
-        user = User(log['id'],log['name'], log['email'],log['password'],log['auth'])
+        user = User(logs['id'],logs['name'], 
+                logs['email'],logs['password'],logs['auth'])
         if not user.check_password(password):
             return render_template('login_form.html', errorpassword=errorpassword)
         if not user.auth:
             return render_template('login_form.html',errorauth=errorauth)
         if user is not None and user.check_password(password) and user.auth :
             login_user(user,remember=True)
+            log(sel)
             next_page = request.args.get('next')
             if not next_page or url_parse(next_page).netloc != '':
                 next_page = url_for('buscador.buscador_')
@@ -125,6 +127,7 @@ def signup():
                 error = e.msg
                 return make_response(error,400)
             else:
+                log(ins)
                 con.commit()
                 cur.close()
                 flash("Registro correctamente ingresado")

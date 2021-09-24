@@ -5,3 +5,5 @@ __pychache__/
 *.xlsx
 #*#
 .vscode/settings.json
+.ycm*
+*~
