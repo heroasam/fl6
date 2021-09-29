@@ -758,6 +758,8 @@
 				 this.buscaCuentaporDni(this.Cliente.dni)			 })
 		},
         hacerLlamada(tel){
+                re = /[0-9]*/
+                tel = re.exec(tel)[0]
                 window.location.href = 'tel:' + tel;
         },  
 

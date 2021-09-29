@@ -57,14 +57,14 @@ def ventas_getcuentaspordni(dni):
 @ventas.route('/ventas/guardarcliente', methods=['POST'])
 def ventas_guardarcliente():
     con = get_con()
-    # d = json.loads(request.data.decode("UTF-8"))
+    cur = con.cursor()
     d = json.loads(request.data.decode("UTF-8"))
-    # print(d)
+    if d['id']: # o sea existe el id, es decir es un update
+        cliente_viejo = pgdict(con, f"select * from clientes where id={d['id']}")[0]    
     if d['id']=="":
         stm = f"insert into clientes(sex,dni,nombre,calle,num,barrio,zona,tel,wapp,acla,horario,mjecobr,infoseven) values('{d['sex']}','{d['dni']}','{d['nombre']}','{d['calle']}','{d['num']}','{d['barrio']}','{d['zona']}','{d['tel']}','{d['wapp']}','{d['acla']}','{d['horario']}','{d['mjecobr']}','{d['infoseven']}')"
     else:
         stm = f"update clientes set sex='{d['sex']}', dni='{d['dni']}', nombre='{d['nombre']}',calle='{d['calle']}',num='{d['num']}',barrio='{d['barrio']}', zona='{d['zona']}',tel='{d['tel']}', wapp='{d['wapp']}', acla='{d['acla']}', horario='{d['horario']}', mjecobr='{d['mjecobr']}', infoseven='{d['infoseven']}' where id={d['id']}"
-    cur = con.cursor()
     try:
         cur.execute(stm)
     except mysql.connector.Error as e:
@@ -79,9 +79,10 @@ def ventas_guardarcliente():
             id = pgonecolumn(con,f"select id from clientes order by id desc limit 1")
         else:
             id = d['id']
-            ins = f"insert into logcambiodireccion(idcliente,calle,num,barrio,tel,acla,fecha,nombre,dni,wapp) values({d['id']},'{d['calle']}','{d['num']}','{d['barrio']}','{d['tel']}','{d['acla']}',curdate(),'{d['nombre']}','{d['dni']}','{d['wapp']}')"
+            ins = f"insert into logcambiodireccion(idcliente,calle,num,barrio,tel,acla,fecha,nombre,dni,wapp) values({cliente_viejo['id']},'{cliente_viejo['calle']}','{cliente_viejo['num']}','{cliente_viejo['barrio']}','{cliente_viejo['tel']}','{cliente_viejo['acla']}',curdate(),'{cliente_viejo['nombre']}','{cliente_viejo['dni']}','{cliente_viejo['wapp']}')"
             cur = con.cursor()
-            cur.execute(ins)
+            if cliente_viejo['calle']!=d['calle'] or cliente_viejo['num']!=d['num'] or cliente_viejo['acla']!=d['acla'] or cliente_viejo['wapp']!=d['wapp']:
+                cur.execute(ins)
             con.commit()
             log(ins)
             cur.close()
