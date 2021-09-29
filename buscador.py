@@ -296,12 +296,17 @@ def buscar_toggleseguir(dni):
 def busca_guardaredicioncliente(idcliente):
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
+    cliente_viejo = pgdict(con, f"select * from clientes where id={d['id']}")[0]    
     upd = f"update clientes set sex='{d['sex']}', dni='{d['dni']}', nombre='{d['nombre']}', calle='{d['calle']}', num={d['num']}, barrio='{d['barrio']}', zona='{d['zona']}', tel='{d['tel']}', wapp='{d['wapp']}', acla='{d['acla']}', mjecobr='{d['mjecobr']}', horario='{d['horario']}', infoseven='{d['infoseven']}' where id={idcliente}"
-    print(upd)
     cur = con.cursor()
     cur.execute(upd)
+    log(upd)
     con.commit()
-    cur.close()
+    ins = f"insert into logcambiodireccion(idcliente,calle,num,barrio,tel,acla,fecha,nombre,dni,wapp) values({cliente_viejo['id']},'{cliente_viejo['calle']}','{cliente_viejo['num']}','{cliente_viejo['barrio']}','{cliente_viejo['tel']}','{cliente_viejo['acla']}',curdate(),'{cliente_viejo['nombre']}','{cliente_viejo['dni']}','{cliente_viejo['wapp']}')"
+    if cliente_viejo['calle']!=d['calle'] or cliente_viejo['num']!=d['num'] or cliente_viejo['acla']!=d['acla'] or cliente_viejo['wapp']!=d['wapp']:
+        cur.execute(ins)
+        con.commit()
+        log(ins)
     con.close()
     return 'ok'
 
