@@ -615,6 +615,21 @@ def ventas_devolucion_procesar():
     return 'ok'
 
 
+@ventas.route('/ventas/devolucion/agregararticulo', methods=['POST'])
+def ventas_agregararticulo():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    ins = f"insert into detvta(cnt,art,ic,cc,idvta) values({d['cnt']},'{d['art']}',{d['ic']},{d['cc']},{d['idvta']})"
+    cur = con.cursor()
+    cur.execute(ins)
+    con.commit()
+    log(ins)
+    con.close()
+    return 'ok'
+
+
+
+
 @ventas.route('/ventas/condonar/<int:id>')
 def ventas_condonar(id):
     con = get_con()

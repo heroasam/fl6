@@ -1,7 +1,7 @@
 from flask import Flask, json
 from flask import render_template,url_for,request,redirect, make_response, session, flash,g
 from flask_wtf.csrf import CSRFProtect
-from flask_login import LoginManager, login_user, current_user, logout_user
+from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from flask_bcrypt import Bcrypt
 from flask_login import UserMixin
 from flask_cors import CORS
@@ -100,6 +100,7 @@ def logout():
 
 
 @app.route('/signup' , methods=['GET','POST'])
+@login_required
 def signup():
     if request.method == 'POST':
         name = request.form['name']
