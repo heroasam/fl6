@@ -28,6 +28,7 @@
             <table class="table" id="table">
                 <thead>
                     <tr>
+                        <th>Op</th>
                         <th>credito</th>
                         <th>nombre</th>
                         <th>dni</th>
@@ -38,6 +39,7 @@
                 <tbody>
                     <template x-for="item in listBajas">
                     <tr>
+                        <td><button class="button is-small is-danger" @click="marcarBaja(item['dni'])">Marcar</button></td>
                         <td x-text="item['dni']"></td>
                         <td x-text="item['nombre']"></td>
                         <td x-text="item['dni']"></td>
@@ -109,6 +111,28 @@
                     .then(res=>{
                         bulmaToast.toast({
                             message: "Registros marcados correctamente",
+                            type: "is-success"
+                        })
+                        this.loadBajas()
+                    })
+                    .catch(error=>{
+                        bulmaToast.toast({
+                            message:error.request.response,
+                            type: "is-danger"
+                        })
+                    })
+                },
+                marcarBaja(dni){
+                    let listdni = [dni]
+                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+                    axios({
+                        method:'POST',
+                        url: '/pagos/marcarbajados',
+                        data: listdni
+                    })
+                    .then(res=>{
+                        bulmaToast.toast({
+                            message: "Registro marcado correctamente",
                             type: "is-success"
                         })
                         this.loadBajas()
