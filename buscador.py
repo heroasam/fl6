@@ -382,3 +382,16 @@ def buscador_obtenerlogs():
     logs = pgdict(con, f"select * from log order by id desc limit 1000")
     con.close()
     return jsonify(logs=logs)
+
+
+@buscador.route('/buscador/cargarasunto' , methods=['POST'])
+def buscador_cargarasunto():
+    d = json.loads(request.data.decode("UTF-8"))
+    con = get_con()
+    ins = f"insert into asuntos(idcliente, fecha, vdor, tipo, asunto) values ({d['idcliente']}, '{d['fecha']}','{d['vdor']}','{d['tipo']}','{d['asunto']}') "
+    cur = con.cursor()
+    cur.execute(ins)
+    con.commit()
+    log(ins)
+    con.close()
+    return 'ok'

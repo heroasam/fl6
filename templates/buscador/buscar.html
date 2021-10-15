@@ -98,6 +98,7 @@
         <p class="" x-show="Cliente.horario" x-text="Cliente.horario"></p>
         <p class="" x-show="Cliente.infoseven" x-text="Cliente.infoseven"></p>
         <div class="buttons">
+            <button class="button is-danger is-small" x-show="Cliente.baja">Ex-SEVEN</button>
             <button class="button is-danger is-small" x-show="Cliente.novendermas">LN</button>
             <button class="button is-success is-small" x-show="Cliente.sev">SEVEN</button>
             <button class="button is-info is-small" x-show="Cliente.subirseven">SUBE</button>
@@ -129,6 +130,7 @@
         <button class="button is-info is-small" @click="editarCliente(Cliente.id)">EDITAR</button>
         <button class="button is-info is-small" @click="agregarComentario()">COMENTAR</button>
         <button class="button is-info is-small" @click="agregarPlanPago()">PLAN PAGOS</button>
+        <button class="button is-info is-small" @click="agregarAsunto()">ASUNTO</button>
         <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
     </div>
     <table class="table table-sm m-3" x-show="verCard && listaVentas.length">
@@ -315,7 +317,7 @@
             <input type="text" class="input mb-1" x-model="Cliente.dni">
             <input type="text" class="input mb-1" x-model="Cliente.nombre">
 
-            <div class="grid col-1 gap-0"">
+            <div class="grid col-1 gap-0">
             <input type="text" class="input mb-1" x-model="Cliente.calle" id="searchCalle" autocomplete="off">
             <div id="suggestionsCalle" class="suggestions"></div>
             </div>
@@ -364,6 +366,30 @@
             <button class="btn btn-primary" @click="guardarPlanPagos">Generar</button>
         </div>
     </div>
+    <div x-bind:class="verModalAsunto?'modal-container':''">
+        <div class=" micard modal" x-show="verModalAsunto">
+            <button class="btn-close" @click="verModalAsunto=false"><i class="fa fa-times" aria-hidden="true"></i></button>
+            <h1 class="title is-3">Asunto</h1>
+            <label for="fecha" class="label">Fecha</label>
+            <input type="date" class="input mb-3" x-model="Asunto.fecha" id="fecha" autocomplete="off">
+            <label for="p" class="label">Tipo</label>
+            <input list="type" id="tipo" class="input mb-3" x-model="Asunto.tipo" autocomplete="off">
+                <datalist id="type">
+                <option value="Cambio"></option>
+                <option value="Devolucion"></option>
+                <option value="Venta"></option>
+                <option value="Reclamo"></option>
+                </datalist>
+            <label for="vdor" class="label">Vendedor</label>
+            <input type="text" class="input mb-3" x-model="Asunto.vdor" id="vdor" autocomplete="off">
+            <label for="asunto" class="label">Asunto</label>
+            <input type="text" class="input mb-3" x-model="Asunto.asunto" id="asunto" autocomplete="off">
+            
+           
+
+            <button class="btn btn-primary" @click="validarAsunto">Generar</button>
+        </div>
+    </div>
 
 
 </div>
@@ -395,10 +421,12 @@
             Cliente:{},
             Venta:{fecha:dayjs.utc().format('YYYY-MM-DD'),p:'Mensual'},
             Comentario:{fechahora:dayjs.utc().format('YYYY-MM-DD')},
+            Asunto:{fecha:dayjs.utc().format('YYYY-MM-DD'),tipo:'',vdor:'',asunto:''},
             verModalPmovto:false,
             verModalEdicion:false,
             verModalComentario:false,
             verModalPlanPago:false,
+            verModalAsunto:false,
             buscarCliente(){
 		buscar = this.buscar1 || this.buscar
                 axios.get('/buscador/'+buscar)
@@ -591,15 +619,15 @@
             },
             intimarCliente(dni){
             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-		axios({
-		method: "POST",
-		url: "/buscador/intimar",
-		responseType: "blob",
-		data: [dni],
-		}).then((res) => {
-		let url = window.URL.createObjectURL(res.data);
-		window.open(url);
-		});
+		        axios({
+                    method: "POST",
+                    url: "/buscador/intimar",
+                    responseType: "blob",
+                    data: [dni],
+                }).then((res) => {
+                    let url = window.URL.createObjectURL(res.data);
+                    window.open(url);
+                });
             },
             fecharPmovto(idcliente){
             this.verModalPmovto=true
@@ -751,6 +779,37 @@
                         bulmaToast.toast({message:error.request.response, type:'is-danger'})
                         })
 
+                },
+                agregarAsunto(){
+                    this.verModalAsunto=true
+                },
+                validarAsunto(){
+                    if(this.Asunto.fecha!=''&&this.Asunto.tipo!=''&&this.Asunto.vdor!=''&&this.Asunto.asunto!=''){
+                        console.log("validado")
+                        this.guardarAsunto()
+                    }else{
+                        bulmaToast.toast({message:"Complete datos necesarios",type:"is-danger"})
+                    }
+                },
+                guardarAsunto(){
+                    this.Asunto.idcliente = this.Cliente.id
+                    this.verModalAsunto = false
+                    console.log(this.Asunto)
+                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+                    axios({
+                    method:'POST',
+                        url:'/buscador/cargarasunto',
+                        data:this.Asunto
+                        })
+                        .then(res=>{
+                        bulmaToast.toast({message:"Asunto cargado",type: 'is-success'})
+                        this.Asunto.tipo=''
+                        this.Asunto.vdor=''
+                        this.Asunto.asunto=''
+                        })
+                        .catch(error=>{
+                        bulmaToast.toast({message:error.request.response, type:'is-danger'})
+                        })
                 },
 		condonarVenta(id){
 		    axios.get('/ventas/condonar/'+id)

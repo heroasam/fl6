@@ -1,0 +1,18 @@
+{% extends "base_template.html" %} {% block title %}Asuntos{% endblock %} {%
+block style %}
+<style></style>
+{% endblock %} {% block content %}
+
+<div id="app" class="container">
+	<p class="title is-1">Asuntos Pendientes</p>
+</div>
+{% endblock %} {% block script %}
+<script>
+	const app = new Vue({
+		el: '#app',
+		delimiters: ['|', '|'],
+		data: {},
+		methods: {},
+	});
+</script>
+{% endblock %}

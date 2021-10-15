@@ -8,10 +8,10 @@ import mysql.connector
 
 ventas = Blueprint('ventas',__name__)
 
-@ventas.route('/ventas/pasarventas')
+@ventas.route('/ventas/ventas')
 @login_required
 def ventas_pasarventas():
-    return render_template('ventas/pasarventas.html')
+    return render_template('ventas/ventas.html')
 
 
 @ventas.route('/ventas/getcalles')
