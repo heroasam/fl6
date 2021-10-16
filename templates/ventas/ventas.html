@@ -32,7 +32,7 @@
   <div class="buttons" v-if="buscar">
       <div v-for="cliente in clientes">
           <!-- [dni,nombre,direccion] -->
-      <button class="button is-info" @mouseover="buscar=cliente.direccion" @click="buscaCuentaporDni(cliente.dni)">|cliente.nombre|</button>
+      <button class="button is-info" @mouseover="buscar=cliente.calle+' '+cliente.num" @click="buscaCuentaporDni(cliente.dni)">|cliente.nombre|</button>
       </div>
   </div>
 
@@ -306,7 +306,7 @@ const app = new Vue({
             axios.get('/buscador/'+this.buscar)
             .then(res=>{
                 this.clientes = res.data.clientes
-                if(this.clientes.length==1) this.buscaCuentaporDni(this.clientes.dni)
+                if(this.clientes.length==1) this.buscaCuentaporDni(this.clientes[0].dni)
             })
             .catch(error=>{
               bulmaToast.toast({message:error.request.response,type:"is-danger"})

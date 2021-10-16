@@ -296,3 +296,58 @@ def fichas_borrarfechado(id):
     con.commit()
     con.close()
     return 'OK'
+
+
+@fichas.route('/fichas/asuntos')
+def fichas_asuntos():
+    return render_template("/fichas/asuntos.html")
+
+
+@fichas.route('/fichas/getasuntos')
+def fichas_getasuntos():
+    con = get_con()
+    asuntos = pgdict(con, f"select asuntos.id as id, idcliente, tipo, fecha, vdor, asunto,nombre,completado from asuntos,clientes where clientes.id=asuntos.idcliente")
+    con.close()
+    return jsonify(asuntos=asuntos)
+
+
+@fichas.route('/fichas/deleteasunto/<int:id>')
+def fichas_deleteasunto(id):
+    con = get_con()
+    stm = f"delete from asuntos where id={id}"
+    cur = con.cursor()
+    cur.execute(stm)
+    con.commit()
+    log(stm)
+    con.close()
+    return 'ok'
+
+
+@fichas.route('/fichas/editarasunto', methods=['POST'])
+def fichas_editarasunto():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    upd = f"update asuntos set fecha='{d['fecha']}',tipo='{d['tipo']}',vdor={d['vdor']},asunto='{d['asunto']}' where id={d['id']}"
+    print(upd)
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    log(upd)
+    con.close()
+    return 'ok'
+
+
+@fichas.route('/fichas/toggleasuntocompletado/<int:id>')
+def fichas_toggleasuntocompletado(id):
+    con = get_con()
+    estado = pgonecolumn(con, f"select completado from asuntos where id={id}")
+    if estado:
+        upd = f"update asuntos set completado=0 where id={id}"
+    else:
+        upd = f"update asuntos set completado=1 where id={id}"
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    log(upd)
+    con.close()
+    return 'ok'
