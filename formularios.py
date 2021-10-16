@@ -302,7 +302,29 @@ def listado(con, ldni):
         pdf.line(10,pdf.get_y(),200,pdf.get_y())
     pdf.output("/tmp/listado.pdf")
 
-    
 
-    
+def asuntos(con,ids):
+    pdf=FPDF()
+    pdf.set_margins(30,15)
+    pdf.add_page()
+    pdf.set_font("Helvetica","",10)
+    lpg ='('
+    for id in ids:
+        lpg+=str(id)+','
+    lpg = lpg[0:-1]+')'
+    print(lpg)   
+    for id in ids:
+        asunto = pgdict(con, f"select asuntos.id as id, idcliente, tipo, fecha, vdor, asunto,nombre,calle,num,wapp,completado from asuntos,clientes where clientes.id=asuntos.idcliente and asuntos.id={id}")[0]
+        pdf.cell(80,6,asunto['nombre'][0:24],0,0)
+        pdf.cell(60,6,asunto['calle']+' '+asunto['num'],0,0)
+        pdf.cell(60,6,asunto['wapp'],0,1)
+
+        pdf.cell(30,6,str(asunto['fecha']),0,0)
+        pdf.cell(30,6,asunto['tipo'],0,0)
+        pdf.cell(140,6,asunto['asunto'],0,1)
+
+        pdf.ln(2)
+        pdf.line(10,pdf.get_y(),200,pdf.get_y())
+
+    pdf.output("/tmp/asuntos.pdf")
 

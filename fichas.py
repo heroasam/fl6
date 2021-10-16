@@ -351,3 +351,14 @@ def fichas_toggleasuntocompletado(id):
     log(upd)
     con.close()
     return 'ok'
+
+
+@fichas.route('/fichas/imprimirasunto' , methods = ['POST'])
+def fichas_imprimirasunto():
+    con = get_con()
+    ids = json.loads(request.data.decode("UTF-8"))
+    # aca se el ast.literal entrega la lista enviada por el axios-post directamente
+
+    asuntos(con, ids)
+    con.close()
+    return send_file('/tmp/asuntos.pdf')
