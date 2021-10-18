@@ -40,22 +40,22 @@
     <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
     <div class="columns is-desktop">
       <div class="column is-1">
-        <input type="text" v-model="cliente.sex" placeholder="Sexo" size="1" class="input" ref="sex" @keyup.enter="$refs.dni.focus()" @blur="validarSex">
-        <p v-show="!cliente.sex" class="help is-danger">Requerido</p>
+        <input type="text" v-model="sex" placeholder="Sexo" size="1" class="input" ref="sex" @keyup.enter="$refs.dni.focus()">
+        <p v-show="!sex" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-2">
-        <input type="text" v-model="cliente.dni" placeholder="DNI" size="6" class="input" ref="dni" @keyup.enter="$refs.nombre.focus()">
-        <p v-show="!cliente.dni" class="help is-danger">Requerido</p>
+        <input type="text" v-model="dni" placeholder="DNI" size="6" class="input" ref="dni" @keyup.enter="$refs.nombre.focus()">
+        <p v-show="!dni" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-5">
-        <input type="text" v-model="cliente.nombre" placeholder="Nombre" size="60" class="input" ref="nombre" @keyup.enter="$refs.tel.focus()">
-        <p v-show="!cliente.nombre" class="help is-danger">Requerido</p>
+        <input type="text" v-model="nombre" placeholder="Nombre" size="60" class="input" ref="nombre" @keyup.enter="$refs.tel.focus()">
+        <p v-show="!nombre" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-2">
-        <input type="text" v-model="cliente.tel" placeholder="Telefono" size="20" class="input" ref="tel" @keyup.enter="$refs.wapp.focus()">
+        <input type="text" v-model="tel" placeholder="Telefono" size="20" class="input" ref="tel" @keyup.enter="$refs.wapp.focus()">
       </div>
       <div class="column is-2">
-        <input type="text" v-model="cliente.wapp" placeholder="WhatApp" size="20" class="input" ref="wapp" @keyup.enter="$refs.calle.focus()">
+        <input type="text" v-model="wapp" placeholder="WhatApp" size="20" class="input" ref="wapp" @keyup.enter="$refs.calle.focus()">
       </div>
     </div>
     <div class="columns">
@@ -63,7 +63,7 @@
           <b-autocomplete
                 ref="calle"
                 @keyup.enter.native="$refs.num.focus()"
-                v-model="cliente.calle"
+                v-model="calle"
                 :data="callesFiltradasArray"
                 placeholder="Calle"
                 clearable
@@ -71,17 +71,17 @@
                 @select="option => selected = option">
                 <template #empty>No se encontraron resultados</template>
             </b-autocomplete>
-          <p v-show="!cliente.calle" class="help is-danger">Requerido</p>
+          <p v-show="!calle" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-1">
-        <input type="text" v-model="cliente.num" placeholder="Num" size="10" class="input" ref="num" @keyup.enter="$refs.barrio.focus()" >
-        <p v-show="!cliente.num" class="help is-danger">Requerido</p>
+        <input type="text" v-model="num" placeholder="Num" size="10" class="input" ref="num" @keyup.enter="$refs.barrio.focus()" >
+        <p v-show="!num" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-4">
       <b-autocomplete
                 ref="barrio"
                 @keyup.enter.native="$refs.zona.focus()"
-                v-model="cliente.barrio"
+                v-model="barrio"
                 :data="barriosFiltradasArray"
                 placeholder="Barrio"
                 clearable
@@ -89,13 +89,13 @@
                 @select="option => selected = option">
                 <template #empty>No se encontraron resultados</template>
             </b-autocomplete>
-      <p v-show="!cliente.barrio" class="help is-danger">Requerido</p>
+      <p v-show="!barrio" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-3">
       <b-autocomplete
                 ref="zona"
                 @keyup.enter.native="$refs.acla.focus()"
-                v-model="cliente.zona"
+                v-model="zona"
                 :data="zonasFiltradasArray"
                 placeholder="Zona"
                 clearable
@@ -103,21 +103,21 @@
                 @select="option => selected = option">
                 <template #empty>No se encontraron resultados</template>
             </b-autocomplete>
-      <p v-show="!cliente.zona" class="help is-danger">Requerido</p>
+      <p v-show="!zona" class="help is-danger">Requerido</p>
       </div>
     </div>
     <div class="columns">
       <div class="column is-3">
-        <input type="text" v-model="cliente.acla" placeholder="Aclaracion" size="30" class="input" ref="acla" @keyup.enter="$refs.horario.focus()">
+        <input type="text" v-model="acla" placeholder="Aclaracion" size="30" class="input" ref="acla" @keyup.enter="$refs.horario.focus()">
       </div>
       <div class="column is-3">
-        <input type="text" v-model="cliente.horario" placeholder="Horario" size="30" class="input" ref="horario" @keyup.enter="$refs.mjecobr.focus()">
+        <input type="text" v-model="horario" placeholder="Horario" size="30" class="input" ref="horario" @keyup.enter="$refs.mjecobr.focus()">
       </div>
       <div class="column is-3">
-        <input type="text" v-model="cliente.mjecobr" placeholder="Mje Cobrador" size="30" class="input" ref="mjecobr" @keyup.enter="$refs.infoseven.focus()">
+        <input type="text" v-model="mjecobr" placeholder="Mje Cobrador" size="30" class="input" ref="mjecobr" @keyup.enter="$refs.infoseven.focus()">
       </div>
       <div class="column is-3">
-        <input type="text" v-model="cliente.infoseven" placeholder="InfoSeven" size="30" class="input" ref="infoseven" @keyup.enter="$refs.guardarcliente.focus()">
+        <input type="text" v-model="infoseven" placeholder="InfoSeven" size="30" class="input" ref="infoseven" @keyup.enter="$refs.guardarcliente.focus()">
       </div>
     </div>
     <div class="columns">
@@ -132,26 +132,26 @@
     <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
     <div class="columns">
       <div class="column is-2">
-        <input type="date" v-model="venta.fecha" size=12 class="input" ref="fecha" @keyup.enter="$refs.vdor.focus()">
-        <p v-show="!venta.fecha" class="help is-danger">Requerido</p>
+        <input type="date" v-model="fecha" size=12 class="input" ref="fecha" @keyup.enter="$refs.vdor.focus()">
+        <p v-show="!fecha" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-1">
-        <input type="text" v-model="venta.idvdor" size=5 class="input" ref="vdor" placeholder="Vdor" @keyup.enter="$refs.cuotas.focus()">
-        <p v-show="!venta.idvdor" class="help is-danger">Requerido</p>
+        <input type="text" v-model="vdor" size=5 class="input" ref="vdor" placeholder="Vdor" @keyup.enter="$refs.cuotas.focus()">
+        <p v-show="!vdor" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-1">
-        <input type="text" v-model="venta.cc" size=5 class="input" ref="cuotas" placeholder="Cuotas" @keyup.enter="$refs.imp.focus()">
-        <p v-show="!venta.cc" class="help is-danger">Requerido</p>
+        <input type="text" v-model="cuotas" size=5 class="input" ref="cuotas" placeholder="Cuotas" @keyup.enter="$refs.imp.focus()">
+        <p v-show="!cuotas" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-1">
-        <input type="text" v-model="venta.ic" size=5 class="input" ref="imp" placeholder="Importe" @keyup.enter="$refs.per.focus()">
-        <p v-show="!venta.ic" class="help is-danger">Requerido</p>
+        <input type="text" v-model="imp" size=5 class="input" ref="imp" placeholder="Importe" @keyup.enter="$refs.per.focus()">
+        <p v-show="!imp" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-2">
         <b-autocomplete
                 ref="per"
                 @keyup.enter.native="$refs.primera.focus()"
-                v-model="venta.p"
+                v-model="per"
                 :data="perFiltradasArray"
                 placeholder="Periodicidad"
                 clearable
@@ -159,17 +159,17 @@
                 @select="option => selected = option">
                 <template #empty>No se encontraron resultados</template>
             </b-autocomplete>
-            <p v-show="!venta.p" class="help is-danger">Requerido</p>
+            <p v-show="!per" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-2">
-        <input type="date" v-model="venta.primera" size=12 class="input" ref="primera" @keyup.enter="$refs.guardarventa.focus()">
-        <p v-show="!venta.primera" class="help is-danger">Requerido</p>
+        <input type="date" v-model="primera" size=12 class="input" ref="primera" @keyup.enter="$refs.guardarventa.focus()">
+        <p v-show="!primera" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-1">
         <button class="button is-danger" type="button" ref="guardarventa" @click="validarVenta" @keyup.space="$refs.cnt.focus()">Guardar</button>
       </div>
-      <div class="column is-2" v-show="venta.id">
-        <span class="tag is-primary is-large" >|venta.id|</span>
+      <div class="column is-2" v-show="idvta">
+        <span class="tag is-primary is-large" >|idvta|</span>
       </div>
     </div>
   </form>
@@ -179,15 +179,15 @@
     <div class="columns">
       <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
    <div class="column is-1">
-    <input type="text" v-model="detallevta.cnt" size=5 class="input" ref="cnt" placeholder="cnt" @keyup.enter="$refs.art.focus()">
-    <p v-show="!detallevta.cnt" class="help is-danger">Requerido</p>
+    <input type="text" v-model="cnt" size=5 class="input" ref="cnt" placeholder="cnt" @keyup.enter="$refs.art.focus()">
+    <p v-show="!cnt" class="help is-danger">Requerido</p>
    </div>
        <div class="column is-8">
         <b-autocomplete
         ref="art"
         @keyup.enter.native="$refs.cuota.focus()"
         @dblclick.native="getArticulos"
-        v-model="detallevta.art"
+        v-model="art"
         :data="artFiltradasArray"
         placeholder="articulo"
         clearable
@@ -197,17 +197,17 @@
     </b-autocomplete>
         <div class="columns">
               <div class="column is-6">
-              <p v-show="!detallevta.art" class="help is-danger">Requerido</p>
+              <p v-show="!art" class="help is-danger">Requerido</p>
               </div>
               <div class="column is-6">
-                <p class="help is-info" v-show="!detallevta.art"><a href="/stock/articulos" target="_blank">Agregar Articulo</a></p>
+                <p class="help is-info" v-show="!art"><a href="/stock/articulos" target="_blank">Agregar Articulo</a></p>
               </div>
           </div>
     </div>
        
     <div class="column is-2">
-      <input type="text" v-model="detallevta.ic" size=5 class="input" ref="cuota" placeholder="cuota" @keyup.enter="$refs.guardardetalle.focus()">
-        <p v-show="!detallevta.ic" class="help is-danger">Requerido</p>
+      <input type="text" v-model="cuota" size=5 class="input" ref="cuota" placeholder="cuota" @keyup.enter="$refs.guardardetalle.focus()">
+        <p v-show="!cuota" class="help is-danger">Requerido</p>
     </div>
     <div class="column is-1">
       <button class="button is-danger" type="button" ref="guardardetalle" @click="validarDetalleVta">Guardar</button>
@@ -242,10 +242,10 @@
         </table>
       </div>
       <div class="column is-6">
-        <div class="notification is-warning" v-show="sumic-venta.ic && sumic<=venta.ic">
+        <div class="notification is-warning" v-show="sumic-imp && sumic<=imp">
           <p class="title is-4">Falta agregar los articulos comprados</p>
         </div>
-        <div class="notification is-danger" v-show="sumic>venta.ic">
+        <div class="notification is-danger" v-show="sumic>imp">
           <p class="title is-4">Error la suma de los item es mayor al total</p>
         </div>
         <div class="notification is-success" v-show="verVtaTerminada">
@@ -268,12 +268,33 @@ const app = new Vue({
       calles:[],
       barrios:[],
       zonas:[],
-      cliente:{id:'',sex:'',dni:'',calle:'', barrio:'', zona:'',acla:'', tel:'',wapp:'',mjecobr:'',horario:'',infoseven:''},
-      venta:{p:'', id:''},
-      detallevta:{art:''},
+      sex:'',
+      dni:'',
+      nombre:'',
+      calle:'',
+      num:'',
+      direccion:'',
+      barrio:'',
+      zona:'',
+      tel:'',
+      wapp:'',
+      acla:'',
+      horario:'',
+      mjecobr:'',
+      infoseven:'',
+      id:'',
       selected: null,
+      per: '',
       periodicidad:['mensual','quincenal','semanal'],
-      
+      idvta:'',
+      fecha:'',
+      vdor:'',
+      cuotas:'',
+      imp:'',
+      primera:'',
+      cnt:'',
+      art:'',
+      cuota:'',
       articulos:[],
       detvta: [],
       sumic: 0,
@@ -289,16 +310,34 @@ const app = new Vue({
             })
             .catch(error=>{
               bulmaToast.toast({message:error.request.response,type:"is-danger"})
-              this.cliente.dni = this.buscar
+              this.dni = this.buscar
               this.$refs.sex.focus()
             })
         },
         buscaCuentaporDni(dni){
-                this.cliente = this.clientes.filter(row=>row.dni==dni)[0]
+            axios.get('/ventas/getcuentapordni/'+dni)
+            .then(res=>{
+                this.clientes = res.data.clientes
+                this.sex = this.clientes['sex']
+                this.dni = this.clientes['dni']
+                this.nombre = this.clientes['nombre']
+                this.calle = this.clientes['calle']
+                this.num = this.clientes['num']
+                this.direccion = this.calle+' '+this.num
+                this.barrio = this.clientes['barrio']
+                this.zona = this.clientes['zona']
+                this.tel = this.clientes['tel']
+                this.wapp = this.clientes['wapp']
+                this.acla = this.clientes['acla']
+                this.horario = this.clientes['horario']
+                this.mjecobr = this.clientes['mjecobr']
+                this.infoseven = this.clientes['infoseven']
+                this.id = this.clientes['id']
+
                 this.buscar = '';
                 this.clientes = [];
                 this.$refs.sex.focus()
-          
+            })
         },
       getCalles(){
         axios.get('/ventas/getcalles')
@@ -326,31 +365,60 @@ const app = new Vue({
         })
       },
       nuevoCliente(){
-        this.buscar=''
-        this.cliente={id:'', sex:'',dni:'',calle:'', barrio:'', zona:'',acla:'', tel:'',wapp:'',mjecobr:'',horario:'',infoseven:''}
+        this.buscar='',
+        this.id=''
+        this.sex=''
+        this.dni=''
+        this.nombre=''
+        this.calle=''
+        this.num=''
+        this.barrio=''
+        this.zona=''
+        this.tel=''
+        this.wapp=''
+        this.acla=''
+        this.horario=''
+        this.mjecobr=''
+        this.infoseven=''
         this.$refs.buscar.focus()
-        this.venta.id=''
-        this.venta.ic=''
-        this.venta.primera=''
-        this.detvta=[]
-        this.sumic=0
-        this.verVtaTerminada=false
-        this.detallevta={art:''}
+        this.imp='',
+        this.primera='',
+        this.detvta=[],
+        this.sumic=0,
+        this.verVtaTerminada=false,
+        this.idvta='',
+        this.cnt='',
+        this.art='',
+        this.cuota=''
       },
       validarCliente(){
-        if(this.cliente.sex!=''&&this.cliente.dni!=''&&this.cliente.nombre!=''&&this.cliente.calle!=''&&this.cliente.num!=''&&this.cliente.barrio!=''&&this.cliente.zona!=''){
+        if(this.sex!=''&&this.dni!=''&&this.nombre!=''&&this.calle!=''&&this.num!=''&&this.barrio!=''&&this.zona!=''){
           this.guardarCliente()
         }else{
           bulmaToast.toast({message:"Complete los datos minimos requeridos", type:'is-danger'})
         }
       },
       guardarCliente(){
-            
             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
             axios({
                 method:'POST',
                 url:'/ventas/guardarcliente',
-                data:this.cliente
+                data:{
+                    id:this.id,
+                    sex:this.sex,
+                    dni:this.dni,
+                    nombre:this.nombre,
+                    calle:this.calle,
+                    num:this.num,
+                    barrio:this.barrio,
+                    zona:this.zona,
+                    acla:this.acla,
+                    horario:this.horario,
+                    mjecobr:this.mjecobr,
+                    infoseven:this.infoseven,
+                    tel:this.tel,
+                    wapp:this.wapp,
+                }
                 })
                 .then(res=>{
                   bulmaToast.toast({message:"Cliente creado/editado con exito", type:'is-success'})
@@ -361,62 +429,75 @@ const app = new Vue({
                 })
       },
       validarSex(){
-        if(this.cliente.sex==''){
+        if(this.sex==''){
           bulmaToast.toast({message:"este campo es requerido", type:'is-danger'})
           this.$refs.sex.focus()
         }
-        if(this.cliente.sex!='f'&&this.cliente.sex!='F'&&this.cliente.sex!='m'&&this.cliente.sex!='M'){
+        if(this.sex!='f'&&this.sex!='F'&&this.sex!='m'&&this.sex!='M'){
           bulmaToast.toast({message:"unicamente se aceptan F o M", type:'is-danger'})
           this.$refs.sex.focus()
         }
-        this.cliente.sex = this.cliente.sex.toUpperCase()
+        this.sex = this.sex.toUpperCase()
       },
       validarVenta(){
-        if(this.venta.fecha!=''&&this.venta.idvdor!=''&&this.venta.cc!=''&&this.venta.ic!=''&&this.venta.p!=''&&this.venta.primera!=''){
+        if(this.fecha!=''&&this.vdor!=''&&this.cuotas!=''&&this.imp!=''&&this.per!=''&&this.primera!=''){
           this.guardarVenta()
         }else{
           bulmaToast.toast({message:"Complete los datos minimos requeridos", type:'is-danger'})
         }
       },
       guardarVenta(){
-            this.venta.idcliente = this.cliente.id
             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
             axios({
                 method:'POST',
                 url:'/ventas/guardarventa',
-                data: this.venta
+                data:{
+                    idcliente:this.id,
+                    fecha:this.fecha,
+                    idvdor:this.vdor,
+                    cc:this.cuotas,
+                    ic:this.imp,
+                    p:this.per,
+                    primera:this.primera,
+                }
                 })
                 .then(res=>{
                   bulmaToast.toast({message:"Venta creada con exito", type:'is-success'})
-                  this.venta.id=res.data.idvta
+                  this.idvta=res.data.idvta
                 })
                 .catch(error=>{
                   bulmaToast.toast({message:error.request.response, type:'is-danger'})
                 })
       },
       validarDetalleVta(){
-        if(this.detallevta.cnt!=''&&this.detallevta.art!=''&&this.detallevta.ic!=''){
+        if(this.cnt!=''&&this.art!=''&&this.cuota!=''){
           this.guardarDetalleVta()
         }else{
           bulmaToast.toast({message:"Complete los datos minimos requeridos", type:'is-danger'})
         }
       },
       guardarDetalleVta(){
-        this.detallevta.idvta = this.venta.id
-        this.detallevta.cc = this.venta.cc
         axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
             axios({
                 method:'POST',
                 url:'/ventas/guardardetvta',
-                data: this.detallevta
+                data:{
+                    idvta:this.idvta,
+                    cnt:this.cnt,
+                    art:this.art,
+                    cc:this.cuotas,
+                    ic:this.cuota,
+                }
                 })
                 .then(res=>{
                   bulmaToast.toast({message:"Detalle ingresado con exito", type:'is-success'})
                   this.detvta = res.data.detvta
                   this.sumic = res.data.sumic
-                  if (this.sumic==Number(this.venta.ic)) this.verVtaTerminada=true;
-                  if (this.sumic>Number(this.venta.ic)) this.verVtaTerminada=false;
-                  this.detallevta = {art:''}
+                  if (this.sumic==Number(this.imp)) this.verVtaTerminada=true;
+                  if (this.sumic>Number(this.imp)) this.verVtaTerminada=false;
+                  this.cnt='';
+                  this.art='';
+                  this.cuota='';
                   this.$refs.cnt.focus()
                 })
                 .catch(error=>{
@@ -429,8 +510,8 @@ const app = new Vue({
           bulmaToast.toast({message:"item borrado con exito", type:'is-success'})
           this.detvta = res.data.detvta
           this.sumic = res.data.sumic
-          if (this.sumic==Number(this.venta.ic)) this.verVtaTerminada=true;
-          if (this.sumic>Number(this.venta.ic)) this.verVtaTerminada=false;
+          if (this.sumic==Number(this.imp)) this.verVtaTerminada=true;
+          if (this.sumic>Number(this.imp)) this.verVtaTerminada=false;
           if (this.sumic==0) this.verVtaTerminada=false;
         })
         .catch(error=>{
@@ -450,7 +531,7 @@ const app = new Vue({
                 return option
                     .toString()
                     .toLowerCase()
-                    .indexOf(this.cliente.calle.toLowerCase()) >= 0
+                    .indexOf(this.calle.toLowerCase()) >= 0
             })
         },
         barriosFiltradasArray() {
@@ -458,7 +539,7 @@ const app = new Vue({
                 return option
                     .toString()
                     .toLowerCase()
-                    .indexOf(this.cliente.barrio.toLowerCase()) >= 0
+                    .indexOf(this.barrio.toLowerCase()) >= 0
             })
         },
         zonasFiltradasArray() {
@@ -466,7 +547,7 @@ const app = new Vue({
                 return option
                     .toString()
                     .toLowerCase()
-                    .indexOf(this.cliente.zona.toLowerCase()) >= 0
+                    .indexOf(this.zona.toLowerCase()) >= 0
             })
         },
         perFiltradasArray() {
@@ -474,7 +555,7 @@ const app = new Vue({
                 return option
                     .toString()
                     .toLowerCase()
-                    .indexOf(this.venta.p.toLowerCase()) >= 0
+                    .indexOf(this.per.toLowerCase()) >= 0
             })
         },
         artFiltradasArray() {
@@ -482,7 +563,7 @@ const app = new Vue({
                 return option
                     .toString()
                     .toLowerCase()
-                    .indexOf(this.detallevta.art.toLowerCase()) >= 0
+                    .indexOf(this.art.toLowerCase()) >= 0
             })
         },
     },
