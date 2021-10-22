@@ -25,7 +25,7 @@
             </div>
             <div class="columns">
                 <div class="column is-3">
-                    <input type="date" class="input is-large" x-model="pmovto" @keyup=fechar(event) @keyup.enter=guardarFechado(idvta,pmovto) x-ref="pmovto">
+                    <input type="date" class="input is-large" x-model="pmovto" @keyup=fechar(event) @keyup.enter=validaFecha(idvta,pmovto) x-ref="pmovto">
                 </div>
             </div>
 
@@ -155,6 +155,13 @@
                                                                 this.llenaListado()
                                                 })
                                 },
+                    validaFecha(idvta,fecha) {
+                    if (fecha < dayjs.utc().format('YYYY-MM-DD') || fecha > dayjs.utc().add(3, 'month').format('YYYY-MM-DD')) {
+                        bulmaToast.toast({ message: "Fecha invalida", type: "is-danger" })
+                        }else{
+                        this.guardarFechado(idvta,fecha)
+                        }
+                    },
             }
         }
     </script>

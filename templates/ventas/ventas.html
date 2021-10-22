@@ -162,7 +162,7 @@
             <p v-show="!venta.p" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-2">
-        <input type="date" v-model="venta.primera" size=12 class="input" ref="primera" @keyup.enter="$refs.guardarventa.focus()">
+        <input type="date" v-model="venta.primera" size=12 class="input" ref="primera" @keyup.enter="$refs.guardarventa.focus()" @blur="validaFecha(venta.primera)">
         <p v-show="!venta.primera" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-1">
@@ -372,7 +372,7 @@ const app = new Vue({
         this.cliente.sex = this.cliente.sex.toUpperCase()
       },
       validarVenta(){
-        if(this.venta.fecha!=''&&this.venta.idvdor!=''&&this.venta.cc!=''&&this.venta.ic!=''&&this.venta.p!=''&&this.venta.primera!=''){
+        if(this.venta.fecha!=''&&this.venta.idvdor!=''&&this.venta.cc!=''&&this.venta.ic!=''&&this.venta.p!=''&&this.venta.primera!=''&&this.validaFecha(this.venta.primera)){
           this.guardarVenta()
         }else{
           bulmaToast.toast({message:"Complete los datos minimos requeridos", type:'is-danger'})
@@ -437,6 +437,14 @@ const app = new Vue({
           bulmaToast.toast({message:error.request.response, type:'is-danger'})
         })
       },
+      validaFecha(fecha){
+          if(fecha<dayjs.utc(this.venta.fecha).format('YYYY-MM-DD')||fecha>dayjs.utc().add(3,'month').format('YYYY-MM-DD')){
+            bulmaToast.toast({message:"Fecha invalida",type:"is-danger"})
+            return false
+          }else{
+            return true
+          }
+        },
     },
     created: function(){
       this.getCalles()
@@ -485,6 +493,7 @@ const app = new Vue({
                     .indexOf(this.detallevta.art.toLowerCase()) >= 0
             })
         },
+        
     },
   })
   </script>
