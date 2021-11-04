@@ -354,7 +354,7 @@ const app = new Vue({
                 })
                 .then(res=>{
                   bulmaToast.toast({message:"Cliente creado/editado con exito", type:'is-success'})
-                  if (this.id=='') this.id=res.data.id
+                  if (this.cliente.id=='') this.cliente.id=res.data.id
                 })
                 .catch(error=>{
                   bulmaToast.toast({message:error.request.response, type:'is-danger'})
