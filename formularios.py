@@ -312,12 +312,13 @@ def asuntos(con,ids):
     for id in ids:
         lpg+=str(id)+','
     lpg = lpg[0:-1]+')'
-    print(lpg)   
-    for id in ids:
-        asunto = pgdict(con, f"select asuntos.id as id, idcliente, tipo, fecha, vdor, asunto,nombre,calle,num,wapp,completado from asuntos,clientes where clientes.id=asuntos.idcliente and asuntos.id={id}")[0]
-        pdf.cell(80,6,asunto['nombre'][0:24],0,0)
-        pdf.cell(60,6,asunto['calle']+' '+asunto['num'],0,0)
-        pdf.cell(60,6,asunto['wapp'],0,1)
+    listasuntos = pglflat(con,f"select asuntos.id as id,zona from asuntos,clientes where clientes.id=asuntos.idcliente and  asuntos.id in {lpg} order by zona")
+    for id in listasuntos:
+        asunto = pgdict(con, f"select asuntos.id as id, idcliente, tipo, fecha, vdor, asunto,nombre,calle,num,wapp,completado,zona from asuntos,clientes where clientes.id=asuntos.idcliente and asuntos.id={id}")[0]
+        pdf.cell(60,6,asunto['nombre'][0:24],0,0)
+        pdf.cell(50,6,asunto['calle']+' '+asunto['num'],0,0)
+        pdf.cell(30,6,asunto['zona'],0,0)
+        pdf.cell(30,6,asunto['wapp'],0,1)
 
         pdf.cell(30,6,str(asunto['fecha']),0,0)
         pdf.cell(30,6,asunto['tipo'],0,0)
