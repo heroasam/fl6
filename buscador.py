@@ -311,15 +311,15 @@ def busca_guardaredicioncliente(idcliente):
     return 'ok'
 
 
-@buscador.route('/buscador/obtenerlistacalles')
-def buscar_obtenerlistacalles():
-    con = get_con()
-    sql = f"select calle from calles order by calle"
-    cur = con.cursor(dictionary=True)
-    cur.execute(sql)
-    calles = cur.fetchall()
-    con.close()
-    return jsonify(calles=calles)
+# @buscador.route('/buscador/obtenerlistacalles')
+# def buscar_obtenerlistacalles():
+#     con = get_con()
+#     sql = f"select calle from calles order by calle"
+#     cur = con.cursor(dictionary=True)
+#     cur.execute(sql)
+#     calles = cur.fetchall()
+#     con.close()
+#     return jsonify(calles=calles)
 
 
 @buscador.route('/buscador/obtenerlistabarrios')
@@ -395,3 +395,17 @@ def buscador_cargarasunto():
     log(ins)
     con.close()
     return 'ok'
+
+
+@buscador.route('/buscador/obtenerlistacalles')
+def buscador_obtenerlistacalles():
+    con = get_con()
+    calles = pglflat(con, 'select calle from calles order by calle')
+    return jsonify(calles=calles)
+
+
+@buscador.route('/buscador/mostrarcalle/<string:calle>')
+def buscador_mostrarcalle(calle):
+    con = get_con()
+    calle = pgdict(con, f"select num,nombre,deuda,dni, coalesce(datediff(now(), ultpago),0) as atraso from clientes where calle='{calle}' and comprado>0 order by num")
+    return jsonify(calle=calle)

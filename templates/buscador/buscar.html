@@ -66,17 +66,32 @@
     background: black;
     color: white;
 }
+.mora{
+    background-color: red;
+}
+.cliente{
+    background-color: yellow;
+}
+.cancelado{
+    background-color: mediumaquamarine;
+}
 
 </style>
 {% endblock %}
 {% block content %}
-<div x-data="main()" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();" class="container">
+<div x-data="main()" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerListaCalles()" class="container">
 
           <div class="grid-buscar ml-3 mr-3 mt-2">
               <input  placeholder="DNI o N° Cuenta" class="input" x-model="buscar1" @keyup.enter="buscarCliente" @focus="buscar='';verCard=false" type="number" pattern="[0-9]*" inputmode="numeric">
               <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
               <input type="search" placeholder="Busca: Nombre Calle Num" class="input" x-model="buscar" @focus="buscar1=''" @keyup.enter="buscarCliente";verCard=false">
               <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
+              <select name="select" x-model="calle" class="input">
+                <template x-for="calle in Calles">
+                <option :value="calle" x-text="calle"></option>
+                </template>
+            </select>
+                <button type="button" @click="mostrarCalle" class="button is-primary">Mostrar</button>
           </div>
 
           <div class="buttons m-3" >
@@ -391,6 +406,25 @@
         </div>
     </div>
 
+    <table class="table nototal" x-show="!verCard">
+        <thead>
+            <tr>
+                <th>Num</th>
+                <th>Nombre</th>
+                <th>Deuda</th>
+            </tr>
+        </thead>
+        <tbody>
+            <template x-for="dato in DatosCalle">
+                <tr :class="dato.deuda>0?(dato.atraso>45?'mora':'cliente'):'cancelado'">
+                    <td><button class="button is-primary is-small" x-text=dato.num @click="buscar=dato.dni;buscarCliente();scroll(0,0)"></button></td>
+                    <td x-text=dato.nombre></td>
+                    <td x-text=dato.deuda></td>
+                </tr>
+            </template>
+        </tbody>
+    </table>
+
 
 </div>
 {% endblock %}
@@ -407,6 +441,9 @@
     }
     function main(){
         return{
+            calle:'',
+            Calles:[],
+            DatosCalle:[],
             listaClientes:[],
             listaVentas:[],
             listaCuotas:[],
@@ -415,7 +452,7 @@
             listaLogCambioDireccion:[],
             listaPagadas:[],
             buscar:'',
-	    buscar1:'',
+	        buscar1:'',
             verCard:false,
             messajeWapp:'',
             Cliente:{},
@@ -820,7 +857,20 @@
                 re = /[0-9]*/
                 tel = re.exec(tel)[0]
                 window.location.href = 'tel:' + tel;
-        },  
+        },
+        obtenerListaCalles(){
+                axios.get('/buscador/obtenerlistacalles')
+                .then(res=>{
+                    this.Calles=res.data.calles
+                })
+        },
+        mostrarCalle(){
+            axios.get('/buscador/mostrarcalle/'+this.calle)
+            .then(res=>{
+                this.verCard = false
+                this.DatosCalle = res.data.calle
+            })
+        }  
 
         }
     }
