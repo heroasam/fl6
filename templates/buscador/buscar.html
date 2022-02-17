@@ -711,7 +711,7 @@
                     })
             },
             obtenerCalles(){
-                axios.get('/buscador/obtenerlistacalles')
+                axios.get('/buscador/obtenerlistadocalles')
                 .then(res=>{
                     const calles = res.data.calles
                     const $input = document.getElementById('searchCalle')
@@ -719,6 +719,7 @@
                     $input.addEventListener('keyup',(e)=>{
                     const input = $input.value
                     $suggestions.innerHTML='';
+                    console.log(calles)
                     const suggestions = calles.filter(calle=>{
                         return calle.calle.toLocaleLowerCase().includes(input.toLocaleLowerCase())
                     })

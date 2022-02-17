@@ -6,16 +6,19 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{% block title %}{% endblock %}</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='tables.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='bulmaswatch.min.css') }}">
+        <!-- <link id="bulma" rel="stylesheet" href="{{ url_for('static', filename='bulmaswatch.min.css') }}"> -->
         <!-- <link rel="stylesheet" href="https://unpkg.com/buefy/dist/buefy.min.css"> -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/buefy/0.9.14/buefy.min.js">
-        <!-- <link id="bulma" rel="stylesheet" href="https://unpkg.com/bulmaswatch/slate/bulmaswatch.min.css"> -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='buefy.min.css') }}">
+        
+        <link id="bulma" rel="stylesheet" href="https://unpkg.com/bulmaswatch/slate/bulmaswatch.min.css">
         <!-- <link href="{{url_for('static', filename='bootstrap.min.css')}}"> -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <!-- <link rel="stylesheet" href="{{ url_for('static', filename='font-awesome.min.css') }}"> -->
         
         
         <!-- <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script> -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.2.2/cdn.js" integrity="sha512-o9b5X9LmaFXtV1ywb+U6+pjFuId81OZ56iK8AhLDqEViGzMfJQ3NMtCu6q8uPM7WmSEMwd1CzjFHTGO2PNjLVA==" crossorigin="anonymous" referrerpolicy="no-referrer"  defer></script>
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.2.2/cdn.js" integrity="sha512-o9b5X9LmaFXtV1ywb+U6+pjFuId81OZ56iK8AhLDqEViGzMfJQ3NMtCu6q8uPM7WmSEMwd1CzjFHTGO2PNjLVA==" crossorigin="anonymous" referrerpolicy="no-referrer"  defer></script> -->
+  <script src="{{ url_for('static', filename='alpine.js')}}" defer></script>
         {% block style %} {% endblock %}
       </head>
     <body>
@@ -54,7 +57,8 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <!-- <script src="https://unpkg.com/buefy/dist/components/autocomplete"></script> -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/buefy/0.9.14/cjs/autocomplete.min.js" integrity="sha512-FtfpUJ3a8tmGkKd1OilWFcitkiS7pmnGL3CBS30YIogB/FRsLjlYeRCuQztU4M+/g3CNWz6tv/Fhkz4jXT7N+A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{ url_for('static', filename='autocomplete.js') }}"></script>
+
 <!-- <script src="https://use.fontawesome.com/6d1e679f7b.js"></script> -->
 <script>
 //   document.addEventListener('DOMContentLoaded', () => {
@@ -94,12 +98,12 @@ function toggleTheme() {
             var theme = document.getElementById('bulma');
             // Change the value of href attribute 
             // to change the css sheet.
-            if (theme.getAttribute('href') == "https://unpkg.com/bulmaswatch/minty/bulmaswatch.min.css") {
+            if (theme.getAttribute('href') == "https://unpkg.com/bulmaswatch/sandstone/bulmaswatch.min.css") {
                 theme.setAttribute('href', "https://unpkg.com/bulmaswatch/slate/bulmaswatch.min.css");
                 localStorage.setItem("bulma", "https://unpkg.com/bulmaswatch/slate/bulmaswatch.min.css");
             } else {
-                theme.setAttribute('href', "https://unpkg.com/bulmaswatch/minty/bulmaswatch.min.css");
-                localStorage.setItem("bulma", "https://unpkg.com/bulmaswatch/minty/bulmaswatch.min.css");
+                theme.setAttribute('href', "https://unpkg.com/bulmaswatch/sandstone/bulmaswatch.min.css");
+                localStorage.setItem("bulma", "https://unpkg.com/bulmaswatch/sandstone/bulmaswatch.min.css");
             }
         }
 document.addEventListener("DOMContentLoaded",(e)=>{

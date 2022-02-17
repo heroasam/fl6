@@ -311,15 +311,15 @@ def busca_guardaredicioncliente(idcliente):
     return 'ok'
 
 
-# @buscador.route('/buscador/obtenerlistacalles')
-# def buscar_obtenerlistacalles():
-#     con = get_con()
-#     sql = f"select calle from calles order by calle"
-#     cur = con.cursor(dictionary=True)
-#     cur.execute(sql)
-#     calles = cur.fetchall()
-#     con.close()
-#     return jsonify(calles=calles)
+@buscador.route('/buscador/obtenerlistadocalles')
+def buscar_obtenerlistacalles():
+    con = get_con()
+    sql = f"select calle from calles order by calle"
+    cur = con.cursor(dictionary=True)
+    cur.execute(sql)
+    calles = cur.fetchall()
+    con.close()
+    return jsonify(calles=calles)
 
 
 @buscador.route('/buscador/obtenerlistabarrios')
