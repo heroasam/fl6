@@ -465,7 +465,7 @@
             verModalPlanPago:false,
             verModalAsunto:false,
             buscarCliente(){
-		buscar = this.buscar1 || this.buscar
+		        buscar = this.buscar1 || this.buscar
                 axios.get('/buscador/'+buscar)
                 .then(res=>{
                     //console.log(res.data.clientes)

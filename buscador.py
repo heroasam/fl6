@@ -31,7 +31,7 @@ def buscar_cuenta(buscar):
         sql = f"select * from clientes where dni='{buscar}'"
     else:
         buscar = '%'+buscar.replace(' ','%')+'%'
-        sql = f"select * from clientes where lower(concat(nombre,calle,num,barrio)) like lower('{buscar}')"
+        sql = f"select * from clientes where lower(concat(nombre,calle,num,barrio,wapp)) like lower('{buscar}')"
     cur = con.cursor(dictionary=True)
     cur.execute(sql)
     clientes = cur.fetchall()
@@ -312,7 +312,7 @@ def busca_guardaredicioncliente(idcliente):
 
 
 @buscador.route('/buscador/obtenerlistadocalles')
-def buscar_obtenerlistacalles():
+def buscar_obtenerlistadocalles():
     con = get_con()
     sql = f"select calle from calles order by calle"
     cur = con.cursor(dictionary=True)
