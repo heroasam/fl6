@@ -67,7 +67,7 @@ def ficha(con,ldni):
     # dictDir = {} # dicc que guarda la direccion para el resumen
     for dni in listdni:
         #regla para que no comience un encabezado con poco espacio
-        cliente = pgdict0(con,f"select nombre,calle,num,tel,wapp,pmovto,barrio,zona,acla,mjecobr,horario,id from clientes where dni='{dni}'")
+        cliente = pgdict0(con,f"select nombre,calle,num,tel,wapp,pmovto,barrio,zona,acla,mjecobr,horario,id,seguir from clientes where dni='{dni}'")
         estimado = calc(con, cliente[11])
         estimado += 9 # estimado bruto de los distintos encabezados
         if (pdf.get_y()+(estimado*6)>285):
@@ -87,7 +87,7 @@ def ficha(con,ldni):
             pmovto = date.today().strftime('%Y-%m-%d')
         else:
             pmovto = cliente[5]
-        lisdatos.append((i,cliente[0][0:38],cliente[1]+' '+cliente[2],pdf.page_no(),pmovto))
+        lisdatos.append((i,cliente[0][0:38],cliente[1]+' '+cliente[2],pdf.page_no(),pmovto,cliente[12]))
         pdf.cell(70,6,cliente[6],1,1)
         if cliente[8]:
             pdf.set_font_size(7)
@@ -177,6 +177,10 @@ def ficha(con,ldni):
         #     pdf.cell(60,5,dictDir[x],1,0,'L') 
         #     pdf.cell(20,5,'Pag N°'+str(dictPos[x]),1,1,'C')
         for row in lisdatos:
+            if row[5]:
+                pdf.set_font("Helvetica","B",10)
+            else:
+                pdf.set_font("Helvetica","", 10)
             pdf.cell(20,5,str(row[4]),1,0,'C')
             pdf.cell(10,5,str(row[0]),1,0,'C')
             pdf.cell(60,5,row[1],1,0,'L')
@@ -233,7 +237,7 @@ def intimacion(con,ldni):
         pdf.cell(150,6,"GESTION DE COBRO ROMITEX", 0, 1, 'R')
         pdf.set_y(260)
         pdf.set_font_size(18)
-        pdf.cell(150,12,"WhatsApp 351-388-2892 - Tel 153-882-892", 0, 1, 'L')
+        pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 153-882-892", 0, 1, 'L')
         pdf.set_font_size(12)
     pdf.output("/tmp/intimacion.pdf")
 
