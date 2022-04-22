@@ -62,6 +62,7 @@ endblock %} {% block style %}
           <th>UltPago</th>
           <th>PmoVto</th>
           <th>Compra</th>
+          <th>Fecha</th>
           <th>Deuda</th>
           <th>DNI</th>
           <th>Zona</th>
@@ -79,6 +80,7 @@ endblock %} {% block style %}
           <td style="min-width: 100px;">|cliente['ultpago']|</td>
           <td style="min-width: 100px;">|cliente['pmovto']|</td>
           <td>|cliente['comprado']|</td>
+          <td style="min-width: 100px;">|cliente['ultcompra']|</td>
           <td>|cliente['deuda']|</td>
           <td>|cliente['dni']|</td>
           <td>|cliente['zona']|</td>
@@ -154,6 +156,8 @@ document.addEventListener('click',()=>{
           arrayClientes.forEach((row) => {
             row['ultpago'] = dayjs.utc(row['ultpago']).format("YYYY-MM-DD");
             row['pmovto'] = dayjs.utc(row['pmovto']).format("YYYY-MM-DD");
+            row['ultcompra'] = dayjs.utc(row['ultcompra']).format("YYYY-MM-DD");
+
           });
           const $tbody = document.querySelector("tbody");
           arrayRows = Array.from($tbody.children);
