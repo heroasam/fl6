@@ -86,11 +86,12 @@
               <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
               <input type="search" placeholder="Busca: Nombre Calle Num" class="input" x-model="buscar" @focus="buscar1=''" @keyup.enter="buscarCliente";verCard=false">
               <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
-              <select name="select" x-model="calle" class="input">
-                <template x-for="calle in Calles">
-                <option :value="calle" x-text="calle"></option>
-                </template>
-            </select>
+            <div class="grid col-1 gap-0">
+            <input type="text" class="input mb-1" x-model="Cliente.calle" id="searchCalle" autocomplete="off">
+            <div id="suggestionsCalle" class="suggestions"></div>
+            </div>
+
+
                 <button type="button" @click="mostrarCalle" class="button is-primary">Mostrar</button>
           </div>
 
@@ -866,7 +867,7 @@
                 })
         },
         mostrarCalle(){
-            axios.get('/buscador/mostrarcalle/'+this.calle)
+            axios.get('/buscador/mostrarcalle/'+this.Cliente.calle)
             .then(res=>{
                 this.verCard = false
                 this.DatosCalle = res.data.calle
