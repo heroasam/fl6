@@ -474,6 +474,12 @@
                     if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
                 })
                 .catch(error=>{
+                    Swal.fire({
+                            title: 'Error!',
+                            text: 'el DNI no existe',
+                            icon: 'error',
+                            timer: 3000,
+                            })
                     //Toast.show(error.request.response,'error')
                 })
             },
@@ -529,7 +535,12 @@
                     this.listaVentas = arrayVentas
                     this.listaCuotas = this.hacerCuotas()
                     if(this.listaVentas.length===0) {
-			bulmaToast.toast({message:'Este cliente no tiene cuentas activas',type:'is-danger'})
+                        Swal.fire({
+                            title: 'Sin Deuda',
+                            text: 'no hay cuentas ACTIVAS',
+                            icon: 'warning',
+                            timer: 3000,
+                            })
 		    }else{
                     this.clipWapp();//genero el message wapp para el cliente por si es necesario
 		    }
