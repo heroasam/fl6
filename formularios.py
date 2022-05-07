@@ -333,3 +333,25 @@ def asuntos(con,ids):
 
     pdf.output("/tmp/asuntos.pdf")
 
+
+def cancelados(con, ids):
+    pdf=FPDF()
+    pdf.set_margins(30,15)
+    pdf.add_page()
+    pdf.set_font("Helvetica","",10)
+    lpg ='('
+    for id in ids:
+        lpg+=str(id)+','
+    lpg = lpg[0:-1]+')'
+    listacancelados = pgdict(con, f"select nombre, calle, num, acla, barrio, zona, tel, wapp from clientes where dni in {lpg} order by zona,barrio,calle,num")
+    for c in listacancelados:
+        pdf.cell(60,6,c['nombre'][0:24],0,0)
+        pdf.cell(70,6,c['calle']+' '+c['num'],0,0)
+        pdf.cell(40,6,c['barrio'],0,1)
+        pdf.cell(30,6,c['zona'],0,0)
+        pdf.cell(40,6,c['tel'],0,0)
+        pdf.cell(30,6,c['wapp'],0,1)
+        pdf.ln(2)
+        pdf.line(10,pdf.get_y(),200,pdf.get_y())
+
+    pdf.output("/tmp/cancelados.pdf")
