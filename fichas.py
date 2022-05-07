@@ -362,3 +362,15 @@ def fichas_imprimirasunto():
     asuntos(con, ids)
     con.close()
     return send_file('/tmp/asuntos.pdf')
+
+
+@fichas.route('/fichas/cancelados')
+def fichas_cancelado():
+    return render_template("fichas/cancelados.html")
+
+
+@fichas.route('/fichas/getcancelados')
+def fichas_getcancelados():
+    con = get_con()
+    cancelados = pgdict(con, f"select ultpago, nombre, calle, num, zona, tel, wapp from clientes where deuda=0 and ultpago>date_sub(curdate(),interval 30 day) order by ultpago desc")
+    return jsonify(cancelados=cancelados)

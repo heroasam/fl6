@@ -1,0 +1,105 @@
+{% extends "base_template.html" %} {% block title %}Asuntos{% endblock %} {%
+block style %}
+<style>
+.micard {
+    padding: 24px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 6px 0px 10px gray ;
+}
+.modal-container{
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0,0,0,0.3);
+}
+.modal{
+    display:flex;
+    flex-direction: column;
+    position: relative;
+}
+.btn-close{
+    color:purple;
+    background-color: white;
+    border: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+[v-cloak]{
+	display:none;
+}
+</style>
+{% endblock %} {% block content %}
+
+<div id="app" class="container" v-cloak>
+	<p class="title is-1">Cancelados</p>
+    <div class="buttons">
+        <a href="/fichas" class="button is-primary">Fichas</a>
+        <a href="/fichas/fechador" class="button is-primary">Fechador</a>
+        <a href="/fichas/listado" class="button is-primary">Listado</a>
+        <a href="/fichas/cobradores" class="button is-primary">Cobradores</a>
+      </div>
+	  <label for="desde" class="my-2">Desde</label>
+	  <input type="date" name="desde" v-model="desde" class="input" style="width:150px;" />
+	  <label for="hasta">Hasta</label>
+	  <input type="date" name="hasta" v-model="hasta" class="input" style="width:150px;" />
+<div>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>UltPago</th>
+				<th>Nombre</th>
+				<th>Calle</th>
+				<th>Num</th>
+				<th>Zona</th>
+				<th>Tel</th>
+				<th>Wapp</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr v-for= "cancelado in cancelados">
+				<td>|cancelado.ultpago|</td>
+				<td>|cancelado.nombre|</td>
+				<td>|cancelado.calle|</td>
+				<td>|cancelado.num|</td>
+				<td>|cancelado.zona|</td>
+				<td>|cancelado.tel|</td>
+				<td>|cancelado.wapp|</td>
+			</tr>
+			
+		</tbody>
+
+	</table>
+</div>	
+	  
+{% endblock %} {% block script %}
+<script>
+	const app = new Vue({
+		el: '#app',
+		delimiters: ['|', '|'],
+		data: {
+			cancelados:[],
+		},
+		methods: {
+			getCancelados(){
+				axios.get('/fichas/getcancelados')
+				.then(res=>{
+					this.cancelados=res.data.cancelados
+					this.cancelados.map(row=>{row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD')})
+					console.log(res.data.cancelados)
+				})
+			},	
+
+		},
+		created: function(){
+			this.getCancelados()
+    },
+	});
+</script>
+{% endblock %}
