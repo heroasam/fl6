@@ -39,8 +39,11 @@ endblock %} {% block style %}
     </div>
 
   <div class="ml-1 mt-1 mb-1">
-    <button class="button is-success" @click="seleccionarHasta()">Seleccionar</button>
+    <label for="desde"></label>
+    <input type="date" name="desde" v-model="desde" class="input" style="width:140px;" />
+    <label for="hasta"></label>
     <input type="date" name="hasta" v-model="hasta" class="input" style="width:140px;" />
+    <button class="button is-success" @click="seleccionarHasta()">Seleccionar</button>
     <button class="button is-info" @click="imprimir()">Imprimir</button>
     <button class="button is-danger" @click="intimar()">Intimar</button>
     <button class="button is-warning" @click="muestraClientes('gestion',zonaactual)">Gestion</button>
@@ -132,6 +135,7 @@ document.addEventListener('click',()=>{
       ultimazona:'',
       ultimotipo:'',
       hasta:dayjs.utc().format('YYYY-MM-DD'),
+      desde:dayjs.utc().format('YYYY-MM-DD'),
     },
     methods: {
       getCobradores() {
@@ -167,6 +171,7 @@ document.addEventListener('click',()=>{
             }
           });
           this.clientes = arrayClientes;
+          this.desde = arrayClientes[0]['pmovto']
         });
       },
       intimar() {
@@ -222,7 +227,7 @@ document.addEventListener('click',()=>{
 	    console.log(this.hasta)
 	    console.log(pmovto)
 	    console.log(pmovto<=this.hasta)
-          if (pmovto <= this.hasta) {
+          if (pmovto>=this.desde && pmovto <= this.hasta) {
             row.classList.add("selected");
           }
         });
