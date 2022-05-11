@@ -237,7 +237,7 @@ def intimacion(con,ldni):
         pdf.cell(150,6,"GESTION DE COBRO ROMITEX", 0, 1, 'R')
         pdf.set_y(260)
         pdf.set_font_size(18)
-        pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 153-882-892", 0, 1, 'L')
+        pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 155-297-472", 0, 1, 'L')
         pdf.set_font_size(12)
     pdf.output("/tmp/intimacion.pdf")
 
