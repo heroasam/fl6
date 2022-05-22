@@ -122,7 +122,7 @@ def ventas_guardardetvta():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     costo = pgonecolumn(con, f"select costo from articulos where art='{d['art']}'")
-    ins = f"insert into detvta(idvta,cnt,art,cc,ic,costo) values({d['idvta']},{d['cnt']},'{d['art']}',{d['cc']},{d['ic']},{costo})"
+    ins = f"insert into detvta(idvta,cnt,art,cc,ic,costo,devuelta) values({d['idvta']},{d['cnt']},'{d['art']}',{d['cc']},{d['ic']},{costo},0)"
     cur = con.cursor()
     try:
         cur.execute(ins)

@@ -183,7 +183,7 @@ def stock_generarstock():
     cur.execute("create temporary table if not exists stockactual as select art,sum(cnt) as ingreso,(select sum(cnt) from detalles where art=artcomprado.art) as egreso from artcomprado where  fecha>'2015-09-15' group by art order by art")
     con.commit()
     cur.close()
-    stock = pgddict(con, f"select art, ingreso, egreso, ingreso-egreso as stock from stockactual")
+    stock = pgddict(con, f"select art, ingreso, IFNULL(egreso, 0), ingreso-IFNULL(egreso, 0) as stock from stockactual")
     con.close()
     return jsonify(stock=stock)
 
