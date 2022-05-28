@@ -272,7 +272,7 @@ document.addEventListener('click',()=>{
         })
       },
       cargarZonas(){
-        axios.get('/buscador/getzonas')
+        axios.get('/fichas/getzonas')
             .then(res=>{
                 this.listazonas=res.data.zonas
                 //console.log(this.listazonas)
