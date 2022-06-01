@@ -372,8 +372,8 @@ def fichas_cancelado():
 @fichas.route('/fichas/getcancelados')
 def fichas_getcancelados():
     con = get_con()
-    cancelados = pgdict(con, f"select ultpago, nombre, calle, num, zona, tel, wapp, dni from clientes where deuda=0 and ultpago>date_sub(curdate(),interval 30 day) order by ultpago desc")
-    max_ultpago = pgonecolumn(con, f"select max(ultpago) from clientes where deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and ultpago>date_sub(curdate(),interval 30 day)")
+    cancelados = pgdict(con, f"select ultpago, nombre, calle, num, zona, tel, wapp, dni from clientes where deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and ultpago>date_sub(curdate(),interval 30 day) order by ultpago desc")
+    max_ultpago = pgonecolumn(con, f"select max(ultpago) from clientes where deuda=0  and ultpago>date_sub(curdate(),interval 30 day)")
     return jsonify(cancelados=cancelados, max_ultpago=max_ultpago)
 
 
