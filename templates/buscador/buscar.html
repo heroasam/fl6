@@ -79,7 +79,7 @@
 </style>
 {% endblock %}
 {% block content %}
-<div x-data="main()" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerListaCalles()" class="container">
+<div x-data="main()" x-init="obtenerCalles();obtenerBarrios();obtenerZonas()" class="container">
 
           <div class="grid-buscar ml-3 mr-3 mt-2">
               <input  placeholder="DNI o N° Cuenta" class="input" x-model="buscar1" @keyup.enter="buscarCliente" @focus="buscar='';verCard=false" type="number" pattern="[0-9]*" inputmode="numeric">
@@ -334,13 +334,13 @@
             <input type="text" class="input mb-1" x-model="Cliente.nombre">
 
             <div class="grid col-1 gap-0">
-            <input type="text" class="input mb-1" x-model="Cliente.calle" id="searchCalle" autocomplete="off">
-            <div id="suggestionsCalle" class="suggestions"></div>
+            <input type="text" class="input mb-1" x-model="Cliente.calle" id="searchCalle1" autocomplete="off">
+            <div id="suggestionsCalle1" class="suggestions"></div>
             </div>
 
             <input type="text" class="input mb-1" x-model="Cliente.num">
 
-            <div class="grid col-1 gap-0"">
+            <div class="grid col-1 gap-0">
                 <input type="text" class="input mb-1" x-model="Cliente.barrio" id="searchBarrio" autocomplete="off">
                 <div id="suggestionsBarrio" class="suggestions"></div>
             </div>
@@ -443,7 +443,7 @@
     function main(){
         return{
             calle:'',
-            Calles:[],
+            // Calles:[],
             DatosCalle:[],
             listaClientes:[],
             listaVentas:[],
@@ -727,11 +727,12 @@
                 .then(res=>{
                     const calles = res.data.calles
                     const $input = document.getElementById('searchCalle')
+                    const $input1 = document.getElementById('searchCalle1')
                     const $suggestions = document.getElementById('suggestionsCalle')
+                    const $suggestions1 = document.getElementById('suggestionsCalle1')
                     $input.addEventListener('keyup',(e)=>{
                     const input = $input.value
                     $suggestions.innerHTML='';
-                    console.log(calles)
                     const suggestions = calles.filter(calle=>{
                         return calle.calle.toLocaleLowerCase().includes(input.toLocaleLowerCase())
                     })
@@ -749,6 +750,27 @@
                     $suggestions.addEventListener('click',(e)=>{
                         this.Cliente.calle=e.target.innerHTML
                         $suggestions.innerHTML=''
+                    })
+                    $input1.addEventListener('keyup',(e)=>{
+                    const input = $input1.value
+                    $suggestions1.innerHTML='';
+                    const suggestions = calles.filter(calle=>{
+                        return calle.calle.toLocaleLowerCase().includes(input.toLocaleLowerCase())
+                    })
+                    suggestions.forEach(suggested=>{
+                        const $div = document.createElement('div');
+                        $div.innerHTML = suggested.calle;
+                        $suggestions1.appendChild($div)
+                    })
+                    if(input==='') $suggestions1.innerHTML=''
+                    if(e.key==='Enter'){
+                        this.Cliente.calle = $suggestions1.firstChild.innerHTML
+                        $suggestions1.innerHTML=''
+                    }
+                    })
+                    $suggestions1.addEventListener('click',(e)=>{
+                        this.Cliente.calle=e.target.innerHTML
+                        $suggestions1.innerHTML=''
                     })
                     })
                 },
@@ -871,12 +893,12 @@
                 tel = re.exec(tel)[0]
                 window.location.href = 'tel:' + tel;
         },
-        obtenerListaCalles(){
+        /* obtenerListaCalles(){
                 axios.get('/buscador/obtenerlistacalles')
                 .then(res=>{
                     this.Calles=res.data.calles
                 })
-        },
+        }, */
         mostrarCalle(){
             axios.get('/buscador/mostrarcalle/'+this.Cliente.calle)
             .then(res=>{
