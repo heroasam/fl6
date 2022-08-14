@@ -417,3 +417,28 @@ def buscador_mostrarcalle(calle):
     con = get_con()
     calle = pgdict(con, f"select num,nombre,deuda,dni, coalesce(datediff(now(), ultpago),0) as atraso from clientes where calle='{calle}' and comprado>0 order by num")
     return jsonify(calle=calle)
+
+
+@buscador.route('/buscador/generarrbotransferencia', methods=['POST'])
+def buscador_generarrbotransferencia():
+    d = json.loads(request.data.decode("UTF-8"))
+    con = get_con()
+    fecha = d['fecha']
+    ic = d['ic']
+    cuenta = d['cuenta']
+    cobr = d['cobr']
+    idcliente = d['idcliente']
+    rbo = pgonecolumn(con, f"select max(id) from pagos")+1
+    ins = f"insert into pagos(idvta,fecha,imp,rec,rbo,cobr,idcliente) values({cuenta},'{fecha}',{ic},0,{rbo},{cobr},{idcliente})"
+    cur = con.cursor()
+    cur.execute(ins)
+    con.commit()
+    log(ins)
+    recibotransferencia(con,fecha,cuenta,ic,cobr,rbo,idcliente)
+    con.close()
+    return send_file('/tmp/recibotransferencia.pdf')
+
+
+    
+
+

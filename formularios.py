@@ -229,6 +229,31 @@ def libredeuda(con,dni):
     pdf.output("/tmp/libredeuda.pdf")
 
 
+def recibotransferencia(con,fecha,cuenta,ic,cobr,rbo,idcliente):
+    today = datetime.today().strftime('%Y-%m-%d')
+    cliente = pgdict0(con, f"select nombre, calle,num,barrio,sev from clientes where id='{idcliente}'")
+    pdf=FPDF()
+    pdf.set_margins(30,30)
+    pdf.add_page()
+    pdf.set_font("Helvetica","",10)
+    pdf.set_font_size(22)
+    pdf.image('/home/hero/imagenes/romitex.png', w=80, h=20)
+    pdf.ln(5)
+    pdf.cell(100,12,"RECIBO",0,1,'L')
+    pdf.set_font_size(12)
+    pdf.cell(150,8,today,0,1,'R')
+    pdf.cell(150,8,"Ref. Recibo de pago por transferencia", 0, 1, 'R')
+    pdf.cell(100,6,cliente[0][0:38],0,1)
+    pdf.cell(100,6,f"{cliente[1]} {cliente[2]} {cliente[3]}",0,1)
+    pdf.ln(5)
+    pdf.cell(150,6,"DEPARTAMENTO DE COBRANZAS ROMITEX", 0, 1, 'R')
+    pdf.set_y(260)
+    pdf.set_font_size(18)
+    pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 155-297-472", 0, 1, 'L')
+    pdf.set_font_size(12)
+    pdf.output("/tmp/recibotransferencia.pdf")
+
+
 
 def intimacion(con,ldni):
     today = datetime.today().strftime('%Y-%m-%d')
