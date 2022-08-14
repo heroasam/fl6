@@ -192,6 +192,43 @@ def ficha(con,ldni):
         pdf.cell(165,10,f'Suma a cobrar ${suma_a_cobrar}',1,1,'R')
     pdf.output("/tmp/ficha.pdf")
 
+def libredeuda(con,dni):
+    libre = """
+    Por la presente certificamos que el cliente de referencia no adeuda nada en ningun concepto a nuestra Empresa. Que al dia de la fecha ha sido CANCELADA su cuenta."""
+    seven = """
+    La baja del SEVEN se producira en forma automatica dentro de los proximos CINCO DIAS HABILES"""
+    today = datetime.today().strftime('%Y-%m-%d')
+    pdf=FPDF()
+    pdf.set_margins(30,30)
+    pdf.add_page()
+    pdf.set_font("Helvetica","",10)
+    cliente = pgdict0(con, f"select nombre, calle,num,barrio,sev from clientes where dni='{dni[0]}'")
+    print(dni)
+    print(cliente)
+    pdf.set_font_size(22)
+    pdf.image('/home/hero/imagenes/romitex.png', w=80, h=20)
+    pdf.ln(5)
+    pdf.cell(100,12,"LIBRE DEUDA",0,1,'L')
+    pdf.set_font_size(12)
+    pdf.cell(150,8,today,0,1,'R')
+    pdf.cell(150,8,"Ref. LIBRE DEUDA CON ROMITEX", 0, 1, 'R')
+    pdf.cell(100,6,cliente[0][0:38],0,1)
+    pdf.cell(100,6,f"{cliente[1]} {cliente[2]} {cliente[3]}",0,1)
+    pdf.ln(5)
+    pdf.multi_cell(0, 8, libre , border = 0, 
+                align = 'J', fill = False)
+    if cliente[4]:
+        pdf.multi_cell(0, 8, seven , border = 0, 
+                align = 'J', fill = False)
+    pdf.ln(7)
+    pdf.cell(150,6,"DEPARTAMENTO DE COBRANZAS ROMITEX", 0, 1, 'R')
+    pdf.set_y(260)
+    pdf.set_font_size(18)
+    pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 155-297-472", 0, 1, 'L')
+    pdf.set_font_size(12)
+    pdf.output("/tmp/libredeuda.pdf")
+
+
 
 def intimacion(con,ldni):
     today = datetime.today().strftime('%Y-%m-%d')
@@ -205,7 +242,7 @@ def intimacion(con,ldni):
     A pesar de las numerosas visitas de cobro que hemos realizado no hemos podido obtener repuesta de su parte, por lo que nos vemos en la obligacion de concluir que no existe voluntad de su parte de pagar la cuenta segun lo acordado.
     Cumplimos en avisarle que su nombre fue informado al registro de morosos SEVEN. El sistema de informacion de morosos SEVEN mantiene una base de datos de morosos de nuestra ciudad, por lo cual se inclusion en el mismo le trabara y/o dificultara cualquier operacion comercial presente o futura.
     
-    En el caso de querer regularizar su deuda puede solicitar un plan de pagos por WhatsApp al 351-388-2892.
+    En el caso de querer regularizar su deuda puede solicitar un plan de pagos por WhatsApp al 351-5-297-472.
     Una vez cancelada la cuenta se informa inmediatamente al SEVEN para proceder a eliminar su nombre de dicho registro.
     """
     pdf=FPDF()
@@ -222,21 +259,22 @@ def intimacion(con,ldni):
         if (pdf.get_y()>250):
             pdf.add_page()
             pdf.set_y(15)
-        cliente = pgdict0(con,f"select nombre,concat(calle,num,barrio),sev from clientes where dni='{dni}'")
+        cliente = pgdict0(con,f"select nombre,calle,num,barrio,sev from clientes where dni='{dni}'")
         pdf.set_font_size(22)
         pdf.cell(100,12,"INTIMACION DE PAGO", 0, 1, 'L')
         pdf.set_font_size(12)
         pdf.cell(150,8,today,0,1,'R')
         pdf.cell(150,8,"Ref. DEUDA CON ROMITEX", 0, 1, 'R')
         pdf.cell(100,6,cliente[0][0:38],0,1)
-        pdf.cell(100,6,cliente[1],0,1)
+        pdf.cell(100,6,f"{cliente[1]} {cliente[2]} {cliente[3]}",0,1)
         pdf.ln(5)
-        if cliente[2]:
+        if cliente[4]:
             intim = intim2
         else:
             intim = intim1
         pdf.multi_cell(0, 8, intim , border = 0, 
                 align = 'J', fill = False)
+        # pdf.image('/root/anonymous.jpg')
         pdf.ln(3)
         pdf.cell(150,6,"GESTION DE COBRO ROMITEX", 0, 1, 'R')
         pdf.set_y(260)

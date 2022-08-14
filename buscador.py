@@ -369,6 +369,13 @@ def buscador_intimar():
     intimacion(con,dni)
     return send_file('/tmp/intimacion.pdf')
 
+@buscador.route('/buscador/libredeuda', methods=['POST'])
+def buscador_libredeuda():
+    con = get_con()
+    dni = json.loads(request.data.decode("UTF-8"))
+    libredeuda(con,dni)
+    return send_file('/tmp/libredeuda.pdf')
+
 
 @buscador.route('/log')
 @login_required

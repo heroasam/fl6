@@ -122,7 +122,6 @@
             <button class="button is-warning is-small" x-show="Cliente.gestion">GESTION</button>
             <button class="button is-danger is-small" x-show="Cliente.incobrable">INC</button>
             <button class="button is-info is-small" x-show="Cliente.seguir">SEGUIR</button>
-            <button class="button is-warning is-small" x-show="Cliente.llamar">LLAMAR</button>
         </div>
         <div style="display: flex; align-items:center;">
             <h2 x-text="'$'+Cliente.deuda" class="title is-3 mb-1" x-show="Cliente.deuda"></h2>
@@ -146,7 +145,8 @@
         <button class="button is-info is-small" @click="editarCliente(Cliente.id)">EDITAR</button>
         <button class="button is-info is-small" @click="agregarComentario()">COMENTAR</button>
         <button class="button is-info is-small" @click="agregarPlanPago()">PLAN PAGOS</button>
-        <button class="button is-info is-small" @click="agregarAsunto()">ASUNTO</button>
+        <button class="button is-danger is-small" @click="emitirLibreDeuda(Cliente.dni)">LIBRE</button>
+        <button class="button is-danger is-small" @click="emitirRbo()">RBO</button>
         <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
     </div>
     <table class="table table-sm m-3" x-show="verCard && listaVentas.length">
@@ -882,6 +882,19 @@
                         .catch(error=>{
                         bulmaToast.toast({message:error.request.response, type:'is-danger'})
                         })
+                },
+                emitirLibreDeuda(dni){
+                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+		        axios({
+                    method: "POST",
+                    url: "/buscador/libredeuda",
+                    responseType: "blob",
+                    data: [dni],
+                }).then((res) => {
+                    let url = window.URL.createObjectURL(res.data);
+                    window.open(url);
+                }); 
+
                 },
 		condonarVenta(id){
 		    axios.get('/ventas/condonar/'+id)
