@@ -369,6 +369,7 @@ def buscador_intimar():
     intimacion(con,dni)
     return send_file('/tmp/intimacion.pdf')
 
+
 @buscador.route('/buscador/libredeuda', methods=['POST'])
 def buscador_libredeuda():
     con = get_con()

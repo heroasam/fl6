@@ -467,6 +467,8 @@
             verModalAsunto:false,
             buscarCliente(){
 		        buscar = this.buscar1 || this.buscar
+                //console.log(buscar)
+                textToClipboard(buscar)
                 axios.get('/buscador/'+buscar)
                 .then(res=>{
                     //console.log(res.data.clientes)
@@ -484,7 +486,6 @@
                 })
             },
             buscaCuentaporDni(dni){
-                //console.log(dni);
                 this.listaClientes.map(row=>row.pmovto=dayjs.utc(row.pmovto).format('YYYY-MM-DD'))
                 this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
                 //console.log(this.Cliente);
