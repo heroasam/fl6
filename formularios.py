@@ -1,5 +1,5 @@
 from fpdf import FPDF 
-from .lib import pgdict0, pgddict, per, desnull,pglflat,pgdict,pgonecolumn
+from .lib import pgdict0, pgddict, per, desnull,pglflat,pgdict,pgonecolumn, letras
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 
@@ -229,9 +229,11 @@ def libredeuda(con,dni):
     pdf.output("/tmp/libredeuda.pdf")
 
 
-def recibotransferencia(con,fecha,cuenta,ic,cobr,rbo,idcliente):
+def recibotransferencia(con,fecha,cuenta,nc,ic,cobr,rbo,idcliente):
     today = datetime.today().strftime('%Y-%m-%d')
     cliente = pgdict0(con, f"select nombre, calle,num,barrio,sev from clientes where id='{idcliente}'")
+    texto = f"""RECIBIMOS de {cliente[0]} con domicilio en {cliente[1]} {cliente[2]} {cliente[3]} la suma de pesos {letras(ic)} en concepto de pago de la cuota {nc} de la cuenta {cuenta}, por medio de una transferencia al CBU 0720556988000035614454."""
+    advertencia = """Este recibo solo es valido si se adjunta con el comprobante de la transferencia que lo origino"""
     pdf=FPDF()
     pdf.set_margins(30,30)
     pdf.add_page()
@@ -242,9 +244,14 @@ def recibotransferencia(con,fecha,cuenta,ic,cobr,rbo,idcliente):
     pdf.cell(100,12,"RECIBO",0,1,'L')
     pdf.set_font_size(12)
     pdf.cell(150,8,today,0,1,'R')
-    pdf.cell(150,8,"Ref. Recibo de pago por transferencia", 0, 1, 'R')
-    pdf.cell(100,6,cliente[0][0:38],0,1)
-    pdf.cell(100,6,f"{cliente[1]} {cliente[2]} {cliente[3]}",0,1)
+    pdf.cell(150,8,f"Recibo de pago por transferencia N°{rbo}", 0, 1, 'R')
+    pdf.cell(150,8,f"Importe ${ic}", 0, 1, 'R')
+    pdf.ln(2)
+    pdf.multi_cell(0, 8, texto , border = 0, 
+                align = 'J', fill = False)
+    pdf.ln(5)
+    pdf.multi_cell(0, 8, advertencia , border = 0, 
+                align = 'J', fill = False)
     pdf.ln(5)
     pdf.cell(150,6,"DEPARTAMENTO DE COBRANZAS ROMITEX", 0, 1, 'R')
     pdf.set_y(260)

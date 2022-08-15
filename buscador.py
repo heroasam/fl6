@@ -425,6 +425,7 @@ def buscador_generarrbotransferencia():
     con = get_con()
     fecha = d['fecha']
     ic = d['ic']
+    nc = d['nc']
     cuenta = d['cuenta']
     cobr = d['cobr']
     idcliente = d['idcliente']
@@ -434,7 +435,7 @@ def buscador_generarrbotransferencia():
     cur.execute(ins)
     con.commit()
     log(ins)
-    recibotransferencia(con,fecha,cuenta,ic,cobr,rbo,idcliente)
+    recibotransferencia(con,fecha,cuenta,nc,ic,cobr,rbo,idcliente)
     con.close()
     return send_file('/tmp/recibotransferencia.pdf')
 

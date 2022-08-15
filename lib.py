@@ -329,3 +329,31 @@ def venta_trigger_anuladevolucion(con,idvta):
     cur.execute(upd11)
     con.commit()
     cur.close()
+
+def letras(num):
+    millares = {'0':'','1':'mil','2':'dos mil','3':'tres mil','4':'cuatro mil','5':'cinco mil','6':'seis mil','7':'siete mil','8':'ocho mil','9':'nueve mil'}
+    centenas = {'0':'','1':'ciento','2':'doscientos','3':'trescientos','4':'cuatrocientos','5':'quinientos','6':'seiscientos','7':'setecientos','8':'ochocientos','9':'novecientos'}
+    decenas = {'3':'treinta','4':'cuarenta','5':'cincuenta','6':'sesenta','7':'setenta','8':'ochenta','9':'noventa'}
+    sueltos = {'29':'veintinueve','28':'veintiocho','27':'veintisiete','26':'veintiseis','25':'veinticinco','24':'veinticuatro',
+               '23':'veintitres','22':'veintidos','21':'veintiuno','20':'veinte','19':'diecinueve','18':'dieciocho','17':'diecisiete',
+               '16':'dieciseis','15':'quince','14':'catorce','13':'trece','12':'doce','11':'once','10':'diez','09':'nueve',
+               '08':'ocho','07':'siete','06':'seis','05':'cinco','04':'cuatro','03':'tres','02':'dos','01':'uno','00':''}
+    unidades = {'0':'','1':'uno', '2':'dos', '3':'tres','4':'cuatro','5':'cinco','6':'seis','7':'siete','8':'ocho','9':'nueve'}
+    millar = '0'
+    centena = '0'
+    decena = '0'
+    if len(str(num))>3:
+        millar = str(num)[-4]
+
+    if len(str(num))>2:
+        centena = str(num)[-3]
+
+    decena = str(num)[-2]
+    unidad = str(num)[-1]
+    dosdigitos = str(num)[-2:]
+    if int(decena)>2:
+        num=millares[millar]+' '+centenas[centena]+' '+decenas[decena]+' '+unidades[unidad]
+    else:
+        num=millares[millar]+' '+centenas[centena]+' '+sueltos[dosdigitos]
+    return(num.lstrip().rstrip().upper())
+
