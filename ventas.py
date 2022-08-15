@@ -94,6 +94,9 @@ def ventas_guardarcliente():
 def ventas_guardarventa():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
+    ant = d['ant'] or 0
+    
+    print(ant)
     per = d['p']
     if per=='mensual':
         p=1
@@ -101,7 +104,7 @@ def ventas_guardarventa():
         p=3
     else:
         p=2
-    ins = f"insert into ventas(fecha,idvdor,cc,ic,p,primera,idcliente) values('{d['fecha']}',{d['idvdor']},{d['cc']},{d['ic']},{p},'{d['primera']}',{d['idcliente']})"
+    ins = f"insert into ventas(fecha,idvdor,ant,cc,ic,p,primera,idcliente) values('{d['fecha']}',{d['idvdor']},{ant},{d['cc']},{d['ic']},{p},'{d['primera']}',{d['idcliente']})"
     cur = con.cursor()
     try:
         cur.execute(ins)

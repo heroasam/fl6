@@ -154,6 +154,7 @@
             <tr>
                 <th>id</th>
                 <th>fecha</th>
+                <th>Ant</th>
                 <th>plan</th>
                 <th>saldo/comprado</th>
                 <th>vdor</th>
@@ -166,6 +167,7 @@
             <tr>
                 <td x-text="venta.id"></td>
                 <td x-text="venta.fecha" style="min-width: 150px;"></td>
+                <td x-text="venta.ant" style="min-width: 40px;"></td>
                 <td x-text="venta.cc+' CUO de $'+venta.ic+' '+venta.p" style="min-width: 200px;"></td>
                 <td x-text="venta.saldo+'/'+venta.comprado"></td>
                 <td x-text="venta.idvdor"></td>
@@ -234,6 +236,7 @@
                <tr>
                    <th>id</th>
                    <th>fecha</th>
+                   <th>Ant</th>
                    <th>plan</th>
                    <th>comprado</th>
                    <th>vdor</th>
@@ -246,6 +249,7 @@
                <tr>
                    <td data-titulo="cuenta" x-text="venta.id"></td>
                    <td data-titulo="fecha vta"x-text="venta.fecha" style="min-width: 100px;"></td>
+                   <td data-titulo="anticipo" x-text="venta.ant" style="min-width: 40px;"></td>
                    <td data-titulo="plan" x-text="venta.cc+' CUO de $'+venta.ic+' '+venta.p" style="min-width: 200px;"></td>
                    <td data-titulo="comprado" x-text="venta.comprado"></td>
                    <td data-titulo="vdor" x-text="venta.idvdor"></td>
@@ -532,7 +536,7 @@
                     `Nos comunicamos de la empresa ROMITEX por una deuda que usted tiene con la firma. En los proximos dias deberemos informar al SEVEN el atraso de su cuenta. Le proponemos un plan de pagos que podemos realizar por este medio.`
                 }
                 messaje = this.Cliente.nombre.concat(': ',text,' ',`(Por compra de ${articulos} realizada en '${direccion}' el dia ${dayjs.utc(fecha).format('DD-MM-YYYY')})`)
-                console.log(messaje);
+                //console.log(messaje);
                 this.messajeWapp = messaje.replaceAll(' ','%20')
 
             },
@@ -547,13 +551,14 @@
             obtenerVentas(idcliente){
                 axios.get('/buscador/obtenerventasporidcliente/'+idcliente)
                 .then(res=>{
-                    console.log(res.data.ventas);
+                    //console.log(res.data.ventas);
                     let arrayVentas=res.data.ventas
                     arrayVentas.map(row=>{
                         row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD')
                         row.p=1?'MEN':3?'SEM':'QUI'
                     })
                     this.listaVentas = arrayVentas
+                    console.log(this.listaVentas)
                     this.listaCuotas = this.hacerCuotas()
                     if(this.listaVentas.length===0) {
                         Swal.fire({

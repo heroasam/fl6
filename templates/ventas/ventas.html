@@ -3,7 +3,6 @@
 {% block title %}Ventas{% endblock %}
 {% block style %}
 <style>
- 
   </style>
   {% endblock %}
   
@@ -139,8 +138,11 @@
         <p v-show="!venta.fecha" class="help is-danger">Requerido</p>
       </div>
       <div class="column is-1">
-        <input type="text" v-model="venta.idvdor" size=5 class="input" ref="vdor" placeholder="Vdor" @keyup.enter="$refs.cuotas.focus()">
+        <input type="text" v-model="venta.idvdor" size=5 class="input" ref="vdor" placeholder="Vdor" @keyup.enter="$refs.ant.focus()">
         <p v-show="!venta.idvdor" class="help is-danger">Requerido</p>
+      </div>
+      <div class="column is-1">
+        <input type="text" v-model="venta.ant" size=5 class="input" ref="ant" placeholder="Ant" @keyup.enter="$refs.cuotas.focus()">
       </div>
       <div class="column is-1">
         <input type="text" v-model="venta.cc" size=5 class="input" ref="cuotas" placeholder="Cuotas" @keyup.enter="$refs.imp.focus()">
@@ -272,7 +274,7 @@ const app = new Vue({
       barrios:[],
       zonas:[],
       cliente:{id:'',sex:'',dni:'',calle:'', barrio:'', zona:'',acla:'', tel:'',wapp:'',mjecobr:'',horario:'',infoseven:''},
-      venta:{p:'', id:''},
+      venta:{p:'', id:'', ant:''},
       detallevta:{art:''},
       selected: null,
       periodicidad:['mensual','quincenal','semanal'],
