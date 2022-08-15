@@ -1,4 +1,4 @@
-{% extends "base_template.html" %} {% block title %}Cancelados{% endblock %} {%
+{% extends "base_template.html" %} {% block title %}Mudados{% endblock %} {%
 block style %}
 <style>
 .micard {
@@ -38,25 +38,18 @@ block style %}
 {% endblock %} {% block content %}
 
 <div id="app" class="container" v-cloak>
-	<p class="title is-1">Cancelados</p>
+	<p class="title is-1">Mudados</p>
     <div class="buttons">
         <a href="/fichas" class="button is-primary">Fichas</a>
         <a href="/fichas/fechador" class="button is-primary">Fechador</a>
         <a href="/fichas/listado" class="button is-primary">Listado</a>
         <a href="/fichas/cobradores" class="button is-primary">Cobradores</a>
-		<a href="/fichas/mudados" class="button is-primary">Mudados</a>
+		<a href="/fichas/cancelados" class="button is-primary">Cancelados</a>
       </div>
-	  <label for="desde" class="my-2">Desde</label>
-	  <input type="date" name="desde" v-model="desde" class="input" style="width:150px;" />
-	  <label for="hasta">Hasta</label>
-	  <input type="date" name="hasta" v-model="hasta" class="input" style="width:150px;" />
-	  <button class="button is-success" @click="seleccionar()">Seleccionar</button>
-	  <button class="button is-success" @click="imprimir()">Imprimir</button>
-<div>
+	  
 	<table class="table">
 		<thead>
 			<tr>
-				<th>UltPago</th>
 				<th>Nombre</th>
 				<th>Calle</th>
 				<th>Num</th>
@@ -67,15 +60,14 @@ block style %}
 			</tr>
 		</thead>
 		<tbody>
-			<tr v-for= "cancelado in cancelados">
-				<td>|cancelado.ultpago|</td>
-				<td>|cancelado.nombre|</td>
-				<td>|cancelado.calle|</td>
-				<td>|cancelado.num|</td>
-				<td>|cancelado.zona|</td>
-				<td>|cancelado.tel|</td>
-				<td>|cancelado.wapp|</td>
-				<td>|cancelado.dni|</td>
+			<tr v-for= "mudado in mudados">
+				<td>|mudado.nombre|</td>
+				<td>|mudado.calle|</td>
+				<td>|mudado.num|</td>
+				<td>|mudado.zona|</td>
+				<td>|mudado.tel|</td>
+				<td>|mudado.wapp|</td>
+				<td>|mudado.dni|</td>
 			</tr>
 			
 			<input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
@@ -90,18 +82,16 @@ block style %}
 		delimiters: ['|', '|'],
 		data: {
 			cancelados:[],
+			mudados:[],
 			desde:'',
 			hasta:'',
 		},
 		methods: {
-			getCancelados(){
-				axios.get('/fichas/getcancelados')
+			getMudados(){
+				axios.get('/fichas/getmudados')
 				.then(res=>{
-					this.cancelados=res.data.cancelados
-					this.cancelados.map(row=>{row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD')})
-					//console.log(res.data.cancelados)
-					this.hasta=res.data.max_ultpago
-					this.hasta = dayjs.utc(this.hasta).format('YYYY-MM-DD')
+					this.mudados=res.data.mudados
+					this.mudados.map(row=>{row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD')})
 				})
 			},
 			seleccionar(){
@@ -139,7 +129,7 @@ block style %}
 
 		},
 		created: function(){
-			this.getCancelados()
+			this.getMudados()
     },
 	});
 </script>

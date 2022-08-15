@@ -377,6 +377,19 @@ def fichas_getcancelados():
     return jsonify(cancelados=cancelados, max_ultpago=max_ultpago)
 
 
+@fichas.route('/fichas/mudados')
+def fichas_mudados():
+    return render_template("fichas/mudados.html")
+
+
+@fichas.route('/fichas/getmudados')
+def fichas_getmudados():
+    con = get_con()
+    mudados = pgdict(con, f"select nombre, calle, num, zona, tel, wapp, dni from clientes where deuda=0 and  mudo=1  and novendermas=0 and ultpago>date_sub(curdate(), interval 4 year) order by ultpago desc")
+    return jsonify(mudados=mudados)
+
+
+
 @fichas.route('/fichas/imprimircancelados', methods = ['POST'])
 def fichas_imprimircancelados():
     con = get_con()
