@@ -1,0 +1,87 @@
+{% extends "base_template.html" %} {% block title %}Utilidades{% endblock %}
+{% block style %}
+<style>
+.grid-buscar{
+    display: grid;
+    grid-template-columns: 1fr 20%;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="app" class="container" v-cloak>
+	<p class="title is-1">Utilidades</p>
+    <div class="buttons">
+        <a href="/utilidades/impresos" class="button is-primary">Impresos</a>
+      </div>
+      <h2 class="title is-2">Planos</h2>
+
+      <div class="grid-buscar mb-6 mr-3 mt-2">
+        <input type="text" placeholder="Buscar" v-model="buscar" @keyup.enter="restringirBusqueda(buscar)"/>
+        <button class="button is-primary" @click="restringirBusqueda(buscar)">Buscar</button>
+      </div>
+
+      <table class="table">
+        <thead>
+            <tr>
+                <th>Imp</th>
+                <th>Plano</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="plano in planos">
+                <td><button class="button is-danger is-small" @click="imprimirPlano(plano)">Imprimir</button></td>
+                <td>|plano|</td>
+            </tr>
+        </tbody>
+
+      </table>
+      <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
+
+
+</div>
+
+
+
+
+{% endblock %} {% block script %}
+<script>
+const app = new Vue({
+    el: '#app',
+    delimiters: ['|', '|'],
+    data: {
+        planos:[],
+        planos_:[],
+        buscar:'',
+    },
+    methods: {
+        imprimirPlano(plano){
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
+        		axios({
+          			method: "GET",
+          			url: "/utilidades/imprimirplanos/"+plano,
+          			responseType: "blob",
+        			}).then((res) => {
+          			let url = window.URL.createObjectURL(res.data);
+          			window.open(url);
+        
+                    })},
+        getPlanos(){
+            axios.get('/utilidades/getplanos')
+				.then(res=>{
+					this.planos=res.data.planos
+                    this.planos_=this.planos
+				})
+        },
+        restringirBusqueda(buscar){
+            this.planos = this.planos_
+            this.planos = this.planos.filter(row=>row.toLowerCase().includes(buscar.toLowerCase()))
+        },
+    },
+    created: function(){
+			this.getPlanos()
+    },
+})
+
+    </script>
+{% endblock %}

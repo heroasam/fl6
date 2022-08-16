@@ -13,6 +13,7 @@ from .stock import stock
 from .pagos import pagos
 from .buscador import buscador
 from .fichas import fichas
+from .utilidades import utilidades
 import mysql.connector
 from .con import con, log
 
@@ -35,6 +36,7 @@ app.register_blueprint(stock)
 app.register_blueprint(pagos)
 app.register_blueprint(buscador)
 app.register_blueprint(fichas)
+app.register_blueprint(utilidades)
 
 class User(UserMixin):
     def __init__(self, id, name, email, password, auth=0):

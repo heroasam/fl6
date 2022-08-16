@@ -1,0 +1,67 @@
+{% extends "base_template.html" %} {% block title %}Utilidades{% endblock %}
+
+{% block content %}
+<div id="app" class="container" v-cloak>
+	<p class="title is-1">Impresos</p>
+    <div class="buttons">
+        <a href="/utilidades" class="button is-primary">Utilidades</a>
+      </div>
+      <h2 class="title is-2">Impresos</h2>
+      
+      <table class="table">
+        <thead>
+            <tr>
+                <th>Imp</th>
+                <th>Impreso</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="impreso in impresos">
+                <td><button class="button is-danger is-small" @click="imprimirImpreso(impreso)">Imprimir</button></td>
+                <td>|impreso|</td>
+            </tr>
+        </tbody>
+
+      </table>
+      <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
+
+
+</div>
+
+
+
+
+{% endblock %} {% block script %}
+<script>
+const app = new Vue({
+    el: '#app',
+    delimiters: ['|', '|'],
+    data: {
+        impresos:[],
+    },
+    methods: {
+        imprimirImpreso(impreso){
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
+        		axios({
+          			method: "GET",
+          			url: "/utilidades/imprimirimpreso/"+impreso,
+          			responseType: "blob",
+        			}).then((res) => {
+          			let url = window.URL.createObjectURL(res.data);
+          			window.open(url);
+        
+                    })},
+        getImpresos(){
+            axios.get('/utilidades/getimpresos')
+				.then(res=>{
+					this.impresos=res.data.impresos
+				})
+        },
+    },
+    created: function(){
+			this.getImpresos()
+    },
+})
+
+    </script>
+{% endblock %}
