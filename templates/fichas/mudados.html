@@ -50,6 +50,7 @@ block style %}
 	<table class="table">
 		<thead>
 			<tr>
+				<th>Hecho</th>
 				<th>Nombre</th>
 				<th>Calle</th>
 				<th>Num</th>
@@ -61,6 +62,7 @@ block style %}
 		</thead>
 		<tbody>
 			<tr v-for= "mudado in mudados">
+				<td><button class="button is-small is-danger" @click="toggleMudadoLlamado(mudado.dni)">Hecho</button></td>
 				<td>|mudado.nombre|</td>
 				<td>|mudado.calle|</td>
 				<td>|mudado.num|</td>
@@ -90,6 +92,7 @@ block style %}
 			getMudados(){
 				axios.get('/fichas/getmudados')
 				.then(res=>{
+					console.log(res.data.mudados)
 					this.mudados=res.data.mudados
 					this.mudados.map(row=>{row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD')})
 				})
@@ -124,10 +127,17 @@ block style %}
         			}).then((res) => {
           			let url = window.URL.createObjectURL(res.data);
           			window.open(url);
-        	});	
+        	});
+		},
+			toggleMudadoLlamado(dni){
+				axios.get('/fichas/toggleMudadoLlamado/'+dni)
+				.then(res=>{
+					this.getMudados()
+				})
+			},
 		},
 
-		},
+		
 		created: function(){
 			this.getMudados()
     },

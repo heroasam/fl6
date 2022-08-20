@@ -385,9 +385,8 @@ def fichas_mudados():
 @fichas.route('/fichas/getmudados')
 def fichas_getmudados():
     con = get_con()
-    mudados = pgdict(con, f"select nombre, calle, num, zona, tel, wapp, dni from clientes where deuda=0 and  mudo=1  and novendermas=0 and ultpago>date_sub(curdate(), interval 4 year) order by ultpago desc")
+    mudados = pgdict(con, f"select nombre, calle, num, zona, tel, wapp, dni from clientes where deuda=0 and  mudo=1 and mudado_llamado=0 and novendermas=0 and ultpago>date_sub(curdate(), interval 4 year) order by ultpago desc")
     return jsonify(mudados=mudados)
-
 
 
 @fichas.route('/fichas/imprimircancelados', methods = ['POST'])
@@ -399,3 +398,15 @@ def fichas_imprimircancelados():
     cancelados(con, listadni)
     con.close()
     return send_file('/tmp/cancelados.pdf')
+
+
+@fichas.route('/fichas/toggleMudadoLlamado/<string:dni>')
+def fichas_togglemudadollamado(dni):
+    con = get_con()
+    upd = f"update clientes set mudado_llamado=1 where dni={dni}"
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    log(upd)
+    con.close()
+    return 'ok'
