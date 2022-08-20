@@ -126,6 +126,8 @@
         <div style="display: flex; align-items:center;">
             <h2 x-text="'$'+Cliente.deuda" class="title is-3 mb-1" x-show="Cliente.deuda"></h2>
             <h2 x-text="'PmoVto: '+Cliente.pmovto" class="subtitle is-5 mt-1 ml-3" x-show="Cliente.pmovto"></h2>
+            <h2 x-text="'Hay comentarios'" class="subtitle is-5 mt-1 ml-3" x-show="listaComentarios.length" style="color:red;"></h2>
+            
         </div>
     </div>
     <div class="buttons ml-3 mr-3 mb-1" x-show="verCard">
