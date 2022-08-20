@@ -49,12 +49,15 @@ endblock %} {% block style %}
     <button class="button is-danger" @click="intimar()">Intimar</button>
     <button class="button is-warning" @click="muestraClientes('gestion',zonaactual)">Gestion</button>
     <button class="button is-dark" @click="muestraClientes('antiguos',zonaactual)">Antiguos</button>
+    <button class="button is-info" @click="muestraClientes('nuevomoroso',zonaactual)">NuevoMoroso</button>
+    <button class="button is-info" @click="muestraClientes('morosos',zonaactual)">Morosos</button>
     <button class="button is-danger" @click="verZonas==true?verZonas=false:verZonas=true">Cambiar Zonas</button>
     <input type="text" name="zona" v-model="zona" list="zonalist" autocomplete="off" v-if="verZonas">
                   <datalist id="zonalist">
                     <option v-for="zona in listazonas">|zona['zona']|</option>
                 </datalist>
     <button class="button is-danger" @click="cambiarZona(zona)" v-if="verZonas">Guardar</button>
+    
   </div>
 
     <table id="table" class="table is-narrow nototal ml-1">
