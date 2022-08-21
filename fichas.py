@@ -40,9 +40,9 @@ def fichas_muestraclientes(tipo,zona):
     elif tipo=='antiguos':
         clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,ultcompra,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda,zona,barrio from clientes where zona='{zona}' and pmovto<=date_sub(curdate(),interval 210 day) and deuda>0  order by ultpago desc")
     elif tipo=='nuevomoroso':
-        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,ultcompra,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda,zona,barrio from clientes where zona='{zona}' and pmovto<=date_sub(curdate(),interval 5 day) and deuda>0 and ultcompra>date_sub(curdate(),interval 30 day)  order by pmovto desc")
+        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,ultcompra,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda,zona,barrio from clientes where zona='{zona}' and pmovto<=date_sub(curdate(),interval 5 day) and deuda>0 and ultcompra>date_sub(curdate(),interval 30 day)  order by pmovto")
     elif tipo=='morosos':
-        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,ultcompra,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda,zona,barrio from clientes where zona='{zona}' and pmovto<=date_sub(curdate(),interval 60 day) and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  order by pmovto desc")
+        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,ultcompra,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda,zona,barrio from clientes where zona='{zona}' and pmovto<=date_sub(curdate(),interval 60 day) and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  order by pmovto")
 
     con.close()
     return jsonify(clientes=clientes)
