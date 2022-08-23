@@ -149,6 +149,7 @@
         <button class="button is-info is-small" @click="agregarPlanPago()">PLAN PAGOS</button>
         <button class="button is-danger is-small" @click="emitirLibreDeuda(Cliente.dni)">LIBRE</button>
         <button class="button is-danger is-small" @click="emitirRbo()">RBO</button>
+        <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${ventaWapp}` class="button is-danger is-small" target="blank" style="text-decoration: none;">VENDER</a>
         <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
     </div>
     <table class="table table-sm m-3" x-show="verCard && listaVentas.length">
@@ -480,6 +481,7 @@
 	        buscar1:'',
             verCard:false,
             messajeWapp:'',
+            ventaWapp:'',
             Cliente:{},
             Venta:{fecha:dayjs.utc().format('YYYY-MM-DD'),p:'Mensual'},
             Comentario:{fechahora:dayjs.utc().format('YYYY-MM-DD')},
@@ -517,6 +519,7 @@
                 //console.log(this.Cliente);
                 this.obtenerVentas(this.Cliente.id)
                 this.verCard = true;
+                this.clipWappVentas()
 		axios.get('/buscador/clientesdireccion/'+this.Cliente.calle+'/'+this.Cliente.num)
 		     .then(res=>{
 			 this.listaClientes=res.data.clientes
@@ -526,10 +529,10 @@
             let text,
                 messaje;
             let direccion = this.Cliente.calle.concat(' ',this.Cliente.num)
-            ultvta = this.listaVentas[0]
+            ultvta = this.listaVentas[0] 
 
-                let fecha = ultvta.fecha;
-                let articulos = ultvta.art;
+                let fecha = ultvta.fecha || '';
+                let articulos = ultvta.art || '';
                 if (this.Cliente.sev){
                 text=
                 `Nos comunicamos de la empresa ROMITEX por una deuda que usted tiene con la firma. Usted fue subido al SEVEN hasta regularizar su cuenta. Puede hacer un plan de pagos. Consulte por Wapp. Una vez cancelado en 48hs se lo elimina del SEVEN. De no desmostrar interes nos vemos obligados a cobrar su pagare por via JUDICIAL. Atte. *Departamento de cobranzas de ROMITEX*`
@@ -538,9 +541,14 @@
                     `Nos comunicamos de la empresa ROMITEX por una deuda que usted tiene con la firma. En los proximos dias deberemos informar al SEVEN el atraso de su cuenta. Le proponemos un plan de pagos que podemos realizar por este medio.`
                 }
                 messaje = this.Cliente.nombre.concat(': ',text,' ',`(Por compra de ${articulos} realizada en '${direccion}' el dia ${dayjs.utc(fecha).format('DD-MM-YYYY')})`)
-                //console.log(messaje);
                 this.messajeWapp = messaje.replaceAll(' ','%20')
-
+                
+            },
+            clipWappVentas(){
+                let messajeVenta;
+                messajeVenta = `${this.Cliente.nombre.toUpperCase()} Hola Buenos dias! Nos comunicamos de ROMITEX para informarle que en estos dias esta en su zona nuestro visitador de clientes exclusivos. Si Usted desea que ${this.Cliente.sex=="F"?'la':'lo'} visitemos SIN COMPROMISO avisenos asi le comentamos todas las promociones y articulos nuevos que tenemos para ofrecerle. Desde ya, muchisimas gracias!`
+                this.ventaWapp = messajeVenta.replaceAll(' ','%20')
+                console.log(messajeVenta.replaceAll(' ','%20'))
             },
             clipDatos(idcliente){
                 let text = this.Cliente.nombre+'\n'+this.Cliente.dni+'\n'+this.Cliente.calle+' '+this.Cliente.num+'\n'+this.Cliente.barrio+'\n'+this.Cliente.wapp
@@ -570,7 +578,7 @@
                             timer: 3000,
                             })
 		    }else{
-                    this.clipWapp();//genero el message wapp para el cliente por si es necesario
+                    //this.clipWapp();//genero el message wapp para el cliente por si es necesario
 		    }
                     this.pedirPagadas(idcliente)
                     this.obtenerVentasCanceladas(idcliente)
