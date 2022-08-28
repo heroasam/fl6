@@ -139,7 +139,8 @@
         <button class="button is-secondary is-small"  @click="toggleSeguir()">SEGUIR</button>
         <button class="button is-primary is-small" @click="imprimirFicha(Cliente.dni)">IMPRIMIR</button>
         <button class="button is-primary is-small" @click="intimarCliente(Cliente.dni)">INTIM</button>
-        <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${messajeWapp}` class="button is-success is-small" target="blank" style="text-decoration: none;">INT</a>
+        <!-- <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${messajeWapp}` class="button is-success is-small" target="blank" style="text-decoration: none;">INT</a> -->
+        <button class="button is-danger is-small" @click="sendIntimacion(Cliente.dni, Cliente.wapp)">IntPDF</button>
         <button class="button is-success is-small" @click="clipDatos(Cliente.id)">DATOS</button>
         <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${Cliente.nombre}` class="button is-success is-small" target="blank" style="text-decoration: none;">WAPP</a>
         <button class="button is-success is-small" @click="hacerLlamada(Cliente.wapp||Cliente.tel)">CALL</button>
@@ -547,7 +548,7 @@
             },
             clipWappVentas(){
                 let messajeVenta;
-                messajeVenta = `${this.Cliente.nombre.toUpperCase()} Hola Buenos dias! Nos comunicamos de ROMITEX para informarle que en estos dias esta en su zona nuestro visitador de clientes exclusivos. Si Usted desea que ${this.Cliente.sex=="F"?'la':'lo'} visitemos SIN COMPROMISO avisenos asi le comentamos todas las promociones y articulos nuevos que tenemos para ofrecerle. Desde ya, muchisimas gracias!`
+                messajeVenta = `${this.Cliente.nombre.toUpperCase()} Hola Buenos dias! Nos comunicamos de ROMITEX para informarle que en estos dias esta en su zona nuestro visitador de clientes exclusivos. Si Usted desea que ${this.Cliente.sex=="F"?'la':'lo'} visitemos SIN COMPROMISO avisenos asi le comentamos todas las promociones y articulos nuevos que tenemos para ofrecerle. Desde ya, muchas gracias!`
                 this.ventaWapp = messajeVenta.replaceAll(' ','%20')
                 console.log(messajeVenta.replaceAll(' ','%20'))
             },
@@ -959,11 +960,25 @@
                 sendMsgVenta(wapp){
                 axios.get('/buscador/wapp/'+wapp+'/'+this.ventaWapp)
                 .then(res=>{
-                    console.log(res.data)
-                    bulmaToast.toast({message:'Whatsapp enviado', type:'is-success'})
+                    Swal.fire({
+                            title: 'WhatsApp!',
+                            text: 'mensaje enviado',
+                            icon: 'success',
+                            timer: 3000,
+                            })
                 }
                 )},
-                
+                sendIntimacion(dni, wapp){
+                    axios.get('/buscador/intimar/'+dni+'/'+wapp)
+                    .then(res=>{
+                        Swal.fire({
+                            title: 'WhatsApp!',
+                            text: 'intimacion enviada',
+                            icon: 'success',
+                            timer: 3000,
+                            })
+                    })
+                },
 		condonarVenta(id){
 		    axios.get('/ventas/condonar/'+id)
 			 .then(res=>{

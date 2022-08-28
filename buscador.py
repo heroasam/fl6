@@ -6,6 +6,10 @@ import re
 from .formularios import *
 from .con import get_con, log
 import requests
+import http.client
+import base64
+import urllib.parse
+import ssl
 
 buscador = Blueprint('buscador',__name__)
 
@@ -363,12 +367,28 @@ def buscar_generarplandepagos(idcliente):
     return 'ok'
 
 
-@buscador.route('/buscador/intimar', methods=['POST'])
-def buscador_intimar():
+# @buscador.route('/buscador/intimar', methods=['POST'])
+# def buscador_intimar():
+#     con = get_con()
+#     dni = json.loads(request.data.decode("UTF-8"))
+#     intimacion(con,dni)
+#     return send_file('/tmp/intimacion.pdf')
+@buscador.route('/buscador/intimar/<dni>/<wapp>')
+def buscador_intimar(dni, wapp):
     con = get_con()
-    dni = json.loads(request.data.decode("UTF-8"))
-    intimacion(con,dni)
-    return send_file('/tmp/intimacion.pdf')
+    intimacion(con, [dni])
+    ssl._create_default_https_context = ssl._create_unverified_context
+    conn = http.client.HTTPSConnection("api.ultramsg.com")
+    with open("/home/hero/intimacion.pdf", "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read())
+
+    img_bas64=urllib.parse.quote_plus(encoded_string)
+    payload = f"token=dr40pjod4ka6qmlf&to={wapp}&document="+ img_bas64 + "&filename=intimacion.pdf"
+    headers = { 'content-type': "application/x-www-form-urlencoded" }
+    conn.request("POST", "/instance15939/messages/document", payload, headers)
+    res = conn.getresponse()
+    data = res.read()
+    return data.decode("utf-8")
 
 
 @buscador.route('/buscador/libredeuda', methods=['POST'])

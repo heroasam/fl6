@@ -285,8 +285,9 @@ def intimacion(con,ldni):
     for dni in ldni:
         lpg+=str(dni)+','
     lpg = lpg[0:-1]+')'
+    print(lpg)
     listdni = pglflat(con,f"select dni from clientes where dni in {lpg} order by calle,num")
-
+    print(listdni)
     for dni in listdni:
         if (pdf.get_y()>250):
             pdf.add_page()
@@ -313,7 +314,7 @@ def intimacion(con,ldni):
         pdf.set_font_size(18)
         pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 155-297-472", 0, 1, 'L')
         pdf.set_font_size(12)
-    pdf.output("/tmp/intimacion.pdf")
+    pdf.output("/home/hero/intimacion.pdf")
 
 
 
