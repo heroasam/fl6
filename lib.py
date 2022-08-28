@@ -1,4 +1,9 @@
 from dateutil.relativedelta import relativedelta
+import http.client
+import base64
+import urllib.parse
+import ssl
+import os
 
 
 def pgdict0(con, sel):
@@ -357,3 +362,16 @@ def letras(num):
         num=millares[millar]+' '+centenas[centena]+' '+sueltos[dosdigitos]
     return(num.lstrip().rstrip().upper())
 
+def send_file_whatapp(file, wapp):
+    ssl._create_default_https_context = ssl._create_unverified_context
+    conn = http.client.HTTPSConnection("api.ultramsg.com")
+    with open(file, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read())
+
+    img_bas64=urllib.parse.quote_plus(encoded_string)
+    payload = f"token=dr40pjod4ka6qmlf&to=+549{wapp}&document="+ img_bas64 + f"&filename={os.path.split(file)[1]}"
+    headers = { 'content-type': "application/x-www-form-urlencoded" }
+    conn.request("POST", "/instance15939/messages/document", payload, headers)
+    res = conn.getresponse()
+    data = res.read()
+    return data.decode("utf-8")

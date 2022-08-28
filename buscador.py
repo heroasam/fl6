@@ -6,10 +6,7 @@ import re
 from .formularios import *
 from .con import get_con, log
 import requests
-import http.client
-import base64
-import urllib.parse
-import ssl
+
 
 buscador = Blueprint('buscador',__name__)
 
@@ -367,36 +364,24 @@ def buscar_generarplandepagos(idcliente):
     return 'ok'
 
 
-# @buscador.route('/buscador/intimar', methods=['POST'])
-# def buscador_intimar():
-#     con = get_con()
-#     dni = json.loads(request.data.decode("UTF-8"))
-#     intimacion(con,dni)
-#     return send_file('/tmp/intimacion.pdf')
 @buscador.route('/buscador/intimar/<dni>/<wapp>')
 def buscador_intimar(dni, wapp):
     con = get_con()
     intimacion(con, [dni])
-    ssl._create_default_https_context = ssl._create_unverified_context
-    conn = http.client.HTTPSConnection("api.ultramsg.com")
-    with open("/home/hero/intimacion.pdf", "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read())
-
-    img_bas64=urllib.parse.quote_plus(encoded_string)
-    payload = f"token=dr40pjod4ka6qmlf&to={wapp}&document="+ img_bas64 + "&filename=intimacion.pdf"
-    headers = { 'content-type': "application/x-www-form-urlencoded" }
-    conn.request("POST", "/instance15939/messages/document", payload, headers)
-    res = conn.getresponse()
-    data = res.read()
-    return data.decode("utf-8")
+    send_file_whatapp("/home/hero/intimacion.pdf", wapp)
+    return 'ok'
+    
 
 
 @buscador.route('/buscador/libredeuda', methods=['POST'])
 def buscador_libredeuda():
     con = get_con()
-    dni = json.loads(request.data.decode("UTF-8"))
+    d = json.loads(request.data.decode("UTF-8"))
+    dni = d['dni']
+    wapp = d['wapp']
     libredeuda(con,dni)
-    return send_file('/tmp/libredeuda.pdf')
+    send_file_whatapp('/tmp/libredeuda.pdf', wapp)
+    return 'ok'
 
 
 @buscador.route('/log')
@@ -450,6 +435,7 @@ def buscador_generarrbotransferencia():
     cuenta = d['cuenta']
     cobr = d['cobr']
     idcliente = d['idcliente']
+    wapp = d['wapp']
     rbo = pgonecolumn(con, f"select max(id) from pagos")+1
     ins = f"insert into pagos(idvta,fecha,imp,rec,rbo,cobr,idcliente) values({cuenta},'{fecha}',{ic},0,{rbo},{cobr},{idcliente})"
     cur = con.cursor()
@@ -458,7 +444,8 @@ def buscador_generarrbotransferencia():
     log(ins)
     recibotransferencia(con,fecha,cuenta,nc,ic,cobr,rbo,idcliente)
     con.close()
-    return send_file('/tmp/recibotransferencia.pdf')
+    send_file_whatapp('/tmp/recibotransferencia.pdf', wapp)
+    return 'ok'
 
 
 @buscador.route('/buscador/wapp/<wapp>/<msg>')
