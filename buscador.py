@@ -138,9 +138,15 @@ def buscar_guardarpmovto(idcliente,pmovto):
 @buscador.route('/buscador/imprimirficha' , methods = ['POST'])
 def buscar_imprimirficha():
     con = get_con()
-    dni = json.loads(request.data.decode("UTF-8"))
-    ficha(con,dni)
+    d = json.loads(request.data.decode("UTF-8"))
+    dni = d['dni']
+    wapp = d['whatsapp']
+    print(d)
+    ficha(con,[dni])
     con.close()
+    if wapp:
+        print("pasooooooooo")
+        send_file_whatapp('/tmp/ficha.pdf', wapp)
     return send_file('/tmp/ficha.pdf')
 
 
@@ -345,6 +351,31 @@ def buscar_obtenerlistazonas():
     zonas = cur.fetchall()
     con.close()
     return jsonify(zonas=zonas)
+
+
+@buscador.route('/buscador/obtenercobradores')
+def buscar_obtenercobradores():
+    con = get_con()
+    sql = f"select id from cobr where activo=1 and prom=0 and id>100 and id!=820 order by id"
+    cur = con.cursor()
+    cur.execute(sql)
+    result = cur.fetchall()
+    cobradores = []
+    for cobr in result:
+        cobradores.append(cobr[0])
+    con.close()
+    return jsonify(cobradores=cobradores)
+
+
+@buscador.route('/buscador/pedirwappcobrador/<cobr>')
+def buscar_pedirwappcobrador(cobr):
+    con = get_con()
+    sql = f"select telefono from cobr where id={cobr}"
+    cur = con.cursor()
+    cur.execute(sql)
+    wapp = cur.fetchone()[0]
+    con.close()
+    return jsonify(wapp=wapp)
 
 
 @buscador.route('/buscador/generarplandepagos/<int:idcliente>', methods=['POST'])

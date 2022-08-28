@@ -79,7 +79,7 @@
 </style>
 {% endblock %}
 {% block content %}
-<div x-data="main()" x-init="obtenerCalles();obtenerBarrios();obtenerZonas()" class="container">
+<div x-data="main()" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores()" class="container">
 
           <div class="grid-buscar ml-3 mr-3 mt-2">
               <input  placeholder="DNI o N° Cuenta" class="input" x-model="buscar1" @keyup.enter="buscarCliente" @focus="buscar='';verCard=false" type="number" pattern="[0-9]*" inputmode="numeric">
@@ -137,7 +137,7 @@
         <button class="button is-secondary is-small"  @click="toggleGestion()">GESTION</button>
         <button class="button is-secondary is-small"  @click="toggleMudo()">MUDO</button>
         <button class="button is-secondary is-small"  @click="toggleSeguir()">SEGUIR</button>
-        <button class="button is-primary is-small" @click="imprimirFicha(Cliente.dni)">IMPRIMIR</button>
+        <button class="button is-primary is-small" @click="dialogoImprimirFicha()">IMPRIMIR</button>
         <button class="button is-primary is-small" @click="intimarCliente(Cliente.dni)">INTIM</button>
         <!-- <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${messajeWapp}` class="button is-success is-small" target="blank" style="text-decoration: none;">INT</a> -->
         <button class="button is-danger is-small" @click="sendIntimacion(Cliente.dni, Cliente.wapp)">IntPDF</button>
@@ -423,6 +423,18 @@
             <button class="button is-primary" @click="enviarWhatsapp">Enviar</button>
         </div>
     </div>
+    <div x-bind:class="verModalImprimirFicha?'modal-container':''">
+        <div class=" micard modal" x-show="verModalImprimirFicha">
+            <button class="btn-close" @click="verModalImprimirFicha=false"><i class="fa fa-times" aria-hidden="true"></i></button>
+            <h1 class="title is-3">Imprimir Ficha</h1>
+            <button class="button is-primary is-small" @click="mostrarFichaPorPantalla=true;imprimirFicha()">Imprimir en pantalla</button>
+            <div class="buttons m-3">
+            <template x-for="cobr in listaCobradores">
+                <button class="button is-success is-small" x-text="cobr" @click="cobrEnviar=cobr;imprimirFicha()"></button>
+            </template>
+            </div>
+        </div>
+    </div>
     <div x-bind:class="verModalAsunto?'modal-container':''">
         <div class=" micard modal" x-show="verModalAsunto">
             <button class="btn-close" @click="verModalAsunto=false"><i class="fa fa-times" aria-hidden="true"></i></button>
@@ -511,6 +523,11 @@
             verModalRecibo:false,
             verModalAsunto:false,
             verModalMsgWhatsapp:false,
+            verModalImprimirFicha:false,
+            mostrarFichaPorPantalla:false,
+            cobrEnviar:'',
+            listaCobradores:[],
+            wappCobrador:'',
 
             buscarCliente(){
 		        buscar = this.buscar1 || this.buscar
@@ -707,19 +724,39 @@
                     this.Cliente.seguir = !this.Cliente.seguir
                 })
             },
-            imprimirFicha(dni){
-            let ids = [];
-            ids.push(dni);
-            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-            axios({
-                method:"POST",
-                url:"/buscador/imprimirficha",
-                responseType: "blob",
-                data: ids,
-            }).then((res)=>{
-                let url = window.URL.createObjectURL(res.data);
-                window.open(url);
+            dialogoImprimirFicha(){
+                this.verModalImprimirFicha = true
+            },
+            imprimirFicha(){
+            if (this.cobrEnviar) {
+                axios.get('/buscador/pedirwappcobrador/'+this.cobrEnviar)
+                .then(res=>{
+                    this.wappCobrador = res.data.wapp
+                    console.log(this.wappCobrador)
+                
+             
+                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+                    axios({
+                        method:"POST",
+                        url:"/buscador/imprimirficha",
+                        responseType: "blob",
+                        data: {dni:this.Cliente.dni, whatsapp:this.wappCobrador},
+                    }).then((res)=>{
+                        verModalImprimirFicha = false
+                        if (this.mostrarFichaPorPantalla) {
+                            let url = window.URL.createObjectURL(res.data);
+                            window.open(url);
+                        }
+                        this.mostrarFichaPorPantalla = false
+                        Swal.fire({
+                                    title: 'WhatsApp!',
+                                    text: 'Ficha enviada al cobrador',
+                                    icon: 'success',
+                                    timer: 3000,
+                                    }); 
+                })
             })
+            }
             },
             intimarCliente(dni){
             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
@@ -885,6 +922,13 @@
                         this.Cliente.zona=e.target.innerHTML
                         $suggestions.innerHTML=''
                     })
+                    })
+                },
+                obtenerCobradores(){
+                    axios.get('/buscador/obtenercobradores')
+                    .then(res=>{
+                        console.log(res.data.cobradores)
+                        this.listaCobradores = res.data.cobradores
                     })
                 },
                 agregarPlanPago(){
