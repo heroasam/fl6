@@ -1,5 +1,5 @@
 from flask import Flask, json
-from flask import render_template,url_for,request,redirect, make_response, session, flash,g
+from flask import render_template, url_for, request, redirect, make_response, session, flash, g
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from flask_bcrypt import Bcrypt
@@ -22,14 +22,10 @@ app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 CORS(app)
 
-
-
-
 csrf = CSRFProtect(app)
 login = LoginManager(app)
 login.login_view = "login"
 bcrypt = Bcrypt(app)
-
 
 app.register_blueprint(ventas)
 app.register_blueprint(stock)
@@ -38,6 +34,7 @@ app.register_blueprint(buscador)
 app.register_blueprint(fichas)
 app.register_blueprint(utilidades)
 
+
 class User(UserMixin):
     def __init__(self, id, name, email, password, auth=0):
         self.id = id
@@ -45,10 +42,13 @@ class User(UserMixin):
         self.email = email
         self.password = password
         self.auth = auth
+
     def set_password(self, password):
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password, password)
+
     def __repr__(self):
         return '<User {}>'.format(self.email)
 
@@ -57,21 +57,20 @@ class User(UserMixin):
 def load_user(id):
     try:
         log = pgdict(con, f"select id,name,email,password,auth from users where id={id}")[0]
-        user = User(log['id'],log['name'], log['email'],log['password'],log['auth'])
-        print('load_user',user.name)
+        user = User(log['id'], log['name'], log['email'], log['password'], log['auth'])
+        print('load_user', user.name)
         return user
     except:
         return None
 
 
-@app.route('/login', methods=['GET','POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
         sel = f"select id,name,email,password,auth from users where email='{email}'"
-        logs = pgdict(con,sel)
+        logs = pgdict(con, sel)
         if logs:
             logs = logs[0]
         errormail = "Ese email no existe en la base de datos. Registrese"
@@ -79,14 +78,14 @@ def login():
         errorauth = "Ese email no esta autorizado a ingresar"
         if not logs:
             return render_template('login_form.html', errormail=errormail)
-        user = User(logs['id'],logs['name'], 
-                logs['email'],logs['password'],logs['auth'])
+        user = User(logs['id'], logs['name'],
+                    logs['email'], logs['password'], logs['auth'])
         if not user.check_password(password):
             return render_template('login_form.html', errorpassword=errorpassword)
         if not user.auth:
-            return render_template('login_form.html',errorauth=errorauth)
-        if user is not None and user.check_password(password) and user.auth :
-            login_user(user,remember=True)
+            return render_template('login_form.html', errorauth=errorauth)
+        if user is not None and user.check_password(password) and user.auth:
+            login_user(user, remember=True)
             log(sel)
             next_page = request.args.get('next')
             if not next_page or url_parse(next_page).netloc != '':
@@ -101,7 +100,7 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/signup' , methods=['GET','POST'])
+@app.route('/signup', methods=['GET', 'POST'])
 @login_required
 def signup():
     if request.method == 'POST':
@@ -109,14 +108,14 @@ def signup():
         email = request.form['email']
         password = request.form['password']
         error = None
-        
+
         if not name:
             error = "Nombre es requerido"
         elif not password:
             error = "Password es requerido"
         elif not email:
             error = "Email es requerido"
-        elif pgonecolumn(con,f"select email from users where email='{email}'"):
+        elif pgonecolumn(con, f"select email from users where email='{email}'"):
             error = f"El email {email} ya esta en uso. Haga Login"
 
         if error is None:
@@ -128,20 +127,20 @@ def signup():
             except mysql.connector.Error as e:
                 con.rollback()
                 error = e.msg
-                return make_response(error,400)
+                return make_response(error, 400)
             else:
                 log(ins)
                 con.commit()
                 cur.close()
                 flash("Registro correctamente ingresado")
                 return redirect(url_for('login'))
-        flash(error,category='error')    
+        flash(error, category='error')
     return render_template('signup.html')
-    
+
 
 @app.template_filter()
 def cur(monto):
-    if monto==None:
+    if monto == None:
         return None
     else:
         return f"${int(monto)}"

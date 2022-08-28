@@ -5,6 +5,7 @@ import simplejson as json
 import re
 from .formularios import *
 from .con import get_con, log
+import requests
 
 buscador = Blueprint('buscador',__name__)
 
@@ -440,6 +441,16 @@ def buscador_generarrbotransferencia():
     return send_file('/tmp/recibotransferencia.pdf')
 
 
-    
+@buscador.route('/buscador/wapp/<wapp>/<msg>')
+def buscador_wapp(wapp, msg):
+    url = "https://api.ultramsg.com/instance15939/messages/chat"
+
+    payload = f"token=dr40pjod4ka6qmlf&to=+549{wapp}&body={msg}&priority=1&referenceId="
+    print(payload)
+    headers = {'content-type': 'application/x-www-form-urlencoded'}
+
+    response = requests.request("POST", url, data=payload, headers=headers)
+
+    return response.text
 
 
