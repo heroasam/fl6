@@ -237,103 +237,103 @@ def desnull(cadena):
 #     cur.close()
 
 
-def venta_trigger_condonada(con,idvta):
-    cur = con.cursor()
-    condonada = pgonecolumn(con, f"select condonada from ventas where id={idvta}")
-    pp = pgonecolumn(con, f"select pp from ventas where id={idvta}")
-    idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
-    if condonada==1:
-        upd1 = f"update ventas set saldo=0,pmovto=NULL where id={idvta}"
-    else:
-        fpmovto = pmovto(con, idvta)
-        if pp==0:
-            if fpmovto is None:
-                upd1 = f"update ventas set saldo=(ic*cc)-ent-pagado,pmovto=NULL where id={idvta}"
-            else:
-                upd1 = f"update ventas set saldo=(ic*cc)-ent-pagado,pmovto='fpmovto' where id={idvta}"
-        else:
-            if fpmovto is None:
-                upd1 = f"update ventas set saldo=(pic*pcc)-ppagado,pmovto=NULL where id={idvta}"
-            else:
-                upd1 = f"update ventas set saldo=(pic*pcc)-ppagado,pmovto='fpmovto' where id={idvta}"
+# def venta_trigger_condonada(con,idvta):
+#     cur = con.cursor()
+#     condonada = pgonecolumn(con, f"select condonada from ventas where id={idvta}")
+#     pp = pgonecolumn(con, f"select pp from ventas where id={idvta}")
+#     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
+#     if condonada==1:
+#         upd1 = f"update ventas set saldo=0,pmovto=NULL where id={idvta}"
+#     else:
+#         fpmovto = pmovto(con, idvta)
+#         if pp==0:
+#             if fpmovto is None:
+#                 upd1 = f"update ventas set saldo=(ic*cc)-ent-pagado,pmovto=NULL where id={idvta}"
+#             else:
+#                 upd1 = f"update ventas set saldo=(ic*cc)-ent-pagado,pmovto='fpmovto' where id={idvta}"
+#         else:
+#             if fpmovto is None:
+#                 upd1 = f"update ventas set saldo=(pic*pcc)-ppagado,pmovto=NULL where id={idvta}"
+#             else:
+#                 upd1 = f"update ventas set saldo=(pic*pcc)-ppagado,pmovto='fpmovto' where id={idvta}"
 
     
-    upd2 = f"update clientes set deuda=COALESCE((select sum(saldo) from ventas where idcliente={idcliente}),0) where id={idcliente}"
-    upd3 = f"update clientes set pmovto=COALESCE((select min(pmovto) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
-    upd4 = f"update clientes set cuota=COALESCE((select sum(ic) from ventas where idcliente={idcliente} and saldo>0),0) where id={idcliente}"
-    upd5 = f"delete from cuotas where idvta={idvta}"
-    cur.execute(upd1)
-    cur.execute(upd2)
-    cur.execute(upd3)
-    cur.execute(upd4)
-    cur.execute(upd5)
-    con.commit()
-    cur.close()
+#     upd2 = f"update clientes set deuda=COALESCE((select sum(saldo) from ventas where idcliente={idcliente}),0) where id={idcliente}"
+#     upd3 = f"update clientes set pmovto=COALESCE((select min(pmovto) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
+#     upd4 = f"update clientes set cuota=COALESCE((select sum(ic) from ventas where idcliente={idcliente} and saldo>0),0) where id={idcliente}"
+#     upd5 = f"delete from cuotas where idvta={idvta}"
+#     cur.execute(upd1)
+#     cur.execute(upd2)
+#     cur.execute(upd3)
+#     cur.execute(upd4)
+#     cur.execute(upd5)
+#     con.commit()
+#     cur.close()
 
 
-def venta_trigger_devolucion(con,idvta):
-    cur = con.cursor()
-    idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
-    upd1 = f"update ventas set saldo=0 where id={idvta}"
-    upd2 = f"update clientes set comprado=COALESCE((select sum(comprado) from ventas where idcliente={idcliente}),0) where id={idcliente}"
-    upd3 = f"update clientes set deuda=COALESCE((select sum(saldo) from ventas where idcliente={idcliente}),0) where id={idcliente}"
-    upd4 = f"update clientes set pmovto=COALESCE((select min(pmovto) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
-    upd5 = f"update clientes set ultcompra=COALESCE((select max(fecha) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
-    upd6 = f"update clientes set cuota=COALESCE((select sum(ic) from ventas where idcliente={idcliente} and saldo>0),0) where id={idcliente}"
-    upd7 = f"update detvta set devuelta=1 where idvta={idvta}"
-    del1 = f"delete from cuotas where idvta={idvta}"
-    cur.execute(upd1)
-    cur.execute(upd2)
-    cur.execute(upd3)
-    cur.execute(upd4)
-    cur.execute(upd5)
-    cur.execute(upd6)
-    cur.execute(upd7)
-    cur.execute(del1)
-    con.commit()
-    cur.close()
+# def venta_trigger_devolucion(con,idvta):
+#     cur = con.cursor()
+#     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
+#     upd1 = f"update ventas set saldo=0 where id={idvta}"
+#     upd2 = f"update clientes set comprado=COALESCE((select sum(comprado) from ventas where idcliente={idcliente}),0) where id={idcliente}"
+#     upd3 = f"update clientes set deuda=COALESCE((select sum(saldo) from ventas where idcliente={idcliente}),0) where id={idcliente}"
+#     upd4 = f"update clientes set pmovto=COALESCE((select min(pmovto) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
+#     upd5 = f"update clientes set ultcompra=COALESCE((select max(fecha) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
+#     upd6 = f"update clientes set cuota=COALESCE((select sum(ic) from ventas where idcliente={idcliente} and saldo>0),0) where id={idcliente}"
+#     upd7 = f"update detvta set devuelta=1 where idvta={idvta}"
+#     del1 = f"delete from cuotas where idvta={idvta}"
+#     cur.execute(upd1)
+#     cur.execute(upd2)
+#     cur.execute(upd3)
+#     cur.execute(upd4)
+#     cur.execute(upd5)
+#     cur.execute(upd6)
+#     cur.execute(upd7)
+#     cur.execute(del1)
+#     con.commit()
+#     cur.close()
 
 
-def venta_trigger_anuladevolucion(con,idvta):
-    cur = con.cursor()
-    pp = pgonecolumn(con, f"select pp from ventas where id={idvta}")
-    idcliente =  pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
-    del1 = f"delete from devoluciones where idvta={idvta}"
-    del2 = f"delete from comentarios where comentario like '%DEVOLUCION%{idvta}%'"
-    upd1 = f"update ventas set devuelta=0 where id={idvta}"
-    upd2 = f"update ventas set comprado=(ic*cc) where id={idvta}"
-    upd3 = f"update clientes set comprado=COALESCE((select sum(comprado) from ventas where idcliente={idcliente}),0) where id={idcliente}"
-    if pp==0:
-        upd4 = f"update ventas set saldo=(ic*cc)-ent-pagado where id={idvta}"
-    else:
-        upd4 = f"update ventas set saldo=(pic*pcc)-ppagado where id={idvta}"
-    upd5 = f"update clientes set deuda=COALESCE((select sum(saldo) from ventas where idcliente={idcliente}),0) where id={idcliente}"
-    fpmovto = pmovto(con, idvta)
-    if fpmovto is None:
-        upd6 = f"update ventas set pmovto=NULL  where id={idvta}"
-    else:
-        upd6 = f"update ventas set pmovto='fpmovto'  where id={idvta}"
+# def venta_trigger_anuladevolucion(con,idvta):
+#     cur = con.cursor()
+#     pp = pgonecolumn(con, f"select pp from ventas where id={idvta}")
+#     idcliente =  pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
+#     del1 = f"delete from devoluciones where idvta={idvta}"
+#     del2 = f"delete from comentarios where comentario like '%DEVOLUCION%{idvta}%'"
+#     upd1 = f"update ventas set devuelta=0 where id={idvta}"
+#     upd2 = f"update ventas set comprado=(ic*cc) where id={idvta}"
+#     upd3 = f"update clientes set comprado=COALESCE((select sum(comprado) from ventas where idcliente={idcliente}),0) where id={idcliente}"
+#     if pp==0:
+#         upd4 = f"update ventas set saldo=(ic*cc)-ent-pagado where id={idvta}"
+#     else:
+#         upd4 = f"update ventas set saldo=(pic*pcc)-ppagado where id={idvta}"
+#     upd5 = f"update clientes set deuda=COALESCE((select sum(saldo) from ventas where idcliente={idcliente}),0) where id={idcliente}"
+#     fpmovto = pmovto(con, idvta)
+#     if fpmovto is None:
+#         upd6 = f"update ventas set pmovto=NULL  where id={idvta}"
+#     else:
+#         upd6 = f"update ventas set pmovto='fpmovto'  where id={idvta}"
 
-    upd7 = f"update clientes set pmovto=COALESCE((select min(pmovto) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
-    upd8 = f"update ventas set ultpago=fecha where id={idvta}"
-    upd9 = f"update clientes set ultcompra=COALESCE((select max(fecha) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
-    upd10 = f"update clientes set cuota=COALESCE((select sum(ic) from ventas where idcliente={idcliente} and saldo>0),0) where id={idcliente}"
-    upd11 = f"update detvta set devuelta=0 where idvta={idvta}"
-    cur.execute(del1)
-    cur.execute(del2)
-    cur.execute(upd1)
-    cur.execute(upd2)
-    cur.execute(upd3)
-    cur.execute(upd4)
-    cur.execute(upd5)
-    cur.execute(upd6)
-    cur.execute(upd7)
-    cur.execute(upd8)
-    cur.execute(upd9)
-    cur.execute(upd10)
-    cur.execute(upd11)
-    con.commit()
-    cur.close()
+#     upd7 = f"update clientes set pmovto=COALESCE((select min(pmovto) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
+#     upd8 = f"update ventas set ultpago=fecha where id={idvta}"
+#     upd9 = f"update clientes set ultcompra=COALESCE((select max(fecha) from ventas where idcliente={idcliente} and devuelta=0),NULL) where id={idcliente}"
+#     upd10 = f"update clientes set cuota=COALESCE((select sum(ic) from ventas where idcliente={idcliente} and saldo>0),0) where id={idcliente}"
+#     upd11 = f"update detvta set devuelta=0 where idvta={idvta}"
+#     cur.execute(del1)
+#     cur.execute(del2)
+#     cur.execute(upd1)
+#     cur.execute(upd2)
+#     cur.execute(upd3)
+#     cur.execute(upd4)
+#     cur.execute(upd5)
+#     cur.execute(upd6)
+#     cur.execute(upd7)
+#     cur.execute(upd8)
+#     cur.execute(upd9)
+#     cur.execute(upd10)
+#     cur.execute(upd11)
+#     con.commit()
+#     cur.close()
 
 def letras(num):
     millares = {'0':'','1':'mil','2':'dos mil','3':'tres mil','4':'cuatro mil','5':'cinco mil','6':'seis mil','7':'siete mil','8':'ocho mil','9':'nueve mil'}

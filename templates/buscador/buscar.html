@@ -142,7 +142,8 @@
         <!-- <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${messajeWapp}` class="button is-success is-small" target="blank" style="text-decoration: none;">INT</a> -->
         <button class="button is-danger is-small" @click="sendIntimacion(Cliente.dni, Cliente.wapp)">IntPDF</button>
         <button class="button is-success is-small" @click="clipDatos(Cliente.id)">DATOS</button>
-        <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${Cliente.nombre}` class="button is-success is-small" target="blank" style="text-decoration: none;">WAPP</a>
+        <!-- <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${Cliente.nombre}` class="button is-success is-small" target="blank" style="text-decoration: none;">WAPP</a> -->
+        <button class="button is-danger is-small" @click="sendMsgGeneral()">WHAPP</button>
         <button class="button is-success is-small" @click="hacerLlamada(Cliente.wapp||Cliente.tel)">CALL</button>
         <button class="button is-info is-small" @click="fecharPmovto(Cliente.id)">FECHAR</button>
         <button class="button is-info is-small" @click="editarCliente(Cliente.id)">EDITAR</button>
@@ -409,6 +410,19 @@
             <button class="button is-primary" @click="guardarRecibo">Generar</button>
         </div>
     </div>
+    <div x-bind:class="verModalMsgWhatsapp?'modal-container':''">
+        <div class=" micard modal" x-show="verModalMsgWhatsapp">
+            <button class="btn-close" @click="verModalMsgWhatsapp=false"><i class="fa fa-times" aria-hidden="true"></i></button>
+            <h1 class="title is-3">WhatsApp</h1>
+            <label for="nombre" class="label">Nombre</label>
+            <input type="text" class="input mb-3" x-model="Cliente.nombre" id="nombre" autocomplete="off" readonly>
+            <label for="whatsapp" class="label">WhatsApp</label>
+            <input type="text" class="input mb-3" x-model="Cliente.wapp" id="whatsapp" autocomplete="off" readonly>
+            <label for="msg" class="label">Mensaje</label>
+            <textarea x-model="msgWhatsapp" id="msg" autocomplete="off" rows="10" cols="30"></textarea>
+            <button class="button is-primary" @click="enviarWhatsapp">Enviar</button>
+        </div>
+    </div>
     <div x-bind:class="verModalAsunto?'modal-container':''">
         <div class=" micard modal" x-show="verModalAsunto">
             <button class="btn-close" @click="verModalAsunto=false"><i class="fa fa-times" aria-hidden="true"></i></button>
@@ -483,6 +497,7 @@
 	        buscar1:'',
             verCard:false,
             messajeWapp:'',
+            msgWhatsapp:'',
             ventaWapp:'',
             Cliente:{},
             Venta:{fecha:dayjs.utc().format('YYYY-MM-DD'),p:'Mensual'},
@@ -495,6 +510,8 @@
             verModalPlanPago:false,
             verModalRecibo:false,
             verModalAsunto:false,
+            verModalMsgWhatsapp:false,
+
             buscarCliente(){
 		        buscar = this.buscar1 || this.buscar
                 //console.log(buscar)
@@ -994,6 +1011,21 @@
                             timer: 3000,
                             })
                     })
+                },
+                sendMsgGeneral(){
+                    this.verModalMsgWhatsapp = true
+                },
+                enviarWhatsapp(){
+                    this.verModalMsgWhatsapp = false
+                    axios.get('/buscador/wapp/'+this.Cliente.wapp+'/'+this.msgWhatsapp)
+                    .then(res=>{
+                            Swal.fire({
+                            title: 'WhatsApp!',
+                            text: 'whatsapp enviado',
+                            icon: 'success',
+                            timer: 3000,
+                            })
+                        })
                 },
 		condonarVenta(id){
 		    axios.get('/ventas/condonar/'+id)
