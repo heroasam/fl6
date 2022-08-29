@@ -584,7 +584,7 @@
                 let messajeVenta;
                 messajeVenta = `${this.Cliente.nombre.toUpperCase()} Hola Buenos dias! Nos comunicamos de ROMITEX para informarle que en estos dias esta en su zona nuestro visitador de clientes exclusivos. Si Usted desea que ${this.Cliente.sex=="F"?'la':'lo'} visitemos SIN COMPROMISO avisenos asi le comentamos todas las promociones y articulos nuevos que tenemos para ofrecerle. Desde ya, muchas gracias!`
                 this.ventaWapp = messajeVenta.replaceAll(' ','%20')
-                console.log(messajeVenta.replaceAll(' ','%20'))
+                // console.log(messajeVenta.replaceAll(' ','%20'))
             },
             clipDatos(idcliente){
                 let text = this.Cliente.nombre+'\n'+this.Cliente.dni+'\n'+this.Cliente.calle+' '+this.Cliente.num+'\n'+this.Cliente.barrio+'\n'+this.Cliente.wapp
@@ -604,7 +604,7 @@
                         row.p=1?'MEN':3?'SEM':'QUI'
                     })
                     this.listaVentas = arrayVentas
-                    console.log(this.listaVentas)
+                    // console.log(this.listaVentas)
                     this.listaCuotas = this.hacerCuotas()
                     if(this.listaVentas.length===0) {
                         Swal.fire({
@@ -712,7 +712,7 @@
             toggleMudo(){
                 axios.get('/buscador/togglemudo/'+this.Cliente.dni)
                 .then(res=>{
-                    console.log(res.data.msg);
+                    // console.log(res.data.msg);
                     bulmaToast.toast({message:res.data.msg,type:"is-success"})
                     this.Cliente.mudo = !this.Cliente.mudo
                 })
@@ -732,8 +732,6 @@
                 axios.get('/buscador/pedirwappcobrador/'+this.cobrEnviar)
                 .then(res=>{
                     this.wappCobrador = res.data.wapp
-                    console.log(this.wappCobrador)
-                
              
                     axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
                     axios({
@@ -743,19 +741,30 @@
                         data: {dni:this.Cliente.dni, whatsapp:this.wappCobrador},
                     }).then((res)=>{
                         verModalImprimirFicha = false
-                        if (this.mostrarFichaPorPantalla) {
-                            let url = window.URL.createObjectURL(res.data);
-                            window.open(url);
-                        }
-                        this.mostrarFichaPorPantalla = false
                         Swal.fire({
-                                    title: 'WhatsApp!',
-                                    text: 'Ficha enviada al cobrador',
-                                    icon: 'success',
-                                    timer: 3000,
-                                    }); 
+                                        title: 'WhatsApp!',
+                                        text: 'Ficha enviada al cobrador',
+                                        icon: 'success',
+                                        timer: 3000,
+                                        }); 
                 })
             })
+            }else{
+                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+                        axios({
+                            method:"POST",
+                            url:"/buscador/imprimirficha",
+                            responseType: "blob",
+                            data: {dni:this.Cliente.dni, whatsapp:this.wappCobrador},
+                        }).then((res)=>{
+                            verModalImprimirFicha = false
+                            if (this.mostrarFichaPorPantalla) {
+                                let url = window.URL.createObjectURL(res.data);
+                                window.open(url);
+                            }
+                            this.mostrarFichaPorPantalla = false
+                            
+                })
             }
             },
             intimarCliente(dni){
@@ -927,7 +936,7 @@
                 obtenerCobradores(){
                     axios.get('/buscador/obtenercobradores')
                     .then(res=>{
-                        console.log(res.data.cobradores)
+                        // console.log(res.data.cobradores)
                         this.listaCobradores = res.data.cobradores
                     })
                 },
@@ -956,7 +965,7 @@
                 },
                 validarAsunto(){
                     if(this.Asunto.fecha!=''&&this.Asunto.tipo!=''&&this.Asunto.vdor!=''&&this.Asunto.asunto!=''){
-                        console.log("validado")
+                        // console.log("validado")
                         this.guardarAsunto()
                     }else{
                         bulmaToast.toast({message:"Complete datos necesarios",type:"is-danger"})
@@ -965,7 +974,7 @@
                 guardarAsunto(){
                     this.Asunto.idcliente = this.Cliente.id
                     this.verModalAsunto = false
-                    console.log(this.Asunto)
+                    // console.log(this.Asunto)
                     axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
                     axios({
                     method:'POST',
@@ -1006,7 +1015,7 @@
                     this.Recibo.idcliente = this.Cliente.id
                     this.Recibo.wapp = this.Cliente.wapp
                     this.verModalRecibo = false
-                    console.log(this.Recibo)
+                    // console.log(this.Recibo)
                     axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
                     axios({
                     method:'POST',

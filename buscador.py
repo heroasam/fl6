@@ -141,11 +141,9 @@ def buscar_imprimirficha():
     d = json.loads(request.data.decode("UTF-8"))
     dni = d['dni']
     wapp = d['whatsapp']
-    print(d)
     ficha(con,[dni])
     con.close()
     if wapp:
-        print("pasooooooooo")
         send_file_whatapp('/tmp/ficha.pdf', wapp)
     return send_file('/tmp/ficha.pdf')
 
@@ -484,7 +482,6 @@ def buscador_wapp(wapp, msg):
     url = "https://api.ultramsg.com/instance15939/messages/chat"
 
     payload = f"token=dr40pjod4ka6qmlf&to=+549{wapp}&body={msg}&priority=1&referenceId="
-    print(payload)
     headers = {'content-type': 'application/x-www-form-urlencoded'}
 
     response = requests.request("POST", url, data=payload, headers=headers)
