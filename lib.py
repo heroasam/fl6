@@ -4,7 +4,10 @@ import base64
 import urllib.parse
 import ssl
 import os
+import requests
 
+# Constante de uso de sistema whatsapp-API
+WAPI = False
 
 def pgdict0(con, sel):
     """Funcion que entrega una lista de valores en formato lista plana
@@ -362,7 +365,7 @@ def letras(num):
         num=millares[millar]+' '+centenas[centena]+' '+sueltos[dosdigitos]
     return(num.lstrip().rstrip().upper())
 
-def send_file_whatapp(file, wapp):
+def send_file_whatsapp(file, wapp):
     ssl._create_default_https_context = ssl._create_unverified_context
     conn = http.client.HTTPSConnection("api.ultramsg.com")
     with open(file, "rb") as image_file:
@@ -375,3 +378,14 @@ def send_file_whatapp(file, wapp):
     res = conn.getresponse()
     data = res.read()
     return data.decode("utf-8")
+
+def send_msg_whatsapp(wapp, msg):
+    url = "https://api.ultramsg.com/instance15939/messages/chat"
+
+    payload = f"token=dr40pjod4ka6qmlf&to=+549{wapp}&body={msg}&priority=1&referenceId="
+    headers = {'content-type': 'application/x-www-form-urlencoded'}
+
+    response = requests.request("POST", url, data=payload, headers=headers)
+
+    return response.text
+

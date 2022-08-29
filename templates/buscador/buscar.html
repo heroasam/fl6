@@ -138,8 +138,9 @@
         <button class="button is-secondary is-small"  @click="toggleMudo()">MUDO</button>
         <button class="button is-secondary is-small"  @click="toggleSeguir()">SEGUIR</button>
         <button class="button is-primary is-small" @click="dialogoImprimirFicha()">IMPRIMIR</button>
-        <button class="button is-primary is-small" @click="intimarCliente(Cliente.dni)">INTIM</button>
-        <!-- <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${messajeWapp}` class="button is-success is-small" target="blank" style="text-decoration: none;">INT</a> -->
+        <!-- <button class="button is-primary is-small" @click="intimarCliente(Cliente.dni)">INTIM</button> -->
+        <!-- <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${intimacionWhatsapp}` class="button is-success is-small" target="blank" style="text-decoration: none;">INT</a> -->
+        <button class="button is-danger is-small" @click="sendIntWhatsapp()">INTWhat</button>
         <button class="button is-danger is-small" @click="sendIntimacion(Cliente.dni, Cliente.wapp)">IntPDF</button>
         <button class="button is-success is-small" @click="clipDatos(Cliente.id)">DATOS</button>
         <!-- <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${Cliente.nombre}` class="button is-success is-small" target="blank" style="text-decoration: none;">WAPP</a> -->
@@ -508,7 +509,7 @@
             buscar:'',
 	        buscar1:'',
             verCard:false,
-            messajeWapp:'',
+            intimacionWhatsapp:'',
             msgWhatsapp:'',
             ventaWapp:'',
             Cliente:{},
@@ -561,11 +562,11 @@
 			 this.listaClientes=res.data.clientes
 		     })
             },
-            clipWapp(){
-            let text,
-                messaje;
-            let direccion = this.Cliente.calle.concat(' ',this.Cliente.num)
-            ultvta = this.listaVentas[0] 
+            clipWappIntimacion(){
+                let text,
+                    messaje;
+                let direccion = this.Cliente.calle.concat(' ',this.Cliente.num)
+                ultvta = this.listaVentas[0] 
 
                 let fecha = ultvta.fecha || '';
                 let articulos = ultvta.art || '';
@@ -577,7 +578,7 @@
                     `Nos comunicamos de la empresa ROMITEX por una deuda que usted tiene con la firma. En los proximos dias deberemos informar al SEVEN el atraso de su cuenta. Le proponemos un plan de pagos que podemos realizar por este medio.`
                 }
                 messaje = this.Cliente.nombre.concat(': ',text,' ',`(Por compra de ${articulos} realizada en '${direccion}' el dia ${dayjs.utc(fecha).format('DD-MM-YYYY')})`)
-                this.messajeWapp = messaje.replaceAll(' ','%20')
+                this.intimacionWhatsapp = messaje.replaceAll(' ','%20')
                 
             },
             clipWappVentas(){
@@ -741,12 +742,22 @@
                         data: {dni:this.Cliente.dni, whatsapp:this.wappCobrador},
                     }).then((res)=>{
                         verModalImprimirFicha = false
-                        Swal.fire({
-                                        title: 'WhatsApp!',
-                                        text: 'Ficha enviada al cobrador',
-                                        icon: 'success',
-                                        timer: 3000,
-                                        }); 
+                        if (res.data=='ok'){
+                            Swal.fire({
+                                            title: 'WhatsApp!',
+                                            text: 'Ficha enviada al cobrador',
+                                            icon: 'success',
+                                            timer: 3000,
+                                            }); 
+                                        }else{
+                            Swal.fire({ 
+                                            title: 'ERROR!',
+                                            text: 'envios desactivados',
+                                            icon: 'error',
+                                            timer: 3000,            
+                            });
+                                        }
+                        this.cobrEnviar = ''
                 })
             })
             }else{
@@ -996,17 +1007,20 @@
 		            axios({
                     method: "POST",
                     url: "/buscador/libredeuda",
-                    // responseType: "blob",
+                    responseType: "blob",
                     data: {dni:dni, wapp:this.Cliente.wapp},
                 }).then((res) => {
-                    // let url = window.URL.createObjectURL(res.data);
-                    // window.open(url);
-                    Swal.fire({
+                    if (res.data=='ok'){
+                        Swal.fire({
                             title: 'WhatsApp!',
                             text: 'Libre deuda enviado',
                             icon: 'success',
                             timer: 3000,
                             }); 
+                    }else{
+                        let url = window.URL.createObjectURL(res.data);
+                        window.open(url);
+                    }
                 })},
                 emitirRbo(){
                     this.verModalRecibo = true;
@@ -1021,24 +1035,27 @@
                     method:'POST',
                         url:'/buscador/generarrbotransferencia',
                         data:this.Recibo,
-                        // responseType: "blob",
+                        responseType: "blob",
                         })
                         .then(res=>{
-                            Swal.fire({
-                            title: 'WhatsApp!',
-                            text: 'Recibo enviado',
-                            icon: 'success',
-                            timer: 3000,
-                            })
-                        // let url = window.URL.createObjectURL(res.data);
-                        // window.open(url);
-                        this.Recibo = {fecha:dayjs.utc().format('YYYY-MM-DD')}
+                            if(res.data=='ok'){
+                                Swal.fire({
+                                title: 'WhatsApp!',
+                                text: 'Recibo enviado',
+                                icon: 'success',
+                                timer: 3000,
+                                })
+                            }else{
+                                let url = window.URL.createObjectURL(res.data);
+                                window.open(url);
+                            }
+                            this.Recibo = {fecha:dayjs.utc().format('YYYY-MM-DD')}
                         })
                         .catch(error=>{
                             Swal.fire({
                             title: 'WhatsApp!',
                             text: 'Error: no se pudo enviar el recibo',
-                            icon: 'danger',
+                            icon: 'error',
                             timer: 3000,
                             })
                         })
@@ -1046,23 +1063,73 @@
                 sendMsgVenta(wapp){
                 axios.get('/buscador/wapp/'+wapp+'/'+this.ventaWapp)
                 .then(res=>{
-                    Swal.fire({
+                    if(res.data='ok'){
+                        Swal.fire({
                             title: 'WhatsApp!',
                             text: 'mensaje enviado',
                             icon: 'success',
                             timer: 3000,
                             })
+                    }else{
+                        Swal.fire({
+                            title: 'ERROR!',
+                            text: 'el sistema esta inhabilitado',
+                            icon: 'error',
+                            timer: 3000,
+                            })
+                    }
+                    
                 }
                 )},
+                sendIntWhatsapp(){
+                    if(this.Cliente.deuda){
+                        this.clipWappIntimacion()
+                        axios.get('/buscador/wapp/'+this.Cliente.wapp+'/'+this.intimacionWhatsapp)
+                        .then(res=>{
+                            if(res.data=='ok'){
+                                Swal.fire({
+                                    title: 'WhatsApp!',
+                                    text: 'mensaje enviado',
+                                    icon: 'success',
+                                    timer: 3000,
+                                    })
+                            }else{
+                                Swal.fire({
+                                    title: 'ERROR!',
+                                    text: 'el sistema esta inhabilitado',
+                                    icon: 'error',
+                                    timer: 3000,
+                                    })
+                            }
+                        })}else{
+                            Swal.fire({
+                                    title: 'ERROR!',
+                                    text: 'cliente sin deuda',
+                                    icon: 'error',
+                                    timer: 3000,
+                                    })                            
+                        }
+                },
                 sendIntimacion(dni, wapp){
-                    axios.get('/buscador/intimar/'+dni+'/'+wapp)
+                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+                        axios({
+                        method: "POST",
+                        url: "/buscador/intimar",
+                        responseType: "blob",
+                        data: {dni:dni, wapp:wapp},
+                        })
                     .then(res=>{
+                        if (res.data=='ok'){
                         Swal.fire({
                             title: 'WhatsApp!',
                             text: 'intimacion enviada',
                             icon: 'success',
                             timer: 3000,
                             })
+                        }else{
+                            let url = window.URL.createObjectURL(res.data);
+                            window.open(url);
+                        }
                     })
                 },
                 sendMsgGeneral(){
@@ -1072,12 +1139,21 @@
                     this.verModalMsgWhatsapp = false
                     axios.get('/buscador/wapp/'+this.Cliente.wapp+'/'+this.msgWhatsapp)
                     .then(res=>{
-                            Swal.fire({
-                            title: 'WhatsApp!',
-                            text: 'whatsapp enviado',
-                            icon: 'success',
-                            timer: 3000,
-                            })
+                            if(res.data=='ok'){
+                                Swal.fire({
+                                title: 'WhatsApp!',
+                                text: 'whatsapp enviado',
+                                icon: 'success',
+                                timer: 3000,
+                                })
+                            }else{
+                                Swal.fire({
+                                    title: 'ERROR!',
+                                    text: 'el sistema esta inhabilitado',
+                                    icon: 'error',
+                                    timer: 3000,
+                                    })
+                            }
                         })
                 },
 		condonarVenta(id){

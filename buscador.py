@@ -1,3 +1,4 @@
+from crypt import methods
 from flask import Blueprint,render_template,jsonify,make_response, request,send_file
 from flask_login import login_required
 from .lib import *
@@ -5,7 +6,7 @@ import simplejson as json
 import re
 from .formularios import *
 from .con import get_con, log
-import requests
+
 
 
 buscador = Blueprint('buscador',__name__)
@@ -143,9 +144,12 @@ def buscar_imprimirficha():
     wapp = d['whatsapp']
     ficha(con,[dni])
     con.close()
-    if wapp:
-        send_file_whatapp('/tmp/ficha.pdf', wapp)
-    return send_file('/tmp/ficha.pdf')
+    if WAPI and wapp:
+        send_file_whatsapp("/tmp/ficha.pdf", wapp)
+        return 'ok'
+    else:
+        return send_file('/tmp/ficha.pdf')
+    
 
 
 @buscador.route('/buscador/togglesube/<string:dni>')
@@ -393,12 +397,18 @@ def buscar_generarplandepagos(idcliente):
     return 'ok'
 
 
-@buscador.route('/buscador/intimar/<dni>/<wapp>')
-def buscador_intimar(dni, wapp):
+@buscador.route('/buscador/intimar', methods=["POST"])
+def buscador_intimar():
+    d = json.loads(request.data.decode("UTF-8"))
+    dni = d['dni']
+    wapp = d['wapp']
     con = get_con()
     intimacion(con, [dni])
-    send_file_whatapp("/home/hero/intimacion.pdf", wapp)
-    return 'ok'
+    if WAPI:
+        send_file_whatsapp("/tmp/intimacion.pdf", wapp)
+        return 'ok'
+    else:
+        return send_file('/tmp/intimacion.pdf')
     
 
 
@@ -409,8 +419,11 @@ def buscador_libredeuda():
     dni = d['dni']
     wapp = d['wapp']
     libredeuda(con,dni)
-    send_file_whatapp('/tmp/libredeuda.pdf', wapp)
-    return 'ok'
+    if WAPI:
+        send_file_whatsapp("/tmp/libredeuda.pdf", wapp)
+        return 'ok'
+    else:
+        return send_file('/tmp/libredeuda.pdf')
 
 
 @buscador.route('/log')
@@ -473,19 +486,19 @@ def buscador_generarrbotransferencia():
     log(ins)
     recibotransferencia(con,fecha,cuenta,nc,ic,cobr,rbo,idcliente)
     con.close()
-    send_file_whatapp('/tmp/recibotransferencia.pdf', wapp)
-    return 'ok'
+    if WAPI:
+        send_file_whatsapp("/tmp/recibotransferencia.pdf", wapp)
+        return 'ok'
+    else:
+        return send_file('/tmp/recibotransferencia.pdf')
 
 
 @buscador.route('/buscador/wapp/<wapp>/<msg>')
 def buscador_wapp(wapp, msg):
-    url = "https://api.ultramsg.com/instance15939/messages/chat"
-
-    payload = f"token=dr40pjod4ka6qmlf&to=+549{wapp}&body={msg}&priority=1&referenceId="
-    headers = {'content-type': 'application/x-www-form-urlencoded'}
-
-    response = requests.request("POST", url, data=payload, headers=headers)
-
-    return response.text
+    if WAPI:
+        send_msg_whatsapp(wapp, msg)
+        return 'ok'
+    else:
+        return 'error'
 
 
