@@ -5,6 +5,7 @@ import simplejson as json
 from .con import get_con, log
 from .formularios import *
 import mysql.connector
+import time
 
 fichas = Blueprint('fichas',__name__)
 
@@ -34,16 +35,16 @@ def fichas_muestrazona(cobr):
 def fichas_muestraclientes(tipo,zona):
     con = get_con()
     if tipo=='normales':
-        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,ultcompra,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda,zona,barrio from clientes where zona='{zona}' and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  and gestion=0 and incobrable=0 and mudo=0 order by pmovto")
+        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,ultcompra,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda,zona,barrio,fechaintimacion from clientes where zona='{zona}' and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  and gestion=0 and incobrable=0 and mudo=0 order by pmovto")
     elif tipo=='gestion':
-        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,ultcompra,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda,zona,barrio from clientes where zona='{zona}' and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  and (gestion=1 or incobrable=1 or mudo=1) order by pmovto")
+        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,ultcompra,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda,zona,barrio,fechaintimacion from clientes where zona='{zona}' and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  and (gestion=1 or incobrable=1 or mudo=1) order by pmovto")
     elif tipo=='antiguos':
-        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,ultcompra,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda,zona,barrio from clientes where zona='{zona}' and pmovto<=date_sub(curdate(),interval 210 day) and deuda>0  order by ultpago desc")
+        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,ultcompra,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda,zona,barrio,fechaintimacion from clientes where zona='{zona}' and pmovto<=date_sub(curdate(),interval 210 day) and deuda>0  order by ultpago desc")
     elif tipo=='nuevomoroso':
-        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,ultcompra,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda,zona,barrio from clientes where zona='{zona}' and pmovto<=date_sub(curdate(),interval 5 day) and deuda>0 and ultcompra>date_sub(curdate(),interval 30 day)  order by pmovto")
+        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,ultcompra,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda,zona,barrio,fechaintimacion from clientes where zona='{zona}' and pmovto<=date_sub(curdate(),interval 5 day) and deuda>0 and ultcompra>date_sub(curdate(),interval 30 day)  order by pmovto")
     elif tipo=='morosos':
-        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,ultcompra,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda,zona,barrio from clientes where zona='{zona}' and pmovto<=date_sub(curdate(),interval 60 day) and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  order by pmovto")
-
+        clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,ultcompra,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda,zona,barrio,fechaintimacion from clientes where zona='{zona}' and pmovto<=date_sub(curdate(),interval 60 day) and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  order by pmovto")
+    print(clientes)
     con.close()
     return jsonify(clientes=clientes)
 
@@ -56,7 +57,7 @@ def fichas_imprimir():
 
     ficha(con, listadni)
     con.close()
-    return send_file('/tmp/ficha.pdf')
+    return send_file('/home/hero/ficha.pdf')
 
 
 @fichas.route('/fichas/intimar', methods = ['POST'])
@@ -67,7 +68,28 @@ def fichas_intimar():
 
     intimacion(con, listadni)
     con.close()
-    return send_file('/tmp/intimacion.pdf')
+    return send_file('/home/hero/intimacion.pdf')
+
+@fichas.route('/fichas/intimarpdf', methods=["POST"])
+def fichas_intimarpdf():
+    con = get_con()
+    listadni = json.loads(request.data.decode("UTF-8"))
+    for dni in listadni:
+        wapp = pgonecolumn(con, f"select wapp from clientes where dni={dni}")
+        if wapp:
+            idcliente = pgonecolumn(con, f"select id from clientes where dni={dni}")
+            intimacion(con, [dni])
+            # espero 10 segundos por requerimientos de la  whatsapp api
+            time.sleep(10)
+            send_file_whatsapp(idcliente,'https://www.fedesal.lol/pdf/intimacion.pdf', wapp)
+            #print(dni, wapp, time.time()) # fake send intimation
+            # registro la intimacion
+            upd = f"update clientes set fechaintimacion=curdate() where dni={dni}"
+            cur = con.cursor()
+            cur.execute(upd)
+            con.commit()
+    con.close()
+    return 'ok'
 
 
 @fichas.route('/fichas/cambiarzona/<string:zona>',methods=['POST'])

@@ -142,13 +142,14 @@ def buscar_imprimirficha():
     d = json.loads(request.data.decode("UTF-8"))
     dni = d['dni']
     wapp = d['whatsapp']
+    idcliente = d['idcliente']
     ficha(con,[dni])
     con.close()
     if WAPI and wapp:
-        send_file_whatsapp("https://www.fedesal.lol/pdf/ficha.pdf", wapp)
+        send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/ficha.pdf", wapp)
         return 'ok'
     else:
-        return send_file('/tmp/ficha.pdf')
+        return send_file('/home/hero/ficha.pdf')
     
 
 
@@ -402,10 +403,11 @@ def buscador_intimar():
     d = json.loads(request.data.decode("UTF-8"))
     dni = d['dni']
     wapp = d['wapp']
+    idcliente = d['idcliente']
     con = get_con()
     intimacion(con, [dni])
     if WAPI:
-        send_file_whatsapp("https://www.fedesal.lol/pdf/intimacion.pdf", wapp)
+        send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/intimacion.pdf", wapp)
         return jsonify(ok='ok')
     else:
         return send_file('/tmp/intimacion.pdf')
@@ -422,9 +424,10 @@ def buscador_libredeuda():
     d = json.loads(request.data.decode("UTF-8"))
     dni = d['dni']
     wapp = d['wapp']
+    idcliente = d['idcliente']
     libredeuda(con,dni)
     if WAPI:
-        send_file_whatsapp("https://www.fedesal.lol/pdf/libredeuda.pdf", wapp)
+        send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/libredeuda.pdf", wapp)
         return 'ok'
     else:
         return send_file('/tmp/libredeuda.pdf')
@@ -491,16 +494,16 @@ def buscador_generarrbotransferencia():
     recibotransferencia(con,fecha,cuenta,nc,ic,cobr,rbo,idcliente)
     con.close()
     if WAPI:
-        send_file_whatsapp("https://www.fedesal.lol/pdf/recibotransferencia.pdf", wapp)
+        send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/recibotransferencia.pdf", wapp)
         return 'ok'
     else:
         return send_file('/tmp/recibotransferencia.pdf')
 
 
-@buscador.route('/buscador/wapp/<wapp>/<msg>')
-def buscador_wapp(wapp, msg):
+@buscador.route('/buscador/wapp/<idcliente>/<wapp>/<msg>')
+def buscador_wapp(idcliente,wapp, msg):
     if WAPI:
-        send_msg_whatsapp(wapp, msg)
+        send_msg_whatsapp(idcliente, wapp, msg)
         return 'ok'
     else:
         return 'error'

@@ -5,6 +5,7 @@ import urllib.parse
 import ssl
 import os
 import requests
+from .con import get_con
 
 # Constante de uso de sistema whatsapp-API
 WAPI = True
@@ -365,29 +366,29 @@ def letras(num):
         num=millares[millar]+' '+centenas[centena]+' '+sueltos[dosdigitos]
     return(num.lstrip().rstrip().upper())
 
-def send_file_whatsapp(file, wapp):
-    ssl._create_default_https_context = ssl._create_unverified_context
-    conn = http.client.HTTPSConnection("api.ultramsg.com")
-    with open(file, "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read())
+# def send_file_whatsapp(file, wapp):
+#     ssl._create_default_https_context = ssl._create_unverified_context
+#     conn = http.client.HTTPSConnection("api.ultramsg.com")
+#     with open(file, "rb") as image_file:
+#         encoded_string = base64.b64encode(image_file.read())
 
-    img_bas64=urllib.parse.quote_plus(encoded_string)
-    payload = f"token=dr40pjod4ka6qmlf&to=+549{wapp}&document="+ img_bas64 + f"&filename={os.path.split(file)[1]}"
-    headers = { 'content-type': "application/x-www-form-urlencoded" }
-    conn.request("POST", "/instance15939/messages/document", payload, headers)
-    res = conn.getresponse()
-    data = res.read()
-    return data.decode("utf-8")
+#     img_bas64=urllib.parse.quote_plus(encoded_string)
+#     payload = f"token=dr40pjod4ka6qmlf&to=+549{wapp}&document="+ img_bas64 + f"&filename={os.path.split(file)[1]}"
+#     headers = { 'content-type': "application/x-www-form-urlencoded" }
+#     conn.request("POST", "/instance15939/messages/document", payload, headers)
+#     res = conn.getresponse()
+#     data = res.read()
+#     return data.decode("utf-8")
 
-def send_msg_whatsapp(wapp, msg):
-    url = "https://api.ultramsg.com/instance15939/messages/chat"
+# def send_msg_whatsapp(wapp, msg):
+#     url = "https://api.ultramsg.com/instance15939/messages/chat"
 
-    payload = f"token=dr40pjod4ka6qmlf&to=+549{wapp}&body={msg}&priority=1&referenceId="
-    headers = {'content-type': 'application/x-www-form-urlencoded'}
+#     payload = f"token=dr40pjod4ka6qmlf&to=+549{wapp}&body={msg}&priority=1&referenceId="
+#     headers = {'content-type': 'application/x-www-form-urlencoded'}
 
-    response = requests.request("POST", url, data=payload, headers=headers)
+#     response = requests.request("POST", url, data=payload, headers=headers)
 
-    return response.text
+#     return response.text
 
 
 def obtener_msg_enviados(to_number):
@@ -415,16 +416,28 @@ def obtener_msg_enviados(to_number):
 
 #     return response.text
 
-def send_msg_whatsapp(wapp, msg):
+def send_msg_whatsapp(idcliente, wapp, msg):
+    logwhatsapp(idcliente,wapp,msg=msg)
     wapp = "+549"+wapp
     payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&text={msg}"
     response = requests.request("GET", payload)
     return response.text
 
-def send_file_whatsapp(file, wapp, msg=""):
+def send_file_whatsapp(idcliente,file, wapp, msg=""):
+    logwhatsapp(idcliente,wapp,file=file, msg=msg)
     wapp = "+549"+wapp
     payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&text={msg}&document={file}"
     response = requests.request("GET", payload)
     return response.text
 
-   
+def logwhatsapp(idcliente,wapp,msg='',file=''):
+    file = os.path.split(file)[1]
+    msg = msg.replace("'", " ")
+    msg = msg.replace('"', ' ')
+    ins = f"insert into logwhatsapp(idcliente,wapp,msg,file) values({idcliente}, {wapp}, '{msg}' ,'{file}')"
+    con = get_con()
+    cur = con.cursor()
+    cur.execute(ins)
+    con.commit()
+    con.close()
+    return None

@@ -739,27 +739,18 @@
                         method:"POST",
                         url:"/buscador/imprimirficha",
                         responseType: "blob",
-                        data: {dni:this.Cliente.dni, whatsapp:this.wappCobrador},
-                    }).then((res)=>{
+                        data: {dni:this.Cliente.dni, whatsapp:this.wappCobrador, idcliente:this.Cliente.id},
+                    }).then(res=>{
                         verModalImprimirFicha = false
-                        if (res.data=='ok'){
                             Swal.fire({
                                             title: 'WhatsApp!',
                                             text: 'Ficha enviada al cobrador',
                                             icon: 'success',
                                             timer: 3000,
                                             }); 
-                                        }else{
-                            Swal.fire({ 
-                                            title: 'ERROR!',
-                                            text: 'envios desactivados',
-                                            icon: 'error',
-                                            timer: 3000,            
-                            });
-                                        }
-                        this.cobrEnviar = ''
+                            this.cobrEnviar = ''
+                                        })
                 })
-            })
             }else{
                     axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
                         axios({
@@ -784,7 +775,7 @@
                     method: "POST",
                     url: "/buscador/intimar",
                     responseType: "blob",
-                    data: [dni],
+                    data: {dni:dni, idcliente:this.Cliente.id},
                 }).then((res) => {
                     let url = window.URL.createObjectURL(res.data);
                     window.open(url);
@@ -1008,7 +999,7 @@
                     method: "POST",
                     url: "/buscador/libredeuda",
                     responseType: "blob",
-                    data: {dni:dni, wapp:this.Cliente.wapp},
+                    data: {dni:dni, wapp:this.Cliente.wapp, idcliente:this.Cliente.id},
                 }).then((res) => {
                         Swal.fire({
                             title: 'WhatsApp!',
@@ -1051,7 +1042,7 @@
                         })
                 },
                 sendMsgVenta(wapp){
-                axios.get('/buscador/wapp/'+wapp+'/'+this.ventaWapp)
+                axios.get('/buscador/wapp/'+this.Cliente.id+'/'+wapp+'/'+this.ventaWapp)
                 .then(res=>{
                         Swal.fire({
                             title: 'WhatsApp!',
@@ -1064,7 +1055,7 @@
                 sendIntWhatsapp(){
                     if(this.Cliente.deuda){
                         this.clipWappIntimacion()
-                        axios.get('/buscador/wapp/'+this.Cliente.wapp+'/'+this.intimacionWhatsapp)
+                        axios.get('/buscador/wapp/'+this.Cliente.id+'/'+this.Cliente.wapp+'/'+this.intimacionWhatsapp)
                         .then(res=>{
                                 Swal.fire({
                                     title: 'WhatsApp!',
@@ -1088,7 +1079,7 @@
                         method: "POST",
                         url: "/buscador/intimar",
                         responseType: "blob",
-                        data: {dni:dni, wapp:wapp},
+                        data: {dni:dni, wapp:wapp, idcliente:this.Cliente.id},
                         })
                     .then(res=>{
                         Swal.fire({
@@ -1104,7 +1095,7 @@
                 },
                 enviarWhatsapp(){
                     this.verModalMsgWhatsapp = false
-                    axios.get('/buscador/wapp/'+this.Cliente.wapp+'/'+this.msgWhatsapp)
+                    axios.get('/buscador/wapp/'+this.Cliente.id+'/'+this.Cliente.wapp+'/'+this.msgWhatsapp)
                     .then(res=>{
                                 Swal.fire({
                                 title: 'WhatsApp!',
