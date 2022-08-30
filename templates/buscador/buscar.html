@@ -154,6 +154,7 @@
         <button class="button is-danger is-small" @click="emitirRbo()">RBO</button>
 <!--        <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${ventaWapp}` class="button is-danger is-small" target="blank" style="text-decoration: none;">VENDER</a>-->
         <button class="button is-danger is-small" @click="sendMsgVenta(Cliente.wapp)">Vender</button>
+        <button class="button is-warning is-small" @click="viewSents()">Enviados</button>
         <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
     </div>
     <table class="table table-sm m-3" x-show="verCard && listaVentas.length">
@@ -1010,7 +1011,7 @@
                     responseType: "blob",
                     data: {dni:dni, wapp:this.Cliente.wapp},
                 }).then((res) => {
-                    if (res.data=='ok'){
+                    if (res.statusText=='OK'){
                         Swal.fire({
                             title: 'WhatsApp!',
                             text: 'Libre deuda enviado',
@@ -1155,6 +1156,16 @@
                                     })
                             }
                         })
+                },
+                viewSents(){
+                    axios.get('/buscador/wapp/enviados')
+                    .then(res=>{
+                        this.sents = res.data.messages
+                        console.log(res.data.messages)
+                        this.sents.forEach(row=>{
+                            console.log(row['to'],row['body'],dayjs.utc(row['created_at']).format('YYYY-MM-DD'))
+                        })
+                    })
                 },
 		condonarVenta(id){
 		    axios.get('/ventas/condonar/'+id)

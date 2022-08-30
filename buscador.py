@@ -145,7 +145,7 @@ def buscar_imprimirficha():
     ficha(con,[dni])
     con.close()
     if WAPI and wapp:
-        send_file_whatsapp("/tmp/ficha.pdf", wapp)
+        send_file_whatsapp("https://www.fedesal.lol/pdf/ficha.pdf", wapp)
         return 'ok'
     else:
         return send_file('/tmp/ficha.pdf')
@@ -405,11 +405,15 @@ def buscador_intimar():
     con = get_con()
     intimacion(con, [dni])
     if WAPI:
-        send_file_whatsapp("/tmp/intimacion.pdf", wapp)
+        send_file_whatsapp("https://www.fedesal.lol/pdf/intimacion.pdf", wapp)
         return 'ok'
     else:
         return send_file('/tmp/intimacion.pdf')
     
+
+@buscador.route('/pdf/<pdf>')
+def buscador_pdf(pdf):
+    return send_file('/home/hero'+pdf)
 
 
 @buscador.route('/buscador/libredeuda', methods=['POST'])
@@ -420,7 +424,7 @@ def buscador_libredeuda():
     wapp = d['wapp']
     libredeuda(con,dni)
     if WAPI:
-        send_file_whatsapp("/tmp/libredeuda.pdf", wapp)
+        send_file_whatsapp("https://www.fedesal.lol/pdf/libredeuda.pdf", wapp)
         return 'ok'
     else:
         return send_file('/tmp/libredeuda.pdf')
@@ -487,7 +491,7 @@ def buscador_generarrbotransferencia():
     recibotransferencia(con,fecha,cuenta,nc,ic,cobr,rbo,idcliente)
     con.close()
     if WAPI:
-        send_file_whatsapp("/tmp/recibotransferencia.pdf", wapp)
+        send_file_whatsapp("https://www.fedesal.lol/pdf/recibotransferencia.pdf", wapp)
         return 'ok'
     else:
         return send_file('/tmp/recibotransferencia.pdf')
@@ -500,5 +504,11 @@ def buscador_wapp(wapp, msg):
         return 'ok'
     else:
         return 'error'
+
+
+@buscador.route('/buscador/wapp/enviados')
+def buscador_wapp_enviados():
+    messages = obtener_msg_enviados(5493512411963)
+    return messages
 
 

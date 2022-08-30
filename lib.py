@@ -7,7 +7,7 @@ import os
 import requests
 
 # Constante de uso de sistema whatsapp-API
-WAPI = False
+WAPI = True
 
 def pgdict0(con, sel):
     """Funcion que entrega una lista de valores en formato lista plana
@@ -389,3 +389,40 @@ def send_msg_whatsapp(wapp, msg):
 
     return response.text
 
+
+def obtener_msg_enviados(to_number):
+    to_number = str(to_number)+"@c.us"
+    url = "https://api.ultramsg.com/instance15939/messages"
+    querystring = {"token":"dr40pjod4ka6qmlf","page":"1","limit":"10","status":"sent","sort":"desc","id":"","referenceId":"","from":"","to":to_number,"ack":""}
+    headers = {'content-type': 'application/x-www-form-urlencoded'}
+    response = requests.request("GET", url, headers=headers, params=querystring)
+    return response.text
+
+# def send_msg_whatsapp(wapp, msg):
+#     payload = f"https://api.trenalyze.com/send?receiver={wapp}&msgtext={msg}&sender=5493512411963&token=PIkKhBzE59nltNKz3rjJ"
+#     response = requests.request("GET", payload)
+
+#     return response.text
+
+# def send_file_whatsapp(file, wapp, msg="optional_message"):
+#     with open(file, "rb") as image_file:
+#         encoded_string = base64.b64encode(image_file.read())
+
+#     img_bas64=urllib.parse.quote_plus(encoded_string)
+#     payload = f"https://api.trenalyze.com/send?receiver={wapp}&msgtext={msg}&sender=5493512411963&token=PIkKhBzE59nltNKz3rjJ&document={img_bas64}"
+#     print(payload)
+#     response = requests.request("GET", payload)
+
+#     return response.text
+
+def send_msg_whatsapp(wapp, msg):
+    wapp = "+549"+wapp
+    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=Xf8B4TGbYUaQ&text={msg}"
+    response = requests.request("GET", payload)
+    return response.text
+
+def send_file_whatsapp(file, wapp, msg=""):
+    wapp = "+549"+wapp
+    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=Xf8B4TGbYUaQ&text={msg}&document={file}"
+    response = requests.request("GET", payload)
+    return response.text
