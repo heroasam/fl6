@@ -406,14 +406,14 @@ def buscador_intimar():
     intimacion(con, [dni])
     if WAPI:
         send_file_whatsapp("https://www.fedesal.lol/pdf/intimacion.pdf", wapp)
-        return 'ok'
+        return jsonify(ok='ok')
     else:
         return send_file('/tmp/intimacion.pdf')
     
 
 @buscador.route('/pdf/<pdf>')
 def buscador_pdf(pdf):
-    return send_file('/home/hero'+pdf)
+    return send_file('/home/hero/'+pdf)
 
 
 @buscador.route('/buscador/libredeuda', methods=['POST'])

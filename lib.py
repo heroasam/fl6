@@ -417,12 +417,14 @@ def obtener_msg_enviados(to_number):
 
 def send_msg_whatsapp(wapp, msg):
     wapp = "+549"+wapp
-    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=Xf8B4TGbYUaQ&text={msg}"
+    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&text={msg}"
     response = requests.request("GET", payload)
     return response.text
 
 def send_file_whatsapp(file, wapp, msg=""):
     wapp = "+549"+wapp
-    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=Xf8B4TGbYUaQ&text={msg}&document={file}"
+    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&text={msg}&document={file}"
     response = requests.request("GET", payload)
     return response.text
+
+   
