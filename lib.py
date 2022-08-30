@@ -6,6 +6,7 @@ import ssl
 import os
 import requests
 from .con import get_con
+from flask_login import current_user
 
 # Constante de uso de sistema whatsapp-API
 WAPI = True
@@ -417,6 +418,7 @@ def obtener_msg_enviados(to_number):
 #     return response.text
 
 def send_msg_whatsapp(idcliente, wapp, msg):
+    print("msg ---",msg)
     logwhatsapp(idcliente,wapp,msg=msg)
     wapp = "+549"+wapp
     payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&text={msg}"
@@ -434,7 +436,9 @@ def logwhatsapp(idcliente,wapp,msg='',file=''):
     file = os.path.split(file)[1]
     msg = msg.replace("'", " ")
     msg = msg.replace('"', ' ')
-    ins = f"insert into logwhatsapp(idcliente,wapp,msg,file) values({idcliente}, {wapp}, '{msg}' ,'{file}')"
+    msg = msg.replace("%20"," ")
+    msg = msg[:100]
+    ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user) values({idcliente}, {wapp}, '{msg}' ,'{file}','{current_user.email}' )"
     con = get_con()
     cur = con.cursor()
     cur.execute(ins)

@@ -500,8 +500,12 @@ def buscador_generarrbotransferencia():
         return send_file('/tmp/recibotransferencia.pdf')
 
 
-@buscador.route('/buscador/wapp/<idcliente>/<wapp>/<msg>')
-def buscador_wapp(idcliente,wapp, msg):
+@buscador.route('/buscador/wapp', methods=["POST"])
+def buscador_wapp():
+    d = json.loads(request.data.decode("UTF-8"))
+    idcliente = d['idcliente']
+    wapp = d['wapp']
+    msg = d['msg']
     if WAPI:
         send_msg_whatsapp(idcliente, wapp, msg)
         return 'ok'
