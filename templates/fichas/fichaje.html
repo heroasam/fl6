@@ -55,6 +55,7 @@ endblock %} {% block style %}
     <input type="text" name="zona" v-model="zona" list="zonalist" autocomplete="off" v-if="verZonas">
     <button class="button is-danger" @click="intimarWhatsapp()">INTWhat</button>
     <button class="button is-danger" @click="intimarPdf()">INTpdf</button>
+    <button class="button is-danger" @click="sendMsgRecordatorio()">RecTrans</button>
                   <datalist id="zonalist">
                     <option v-for="zona in listazonas">|zona['zona']|</option>
                 </datalist>
@@ -161,7 +162,7 @@ document.addEventListener('click',()=>{
         this.ultimotipo = tipo
         this.ultimazona = zona
         axios.get("/fichas/muestraclientes/"+ tipo +'/'+ zona).then((res) => {
-          console.log(res.data.clientes)
+          // console.log(res.data.clientes)
           /* nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni */
           arrayClientes = Array.from(res.data.clientes);
           arrayClientes.forEach((row) => {
@@ -194,7 +195,7 @@ document.addEventListener('click',()=>{
             //la celda que corresponda a dni OJO
           }
         });
-        console.log(ids)
+        // console.log(ids)
         return ids
       },
       intimar() {
@@ -301,6 +302,43 @@ document.addEventListener('click',()=>{
           let url = window.URL.createObjectURL(res.data);
           window.open(url);
         });
+      },
+      sendMsgRecordatorio(){
+        ids = this.seleccionarRows()
+        if(ids.length>0) {
+        idle = ids.length * 10000
+        }
+        Swal.fire({
+                                  title: 'WhatsApp!',
+                                  text: 'Espere mientras se envian los whatsapp!',
+                                  icon: 'warning',
+                                  timer: `${idle}`,
+                                  timerProgressBar: true,
+                                  showConfirmButton: false,
+                                  })
+        ids.forEach(dni=>{
+          Cliente = this.clientes.filter(row=>row.dni==dni)[0]
+          console.log(Cliente)
+        
+                    msgRecordatorio = (Cliente.sex=='M'?"Estimado ":"Estimada ")+Cliente.nombre.toUpperCase()+": Buenos dias, le escribimos de ROMITEX para recordarle el vencimiento de su cuota. Le pedimos que nos envie por este medio el comprobante de la transferencia, asi le enviamos el recibo correspondiente. Muchas gracias!"
+                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+                        axios({
+                            method: "POST",
+                            url: '/buscador/wapp',
+                            data: {idcliente:Cliente.id,
+                                    wapp:Cliente.wapp,
+                                    msg:msgRecordatorio,
+                            }
+                        })
+                    .then(res=>{
+                                Swal.fire({
+                                title: 'WhatsApp!',
+                                text: 'Recordatorio enviado',
+                                icon: 'success',
+                                timer: 3000,
+                                })
+                        })
+                      })
       },
       seleccionarHasta() {
         const $tbody = document.querySelector("tbody");

@@ -437,7 +437,11 @@ def logwhatsapp(idcliente,wapp,msg='',file=''):
     msg = msg.replace('"', ' ')
     msg = msg.replace("%20"," ")
     msg = msg[:100]
-    ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user) values({idcliente}, {wapp}, '{msg}' ,'{file}','{current_user.email}' )"
+    if "@" in str(current_user):
+        email = current_user.email
+    else:
+        email = ""
+    ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user) values({idcliente}, {wapp}, '{msg}' ,'{file}','{email}' )"
     con = get_con()
     cur = con.cursor()
     cur.execute(ins)
