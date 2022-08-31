@@ -154,6 +154,8 @@
         <button class="button is-danger is-small" @click="emitirRbo()">RBO</button>
 <!--        <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${ventaWapp}` class="button is-danger is-small" target="blank" style="text-decoration: none;">VENDER</a>-->
         <button class="button is-danger is-small" @click="sendMsgVenta(Cliente.wapp)">Vender</button>
+        <button class="button is-danger is-small" @click="sendMsgRecordatorio(Cliente.wapp)">RecTrans</button>
+        <button class="button is-danger is-small" @click="sendMsgCbu(Cliente.wapp)">CBU</button>
         <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
     </div>
     <table class="table table-sm m-3" x-show="verCard && listaVentas.length">
@@ -765,9 +767,9 @@
                             method:"POST",
                             url:"/buscador/imprimirficha",
                             responseType: "blob",
-                            data: {dni:this.Cliente.dni, whatsapp:this.wappCobrador, idcliente:this.Cliente.id},
+                            data: {dni:this.Cliente.dni, whatsapp:"", idcliente:this.Cliente.id},
                         }).then((res)=>{
-                            verModalImprimirFicha = false
+                            this.verModalImprimirFicha = false
                             if (this.mostrarFichaPorPantalla) {
                                 let url = window.URL.createObjectURL(res.data);
                                 window.open(url);
@@ -1144,6 +1146,49 @@
                                 Swal.fire({
                                 title: 'WhatsApp!',
                                 text: 'whatsapp enviado',
+                                icon: 'success',
+                                timer: 3000,
+                                })
+                        })
+                },
+                sendMsgRecordatorio(){
+                    msgRecordatorio = (this.Cliente.sex='M'?"Estimado ":"Estimada ")+this.Cliente.nombre.toUpperCase()+": Buenos dias, le escribimos de ROMITEX para recordarle el vencimiento de su cuota. Le pedimos que nos envie por este medio el comprobante de la transferencia, asi le enviamos el recibo correspondiente. Muchas gracias!"
+                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+                        axios({
+                            method: "POST",
+                            url: '/buscador/wapp',
+                            data: {idcliente:this.Cliente.id,
+                                    wapp:this.Cliente.wapp,
+                                    msg:msgRecordatorio,
+                            }
+                        })
+                    .then(res=>{
+                                Swal.fire({
+                                title: 'WhatsApp!',
+                                text: 'Recordatorio enviado',
+                                icon: 'success',
+                                timer: 3000,
+                                })
+                        })
+                },
+                sendMsgCbu(){
+                    msgCbu = `DATOS DE LA CUENTA:
+Número de CBU: 0720556988000035614454 
+Alias de CBU: ROMITEX.GESTION
+Titular de la cuenta: Heredie Maria Isabel`
+                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+                        axios({
+                            method: "POST",
+                            url: '/buscador/wapp',
+                            data: {idcliente:this.Cliente.id,
+                                    wapp:this.Cliente.wapp,
+                                    msg:msgCbu,
+                            }
+                        })
+                    .then(res=>{
+                                Swal.fire({
+                                title: 'WhatsApp!',
+                                text: 'CBU enviado',
                                 icon: 'success',
                                 timer: 3000,
                                 })
