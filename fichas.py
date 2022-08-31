@@ -44,7 +44,7 @@ def fichas_muestraclientes(tipo,zona):
         clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,ultcompra,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda,zona,barrio,fechaintimacion from clientes where zona='{zona}' and pmovto<=date_sub(curdate(),interval 5 day) and deuda>0 and ultcompra>date_sub(curdate(),interval 30 day)  order by pmovto")
     elif tipo=='morosos':
         clientes = pgdict(con,f"select nombre,calle,num,ultpago,pmovto,ultcompra,sev,novendermas,gestion,mudo,incobrable,dni,subirseven,comprado,deuda,zona,barrio,fechaintimacion from clientes where zona='{zona}' and pmovto<=date_sub(curdate(),interval 60 day) and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  order by pmovto")
-    print(clientes)
+    # print(clientes)
     con.close()
     return jsonify(clientes=clientes)
 
@@ -82,6 +82,41 @@ def fichas_intimarpdf():
             # espero 10 segundos por requerimientos de la  whatsapp api
             time.sleep(10)
             send_file_whatsapp(idcliente,'https://www.fedesal.lol/pdf/intimacion.pdf', wapp)
+            #print(dni, wapp, time.time()) # fake send intimation
+            # registro la intimacion
+            upd = f"update clientes set fechaintimacion=curdate() where dni={dni}"
+            cur = con.cursor()
+            cur.execute(upd)
+            con.commit()
+    con.close()
+    return 'ok'
+
+def msg_intimacion(dni):
+    con = get_con()
+    sev, nombre, idcliente,calle,num = pgdict0(con, f"select sev, nombre, id, calle, num from clientes where dni={dni}")
+    # nombre = pgonecolumn(con, f"select nombre from clientes where dni={dni}")
+    fecha, articulos = pgdict0(con, f"select fecha,art from ventas where idcliente={idcliente} order by fecha desc limit 1")
+    direccion = f"{calle} {num}"
+    if sev:
+        text="Nos comunicamos de la empresa ROMITEX por una deuda que usted tiene con la firma. Usted fue subido al SEVEN hasta regularizar su cuenta. Puede hacer un plan de pagos. Consulte por Wapp. Una vez cancelado en 48hs se lo elimina del SEVEN. De no desmostrar interes nos vemos obligados a cobrar su pagare por via JUDICIAL. Atte. *Departamento de cobranzas de ROMITEX*"
+    else:
+        text="Nos comunicamos de la empresa ROMITEX por una deuda que usted tiene con la firma. En los proximos dias deberemos informar al SEVEN el atraso de su cuenta. Le proponemos un plan de pagos que podemos realizar por este medio."
+    messaje = f"{nombre.upper()}: {text}  \n(Por compra de {articulos} realizada en {direccion} el dia {fecha})."
+    messaje = messaje.replace(' ','%20')
+    return messaje, idcliente
+
+
+@fichas.route('/fichas/intimarwhatsapp', methods=["POST"])
+def fichas_intimarwhatsapp():
+    con = get_con()
+    listadni = json.loads(request.data.decode("UTF-8"))
+    for dni in listadni:
+        wapp = pgonecolumn(con, f"select wapp from clientes where dni={dni}")
+        if wapp:
+            msg, idcliente = msg_intimacion(dni)
+            # espero 10 segundos por requerimientos de la  whatsapp api
+            time.sleep(10)
+            send_msg_whatsapp(idcliente, wapp, msg)
             #print(dni, wapp, time.time()) # fake send intimation
             # registro la intimacion
             upd = f"update clientes set fechaintimacion=curdate() where dni={dni}"
@@ -355,7 +390,7 @@ def fichas_editarasunto():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     upd = f"update asuntos set fecha='{d['fecha']}',tipo='{d['tipo']}',vdor={d['vdor']},asunto='{d['asunto']}' where id={d['id']}"
-    print(upd)
+    # print(upd)
     cur = con.cursor()
     cur.execute(upd)
     con.commit()

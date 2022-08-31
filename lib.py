@@ -418,7 +418,6 @@ def obtener_msg_enviados(to_number):
 #     return response.text
 
 def send_msg_whatsapp(idcliente, wapp, msg):
-    print("msg ---",msg)
     logwhatsapp(idcliente,wapp,msg=msg)
     wapp = "+549"+wapp
     payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&text={msg}"
