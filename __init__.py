@@ -1,5 +1,5 @@
 from flask import Flask, json
-from flask import render_template, url_for, request, redirect, make_response, session, flash, g
+from flask import render_template, url_for, request, redirect, make_response, session, flash, g, send_file
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from flask_bcrypt import Bcrypt
@@ -136,6 +136,18 @@ def signup():
                 return redirect(url_for('login'))
         flash(error, category='error')
     return render_template('signup.html')
+
+
+@app.route('/apache')
+@login_required
+def apache_log():
+    f = open('/tmp/log.txt', "a")
+    log = open('/var/log/apache2/error.log', "r")
+    apachelog = log.read()
+    f.write(apachelog)
+    f.close()
+    log.close()
+    return send_file('/tmp/log.txt')
 
 
 @app.template_filter()
