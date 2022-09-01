@@ -114,9 +114,9 @@ def fichas_intimarwhatsapp():
         wapp = pgonecolumn(con, f"select wapp from clientes where dni={dni}")
         if wapp:
             msg, idcliente = msg_intimacion(dni)
+            send_msg_whatsapp(idcliente, wapp, msg)
             # espero 10 segundos por requerimientos de la  whatsapp api
             time.sleep(10)
-            send_msg_whatsapp(idcliente, wapp, msg)
             #print(dni, wapp, time.time()) # fake send intimation
             # registro la intimacion
             upd = f"update clientes set fechaintimacion=curdate() where dni={dni}"
@@ -124,6 +124,17 @@ def fichas_intimarwhatsapp():
             cur.execute(upd)
             con.commit()
     con.close()
+    return 'ok'
+
+
+@fichas.route('/fichas/recordatorioswapp', methods=["POST"])
+def fichas_recordatorioswapp():
+    clientes = json.loads(request.data.decode("UTF-8"))
+    for cliente in clientes:
+        if cliente['wapp']:
+            msgRecordatorio = f"{('Estimado ' if cliente['sex']=='M' else 'Estimada ')}{cliente['nombre'].upper()}: Buenos dias, le escribimos de ROMITEX para recordarle el vencimiento de su cuota. Le pedimos que nos envie por este medio el comprobante de la transferencia, asi le enviamos el recibo correspondiente. Muchas gracias!"
+            send_msg_whatsapp(cliente['id'], cliente['wapp'], msgRecordatorio)
+            time.sleep(10)
     return 'ok'
 
 

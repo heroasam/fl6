@@ -316,38 +316,28 @@ document.addEventListener('click',()=>{
                                   timerProgressBar: true,
                                   showConfirmButton: false,
                                   })
-        ids.forEach(dni=>{
-          Cliente = this.clientes.filter(row=>row.dni==dni)[0]
-          console.log(Cliente)
-        
-                    msgRecordatorio = (Cliente.sex=='M'?"Estimado ":"Estimada ")+Cliente.nombre.toUpperCase()+": Buenos dias, le escribimos de ROMITEX para recordarle el vencimiento de su cuota. Le pedimos que nos envie por este medio el comprobante de la transferencia, asi le enviamos el recibo correspondiente. Muchas gracias!"
-                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                        axios({
-                            method: "POST",
-                            url: '/buscador/wapp',
-                            data: {idcliente:Cliente.id,
-                                    wapp:Cliente.wapp,
-                                    msg:msgRecordatorio,
-                            }
-                        })
-                    .then(res=>{
-                                Swal.fire({
-                                title: 'WhatsApp!',
-                                text: 'Recordatorio enviado',
-                                icon: 'success',
-                                timer: 3000,
-                                })
-                        })
-                      })
+        ids = ids.map(id=>parseInt(id))
+        Clientes = this.clientes.filter(row=>ids.includes(row.dni))
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+                            axios({
+                                method: "POST",
+                                url: '/fichas/recordatorioswapp',
+                                data: Clientes
+                            })
+                            .then(res=>{
+                                    Swal.fire({
+                                    title: 'WhatsApp!',
+                                    text: 'Recordatorio enviado',
+                                    icon: 'success',
+                                    timer: 3000,
+                                    })
+                            })
       },
       seleccionarHasta() {
         const $tbody = document.querySelector("tbody");
         arrayRows = Array.from($tbody.children);
         arrayRows.forEach((row) => {
           let pmovto = dayjs(row.cells[4].innerHTML).format('YYYY-MM-DD');
-	    // console.log(this.hasta)
-	    // console.log(pmovto)
-	    // console.log(pmovto<=this.hasta)
           if (pmovto>=this.desde && pmovto <= this.hasta) {
             row.classList.add("selected");
           }
