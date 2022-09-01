@@ -506,11 +506,11 @@ def buscador_wapp():
     idcliente = d['idcliente']
     wapp = d['wapp']
     msg = d['msg']
-    if WAPI:
+    if WAPI and wapp:
         send_msg_whatsapp(idcliente, wapp, msg)
         return 'ok'
     else:
-        return 'error'
+        return 'error', 400
 
 
 @buscador.route('/buscador/wapp/enviados')
