@@ -743,7 +743,6 @@
                 axios.get('/buscador/pedirwappcobrador/'+this.cobrEnviar)
                 .then(res=>{
                     this.wappCobrador = res.data.wapp
-             
                     axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
                     axios({
                         method:"POST",
@@ -751,7 +750,7 @@
                         responseType: "blob",
                         data: {dni:this.Cliente.dni, whatsapp:this.wappCobrador, idcliente:this.Cliente.id},
                     }).then(res=>{
-                        verModalImprimirFicha = false
+                        this.verModalImprimirFicha = false
                             Swal.fire({
                                             title: 'WhatsApp!',
                                             text: 'Ficha enviada al cobrador',
