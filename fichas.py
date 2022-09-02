@@ -138,6 +138,18 @@ def fichas_recordatorioswapp():
     return 'ok'
 
 
+@fichas.route('/fichas/msgprogramado', methods=['POST'])
+def fichas_msgprogramado():
+    d = json.loads(request.data.decode("UTF-8"))
+    clientes = d['listaclientes']
+    msg = d['msg']
+    for cliente in clientes:
+        if cliente['wapp']:
+            send_msg_whatsapp(cliente['id'], cliente['wapp'], msg)
+            time.sleep(10)
+    return 'ok'
+
+
 @fichas.route('/fichas/cambiarzona/<string:zona>',methods=['POST'])
 def fichas_cambiarzona(zona):
     con = get_con()
@@ -165,6 +177,11 @@ def fichas_cambiarzona(zona):
 @fichas.route('/fichas/cobradores')
 def fichas_cobradores():
     return render_template('fichas/cobr.html')
+
+
+@fichas.route('/fichas/programar')
+def fichas_programar():
+    return render_template('fichas/programar.html')
 
 
 @fichas.route('/fichas/getfullcobradores')
@@ -318,6 +335,14 @@ def fichas_getzonas():
     zonas = pglflat(con,f"select zona from zonas where asignado>700 and asignado !=820 order by zona")
     con.close()
     return jsonify(zonas=zonas)
+
+
+@fichas.route('/fichas/getmsgs')
+def fichas_getmsgs():
+    con = get_con()
+    msgs = pgdict(con, f"select id, nombre, msg from msgs")
+    con.close()
+    return jsonify(msgs=msgs)
 
 
 @fichas.route('/fichas/getlistado/<string:zona>')
@@ -477,6 +502,22 @@ def fichas_imprimircancelados():
 def fichas_togglemudadollamado(dni):
     con = get_con()
     upd = f"update clientes set mudado_llamado=1 where dni={dni}"
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    log(upd)
+    con.close()
+    return 'ok'
+
+
+@fichas.route('/fichas/programarboton', methods=['POST'])
+def fichas_programarboton():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    id = d['id']
+    nombre = d['nombre']
+    msg = d['msg']
+    upd = f"update msgs set nombre = '{nombre}', msg='{msg}' where id={id}"
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
