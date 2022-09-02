@@ -55,7 +55,7 @@ endblock %} {% block style %}
     <button class="button is-warning" @click="verZonas==true?verZonas=false:verZonas=true">Cambiar Zonas</button>
     <input type="text" name="zona" v-model="zona" list="zonalist" autocomplete="off" v-if="verZonas">
                   <datalist id="zonalist">
-                    <option v-for="zona in listazonas">|zona['zona']|</option>
+                    <option v-for="zona in listazonas">|zona|</option>
                 </datalist>
     <button class="button is-danger" @click="cambiarZona(zona)" v-if="verZonas">Guardar</button>
     <button class="button is-danger" @click="intimarWhatsapp()">INTWhat</button>
