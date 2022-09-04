@@ -190,7 +190,7 @@ def ficha(con,ldni):
             pdf.cell(15,5,'Pag '+ str(row[3]),1,0,'C')
             pdf.cell(20,5,str(row[6]),1,1,'C')
         pdf.cell(165,10,f'Suma a cobrar ${suma_a_cobrar}',1,1,'R')
-    pdf.output("/home/hero/ficha.pdf")
+    pdf.output("/tmp/ficha.pdf")
 
 def libredeuda(con,dni):
     libre = """
@@ -226,7 +226,7 @@ def libredeuda(con,dni):
     pdf.set_font_size(18)
     pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 155-297-472", 0, 1, 'L')
     pdf.set_font_size(12)
-    pdf.output("/home/hero/libredeuda.pdf")
+    pdf.output("/tmp/libredeuda.pdf")
 
 
 def recibotransferencia(con,fecha,cuenta,nc,ic,cobr,rbo,idcliente):
@@ -258,7 +258,7 @@ def recibotransferencia(con,fecha,cuenta,nc,ic,cobr,rbo,idcliente):
     pdf.set_font_size(18)
     pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 155-297-472", 0, 1, 'L')
     pdf.set_font_size(12)
-    pdf.output("/home/hero/recibotransferencia.pdf")
+    pdf.output("/tmp/recibotransferencia.pdf")
 
 
 
@@ -314,7 +314,7 @@ def intimacion(con,ldni):
         pdf.set_font_size(18)
         pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 155-297-472", 0, 1, 'L')
         pdf.set_font_size(12)
-    pdf.output("/home/hero/intimacion.pdf")
+    pdf.output("/tmp/intimacion.pdf")
 
 
 

@@ -132,7 +132,7 @@ def fichas_recordatorioswapp():
     clientes = json.loads(request.data.decode("UTF-8"))
     for cliente in clientes:
         if cliente['wapp']:
-            msgRecordatorio = f"{('Estimado ' if cliente['sex']=='M' else 'Estimada ')}{cliente['nombre'].upper()}: Buenos dias, le escribimos de ROMITEX para recordarle el vencimiento de su cuota. Le pedimos que nos envie por este medio el comprobante de la transferencia, asi le enviamos el recibo correspondiente. Muchas gracias!"
+            msgRecordatorio = f"{('Estimado ' if cliente['sex']=='M' else 'Estimada ')}{cliente['nombre'].upper()}: Buenos dias, le escribimos de ROMITEX para recordarle el vencimiento de su cuota. Le pedimos que nos envie por este medio el comprobante de la transferencia, asi le enviamos el recibo correspondiente. Gracias!"
             send_msg_whatsapp(cliente['id'], cliente['wapp'], msgRecordatorio)
             time.sleep(10)
     return 'ok'

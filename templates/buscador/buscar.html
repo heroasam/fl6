@@ -591,7 +591,7 @@
             },
             clipWappVentas(){
                 let messajeVenta;
-                messajeVenta = `${this.Cliente.nombre.toUpperCase()} Hola Buenos dias! Nos comunicamos de ROMITEX para informarle que en estos dias esta en su zona nuestro visitador de clientes exclusivos. Si Usted desea que ${this.Cliente.sex=="F"?'la':'lo'} visitemos SIN COMPROMISO avisenos asi le comentamos todas las promociones y articulos nuevos que tenemos para ofrecerle. Desde ya, muchas gracias!`
+                messajeVenta = `${this.Cliente.nombre.toUpperCase()} Hola! Nos comunicamos de ROMITEX para informarle que en estos dias esta en su zona nuestro visitador de clientes exclusivos. Si Usted desea que ${this.Cliente.sex=="F"?'la':'lo'} visitemos SIN COMPROMISO avisenos asi le comentamos todas las promociones y articulos nuevos que tenemos para ofrecerle. Desde ya, gracias!`
                 this.ventaWapp = messajeVenta.replaceAll(' ','%20')
                 // console.log(messajeVenta.replaceAll(' ','%20'))
             },
@@ -1159,7 +1159,7 @@
                         })
                 },
                 sendMsgRecordatorio(){
-                    msgRecordatorio = (this.Cliente.sex='M'?"Estimado ":"Estimada ")+this.Cliente.nombre.toUpperCase()+": Buenos dias, le escribimos de ROMITEX para recordarle el vencimiento de su cuota. Le pedimos que nos envie por este medio el comprobante de la transferencia, asi le enviamos el recibo correspondiente. Muchas gracias!"
+                    msgRecordatorio = (this.Cliente.sex='M'?"Estimado ":"Estimada ")+this.Cliente.nombre.toUpperCase()+": Buenos dias, le escribimos de ROMITEX para recordarle el vencimiento de su cuota. Le pedimos que nos envie por este medio el comprobante de la transferencia, asi le enviamos el recibo correspondiente. Gracias!"
                     axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
                         axios({
                             method: "POST",
