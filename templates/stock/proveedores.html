@@ -1,43 +1,41 @@
 {% extends "base_template.html" %}
 
-{% block title %}Pivot Cuentas{% endblock %}
+{% block title %}Proveedores{% endblock %}
 {% block style %}
 <style>
-.block:not(:last-child) {
-        margin-bottom: 1.5rem;
-}
 </style>
-
 {% endblock %}
 
-
 {% block content %}
+
+<div x-data="main()" class="container">
 <div class="columns">
     <div class="column is-7">
-        <h1 style="width:70%;" class="title is-size-1">Pivot-Cuentas</h1>
+        <h1 style="width:70%;" class="title is-size-1">Proveedores</h1>
     </div>
 </div>
 <div class="block">
     <a href="/stock/asientos"  type="button" class="button is-primary">Asientos</a>
     <a href="/stock/mayor"  type="button" class="button is-primary">Mayor</a>
+    <a href="/stock/pivotcuentas"  type="button" class="button is-primary">Pivot-Cuentas</a>
     <a href="/stock/retiros"  type="button" class="button is-primary">Retiros</a>
     <a href="/stock/compras"  type="button" class="button is-primary">Compras</a>
-    <a href="/stock/verstock"  type="button" class="button is-primary">Stock</a>
     <a href="/stock/salidas"  type="button" class="button is-primary">Salidas</a>
     <a href="/stock/articulos"  type="button" class="button is-primary">Articulos</a>
-    <a href="/stock/proveedores"  type="button" class="button is-primary">Proveedores</a>
+    <a href="/stock/verstock"  type="button" class="button is-primary">Stock</a>
 </div>
-{{tbl|safe}}
 
 
 
+</div>
+{% endblock %}
 {% block script %}
 <script>
-// let $thead = document.querySelector('thead');
-// let heads = $thead.children.length
-// if(heads===3) $thead.removeChild($thead.lastElementChild)
-//removemos el tr de fecha que complica y afea el encabezado
-</script>
-{% endblock %}
+function main(){
+    return {
+        
+    }
+}
 
+</script>
 {% endblock %}

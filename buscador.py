@@ -149,7 +149,7 @@ def buscar_imprimirficha():
         send_file_whatsapp(idcliente, "/tmp/ficha.pdf", wapp)
         return 'ok'
     else:
-        return send_file('/home/hero/ficha.pdf')
+        return send_file('/tmp/ficha.pdf')
     
 
 
@@ -415,7 +415,7 @@ def buscador_intimar():
 
 @buscador.route('/pdf/<pdf>')
 def buscador_pdf(pdf):
-    return send_file('/home/hero/'+pdf)
+    return send_file('/tmp/'+pdf)
 
 
 @buscador.route('/buscador/libredeuda', methods=['POST'])

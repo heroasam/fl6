@@ -59,7 +59,7 @@ def fichas_imprimir():
 
     ficha(con, listadni)
     con.close()
-    return send_file('/home/hero/ficha.pdf')
+    return send_file('/tmp/ficha.pdf')
 
 
 @fichas.route('/fichas/intimar', methods = ['POST'])
@@ -70,7 +70,7 @@ def fichas_intimar():
 
     intimacion(con, listadni)
     con.close()
-    return send_file('/home/hero/intimacion.pdf')
+    return send_file('/tmp/intimacion.pdf')
 
 @fichas.route('/fichas/intimarpdf', methods=["POST"])
 def fichas_intimarpdf():

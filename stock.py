@@ -14,6 +14,12 @@ def stock_asientos():
     return render_template('stock/asientos.html')
 
 
+@stock.route('/stock/proveedores')
+@login_required
+def stock_proveedores():
+    return render_template('stock/proveedores.html')
+
+    
 @stock.route('/stock/getasientos')
 def stock_getasientos():
     con = get_con()
