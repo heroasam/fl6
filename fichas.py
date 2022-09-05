@@ -44,6 +44,8 @@ def fichas_muestraclientes(tipo,zona):
         clientes = pgdict(con,f"select * from clientes where zona='{zona}' and pmovto<=date_sub(curdate(),interval 5 day) and deuda>0 and ultcompra>date_sub(curdate(),interval 30 day)  order by pmovto")
     elif tipo=='morosos':
         clientes = pgdict(con,f"select * from clientes where zona='{zona}' and pmovto<=date_sub(curdate(),interval 60 day) and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  order by pmovto")
+    elif tipo=='cancelados':
+        clientes = pgdict(con,f"select * from clientes where zona='{zona}' and deuda=0  order by ultpago desc")
     # print(clientes)
     con.close()
     return jsonify(clientes=clientes)
