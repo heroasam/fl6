@@ -431,7 +431,7 @@ def send_file_whatsapp(idcliente,file, wapp, msg=""):
 
     # img_bas64=urllib.parse.quote_plus(encoded_string)
 
-    url = 'http://168.197.50.133/sendFile'
+    url = 'https://pachito.xyz/sendFile'
     data = {
         'sessionName':"romitex1",
         'number':wapp,
@@ -449,7 +449,7 @@ def send_msg_whatsapp(idcliente, wapp, msg):
     logwhatsapp(idcliente,wapp,msg=msg)
     wapp = "549"+wapp
     msg = msg.replace("%20"," ")
-    url = 'http://168.197.50.133/sendText'
+    url = 'https://www.pachito.xyz/sendText'
     data = {
         'sessionName':"romitex1",
         'number':wapp,
