@@ -87,12 +87,10 @@
               <input type="search" placeholder="Busca: Nombre Calle Num" class="input" x-model="buscar" @focus="buscar1=''" @keyup.enter="buscarCliente";verCard=false">
               <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
             <div class="grid col-1 gap-0">
-            <input type="text" class="input mb-1" x-model="Cliente.calle" id="searchCalle" autocomplete="off">
+            <input type="text" class="input mb-1" x-model="calleMostrada" id="searchCalle" autocomplete="off">
             <div id="suggestionsCalle" class="suggestions"></div>
             </div>
-
-
-                <button type="button" @click="mostrarCalle" class="button is-primary">Mostrar</button>
+            <button type="button" @click="mostrarCalle" class="button is-primary">Mostrar</button>
           </div>
 
           <div class="buttons m-3" >
@@ -537,6 +535,7 @@
             cobrEnviar:'',
             listaCobradores:[],
             wappCobrador:'',
+            calleMostrada:'',
 
             buscarCliente(){
 		        buscar = this.buscar1 || this.buscar
@@ -855,12 +854,12 @@
                     })
                     if(input==='') $suggestions.innerHTML=''
                     if(e.key==='Enter'){
-                        this.Cliente.calle = $suggestions.firstChild.innerHTML
+                        this.calleMostrada = $suggestions.firstChild.innerHTML
                         $suggestions.innerHTML=''
                     }
                     })
                     $suggestions.addEventListener('click',(e)=>{
-                        this.Cliente.calle=e.target.innerHTML
+                        this.calleMostrada=e.target.innerHTML
                         $suggestions.innerHTML=''
                     })
                     $input1.addEventListener('keyup',(e)=>{
@@ -1219,7 +1218,7 @@ Titular de la cuenta: Heredie Maria Isabel`
                 })
         }, */
         mostrarCalle(){
-            axios.get('/buscador/mostrarcalle/'+this.Cliente.calle)
+            axios.get('/buscador/mostrarcalle/'+this.calleMostrada)
             .then(res=>{
                 this.verCard = false
                 this.DatosCalle = res.data.calle
