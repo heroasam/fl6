@@ -477,7 +477,7 @@
         <tbody>
             <template x-for="dato in DatosCalle">
                 <tr :class="dato.deuda>0?(dato.atraso>45?'mora':'cliente'):'cancelado'">
-                    <td><button class="button is-primary is-small" x-text=dato.num @click="buscar=dato.dni;buscarCliente();scroll(0,0)"></button></td>
+                    <td><button class="button is-primary is-small" x-text=dato.num @click="buscar1='';buscar=dato.dni;buscarCliente();scroll(0,0)"></button></td>
                     <td x-text=dato.nombre></td>
                     <td x-text=dato.deuda></td>
                 </tr>

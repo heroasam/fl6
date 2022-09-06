@@ -3,6 +3,83 @@
 {% block title %}Proveedores{% endblock %}
 {% block style %}
 <style>
+    :placeholder-shown{
+        font-size: larger;
+        font-weight: bold;
+    }
+    .grid-buscar{
+    display: grid;
+    grid-template-columns: 1fr 20%;
+}
+.micard {
+    padding: 24px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 6px 0px 10px gray ;
+}
+.modal-container{
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0,0,0,0.3);
+}
+.modal{
+    display:flex;
+    flex-direction: column;
+    position: relative;
+}
+.btn-close{
+    color:purple;
+    background-color: white;
+    border: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+.textarea {
+        border: solid 1px purple;
+        border-radius: 5px;
+    }
+.textarea:focus{
+        border: solid 2px turquoise;
+        border-radius: 5px;
+}
+.input:focus{
+        border: solid 2px turquoise;
+        border-radius: 5px;
+}
+.suggestions{
+    max-height: 200px;
+    width: 100%;
+    border-radius: 5px;
+    overflow: auto;
+}
+.suggestions>div{
+    padding: 5px;
+    padding-left: 15px;
+    font-size: 0.75em;
+    color: #999;
+    cursor: pointer;
+}
+.suggestions>div:hover{
+    background: black;
+    color: white;
+}
+.mora{
+    background-color: red;
+}
+.cliente{
+    background-color: yellow;
+}
+.cancelado{
+    background-color: mediumaquamarine;
+}
+
 </style>
 {% endblock %}
 
@@ -25,6 +102,7 @@
     <a href="/stock/verstock"  type="button" class="button is-primary">Stock</a>
 </div>
 
+<button class="button is-danger" @click="agregarProveedor">Agregar Proveedor</button>
 <table class="table">
     <thead>
         <tr>
@@ -57,7 +135,23 @@
         </tr>
     </tbody>
 </table>
-
+<div x-bind:class="verModalProveedores?'modal-container':''">
+    <div class="micard modal" x-show="verModalProveedores">
+        <div class="flex justify-content-end">
+            <button class="btn-close" @click="verModalProveedores=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
+        </div>
+        <h1 class="title is-3">Proveedores</h1>
+        <input type="text" class="input mb-1" x-model="Proveedor.empresa" placeholder="empresa">
+        <input type="text" class="input mb-1" x-model="Proveedor.direccion" placeholder="direccion">
+        <input type="text" class="input mb-1" x-model="Proveedor.wapp" placeholder="whatsapp">
+        <input type="text" class="input mb-1" x-model="Proveedor.alias" placeholder="alias">
+        <input type="text" class="input mb-1" x-model="Proveedor.cbu" placeholder="CBU">
+        <input type="text" class="input mb-1" x-model="Proveedor.contacto" placeholder="contacto">
+        <input type="text" class="input mb-1" x-model="Proveedor.transporte" placeholder="transporte">
+        <input type="text" class="input mb-1" x-model="Proveedor.descripcion" placeholder="descripcion">
+        <button class="button is-primary" @click="guardarEdicion">Guardar</button>
+    </div>
+</div>
 
 </div>
 {% endblock %}
@@ -67,6 +161,7 @@ function main(){
     return {
         listProveedores:[],
         verModalProveedores:false,
+        Proveedor:{},
         deleteProveedor(id){
 
         },
@@ -78,6 +173,9 @@ function main(){
             .then(res=>{
                 this.listProveedores = res.data.proveedores
             })
+        },
+        agregarProveedor(){
+            this.verModalProveedores=true;
         },
         
     }
