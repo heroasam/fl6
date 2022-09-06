@@ -320,3 +320,10 @@ def stock_guardaredicionarticulo():
         cur.close()
         con.close()
         return 'OK'
+
+
+@stock.route('/stock/getproveedores')
+def stock_getproveedores():
+    con = get_con()
+    proveedores = pgdict(con, f"select * from proveedores order by empresa")
+    return jsonify(proveedores=proveedores)

@@ -8,7 +8,7 @@
 
 {% block content %}
 
-<div x-data="main()" class="container">
+<div x-data="main()" class="container" x-init="getProveedores()">
 <div class="columns">
     <div class="column is-7">
         <h1 style="width:70%;" class="title is-size-1">Proveedores</h1>
@@ -25,6 +25,38 @@
     <a href="/stock/verstock"  type="button" class="button is-primary">Stock</a>
 </div>
 
+<table class="table">
+    <thead>
+        <tr>
+            <th>Borrar</th>
+            <th>Editar</th>
+            <th>Empresa</th>
+            <th>Direccion</th>
+            <th>Whatsapp</th>
+            <th>Alias</th>
+            <th>CBU</th>
+            <th>Contacto</th>
+            <th>Transporte</th>
+            <th>Descripcion</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <template x-for="proveedor in listProveedores">
+                <td><button class="button is-danger is-small" @click="deleteProveedor(proveedor['id'])">Borrar</button></td>
+                <td><button class="button is-danger is-small" @click="editProveedor(proveedor['id'])">Editar</button></td>
+                <td x-text="proveedor['empresa']"></td>
+                <td x-text="proveedor['direccion']"></td>
+                <td x-text="proveedor['wapp']"></td>
+                <td x-text="proveedor['alias']"></td>
+                <td x-text="proveedor['cbu']"></td>
+                <td x-text="proveedor['contacto']"></td>
+                <td x-text="proveedor['transporte']"></td>
+                <td x-text="proveedor['descripcion']"></td>
+            </template>
+        </tr>
+    </tbody>
+</table>
 
 
 </div>
@@ -33,6 +65,20 @@
 <script>
 function main(){
     return {
+        listProveedores:[],
+        verModalProveedores:false,
+        deleteProveedor(id){
+
+        },
+        editProveedor(id){
+
+        },
+        getProveedores(){
+            axios.get('/stock/getproveedores')
+            .then(res=>{
+                this.listProveedores = res.data.proveedores
+            })
+        },
         
     }
 }
