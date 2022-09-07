@@ -342,6 +342,19 @@ def stock_agregarproveedor():
     return 'ok'
 
 
+@stock.route('/stock/editarproveedor', methods=["POST"])
+def stock_editarproveedor():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    upd = f"update proveedores set empresa='{d['empresa']}',direccion='{d['direccion']}',wapp='{d['wapp']}',alias='{d['alias']}',cbu='{d['cbu']}',contacto='{d['contacto']}',transporte='{d['transporte']}',descripcion='{d['descripcion']}' where id={d['id']}"
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    log(upd)
+    con.close()
+    return 'ok'
+
+
 @stock.route('/stock/borrarproveedor/<int:id>')
 def stock_borrarproveedor(id):
     con = get_con()
