@@ -102,12 +102,13 @@
     <a href="/stock/verstock"  type="button" class="button is-primary">Stock</a>
 </div>
 
-<button class="button is-danger" @click="agregarProveedor">Agregar Proveedor</button>
+<button class="button is-danger" @click="Proveedor={};agregarProveedor()">Agregar Proveedor</button>
 <table class="table">
     <thead>
         <tr>
             <th>Borrar</th>
             <th>Editar</th>
+            <th>id</th>
             <th>Empresa</th>
             <th>Direccion</th>
             <th>Whatsapp</th>
@@ -119,10 +120,11 @@
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <template x-for="proveedor in listProveedores">
+        <template x-for="proveedor in listProveedores">
+                <tr>
                 <td><button class="button is-danger is-small" @click="deleteProveedor(proveedor['id'])">Borrar</button></td>
-                <td><button class="button is-danger is-small" @click="editProveedor(proveedor['id'])">Editar</button></td>
+                <td><button class="button is-danger is-small" @click="Proveedor=proveedor;editarProveedor()">Editar</button></td>
+                <td x-text="proveedor['id']"></td>
                 <td x-text="proveedor['empresa']"></td>
                 <td x-text="proveedor['direccion']"></td>
                 <td x-text="proveedor['wapp']"></td>
@@ -131,8 +133,8 @@
                 <td x-text="proveedor['contacto']"></td>
                 <td x-text="proveedor['transporte']"></td>
                 <td x-text="proveedor['descripcion']"></td>
+                </tr>
             </template>
-        </tr>
     </tbody>
 </table>
 <div x-bind:class="verModalProveedores?'modal-container':''">
@@ -149,7 +151,8 @@
         <input type="text" class="input mb-1" x-model="Proveedor.contacto" placeholder="contacto">
         <input type="text" class="input mb-1" x-model="Proveedor.transporte" placeholder="transporte">
         <input type="text" class="input mb-1" x-model="Proveedor.descripcion" placeholder="descripcion">
-        <button class="button is-primary" @click="guardarEdicion">Guardar</button>
+        <button class="button is-primary" @click="guardarRegistro">Guardar</button>
+        <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
     </div>
 </div>
 
@@ -177,6 +180,47 @@ function main(){
         agregarProveedor(){
             this.verModalProveedores=true;
         },
+        editarProveedor(){
+            this.verModalProveedores=true;
+        },
+        guardarRegistro(){
+            // agregar o editar registro
+            this.verModalProveedores=false;
+            if(this.Proveedor.id == null){
+                url = '/stock/agregarproveedor'
+            }else{
+                url='/stock/editarproveedor'
+            }
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+            axios({
+                method:'POST',
+                data: this.Proveedor,
+                url: url,
+            })
+            .then(res=>{
+                Swal.fire({
+                                            title: 'Proveedor',
+                                            text: 'Registro Guardado',
+                                            icon: 'success',
+                                            timer: 3000,
+                                            });
+            this.getProveedores() 
+            })
+        },
+        deleteProveedor(id){
+            axios.get('/stock/borrarproveedor/'+id)
+            .then(res=>{
+                Swal.fire({
+                                            title: 'Proveedor',
+                                            text: 'Registro Borrado con Exito',
+                                            icon: 'success',
+                                            timer: 3000,
+                                            });
+            this.getProveedores()
+
+            })
+        }
+
         
     }
 }

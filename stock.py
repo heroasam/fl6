@@ -327,3 +327,28 @@ def stock_getproveedores():
     con = get_con()
     proveedores = pgdict(con, f"select * from proveedores order by empresa")
     return jsonify(proveedores=proveedores)
+
+
+@stock.route('/stock/agregarproveedor', methods=["POST"])
+def stock_agregarproveedor():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    ins = f"insert into proveedores(empresa,direccion,wapp,alias,cbu,contacto,transporte,descripcion) values('{d['empresa']}','{d['direccion']}','{d['wapp']}','{d['alias']}','{d['cbu']}','{d['contacto']}','{d['transporte']}','{d['descripcion']}')"
+    cur = con.cursor()
+    cur.execute(ins)
+    con.commit()
+    log(ins)
+    con.close()
+    return 'ok'
+
+
+@stock.route('/stock/borrarproveedor/<int:id>')
+def stock_borrarproveedor(id):
+    con = get_con()
+    stm = f"delete from proveedores where id={id}"
+    cur = con.cursor()
+    cur.execute(stm)
+    con.commit()
+    log(stm)
+    con.close()
+    return 'ok'

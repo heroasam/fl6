@@ -526,3 +526,5 @@ def fichas_programarboton():
     log(upd)
     con.close()
     return 'ok'
+
+
