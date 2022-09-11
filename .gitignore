@@ -3,7 +3,8 @@
 __pychache__/
 *.pyc
 *.xlsx
-#*#
+#*.*#
 .vscode/settings.json
 .ycm*
 *~
+
