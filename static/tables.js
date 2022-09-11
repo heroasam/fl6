@@ -232,3 +232,20 @@ document.addEventListener('contextmenu', ()=>{
         // sortGridNumerica
     });
 
+// Funcion usada en datatables vainilla js para dar formato a los datos obtenidos de json-flask
+function dataWrapper(datos){
+    let obj = {
+    headings: Object.keys(datos[0]),
+    data: []
+    };
+    for ( let i = 0; i < datos.length; i++ ) {
+        obj.data[i] = [];
+        for (let p in datos[i]) {
+            if( datos[i].hasOwnProperty(p) ) {
+                obj.data[i].push(datos[i][p]);
+            }
+        }
+    }
+    return obj
+}
+

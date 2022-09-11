@@ -6,21 +6,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{% block title %}{% endblock %}</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='tables.css') }}">
-        <!-- <link id="bulma" rel="stylesheet" href="{{ url_for('static', filename='bulmaswatch.min.css') }}"> -->
-        <!-- <link rel="stylesheet" href="https://unpkg.com/buefy/dist/buefy.min.css"> -->
         <link rel="stylesheet" href="{{ url_for('static', filename='buefy.min.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='sweetalert2.min.css') }}">
-        
         <link id="bulma" rel="stylesheet" href="https://unpkg.com/bulmaswatch/slate/bulmaswatch.min.css">
-        <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-tooltip@3.0.2/dist/css/bulma-tooltip.min.css"> -->
-        <!-- <link href="{{url_for('static', filename='bootstrap.min.css')}}"> -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-        <!-- <link rel="stylesheet" href="{{ url_for('static', filename='font-awesome.min.css') }}"> -->
-        
-        
-        <!-- <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script> -->
-	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.2.2/cdn.js" integrity="sha512-o9b5X9LmaFXtV1ywb+U6+pjFuId81OZ56iK8AhLDqEViGzMfJQ3NMtCu6q8uPM7WmSEMwd1CzjFHTGO2PNjLVA==" crossorigin="anonymous" referrerpolicy="no-referrer"  defer></script> -->
-  <script src="{{ url_for('static', filename='alpine.js')}}" defer></script>
+        <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+        <!-- <link rel="stylesheet" href="https://jsuites.net/v4/jsuites.css" type="text/css"/> -->
+        <!-- <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js"></script> -->
+        <script src="{{ url_for('static', filename='alpine.js')}}" defer></script>
         {% block style %} {% endblock %}
       </head>
     <body>
@@ -53,17 +46,18 @@
 
 
 <script src="{{ url_for('static', filename='tables.js') }}" ></script>
-<script type="module" src="{{ url_for('static', filename='send.js') }}" ></script>
+<!-- <script type="module" src="{{ url_for('static', filename='send.js') }}" ></script> -->
 <script src="{{ url_for('static', filename='bulma-toast.min.js') }}" ></script>
 <script src="{{ url_for('static', filename='dayjs.min.js') }}" ></script>
 <script src="{{ url_for('static', filename='utc.js') }}"></script>
 <script>dayjs.extend(window.dayjs_plugin_utc)</script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-<!-- <script src="https://unpkg.com/buefy/dist/components/autocomplete"></script> -->
 <script src="{{ url_for('static', filename='autocomplete.js') }}"></script>
 <script src="{{ url_for('static', filename='sweetalert2.all.min.js') }}"></script>
-<!-- <script src="https://use.fontawesome.com/6d1e679f7b.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+<!-- <script src="https://jsuites.net/v4/jsuites.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js"></script> -->
 <script>
 //   document.addEventListener('DOMContentLoaded', () => {
 

@@ -433,7 +433,7 @@ def send_file_whatsapp(idcliente,file, wapp, msg=""):
 
     url = 'https://pachito.xyz/sendFile'
     data = {
-        'sessionName':"romitex1",
+        'sessionName':"romitex10",
         'number':wapp,
         'base64Data':encoded_string,
         'fileName':namefile,
@@ -451,7 +451,7 @@ def send_msg_whatsapp(idcliente, wapp, msg):
     msg = msg.replace("%20"," ")
     url = 'https://www.pachito.xyz/sendText'
     data = {
-        'sessionName':"romitex1",
+        'sessionName':"romitex10",
         'number':wapp,
         'text':msg,
     }

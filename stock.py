@@ -365,3 +365,16 @@ def stock_borrarproveedor(id):
     log(stm)
     con.close()
     return 'ok'
+
+
+@stock.route('/stock/listawapp')
+def stock_listawapp():
+    con = get_con()
+    wapps = pgdict(con, f"select * from logwhatsapp")
+    return jsonify(wapps=wapps)
+
+
+@stock.route('/wapp')
+def stock_wapp():
+    return render_template('/stock/wapp.html')
+

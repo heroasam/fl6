@@ -513,9 +513,10 @@ def buscador_wapp():
         return 'error', 400
 
 
-@buscador.route('/buscador/wapp/enviados')
-def buscador_wapp_enviados():
-    messages = obtener_msg_enviados(5493512411963)
-    return messages
 
 
+@buscador.route('/buscador/callesprueba')
+def buscador_callesprueba():
+    con = get_con()
+    result = pgdict(con, f"select id, calle as text from calles order by id")
+    return jsonify(result=result)
