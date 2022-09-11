@@ -93,6 +93,90 @@ thead th {
         overflow:visible;
         height: auto;
     }
-    
-   
+}
+
+/* grid buscar */
+
+.grid-buscar{
+    display: grid;
+    grid-template-columns: 1fr 20%;
+}
+
+/* modal */
+.xcard {
+    padding: 24px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 6px 0px 10px gray ;
+}
+.xmodal-container{
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0,0,0,0.3);
+}
+.xmodal{
+    display:flex;
+    flex-direction: column;
+    position: relative;
+}
+.btn-close{
+    color:purple;
+    background-color: white;
+    border: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+/* input textarea suggestions */
+.textarea {
+        border: solid 1px purple;
+        border-radius: 5px;
+    }
+.textarea:focus{
+        border: solid 2px turquoise;
+        border-radius: 5px;
+}
+.input:focus{
+        border: solid 2px turquoise;
+        border-radius: 5px;
+}
+.suggestions{
+    max-height: 200px;
+    width: 100%;
+    border-radius: 5px;
+    overflow: auto;
+}
+.suggestions>div{
+    padding: 5px;
+    padding-left: 15px;
+    font-size: 0.75em;
+    color: #999;
+    cursor: pointer;
+}
+.suggestions>div:hover{
+    background: black;
+    color: white;
+}
+/* mora cliente cancelado */
+.mora{
+    background-color: red;
+}
+.cliente{
+    background-color: yellow;
+}
+.cancelado{
+    background-color: mediumaquamarine;
+}
+
+/* placeholder */
+:placeholder-shown{
+        font-size: larger;
+        font-weight: bold;
 }

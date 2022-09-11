@@ -1,83 +1,6 @@
 {% extends "base_template.html" %}
 
 {% block title %}Clientes{% endblock %}
-{% block style %}
-<style>
-.grid-buscar{
-    display: grid;
-    grid-template-columns: 1fr 20%;
-}
-.micard {
-    padding: 24px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 6px 0px 10px gray ;
-}
-.modal-container{
-        width: 100vw;
-        height: 100vh;
-        position: fixed;
-        left: 0;
-        top: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: rgba(0,0,0,0.3);
-}
-.modal{
-    display:flex;
-    flex-direction: column;
-    position: relative;
-}
-.btn-close{
-    color:purple;
-    background-color: white;
-    border: none;
-    position: absolute;
-    top: 0;
-    right: 0;
-}
-.textarea {
-        border: solid 1px purple;
-        border-radius: 5px;
-    }
-.textarea:focus{
-        border: solid 2px turquoise;
-        border-radius: 5px;
-}
-.input:focus{
-        border: solid 2px turquoise;
-        border-radius: 5px;
-}
-.suggestions{
-    max-height: 200px;
-    width: 100%;
-    border-radius: 5px;
-    overflow: auto;
-}
-.suggestions>div{
-    padding: 5px;
-    padding-left: 15px;
-    font-size: 0.75em;
-    color: #999;
-    cursor: pointer;
-}
-.suggestions>div:hover{
-    background: black;
-    color: white;
-}
-.mora{
-    background-color: red;
-}
-.cliente{
-    background-color: yellow;
-}
-.cancelado{
-    background-color: mediumaquamarine;
-}
-
-</style>
-{% endblock %}
 {% block content %}
 <div x-data="main()" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores()" class="container">
 
@@ -318,27 +241,27 @@
 
 
     <!-- MODALES -->
-    <div x-bind:class="verModalPmovto?'modal-container':''">
-        <div class=" micard modal" x-show="verModalPmovto">
-            <button class="btn-close" @click="verModalPmovto=false"><i class="fa fa-times" aria-hidden="true"></i></button>
+    <div x-bind:class="verModalPmovto?'xmodal-container':''">
+        <div class="xcard xmodal" x-show="verModalPmovto">
+            <button class="btn-close" @click="verModalPmovto=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
             <h1 class="title is-3">Fechar PmoVto</h1>
             <input type="date" class="input mb-3" x-model="Cliente.pmovto">
             <button class="button is-primary" @click="guardarPmovto">Fechar</button>
         </div>
     </div>
-    <div x-bind:class="verModalComentario?'modal-container':''">
-        <div class=" micard modal" x-show="verModalComentario">
-            <button class="btn-close" @click="verModalComentario=false"><i class="fa fa-times" aria-hidden="true"></i></button>
+    <div x-bind:class="verModalComentario?'xmodal-container':''">
+        <div class="xcard xmodal" x-show="verModalComentario">
+            <button class="btn-close" @click="verModalComentario=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
             <h3 class="title is-4">Agregar Comentario</h3>
             <input type="date" class="input mb-3" x-model="Comentario.fechahora">
             <textarea class="textarea mb-3" rows="4" x-model="Comentario.comentario"></textarea>
             <button class="button is-primary" @click="guardarComentario">Guardar</button>
         </div>
     </div>
-    <div x-bind:class="verModalEdicion?'modal-container':''">
-        <div class="micard modal" x-show="verModalEdicion">
+    <div x-bind:class="verModalEdicion?'xmodal-container':''">
+        <div class="xcard xmodal" x-show="verModalEdicion">
             <div class="flex justify-content-end">
-                <button class="btn-close" @click="verModalEdicion=false"><i class="fa fa-times" aria-hidden="true"></i></button>
+                <button class="btn-close" @click="verModalEdicion=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
             </div>
             <h1 class="title is-3">Editar Cliente</h1>
             <input type="text" class="input mb-1" x-model="Cliente.dni">
@@ -370,9 +293,9 @@
             <button class="button is-primary" @click="guardarEdicion">Guardar</button>
         </div>
     </div>
-    <div x-bind:class="verModalPlanPago?'modal-container':''">
-        <div class=" micard modal" x-show="verModalPlanPago">
-            <button class="btn-close" @click="verModalPlanPago=false"><i class="fa fa-times" aria-hidden="true"></i></button>
+    <div x-bind:class="verModalPlanPago?'xmodal-container':''">
+        <div class="xcard xmodal" x-show="verModalPlanPago">
+            <button class="btn-close" @click="verModalPlanPago=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
             <h1 class="title is-3">Plan Pagos</h1>
             <label for="fecha" class="label">Fecha</label>
             <input type="date" class="input mb-3" x-model="Venta.fecha" id="fecha" autocomplete="off">
@@ -393,9 +316,9 @@
             <button class="button is-primary" @click="guardarPlanPagos">Generar</button>
         </div>
     </div>
-    <div x-bind:class="verModalRecibo?'modal-container':''">
-        <div class=" micard modal" x-show="verModalRecibo">
-            <button class="btn-close" @click="verModalRecibo=false"><i class="fa fa-times" aria-hidden="true"></i></button>
+    <div x-bind:class="verModalRecibo?'xmodal-container':''">
+        <div class="xcard xmodal" x-show="verModalRecibo">
+            <button class="btn-close" @click="verModalRecibo=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
             <h1 class="title is-3">Recibo</h1>
             <label for="fecha" class="label">Fecha</label>
             <input type="date" class="input mb-3" x-model="Recibo.fecha" id="fecha" autocomplete="off">
@@ -416,9 +339,9 @@
             <button class="button is-primary" @click="guardarRecibo">Generar</button>
         </div>
     </div>
-    <div x-bind:class="verModalMsgWhatsapp?'modal-container':''">
-        <div class=" micard modal" x-show="verModalMsgWhatsapp">
-            <button class="btn-close" @click="verModalMsgWhatsapp=false"><i class="fa fa-times" aria-hidden="true"></i></button>
+    <div x-bind:class="verModalMsgWhatsapp?'xmodal-container':''">
+        <div class="xcard xmodal" x-show="verModalMsgWhatsapp">
+            <button class="btn-close" @click="verModalMsgWhatsapp=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
             <h1 class="title is-3">WhatsApp</h1>
             <label for="nombre" class="label">Nombre</label>
             <input type="text" class="input mb-3" x-model="Cliente.nombre" id="nombre" autocomplete="off" readonly>
@@ -429,9 +352,9 @@
             <button class="button is-primary" @click="enviarWhatsapp">Enviar</button>
         </div>
     </div>
-    <div x-bind:class="verModalImprimirFicha?'modal-container':''">
-        <div class=" micard modal" x-show="verModalImprimirFicha">
-            <button class="btn-close" @click="verModalImprimirFicha=false"><i class="fa fa-times" aria-hidden="true"></i></button>
+    <div x-bind:class="verModalImprimirFicha?'xmodal-container':''">
+        <div class="xcard xmodal" x-show="verModalImprimirFicha">
+            <button class="btn-close" @click="verModalImprimirFicha=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
             <h1 class="title is-3">Imprimir Ficha</h1>
             <button class="button is-primary is-small" @click="mostrarFichaPorPantalla=true;imprimirFicha()">Imprimir en pantalla</button>
             <div class="buttons m-3">
@@ -441,9 +364,9 @@
             </div>
         </div>
     </div>
-    <div x-bind:class="verModalAsunto?'modal-container':''">
-        <div class=" micard modal" x-show="verModalAsunto">
-            <button class="btn-close" @click="verModalAsunto=false"><i class="fa fa-times" aria-hidden="true"></i></button>
+    <div x-bind:class="verModalAsunto?'xmodal-container':''">
+        <div class="xcard xmodal" x-show="verModalAsunto">
+            <button class="btn-close" @click="verModalAsunto=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
             <h1 class="title is-3">Asunto</h1>
             <label for="fecha" class="label">Fecha</label>
             <input type="date" class="input mb-3" x-model="Asunto.fecha" id="fecha" autocomplete="off">
@@ -491,6 +414,8 @@
 
 {% block script %}
 <script>
+    
+
     function textToClipboard (text) {
         var dummy = document.createElement("textarea");
         document.body.appendChild(dummy);
@@ -1211,21 +1136,14 @@ Titular de la cuenta: Heredie Maria Isabel`
                 tel = re.exec(tel)[0]
                 window.location.href = 'tel:' + tel;
         },
-        /* obtenerListaCalles(){
-                axios.get('/buscador/obtenerlistacalles')
-                .then(res=>{
-                    this.Calles=res.data.calles
-                })
-        }, */
         mostrarCalle(){
             axios.get('/buscador/mostrarcalle/'+this.calleMostrada)
             .then(res=>{
                 this.verCard = false
                 this.DatosCalle = res.data.calle
             })
-        }  
-
-        }
+        },
+    }
     }
 </script>
 {% endblock %}
