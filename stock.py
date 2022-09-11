@@ -242,7 +242,7 @@ def stock_guardarsalida():
 @stock.route('/stock/getlistaarticulos')
 def stock_getlistaarticulos():
     con = get_con()
-    articulos=pgddict(con, f"select id,art,costo,activo from articulos order by id desc" )
+    articulos=pgddict(con, f"select id,art,costo,activo from articulos order by activo desc,art" )
     con.close()
     return jsonify(articulos=articulos)
 
