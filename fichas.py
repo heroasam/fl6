@@ -59,7 +59,7 @@ def fichas_imprimir():
 
     ficha(con, listadni)
     con.close()
-    return send_file('/tmp/ficha.pdf')
+    return send_file('/home/hero/ficha.pdf')
 
 
 @fichas.route('/fichas/intimar', methods = ['POST'])
@@ -70,7 +70,7 @@ def fichas_intimar():
 
     intimacion(con, listadni)
     con.close()
-    return send_file('/tmp/intimacion.pdf')
+    return send_file('/home/hero/intimacion.pdf')
 
 @fichas.route('/fichas/intimarpdf', methods=["POST"])
 def fichas_intimarpdf():
@@ -371,7 +371,7 @@ def fichas_imprimirlistado():
     listado(con, listadni)
     # print(len(listadni))
     con.close()
-    return send_file('/tmp/listado.pdf')
+    return send_file('/home/hero/listado.pdf')
 
 
 @fichas.route('/fichas/obtenerlistadofechados')
@@ -461,7 +461,7 @@ def fichas_imprimirasunto():
 
     asuntos(con, ids)
     con.close()
-    return send_file('/tmp/asuntos.pdf')
+    return send_file('/home/hero/asuntos.pdf')
 
 
 @fichas.route('/fichas/cancelados')
@@ -497,7 +497,7 @@ def fichas_imprimircancelados():
 
     cancelados(con, listadni)
     con.close()
-    return send_file('/tmp/cancelados.pdf')
+    return send_file('/home/hero/cancelados.pdf')
 
 
 @fichas.route('/fichas/toggleMudadoLlamado/<string:dni>')

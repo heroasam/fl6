@@ -421,58 +421,60 @@ def obtener_msg_enviados(to_number):
 
 #     return response.text
 
-def send_file_whatsapp(idcliente,file, wapp, msg=""):
-    """API libre de VENOM"""
-    logwhatsapp(idcliente,wapp,file=file, msg=msg)
-    wapp = "549"+wapp
-    namefile = os.path.split(file)[1]
-    with open(file, "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read())
+# def send_file_whatsapp(idcliente,file, wapp, msg=""):
+#     """API libre de VENOM"""
+#     logwhatsapp(idcliente,wapp,file=file, msg=msg)
+#     wapp = "549"+wapp
+#     namefile = os.path.split(file)[1]
+#     with open(file, "rb") as image_file:
+#         encoded_string = base64.b64encode(image_file.read())
 
-    # img_bas64=urllib.parse.quote_plus(encoded_string)
+#     # img_bas64=urllib.parse.quote_plus(encoded_string)
 
-    url = 'https://pachito.xyz/sendFile'
-    data = {
-        'sessionName':"romitex10",
-        'number':wapp,
-        'base64Data':encoded_string,
-        'fileName':namefile,
-        'caption':msg,
-    }
-    response = requests.post(url,json=data)
-    print(response.text)
-    return response.text 
-
-
-def send_msg_whatsapp(idcliente, wapp, msg):
-    """Envia whatsapp por la api libre de VENOM"""
-    logwhatsapp(idcliente,wapp,msg=msg)
-    wapp = "549"+wapp
-    msg = msg.replace("%20"," ")
-    url = 'https://www.pachito.xyz/sendText'
-    data = {
-        'sessionName':"romitex10",
-        'number':wapp,
-        'text':msg,
-    }
-    response = requests.post(url,json=data)
-    print(response.text)
-    return response.text 
+#     url = 'https://pachito.xyz/sendFile'
+#     data = {
+#         'sessionName':"romitex10",
+#         'number':wapp,
+#         'base64Data':encoded_string,
+#         'fileName':namefile,
+#         'caption':msg,
+#     }
+#     response = requests.post(url,json=data)
+#     print(response.text)
+#     return response.text 
 
 
 # def send_msg_whatsapp(idcliente, wapp, msg):
+#     """Envia whatsapp por la api libre de VENOM"""
 #     logwhatsapp(idcliente,wapp,msg=msg)
-#     wapp = "+549"+wapp
-#     payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&text={msg}"
-#     response = requests.request("GET", payload)
-#     return response.text
+#     wapp = "549"+wapp
+#     msg = msg.replace("%20"," ")
+#     url = 'https://www.pachito.xyz/sendText'
+#     data = {
+#         'sessionName':"romitex10",
+#         'number':wapp,
+#         'text':msg,
+#     }
+#     response = requests.post(url,json=data)
+#     print(response.text)
+#     return response.text 
 
-# def send_file_whatsapp(idcliente,file, wapp, msg=""):
-#     logwhatsapp(idcliente,wapp,file=file, msg=msg)
-#     wapp = "+549"+wapp
-#     payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&text={msg}&document={file}"
-#     response = requests.request("GET", payload)
-#     return response.text
+
+def send_msg_whatsapp(idcliente, wapp, msg):
+    logwhatsapp(idcliente,wapp,msg=msg)
+    wapp = "+549"+wapp
+    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&text={msg}"
+    response = requests.request("GET", payload)
+    return response.text
+
+def send_file_whatsapp(idcliente,file, wapp, msg=""):
+    logwhatsapp(idcliente,wapp,file=file, msg=msg)
+    print(file)
+    wapp = "+549"+wapp
+    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&document={file}"
+    print(payload)
+    response = requests.request("GET", payload)
+    return response.text
 
 def logwhatsapp(idcliente,wapp,msg='',file=''):
     file = os.path.split(file)[1]

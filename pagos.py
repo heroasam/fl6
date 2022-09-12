@@ -44,7 +44,7 @@ def loterbo_imprimir(fecha,cobr,idlote):
 
     loterbo(con, listarbo,fecha,cobr,idlote)
     con.close()
-    return send_file('/tmp/loterbo.pdf')
+    return send_file('/home/hero/loterbo.pdf')
 
 @pagos.route('/loterbo/reimprimir/<string:fecha>/<string:cobr>/<int:idlote>')
 def loterbo_reimprimir(fecha,cobr,idlote):
@@ -53,7 +53,7 @@ def loterbo_reimprimir(fecha,cobr,idlote):
     print(listarbo)
     loterbo(con, listarbo, fecha,cobr,idlote)
     con.close()
-    return send_file('/tmp/loterbo.pdf')
+    return send_file('/home/hero/loterbo.pdf')
 
 
 @pagos.route('/loterbo/ver')

@@ -146,10 +146,10 @@ def buscar_imprimirficha():
     ficha(con,[dni])
     con.close()
     if WAPI and wapp:
-        send_file_whatsapp(idcliente, "/tmp/ficha.pdf", wapp)
+        send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/ficha.pdf", wapp)
         return 'ok'
     else:
-        return send_file('/tmp/ficha.pdf')
+        return send_file('/home/hero/ficha.pdf')
     
 
 
@@ -407,15 +407,15 @@ def buscador_intimar():
     con = get_con()
     intimacion(con, [dni])
     if WAPI:
-        send_file_whatsapp(idcliente, "/tmp/intimacion.pdf", wapp)
+        send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/intimacion.pdf", wapp)
         return jsonify(ok='ok')
     else:
-        return send_file('/tmp/intimacion.pdf')
+        return send_file('/home/hero/intimacion.pdf')
     
 
 @buscador.route('/pdf/<pdf>')
 def buscador_pdf(pdf):
-    return send_file('/tmp/'+pdf)
+    return send_file('/home/hero/'+pdf)
 
 
 @buscador.route('/buscador/libredeuda', methods=['POST'])
@@ -427,10 +427,10 @@ def buscador_libredeuda():
     idcliente = d['idcliente']
     libredeuda(con,dni)
     if WAPI:
-        send_file_whatsapp(idcliente, "/tmp/libredeuda.pdf", wapp)
+        send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/libredeuda.pdf", wapp)
         return 'ok'
     else:
-        return send_file('/tmp/libredeuda.pdf')
+        return send_file('/home/hero/libredeuda.pdf')
 
 
 @buscador.route('/log')
@@ -494,10 +494,10 @@ def buscador_generarrbotransferencia():
     recibotransferencia(con,fecha,cuenta,nc,ic,cobr,rbo,idcliente)
     con.close()
     if WAPI:
-        send_file_whatsapp(idcliente, "/tmp/recibotransferencia.pdf", wapp)
+        send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/recibotransferencia.pdf", wapp)
         return 'ok'
     else:
-        return send_file('/tmp/recibotransferencia.pdf')
+        return send_file('/home/hero/recibotransferencia.pdf')
 
 
 @buscador.route('/buscador/wapp', methods=["POST"])

@@ -190,7 +190,7 @@ def ficha(con,ldni):
             pdf.cell(15,5,'Pag '+ str(row[3]),1,0,'C')
             pdf.cell(20,5,str(row[6]),1,1,'C')
         pdf.cell(165,10,f'Suma a cobrar ${suma_a_cobrar}',1,1,'R')
-    pdf.output("/tmp/ficha.pdf")
+    pdf.output("/home/hero/ficha.pdf")
 
 def libredeuda(con,dni):
     libre = """
@@ -226,7 +226,7 @@ def libredeuda(con,dni):
     pdf.set_font_size(18)
     pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 155-297-472", 0, 1, 'L')
     pdf.set_font_size(12)
-    pdf.output("/tmp/libredeuda.pdf")
+    pdf.output("/home/hero/libredeuda.pdf")
 
 
 def recibotransferencia(con,fecha,cuenta,nc,ic,cobr,rbo,idcliente):
@@ -258,7 +258,7 @@ def recibotransferencia(con,fecha,cuenta,nc,ic,cobr,rbo,idcliente):
     pdf.set_font_size(18)
     pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 155-297-472", 0, 1, 'L')
     pdf.set_font_size(12)
-    pdf.output("/tmp/recibotransferencia.pdf")
+    pdf.output("/home/hero/recibotransferencia.pdf")
 
 
 
@@ -314,7 +314,7 @@ def intimacion(con,ldni):
         pdf.set_font_size(18)
         pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 155-297-472", 0, 1, 'L')
         pdf.set_font_size(12)
-    pdf.output("/tmp/intimacion.pdf")
+    pdf.output("/home/hero/intimacion.pdf")
 
 
 
@@ -355,7 +355,7 @@ def loterbo(con, lrbo, fecha, cobr, idlote):
     pdf.set_x(150)
     pdf.cell(28,6,'A RENDIR',1,0,'R')
     pdf.cell(25,6,'$',1,1)
-    pdf.output("/tmp/loterbo.pdf")
+    pdf.output("/home/hero/loterbo.pdf")
 
 
 def listado(con, ldni):
@@ -379,7 +379,7 @@ def listado(con, ldni):
         pdf.cell(140,6,cliente[3],0,1)
         pdf.set_font("Helvetica","",14)
         pdf.line(10,pdf.get_y(),200,pdf.get_y())
-    pdf.output("/tmp/listado.pdf")
+    pdf.output("/home/hero/listado.pdf")
 
 
 def asuntos(con,ids):
@@ -406,7 +406,7 @@ def asuntos(con,ids):
         pdf.ln(2)
         pdf.line(10,pdf.get_y(),200,pdf.get_y())
 
-    pdf.output("/tmp/asuntos.pdf")
+    pdf.output("/home/hero/asuntos.pdf")
 
 
 def cancelados(con, ids):
@@ -429,4 +429,4 @@ def cancelados(con, ids):
         pdf.ln(2)
         pdf.line(10,pdf.get_y(),200,pdf.get_y())
 
-    pdf.output("/tmp/cancelados.pdf")
+    pdf.output("/home/hero/cancelados.pdf")
