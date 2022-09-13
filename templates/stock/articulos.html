@@ -89,9 +89,14 @@
               <p v-show="!art" class="help is-danger">Requerido</p>
             </div>
             <div class="control">
-                <input type="text" v-model="costo" class="input" size="5" placeholder="Costo" ref="costo" @keyup.enter="$refs.activo.focus()" :class='{"is-danger":!costo}'>
+                <input type="text" v-model="costo" class="input" size="5" placeholder="Costo" ref="costo" @keyup.enter="$refs.cuota.focus()" :class='{"is-danger":!costo}'>
                 <p v-show="!costo" class="help is-danger">Requerido</p>
             </div>
+            <div class="control">
+           <input type="text" v-model="cuota" class="input" size="5" placeholder="Cuota" ref="cuota" @keyup.enter="$refs.activo.focus()" :class='{"is-danger":!cuota}'>
+                <p v-show="!cuota" class="help is-danger">Requerido</p>
+            </div>
+
             <div class="control">
               <input type="text" v-model="activo" class="input" size="5" placeholder="Activo" ref="activo" @keyup.enter="$refs.guardar.focus()" :class='{"is-danger":!activo}'>
                 <p v-show="!activo" class="help is-danger">Requerido</p>
@@ -112,19 +117,21 @@
               <th>id</th>
               <th>art</th>
               <th>costo</th>
+              <th>cuota</th>
               <th>activo</th>
               <th>op</th>
           </tr>
       </thead>
       <tbody>
           <tr v-for="articulo in articulos">
-              <td><button class="button is-danger is-small" @click="borrarArticulo(articulo[0])">Borrar</button></td>
-              <td><button class="button is-info is-small" @click="editarArticulo(articulo[0],articulo[1],articulo[2],articulo[3])">Editar</button></td>
-              <td>|articulo[0]|</td>
-              <td>|articulo[1]|</td>
-              <td>|articulo[2]|</td>
-              <td><span class="tag is-success is-small" v-show="articulo[3]">Activo</span><span class="tag is-danger is-small" v-show="!articulo[3]">Inactivo</span></td>
-              <td><button type="button" class="button is-info is-small" @click="toggleactivo(articulo[0])">Cambiar</button></td>
+              <td><button class="button is-danger is-small" @click="borrarArticulo(articulo['id'])">Borrar</button></td>
+              <td><button class="button is-info is-small" @click="editarArticulo(articulo['id'])">Editar</button></td>
+              <td>|articulo['id']|</td>
+              <td>|articulo['art']|</td>
+              <td>|articulo['costo']|</td>
+              <td>|articulo['cuota']|</td>
+              <td><span class="tag is-success is-small" v-show="articulo['activo']">Activo</span><span class="tag is-danger is-small" v-show="!articulo['activo']">Inactivo</span></td>
+              <td><button type="button" class="button is-info is-small" @click="toggleactivo(articulo['id'])">Cambiar</button></td>
           </tr>
       </tbody>
   </table>
@@ -154,11 +161,20 @@
                         <div class="field">
                             <div class="control">
                                 <label class="label" style="color:black;">Costo</label>
-                                  <input type="text" v-model="costoed" class="input is-narrow" size="5" placeholder="Costo" ref="costoed" @keyup.enter="$refs.activoed.focus()" :class='{"is-danger":!costoed}'>
+                                  <input type="text" v-model="costoed" class="input is-narrow" size="5" placeholder="Costo" ref="costoed" @keyup.enter="$refs.cuotaed.focus()" :class='{"is-danger":!costoed}'>
+                                  <p v-show="!costoed" class="help is-danger">Requerido</p>
+                              </div>
+                        </div>
+                        
+                      <div class="field">
+                            <div class="control">
+                                <label class="label" style="color:black;">6 cuotas de</label>
+                                  <input type="text" v-model="cuotaed" class="input is-narrow" size="5" placeholder="6 cuotas de" ref="cuotaed" @keyup.enter="$refs.activoed.focus()" :class='{"is-danger":!cuotaed}'>
                                   <p v-show="!costoed" class="help is-danger">Requerido</p>
                               </div>
                         </div>
                       
+
                      
                         <div class="field">
                             <div class="control">
@@ -193,13 +209,15 @@ const app = new Vue({
     el:"#app",
     delimiters:['|','|'],
     data:{
-        articulos:[],
+        articulos:{},
         art:'',
         costo:'',
+        cuota:'',
         activo:'',
         ided:'',
         arted:'',
         costoed:'',
+        cuotaed:'',
         activoed:'',
         toggleModal: false,
     },
@@ -237,6 +255,7 @@ const app = new Vue({
                 data:{
                     art:this.art,
                     costo: this.costo,
+                    cuota: this.cuota,
                     activo: this.activo,
                 }
             })
@@ -245,6 +264,7 @@ const app = new Vue({
                 this.getArticulos()
                 this.art=''
                 this.costo=''
+                this.cuota=''
                 this.activo=''
                 this.$refs.art.focus();
                 bulmaToast.toast({message:"Articulo agregado con exito", type:'is-success'})
@@ -261,15 +281,17 @@ const app = new Vue({
             //console.log(res)
           })
         },
-        editarArticulo(id,art,costo,activo){
+        editarArticulo(id){
           this.modal()
+        arteditado = this.articulos.filter(row=>row.id==id)[0]
           this.ided=id;
-          this.arted=art;
-          this.costoed=costo;
-          this.activoed=activo;
+          this.arted=arteditado.art;
+          this.costoed=arteditado.costo;
+          this.cuotaed=arteditado.cuota;
+          this.activoed=arteditado.activo;
         },
         validarEdicion(){
-            if(this.arted!=''&&this.activoed!=''&&this.costoed!=''){
+            if(this.arted!=''&&this.activoed!=''&&this.costoed!=''&&this.cuotaed!=''){
                 this.guardarEdicion()
             }else{
                 bulmaToast.toast({ message: 'Complete los datos faltantes', type: 'is-danger' })
@@ -284,6 +306,7 @@ const app = new Vue({
                   ided:this.ided,
                   arted:this.arted,
                   costoed: this.costoed,
+                  cuotaed: this.cuotaed,
                   activoed: this.activoed,
               }
           })

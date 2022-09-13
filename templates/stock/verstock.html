@@ -36,16 +36,22 @@
                 <th>stock</th>
                 <th>costo</th>
                 <th>monto</th>
+                <th>cuota</th>
+                <th>precio</th>
+                <th>delta</th>
             </tr>
         </thead>
         <tbody>
-            <tr v-for="item in stock" v-show="item[3]">
-                <td>|item[0]|</td>
-                <td>|item[1]|</td>
-                <td>|item[2]|</td>
-                <td>|item[3]|</td>
-                <td>|item[4]|</td>
-                <td>|item[4]*item[3]|</td>
+            <tr v-for="item in stock" v-show="item['stock']">
+                <td style="text-align:left;">|item['art']|</td>
+                <td>|item['ingreso']|</td>
+                <td>|item['egreso']|</td>
+                <td>|item['stock']|</td>
+                <td>|item['costo']|</td>
+                <td>|item['stock']*item['costo']|</td>
+                <td>|item['cuota']|</td>
+                <td>|item['stock']*item['cuota']*6|</td>
+                <td>|(item['cuota']*6/item['costo']).toFixed(2)|</td>
             </tr>
         </tbody>
     </table>

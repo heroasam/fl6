@@ -952,7 +952,7 @@
                     this.Recibo.idcliente = this.Cliente.id
                     this.Recibo.wapp = this.Cliente.wapp
                     this.verModalRecibo = false
-                    if (this.listaCuentas.includes(parseInt(this.Recibo.cuenta)) && parseInt(this.Recibo.nc)<15) {
+                    if (this.listaCuentas.includes(parseInt(this.Recibo.cuenta))) {
                         axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
                         axios({
                         method:'POST',

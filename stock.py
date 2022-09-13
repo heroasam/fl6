@@ -189,7 +189,7 @@ def stock_generarstock():
     cur.execute("create temporary table if not exists stockactual as select art,sum(cnt) as ingreso,(select sum(cnt) from detalles where art=artcomprado.art) as egreso from artcomprado where  fecha>'2015-09-15' group by art")
     con.commit()
     cur.close()
-    stock = pgddict(con, f"select art, ingreso, IFNULL(egreso, 0), ingreso-IFNULL(egreso, 0) as stock, (select costo from articulos where articulos.art=stockactual.art) as costo from stockactual order by stock desc")
+    stock = pgdict(con, f"select stockactual.art, ingreso, IFNULL(egreso, 0) as egreso, ingreso-IFNULL(egreso, 0) as stock, costo, cuota from stockactual,articulos where articulos.art=stockactual.art order by stock desc")
     con.close()
     return jsonify(stock=stock)
 
@@ -242,7 +242,7 @@ def stock_guardarsalida():
 @stock.route('/stock/getlistaarticulos')
 def stock_getlistaarticulos():
     con = get_con()
-    articulos=pgddict(con, f"select id,art,costo,activo from articulos order by activo desc,art" )
+    articulos=pgdict(con, f"select id,art,costo,activo,cuota from articulos order by activo desc,art" )
     con.close()
     return jsonify(articulos=articulos)
 
@@ -256,7 +256,7 @@ def stock_articulos():
 def stock_guardararticulo():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    ins = f"insert into articulos(art, costo, activo) values('{d['art']}',{d['costo']},{d['activo']})"
+    ins = f"insert into articulos(art, costo, activo,cuota) values('{d['art']}',{d['costo']},{d['activo']},{d['cuota']})"
     cur = con.cursor()
     try:
         cur.execute(ins)
@@ -306,7 +306,7 @@ def stock_articulotoggleactivo(id):
 def stock_guardaredicionarticulo():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    upd = f"update articulos set art='{d['arted']}', costo= {d['costoed']}, activo= {d['activoed']} where id={d['ided']}"
+    upd = f"update articulos set art='{d['arted']}', costo= {d['costoed']}, activo= {d['activoed']}, cuota= {d['cuotaed']} where id={d['ided']}"
     cur = con.cursor()
     try:
         cur.execute(upd)

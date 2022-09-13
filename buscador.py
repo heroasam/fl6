@@ -20,6 +20,19 @@ def buscador_():
     return render_template("buscador/buscar.html")
 
 
+@buscador.route('/pdf/<pdf>')
+def buscador_pdf(pdf):
+    return send_file('/home/hero/'+pdf)
+
+
+
+@buscador.route('/log')
+@login_required
+def buscador_log():
+    return render_template('buscador/log.html')
+
+
+
 @buscador.route('/buscador/<string:buscar>')
 def buscar_cuenta(buscar):
     con = get_con()
@@ -413,10 +426,6 @@ def buscador_intimar():
         return send_file('/home/hero/intimacion.pdf')
     
 
-@buscador.route('/pdf/<pdf>')
-def buscador_pdf(pdf):
-    return send_file('/home/hero/'+pdf)
-
 
 @buscador.route('/buscador/libredeuda', methods=['POST'])
 def buscador_libredeuda():
@@ -431,12 +440,6 @@ def buscador_libredeuda():
         return 'ok'
     else:
         return send_file('/home/hero/libredeuda.pdf')
-
-
-@buscador.route('/log')
-@login_required
-def buscador_log():
-    return render_template('buscador/log.html')
 
 
 @buscador.route('/buscador/obtenerlogs')
