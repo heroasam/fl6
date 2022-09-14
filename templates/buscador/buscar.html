@@ -934,13 +934,19 @@
                     responseType: "blob",
                     data: {dni:dni, wapp:this.Cliente.wapp, idcliente:this.Cliente.id},
                 }).then((res) => {
+                        if(this.Cliente.wapp){
                         Swal.fire({
                             title: 'WhatsApp!',
                             text: 'Libre deuda enviado',
                             icon: 'success',
                             timer: 3000,
                             }); 
-                })},
+                        }else{
+                            let url = window.URL.createObjectURL(res.data);
+                            window.open(url);
+                        }
+                }
+                )},
                 emitirRbo(){
                     this.verModalRecibo = true;
                     this.Recibo.cuenta = ''
@@ -958,15 +964,19 @@
                         method:'POST',
                             url:'/buscador/generarrbotransferencia',
                             data:this.Recibo,
+                            responseType: "blob",
                             })
                             .then(res=>{
+                                    if(this.Recibo.wapp){
                                     Swal.fire({
                                     title: 'WhatsApp!',
                                     text: 'Recibo enviado',
                                     icon: 'success',
                                     timer: 3000,
-                                    })
-                                
+                                    })}else{
+                                        let url = window.URL.createObjectURL(res.data);
+                                        window.open(url);
+                                    }
                                 this.Recibo = {fecha:dayjs.utc().format('YYYY-MM-DD')}
                             })
                             .catch(error=>{
@@ -980,7 +990,7 @@
                         }else{
                             Swal.fire({
                                 title: 'RECIBO',
-                                text: 'Error: Error en la cuenta o en el N° cuota',
+                                text: 'Error: Numero de Cuenta no existe',
                                 icon: 'error',
                                 timer: 3000,
                                 })
@@ -1051,13 +1061,17 @@
                         data: {dni:dni, wapp:wapp, idcliente:this.Cliente.id},
                         })
                     .then(res=>{
+                        if(wapp){
                         Swal.fire({
                             title: 'WhatsApp!',
                             text: 'intimacion enviada',
                             icon: 'success',
                             timer: 3000,
                             })
-                    })
+                        }else{
+                            let url = window.URL.createObjectURL(res.data);
+                            window.open(url);
+                        }})
                 },
                 sendMsgGeneral(){
                     this.verModalMsgWhatsapp = true

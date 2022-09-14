@@ -465,6 +465,8 @@ def send_msg_whatsapp(idcliente, wapp, msg):
     wapp = "+549"+wapp
     payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&text={msg}"
     response = requests.request("GET", payload)
+    print(payload)
+    print(response.text)
     return response.text
 
 def send_file_whatsapp(idcliente,file, wapp, msg=""):
@@ -472,8 +474,9 @@ def send_file_whatsapp(idcliente,file, wapp, msg=""):
     print(file)
     wapp = "+549"+wapp
     payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&document={file}"
-    print(payload)
     response = requests.request("GET", payload)
+    print(payload)
+    print(response.text)
     return response.text
 
 def logwhatsapp(idcliente,wapp,msg='',file=''):

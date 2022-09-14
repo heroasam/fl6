@@ -419,7 +419,7 @@ def buscador_intimar():
     idcliente = d['idcliente']
     con = get_con()
     intimacion(con, [dni])
-    if WAPI:
+    if WAPI and wapp:
         send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/intimacion.pdf", wapp)
         return jsonify(ok='ok')
     else:
@@ -435,7 +435,7 @@ def buscador_libredeuda():
     wapp = d['wapp']
     idcliente = d['idcliente']
     libredeuda(con,dni)
-    if WAPI:
+    if WAPI and wapp:
         send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/libredeuda.pdf", wapp)
         return 'ok'
     else:
@@ -496,7 +496,7 @@ def buscador_generarrbotransferencia():
     log(ins)
     recibotransferencia(con,fecha,cuenta,nc,ic,cobr,rbo,idcliente)
     con.close()
-    if WAPI:
+    if WAPI and wapp:
         send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/recibotransferencia.pdf", wapp)
         return 'ok'
     else:
