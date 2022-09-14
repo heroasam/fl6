@@ -125,8 +125,9 @@ def stock_getcompras():
 def stock_getarticulos():
     con = get_con()
     articulos=pglflat(con, f"select art from articulos")
+    grupos = pglflat(con, f"select distinct grupo from articulos where grupo is not null")
     con.close()
-    return jsonify(articulos=articulos)
+    return jsonify(articulos=articulos, grupos=grupos)
 
 
 @stock.route('/stock/compras')

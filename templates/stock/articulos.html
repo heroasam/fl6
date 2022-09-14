@@ -1,74 +1,11 @@
 {% extends "base_template.html" %}
 
-{% block title %}tabla Articulos{% endblock %}
-{% block style %}
-<style>
-.inactive{
-  background-color:rgb(178, 42, 32);
-}
-.active{
-  background-color:rgb(13, 130, 148);
-}
-.block:not(:last-child) {
-    margin-bottom: 1.5rem;
-}
-.color1 {
-    background-color: rgb(178, 42, 32);
-    color: black;
-    text-align: center;
-}
-.color2 {
-    background-color: rgb(178, 127, 32);
-    color: black;
-    text-align: center;
-}
-.color3 {
-    background-color: rgb(176, 178, 32);
-    color: black;
-    text-align: center;
-}
-.color4 {
-    background-color: rgb(32, 178, 98);
-    color: black;
-    text-align: center;
-}
-.color5 {
-    background-color: rgb(147, 196, 193);
-    color: black;
-    text-align: center;
-}
-.color6 {
-    background-color: orange;
-    color: black;
-    text-align: center;
-}
-.color7 {
-    background-color: rgb(80, 89, 214);
-    color: black;
-    text-align: center;
-}
-.color8 {
-    background-color: rgb(13, 130, 148);
-    color: black;
-    text-align: center;
-}
-.color9 {
-    background-color: rgb(141, 11, 104);
-    color: black;
-    text-align: center;
-}
-.color0 {
-    background-color: rgb(127, 19, 189);
-    color: black;
-    text-align: center;
-}
-</style>
-{% endblock %}
+{% block title %}Articulos{% endblock %}
 
 {% block content %}
 
-<div id="app" class="container is-fullhd">
-<p class="title is-1">tabla Articulos</p>
+<div x-data="main()" x-init="getArticulos()" class="container">
+<p class="title is-1">Articulos</p>
 
 
 <div class="block">
@@ -81,29 +18,37 @@
     <a href="/stock/verstock"  type="button" class="button is-primary">Stock</a>
     <a href="/stock/proveedores"  type="button" class="button is-primary">Proveedores</a>
 </div>
+
 <div class="block">
-        <div class="field is-horizontal">
-            <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
+            <div class="field is-horizontal">
+            <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
             <div class="control">
-              <input type="text" v-model="art" class="input" :class='{"is-danger":!art}' placeholder="Articulo" @keyup.enter="$refs.costo.focus()" size="25" ref="art">
-              <p v-show="!art" class="help is-danger">Requerido</p>
+              <input type="text" x-model="art" class="input" :class='{"is-danger":!art}' placeholder="Articulo" @keyup.enter="$refs.costo.focus()" size="25" x-ref="art">
+              <p x-show="!art" class="help is-danger">Requerido</p>
             </div>
             <div class="control">
-                <input type="text" v-model="costo" class="input" size="5" placeholder="Costo" ref="costo" @keyup.enter="$refs.cuota.focus()" :class='{"is-danger":!costo}'>
-                <p v-show="!costo" class="help is-danger">Requerido</p>
+            <select id="grupo" name="grupo" x-model="grupo" placeholder="grupo">
+                <template x-for="item in listagrupos">
+                <option :value="item"></option>
+                </template>
+            </select>
             </div>
             <div class="control">
-           <input type="text" v-model="cuota" class="input" size="5" placeholder="Cuota" ref="cuota" @keyup.enter="$refs.activo.focus()" :class='{"is-danger":!cuota}'>
-                <p v-show="!cuota" class="help is-danger">Requerido</p>
+                <input type="text" x-model="costo" class="input" size="5" placeholder="Costo" x-ref="costo" @keyup.enter="$refs.cuota.focus()" :class='{"is-danger":!costo}'>
+                <p x-show="!costo" class="help is-danger">Requerido</p>
+            </div>
+            <div class="control">
+           <input type="text" x-model="cuota" class="input" size="5" placeholder="Cuota" x-ref="cuota" @keyup.enter="$refs.activo.focus()" :class='{"is-danger":!cuota}'>
+                <p x-show="!cuota" class="help is-danger">Requerido</p>
             </div>
 
             <div class="control">
-              <input type="text" v-model="activo" class="input" size="5" placeholder="Activo" ref="activo" @keyup.enter="$refs.guardar.focus()" :class='{"is-danger":!activo}'>
-                <p v-show="!activo" class="help is-danger">Requerido</p>
+              <input type="text" x-model="activo" class="input" size="5" placeholder="Activo" x-ref="activo" @keyup.enter="$refs.guardar.focus()" :class='{"is-danger":!activo}'>
+                <p x-show="!activo" class="help is-danger">Requerido</p>
             </div>
 
             <div class="control">
-                <button type="button" class="button is-primary" @click="validarArticulo" ref="guardar" id="guardar">Guardar</button>
+                <button type="button" class="button is-primary" @click="validarArticulo" x-ref="guardar" id="guardar">Guardar</button>
             </div>
         </div>
 </div>
@@ -123,113 +68,66 @@
           </tr>
       </thead>
       <tbody>
-          <tr v-for="articulo in articulos">
+          <template x-for="articulo in articulos">
+          <tr>
               <td><button class="button is-danger is-small" @click="borrarArticulo(articulo['id'])">Borrar</button></td>
               <td><button class="button is-info is-small" @click="editarArticulo(articulo['id'])">Editar</button></td>
-              <td>|articulo['id']|</td>
-              <td>|articulo['art']|</td>
-              <td>|articulo['costo']|</td>
-              <td>|articulo['cuota']|</td>
-              <td><span class="tag is-success is-small" v-show="articulo['activo']">Activo</span><span class="tag is-danger is-small" v-show="!articulo['activo']">Inactivo</span></td>
+              <td x-text = "articulo['id']"></td>
+              <td x-text = "articulo['art']"></td>
+              <td x-text = "articulo['costo']"></td>
+              <td x-text = "articulo['cuota']"></td>
+              <td><span class="tag is-success is-small" x-show="articulo['activo']">Activo</span><span class="tag is-danger is-small" x-show="!articulo['activo']">Inactivo</span></td>
               <td><button type="button" class="button is-info is-small" @click="toggleactivo(articulo['id'])">Cambiar</button></td>
           </tr>
+          </template>
       </tbody>
   </table>
-
+</div>
 </div>
 
+<div x-bind:class="verModalEdicion?'xmodal-container':''">
+    <div class="xcard xmodal" x-show="verModalEdicion">
+        <div class="flex justify-content-end">
+            <button class="btn-close" @click="verModalEdicion=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
+        </div>
+        <h1 class="title is-3">Edicion articulos</h1>
+        <input type="text" class="input mb-1" x-model="Articulo.art" placeholder="articulo" style="min-width:400px;">
+        <input type="text" class="input mb-1" x-model="Articulo.costo" placeholder="costo">
+        <input type="text" class="input mb-1" x-model="Articulo.cuota" placeholder="cuota">
+        <select id="grupo" name="grupo" x-model="Articulo.grupo" placeholder="grupo">
+                <template x-for="item in listagrupos">
+                <option :value="item"></option>
+                </template>
+        </select>
+        <input type="text" class="input mb-1" x-model="Articulo.activo" placeholder="activo">
+        <button class="button is-primary" @click="guardarRegistro">Guardar</button>
+        <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+    </div>
+</div>
 </div>
 
 
-<div class="modal" :class="{'is-active':toggleModal}">
-    <div class="modal-background"></div>
-    <div class="modal-content">
-        <div class="modal-card">
-         <section class="modal-card-body">     
-                  <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
-                 
-                    <form >
-                        <div class="field">
-                            <div class="control">
-                                <label class="label" style="color:black;">Articulo</label>
-                                <input type="text" v-model="arted" class="input is-narrow" :class='{"is-danger":!arted}' placeholder="Articulo" @keyup.enter="$refs.costoed.focus()" size="25" ref="arted">
-                                <p v-show="!arted" class="help is-danger">Requerido</p>
-                              </div>
-                        </div>
-                     
-                     
-                        <div class="field">
-                            <div class="control">
-                                <label class="label" style="color:black;">Costo</label>
-                                  <input type="text" v-model="costoed" class="input is-narrow" size="5" placeholder="Costo" ref="costoed" @keyup.enter="$refs.cuotaed.focus()" :class='{"is-danger":!costoed}'>
-                                  <p v-show="!costoed" class="help is-danger">Requerido</p>
-                              </div>
-                        </div>
-                        
-                      <div class="field">
-                            <div class="control">
-                                <label class="label" style="color:black;">6 cuotas de</label>
-                                  <input type="text" v-model="cuotaed" class="input is-narrow" size="5" placeholder="6 cuotas de" ref="cuotaed" @keyup.enter="$refs.activoed.focus()" :class='{"is-danger":!cuotaed}'>
-                                  <p v-show="!costoed" class="help is-danger">Requerido</p>
-                              </div>
-                        </div>
-                      
-
-                     
-                        <div class="field">
-                            <div class="control">
-                                <label class="label" style="color:black;">Activo</label>
-                                <input type="text" v-model="activoed" class="input is-narrow" size="5" placeholder="Activo" ref="activoed" @keyup.enter="$refs.guardared.focus()" :class='{"is-danger":activoed==""}'>
-                                  <p v-show="activoed==''" class="help is-danger">Requerido</p>
-                              </div>
-                        </div>
-                      
-                        <div class="field">
-                            <div class="control">
-                                <button type="button" class="button is-primary" @click="validarEdicion()" ref="guardared" id="guardar">Guardar</button>
-                            </div> 
-                        </div> 
-                    </form>
-                </section>
-    
-                  
-                  
-      
-    </div>
-    <button class="modal-close is-large" aria-label="close" @click="modal"></button>
-    </div>
-    </div>
-
-</div>
 {% endblock %}
 {% block script %}
 <script>
-
-const app = new Vue({
-    el:"#app",
-    delimiters:['|','|'],
-    data:{
+    function main(){
+    return{
+        Articulo:{},
         articulos:{},
+        listagrupos:[],
         art:'',
         costo:'',
         cuota:'',
         activo:'',
-        ided:'',
-        arted:'',
-        costoed:'',
-        cuotaed:'',
-        activoed:'',
-        toggleModal: false,
-    },
-    methods: {
+        verModalEdicion: false,
+
         getArticulos(){
             axios.get('/stock/getlistaarticulos')
             .then(res=>{
                 this.articulos = res.data.articulos
-                //console.log(this.articulos);
+                this.listagrupos = res.data.grupos
             })
         },
-
         borrarArticulo(id){
             const borrar = confirm("¿Esta seguro que quiere borrar permanentemente esta fila?")
             if(borrar){
@@ -244,7 +142,13 @@ const app = new Vue({
             if(this.art!=''&&this.activo!=''&&this.costo!=''){
                 this.guardarArticulo()
             }else{
-                bulmaToast.toast({ message: 'Complete los datos faltantes', type: 'is-danger' })
+                Swal.fire({
+                        title: 'Error',
+                        text: 'Complete los datos faltantes',
+                        icon: 'error',
+                        timer: 3000,
+                        });
+
             }
         },
         guardarArticulo(){
@@ -256,6 +160,7 @@ const app = new Vue({
                     art:this.art,
                     costo: this.costo,
                     cuota: this.cuota,
+                    grupo: this.grupo,
                     activo: this.activo,
                 }
             })
@@ -265,36 +170,47 @@ const app = new Vue({
                 this.art=''
                 this.costo=''
                 this.cuota=''
+                this.grupo=''
                 this.activo=''
                 this.$refs.art.focus();
-                bulmaToast.toast({message:"Articulo agregado con exito", type:'is-success'})
+                Swal.fire({
+                        title: 'Exito',
+                        text: 'Articulo Agregado',
+                        icon: 'success',
+                        timer: 3000,
+                        });
+
             })
             .catch(error=>{
-              //console.log('El error es:',error.request.response)
-              bulmaToast.toast({message:error.request.response, type:'is-danger'})
+              Swal.fire({
+                        title: 'Error',
+                        text: 'El registro no se proceso',
+                        icon: 'error',
+                        timer: 3000,
+                        });
             })
         },
         toggleactivo(id){
           axios.get('/stock/articulotoggleactivo/'+id)
           .then(res=>{
             this.getArticulos()
-            //console.log(res)
           })
         },
         editarArticulo(id){
-          this.modal()
-        arteditado = this.articulos.filter(row=>row.id==id)[0]
-          this.ided=id;
-          this.arted=arteditado.art;
-          this.costoed=arteditado.costo;
-          this.cuotaed=arteditado.cuota;
-          this.activoed=arteditado.activo;
+            this.verModalEdicion = true
+            this.Articulo = this.articulos.filter(row=>row.id==id)[0]
         },
         validarEdicion(){
-            if(this.arted!=''&&this.activoed!=''&&this.costoed!=''&&this.cuotaed!=''){
+            if(this.Articulo.art!=''&&this.Articulo.activo!=''&&this.Articulo.costo!=''&&this.Articulo.costo!=''&&this.Articulo.grupo!=''){
                 this.guardarEdicion()
             }else{
-                bulmaToast.toast({ message: 'Complete los datos faltantes', type: 'is-danger' })
+                  Swal.fire({
+                        title: 'Error',
+                        text: 'Complete los datos faltantes',
+                        icon: 'error',
+                        timer: 3000,
+                        });
+
             }
         },
         guardarEdicion(){
@@ -302,36 +218,28 @@ const app = new Vue({
           axios({
               method:'POST',
               url: '/stock/guardaredicionarticulo',
-              data:{
-                  ided:this.ided,
-                  arted:this.arted,
-                  costoed: this.costoed,
-                  cuotaed: this.cuotaed,
-                  activoed: this.activoed,
-              }
+              data: this.Articulo
           })
           .then(res=>{
-            this.modal()
+            this.verModalEdicion = false
             this.getArticulos()
-            bulmaToast.toast({message:"Edicion procesada con exito", type:'is-success'})
+            Swal.fire({
+                        title: 'Exito',
+                        text: 'Edicion procesada',
+                        icon: 'success',
+                        timer: 3000,
+                        });
           })
           .catch(error=>{
-            //console.log('El error es:',error.request.response)
-            bulmaToast.toast({message:error.request.response, type:'is-danger'})
+                         Swal.fire({
+                                    title:'Error',
+                                    text:'No se hizo la Edicion',
+                                    icon: 'error',
+                                    timer: 3000,
+                                    });
           })
         },
-        modal(){
-          this.toggleModal=!this.toggleModal
-        },
-
-
-
-    },
-    created: function(){
-        this.getArticulos();
-
-    },
-})
+    }}
 
 
 </script>

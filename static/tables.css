@@ -180,3 +180,60 @@ thead th {
         font-size: larger;
         font-weight: bold;
 }
+
+.inactive{
+  background-color:rgb(178, 42, 32);
+}
+.active{
+  background-color:rgb(13, 130, 148);
+}
+.color1 {
+    background-color: rgb(178, 42, 32);
+    color: black;
+    text-align: center;
+}
+.color2 {
+    background-color: rgb(178, 127, 32);
+    color: black;
+    text-align: center;
+}
+.color3 {
+    background-color: rgb(176, 178, 32);
+    color: black;
+    text-align: center;
+}
+.color4 {
+    background-color: rgb(32, 178, 98);
+    color: black;
+    text-align: center;
+}
+.color5 {
+    background-color: rgb(147, 196, 193);
+    color: black;
+    text-align: center;
+}
+.color6 {
+    background-color: orange;
+    color: black;
+    text-align: center;
+}
+.color7 {
+    background-color: rgb(80, 89, 214);
+    color: black;
+    text-align: center;
+}
+.color8 {
+    background-color: rgb(13, 130, 148);
+    color: black;
+    text-align: center;
+}
+.color9 {
+    background-color: rgb(141, 11, 104);
+    color: black;
+    text-align: center;
+}
+.color0 {
+    background-color: rgb(127, 19, 189);
+    color: black;
+    text-align: center;
+}
