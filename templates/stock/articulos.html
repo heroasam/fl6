@@ -19,6 +19,7 @@
     <a href="/stock/proveedores"  type="button" class="button is-primary">Proveedores</a>
 </div>
 
+<button class="button is-info mb-5" @click="generarLista()">Generar Lista de Precios</button>
 <div class="block">
             <div class="field is-horizontal">
             <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
@@ -243,6 +244,18 @@
                 if(!obj[item]) return false
             }
             return true
+        },
+        generarLista(){
+            axios.get('/stock/generarlistaprecios')
+                .then(res=>{
+                    console.log(res.data.lista)
+                    Swal.fire({
+                        title:'Exito!',
+                        text:'Se genero la lista',
+                        icon: 'success',
+                        timer: 3000,
+                    })
+                })
         },
     }}
 

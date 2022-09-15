@@ -3,6 +3,7 @@ from flask_login import login_required
 from .lib import *
 import simplejson as json
 from .con import get_con, log
+from .formularios import listaprecios
 import pandas as pd
 import mysql.connector
 
@@ -307,7 +308,7 @@ def stock_articulotoggleactivo(id):
 def stock_guardaredicionarticulo():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    upd = f"update articulos set art='{d['art']}', costo= {d['costo']}, activo= {d['activo']}, cuota= {d['cuota']} where id={d['id']}"
+    upd = f"update articulos set art='{d['art']}', costo= {d['costo']}, activo= {d['activo']}, cuota= {d['cuota']}, grupo='{d['grupo']}' where id={d['id']}"
     cur = con.cursor()
     try:
         cur.execute(upd)
@@ -379,3 +380,11 @@ def stock_listawapp():
 def stock_wapp():
     return render_template('/stock/wapp.html')
 
+
+@stock.route('/stock/generarlistaprecios')
+def stock_generarlistaprecios():
+    con = get_con()
+    lista = pgdict(con, f"select * from articulos where activo=1 order by grupo,art")
+    grupos = pglflat(con, f"select distinct grupo from articulos where activo=1 and grupo is not null order by grupo")
+    listaprecios(lista,grupos)
+    return 'ok'

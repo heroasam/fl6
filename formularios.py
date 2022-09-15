@@ -430,3 +430,32 @@ def cancelados(con, ids):
         pdf.line(10,pdf.get_y(),200,pdf.get_y())
 
     pdf.output("/home/hero/cancelados.pdf")
+
+
+
+def listaprecios(lista,grupos):
+    if 'liquidacion' in grupos:
+        grupos.pop(grupos.index('liquidacion'))
+        grupos.append('liquidacion')
+    today = datetime.today().strftime('%d-%m-%Y')
+    pdf=FPDF('P','mm','A4')
+    pdf.set_margins(30,30)
+    pdf.add_page()
+    pdf.set_font("Helvetica","",10)
+    pdf.set_font_size(22)
+    pdf.image('/home/hero/imagenes/romitex.png', w=80, h=20)
+    pdf.ln(5)
+    pdf.cell(100,12,"LISTA DE PRECIOS",0,1,'L')
+    pdf.set_font_size(12)
+    pdf.cell(150,8,today,0,1,'R')
+    pdf.ln(5)
+    for grupo in grupos:
+        pdf.set_font_size(22)
+        pdf.cell(0,12,grupo,0,1,'C')
+        pdf.set_font_size(12)
+        for item in lista:
+            if item['grupo']==grupo:
+                pdf.cell(100,8,item['art'],1,0,'L')
+                pdf.cell(50,8,f"6 cuotas de ${item['cuota']}",1,1,'C')
+            
+    pdf.output("/home/hero/documentos/impresos/listapreciosGENERADA.pdf")
