@@ -465,9 +465,9 @@ def send_msg_whatsapp(idcliente, wapp, msg):
     wapp = "+549"+wapp
     payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&text={msg}"
     response = requests.request("GET", payload)
-    print(payload)
-    print(response.text)
-    return response.text
+    wapp_log(response.status_code,response.text)
+    return response.text, response.status_code
+
 
 def send_file_whatsapp(idcliente,file, wapp, msg=""):
     logwhatsapp(idcliente,wapp,file=file, msg=msg)
@@ -475,9 +475,9 @@ def send_file_whatsapp(idcliente,file, wapp, msg=""):
     wapp = "+549"+wapp
     payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&document={file}"
     response = requests.request("GET", payload)
-    print(payload)
-    print(response.text)
-    return response.text
+    wapp_log(response.status_code,response.text)
+    return response.text, response.status_code
+
 
 def logwhatsapp(idcliente,wapp,msg='',file=''):
     file = os.path.split(file)[1]
@@ -496,3 +496,13 @@ def logwhatsapp(idcliente,wapp,msg='',file=''):
     con.commit()
     con.close()
     return None
+
+def wapp_log(log1, log2):
+    log = open("/home/hero/log/wapp.log", "a")
+    log.write('\n')
+    log.write(str(log1))
+    log.write(str(log2))
+    log.close()
+
+
+

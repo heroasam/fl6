@@ -674,13 +674,15 @@
                         responseType: "blob",
                         data: {dni:this.Cliente.dni, whatsapp:this.wappCobrador, idcliente:this.Cliente.id},
                     }).then(res=>{
-                        this.verModalImprimirFicha = false
+                            this.verModalImprimirFicha = false
+                            if(res.status==200){
                             Swal.fire({
-                                            title: 'WhatsApp!',
-                                            text: 'Ficha enviada al cobrador',
-                                            icon: 'success',
-                                            timer: 3000,
+                                    title: 'WhatsApp!',
+                                    text: 'Ficha enviada al cobrador',
+                                    icon: 'success',
+                                    timer: 3000,
                                             }); 
+                            }
                             this.cobrEnviar = ''
                                         })
                 })
@@ -935,12 +937,14 @@
                     data: {dni:dni, wapp:this.Cliente.wapp, idcliente:this.Cliente.id},
                 }).then((res) => {
                         if(this.Cliente.wapp){
-                        Swal.fire({
-                            title: 'WhatsApp!',
-                            text: 'Libre deuda enviado',
-                            icon: 'success',
-                            timer: 3000,
-                            }); 
+                            if(res.status==200){
+                                Swal.fire({
+                                    title: 'WhatsApp!',
+                                    text: 'Libre deuda enviado',
+                                    icon: 'success',
+                                    timer: 3000,
+                                    }); 
+                            }
                         }else{
                             let url = window.URL.createObjectURL(res.data);
                             window.open(url);
@@ -968,12 +972,15 @@
                             })
                             .then(res=>{
                                     if(this.Recibo.wapp){
-                                    Swal.fire({
-                                    title: 'WhatsApp!',
-                                    text: 'Recibo enviado',
-                                    icon: 'success',
-                                    timer: 3000,
-                                    })}else{
+                                        if(res.status==200){
+                                            Swal.fire({
+                                            title: 'WhatsApp!',
+                                            text: 'Recibo enviado',
+                                            icon: 'success',
+                                            timer: 3000,
+                                            })
+                                            }
+                                    }else{
                                         let url = window.URL.createObjectURL(res.data);
                                         window.open(url);
                                     }
@@ -1007,14 +1014,23 @@
                             }
                         })
                 .then(res=>{
+                        if(res.status==200){
                         Swal.fire({
                             title: 'WhatsApp!',
                             text: 'mensaje enviado',
                             icon: 'success',
                             timer: 3000,
+                            })}
+                })
+                        .catch(error=>{
+                            Swal.fire({
+                                title:'Error',
+                                text: 'Mensaje no enviado',
+                                icon: 'error',
+                                timer: 3000,
                             })
-                }
-                )},
+                        })
+                },
                 sendIntWhatsapp(){
                     if(this.Cliente.deuda){
                         this.clipWappIntimacion()
@@ -1028,13 +1044,13 @@
                             }
                         })
                         .then(res=>{
+                            if(res.status==200){
                                 Swal.fire({
                                     title: 'WhatsApp!',
                                     text: 'mensaje enviado',
                                     icon: 'success',
                                     timer: 3000,
-                                    })
-                            
+                                    })}
                         })
                         .catch(error=>{
                             Swal.fire({
@@ -1062,16 +1078,19 @@
                         })
                     .then(res=>{
                         if(wapp){
-                        Swal.fire({
-                            title: 'WhatsApp!',
-                            text: 'intimacion enviada',
-                            icon: 'success',
-                            timer: 3000,
-                            })
+                            if(res.status==200){
+                                Swal.fire({
+                                    title: 'WhatsApp!',
+                                    text: 'intimacion enviada',
+                                    icon: 'success',
+                                    timer: 3000,
+                                })
+                                }
                         }else{
                             let url = window.URL.createObjectURL(res.data);
                             window.open(url);
-                        }})
+                        }
+                    })
                 },
                 sendMsgGeneral(){
                     this.verModalMsgWhatsapp = true
@@ -1088,12 +1107,21 @@
                             }
                         })
                     .then(res=>{
+                                if(res.status==200){
                                 Swal.fire({
                                 title: 'WhatsApp!',
                                 text: 'whatsapp enviado',
                                 icon: 'success',
                                 timer: 3000,
-                                })
+                                })}
+                    })
+                        .catch(error=>{
+                            Swal.fire({
+                                title:'Error',
+                                text: 'Mensaje no enviado',
+                                icon: 'error',
+                                timer: 3000,
+                            })
                         })
                 },
                 sendMsgRecordatorio(){
@@ -1108,12 +1136,21 @@
                             }
                         })
                     .then(res=>{
+                                if(res.status==200){
                                 Swal.fire({
                                 title: 'WhatsApp!',
                                 text: 'Recordatorio enviado',
                                 icon: 'success',
                                 timer: 3000,
-                                })
+                                })}
+                    })
+                        .catch(error=>{
+                            Swal.fire({
+                                title:'Error',
+                                text: 'Mensaje no enviado',
+                                icon: 'error',
+                                timer: 3000,
+                            })
                         })
                 },
                 sendMsgCbu(){
@@ -1131,13 +1168,23 @@ Titular de la cuenta: Heredie Maria Isabel`
                             }
                         })
                     .then(res=>{
+                                if(res.status==200){
                                 Swal.fire({
                                 title: 'WhatsApp!',
                                 text: 'CBU enviado',
                                 icon: 'success',
                                 timer: 3000,
-                                })
+                                })}
+                    })
+                        .catch(error=>{
+                            Swal.fire({
+                                title:'Error',
+                                text: 'Mensaje no enviado',
+                                icon: 'error',
+                                timer: 3000,
+                            })
                         })
+
                 },
                 
 		condonarVenta(id){

@@ -159,8 +159,8 @@ def buscar_imprimirficha():
     ficha(con,[dni])
     con.close()
     if WAPI and wapp:
-        send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/ficha.pdf", wapp)
-        return 'ok'
+        text, status = send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/ficha.pdf", wapp)
+        return make_response(text, status) 
     else:
         return send_file('/home/hero/ficha.pdf')
     
@@ -420,8 +420,8 @@ def buscador_intimar():
     con = get_con()
     intimacion(con, [dni])
     if WAPI and wapp:
-        send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/intimacion.pdf", wapp)
-        return jsonify(ok='ok')
+        text, status = send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/intimacion.pdf", wapp)
+        return make_response(text, status) 
     else:
         return send_file('/home/hero/intimacion.pdf')
     
@@ -436,8 +436,8 @@ def buscador_libredeuda():
     idcliente = d['idcliente']
     libredeuda(con,dni)
     if WAPI and wapp:
-        send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/libredeuda.pdf", wapp)
-        return 'ok'
+        text, status = send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/libredeuda.pdf", wapp)
+        return make_response(text, status) 
     else:
         return send_file('/home/hero/libredeuda.pdf')
 
@@ -497,8 +497,8 @@ def buscador_generarrbotransferencia():
     recibotransferencia(con,fecha,cuenta,nc,ic,cobr,rbo,idcliente)
     con.close()
     if WAPI and wapp:
-        send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/recibotransferencia.pdf", wapp)
-        return 'ok'
+        text, status = send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/recibotransferencia.pdf", wapp)
+        return make_response(text, status) 
     else:
         return send_file('/home/hero/recibotransferencia.pdf')
 
@@ -510,8 +510,8 @@ def buscador_wapp():
     wapp = d['wapp']
     msg = d['msg']
     if WAPI and wapp:
-        send_msg_whatsapp(idcliente, wapp, msg)
-        return 'ok'
+        text, status = send_msg_whatsapp(idcliente, wapp, msg)
+        return make_response(text, status) 
     else:
         return 'error', 400
 
