@@ -125,9 +125,8 @@ def stock_getcompras():
 def stock_getarticulos():
     con = get_con()
     articulos=pglflat(con, f"select art from articulos")
-    grupos = pglflat(con, f"select distinct grupo from articulos where grupo is not null")
     con.close()
-    return jsonify(articulos=articulos, grupos=grupos)
+    return jsonify(articulos=articulos)
 
 
 @stock.route('/stock/compras')
@@ -243,9 +242,10 @@ def stock_guardarsalida():
 @stock.route('/stock/getlistaarticulos')
 def stock_getlistaarticulos():
     con = get_con()
-    articulos=pgdict(con, f"select id,art,costo,activo,cuota from articulos order by activo desc,art" )
+    articulos=pgdict(con, f"select * from articulos order by activo desc,art" )
+    grupos = pglflat(con, f"select distinct grupo from articulos where grupo is not null")
     con.close()
-    return jsonify(articulos=articulos)
+    return jsonify(articulos=articulos, grupos=grupos)
 
 
 @stock.route('/stock/articulos')
@@ -257,7 +257,7 @@ def stock_articulos():
 def stock_guardararticulo():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    ins = f"insert into articulos(art, costo, activo,cuota) values('{d['art']}',{d['costo']},{d['activo']},{d['cuota']})"
+    ins = f"insert into articulos(art, costo, activo,cuota,grupo) values('{d['art']}',{d['costo']},{d['activo']},{d['cuota']},'{d['grupo']}')"
     cur = con.cursor()
     try:
         cur.execute(ins)
@@ -307,7 +307,7 @@ def stock_articulotoggleactivo(id):
 def stock_guardaredicionarticulo():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    upd = f"update articulos set art='{d['arted']}', costo= {d['costoed']}, activo= {d['activoed']}, cuota= {d['cuotaed']} where id={d['ided']}"
+    upd = f"update articulos set art='{d['art']}', costo= {d['costo']}, activo= {d['activo']}, cuota= {d['cuota']} where id={d['id']}"
     cur = con.cursor()
     try:
         cur.execute(upd)

@@ -23,32 +23,27 @@
             <div class="field is-horizontal">
             <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
             <div class="control">
-              <input type="text" x-model="art" class="input" :class='{"is-danger":!art}' placeholder="Articulo" @keyup.enter="$refs.costo.focus()" size="25" x-ref="art">
-              <p x-show="!art" class="help is-danger">Requerido</p>
+              <input type="text" x-model="newArticulo.art" class="input" placeholder="Articulo" size="25">
             </div>
             <div class="control">
-            <select id="grupo" name="grupo" x-model="grupo" placeholder="grupo">
-                <template x-for="item in listagrupos">
-                <option :value="item"></option>
+            <input list="grupos" id="grupo" class="input mb-3" x-model="newArticulo.grupo" placeholder="grupo" autocomplete="off">
+                <datalist id="grupos">
+                <template x-for="grupo in listagrupos">
+                <option :value="grupo">
                 </template>
-            </select>
+                </datalist>
             </div>
             <div class="control">
-                <input type="text" x-model="costo" class="input" size="5" placeholder="Costo" x-ref="costo" @keyup.enter="$refs.cuota.focus()" :class='{"is-danger":!costo}'>
-                <p x-show="!costo" class="help is-danger">Requerido</p>
+                <input type="text" x-model="newArticulo.costo" class="input" size="5" placeholder="Costo">
             </div>
             <div class="control">
-           <input type="text" x-model="cuota" class="input" size="5" placeholder="Cuota" x-ref="cuota" @keyup.enter="$refs.activo.focus()" :class='{"is-danger":!cuota}'>
-                <p x-show="!cuota" class="help is-danger">Requerido</p>
+           <input type="text" x-model="newArticulo.cuota" class="input" size="5" placeholder="Cuota">
             </div>
-
             <div class="control">
-              <input type="text" x-model="activo" class="input" size="5" placeholder="Activo" x-ref="activo" @keyup.enter="$refs.guardar.focus()" :class='{"is-danger":!activo}'>
-                <p x-show="!activo" class="help is-danger">Requerido</p>
+              <input type="text" x-model="newArticulo.activo" class="input" size="5" placeholder="Activo">
             </div>
-
             <div class="control">
-                <button type="button" class="button is-primary" @click="validarArticulo" x-ref="guardar" id="guardar">Guardar</button>
+                <button type="button" class="button is-primary" @click="validarArticulo">Guardar</button>
             </div>
         </div>
 </div>
@@ -61,6 +56,7 @@
               <th>op</th>
               <th>id</th>
               <th>art</th>
+              <th>grupo</th>
               <th>costo</th>
               <th>cuota</th>
               <th>activo</th>
@@ -74,6 +70,7 @@
               <td><button class="button is-info is-small" @click="editarArticulo(articulo['id'])">Editar</button></td>
               <td x-text = "articulo['id']"></td>
               <td x-text = "articulo['art']"></td>
+              <td x-text = "articulo['grupo']"></td>
               <td x-text = "articulo['costo']"></td>
               <td x-text = "articulo['cuota']"></td>
               <td><span class="tag is-success is-small" x-show="articulo['activo']">Activo</span><span class="tag is-danger is-small" x-show="!articulo['activo']">Inactivo</span></td>
@@ -94,13 +91,14 @@
         <input type="text" class="input mb-1" x-model="Articulo.art" placeholder="articulo" style="min-width:400px;">
         <input type="text" class="input mb-1" x-model="Articulo.costo" placeholder="costo">
         <input type="text" class="input mb-1" x-model="Articulo.cuota" placeholder="cuota">
-        <select id="grupo" name="grupo" x-model="Articulo.grupo" placeholder="grupo">
-                <template x-for="item in listagrupos">
-                <option :value="item"></option>
-                </template>
-        </select>
+        <input list="grupos" id="grupo" class="input mb-3" x-model="Articulo.grupo" placeholder="grupo" autocomplete="off">
+            <datalist id="grupos">
+            <template x-for="grupo in listagrupos">
+            <option :value="grupo">
+            </template>
+            </datalist>
         <input type="text" class="input mb-1" x-model="Articulo.activo" placeholder="activo">
-        <button class="button is-primary" @click="guardarRegistro">Guardar</button>
+        <button class="button is-primary" @click="validarEdicion">Guardar</button>
         <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
     </div>
 </div>
@@ -113,6 +111,7 @@
     function main(){
     return{
         Articulo:{},
+        newArticulo:{art:'',cuota:'',costo:'',grupo:'',activo:''},
         articulos:{},
         listagrupos:[],
         art:'',
@@ -124,22 +123,36 @@
         getArticulos(){
             axios.get('/stock/getlistaarticulos')
             .then(res=>{
+                console.log(res.data.grupos)
                 this.articulos = res.data.articulos
                 this.listagrupos = res.data.grupos
             })
         },
         borrarArticulo(id){
-            const borrar = confirm("¿Esta seguro que quiere borrar permanentemente esta fila?")
-            if(borrar){
+            Swal.fire({
+            title: '¿Esta seguro?',
+            text: "El borrado es irreversible!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, borrarlo!'
+            }).then((result) => {
+            if (result.isConfirmed) {
                 axios.get('/stock/deletearticulo/'+id)
                 .then(res=>{
-                    console.log(res)
+                    Swal.fire(
+                    'Borrado!',
+                    'El registro ha sido borrado.',
+                    'success'
+                    )
                     this.getArticulos()
                 })
-            }
+            }})
         },
         validarArticulo(){
-            if(this.art!=''&&this.activo!=''&&this.costo!=''){
+            console.log(this.newArticulo.grupo)
+            if(this.isValid(this.newArticulo)){
                 this.guardarArticulo()
             }else{
                 Swal.fire({
@@ -148,7 +161,6 @@
                         icon: 'error',
                         timer: 3000,
                         });
-
             }
         },
         guardarArticulo(){
@@ -156,30 +168,18 @@
             axios({
                 method:'POST',
                 url: '/stock/guardararticulo',
-                data:{
-                    art:this.art,
-                    costo: this.costo,
-                    cuota: this.cuota,
-                    grupo: this.grupo,
-                    activo: this.activo,
-                }
+                data:this.newArticulo,
             })
             .then(res=>{
                 console.log(res)
                 this.getArticulos()
-                this.art=''
-                this.costo=''
-                this.cuota=''
-                this.grupo=''
-                this.activo=''
-                this.$refs.art.focus();
+                this.newArticulo={art:'',cuota:'',costo:'',grupo:'',activo:''},
                 Swal.fire({
                         title: 'Exito',
                         text: 'Articulo Agregado',
                         icon: 'success',
                         timer: 3000,
                         });
-
             })
             .catch(error=>{
               Swal.fire({
@@ -201,7 +201,7 @@
             this.Articulo = this.articulos.filter(row=>row.id==id)[0]
         },
         validarEdicion(){
-            if(this.Articulo.art!=''&&this.Articulo.activo!=''&&this.Articulo.costo!=''&&this.Articulo.costo!=''&&this.Articulo.grupo!=''){
+            if(this.isValid(this.Articulo)){
                 this.guardarEdicion()
             }else{
                   Swal.fire({
@@ -210,7 +210,6 @@
                         icon: 'error',
                         timer: 3000,
                         });
-
             }
         },
         guardarEdicion(){
@@ -238,6 +237,12 @@
                                     timer: 3000,
                                     });
           })
+        },
+        isValid(obj){
+            for (const item in obj){
+                if(!obj[item]) return false
+            }
+            return true
         },
     }}
 
