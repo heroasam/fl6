@@ -39,4 +39,5 @@ def utilidades_getimpresos():
 
 @utilidades.route('/utilidades/imprimirimpreso/<string:impreso>')
 def utilidades_imprimirimpreso(impreso):
+    print(impreso)
     return send_file(os.path.join('/home/hero/documentos/impresos',impreso))

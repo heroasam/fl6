@@ -2,6 +2,10 @@ from fpdf import FPDF
 from .lib import pgdict0, pgddict, per, desnull,pglflat,pgdict,pgonecolumn, letras
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
+import time
+import os
+import glob
+
 
 def cuotaje(con,idvta):
     venta = pgdict0(con, f"select id,fecha,cc,ic,saldo,pagado,primera,p from ventas where id={idvta}")
@@ -434,6 +438,7 @@ def cancelados(con, ids):
 
 
 def listaprecios(lista,grupos):
+    aleatorio = str(time.time_ns())[-4:]
     if 'liquidacion' in grupos:
         grupos.pop(grupos.index('liquidacion'))
         grupos.append('liquidacion')
@@ -457,5 +462,8 @@ def listaprecios(lista,grupos):
             if item['grupo']==grupo:
                 pdf.cell(100,8,item['art'],1,0,'L')
                 pdf.cell(50,8,f"6 cuotas de ${item['cuota']}",1,1,'C')
-            
-    pdf.output("/home/hero/documentos/impresos/listapreciosGENERADA.pdf")
+    # removemos todas las listas viejas generadas
+    filelist = glob.glob('/home/hero/documentos/impresos/listapreciosGENERADA*.pdf')
+    for f in filelist:
+        os.remove(f)
+    pdf.output(f"/home/hero/documentos/impresos/listapreciosGENERADA{aleatorio}.pdf")
