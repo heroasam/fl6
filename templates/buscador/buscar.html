@@ -61,22 +61,70 @@
         <button class="button is-primary is-small" @click="dialogoImprimirFicha()">IMPRIMIR</button>
         <!-- <button class="button is-primary is-small" @click="intimarCliente(Cliente.dni)">INTIM</button> -->
         <!-- <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${intimacionWhatsapp}` class="button is-success is-small" target="blank" style="text-decoration: none;">INT</a> -->
-        <button class="button is-danger is-small" @click="sendIntWhatsapp()">INTWhat</button>
-        <button class="button is-danger is-small" @click="sendIntimacion(Cliente.dni, Cliente.wapp)">IntPDF</button>
+        <!-- <button class="button is-danger is-small" @click="sendIntWhatsapp()">INTWhat</button> -->
+        <!-- <button class="button is-danger is-small" @click="sendIntimacion(Cliente.dni, Cliente.wapp)">IntPDF</button> -->
         <button class="button is-success is-small" @click="clipDatos(Cliente.id)">DATOS</button>
         <!-- <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${Cliente.nombre}` class="button is-success is-small" target="blank" style="text-decoration: none;">WAPP</a> -->
-        <button class="button is-danger is-small" @click="sendMsgGeneral()">WHAPP</button>
-        <button class="button is-success is-small" @click="hacerLlamada(Cliente.wapp||Cliente.tel)">CALL</button>
-        <button class="button is-info is-small" @click="fecharPmovto(Cliente.id)">FECHAR</button>
-        <button class="button is-info is-small" @click="editarCliente(Cliente.id)">EDITAR</button>
-        <button class="button is-info is-small" @click="agregarComentario()">COMENTAR</button>
-        <button class="button is-info is-small" @click="agregarPlanPago()">PLAN PAGOS</button>
-        <button class="button is-danger is-small" @click="emitirLibreDeuda(Cliente.dni)">LIBRE</button>
-        <button class="button is-danger is-small" @click="emitirRbo()">RBO</button>
+        <!-- <button class="button is-danger is-small" @click="sendMsgGeneral()">WHAPP</button> -->
+        <!-- <button class="button is-success is-small" @click="hacerLlamada(Cliente.wapp||Cliente.tel)">CALL</button> -->
+        <!-- <button class="button is-info is-small" @click="fecharPmovto(Cliente.id)">FECHAR</button> -->
+        <!-- <button class="button is-info is-small" @click="editarCliente(Cliente.id)">EDITAR</button> -->
+        <!-- <button class="button is-info is-small" @click="agregarComentario()">COMENTAR</button> -->
+        <!-- <button class="button is-info is-small" @click="agregarPlanPago()">PLAN PAGOS</button> -->
+        <!-- <button class="button is-danger is-small" @click="emitirLibreDeuda(Cliente.dni)">LIBRE</button> -->
+        <!-- <button class="button is-danger is-small" @click="emitirRbo()">RBO</button> -->
 <!--        <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${ventaWapp}` class="button is-danger is-small" target="blank" style="text-decoration: none;">VENDER</a>-->
-        <button class="button is-danger is-small" @click="sendMsgVenta(Cliente.wapp)">Vender</button>
-        <button class="button is-danger is-small" @click="sendMsgRecordatorio(Cliente.wapp)">RecTrans</button>
-        <button class="button is-danger is-small" @click="sendMsgCbu(Cliente.wapp)">CBU</button>
+        <!-- <button class="button is-danger is-small" @click="sendMsgVenta(Cliente.wapp)">Vender</button> -->
+        <!-- <button class="button is-danger is-small" @click="sendMsgRecordatorio(Cliente.wapp)">RecTrans</button> -->
+        <!-- <button class="button is-danger is-small" @click="sendMsgCbu(Cliente.wapp)">CBU</button> -->
+
+	<div class="dropdown">
+	    <div class="dropdown-trigger">
+		<button class="button is-primary is-small" aria-haspopup="true" aria-controls="dropdown-menu">
+		<span>Acciones</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
+		</button>
+	    </div>
+	    <div class="dropdown-menu" id="dropdown-menu" role="menu">
+		<div class="dropdown-content">
+		<a href="#" @click="editarCliente(Cliente.id)" class="dropdown-item">Editar</a>
+		<a href="#" @click="fecharPmovto(Cliente.id)"  class="dropdown-item">Fechar</a>
+		<a href="#" @click="agregarComentario()"  class="dropdown-item">Comentario</a>
+		<a href="#" @click="agregarPlanPago()"  class="dropdown-item">Plan de Pago</a>
+		</div>
+	    </div>
+	</div>
+	<div class="dropdown">
+	    <div class="dropdown-trigger">
+		<button class="button is-danger is-small" aria-haspopup="true" aria-controls="dropdown-menu">
+		<span>whatsapp</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
+		</button>
+	    </div>
+	    <div class="dropdown-menu" id="dropdown-menu" role="menu">
+		<div class="dropdown-content">
+		<a href="#" @click="sendMsgVenta(Cliente.wapp)" class="dropdown-item">Vender</a>
+		<a href="#" @click="sendMsgCbu(Cliente.wapp)"  class="dropdown-item">CBU</a>
+		<a href="#" @click="sendMsgRecordatorio(Cliente.wapp)"  class="dropdown-item">Recordatorio transferencia</a>
+		<a href="#" @click="sendIntWhatsapp(Cliente.wapp)"  class="dropdown-item">Intimacion por Whats</a>
+		<a href="#" @click="sendMsgGeneral(Cliente.wapp)"  class="dropdown-item">mensaje General</a>
+		</div>
+	    </div>
+	</div>
+	<div class="dropdown">
+	    <div class="dropdown-trigger">
+		<button class="button is-info is-small" aria-haspopup="true" aria-controls="dropdown-menu">
+		<span>Emitir PDF</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
+		</button>
+	    </div>
+	    <div class="dropdown-menu" id="dropdown-menu" role="menu">
+		<div class="dropdown-content">
+		<a href="#" @click="emitirRbo()" class="dropdown-item">Emitir Recibo</a>
+		<a href="#" @click="emitirLibreDeuda(Cliente.dni)"  class="dropdown-item">Emitir Libre Deuda</a>
+		<a href="#" @click="sendIntimacion(Cliente.dni,Cliente.wapp)"  class="dropdown-item">Emitir Intimacion</a>
+		</div>
+	    </div>
+	</div>
+
+
         <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
     </div>
     <table class="table table-sm m-3" x-show="verCard && listaVentas.length">
