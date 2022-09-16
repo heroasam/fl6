@@ -322,7 +322,7 @@ def intimacion(con,ldni):
 
 
 
-def loterbo(con, lrbo, fecha, cobr, idlote):
+def loterbo(con, lrbo, fecha, cobr, idlote, estimado, cobrado):
     pdf=FPDF()
     pdf.set_margins(15,15)
     pdf.add_page()
@@ -330,7 +330,9 @@ def loterbo(con, lrbo, fecha, cobr, idlote):
     pdf.set_y(5)
     pdf.cell(20,6,str(fecha),0,0,'C')
     pdf.cell(20,6,f"Cobr {cobr}",0,0,'C')
-    pdf.cell(20,6,f"Lote N° {idlote}",0,1,'C')
+    pdf.cell(20,6,f"Lote N° {idlote}",0,0,'C')
+    pdf.cell(60,6,f"Cobrado en el mes ${cobrado}",0,0,'C')
+    pdf.cell(60,6,f"Falta estimado ${estimado}",0,1,'C')
     pdf.set_y(15)
     for n,rbo in enumerate(lrbo):
         if n==43:
