@@ -102,7 +102,7 @@
                 @keyup.enter.native="$refs.costo.focus()"
                 v-model="art"
                 :data="artsFiltradasArray"
-                placeholder="Cuenta"
+                placeholder="Articulo"
                 clearable
                 keep-first
                 @select="option => selected = option">
@@ -273,6 +273,9 @@ const app = new Vue({
                 this.$refs.cnt.focus();
                 bulmaToast.toast({message:"Compra procesada con exito", type:'is-success'})
             })
+                .catch(error=>{
+                    bulmaToast.toast({message:"No procesado.¿Existe el articulo?", type:'is-danger'})
+                })
         },
         dia(day){
             //formamos el nombre de la clase con la palabra color mas

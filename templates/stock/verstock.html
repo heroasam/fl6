@@ -42,7 +42,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="item in stock" v-show="item['stock']">
+            <tr v-for="item in stock" v-show="item['stock']!=0">
                 <td style="text-align:left;">|item['art']|</td>
                 <td>|item['ingreso']|</td>
                 <td>|item['egreso']|</td>

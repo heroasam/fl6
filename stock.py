@@ -258,7 +258,7 @@ def stock_articulos():
 def stock_guardararticulo():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    ins = f"insert into articulos(art, costo, activo,cuota,grupo) values('{d['art']}',{d['costo']},{d['activo']},{d['cuota']},'{d['grupo']}')"
+    ins = f"insert into articulos(art, costo, activo,cuota,grupo,codigo) values('{d['art']}',{d['costo']},{d['activo']},{d['cuota']},'{d['grupo']}','{d['codigo']}')"
     cur = con.cursor()
     try:
         cur.execute(ins)
@@ -308,7 +308,7 @@ def stock_articulotoggleactivo(id):
 def stock_guardaredicionarticulo():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    upd = f"update articulos set art='{d['art']}', costo= {d['costo']}, activo= {d['activo']}, cuota= {d['cuota']}, grupo='{d['grupo']}' where id={d['id']}"
+    upd = f"update articulos set art='{d['art']}', costo= {d['costo']}, activo= {d['activo']}, cuota= {d['cuota']}, grupo='{d['grupo']}',codigo='{d['codigo']}' where id={d['id']}"
     cur = con.cursor()
     try:
         cur.execute(upd)

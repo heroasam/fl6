@@ -27,6 +27,9 @@
               <input type="text" x-model="newArticulo.art" class="input" placeholder="Articulo" size="25">
             </div>
             <div class="control">
+              <input type="text" x-model="newArticulo.codigo" class="input" placeholder="Codigo" size="5">
+            </div>
+            <div class="control">
             <input list="grupos" id="grupo" class="input mb-3" x-model="newArticulo.grupo" placeholder="grupo" autocomplete="off">
                 <datalist id="grupos">
                 <template x-for="grupo in listagrupos">
@@ -56,6 +59,7 @@
               <th>op</th>
               <th>op</th>
               <th>id</th>
+              <th>cod</th>
               <th>art</th>
               <th>grupo</th>
               <th>costo</th>
@@ -70,6 +74,7 @@
               <td><button class="button is-danger is-small" @click="borrarArticulo(articulo['id'])">Borrar</button></td>
               <td><button class="button is-info is-small" @click="editarArticulo(articulo['id'])">Editar</button></td>
               <td x-text = "articulo['id']"></td>
+              <td x-text = "articulo['codigo']"></td>
               <td x-text = "articulo['art']"></td>
               <td x-text = "articulo['grupo']"></td>
               <td x-text = "articulo['costo']"></td>
@@ -89,6 +94,7 @@
             <button class="btn-close" @click="verModalEdicion=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
         </div>
         <h1 class="title is-3">Edicion articulos</h1>
+        <input type="text" class="input mb-1" x-model="Articulo.codigo" placeholder="codigo">
         <input type="text" class="input mb-1" x-model="Articulo.art" placeholder="articulo" style="min-width:400px;">
         <input type="text" class="input mb-1" x-model="Articulo.costo" placeholder="costo">
         <input type="text" class="input mb-1" x-model="Articulo.cuota" placeholder="cuota">
@@ -112,7 +118,7 @@
     function main(){
     return{
         Articulo:{},
-        newArticulo:{art:'',cuota:'',costo:'',grupo:'',activo:''},
+        newArticulo:{art:'',cuota:'',costo:'',grupo:'',activo:'',codigo:''},
         articulos:{},
         listagrupos:[],
         art:'',
@@ -174,7 +180,7 @@
             .then(res=>{
                 console.log(res)
                 this.getArticulos()
-                this.newArticulo={art:'',cuota:'',costo:'',grupo:'',activo:''},
+                this.newArticulo={art:'',cuota:'',costo:'',grupo:'',activo:'',codigo:''},
                 Swal.fire({
                         title: 'Exito',
                         text: 'Articulo Agregado',
@@ -253,6 +259,14 @@
                         title:'Exito!',
                         text:'Se genero la lista',
                         icon: 'success',
+                        timer: 3000,
+                    })
+                })
+                .catch(error=>{
+                    Swal.fire({
+                        title:'Error!',
+                        text: 'Posiblemente falta algun codigo',
+                        icon: 'error',
                         timer: 3000,
                     })
                 })

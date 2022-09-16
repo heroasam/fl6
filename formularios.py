@@ -462,7 +462,8 @@ def listaprecios(lista,grupos):
         pdf.set_font_size(12)
         for item in lista:
             if item['grupo']==grupo:
-                pdf.cell(100,8,item['art'],1,0,'L')
+                pdf.cell(10,8,item['codigo'],1,0,'C')
+                pdf.cell(90,8,item['art'],1,0,'L')
                 pdf.cell(50,8,f"6 cuotas de ${item['cuota']}",1,1,'C')
     # removemos todas las listas viejas generadas
     filelist = glob.glob('/home/hero/documentos/impresos/listapreciosGENERADA*.pdf')

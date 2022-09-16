@@ -98,7 +98,7 @@
                 @keyup.enter.native="$refs.costo.focus()"
                 v-model="art"
                 :data="artsFiltradasArray"
-                placeholder="Cuenta"
+                placeholder="Articulo"
                 clearable
                 keep-first
                 @select="option => selected = option">
@@ -201,6 +201,7 @@ const app = new Vue({
             }
         },
         guardarSalida(){
+            this.art = this.art.substring(3)
             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
             axios({
                 method:'POST',
@@ -230,7 +231,7 @@ const app = new Vue({
             return "color" + dayjs.utc(day).format('DD').slice(1,2)
         },
         getArticulos(){
-          axios.get('/stock/getarticulos')
+          axios.get('/ventas/getarticulos')
           .then(res=>{
             this.articulos=res.data.articulos
           })
