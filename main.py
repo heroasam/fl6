@@ -6,16 +6,16 @@ from flask_bcrypt import Bcrypt
 from flask_login import UserMixin
 from flask_cors import CORS
 from werkzeug.urls import url_parse
-from .lib import *
-from .formularios import *
-from .ventas import ventas
-from .stock import stock
-from .pagos import pagos
-from .buscador import buscador
-from .fichas import fichas
-from .utilidades import utilidades
+from lib import *
+from formularios import *
+from ventas import ventas
+from stock import stock
+from pagos import pagos
+from buscador import buscador
+from fichas import fichas
+from utilidades import utilidades
 import mysql.connector
-from .con import con, log
+from con import con, log
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'

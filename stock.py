@@ -1,9 +1,9 @@
 from flask import Blueprint,render_template,jsonify,make_response, request
 from flask_login import login_required
-from .lib import *
+from lib import *
 import simplejson as json
-from .con import get_con, log
-from .formularios import listaprecios
+from con import get_con, log
+from formularios import listaprecios
 import pandas as pd
 import mysql.connector
 
@@ -384,7 +384,7 @@ def stock_wapp():
 @stock.route('/stock/generarlistaprecios')
 def stock_generarlistaprecios():
     con = get_con()
-    lista = pgdict(con, f"select * from articulos where activo=1 order by grupo,art")
+    lista = pgdict(con, f"select * from articulos where activo=1 order by grupo,codigo")
     grupos = pglflat(con, f"select distinct grupo from articulos where activo=1 and grupo is not null order by grupo")
     listaprecios(lista,grupos)
     return 'ok'

@@ -250,13 +250,13 @@ function dataWrapper(datos){
 }
 
 // control de dropbox menu de bulma
- document.addEventListener('DOMContentLoaded', function () {
-                  var dropdowns = document.querySelectorAll('.dropdown');
-     dropdowns.forEach(dropdown=>{
-	 dropdown.addEventListener('click', function(event) {
-         event.stopPropagation(); 
-         dropdown.classList.toggle('is-active');
-         });
+ // document.addEventListener('DOMContentLoaded', function () {
+ //                  var dropdowns = document.querySelectorAll('.dropdown');
+ //     dropdowns.forEach(dropdown=>{
+ // 	 dropdown.addEventListener('click', function(event) {
+ //         event.stopPropagation(); 
+ //         dropdown.classList.toggle('is-active');
+ //         });
 
-     });
- });        
+ //     });
+ // });        

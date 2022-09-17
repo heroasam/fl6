@@ -1,9 +1,9 @@
 from flask import Blueprint,render_template,jsonify,make_response, request, send_file
 from flask_login import login_required
-from .lib import *
+from lib import *
 import simplejson as json
-from .con import get_con, log
-from .formularios import *
+from con import get_con, log
+from formularios import *
 import mysql.connector
 import time
 

@@ -1,5 +1,5 @@
 from fpdf import FPDF 
-from .lib import pgdict0, pgddict, per, desnull,pglflat,pgdict,pgonecolumn, letras
+from lib import pgdict0, pgddict, per, desnull,pglflat,pgdict,pgonecolumn, letras
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 import time

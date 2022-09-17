@@ -5,7 +5,7 @@ import urllib.parse
 import ssl
 import os
 import requests
-from .con import get_con
+from con import get_con
 from flask_login import current_user
 
 # Constante de uso de sistema whatsapp-API

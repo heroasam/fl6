@@ -1,11 +1,11 @@
 from flask import Blueprint,render_template,jsonify,make_response, request, send_file,url_for,redirect
 from flask_login import login_required
-from .lib import *
+from lib import *
 import simplejson as json
-from .con import get_con, log
+from con import get_con, log
 import pandas as pd
 import re
-from .formularios import *
+from formularios import *
 import mysql.connector
 
 pagos = Blueprint('pagos',__name__)

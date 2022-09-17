@@ -1,7 +1,7 @@
 from flask import Blueprint,render_template,jsonify,make_response, request, send_file
 from flask_login import login_required, current_user
-from .lib import *
-from .con import get_con, log
+from lib import *
+from con import get_con, log
 import pandas as pd
 import simplejson as json
 import mysql.connector
