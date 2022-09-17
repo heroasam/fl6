@@ -260,3 +260,20 @@ function dataWrapper(datos){
 
  //     });
  // });        
+
+// wrapper a Swal
+
+function msgSuccess(title, text) {
+    Swal.fire({
+	title: title,
+	text: text,
+	icon: 'success',
+	timer:3000});
+}
+function msgError(title, text) {
+    Swal.fire({
+	title: title,
+	text: text,
+	icon: 'error',
+	timer:3000});
+}

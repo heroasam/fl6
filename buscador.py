@@ -433,9 +433,10 @@ def buscador_libredeuda():
     d = json.loads(request.data.decode("UTF-8"))
     dni = d['dni']
     wapp = d['wapp']
+    deuda = d['deuda']
     idcliente = d['idcliente']
     libredeuda(con,dni)
-    if WAPI and wapp:
+    if WAPI and wapp and deuda==0:
         text, status = send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/libredeuda.pdf", wapp)
         return make_response(text, status) 
     else:

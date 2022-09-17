@@ -982,9 +982,9 @@
                     method: "POST",
                     url: "/buscador/libredeuda",
                     responseType: "blob",
-                    data: {dni:dni, wapp:this.Cliente.wapp, idcliente:this.Cliente.id},
+                    data: {dni:dni, wapp:this.Cliente.wapp, idcliente:this.Cliente.id, deuda:this.Cliente.deuda},
                 }).then((res) => {
-                        if(this.Cliente.wapp){
+                        if(this.Cliente.wapp && this.Cliente.deuda==0){
                             if(res.status==200){
                                 Swal.fire({
                                     title: 'WhatsApp!',
@@ -996,6 +996,8 @@
                         }else{
                             let url = window.URL.createObjectURL(res.data);
                             window.open(url);
+			    if (this.Cliente.wapp && this.Cliente.deuda>0) {
+				msgSuccess("Whatsapp!","No se envio el whatsapp porque todavia tiene deuda")}
                         }
                 }
                 )},
