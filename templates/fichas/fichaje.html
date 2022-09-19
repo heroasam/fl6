@@ -62,9 +62,22 @@ endblock %} {% block style %}
     <button class="button is-danger" @click="intimarWhatsapp()">INTWhat</button>
     <button class="button is-danger" @click="intimarPdf()">INTpdf</button>
     <button class="button is-danger" @click="sendMsgRecordatorio()">RecTrans</button>
-    <buttons v-for="item in listamsgs" class="ml-1">
-      <button class="button is-danger" @click="sendMsgProgramado(item['nombre'])">|item['nombre']|</button>
-    </buttons>
+
+    <div class="dropdown is-hoverable">
+	<div class="dropdown-trigger">
+	    <button class="button is-info" aria-haspopup="true" aria-controls="dropdown-menu">
+		<span>Programados</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
+	    </button>
+	</div>
+	<div class="dropdown-menu" id="dropdown-menu" role="menu">
+	    <div class="dropdown-content">
+		<div v-for="item in listamsgs">
+		    <a href="#" @click="sendMsgProgramado(item['nombre'])" class="dropdown-item">|item['nombre']|</a>
+		</div>
+	    </div>
+	</div>
+    </div>
+
   </div>
 
     <table id="table" class="table is-narrow nototal ml-1">
@@ -78,7 +91,7 @@ endblock %} {% block style %}
           <th>Compra</th>
           <th>Fecha</th>
           <th>Deuda</th>
-          <th>DNI</th>
+          <th>Wapp</th>
           <th>Zona</th>
           <th>Barrio</th>
           <th>Intimado</th>
@@ -97,7 +110,7 @@ endblock %} {% block style %}
           <td>|cliente['comprado']|</td>
           <td style="min-width: 100px;">|cliente['ultcompra']|</td>
           <td>|cliente['deuda']|</td>
-          <td>|cliente['dni']|</td>
+          <td>|cliente['wapp']|</td>
           <td>|cliente['zona']|</td>
           <td>|cliente['barrio']|</td>
           <td>|cliente['fechaintimacion']|</td>

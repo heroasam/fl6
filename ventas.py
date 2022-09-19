@@ -171,7 +171,7 @@ def ventas_borrardetvta(id):
 @ventas.route('/ventas/getarticulos')
 def ventas_getarticulos():
     con = get_con()
-    articulos = pglflat(con, f"select concat(codigo,'-',art) as art from articulos where activo=1")
+    articulos = pglflat(con, f"select concat(codigo,'-',art) as art from articulos where activo=1 and codigo is not null")
     print(articulos)
     con.close()
     return jsonify(articulos=articulos)
