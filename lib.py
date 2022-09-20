@@ -4,12 +4,17 @@ import base64
 import urllib.parse
 import ssl
 import os
+import re
+import time
+from time import sleep
+import queue
 import requests
-from con import get_con
+from con import get_con, log
 from flask_login import current_user
 
 # Constante de uso de sistema whatsapp-API
 WAPI = True
+whatsqueue = queue.Queue() 
 
 def pgdict0(con, sel):
     """Funcion que entrega una lista de valores en formato lista plana
@@ -461,35 +466,69 @@ def obtener_msg_enviados(to_number):
 
 
 def send_msg_whatsapp(idcliente, wapp, msg):
-    logwhatsapp(idcliente,wapp,msg=msg)
     wapp = "+549"+wapp
     payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&text={msg}"
-    response = requests.request("GET", payload)
-    wapp_log(response.status_code,response.text)
-    return response.text, response.status_code
+    whatsqueue.put((idcliente, payload))
+    call_send_on_interval()
+    return 1
 
 
 def send_file_whatsapp(idcliente,file, wapp, msg=""):
-    logwhatsapp(idcliente,wapp,file=file, msg=msg)
-    print(file)
     wapp = "+549"+wapp
     payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&document={file}"
-    response = requests.request("GET", payload)
-    wapp_log(response.status_code,response.text)
-    return response.text, response.status_code
+    whatsqueue.put((idcliente, payload))
+    call_send_on_interval()
+    return 1
+
+def call_send_on_interval():
+    time.sleep(1)
+    send_on_interval()
+
+        
+def send_on_interval():
+    while not whatsqueue.empty():
+        idcliente, payload = whatsqueue.get()
+        response = requests.request("GET", payload, timeout=10)
+        print('time:',time.time())
+        sleep(10)
+        wapp = re.findall(r'(\d+)',payload[:60])[0]
+        wapp_log(response.status_code,response.text)
+        if "Success" in response.text:
+            logwhatsapp(idcliente, payload)
+        elif "Invalid Destination WhatsApp" in response.text:
+            upd = f"update clientes set wapp_invalido='{wapp}',wapp='' where id={idcliente}"
+            con = get_con()
+            cur = con.cursor()
+            cur.execute(upd)
+            log(upd)
+            con.commit()
+            con.close()
+    return 1
 
 
-def logwhatsapp(idcliente,wapp,msg='',file=''):
-    file = os.path.split(file)[1]
-    msg = msg.replace("'", " ")
-    msg = msg.replace('"', ' ')
-    msg = msg.replace("%20"," ")
-    msg = msg[:100]
+def logwhatsapp(idcliente, text):
+    wapp = re.findall(r'(\d+)',text[:60])[0]
+    wapp = wapp[3:]
+    msg = re.search(r'text=(.*)',text)
+    if msg:
+        msg = msg.group(1)
+        msg = msg.replace("'", " ")
+        msg = msg.replace('"', ' ')
+        msg = msg.replace("%20"," ")
+        msg = msg[:100]
+    else:
+        msg = ''
+    file = re.search(r'document=(.*)',text)
+    if file:
+        file = file.group(1)
+        file = os.path.split(file)[1]
+    else:
+        file = ''
     if "@" in str(current_user):
         email = current_user.email
     else:
         email = ""
-    ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user) values({idcliente}, {wapp}, '{msg}' ,'{file}','{email}' )"
+    ins = f"insert into logwhatsapp(idcliente, wapp,msg,file,user) values({idcliente}, {wapp}, '{msg}' ,'{file}','{email}' )"
     con = get_con()
     cur = con.cursor()
     cur.execute(ins)

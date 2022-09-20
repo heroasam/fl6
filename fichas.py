@@ -82,7 +82,7 @@ def fichas_intimarpdf():
             idcliente = pgonecolumn(con, f"select id from clientes where dni={dni}")
             intimacion(con, [dni])
             # espero 10 segundos por requerimientos de la  whatsapp api
-            time.sleep(10)
+            #time.sleep(10)
             send_file_whatsapp(idcliente,'https://www.fedesal.lol/pdf/intimacion.pdf', wapp)
             #print(dni, wapp, time.time()) # fake send intimation
             # registro la intimacion
@@ -118,7 +118,7 @@ def fichas_intimarwhatsapp():
             msg, idcliente = msg_intimacion(dni)
             send_msg_whatsapp(idcliente, wapp, msg)
             # espero 10 segundos por requerimientos de la  whatsapp api
-            time.sleep(10)
+            #time.sleep(10)
             #print(dni, wapp, time.time()) # fake send intimation
             # registro la intimacion
             upd = f"update clientes set fechaintimacion=curdate() where dni={dni}"
@@ -136,7 +136,7 @@ def fichas_recordatorioswapp():
         if cliente['wapp']:
             msgRecordatorio = f"{('Estimado ' if cliente['sex']=='M' else 'Estimada ')}{cliente['nombre'].upper()}: Buenos dias, le escribimos de ROMITEX para recordarle el vencimiento de su cuota. Le pedimos que nos envie por este medio el comprobante de la transferencia, asi le enviamos el recibo correspondiente. Gracias!"
             send_msg_whatsapp(cliente['id'], cliente['wapp'], msgRecordatorio)
-            time.sleep(10)
+            #time.sleep(10)
     return 'ok'
 
 
@@ -148,7 +148,7 @@ def fichas_msgprogramado():
     for cliente in clientes:
         if cliente['wapp']:
             send_msg_whatsapp(cliente['id'], cliente['wapp'], msg)
-            time.sleep(10)
+            #time.sleep(10)
     return 'ok'
 
 

@@ -223,8 +223,8 @@ def pagos_procesarplanilla():
     fecha = d['fecha']
     stmdel = f"delete from caja where cuenta='cobranza' and fecha='{fecha}'"
     ins1 = f"insert into caja(fecha,cuenta,imp,comentario) values('{fecha}','cobranza',{d['cobrado']},'global')"
-    ins2 = f"insert into caja(fecha,cuenta,imp,comentario) values('{fecha}','cobranza',{-1*d['comision']},'com')"
-    ins3 = f"insert into caja(fecha,cuenta,imp,comentario) values('{fecha}','cobranza',{-1*d['viatico']},'via')"
+    ins2 = f"insert into caja(fecha,cuenta,imp,comentario) values('{fecha}','cobranza',{-1*int(d['comision'])},'com')"
+    ins3 = f"insert into caja(fecha,cuenta,imp,comentario) values('{fecha}','cobranza',{-1*int(d['viatico'])},'via')"
     cur = con.cursor()
     cur.execute(stmdel)
     con.commit()

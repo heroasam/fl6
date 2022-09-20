@@ -95,6 +95,7 @@ endblock %} {% block style %}
           <th>Zona</th>
           <th>Barrio</th>
           <th>Intimado</th>
+          <th>dni</th>
           <th colspan="5">Estados</th>
           <th colspan="5">Operaciones</th>
         </tr>
@@ -114,6 +115,7 @@ endblock %} {% block style %}
           <td>|cliente['zona']|</td>
           <td>|cliente['barrio']|</td>
           <td>|cliente['fechaintimacion']|</td>
+          <td>|cliente['dni']|</td>
           <td><button class="button is-success is-small" v-show="cliente['sev']||cliente['subirseven']">|cliente['sev']==1?'SEVEN':cliente['subirseven']==1?'SUBE':null|</button></td>
           <td><button class="button is-primary is-small" v-if="cliente['novendermas']">|cliente['novendermas']==1?'NV+':null|</button></td>
           <td><button class="button is-info is-small" v-if="cliente['gestion']">|cliente['gestion']==1?'GESTION':null|</button></td>
@@ -209,7 +211,7 @@ document.addEventListener('click',()=>{
         let rowsArray = Array.from(tbody.rows);
         rowsArray.forEach((row) => {
           if (row.classList.contains("selected")) {
-            ids.push(row.cells[8].innerHTML);
+            ids.push(row.cells[12].innerHTML);
             //la celda que corresponda a dni OJO
           }
         });
@@ -268,7 +270,7 @@ document.addEventListener('click',()=>{
         ids = this.seleccionarRows()
         if(ids.length>0) {
           idle = ids.length * 10000
-          // console.log(idle)
+          console.log(idle)
           axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
           Swal.fire({
                                   title: 'WhatsApp!',
