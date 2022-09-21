@@ -262,7 +262,7 @@ def recibotransferencia(con,fecha,cuenta,nc,ic,cobr,rbo,idcliente):
     pdf.set_font_size(18)
     pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 155-297-472", 0, 1, 'L')
     pdf.set_font_size(12)
-    pdf.output("/home/hero/recibotransferencia.pdf")
+    pdf.output('/home/hero/recibotransferencia.pdf')
 
 
 

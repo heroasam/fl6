@@ -492,16 +492,28 @@ def buscador_generarrbotransferencia():
     rbo = pgonecolumn(con, f"select max(id) from pagos")+1
     ins = f"insert into pagos(idvta,fecha,imp,rec,rbo,cobr,idcliente) values({cuenta},'{fecha}',{ic},0,{rbo},{cobr},{idcliente})"
     cur = con.cursor()
-    cur.execute(ins)
-    con.commit()
-    log(ins)
-    recibotransferencia(con,fecha,cuenta,nc,ic,cobr,rbo,idcliente)
-    con.close()
-    if WAPI and wapp:
+    try:
+        cur.execute(ins)
+        con.commit()
+    except:
+        return make_response("No se registro el Recibo, hay un error",400)
+    else:
+        log(ins)
+        con.close()
+        return jsonify(rbo=rbo)
+
+
+@buscador.route('/buscador/enviarrbotransferencia', methods=['POST'])
+def buscador_enviarrbotransferencia():
+    d = json.loads(request.data.decode("UTF-8"))
+    con = get_con()
+    recibotransferencia(con,'d[fecha]',d['cuenta'],d['nc'],d['ic'],d['cobr'],d['rbo'],d['idcliente'])
+    wapp = d['wapp']
+    if wapp:
         send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/recibotransferencia.pdf", wapp)
         return 'ok',200 
     else:
-        return send_file('/home/hero/recibotransferencia.pdf')
+        return send_file("/home/hero/recibotransferencia.pdf")
 
 
 @buscador.route('/buscador/wapp', methods=["POST"])

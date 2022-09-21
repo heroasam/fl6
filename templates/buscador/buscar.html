@@ -522,13 +522,7 @@
                     if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
                 })
                 .catch(error=>{
-                    Swal.fire({
-                            title: 'Error!',
-                            text: 'el DNI no existe',
-                            icon: 'error',
-                            timer: 3000,
-                            })
-                    //Toast.show(error.request.response,'error')
+		    msgError('Error!','el DNI no existe')
                 })
             },
             buscaCuentaporDni(dni){
@@ -588,14 +582,7 @@
                     // console.log(arrayVentas)
                     this.listaCuotas = this.hacerCuotas()
                     if(this.listaVentas.length===0) {
-                        Swal.fire({
-                            title: 'Sin Deuda',
-                            text: 'no hay cuentas ACTIVAS',
-                            icon: 'warning',
-                            timer: 3000,
-                            })
-		    }else{
-                    //this.clipWapp();//genero el message wapp para el cliente por si es necesario
+			msgError('Error!','no hay cuentas ACTIVAS')
 		    }
                     this.pedirPagadas(idcliente)
                     this.obtenerVentasCanceladas(idcliente)
@@ -640,7 +627,6 @@
                         cc = row.cc
                         ic = row.ic
                         p = row.p
-                        //console.log(p);
                         primera = row.primera
                         for (let i=1; i<=cc ;i++){
                             if(p==='MEN') vto = dayjs.utc(primera).add(i-1,'month').format('YYYY-MM-DD')
@@ -650,14 +636,12 @@
                             pagado = pagado - ic
                         }
                     }
-
             })
             return tblCuota
             },
             pedirPagadas(idcliente){
                 axios.get('/buscador/pedirpagadasporidcliente/'+idcliente)
                 .then(res=>{
-                    //console.log(res.data.pagadas);
                     this.listaPagadas=res.data.pagadas
                     this.listaPagadas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                 })
@@ -740,7 +724,6 @@
                                 window.open(url);
                             }
                             this.mostrarFichaPorPantalla = false
-                            
                 })
             }
             },
@@ -989,6 +972,7 @@
                 }
                 )},
                 emitirRbo(){
+		    if(this.Cliente.deuda==0){msgError('Error!','El cliente no tiene deuda');return}
                     this.verModalRecibo = true;
                     this.Recibo.cuenta = ''
                     this.Recibo.nc = ''
@@ -999,46 +983,31 @@
                     this.Recibo.idcliente = this.Cliente.id
                     this.Recibo.wapp = this.Cliente.wapp
                     this.verModalRecibo = false
-                    if (this.listaCuentas.includes(parseInt(this.Recibo.cuenta))) {
+                    if (!this.listaCuentas.includes(parseInt(this.Recibo.cuenta))) {msgError('Error!','Numero de cuenta NO existe')} 
                         axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                        axios({
-                        method:'POST',
-                            url:'/buscador/generarrbotransferencia',
-                            data:this.Recibo,
-                            responseType: "blob",
-                            })
-                            .then(res=>{
-                                    if(this.Recibo.wapp){
-                                        if(res.status==200){
-                                            Swal.fire({
-                                            title: 'WhatsApp!',
-                                            text: 'Recibo enviado',
-                                            icon: 'success',
-                                            timer: 3000,
-                                            })
-                                            }
-                                    }else{
-                                        let url = window.URL.createObjectURL(res.data);
-                                        window.open(url);
-                                    }
-                                this.Recibo = {fecha:dayjs.utc().format('YYYY-MM-DD')}
-                            })
-                            .catch(error=>{
-                                Swal.fire({
-                                title: 'WhatsApp!',
-                                text: 'Error: no se pudo enviar el recibo',
-                                icon: 'error',
-                                timer: 3000,
-                                })
-                            })
-                        }else{
-                            Swal.fire({
-                                title: 'RECIBO',
-                                text: 'Error: Numero de Cuenta no existe',
-                                icon: 'error',
-                                timer: 3000,
-                                })
-                        }
+                        axios.post('/buscador/generarrbotransferencia',this.Recibo)
+			    .then(res=>{
+				this.Recibo.rbo = res.data.rbo
+				axios.post('/buscador/enviarrbotransferencia',this.Recibo,{responseType:"blob"})
+				.then(res=>{
+					this.obtenerWappCliente()
+					setTimeout(()=>{ 
+					if(this.Cliente.wapp=='INVALIDO' || this.Cliente.wapp==''){
+					    msgError('WhatsApp!', 'Numero INVALIDO o inexistente')
+					    // se imprime por pantalla para llevarlo fisicamente
+					    let url = window.URL.createObjectURL(res.data);
+					    window.open(url);
+					}else{
+					    msgSuccess('WhatsApp!','mensaje enviado')
+					}
+					},600)
+				    this.Recibo = {fecha:dayjs.utc().format('YYYY-MM-DD')}
+				})
+                               .catch(error=>msgError('Error!','no se pudo enviar el Recibo'))
+			    })
+			    .catch(error=>{
+				msgError('Error!','El recibo no se genero')
+			    })
                 },
                 sendMsgVenta(wapp){
                     axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
