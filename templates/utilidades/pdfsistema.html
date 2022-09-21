@@ -1,24 +1,24 @@
-{% extends "base_template.html" %} {% block title %}Impresos{% endblock %}
+{% extends "base_template.html" %} {% block title %}PDF-Sistema{% endblock %}
 
 {% block content %}
 <div id="app" class="container" v-cloak>
-	<p class="title is-1">Impresos</p>
+	<p class="title is-1">PDF-Sistema</p>
     <div class="buttons">
         <a href="/utilidades/planos" class="button is-primary">Planos</a>
-        <a href="/utilidades/pdfsistema" class="button is-primary">Sistema</a>
+        <a href="/utilidades/impresos" class="button is-primary">Impresos</a>
       </div>
       
       <table class="table">
         <thead>
             <tr>
                 <th>Imp</th>
-                <th>Impreso</th>
+                <th>PDF-Sistema</th>
             </tr>
         </thead>
         <tbody>
-            <tr v-for="impreso in impresos">
-                <td><button class="button is-danger is-small" @click="imprimirImpreso(impreso)">Imprimir</button></td>
-                <td>|impreso|</td>
+            <tr v-for="pdf in pdfs">
+                <td><button class="button is-danger is-small" @click="imprimirPdfSistema(pdf)">Imprimir</button></td>
+                <td>|pdf|</td>
             </tr>
         </tbody>
 
@@ -36,27 +36,27 @@ const app = new Vue({
     el: '#app',
     delimiters: ['|', '|'],
     data: {
-        impresos:[],
+        pdfs:[],
     },
     methods: {
-        imprimirImpreso(impreso){
+        imprimirPdfSistema(pdf){
         		axios({
           			method: "GET",
-          			url: "/utilidades/imprimirimpreso/"+impreso,
+          			url: "/utilidades/imprimirpdfsistema/"+pdf,
           			responseType: "blob",
         			}).then((res) => {
           			let url = window.URL.createObjectURL(res.data);
           			window.open(url);
                     })},
-        getImpresos(){
-            axios.get('/utilidades/getimpresos')
+        getPDFSistema(){
+            axios.get('/utilidades/getpdfsistema')
 				.then(res=>{
-					this.impresos=res.data.impresos
+					this.pdfs=res.data.pdfs
 				})
         },
     },
     created: function(){
-			this.getImpresos()
+			this.getPDFSistema()
     },
 })
 

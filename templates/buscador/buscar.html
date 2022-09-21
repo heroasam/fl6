@@ -1010,15 +1010,12 @@
 			    })
                 },
                 sendMsgVenta(wapp){
+		    data = {idcliente:this.Cliente.id,
+			    wapp:this.Cliente.wapp,
+			    msg:this.ventaWapp,
+		    }
                     axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                        axios({
-                            method: "POST",
-                            url: '/buscador/wapp',
-                            data: {idcliente:this.Cliente.id,
-                                    wapp:this.Cliente.wapp,
-                                    msg:this.ventaWapp,
-                            }
-                        })
+                    axios.post('/buscador/wapp',data)
 		    .then(res=>{
 			this.obtenerWappCliente()
 			setTimeout(()=>{ 
@@ -1029,22 +1026,17 @@
 			}
 			},600)
 		})
-                .catch(error=>{
-		    msgError('Error','Mensaje no enviado')
-			    })
+                .catch(error=>msgError('Error','Mensaje no enviado'))
                 },
                 sendIntWhatsapp(){
-                    if(this.Cliente.deuda){
+			data = {idcliente:this.Cliente.id,
+				wapp:this.Cliente.wapp,
+				msg:this.intimacionWhatsapp,
+			}
+                        if(!this.Cliente.deuda) msgError('Error!','Cliente SIN deuda')
                         this.clipWappIntimacion()
                         axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                        axios({
-                            method: "POST",
-                            url: '/buscador/wapp',
-                            data: {idcliente:this.Cliente.id,
-                                    wapp:this.Cliente.wapp,
-                                    msg:this.intimacionWhatsapp,
-                            }
-                        })
+                        axios.post('/buscador/wapp', data)
                         .then(res=>{
 			    this.obtenerWappCliente()
 			    setTimeout(()=>{ 
@@ -1055,12 +1047,7 @@
 			    }
 			    },600)
 			})
-                        .catch(error=>{
-			    msgError('Error!','Mensaje NO enviado')
-                                    })
-                        }else{
-			    msgError('Error!','Cliente SIN deuda')
-                        }
+                        .catch(error=>msgError('Error!','Mensaje NO enviado'))
                 },
                 sendIntimacion(dni, wapp){
                     axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
