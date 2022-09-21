@@ -518,7 +518,6 @@ def buscador_wapp():
 
 
 
-
 @buscador.route('/buscador/callesprueba')
 def buscador_callesprueba():
     con = get_con()

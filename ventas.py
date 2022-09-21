@@ -674,3 +674,10 @@ def ventas_pivotdevoluciones():
     tbl = tbl.to_html(table_id="pivotdevoluciones",classes="table")
     con.close()
     return render_template("ventas/pivotdevoluciones.html", tbl=tbl )
+
+
+@ventas.route('/ventas/obtenerwappcliente/<int:id>')
+def ventas_obtenerwappcliente(id):
+    con = get_con()
+    wapp = pgonecolumn(con, f"select wapp from clientes where id={id}")
+    return jsonify(wapp=wapp)

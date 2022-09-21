@@ -570,10 +570,7 @@
             clipDatos(idcliente){
                 let text = this.Cliente.nombre+'\n'+this.Cliente.dni+'\n'+this.Cliente.calle+' '+this.Cliente.num+'\n'+this.Cliente.barrio+'\n'+this.Cliente.wapp
                 textToClipboard(text)
-                bulmaToast.toast({
-                    message:"Datos copiados al portapapeles",
-                    type: "is-success"
-                    })
+		msgSuccess('Exito','Datos copiados al portapapeles')
             },
             obtenerVentas(idcliente){
                 axios.get('/buscador/obtenerventasporidcliente/'+idcliente)
@@ -667,43 +664,42 @@
             toggleInc(){
             axios.get('/buscador/toggleinc/'+this.Cliente.dni)
             .then(res=>{
-               bulmaToast.toast({message:res.data.msg,type:"is-success"})
-               this.Cliente.incobrable = !this.Cliente.incobrable
+		msgSuccess('Exito',res.data.msg)
+                this.Cliente.incobrable = !this.Cliente.incobrable
             })
             },
             toggleNvm(){
                 axios.get('/buscador/togglenvm/'+this.Cliente.dni)
                 .then(res=>{
-                    bulmaToast.toast({message:res.data.msg,type:"is-success"})
+		    msgSuccess('Exito',res.data.msg)
                     this.Cliente.novendermas = !this.Cliente.novendermas
                 })
             },
             toggleSube(){
                 axios.get('/buscador/togglesube/'+this.Cliente.dni)
                 .then(res=>{
-                    bulmaToast.toast({message:res.data.msg,type:"is-success"})
+		    msgSuccess('Exito',res.data.msg)
                     this.Cliente.subirseven = !this.Cliente.subirseven
                 })
             },
             toggleGestion(){
                 axios.get('/buscador/togglegestion/'+this.Cliente.dni)
                 .then(res=>{
-                    bulmaToast.toast({message:res.data.msg,type:"is-success"})
+		    msgSuccess('Exito',res.data.msg)
                     this.Cliente.gestion = !this.Cliente.gestion
                 })
             },
             toggleMudo(){
                 axios.get('/buscador/togglemudo/'+this.Cliente.dni)
                 .then(res=>{
-                    // console.log(res.data.msg);
-                    bulmaToast.toast({message:res.data.msg,type:"is-success"})
+		    msgSuccess('Exito',res.data.msg)
                     this.Cliente.mudo = !this.Cliente.mudo
                 })
             },
             toggleSeguir(){
                 axios.get('/buscador/toggleseguir/'+this.Cliente.dni)
                 .then(res=>{
-                    bulmaToast.toast({message:res.data.msg,type:"is-success"})
+		    msgSuccess('Exito',res.data.msg)
                     this.Cliente.seguir = !this.Cliente.seguir
                 })
             },
@@ -724,12 +720,7 @@
                     }).then(res=>{
                             this.verModalImprimirFicha = false
                             if(res.status==200){
-                            Swal.fire({
-                                    title: 'WhatsApp!',
-                                    text: 'Ficha enviada al cobrador',
-                                    icon: 'success',
-                                    timer: 3000,
-                                            }); 
+				msgSuccess('WhatsApp!','Ficha enviada al cobrador');
                             }
                             this.cobrEnviar = ''
                                         })
@@ -771,7 +762,7 @@
                 this.verModalPmovto=false
                 axios.get('/buscador/guardarpmovto/'+this.Cliente.id+'/'+this.Cliente.pmovto)
                 .then(res=>{
-                    bulmaToast.toast({message:"Fechado realizado",type:"is-success"})
+		    msgSuccess('Exito','Fechado realizado')
                 })
             },
             agregarComentario(){
@@ -786,7 +777,7 @@
                     data:this.Comentario
                     })
                     .then(res=>{
-                        bulmaToast.toast({message:'Comentario agregado',type:'is-success'})
+			msgSuccess('Exito','Comentario agregado')
                         this.pedirComentarios(this.Cliente.id)
                     })
             },
@@ -802,10 +793,10 @@
                     data:this.Cliente
                     })
                     .then(res=>{
-                    bulmaToast.toast({message:"Cliente editado con exito",type: 'is-success'})
+			msgSuccess('Exito','Cliente editado con exito')
                     })
                     .catch(error=>{
-                    bulmaToast.toast({message:error.request.response,type: 'is-danger'})
+			msgError('Error',error.request.response)
                     })
             },
             obtenerCalles(){
@@ -938,10 +929,10 @@
                         data:this.Venta
                         })
                         .then(res=>{
-                        bulmaToast.toast({message:"Plan de pagos generado",type: 'is-success'})
+			    msgSuccess('Exito','Plan de pagos generado')
                         })
                         .catch(error=>{
-                        bulmaToast.toast({message:error.request.response, type:'is-danger'})
+			    msgError('Error',error.request.response)
                         })
 
                 },
@@ -953,7 +944,7 @@
                         // console.log("validado")
                         this.guardarAsunto()
                     }else{
-                        bulmaToast.toast({message:"Complete datos necesarios",type:"is-danger"})
+			msgError('Error','Complete los datos necesarios')
                     }
                 },
                 guardarAsunto(){
@@ -967,13 +958,13 @@
                         data:this.Asunto
                         })
                         .then(res=>{
-                        bulmaToast.toast({message:"Asunto cargado",type: 'is-success'})
+			    msgSuccess('Exito','Asunto Cargado')
                         this.Asunto.tipo=''
                         this.Asunto.vdor=''
                         this.Asunto.asunto=''
                         })
                         .catch(error=>{
-                        bulmaToast.toast({message:error.request.response, type:'is-danger'})
+			    msgError('Error',error.request.response)
                         })
                 },
                 emitirLibreDeuda(dni){
@@ -986,12 +977,7 @@
                 }).then((res) => {
                         if(this.Cliente.wapp && this.Cliente.deuda==0){
                             if(res.status==200){
-                                Swal.fire({
-                                    title: 'WhatsApp!',
-                                    text: 'Libre deuda enviado',
-                                    icon: 'success',
-                                    timer: 3000,
-                                    }); 
+				msgSuccess('WhatsApp!','Libre deuda enviado')
                             }
                         }else{
                             let url = window.URL.createObjectURL(res.data);
@@ -1063,23 +1049,19 @@
                                     msg:this.ventaWapp,
                             }
                         })
-                .then(res=>{
-                        if(res.status==200){
-                        Swal.fire({
-                            title: 'WhatsApp!',
-                            text: 'mensaje enviado',
-                            icon: 'success',
-                            timer: 3000,
-                            })}
-                })
-                        .catch(error=>{
-                            Swal.fire({
-                                title:'Error',
-                                text: 'Mensaje no enviado',
-                                icon: 'error',
-                                timer: 3000,
-                            })
-                        })
+		    .then(res=>{
+			this.obtenerWappCliente()
+			setTimeout(()=>{ 
+			if(this.Cliente.wapp!='INVALIDO'){
+				msgSuccess('WhatsApp!','mensaje enviado')
+			}else{
+			    msgError('WhatsApp!', 'Numero INVALIDO')
+			}
+			},600)
+		})
+                .catch(error=>{
+		    msgError('Error','Mensaje no enviado')
+			    })
                 },
                 sendIntWhatsapp(){
                     if(this.Cliente.deuda){
@@ -1094,28 +1076,20 @@
                             }
                         })
                         .then(res=>{
-                            if(res.status==200){
-                                Swal.fire({
-                                    title: 'WhatsApp!',
-                                    text: 'mensaje enviado',
-                                    icon: 'success',
-                                    timer: 3000,
-                                    })}
-                        })
+			    this.obtenerWappCliente()
+			    setTimeout(()=>{ 
+			    if(this.Cliente.wapp!='INVALIDO'){
+				    msgSuccess('WhatsApp!','mensaje enviado')
+			    }else{
+				msgError('WhatsApp!', 'Numero INVALIDO')
+			    }
+			    },600)
+			})
                         .catch(error=>{
-                            Swal.fire({
-                                    title: 'ERROR!',
-                                    text: 'mensaje NO enviado',
-                                    icon: 'error',
-                                    timer: 3000,
+			    msgError('Error!','Mensaje NO enviado')
                                     })
-                        })}else{
-                            Swal.fire({
-                                    title: 'ERROR!',
-                                    text: 'cliente sin deuda',
-                                    icon: 'error',
-                                    timer: 3000,
-                                    })                            
+                        }else{
+			    msgError('Error!','Cliente SIN deuda')
                         }
                 },
                 sendIntimacion(dni, wapp){
@@ -1236,6 +1210,11 @@ Titular de la cuenta: Heredie Maria Isabel`
                         })
 
                 },
+	    obtenerWappCliente(){
+		axios.get('/ventas/obtenerwappcliente/'+this.Cliente.id)
+		     .then(res=>{
+			 this.Cliente.wapp = res.data.wapp
+		     })},
                 
 		condonarVenta(id){
 		    axios.get('/ventas/condonar/'+id)

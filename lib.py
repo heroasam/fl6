@@ -496,7 +496,7 @@ def send_on_interval():
         if "Success" in response.text:
             logwhatsapp(idcliente, payload)
         elif "Invalid Destination WhatsApp" in response.text:
-            upd = f"update clientes set wapp_invalido='{wapp}',wapp='' where id={idcliente}"
+            upd = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' where id={idcliente}"
             con = get_con()
             cur = con.cursor()
             cur.execute(upd)
@@ -540,6 +540,7 @@ def wapp_log(log1, log2):
     log = open("/home/hero/log/wapp.log", "a")
     log.write('\n')
     log.write(str(log1))
+    log.write(str(time.time()))
     log.write(str(log2))
     log.close()
 
