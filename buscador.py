@@ -523,3 +523,16 @@ def buscador_callesprueba():
     con = get_con()
     result = pgdict(con, f"select id, calle as text from calles order by id")
     return jsonify(result=result)
+
+
+@buscador.route('/buscador/bajaindividualseven/<int:id>')
+def buscador_bajaindividualseven(id):
+    upd = f"update clientes set sev=0, baja=current_date() where id={id}"
+    con = get_con()
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    cliente = pgdict(con, f"select * from clientes where id={id}")
+    con.close()
+    log(upd)
+    return jsonify(cliente=cliente) 

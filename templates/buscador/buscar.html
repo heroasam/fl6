@@ -90,6 +90,7 @@
 		<a href="#" @click="fecharPmovto(Cliente.id)"  class="dropdown-item">Fechar</a>
 		<a href="#" @click="agregarComentario()"  class="dropdown-item">Comentario</a>
 		<a href="#" @click="agregarPlanPago()"  class="dropdown-item">Plan de Pago</a>
+		<a href="#" @click="gestionarBajaSeven()"  class="dropdown-item">Baja en Seven</a>
 		</div>
 	    </div>
 	</div>
@@ -511,8 +512,8 @@
             calleMostrada:'',
 
             buscarCliente(){
-		        buscar = this.buscar1 || this.buscar
-                //console.log(buscar)
+		buscar = this.buscar1.length>0?this.buscar1:this.buscar
+                console.log('buscar',buscar)
                 textToClipboard(buscar)
                 axios.get('/buscador/'+buscar)
                 .then(res=>{
@@ -1209,30 +1210,59 @@ Titular de la cuenta: Heredie Maria Isabel`
                             })
                         })
 
-                },
-	    obtenerWappCliente(){
-		axios.get('/ventas/obtenerwappcliente/'+this.Cliente.id)
-		     .then(res=>{
-			 this.Cliente.wapp = res.data.wapp
-		     })},
-                
-		condonarVenta(id){
-		    axios.get('/ventas/condonar/'+id)
-			 .then(res=>{
-				 this.buscaCuentaporDni(this.Cliente.dni)			 })
-		},
-        hacerLlamada(tel){
-                re = /[0-9]*/
-                tel = re.exec(tel)[0]
-                window.location.href = 'tel:' + tel;
-        },
-        mostrarCalle(){
-            axios.get('/buscador/mostrarcalle/'+this.calleMostrada)
-            .then(res=>{
-                this.verCard = false
-                this.DatosCalle = res.data.calle
-            })
-        },
+			    },
+			obtenerWappCliente(){
+			    axios.get('/ventas/obtenerwappcliente/'+this.Cliente.id)
+				.then(res=>{
+				    this.Cliente.wapp = res.data.wapp
+				})},
+
+			    condonarVenta(id){
+				axios.get('/ventas/condonar/'+id)
+				    .then(res=>{
+					    this.buscaCuentaporDni(this.Cliente.dni)			 })
+			    },
+		    hacerLlamada(tel){
+			    re = /[0-9]*/
+			    tel = re.exec(tel)[0]
+			    window.location.href = 'tel:' + tel;
+		    },
+		    mostrarCalle(){
+			axios.get('/buscador/mostrarcalle/'+this.calleMostrada)
+			.then(res=>{
+			    this.verCard = false
+			    this.DatosCalle = res.data.calle
+			})
+		    },
+	    gestionarBajaSeven(){
+		msg = `Buen día, te enviamos los siguientes datos para gestionar BAJA POR CANCELACIÓN, gracias!\nNombre ${this.Cliente.nombre}\nDNI ${this.Cliente.dni}\nDirección ${this.Cliente.calle} ${this.Cliente.num}\n\nROMITEX - Sergio Federico Salvay`
+		if(this.Cliente.deuda>0) {msgError('Error','El cliente tiene deuda');return}
+		console.log(this.Cliente.sev, typeof this.Cliente.sev)
+		if(this.Cliente.sev!=1) {msgError('Error', 'El cliente NO esta en el seven');return}
+			axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+                        axios({
+                            method: "POST",
+                            url: '/buscador/wapp',
+                            data: {idcliente: this.Cliente.id,
+                                    wapp: '3513007412',
+                                    msg:msg,
+                            }
+                        })
+			.then(res=>{
+			    msgSuccess('WhatsApp','Mensaje Enviado')
+			    this.sev = 0
+			    this.baja = dayjs.utc().format('YYYY-MM-DD')
+			    axios.get('/buscador/bajaindividualseven/'+this.Cliente.id)
+					     .then(res=>{
+						 this.Cliente.sev = res.data.cliente[0].sev
+						 this.Cliente.baja = res.data.cliente[0].baja
+					     })
+			})
+			.catch(error=>{
+			    msgError('Error','Mensaje no enviado')
+			})
+
+	    },
     }
     }
 </script>
