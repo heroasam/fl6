@@ -158,7 +158,7 @@ def buscar_imprimirficha():
     idcliente = d['idcliente']
     ficha(con,[dni])
     con.close()
-    if WAPI and wapp:
+    if wapp:
         send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/ficha.pdf", wapp)
         return 'ok', 200
     else:
@@ -419,7 +419,7 @@ def buscador_intimar():
     idcliente = d['idcliente']
     con = get_con()
     intimacion(con, [dni])
-    if WAPI and wapp:
+    if wapp:
         send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/intimacion.pdf", wapp)
         return 'ok', 200
     else:
@@ -436,7 +436,7 @@ def buscador_libredeuda():
     deuda = d['deuda']
     idcliente = d['idcliente']
     libredeuda(con,dni)
-    if WAPI and wapp and deuda==0:
+    if wapp and deuda==0:
         send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/libredeuda.pdf", wapp)
         return 'ok', 200
     else:
@@ -519,13 +519,26 @@ def buscador_enviarrbotransferencia():
 
 @buscador.route('/buscador/wapp', methods=["POST"])
 def buscador_wapp():
+    global timer
+    timeup = timer
+    timer = time.time()+10 if timer+10<time.time()+10 else timer+10
     d = json.loads(request.data.decode("UTF-8"))
     idcliente = d['idcliente']
     wapp = d['wapp']
     msg = d['msg']
-    if WAPI and wapp:
-        send_msg_whatsapp(idcliente, wapp, msg)
-        return 'ok',200 
+    print('timer al iniciar el llamado',timer)
+    if wapp:
+        while True:
+            if time.time()>timeup+10:
+                response = send_msg_whatsapp(idcliente, wapp, msg)
+                break
+            print('paso', msg[:5])
+            sleep(1)
+        sleep(1)
+        timer = time.time()+10
+        print('time al response',time.time())
+        print('timer al response',timer)
+        return response
     else:
         return 'error', 400
 

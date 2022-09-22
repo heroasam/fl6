@@ -1017,14 +1017,22 @@
                     axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
                     axios.post('/buscador/wapp',data)
 		    .then(res=>{
-			this.obtenerWappCliente()
-			setTimeout(()=>{ 
-			if(this.Cliente.wapp!='INVALIDO'){
-				msgSuccess('WhatsApp!','mensaje enviado')
-			}else{
-			    msgError('WhatsApp!', 'Numero INVALIDO')
+			console.log(res.data)
+			switch(res.data){
+			    case 'success': {
+				msgSuccess('Exito!','Mensaje Enviado')
+				break
+			    }
+			    case 'invalido': {
+				msgError('Error!','Whatsapp INVALIDO')
+				this.obtenerWappCliente()
+				break
+			    }
+			    case 'failed': {
+				msgError('Error!','Mensaje no enviado - Failed')
+				break
+			    }
 			}
-			},600)
 		})
                 .catch(error=>msgError('Error','Mensaje no enviado'))
                 },
