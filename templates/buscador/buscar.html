@@ -4,26 +4,26 @@
 {% block content %}
 <div x-data="main()"  class="container" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores()">
 
-          <div class="grid-buscar ml-3 mr-3 mt-2">
-              <input  placeholder="DNI o N° Cuenta" class="input" x-model="buscar1" @keyup.enter="buscarCliente" @focus="buscar='';verCard=false" type="number" pattern="[0-9]*" inputmode="numeric">
-              <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
-              <input type="search" placeholder="Busca: Nombre Calle Num" class="input" x-model="buscar" @focus="buscar1=''" @keyup.enter="buscarCliente";verCard=false">
-              <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
-            <div class="grid col-1 gap-0">
+    <div class="grid-buscar ml-3 mr-3 mt-2">
+        <input  placeholder="DNI o N° Cuenta" class="input" x-model="buscar1" @keyup.enter="buscarCliente" @focus="buscar='';verCard=false" type="number" pattern="[0-9]*" inputmode="numeric">
+        <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
+        <input type="search" placeholder="Busca: Nombre Calle Num" class="input" x-model="buscar" @focus="buscar1=''" @keyup.enter="buscarCliente";verCard=false">
+        <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
+        <div class="grid col-1 gap-0">
             <input type="text" class="input mb-1" x-model="calleMostrada" id="searchCalle" autocomplete="off">
             <div id="suggestionsCalle" class="suggestions"></div>
-            </div>
-            <button type="button" @click="mostrarCalle" class="button is-primary">Mostrar</button>
-          </div>
+        </div>
+        <button type="button" @click="mostrarCalle" class="button is-primary">Mostrar</button>
+    </div>
 
-          <div class="buttons m-3" >
-            <template x-for="cliente in listaClientes" x-show="!verCard">
-                <!-- [dni,nombre,direccion] -->
+    <div class="buttons m-3" >
+        <template x-for="cliente in listaClientes" x-show="!verCard">
+            <!-- [dni,nombre,direccion] -->
             <button class="button is-small" @mouseover="buscar=cliente.calle+' '+cliente.num" @click="buscaCuentaporDni(cliente.dni)" x-text="cliente.nombre" x-bind:class="cliente.deuda?'is-danger':'is-info'"></button>
-            </template>
-          </div>
+        </template>
+    </div>
 
-          <!-- card datos clientes -->
+    <!-- card datos clientes -->
 
     <div class="box"  x-show="verCard">
         <p class="title is-2" x-text="Cliente.nombre+'  '+Cliente.dni"></p>
@@ -48,7 +48,7 @@
             <h2 x-text="'$'+Cliente.deuda" class="title is-3 mb-1" x-show="Cliente.deuda"></h2>
             <h2 x-text="'PmoVto: '+Cliente.pmovto" class="subtitle is-5 mt-1 ml-3" x-show="Cliente.pmovto"></h2>
             <h2 x-text="'Hay comentarios'" class="subtitle is-5 mt-1 ml-3" x-show="listaComentarios.length" style="color:red;"></h2>
-            
+
         </div>
     </div>
     <div class="buttons ml-3 mr-3 mb-1" x-show="verCard">
@@ -73,7 +73,7 @@
         <!-- <button class="button is-info is-small" @click="agregarPlanPago()">PLAN PAGOS</button> -->
         <!-- <button class="button is-danger is-small" @click="emitirLibreDeuda(Cliente.dni)">LIBRE</button> -->
         <!-- <button class="button is-danger is-small" @click="emitirRbo()">RBO</button> -->
-<!--        <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${ventaWapp}` class="button is-danger is-small" target="blank" style="text-decoration: none;">VENDER</a>-->
+	<!--        <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${ventaWapp}` class="button is-danger is-small" target="blank" style="text-decoration: none;">VENDER</a>-->
         <!-- <button class="button is-danger is-small" @click="sendMsgVenta(Cliente.wapp)">Vender</button> -->
         <!-- <button class="button is-danger is-small" @click="sendMsgRecordatorio(Cliente.wapp)">RecTrans</button> -->
         <!-- <button class="button is-danger is-small" @click="sendMsgCbu(Cliente.wapp)">CBU</button> -->
@@ -81,46 +81,46 @@
 	<div class="dropdown is-hoverable">
 	    <div class="dropdown-trigger">
 		<button class="button is-primary is-small" aria-haspopup="true" aria-controls="dropdown-menu">
-		<span>Acciones</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
+		    <span>Acciones</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
 		</button>
 	    </div>
 	    <div class="dropdown-menu" id="dropdown-menu" role="menu">
 		<div class="dropdown-content">
-		<a href="#" @click="editarCliente(Cliente.id)" class="dropdown-item">Editar</a>
-		<a href="#" @click="fecharPmovto(Cliente.id)"  class="dropdown-item">Fechar</a>
-		<a href="#" @click="agregarComentario()"  class="dropdown-item">Comentario</a>
-		<a href="#" @click="agregarPlanPago()"  class="dropdown-item">Plan de Pago</a>
-		<a href="#" @click="gestionarBajaSeven()"  class="dropdown-item">Baja en Seven</a>
+		    <a href="#" @click="editarCliente(Cliente.id)" class="dropdown-item">Editar</a>
+		    <a href="#" @click="fecharPmovto(Cliente.id)"  class="dropdown-item">Fechar</a>
+		    <a href="#" @click="agregarComentario()"  class="dropdown-item">Comentario</a>
+		    <a href="#" @click="agregarPlanPago()"  class="dropdown-item">Plan de Pago</a>
+		    <a href="#" @click="gestionarBajaSeven()"  class="dropdown-item">Baja en Seven</a>
 		</div>
 	    </div>
 	</div>
 	<div class="dropdown is-hoverable">
 	    <div class="dropdown-trigger">
 		<button class="button is-danger is-small" aria-haspopup="true" aria-controls="dropdown-menu">
-		<span>whatsapp</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
+		    <span>whatsapp</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
 		</button>
 	    </div>
 	    <div class="dropdown-menu" id="dropdown-menu" role="menu">
 		<div class="dropdown-content">
-		<a href="#" @click="sendMsgVenta(Cliente.wapp)" class="dropdown-item">Vender</a>
-		<a href="#" @click="sendMsgCbu(Cliente.wapp)"  class="dropdown-item">CBU</a>
-		<a href="#" @click="sendMsgRecordatorio(Cliente.wapp)"  class="dropdown-item">Recordatorio transferencia</a>
-		<a href="#" @click="sendIntWhatsapp(Cliente.wapp)"  class="dropdown-item">Intimacion por Whats</a>
-		<a href="#" @click="sendMsgGeneral(Cliente.wapp)"  class="dropdown-item">mensaje General</a>
+		    <a href="#" @click="sendMsgVenta(Cliente.wapp)" class="dropdown-item">Vender</a>
+		    <a href="#" @click="sendMsgCbu(Cliente.wapp)"  class="dropdown-item">CBU</a>
+		    <a href="#" @click="sendMsgRecordatorio(Cliente.wapp)"  class="dropdown-item">Recordatorio transferencia</a>
+		    <a href="#" @click="sendIntWhatsapp(Cliente.wapp)"  class="dropdown-item">Intimacion por Whats</a>
+		    <a href="#" @click="sendMsgGeneral(Cliente.wapp)"  class="dropdown-item">mensaje General</a>
 		</div>
 	    </div>
 	</div>
 	<div class="dropdown is-hoverable">
 	    <div class="dropdown-trigger">
 		<button class="button is-info is-small" aria-haspopup="true" aria-controls="dropdown-menu">
-		<span>Emitir PDF</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
+		    <span>Emitir PDF</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
 		</button>
 	    </div>
 	    <div class="dropdown-menu" id="dropdown-menu" role="menu">
 		<div class="dropdown-content">
-		<a href="#" @click="emitirRbo()" class="dropdown-item">Emitir Recibo</a>
-		<a href="#" @click="emitirLibreDeuda(Cliente.dni)"  class="dropdown-item">Emitir Libre Deuda</a>
-		<a href="#" @click="sendIntimacion(Cliente.dni,Cliente.wapp)"  class="dropdown-item">Emitir Intimacion</a>
+		    <a href="#" @click="emitirRbo()" class="dropdown-item">Emitir Recibo</a>
+		    <a href="#" @click="emitirLibreDeuda(Cliente.dni)"  class="dropdown-item">Emitir Libre Deuda</a>
+		    <a href="#" @click="sendIntimacion(Cliente.dni,Cliente.wapp)"  class="dropdown-item">Emitir Intimacion</a>
 		</div>
 	    </div>
 	</div>
@@ -143,18 +143,18 @@
         </thead>
         <tbody>
             <template x-for="venta in listaVentas">
-            <tr>
-                <td x-text="venta.id"></td>
-                <td x-text="venta.fecha" style="min-width: 150px;"></td>
-                <td x-text="venta.ant" style="min-width: 40px;"></td>
-                <td x-text="venta.cc+' CUO de $'+venta.ic+' '+venta.p" style="min-width: 200px;"></td>
-                <td x-text="venta.saldo+'/'+venta.comprado"></td>
-                <td x-text="venta.idvdor"></td>
-                <td x-text="venta.cnt+'/'+venta.art" x-show="venta.cnt"></td>
-                <td x-text="'PLAN DE PAGOS'" x-show="venta.pp" class="tag-danger"></td>
-		<td><button class="button is-primary is-small" @click="condonarVenta(venta.id)">Condonar</button></td>
-            </tr>
-           </template>
+		<tr>
+                    <td x-text="venta.id"></td>
+                    <td x-text="venta.fecha" style="min-width: 150px;"></td>
+                    <td x-text="venta.ant" style="min-width: 40px;"></td>
+                    <td x-text="venta.cc+' CUO de $'+venta.ic+' '+venta.p" style="min-width: 200px;"></td>
+                    <td x-text="venta.saldo+'/'+venta.comprado"></td>
+                    <td x-text="venta.idvdor"></td>
+                    <td x-text="venta.cnt+'/'+venta.art" x-show="venta.cnt"></td>
+                    <td x-text="'PLAN DE PAGOS'" x-show="venta.pp" class="tag-danger"></td>
+		    <td><button class="button is-primary is-small" @click="condonarVenta(venta.id)">Condonar</button></td>
+		</tr>
+            </template>
         </tbody>
     </table>
     <div class="columns m-2">
@@ -170,12 +170,12 @@
                 </thead>
                 <tbody>
                     <template x-for="cuota in listaCuotas">
-                    <tr x-show="cuota[2]">
-                        <td x-text="cuota[0]"></td>
-                        <td x-text="cuota[1]" style="min-width: 100px;"></td>
-                        <td x-text="cuota[2]"></td>
-                    </tr>
-                   </template>
+			<tr x-show="cuota[2]">
+                            <td x-text="cuota[0]"></td>
+                            <td x-text="cuota[1]" style="min-width: 100px;"></td>
+                            <td x-text="cuota[2]"></td>
+			</tr>
+                    </template>
                 </tbody>
             </table>
         </div>
@@ -194,55 +194,55 @@
                 </thead>
                 <tbody>
                     <template x-for="paga in listaPagadas">
-                    <tr>
-                        <td x-text="paga.fecha" style="min-width: 150px;"></td>
-                        <td x-text="paga.rbo"></td>
-                        <td x-text="paga.imp"></td>
-                        <td x-text="paga.rec"></td>
-                        <td x-text="paga.cobr"></td>
-                        <td x-text="paga.idvta"></td>
-                    </tr>
-                </template>
+			<tr>
+                            <td x-text="paga.fecha" style="min-width: 150px;"></td>
+                            <td x-text="paga.rbo"></td>
+                            <td x-text="paga.imp"></td>
+                            <td x-text="paga.rec"></td>
+                            <td x-text="paga.cobr"></td>
+                            <td x-text="paga.idvta"></td>
+			</tr>
+                    </template>
                 </tbody>
             </table>
         </div>
 
-     </div>
-     <div class="m-2">
+    </div>
+    <div class="m-2">
         <h3 class="title is-3 m-2" x-show="verCard && listaVentasCanceladas.length">Ventas Canceladas</h3>
         <table class="table" x-show="verCard && listaVentasCanceladas.length">
-           <thead>
-               <tr>
-                   <th>id</th>
-                   <th>fecha</th>
-                   <th>Ant</th>
-                   <th>plan</th>
-                   <th>comprado</th>
-                   <th>vdor</th>
-                   <th>cnt/art</th>
-                   <th>info</th>
-               </tr>
-           </thead>
-           <tbody>
-               <template x-for="venta in listaVentasCanceladas">
-               <tr>
-                   <td data-titulo="cuenta" x-text="venta.id"></td>
-                   <td data-titulo="fecha vta"x-text="venta.fecha" style="min-width: 100px;"></td>
-                   <td data-titulo="anticipo" x-text="venta.ant" style="min-width: 40px;"></td>
-                   <td data-titulo="plan" x-text="venta.cc+' CUO de $'+venta.ic+' '+venta.p" style="min-width: 200px;"></td>
-                   <td data-titulo="comprado" x-text="venta.comprado"></td>
-                   <td data-titulo="vdor" x-text="venta.idvdor"></td>
-                   <td data-titulo="arts" x-text="venta.cnt+'/'+venta.art"></td>
-                   <td x-show="venta.pcondo" x-text="'CUENTA INCLUIDA EN UN PLAN DE PAGOS'" class="button is-info"></td>
-                   <td x-show="venta.devuelta" x-text="'DEVUELTA'" class="button is-danger"></td>
-                   <td x-show="venta.condonada" x-text="'CONDONADA'" class="button is-danger"></td>
-               </tr>
-               </template>
+            <thead>
+		<tr>
+                    <th>id</th>
+                    <th>fecha</th>
+                    <th>Ant</th>
+                    <th>plan</th>
+                    <th>comprado</th>
+                    <th>vdor</th>
+                    <th>cnt/art</th>
+                    <th>info</th>
+		</tr>
+            </thead>
+            <tbody>
+		<template x-for="venta in listaVentasCanceladas">
+		    <tr>
+			<td data-titulo="cuenta" x-text="venta.id"></td>
+			<td data-titulo="fecha vta"x-text="venta.fecha" style="min-width: 100px;"></td>
+			<td data-titulo="anticipo" x-text="venta.ant" style="min-width: 40px;"></td>
+			<td data-titulo="plan" x-text="venta.cc+' CUO de $'+venta.ic+' '+venta.p" style="min-width: 200px;"></td>
+			<td data-titulo="comprado" x-text="venta.comprado"></td>
+			<td data-titulo="vdor" x-text="venta.idvdor"></td>
+			<td data-titulo="arts" x-text="venta.cnt+'/'+venta.art"></td>
+			<td x-show="venta.pcondo" x-text="'CUENTA INCLUIDA EN UN PLAN DE PAGOS'" class="button is-info"></td>
+			<td x-show="venta.devuelta" x-text="'DEVUELTA'" class="button is-danger"></td>
+			<td x-show="venta.condonada" x-text="'CONDONADA'" class="button is-danger"></td>
+		    </tr>
+		</template>
             </tbody>
-          </table>
-     </div>
+        </table>
+    </div>
 
-       <div class="m-2">
+    <div class="m-2">
         <h3 class="title is-3 m-2" x-show="verCard && listaComentarios.length">Comentarios</h3>
         <table class="table " x-show="verCard && listaComentarios.length">
             <thead>
@@ -253,16 +253,16 @@
             </thead>
             <tbody>
                 <template x-for="comentario in listaComentarios">
-                <tr>
-                    <td  x-text="comentario.fechahora" style="min-width: 100px;"></td>
-                    <td  x-text="comentario.comentario"></td>
-                </tr>
-             </template>
+                    <tr>
+			<td  x-text="comentario.fechahora" style="min-width: 100px;"></td>
+			<td  x-text="comentario.comentario"></td>
+                    </tr>
+		</template>
             </tbody>
         </table>
-       </div>
+    </div>
 
-       <div class="m-2">
+    <div class="m-2">
         <h3 class="title is-3 m-2" x-show="verCard && listaLogCambioDireccion.length">LogCambioDireccion</h3>
         <table class="table " x-show="verCard && listaLogCambioDireccion.length">
             <thead>
@@ -276,17 +276,17 @@
             </thead>
             <tbody>
                 <template x-for="log in listaLogCambioDireccion">
-                <tr>
-                    <td  x-text="log.fecha" style="min-width: 100px;"></td>
-                    <td  x-text="log.calle"></td>
-                    <td  x-text="log.num"></td>
-                    <td  x-text="log.wapp"></td>
-                    <td  x-text="log.acla"></td>
-                </tr>
-             </template>
+                    <tr>
+			<td  x-text="log.fecha" style="min-width: 100px;"></td>
+			<td  x-text="log.calle"></td>
+			<td  x-text="log.num"></td>
+			<td  x-text="log.wapp"></td>
+			<td  x-text="log.acla"></td>
+                    </tr>
+		</template>
             </tbody>
         </table>
-       </div>
+    </div>
 
 
     <!-- MODALES -->
@@ -317,8 +317,8 @@
             <input type="text" class="input mb-1" x-model="Cliente.nombre">
 
             <div class="grid col-1 gap-0">
-            <input type="text" class="input mb-1" x-model="Cliente.calle" id="searchCalle1" autocomplete="off">
-            <div id="suggestionsCalle1" class="suggestions"></div>
+		<input type="text" class="input mb-1" x-model="Cliente.calle" id="searchCalle1" autocomplete="off">
+		<div id="suggestionsCalle1" class="suggestions"></div>
             </div>
 
             <input type="text" class="input mb-1" x-model="Cliente.num">
@@ -354,11 +354,11 @@
             <input type="text" class="input mb-3" x-model="Venta.ic" id="ic" autocomplete="off">
             <label for="p" class="label">Periodicidad</label>
             <input list="per" id="p" class="input mb-3" x-model="Venta.p" autocomplete="off">
-                <datalist id="per">
+            <datalist id="per">
                 <option value="Mensual"></option>
                 <option value="Quincenal"></option>
                 <option value="Semanal"></option>
-                </datalist>
+            </datalist>
             <label for="fechaprimer" class="label">Fecha Primer Cuota</label>
             <input type="date" class="input mb-3" x-model="Venta.primera" id="fechaprimer">
 
@@ -373,11 +373,11 @@
             <input type="date" class="input mb-3" x-model="Recibo.fecha" id="fecha" autocomplete="off">
             <label for="cuenta" class="label">Cuenta</label>
             <input list="cuentas" id="cuenta" class="input mb-3" x-model="Recibo.cuenta" autocomplete="off">
-                <datalist id="cuentas">
+            <datalist id="cuentas">
                 <template x-for="cuenta in listaCuentas">
-                <option :value="cuenta"></option>
+                    <option :value="cuenta"></option>
                 </template>
-                </datalist>
+            </datalist>
             <label for="cuota" class="label">Cuota</label>
             <input type="text" class="input mb-3" x-model="Recibo.nc" id="cuota" autocomplete="off">
             <label for="ic" class="label">Importe</label>
@@ -407,9 +407,9 @@
             <h1 class="title is-3">Imprimir Ficha</h1>
             <button class="button is-primary is-small" @click="mostrarFichaPorPantalla=true;imprimirFicha()">Imprimir en pantalla</button>
             <div class="buttons m-3">
-            <template x-for="cobr in listaCobradores">
-                <button class="button is-success is-small" x-text="cobr" @click="cobrEnviar=cobr;imprimirFicha()"></button>
-            </template>
+		<template x-for="cobr in listaCobradores">
+                    <button class="button is-success is-small" x-text="cobr" @click="cobrEnviar=cobr;imprimirFicha()"></button>
+		</template>
             </div>
         </div>
     </div>
@@ -421,18 +421,18 @@
             <input type="date" class="input mb-3" x-model="Asunto.fecha" id="fecha" autocomplete="off">
             <label for="p" class="label">Tipo</label>
             <input list="type" id="tipo" class="input mb-3" x-model="Asunto.tipo" autocomplete="off">
-                <datalist id="type">
+            <datalist id="type">
                 <option value="Cambio"></option>
                 <option value="Devolucion"></option>
                 <option value="Venta"></option>
                 <option value="Reclamo"></option>
-                </datalist>
+            </datalist>
             <label for="vdor" class="label">Vendedor</label>
             <input type="text" class="input mb-3" x-model="Asunto.vdor" id="vdor" autocomplete="off">
             <label for="asunto" class="label">Asunto</label>
             <input type="text" class="input mb-3" x-model="Asunto.asunto" id="asunto" autocomplete="off">
-            
-           
+
+
 
             <button class="button is-primary" @click="validarAsunto">Generar</button>
         </div>
@@ -463,788 +463,742 @@
 
 {% block script %}
 <script>
-    
 
-    function textToClipboard (text) {
-        var dummy = document.createElement("textarea");
-        document.body.appendChild(dummy);
-        dummy.value = text;
-        dummy.select();
-        document.execCommand("copy");
-        document.body.removeChild(dummy);
-    }
-    function main(){
-        return{
-            calle:'',
-            // Calles:[],
-            DatosCalle:[],
-            listaClientes:[],
-            listaVentas:[],
-            listaCuotas:[],
-            listaVentasCanceladas:[],
-            listaComentarios:[],
-            listaLogCambioDireccion:[],
-            listaPagadas:[],
-            listaCuentas:[],
-            buscar:'',
-	        buscar1:'',
-            verCard:false,
-            intimacionWhatsapp:'',
-            msgWhatsapp:'',
-            ventaWapp:'',
-            Cliente:{},
-            Venta:{fecha:dayjs.utc().format('YYYY-MM-DD'),p:'Mensual'},
-            Comentario:{fechahora:dayjs.utc().format('YYYY-MM-DD')},
-            Asunto:{fecha:dayjs.utc().format('YYYY-MM-DD'),tipo:'',vdor:'',asunto:''},
-            Recibo:{fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:''},
-            verModalPmovto:false,
-            verModalEdicion:false,
-            verModalComentario:false,
-            verModalPlanPago:false,
-            verModalRecibo:false,
-            verModalAsunto:false,
-            verModalMsgWhatsapp:false,
-            verModalImprimirFicha:false,
-            mostrarFichaPorPantalla:false,
-            cobrEnviar:'',
-            listaCobradores:[],
-            wappCobrador:'',
-            calleMostrada:'',
 
-            buscarCliente(){
-		buscar = this.buscar1.length>0?this.buscar1:this.buscar
-                console.log('buscar',buscar)
-                textToClipboard(buscar)
-                axios.get('/buscador/'+buscar)
-                .then(res=>{
-                    //console.log(res.data.clientes)
-                    this.listaClientes=res.data.clientes
-                    if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
-                })
-                .catch(error=>{
-		    msgError('Error!','el DNI no existe')
-                })
-            },
-            buscaCuentaporDni(dni){
-                this.listaClientes.map(row=>row.pmovto=dayjs.utc(row.pmovto).format('YYYY-MM-DD'))
-                this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
-                //console.log(this.Cliente);
-                this.obtenerVentas(this.Cliente.id)
-                this.verCard = true;
-                this.clipWappVentas()
-		axios.get('/buscador/clientesdireccion/'+this.Cliente.calle+'/'+this.Cliente.num)
-		     .then(res=>{
-			 this.listaClientes=res.data.clientes
-		     })
-            },
-            clipWappIntimacion(){
-                let text,
-                    messaje;
-                let direccion = this.Cliente.calle.concat(' ',this.Cliente.num)
-                ultvta = this.listaVentas[0] 
+ function textToClipboard (text) {
+     var dummy = document.createElement("textarea");
+     document.body.appendChild(dummy);
+     dummy.value = text;
+     dummy.select();
+     document.execCommand("copy");
+     document.body.removeChild(dummy);
+ }
+ function main(){
+     return{
+         calle:'',
+         // Calles:[],
+         DatosCalle:[],
+         listaClientes:[],
+         listaVentas:[],
+         listaCuotas:[],
+         listaVentasCanceladas:[],
+         listaComentarios:[],
+         listaLogCambioDireccion:[],
+         listaPagadas:[],
+         listaCuentas:[],
+         buscar:'',
+	 buscar1:'',
+         verCard:false,
+         intimacionWhatsapp:'',
+         msgWhatsapp:'',
+         ventaWapp:'',
+         Cliente:{},
+         Venta:{fecha:dayjs.utc().format('YYYY-MM-DD'),p:'Mensual'},
+         Comentario:{fechahora:dayjs.utc().format('YYYY-MM-DD')},
+         Asunto:{fecha:dayjs.utc().format('YYYY-MM-DD'),tipo:'',vdor:'',asunto:''},
+         Recibo:{fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:''},
+         verModalPmovto:false,
+         verModalEdicion:false,
+         verModalComentario:false,
+         verModalPlanPago:false,
+         verModalRecibo:false,
+         verModalAsunto:false,
+         verModalMsgWhatsapp:false,
+         verModalImprimirFicha:false,
+         mostrarFichaPorPantalla:false,
+         cobrEnviar:'',
+         listaCobradores:[],
+         wappCobrador:'',
+         calleMostrada:'',
 
-                let fecha = ultvta.fecha || '';
-                let articulos = ultvta.art || '';
-                if (this.Cliente.sev){
-                text=
-                `Nos comunicamos de la empresa ROMITEX por una deuda que usted tiene con la firma. Usted fue subido al SEVEN hasta regularizar su cuenta. Puede hacer un plan de pagos. Consulte por Wapp. Una vez cancelado en 48hs se lo elimina del SEVEN. De no desmostrar interes nos vemos obligados a cobrar su pagare por via JUDICIAL. Atte. *Departamento de cobranzas de ROMITEX*`
-                } else {
-                    text=
-                    `Nos comunicamos de la empresa ROMITEX por una deuda que usted tiene con la firma. En los proximos dias deberemos informar al SEVEN el atraso de su cuenta. Le proponemos un plan de pagos que podemos realizar por este medio.`
-                }
-                messaje = this.Cliente.nombre.concat(': ',text,' ',`(Por compra de ${articulos} realizada en '${direccion}' el dia ${dayjs.utc(fecha).format('DD-MM-YYYY')})`)
-                this.intimacionWhatsapp = messaje.replaceAll(' ','%20')
-                
-            },
-            clipWappVentas(){
-                let messajeVenta;
-                messajeVenta = `${this.Cliente.nombre.toUpperCase()} Hola! Nos comunicamos de ROMITEX para informarle que en estos dias esta en su zona nuestro visitador de clientes exclusivos. Si Usted desea que ${this.Cliente.sex=="F"?'la':'lo'} visitemos SIN COMPROMISO avisenos asi le comentamos todas las promociones y articulos nuevos que tenemos para ofrecerle. Desde ya, gracias!`
-                this.ventaWapp = messajeVenta.replaceAll(' ','%20')
-                // console.log(messajeVenta.replaceAll(' ','%20'))
-            },
-            clipDatos(idcliente){
-                let text = this.Cliente.nombre+'\n'+this.Cliente.dni+'\n'+this.Cliente.calle+' '+this.Cliente.num+'\n'+this.Cliente.barrio+'\n'+this.Cliente.wapp
-                textToClipboard(text)
-		msgSuccess('Exito','Datos copiados al portapapeles')
-            },
-            obtenerVentas(idcliente){
-                axios.get('/buscador/obtenerventasporidcliente/'+idcliente)
-                .then(res=>{
-                    //console.log(res.data.ventas);
-                    let arrayVentas=res.data.ventas
-                    arrayVentas.map(row=>{
-                        row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD')
-                        row.p=1?'MEN':3?'SEM':'QUI'
-                    })
-                    this.listaVentas = arrayVentas
-                    this.listaCuentas = arrayVentas.map(row=>row.id)
-                    // console.log(this.listaCuentas)
-                    // console.log(arrayVentas)
-                    this.listaCuotas = this.hacerCuotas()
-                    if(this.listaVentas.length===0) {
-			msgError('Error!','no hay cuentas ACTIVAS')
-		    }
-                    this.pedirPagadas(idcliente)
-                    this.obtenerVentasCanceladas(idcliente)
-                    this.pedirComentarios(idcliente)
-                    this.pedirLogCambioDireccion(idcliente)
-                })
-            },
-            obtenerVentasCanceladas(idcliente){
-                axios.get('/buscador/obtenerventascanceladasporidcliente/'+idcliente)
-                .then(res=>{
-                    let arrayVentasCanceladas=res.data.ventascanceladas
-                    arrayVentasCanceladas.map(row=>{
-                        row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD')
-                        row.p=1?'MEN':3?'SEM':'QUI'
-                    })
-                    this.listaVentasCanceladas = arrayVentasCanceladas
-                })
-            },
-            pedirComentarios(idcliente){
-                axios.get('/buscador/pedircomentarios/'+idcliente)
-                .then(res=>{
-                    let arrayComentarios = res.data.comentarios
-                    arrayComentarios.map(row=>row.fechahora=dayjs.utc(row.fechahora).format('YYYY-MM-DD'))
-                    this.listaComentarios = arrayComentarios
-                })
-            },
-            pedirLogCambioDireccion(idcliente){
-                axios.get('/buscador/pedirlogcambiodireccion/'+idcliente)
-                .then(res=>{
-                    this.listaLogCambioDireccion = res.data.logcambiodireccion
-                    this.listaLogCambioDireccion.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
-                })
-            },
-            hacerCuotas(){
-            /* id,fecha,cc2,ic3,p4,idvdor,saldo6,comprado,pp8,devuelta,condonada,cnt,art,pagado13,primera14, */
-            tblCuota=[]
-            let vto
-            this.listaVentas.forEach(row=>{
-                saldo = row.saldo
-                    if(saldo!==0){
-                        pagado = row.pagado
-                        cc = row.cc
-                        ic = row.ic
-                        p = row.p
-                        primera = row.primera
-                        for (let i=1; i<=cc ;i++){
-                            if(p==='MEN') vto = dayjs.utc(primera).add(i-1,'month').format('YYYY-MM-DD')
-                            if(p==='QUI') vto = dayjs.utc(primera).add((i-1)*2,'week').format('YYYY-MM-DD')
-                            if(p==='SEM') vto = dayjs.utc(primera).add(i-1,'week').format('YYYY-MM-DD')
-                            tblCuota.push([i,vto,pagado>=ic?0:pagado<=0?ic:ic-pagado])
-                            pagado = pagado - ic
-                        }
-                    }
-            })
-            return tblCuota
-            },
-            pedirPagadas(idcliente){
-                axios.get('/buscador/pedirpagadasporidcliente/'+idcliente)
-                .then(res=>{
-                    this.listaPagadas=res.data.pagadas
-                    this.listaPagadas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
-                })
-            },
-            toggleInc(){
-            axios.get('/buscador/toggleinc/'+this.Cliente.dni)
-            .then(res=>{
-		msgSuccess('Exito',res.data.msg)
-                this.Cliente.incobrable = !this.Cliente.incobrable
-            })
-            },
-            toggleNvm(){
-                axios.get('/buscador/togglenvm/'+this.Cliente.dni)
-                .then(res=>{
-		    msgSuccess('Exito',res.data.msg)
-                    this.Cliente.novendermas = !this.Cliente.novendermas
-                })
-            },
-            toggleSube(){
-                axios.get('/buscador/togglesube/'+this.Cliente.dni)
-                .then(res=>{
-		    msgSuccess('Exito',res.data.msg)
-                    this.Cliente.subirseven = !this.Cliente.subirseven
-                })
-            },
-            toggleGestion(){
-                axios.get('/buscador/togglegestion/'+this.Cliente.dni)
-                .then(res=>{
-		    msgSuccess('Exito',res.data.msg)
-                    this.Cliente.gestion = !this.Cliente.gestion
-                })
-            },
-            toggleMudo(){
-                axios.get('/buscador/togglemudo/'+this.Cliente.dni)
-                .then(res=>{
-		    msgSuccess('Exito',res.data.msg)
-                    this.Cliente.mudo = !this.Cliente.mudo
-                })
-            },
-            toggleSeguir(){
-                axios.get('/buscador/toggleseguir/'+this.Cliente.dni)
-                .then(res=>{
-		    msgSuccess('Exito',res.data.msg)
-                    this.Cliente.seguir = !this.Cliente.seguir
-                })
-            },
-            dialogoImprimirFicha(){
-                this.verModalImprimirFicha = true
-            },
-            imprimirFicha(){
-            if (this.cobrEnviar) {
-                axios.get('/buscador/pedirwappcobrador/'+this.cobrEnviar)
-                .then(res=>{
-                    this.wappCobrador = res.data.wapp
-                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                    axios({
-                        method:"POST",
-                        url:"/buscador/imprimirficha",
-                        responseType: "blob",
-                        data: {dni:this.Cliente.dni, whatsapp:this.wappCobrador, idcliente:this.Cliente.id},
-                    }).then(res=>{
-                            this.verModalImprimirFicha = false
-                            if(res.status==200){
-				msgSuccess('WhatsApp!','Ficha enviada al cobrador');
-                            }
-                            this.cobrEnviar = ''
-                                        })
-                })
-            }else{
-                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                        axios({
-                            method:"POST",
-                            url:"/buscador/imprimirficha",
-                            responseType: "blob",
-                            data: {dni:this.Cliente.dni, whatsapp:"", idcliente:this.Cliente.id},
-                        }).then((res)=>{
-                            this.verModalImprimirFicha = false
-                            if (this.mostrarFichaPorPantalla) {
-                                let url = window.URL.createObjectURL(res.data);
-                                window.open(url);
-                            }
-                            this.mostrarFichaPorPantalla = false
-                })
-            }
-            },
-            intimarCliente(dni){
-            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-		        axios({
-                    method: "POST",
-                    url: "/buscador/intimar",
-                    responseType: "blob",
-                    data: {dni:dni, idcliente:this.Cliente.id},
-                }).then((res) => {
-                    let url = window.URL.createObjectURL(res.data);
-                    window.open(url);
-                });
-            },
-            fecharPmovto(idcliente){
-            this.verModalPmovto=true
-            },
-            guardarPmovto(){
-                this.verModalPmovto=false
-                axios.get('/buscador/guardarpmovto/'+this.Cliente.id+'/'+this.Cliente.pmovto)
-                .then(res=>{
-		    msgSuccess('Exito','Fechado realizado')
-                })
-            },
-            agregarComentario(){
-                this.verModalComentario=true
-            },
-            guardarComentario(){
-                this.verModalComentario=false
-                axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                    axios({
-                    method:'POST',
-                    url:'/buscador/guardarcomentario/'+this.Cliente.id,
-                    data:this.Comentario
-                    })
-                    .then(res=>{
-			msgSuccess('Exito','Comentario agregado')
-                        this.pedirComentarios(this.Cliente.id)
-                    })
-            },
-            editarCliente(idcliente){
-            this.verModalEdicion=true
-            },
-            guardarEdicion(){
-                this.verModalEdicion=false
-                axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                axios({
-                    method:'POST',
-                    url:'/buscador/guardaredicioncliente/'+this.Cliente.id,
-                    data:this.Cliente
-                    })
-                    .then(res=>{
-			msgSuccess('Exito','Cliente editado con exito')
-                    })
-                    .catch(error=>{
-			msgError('Error',error.request.response)
-                    })
-            },
-            obtenerCalles(){
-                axios.get('/buscador/obtenerlistadocalles')
-                .then(res=>{
-                    const calles = res.data.calles
-                    const $input = document.getElementById('searchCalle')
-                    const $input1 = document.getElementById('searchCalle1')
-                    const $suggestions = document.getElementById('suggestionsCalle')
-                    const $suggestions1 = document.getElementById('suggestionsCalle1')
-                    $input.addEventListener('keyup',(e)=>{
-                    const input = $input.value
-                    $suggestions.innerHTML='';
-                    const suggestions = calles.filter(calle=>{
-                        return calle.calle.toLocaleLowerCase().includes(input.toLocaleLowerCase())
-                    })
-                    suggestions.forEach(suggested=>{
-                        const $div = document.createElement('div');
-                        $div.innerHTML = suggested.calle;
-                        $suggestions.appendChild($div)
-                    })
-                    if(input==='') $suggestions.innerHTML=''
-                    if(e.key==='Enter'){
-                        this.calleMostrada = $suggestions.firstChild.innerHTML
-                        $suggestions.innerHTML=''
-                    }
-                    })
-                    $suggestions.addEventListener('click',(e)=>{
-                        this.calleMostrada=e.target.innerHTML
-                        $suggestions.innerHTML=''
-                    })
-                    $input1.addEventListener('keyup',(e)=>{
-                    const input = $input1.value
-                    $suggestions1.innerHTML='';
-                    const suggestions = calles.filter(calle=>{
-                        return calle.calle.toLocaleLowerCase().includes(input.toLocaleLowerCase())
-                    })
-                    suggestions.forEach(suggested=>{
-                        const $div = document.createElement('div');
-                        $div.innerHTML = suggested.calle;
-                        $suggestions1.appendChild($div)
-                    })
-                    if(input==='') $suggestions1.innerHTML=''
-                    if(e.key==='Enter'){
-                        this.Cliente.calle = $suggestions1.firstChild.innerHTML
-                        $suggestions1.innerHTML=''
-                    }
-                    })
-                    $suggestions1.addEventListener('click',(e)=>{
-                        this.Cliente.calle=e.target.innerHTML
-                        $suggestions1.innerHTML=''
-                    })
-                    })
-                },
-            obtenerBarrios(){
-                axios.get('/buscador/obtenerlistabarrios')
-                .then(res=>{
-                    const barrios = res.data.barrios
-                    const $input = document.getElementById('searchBarrio')
-                    const $suggestions = document.getElementById('suggestionsBarrio')
-                    $input.addEventListener('keyup',(e)=>{
-                    const input = $input.value
-                    $suggestions.innerHTML='';
-                    const suggestions = barrios.filter(barrio=>{
-                        return barrio.barrio.toLocaleLowerCase().includes(input.toLocaleLowerCase())
-                    })
-                    suggestions.forEach(suggested=>{
-                        const $div = document.createElement('div');
-                        $div.innerHTML = suggested.barrio;
-                        $suggestions.appendChild($div)
-                    })
-                    if(input==='') $suggestions.innerHTML=''
-                    if(e.key==='Enter'){
-                        this.Cliente.barrio = $suggestions.firstChild.innerHTML
-                        $suggestions.innerHTML=''
-                    }
-                    })
-                    $suggestions.addEventListener('click',(e)=>{
-                        this.Cliente.barrio=e.target.innerHTML
-                        $suggestions.innerHTML=''
-                    })
-                    })
-                },
-            obtenerZonas(){
-                axios.get('/buscador/obtenerlistazonas')
-                .then(res=>{
-                    const zonas = res.data.zonas
-                    const $input = document.getElementById('searchZona')
-                    const $suggestions = document.getElementById('suggestionsZona')
-                    $input.addEventListener('keyup',(e)=>{
-                    const input = $input.value
-                    $suggestions.innerHTML='';
-                    const suggestions = zonas.filter(zona=>{
-                        return zona.zona.toLocaleLowerCase().includes(input.toLocaleLowerCase())
-                    })
-                    suggestions.forEach(suggested=>{
-                        const $div = document.createElement('div');
-                        $div.innerHTML = suggested.zona;
-                        $suggestions.appendChild($div)
-                    })
-                    if(input==='') $suggestions.innerHTML=''
-                    if(e.key==='Enter'){
-                        this.Cliente.zona = $suggestions.firstChild.innerHTML
-                        $suggestions.innerHTML=''
-                    }
-                    })
-                    $suggestions.addEventListener('click',(e)=>{
-                        this.Cliente.zona=e.target.innerHTML
-                        $suggestions.innerHTML=''
-                    })
-                    })
-                },
-                obtenerCobradores(){
-                    axios.get('/buscador/obtenercobradores')
-                    .then(res=>{
-                        // console.log(res.data.cobradores)
-                        this.listaCobradores = res.data.cobradores
-                    })
-                },
-                agregarPlanPago(){
-                this.verModalPlanPago=true
-                },
-                guardarPlanPagos(){
-                    this.Venta.p = this.Venta.p=="Mensual"?1:this.Venta.p=="Quincenal"?2:3
-                    this.verModalPlanPago=false
-                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                    axios({
-                    method:'POST',
-                        url:'/buscador/generarplandepagos/'+this.Cliente.id,
-                        data:this.Venta
-                        })
-                        .then(res=>{
-			    msgSuccess('Exito','Plan de pagos generado')
-                        })
-                        .catch(error=>{
-			    msgError('Error',error.request.response)
-                        })
+         buscarCliente(){
+	     buscar = this.buscar1.length>0?this.buscar1:this.buscar
+             textToClipboard(buscar)
+             axios.get('/buscador/'+buscar)
+							     .then(res=>{
+								 this.listaClientes=res.data.clientes
+								 if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
+							     })
+							     .catch(error=>{
+								 msgError('Error!','el DNI no existe')
+							     })
+         },
+         buscaCuentaporDni(dni){
+             this.listaClientes.map(row=>row.pmovto=dayjs.utc(row.pmovto).format('YYYY-MM-DD'))
+             this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
+             this.obtenerVentas(this.Cliente.id)
+             this.verCard = true;
+             this.clipWappVentas()
+	     axios.get('/buscador/clientesdireccion/'+this.Cliente.calle+'/'+this.Cliente.num)
+		 .then(res=>{
+		     this.listaClientes=res.data.clientes
+		 })
+         },
+         clipWappIntimacion(){
+             let text,
+                 messaje;
+             let direccion = this.Cliente.calle.concat(' ',this.Cliente.num)
+             ultvta = this.listaVentas[0]
 
-                },
-                agregarAsunto(){
-                    this.verModalAsunto=true
-                },
-                validarAsunto(){
-                    if(this.Asunto.fecha!=''&&this.Asunto.tipo!=''&&this.Asunto.vdor!=''&&this.Asunto.asunto!=''){
-                        // console.log("validado")
-                        this.guardarAsunto()
-                    }else{
-			msgError('Error','Complete los datos necesarios')
-                    }
-                },
-                guardarAsunto(){
-                    this.Asunto.idcliente = this.Cliente.id
-                    this.verModalAsunto = false
-                    // console.log(this.Asunto)
-                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                    axios({
-                    method:'POST',
-                        url:'/buscador/cargarasunto',
-                        data:this.Asunto
-                        })
-                        .then(res=>{
-			    msgSuccess('Exito','Asunto Cargado')
-                        this.Asunto.tipo=''
-                        this.Asunto.vdor=''
-                        this.Asunto.asunto=''
-                        })
-                        .catch(error=>{
-			    msgError('Error',error.request.response)
-                        })
-                },
-                emitirLibreDeuda(dni){
-                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-		            axios({
-                    method: "POST",
-                    url: "/buscador/libredeuda",
-                    responseType: "blob",
-                    data: {dni:dni, wapp:this.Cliente.wapp, idcliente:this.Cliente.id, deuda:this.Cliente.deuda},
-                }).then((res) => {
-                        if(this.Cliente.wapp && this.Cliente.deuda==0){
-                            if(res.status==200){
-				msgSuccess('WhatsApp!','Libre deuda enviado')
-                            }
-                        }else{
-                            let url = window.URL.createObjectURL(res.data);
-                            window.open(url);
-			    if (this.Cliente.wapp && this.Cliente.deuda>0) {
-				msgSuccess("Whatsapp!","No se envio el whatsapp porque todavia tiene deuda")}
-                        }
-                }
-                )},
-                emitirRbo(){
-		    if(this.Cliente.deuda==0){msgError('Error!','El cliente no tiene deuda');return}
-                    this.verModalRecibo = true;
-                    this.Recibo.cuenta = ''
-                    this.Recibo.nc = ''
-                    this.Recibo.ic = ''
-                    this.Recibo.cobr = ''
-                },
-                guardarRecibo(){
-                    this.Recibo.idcliente = this.Cliente.id
-                    this.Recibo.wapp = this.Cliente.wapp
-                    this.verModalRecibo = false
-                    if (!this.listaCuentas.includes(parseInt(this.Recibo.cuenta))) {msgError('Error!','Numero de cuenta NO existe')} 
-                        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                        axios.post('/buscador/generarrbotransferencia',this.Recibo)
-			    .then(res=>{
-				this.Recibo.rbo = res.data.rbo
-				axios.post('/buscador/enviarrbotransferencia',this.Recibo,{responseType:"blob"})
-				.then(res=>{
-					this.obtenerWappCliente()
-					setTimeout(()=>{ 
-					if(this.Cliente.wapp=='INVALIDO' || this.Cliente.wapp==''){
-					    msgError('WhatsApp!', 'Numero INVALIDO o inexistente')
-					    // se imprime por pantalla para llevarlo fisicamente
-					    let url = window.URL.createObjectURL(res.data);
-					    window.open(url);
-					}else{
-					    msgSuccess('WhatsApp!','mensaje enviado')
-					}
-					},600)
-				    this.Recibo = {fecha:dayjs.utc().format('YYYY-MM-DD')}
-				})
-                               .catch(error=>msgError('Error!','no se pudo enviar el Recibo'))
-			    })
-			    .catch(error=>{
-				msgError('Error!','El recibo no se genero')
-			    })
-                },
-                sendMsgVenta(wapp){
-		    data = {idcliente:this.Cliente.id,
-			    wapp:this.Cliente.wapp,
-			    msg:this.ventaWapp,
-		    }
-                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                    axios.post('/buscador/wapp',data)
-		    .then(res=>{
-			console.log(res.data)
-			switch(res.data){
-			    case 'success': {
-				msgSuccess('Exito!','Mensaje Enviado')
-				break
-			    }
-			    case 'invalido': {
-				msgError('Error!','Whatsapp INVALIDO')
-				this.obtenerWappCliente()
-				break
-			    }
-			    case 'failed': {
-				msgError('Error!','Mensaje no enviado - Failed')
-				break
-			    }
-			}
-		})
-                .catch(error=>msgError('Error','Mensaje no enviado'))
-                },
-                sendIntWhatsapp(){
-		        msgDelay('Espere mientras se envia la intimacion')
-                        this.clipWappIntimacion()
-			data = {idcliente:this.Cliente.id,
-				wapp:this.Cliente.wapp,
-				msg:this.intimacionWhatsapp,
-			}
-                        if(!this.Cliente.deuda) msgError('Error!','Cliente SIN deuda')
-                        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                        axios.post('/buscador/wapp', data)
-                        .then(res=>{
-				console.log(res)
-				switch(res.data){
-				    case 'success': {
-					msgSuccess('Exito!','Mensaje Enviado')
-					break
-				    }
-				    case 'invalido': {
-					msgError('Error!','Whatsapp INVALIDO')
-					this.obtenerWappCliente()
-					break
-				    }
-				    case 'failed': {
-					msgError('Error!','Mensaje no enviado - Failed')
-					break
-				    }
-				}
-			})
-                        .catch(error=>msgError('Error!','Mensaje NO enviado'))
-                },
-                sendIntimacion(dni, wapp){
-		    msgDelay('Espere mientras se envia la intimacion')
-                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                    axios.post("/buscador/intimar",this.Cliente)
-                    .then(res=>{
-			console.log(res)
-                        if(wapp){
-			    switch(res.data.response){
-				case 'success': {
-				    msgSuccess('Exito!','Mensaje Enviado')
-				    break
-				}
-				case 'invalido': {
-				    msgError('Error!','Whatsapp INVALIDO')
-				    this.obtenerWappCliente()
-				    break
-				}
-				case 'failed': {
-				    msgError('Error!','Mensaje no enviado - Failed')
-				    break
-				}
-			    }
-                           }else{
-			       axios.get('/buscador/intimar/nowapp/'+this.Cliente.dni,{responseType:"blob"})
-				    .then(res=>{
-					let url = window.URL.createObjectURL(res.data);
-					window.open(url);
-					msgSuccess('Exito!','Intimacion impresa en pantalla')
-				    })
-                           }
-                    })
-                },
-                sendMsgGeneral(){
-                    this.verModalMsgWhatsapp = true
-                },
-                enviarWhatsapp(){
-                    this.verModalMsgWhatsapp = false
-                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                        axios({
-                            method: "POST",
-                            url: '/buscador/wapp',
-                            data: {idcliente:this.Cliente.id,
-                                    wapp:this.Cliente.wapp,
-                                    msg:this.msgWhatsapp,
-                            }
-                        })
-                    .then(res=>{
-                                if(res.status==200){
-                                Swal.fire({
-                                title: 'WhatsApp!',
-                                text: 'whatsapp enviado',
-                                icon: 'success',
-                                timer: 3000,
-                                })}
-                    })
-                        .catch(error=>{
-                            Swal.fire({
-                                title:'Error',
-                                text: 'Mensaje no enviado',
-                                icon: 'error',
-                                timer: 3000,
-                            })
-                        })
-                },
-                sendMsgRecordatorio(){
-                    msgRecordatorio = (this.Cliente.sex='M'?"Estimado ":"Estimada ")+this.Cliente.nombre.toUpperCase()+": Buenos dias, le escribimos de ROMITEX para recordarle el vencimiento de su cuota. Le pedimos que nos envie por este medio el comprobante de la transferencia, asi le enviamos el recibo correspondiente. Gracias!"
-                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                        axios({
-                            method: "POST",
-                            url: '/buscador/wapp',
-                            data: {idcliente:this.Cliente.id,
-                                    wapp:this.Cliente.wapp,
-                                    msg:msgRecordatorio,
-                            }
-                        })
-                    .then(res=>{
-                                if(res.status==200){
-                                Swal.fire({
-                                title: 'WhatsApp!',
-                                text: 'Recordatorio enviado',
-                                icon: 'success',
-                                timer: 3000,
-                                })}
-                    })
-                        .catch(error=>{
-                            Swal.fire({
-                                title:'Error',
-                                text: 'Mensaje no enviado',
-                                icon: 'error',
-                                timer: 3000,
-                            })
-                        })
-                },
-                sendMsgCbu(){
-                    msgCbu = `DATOS DE LA CUENTA:
-Número de CBU: 0720556988000035614454 
+             let fecha = ultvta.fecha || '';
+             let articulos = ultvta.art || '';
+             if (this.Cliente.sev){
+                 text=
+                     `Nos comunicamos de la empresa ROMITEX por una deuda que usted tiene con la firma. Usted fue subido al SEVEN hasta regularizar su cuenta. Puede hacer un plan de pagos. Consulte por Wapp. Una vez cancelado en 48hs se lo elimina del SEVEN. De no desmostrar interes nos vemos obligados a cobrar su pagare por via JUDICIAL. Atte. *Departamento de cobranzas de ROMITEX*`
+             } else {
+                 text=
+                     `Nos comunicamos de la empresa ROMITEX por una deuda que usted tiene con la firma. En los proximos dias deberemos informar al SEVEN el atraso de su cuenta. Le proponemos un plan de pagos que podemos realizar por este medio.`
+             }
+             messaje = this.Cliente.nombre.concat(': ',text,' ',`(Por compra de ${articulos} realizada en '${direccion}' el dia ${dayjs.utc(fecha).format('DD-MM-YYYY')})`)
+             this.intimacionWhatsapp = messaje.replaceAll(' ','%20')
+
+         },
+         clipWappVentas(){
+             let messajeVenta;
+             messajeVenta = `${this.Cliente.nombre.toUpperCase()} Hola! Nos comunicamos de ROMITEX para informarle que en estos dias esta en su zona nuestro visitador de clientes exclusivos. Si Usted desea que ${this.Cliente.sex=="F"?'la':'lo'} visitemos SIN COMPROMISO avisenos asi le comentamos todas las promociones y articulos nuevos que tenemos para ofrecerle. Desde ya, gracias!`
+             this.ventaWapp = messajeVenta.replaceAll(' ','%20')
+             // console.log(messajeVenta.replaceAll(' ','%20'))
+         },
+         clipDatos(idcliente){
+             let text = this.Cliente.nombre+'\n'+this.Cliente.dni+'\n'+this.Cliente.calle+' '+this.Cliente.num+'\n'+this.Cliente.barrio+'\n'+this.Cliente.wapp
+             textToClipboard(text)
+	     msgSuccess('Exito','Datos copiados al portapapeles')
+         },
+         obtenerVentas(idcliente){
+             axios.get('/buscador/obtenerventasporidcliente/'+idcliente)
+                  .then(res=>{
+                      //console.log(res.data.ventas);
+                      let arrayVentas=res.data.ventas
+                      arrayVentas.map(row=>{
+                          row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD')
+                          row.p=1?'MEN':3?'SEM':'QUI'
+                      })
+                      this.listaVentas = arrayVentas
+                      this.listaCuentas = arrayVentas.map(row=>row.id)
+                      this.listaCuotas = this.hacerCuotas()
+                      if(this.listaVentas.length===0) {
+			  msgError('Error!','no hay cuentas ACTIVAS')
+		      }
+                      this.pedirPagadas(idcliente)
+                      this.obtenerVentasCanceladas(idcliente)
+                      this.pedirComentarios(idcliente)
+                      this.pedirLogCambioDireccion(idcliente)
+                  })
+         },
+         obtenerVentasCanceladas(idcliente){
+             axios.get('/buscador/obtenerventascanceladasporidcliente/'+idcliente)
+                  .then(res=>{
+                      let arrayVentasCanceladas=res.data.ventascanceladas
+                      arrayVentasCanceladas.map(row=>{
+                          row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD')
+                          row.p=1?'MEN':3?'SEM':'QUI'
+                      })
+                      this.listaVentasCanceladas = arrayVentasCanceladas
+                  })
+         },
+         pedirComentarios(idcliente){
+             axios.get('/buscador/pedircomentarios/'+idcliente)
+                  .then(res=>{
+                      let arrayComentarios = res.data.comentarios
+                      arrayComentarios.map(row=>row.fechahora=dayjs.utc(row.fechahora).format('YYYY-MM-DD'))
+                      this.listaComentarios = arrayComentarios
+                  })
+         },
+         pedirLogCambioDireccion(idcliente){
+             axios.get('/buscador/pedirlogcambiodireccion/'+idcliente)
+                  .then(res=>{
+                      this.listaLogCambioDireccion = res.data.logcambiodireccion
+                      this.listaLogCambioDireccion.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                  })
+         },
+         hacerCuotas(){
+             /* id,fecha,cc2,ic3,p4,idvdor,saldo6,comprado,pp8,devuelta,condonada,cnt,art,pagado13,primera14, */
+             tblCuota=[]
+             let vto
+             this.listaVentas.forEach(row=>{
+                 saldo = row.saldo
+                 if(saldo!==0){
+                     pagado = row.pagado
+                     cc = row.cc
+                     ic = row.ic
+                     p = row.p
+                     primera = row.primera
+                     for (let i=1; i<=cc ;i++){
+                         if(p==='MEN') vto = dayjs.utc(primera).add(i-1,'month').format('YYYY-MM-DD')
+                         if(p==='QUI') vto = dayjs.utc(primera).add((i-1)*2,'week').format('YYYY-MM-DD')
+                         if(p==='SEM') vto = dayjs.utc(primera).add(i-1,'week').format('YYYY-MM-DD')
+                         tblCuota.push([i,vto,pagado>=ic?0:pagado<=0?ic:ic-pagado])
+                         pagado = pagado - ic
+                     }
+                 }
+             })
+             return tblCuota
+         },
+         pedirPagadas(idcliente){
+             axios.get('/buscador/pedirpagadasporidcliente/'+idcliente)
+                  .then(res=>{
+                      this.listaPagadas=res.data.pagadas
+                      this.listaPagadas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                  })
+         },
+         toggleInc(){
+             axios.get('/buscador/toggleinc/'+this.Cliente.dni)
+		  .then(res=>{
+		      msgSuccess('Exito',res.data.msg)
+                      this.Cliente.incobrable = !this.Cliente.incobrable
+		  })
+         },
+         toggleNvm(){
+             axios.get('/buscador/togglenvm/'+this.Cliente.dni)
+                  .then(res=>{
+		      msgSuccess('Exito',res.data.msg)
+                      this.Cliente.novendermas = !this.Cliente.novendermas
+                  })
+         },
+         toggleSube(){
+             axios.get('/buscador/togglesube/'+this.Cliente.dni)
+                  .then(res=>{
+		      msgSuccess('Exito',res.data.msg)
+                      this.Cliente.subirseven = !this.Cliente.subirseven
+                  })
+         },
+         toggleGestion(){
+             axios.get('/buscador/togglegestion/'+this.Cliente.dni)
+                  .then(res=>{
+		      msgSuccess('Exito',res.data.msg)
+                      this.Cliente.gestion = !this.Cliente.gestion
+                  })
+         },
+         toggleMudo(){
+             axios.get('/buscador/togglemudo/'+this.Cliente.dni)
+                  .then(res=>{
+		      msgSuccess('Exito',res.data.msg)
+                      this.Cliente.mudo = !this.Cliente.mudo
+                  })
+         },
+         toggleSeguir(){
+             axios.get('/buscador/toggleseguir/'+this.Cliente.dni)
+                  .then(res=>{
+		      msgSuccess('Exito',res.data.msg)
+                      this.Cliente.seguir = !this.Cliente.seguir
+                  })
+         },
+         dialogoImprimirFicha(){
+             this.verModalImprimirFicha = true
+         },
+         imprimirFicha(){
+             if (this.cobrEnviar) {
+		 msgDelay('Espere que se envie la ficha')
+                 axios.get('/buscador/pedirwappcobrador/'+this.cobrEnviar)
+                      .then(res=>{
+			  this.wappCobrador = res.data.wapp
+			  data = {dni:this.Cliente.dni, whatsapp:this.wappCobrador, idcliente:this.Cliente.id}
+			  axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+			  axios.post("/buscador/imprimirficha", data)
+									      .then(res=>{
+										  console.log(res.data)
+										  this.verModalImprimirFicha = false
+										  if(res.data.response=='success') msgSuccess('WhatsApp!','Ficha enviada al cobrador');
+										  this.cobrEnviar = ''
+									      })
+                      })
+             }else{
+                 data = {dni:this.Cliente.dni, whatsapp:"", idcliente:this.Cliente.id}
+                 axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+		 axios.post("/buscador/imprimirficha",data, {responseType: "blob"})
+								     .then((res)=>{
+									 this.verModalImprimirFicha = false
+									 if (this.mostrarFichaPorPantalla) {
+									     let url = window.URL.createObjectURL(res.data);
+									     window.open(url);
+									 }
+									 this.mostrarFichaPorPantalla = false
+								     })
+             }
+         },
+         intimarCliente(dni){
+             data: {dni:dni, idcliente:this.Cliente.id},
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+	     axios.post("/buscador/intimar",data,{responseType: "blob"})
+             .then((res) => {
+                 let url = window.URL.createObjectURL(res.data);
+                 window.open(url);
+             });
+         },
+         fecharPmovto(idcliente){
+             this.verModalPmovto=true
+         },
+         guardarPmovto(){
+             this.verModalPmovto=false
+             axios.get('/buscador/guardarpmovto/'+this.Cliente.id+'/'+this.Cliente.pmovto)
+                  .then(res=>{
+		      msgSuccess('Exito','Fechado realizado')
+                  })
+         },
+         agregarComentario(){
+             this.verModalComentario=true
+         },
+         guardarComentario(){
+             this.verModalComentario=false
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/buscador/guardarcomentario/'+this.Cliente.id,this.Comentario)
+								 .then(res=>{
+								     msgSuccess('Exito','Comentario agregado')
+								     this.pedirComentarios(this.Cliente.id)
+								 })
+         },
+         editarCliente(idcliente){
+             this.verModalEdicion=true
+         },
+         guardarEdicion(){
+             this.verModalEdicion=false
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/buscador/guardaredicioncliente/'+this.Cliente.id,this.Cliente)
+								 .then(res=>{
+								     msgSuccess('Exito','Cliente editado con exito')
+								 })
+								 .catch(error=>{
+								     msgError('Error',error.request.response)
+								 })
+         },
+         obtenerCalles(){
+             axios.get('/buscador/obtenerlistadocalles')
+                  .then(res=>{
+                      const calles = res.data.calles
+                      const $input = document.getElementById('searchCalle')
+                      const $input1 = document.getElementById('searchCalle1')
+                      const $suggestions = document.getElementById('suggestionsCalle')
+                      const $suggestions1 = document.getElementById('suggestionsCalle1')
+                      $input.addEventListener('keyup',(e)=>{
+			  const input = $input.value
+			  $suggestions.innerHTML='';
+			  const suggestions = calles.filter(calle=>{
+                              return calle.calle.toLocaleLowerCase().includes(input.toLocaleLowerCase())
+			  })
+			  suggestions.forEach(suggested=>{
+                              const $div = document.createElement('div');
+                              $div.innerHTML = suggested.calle;
+                              $suggestions.appendChild($div)
+			  })
+			  if(input==='') $suggestions.innerHTML=''
+			  if(e.key==='Enter'){
+                              this.calleMostrada = $suggestions.firstChild.innerHTML
+                              $suggestions.innerHTML=''
+			  }
+                      })
+                      $suggestions.addEventListener('click',(e)=>{
+                          this.calleMostrada=e.target.innerHTML
+                          $suggestions.innerHTML=''
+                      })
+                      $input1.addEventListener('keyup',(e)=>{
+			  const input = $input1.value
+			  $suggestions1.innerHTML='';
+			  const suggestions = calles.filter(calle=>{
+                              return calle.calle.toLocaleLowerCase().includes(input.toLocaleLowerCase())
+			  })
+			  suggestions.forEach(suggested=>{
+                              const $div = document.createElement('div');
+                              $div.innerHTML = suggested.calle;
+                              $suggestions1.appendChild($div)
+			  })
+			  if(input==='') $suggestions1.innerHTML=''
+			  if(e.key==='Enter'){
+                              this.Cliente.calle = $suggestions1.firstChild.innerHTML
+                              $suggestions1.innerHTML=''
+			  }
+                      })
+                      $suggestions1.addEventListener('click',(e)=>{
+                          this.Cliente.calle=e.target.innerHTML
+                          $suggestions1.innerHTML=''
+                      })
+                  })
+         },
+         obtenerBarrios(){
+             axios.get('/buscador/obtenerlistabarrios')
+                  .then(res=>{
+                      const barrios = res.data.barrios
+                      const $input = document.getElementById('searchBarrio')
+                      const $suggestions = document.getElementById('suggestionsBarrio')
+                      $input.addEventListener('keyup',(e)=>{
+			  const input = $input.value
+			  $suggestions.innerHTML='';
+			  const suggestions = barrios.filter(barrio=>{
+                              return barrio.barrio.toLocaleLowerCase().includes(input.toLocaleLowerCase())
+			  })
+			  suggestions.forEach(suggested=>{
+                              const $div = document.createElement('div');
+                              $div.innerHTML = suggested.barrio;
+                              $suggestions.appendChild($div)
+			  })
+			  if(input==='') $suggestions.innerHTML=''
+			  if(e.key==='Enter'){
+                              this.Cliente.barrio = $suggestions.firstChild.innerHTML
+                              $suggestions.innerHTML=''
+			  }
+                      })
+                      $suggestions.addEventListener('click',(e)=>{
+                          this.Cliente.barrio=e.target.innerHTML
+                          $suggestions.innerHTML=''
+                      })
+                  })
+         },
+         obtenerZonas(){
+             axios.get('/buscador/obtenerlistazonas')
+                  .then(res=>{
+                      const zonas = res.data.zonas
+                      const $input = document.getElementById('searchZona')
+                      const $suggestions = document.getElementById('suggestionsZona')
+                      $input.addEventListener('keyup',(e)=>{
+			  const input = $input.value
+			  $suggestions.innerHTML='';
+			  const suggestions = zonas.filter(zona=>{
+                              return zona.zona.toLocaleLowerCase().includes(input.toLocaleLowerCase())
+			  })
+			  suggestions.forEach(suggested=>{
+                              const $div = document.createElement('div');
+                              $div.innerHTML = suggested.zona;
+                              $suggestions.appendChild($div)
+			  })
+			  if(input==='') $suggestions.innerHTML=''
+			  if(e.key==='Enter'){
+                              this.Cliente.zona = $suggestions.firstChild.innerHTML
+                              $suggestions.innerHTML=''
+			  }
+                      })
+                      $suggestions.addEventListener('click',(e)=>{
+                          this.Cliente.zona=e.target.innerHTML
+                          $suggestions.innerHTML=''
+                      })
+                  })
+         },
+         obtenerCobradores(){
+             axios.get('/buscador/obtenercobradores')
+                  .then(res=>{
+                      this.listaCobradores = res.data.cobradores
+                  })
+         },
+         agregarPlanPago(){
+             this.verModalPlanPago=true
+         },
+         guardarPlanPagos(){
+             this.Venta.p = this.Venta.p=="Mensual"?1:this.Venta.p=="Quincenal"?2:3
+             this.verModalPlanPago=false
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/buscador/generarplandepagos/'+this.Cliente.id,this.Venta)
+								 .then(res=>{
+								     msgSuccess('Exito','Plan de pagos generado')
+								 })
+								 .catch(error=>{
+								     msgError('Error',error.request.response)
+								 })
+
+         },
+         agregarAsunto(){
+             this.verModalAsunto=true
+         },
+         validarAsunto(){
+             if(this.Asunto.fecha!=''&&this.Asunto.tipo!=''&&this.Asunto.vdor!=''&&this.Asunto.asunto!=''){
+                 this.guardarAsunto()
+             }else{
+		 msgError('Error','Complete los datos necesarios')
+             }
+         },
+         guardarAsunto(){
+             this.Asunto.idcliente = this.Cliente.id
+             this.verModalAsunto = false
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/buscador/cargarasunto',this.Asunto)
+								 .then(res=>{
+								     msgSuccess('Exito','Asunto Cargado')
+								     this.Asunto.tipo=''
+								     this.Asunto.vdor=''
+								     this.Asunto.asunto=''
+								 })
+								 .catch(error=>{
+								     msgError('Error',error.request.response)
+								 })
+         },
+         emitirLibreDeuda(dni){
+	     data: {dni:dni, wapp:this.Cliente.wapp, idcliente:this.Cliente.id, deuda:this.Cliente.deuda},
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+	     axios.post("/buscador/libredeuda",data, {responseType: "blob"})
+             }).then((res) => {
+                 if(this.Cliente.wapp && this.Cliente.deuda==0){
+                     if(res.status==200){
+			 msgSuccess('WhatsApp!','Libre deuda enviado')
+                     }
+                 }else{
+                     let url = window.URL.createObjectURL(res.data);
+                     window.open(url);
+		     if (this.Cliente.wapp && this.Cliente.deuda>0) {
+			 msgSuccess("Whatsapp!","No se envio el whatsapp porque todavia tiene deuda")}
+                 }
+             }
+         )},
+         emitirRbo(){
+	     if(this.Cliente.deuda==0){msgError('Error!','El cliente no tiene deuda');return}
+             this.verModalRecibo = true;
+             this.Recibo.cuenta = ''
+             this.Recibo.nc = ''
+             this.Recibo.ic = ''
+             this.Recibo.cobr = ''
+         },
+         guardarRecibo(){
+             this.Recibo.idcliente = this.Cliente.id
+             this.Recibo.wapp = this.Cliente.wapp
+             this.verModalRecibo = false
+             if (!this.listaCuentas.includes(parseInt(this.Recibo.cuenta))) {msgError('Error!','Numero de cuenta NO existe')}
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/buscador/generarrbotransferencia',this.Recibo)
+								 .then(res=>{
+								     this.Recibo.rbo = res.data.rbo
+								     axios.post('/buscador/enviarrbotransferencia',this.Recibo,{responseType:"blob"})
+											  .then(res=>{
+											      this.obtenerWappCliente()
+											      setTimeout(()=>{
+												  if(this.Cliente.wapp=='INVALIDO' || this.Cliente.wapp==''){
+												      msgError('WhatsApp!', 'Numero INVALIDO o inexistente')
+												      // se imprime por pantalla para llevarlo fisicamente
+												      let url = window.URL.createObjectURL(res.data);
+												      window.open(url);
+												  }else{
+												      msgSuccess('WhatsApp!','mensaje enviado')
+												  }
+											      },600)
+											      this.Recibo = {fecha:dayjs.utc().format('YYYY-MM-DD')}
+											  })
+											  .catch(error=>msgError('Error!','no se pudo enviar el Recibo'))
+								 })
+								 .catch(error=>{
+								     msgError('Error!','El recibo no se genero')
+								 })
+         },
+         sendMsgVenta(wapp){
+	     msgDelay('Espere mientras se envia el Whatsapp')
+	     data = {idcliente:this.Cliente.id,
+		     wapp:this.Cliente.wapp,
+		     msg:this.ventaWapp,
+	     }
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/buscador/wapp',data)
+								 .then(res=>{
+								     console.log(res.data)
+								     switch(res.data){
+									 case 'success': {
+									     msgSuccess('Exito!','Mensaje Enviado')
+									     break
+									 }
+									 case 'invalid': {
+									     msgError('Error!','Whatsapp INVALIDO')
+									     this.obtenerWappCliente()
+									     break
+									 }
+									 case 'failed': {
+									     msgError('Error!','Mensaje no enviado - Failed')
+									     break
+									 }
+								     }
+								 })
+								 .catch(error=>msgError('Error','Mensaje no enviado'))
+         },
+         sendIntWhatsapp(){
+	     msgDelay('Espere mientras se envia la intimacion')
+             this.clipWappIntimacion()
+	     data = {idcliente:this.Cliente.id,
+		     wapp:this.Cliente.wapp,
+		     msg:this.intimacionWhatsapp,
+	     }
+             if(!this.Cliente.deuda) msgError('Error!','Cliente SIN deuda')
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/buscador/wapp', data)
+								 .then(res=>{
+								     console.log(res)
+								     switch(res.data){
+									 case 'success': {
+									     msgSuccess('Exito!','Mensaje Enviado')
+									     break
+									 }
+									 case 'invalid': {
+									     msgError('Error!','Whatsapp INVALIDO')
+									     this.obtenerWappCliente()
+									     break
+									 }
+									 case 'failed': {
+									     msgError('Error!','Mensaje no enviado - Failed')
+									     break
+									 }
+								     }
+								 })
+								 .catch(error=>msgError('Error!','Mensaje NO enviado'))
+         },
+         sendIntimacion(dni, wapp){
+	     msgDelay('Espere mientras se envia la intimacion')
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post("/buscador/intimar",this.Cliente)
+								 .then(res=>{
+								     console.log(res)
+								     if(wapp){
+									 switch(res.data.response){
+									     case 'success': {
+										 msgSuccess('Exito!','Mensaje Enviado')
+										 break
+									     }
+									     case 'invalid': {
+										 msgError('Error!','Whatsapp INVALIDO')
+										 this.obtenerWappCliente()
+										 break
+									     }
+									     case 'failed': {
+										 msgError('Error!','Mensaje no enviado - Failed')
+										 break
+									     }
+									 }
+								     }else{
+									 axios.get('/buscador/intimar/nowapp/'+this.Cliente.dni,{responseType:"blob"})
+									      .then(res=>{
+										  let url = window.URL.createObjectURL(res.data);
+										  window.open(url);
+										  msgSuccess('Exito!','Intimacion impresa en pantalla')
+									      })
+								     }
+								 })
+         },
+         sendMsgGeneral(){
+	     msgDelay('Espere mientras se envia el mensaje')
+             this.verModalMsgWhatsapp = true
+         },
+         enviarWhatsapp(){
+	     data= {idcliente:this.Cliente.id,
+		    wapp:this.Cliente.wapp,
+		    msg:this.msgWhatsapp,
+	     }
+             this.verModalMsgWhatsapp = false
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+	     axios.port('/buscador/wapp',data)
+								 .then(res=>{
+								     switch(res.data){
+									 case 'success': {
+									     msgSuccess('Exito!','Mensaje Enviado')
+									     break
+									 }
+									 case 'invalid': {
+									     msgError('Error!','Whatsapp INVALIDO')
+									     this.obtenerWappCliente()
+									     break
+									 }
+									 case 'failed': {
+									     msgError('Error!','Mensaje no enviado - Failed')
+									     break
+									 }
+								     }
+								 })
+								 .catch(error=>msgError('Error!','Mensaje no enviado'))
+         },
+         sendMsgRecordatorio(){
+	     msgDelay('Espere mientras se envia el recordatorio')
+             msgRecordatorio = (this.Cliente.sex='M'?"Estimado ":"Estimada ")+this.Cliente.nombre.toUpperCase()+": Buenos dias, le escribimos de ROMITEX para recordarle el vencimiento de su cuota. Le pedimos que nos envie por este medio el comprobante de la transferencia, asi le enviamos el recibo correspondiente. Gracias!"
+	     data = {idcliente:this.Cliente.id,
+		     wapp:this.Cliente.wapp,
+		     msg:msgRecordatorio,
+	     }
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+	     axios.post('/buscador/wapp',data)
+								 .then(res=>{
+								     console.log(res.data)
+								     switch(res.data){
+									 case 'success': {
+									     msgSuccess('Exito!','Mensaje Enviado')
+									     break
+									 }
+									 case 'invalid': {
+									     msgError('Error!','Whatsapp INVALIDO')
+									     this.obtenerWappCliente()
+									     break
+									 }
+									 case 'failed': {
+									     msgError('Error!','Mensaje no enviado - Failed')
+									     break
+									 }
+								     }
+								 })
+								 .catch(error=>msgError('Error!','Mensaje no Enviado'))
+         },
+         sendMsgCbu(){
+	     msgDelay('Espere mientras se envian los datos')
+             msgCbu = `DATOS DE LA CUENTA:
+Número de CBU: 0720556988000035614454
 Alias de CBU: ROMITEX.GESTION
 Titular de la cuenta: Heredie Maria Isabel`
-                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                        axios({
-                            method: "POST",
-                            url: '/buscador/wapp',
-                            data: {idcliente:this.Cliente.id,
-                                    wapp:this.Cliente.wapp,
-                                    msg:msgCbu,
-                            }
-                        })
-                    .then(res=>{
-                                if(res.status==200){
-                                Swal.fire({
-                                title: 'WhatsApp!',
-                                text: 'CBU enviado',
-                                icon: 'success',
-                                timer: 3000,
-                                })}
-                    })
-                        .catch(error=>{
-                            Swal.fire({
-                                title:'Error',
-                                text: 'Mensaje no enviado',
-                                icon: 'error',
-                                timer: 3000,
-                            })
-                        })
-
-			    },
-			obtenerWappCliente(){
-			    axios.get('/ventas/obtenerwappcliente/'+this.Cliente.id)
-				.then(res=>{
-				    this.Cliente.wapp = res.data.wapp
-				})},
-
-			    condonarVenta(id){
-				axios.get('/ventas/condonar/'+id)
-				    .then(res=>{
-					    this.buscaCuentaporDni(this.Cliente.dni)			 })
-			    },
-		    hacerLlamada(tel){
-			    re = /[0-9]*/
-			    tel = re.exec(tel)[0]
-			    window.location.href = 'tel:' + tel;
-		    },
-		    mostrarCalle(){
-			axios.get('/buscador/mostrarcalle/'+this.calleMostrada)
-			.then(res=>{
-			    this.verCard = false
-			    this.DatosCalle = res.data.calle
-			})
-		    },
-	    gestionarBajaSeven(){
-		msg = `Buen día, te enviamos los siguientes datos para gestionar BAJA POR CANCELACIÓN, gracias!\nNombre ${this.Cliente.nombre}\nDNI ${this.Cliente.dni}\nDirección ${this.Cliente.calle} ${this.Cliente.num}\n\nROMITEX - Sergio Federico Salvay`
-		if(this.Cliente.deuda>0) {msgError('Error','El cliente tiene deuda');return}
-		console.log(this.Cliente.sev, typeof this.Cliente.sev)
-		if(this.Cliente.sev!=1) {msgError('Error', 'El cliente NO esta en el seven');return}
-			axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                        axios({
-                            method: "POST",
-                            url: '/buscador/wapp',
-                            data: {idcliente: this.Cliente.id,
-                                    wapp: '3513007412',
-                                    msg:msg,
-                            }
-                        })
-			.then(res=>{
-			    msgSuccess('WhatsApp','Mensaje Enviado')
-			    this.sev = 0
-			    this.baja = dayjs.utc().format('YYYY-MM-DD')
-			    axios.get('/buscador/bajaindividualseven/'+this.Cliente.id)
-					     .then(res=>{
-						 this.Cliente.sev = res.data.cliente[0].sev
-						 this.Cliente.baja = res.data.cliente[0].baja
-					     })
-			})
-			.catch(error=>{
-			    msgError('Error','Mensaje no enviado')
-			})
-
-	    },
-    }
-    }
+		      data = {idcliente:this.Cliente.id,
+			      wapp:this.Cliente.wapp,
+			      msg:msgCbu,
+		      }
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+	     axios.post('/buscador/wapp',data)
+								 .then(res=>{
+								     switch(res.data){
+									 case 'success': {
+									     msgSuccess('Exito!','Mensaje Enviado')
+									     break
+									 }
+									 case 'invalid': {
+									     msgError('Error!','Whatsapp INVALIDO')
+									     this.obtenerWappCliente()
+									     break
+									 }
+									 case 'failed': {
+									     msgError('Error!','Mensaje no enviado - Failed')
+									     break
+									 }
+								     }
+								 })
+								 .catch(error=>msgError('Error!','Mensaje NO enviado'))
+	 },
+	 obtenerWappCliente(){
+	     axios.get('/ventas/obtenerwappcliente/'+this.Cliente.id)
+		  .then(res=>{
+		      this.Cliente.wapp = res.data.wapp
+	 })},
+	 condonarVenta(id){
+	     axios.get('/ventas/condonar/'+id)
+		  .then(res=>{
+		      this.buscaCuentaporDni(this.Cliente.dni)			 })
+	 },
+	 hacerLlamada(tel){
+	     re = /[0-9]*/
+	     tel = re.exec(tel)[0]
+	     window.location.href = 'tel:' + tel;
+	 },
+	 mostrarCalle(){
+	     axios.get('/buscador/mostrarcalle/'+this.calleMostrada)
+		  .then(res=>{
+		      this.verCard = false
+		      this.DatosCalle = res.data.calle
+		  })
+	 },
+	 gestionarBajaSeven(){
+	     msg = `Buen día, te enviamos los siguientes datos para gestionar BAJA POR CANCELACIÓN, gracias!\nNombre ${this.Cliente.nombre}\nDNI ${this.Cliente.dni}\nDirección ${this.Cliente.calle} ${this.Cliente.num}\n\nROMITEX - Sergio Federico Salvay`
+	     data = {idcliente: this.Cliente.id,
+		     wapp: '3513007412',
+		     msg:msg,
+	     }
+	     if(this.Cliente.deuda>0) {msgError('Error','El cliente tiene deuda');return}
+	     if(this.Cliente.sev!=1) {msgError('Error', 'El cliente NO esta en el seven');return}
+	     axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+	     axios.post('/buscador/wapp', data)
+								 .then(res=>{
+								     msgSuccess('WhatsApp','Mensaje Enviado')
+								     this.sev = 0
+								     this.baja = dayjs.utc().format('YYYY-MM-DD')
+								     axios.get('/buscador/bajaindividualseven/'+this.Cliente.id)
+										      .then(res=>{
+											  this.Cliente.sev = res.data.cliente[0].sev
+											  this.Cliente.baja = res.data.cliente[0].baja
+										      })
+								 })
+								 .catch(error=>msgError('Error','Mensaje no enviado'))
+	 },
+     }
+ }
 </script>
 {% endblock %}

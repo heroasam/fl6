@@ -81,15 +81,12 @@ def fichas_intimarpdf():
         if wapp:
             idcliente = pgonecolumn(con, f"select id from clientes where dni={dni}")
             intimacion(con, [dni])
-            # espero 10 segundos por requerimientos de la  whatsapp api
-            #time.sleep(10)
-            send_file_whatsapp(idcliente,f'https://www.fedesal.lol/pdf/intimacion{dni}.pdf', wapp)
-            #print(dni, wapp, time.time()) # fake send intimation
-            # registro la intimacion
-            upd = f"update clientes set fechaintimacion=curdate() where dni={dni}"
-            cur = con.cursor()
-            cur.execute(upd)
-            con.commit()
+            response = send_file_whatsapp(idcliente,f'https://www.fedesal.lol/pdf/intimacion{dni}.pdf', wapp)
+            if response == 'success':
+                upd = f"update clientes set fechaintimacion=curdate() where dni={dni}"
+                cur = con.cursor()
+                cur.execute(upd)
+                con.commit()
     con.close()
     return 'ok'
 

@@ -68,7 +68,6 @@ def clientesdireccion(calle,num):
 
 
 
-
 @buscador.route('/buscador/pedirpagadasporidcliente/<int:idcliente>')
 def buscar_pedirpagadasporidcliente(idcliente):
     sql = f"select * from pagos where idcliente={idcliente} order by id desc"
@@ -159,8 +158,8 @@ def buscar_imprimirficha():
     ficha(con,[dni])
     con.close()
     if wapp:
-        send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/ficha.pdf", wapp)
-        return 'ok', 200
+        response = send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/ficha.pdf", wapp)
+        return jsonify(response=response) 
     else:
         return send_file('/home/hero/ficha.pdf')
     
@@ -421,8 +420,14 @@ def buscador_intimar():
     intimacion(con, [dni])
     if wapp:
         response = send_file_whatsapp(idcliente, f"https://www.fedesal.lol/pdf/intimacion{dni}.pdf", wapp)
+        if response == 'success':
+            upd = f"update clientes set fechaintimacion=curdate() where dni={dni}"
+            cur = con.cursor()
+            cur.execute(upd)
+            con.commit()
     else:
         response = 'sin wapp'
+    con.close()
     return jsonify(response=response) 
 
 
@@ -533,6 +538,13 @@ def buscador_wapp():
     msg = d['msg']
     if wapp:
         response = send_msg_whatsapp(idcliente, wapp, msg)
+        if response == 'success' and ('seven' in msg.lower()):
+            con = get_con()
+            upd = f"update clientes set fechaintimacion=curdate() where id={idcliente}"
+            cur = con.cursor()
+            cur.execute(upd)
+            con.commit()
+            con.close()
         return response
     else:
         return 'error', 400
