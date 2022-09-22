@@ -466,48 +466,82 @@ def obtener_msg_enviados(to_number):
 
 
 def send_msg_whatsapp(idcliente, wapp, msg):
+    global timer
+    print('timer al iniciar el llamado',timer)
+    timeup = timer
+    timer = time.time()+10 if timer+10<time.time()+10 else timer+10
     wapp = "+549"+wapp
     payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&text={msg}"
-    response = requests.request("GET", payload)
-    wapp_log(response.status_code,response.text)
-    if "Success" in response.text:
-        logwhatsapp(idcliente, wapp, msg)
-        return "success"
-    elif "Invalid Destination WhatsApp" in response.text:
-        upd = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' where id={idcliente}"
-        con = get_con()
-        cur = con.cursor()
-        cur.execute(upd)
-        log(upd)
-        con.commit()
-        con.close()
-        return "invalid"
-    elif "Failed" in response.text:
-        return "failed"
+    if wapp:
+        while True:
+            if time.time()>timeup+10:
+                response = requests.request("GET", payload)
+                break
+            sleep(1)
+            print('paso',msg[:5])
+        sleep(1)
+        timer = time.time()+10
+        print('time al response',time.time())
+        print('timer al response',timer)
+        wapp_log(response.status_code,response.text)
+        if "Success" in response.text:
+            logwhatsapp(idcliente, wapp, msg)
+            return "success"
+        elif "Invalid Destination WhatsApp" in response.text:
+            upd = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' where id={idcliente}"
+            con = get_con()
+            cur = con.cursor()
+            cur.execute(upd)
+            log(upd)
+            con.commit()
+            con.close()
+            return "invalid"
+        elif "Failed" in response.text:
+            return "failed"
+    else:
+        return 'error', 401
 
 
 def send_file_whatsapp(idcliente,file, wapp, msg=""):
+    global timer
+    print('timer al iniciar el llamado',timer)
+    timeup = timer
+    timer = time.time()+10 if timer+10<time.time()+10 else timer+10
     wapp = "+549"+wapp
     payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&document={file}"
-    response = requests.request("GET", payload)
-    wapp_log(response.status_code,response.text)
-    if "Success" in response.text:
-        logwhatsapp(idcliente, wapp, msg, file)
-        return "success"
-    elif "Invalid Destination WhatsApp" in response.text:
-        upd = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' where id={idcliente}"
-        con = get_con()
-        cur = con.cursor()
-        cur.execute(upd)
-        log(upd)
-        con.commit()
-        con.close()
-        return "invalid"
-    elif "Failed" in response.text:
-        return "failed"
+    if wapp:
+        while True:
+            if time.time()>timer+10:
+                response = requests.request("GET", payload)
+                break
+            sleep(1)
+            print('paso',msg[:5])
+        sleep(1)
+        timer = time.time()+10
+        print('time al response',time.time())
+        print('timer al response',timer)
+        wapp_log(response.status_code,response.text)
+        if "Success" in response.text:
+            logwhatsapp(idcliente, wapp, msg, file)
+            return "success"
+        elif "Invalid Destination WhatsApp" in response.text:
+            upd = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' where id={idcliente}"
+            con = get_con()
+            cur = con.cursor()
+            cur.execute(upd)
+            log(upd)
+            con.commit()
+            con.close()
+            return "invalid"
+        elif "Failed" in response.text:
+            return "failed"
+    else:
+        return 'error', 401
+            
 
 
 def logwhatsapp(idcliente, wapp, msg, file=''):
+    msg = msg[:100].replace('%20','')
     if "@" in str(current_user):
         email = current_user.email
     else:

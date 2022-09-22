@@ -277,3 +277,11 @@ function msgError(title, text) {
 	icon: 'error',
 	timer:3000});
 }
+function msgDelay(text) {
+    Swal.fire({
+	title: 'Aguarde...',
+	text: text,
+	icon: 'warning',
+	timer: 10000,
+	timerProgressBar: true});
+}

@@ -1037,48 +1037,60 @@
                 .catch(error=>msgError('Error','Mensaje no enviado'))
                 },
                 sendIntWhatsapp(){
+		        msgDelay('Espere mientras se envia la intimacion')
+                        this.clipWappIntimacion()
 			data = {idcliente:this.Cliente.id,
 				wapp:this.Cliente.wapp,
 				msg:this.intimacionWhatsapp,
 			}
                         if(!this.Cliente.deuda) msgError('Error!','Cliente SIN deuda')
-                        this.clipWappIntimacion()
                         axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
                         axios.post('/buscador/wapp', data)
                         .then(res=>{
-			    this.obtenerWappCliente()
-			    setTimeout(()=>{ 
-			    if(this.Cliente.wapp!='INVALIDO'){
-				    msgSuccess('WhatsApp!','mensaje enviado')
-			    }else{
-				msgError('WhatsApp!', 'Numero INVALIDO')
-			    }
-			    },600)
+				console.log(res)
+				switch(res.data){
+				    case 'success': {
+					msgSuccess('Exito!','Mensaje Enviado')
+					break
+				    }
+				    case 'invalido': {
+					msgError('Error!','Whatsapp INVALIDO')
+					this.obtenerWappCliente()
+					break
+				    }
+				    case 'failed': {
+					msgError('Error!','Mensaje no enviado - Failed')
+					break
+				    }
+				}
 			})
                         .catch(error=>msgError('Error!','Mensaje NO enviado'))
                 },
                 sendIntimacion(dni, wapp){
+		    msgDelay('Espere mientras se envia la intimacion')
                     axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                        axios({
-                        method: "POST",
-                        url: "/buscador/intimar",
-                        responseType: "blob",
-                        data: {dni:dni, wapp:wapp, idcliente:this.Cliente.id},
-                        })
+                    axios.post("/buscador/intimar",this.Cliente, {responseType: "blob"})
                     .then(res=>{
                         if(wapp){
-                            if(res.status==200){
-                                Swal.fire({
-                                    title: 'WhatsApp!',
-                                    text: 'intimacion enviada',
-                                    icon: 'success',
-                                    timer: 3000,
-                                })
-                                }
-                        }else{
+			    switch(res.data){
+				case 'success': {
+				    msgSuccess('Exito!','Mensaje Enviado')
+				    break
+				}
+				case 'invalido': {
+				    msgError('Error!','Whatsapp INVALIDO')
+				    this.obtenerWappCliente()
+				    break
+				}
+				case 'failed': {
+				    msgError('Error!','Mensaje no enviado - Failed')
+				    break
+				}
+			    }
+                           }else{
                             let url = window.URL.createObjectURL(res.data);
                             window.open(url);
-                        }
+                           }
                     })
                 },
                 sendMsgGeneral(){

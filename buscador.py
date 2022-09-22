@@ -416,12 +416,12 @@ def buscador_intimar():
     d = json.loads(request.data.decode("UTF-8"))
     dni = d['dni']
     wapp = d['wapp']
-    idcliente = d['idcliente']
+    idcliente = d['id']
     con = get_con()
     intimacion(con, [dni])
     if wapp:
-        send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/intimacion.pdf", wapp)
-        return 'ok', 200
+        response = send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/intimacion.pdf", wapp)
+        return jsonify(response=response) 
     else:
         return send_file('/home/hero/intimacion.pdf')
     
@@ -519,25 +519,12 @@ def buscador_enviarrbotransferencia():
 
 @buscador.route('/buscador/wapp', methods=["POST"])
 def buscador_wapp():
-    global timer
-    timeup = timer
-    timer = time.time()+10 if timer+10<time.time()+10 else timer+10
     d = json.loads(request.data.decode("UTF-8"))
     idcliente = d['idcliente']
     wapp = d['wapp']
     msg = d['msg']
-    print('timer al iniciar el llamado',timer)
     if wapp:
-        while True:
-            if time.time()>timeup+10:
-                response = send_msg_whatsapp(idcliente, wapp, msg)
-                break
-            print('paso', msg[:5])
-            sleep(1)
-        sleep(1)
-        timer = time.time()+10
-        print('time al response',time.time())
-        print('timer al response',timer)
+        response = send_msg_whatsapp(idcliente, wapp, msg)
         return response
     else:
         return 'error', 400
