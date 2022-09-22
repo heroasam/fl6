@@ -420,10 +420,18 @@ def buscador_intimar():
     con = get_con()
     intimacion(con, [dni])
     if wapp:
-        response = send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/intimacion.pdf", wapp)
-        return jsonify(response=response) 
+        response = send_file_whatsapp(idcliente, f"https://www.fedesal.lol/pdf/intimacion{dni}.pdf", wapp)
     else:
-        return send_file('/home/hero/intimacion.pdf')
+        response = 'sin wapp'
+    return jsonify(response=response) 
+
+
+@buscador.route('/buscador/intimar/nowapp/<dni>')
+def buscador_intimar_nowapp(dni):
+    print(dni)
+    con = get_con()
+    intimacion(con, dni)
+    return send_file(f'/home/hero/intimacion{dni}.pdf')
     
 
 

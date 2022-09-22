@@ -67,10 +67,10 @@ def fichas_intimar():
     con = get_con()
     listadni = json.loads(request.data.decode("UTF-8"))
     # aca se el ast.literal entrega la lista enviada por el axios-post directamente
-
     intimacion(con, listadni)
     con.close()
-    return send_file('/home/hero/intimacion.pdf')
+    return send_file('/home/hero/intimacion_global.pdf')
+
 
 @fichas.route('/fichas/intimarpdf', methods=["POST"])
 def fichas_intimarpdf():
@@ -83,7 +83,7 @@ def fichas_intimarpdf():
             intimacion(con, [dni])
             # espero 10 segundos por requerimientos de la  whatsapp api
             #time.sleep(10)
-            send_file_whatsapp(idcliente,'https://www.fedesal.lol/pdf/intimacion.pdf', wapp)
+            send_file_whatsapp(idcliente,f'https://www.fedesal.lol/pdf/intimacion{dni}.pdf', wapp)
             #print(dni, wapp, time.time()) # fake send intimation
             # registro la intimacion
             upd = f"update clientes set fechaintimacion=curdate() where dni={dni}"

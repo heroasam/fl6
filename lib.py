@@ -511,7 +511,7 @@ def send_file_whatsapp(idcliente,file, wapp, msg=""):
     payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&document={file}"
     if wapp:
         while True:
-            if time.time()>timer+10:
+            if time.time()>timeup+10:
                 response = requests.request("GET", payload)
                 break
             sleep(1)
