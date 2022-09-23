@@ -923,9 +923,22 @@
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 	     axios.post("/buscador/libredeuda",data, {responseType: "blob"})
              .then((res) => {
-                 if(this.Cliente.wapp && this.Cliente.deuda==0){
-                     if(res.status==200){
-			 msgSuccess('WhatsApp!','Libre deuda enviado')
+                 if(this.Cliente.wapp && this.Cliente.deuda<=0){
+			switch(res.data){
+			    case 'success': {
+				msgSuccess('Exito!','Mensaje Enviado')
+				break
+			    }
+			    case 'invalid': {
+				msgError('Error!','Whatsapp INVALIDO')
+				this.obtenerWappCliente()
+				break
+			    }
+			    case 'failed': {
+				msgError('Error!','Mensaje no enviado - Failed')
+				break
+			    }
+			}
                      }
                  }else{
                      let url = window.URL.createObjectURL(res.data);
@@ -933,7 +946,7 @@
 		     if (this.Cliente.wapp && this.Cliente.deuda>0) {
 			 msgSuccess("Whatsapp!","No se envio el whatsapp porque todavia tiene deuda")}
                  }
-             }
+	 }
          )},
          emitirRbo(){
 	     if(this.Cliente.deuda==0){msgError('Error!','El cliente no tiene deuda');return}
@@ -956,6 +969,7 @@
 								     if(this.Cliente.wapp){
 								     axios.post('/buscador/enviarrbotransferencia',this.Recibo)
 											  .then(res=>{
+											      console.log(res.data)
 												switch(res.data){
 												    case 'success': {
 													msgSuccess('Exito!','Mensaje Enviado')

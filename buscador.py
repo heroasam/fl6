@@ -523,6 +523,7 @@ def buscador_enviarrbotransferencia():
     recibotransferencia(con,'d[fecha]',d['cuenta'],d['nc'],d['ic'],d['cobr'],d['rbo'],d['idcliente'])
     wapp = d['wapp']
     cuenta = d['cuenta']
+    idcliente = d['idcliente']
     con.close()
     if wapp:
         response = send_file_whatsapp(idcliente, f"https://www.fedesal.lol/pdf/recibotransferencia{cuenta}.pdf", wapp)
