@@ -947,31 +947,42 @@
              this.Recibo.idcliente = this.Cliente.id
              this.Recibo.wapp = this.Cliente.wapp
              this.verModalRecibo = false
+	     msgDelay('Espere mientras se envia el Recibo')
              if (!this.listaCuentas.includes(parseInt(this.Recibo.cuenta))) {msgError('Error!','Numero de cuenta NO existe')}
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/buscador/generarrbotransferencia',this.Recibo)
 								 .then(res=>{
 								     this.Recibo.rbo = res.data.rbo
-								     axios.post('/buscador/enviarrbotransferencia',this.Recibo,{responseType:"blob"})
+								     if(this.Cliente.wapp){
+								     axios.post('/buscador/enviarrbotransferencia',this.Recibo)
 											  .then(res=>{
-											      this.obtenerWappCliente()
-											      setTimeout(()=>{
-												  if(this.Cliente.wapp=='INVALIDO' || this.Cliente.wapp==''){
-												      msgError('WhatsApp!', 'Numero INVALIDO o inexistente')
-												      // se imprime por pantalla para llevarlo fisicamente
-												      let url = window.URL.createObjectURL(res.data);
-												      window.open(url);
-												  }else{
-												      msgSuccess('WhatsApp!','mensaje enviado')
-												  }
-											      },600)
+												switch(res.data){
+												    case 'success': {
+													msgSuccess('Exito!','Mensaje Enviado')
+													break
+												    }
+												    case 'invalid': {
+													msgError('Error!','Whatsapp INVALIDO')
+													this.obtenerWappCliente()
+													break
+												    }
+												    case 'failed': {
+													msgError('Error!','Mensaje no enviado - Failed')
+													break
+												    }
+												}
 											      this.Recibo = {fecha:dayjs.utc().format('YYYY-MM-DD')}
 											  })
 											  .catch(error=>msgError('Error!','no se pudo enviar el Recibo'))
+								     }else{
+									axios.post('/buscador/enviarrbotransferencia/nowapp',this.Recibo,{responseType:"blob"})
+									     .then(res=>{
+											let url = window.URL.createObjectURL(res.data);
+											window.open(url);
+									     })
+								     }
 								 })
-								 .catch(error=>{
-								     msgError('Error!','El recibo no se genero')
-								 })
+								 .catch(error=>msgError('Error!','El recibo no se genero'))
          },
          sendMsgVenta(wapp){
 	     msgDelay('Espere mientras se envia el Whatsapp')
@@ -1072,6 +1083,7 @@
 		    msg:this.msgWhatsapp,
 	     }
              this.verModalMsgWhatsapp = false
+	     msgDelay('Espere mientras se envia el mensaje')
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 	     axios.post('/buscador/wapp',data)
 								 .then(res=>{

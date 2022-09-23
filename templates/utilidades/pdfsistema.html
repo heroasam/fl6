@@ -8,6 +8,11 @@
         <a href="/utilidades/impresos" class="button is-primary">Impresos</a>
       </div>
       
+      <div class="grid-buscar mb-6 mr-3 mt-2">
+        <input type="text" placeholder="Buscar" v-model="buscar" @keyup.enter="restringirBusqueda(buscar)"/>
+        <button class="button is-primary" @click="restringirBusqueda(buscar)">Buscar</button>
+      </div>
+
       <table class="table">
         <thead>
             <tr>
@@ -37,6 +42,8 @@ const app = new Vue({
     delimiters: ['|', '|'],
     data: {
         pdfs:[],
+	pdfs_:[],
+	buscar:'',
     },
     methods: {
         imprimirPdfSistema(pdf){
@@ -52,7 +59,12 @@ const app = new Vue({
             axios.get('/utilidades/getpdfsistema')
 				.then(res=>{
 					this.pdfs=res.data.pdfs
+				    this.pdfs_=this.pdfs
 				})
+        },
+        restringirBusqueda(buscar){
+            this.pdfs = this.pdfs_
+            this.pdfs = this.pdfs.filter(row=>row.toLowerCase().includes(buscar.toLowerCase()))
         },
     },
     created: function(){

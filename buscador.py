@@ -450,10 +450,10 @@ def buscador_libredeuda():
     idcliente = d['idcliente']
     libredeuda(con,dni)
     if wapp and deuda==0:
-        send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/libredeuda.pdf", wapp)
-        return 'ok', 200
+        response = send_file_whatsapp(idcliente, f"https://www.fedesal.lol/pdf/libredeuda{dni}.pdf", wapp)
+        return jsonify(response) 
     else:
-        return send_file('/home/hero/libredeuda.pdf')
+        return send_file(f'/home/hero/libredeuda{dni}.pdf')
 
 
 @buscador.route('/buscador/obtenerlogs')
@@ -522,12 +522,21 @@ def buscador_enviarrbotransferencia():
     con = get_con()
     recibotransferencia(con,'d[fecha]',d['cuenta'],d['nc'],d['ic'],d['cobr'],d['rbo'],d['idcliente'])
     wapp = d['wapp']
-    idcliente = d['idcliente']
+    cuenta = d['cuenta']
+    con.close()
     if wapp:
-        send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/recibotransferencia.pdf", wapp)
-        return 'ok',200 
-    else:
-        return send_file("/home/hero/recibotransferencia.pdf")
+        response = send_file_whatsapp(idcliente, f"https://www.fedesal.lol/pdf/recibotransferencia{cuenta}.pdf", wapp)
+        return jsonify(response=response)
+
+
+@buscador.route('/buscador/enviarrbotransferencia/nowapp', methods=['POST'])
+def buscador_enviarrbotransferencia_nowapp():
+    d = json.loads(request.data.decode("UTF-8"))
+    con = get_con()
+    recibotransferencia(con,'d[fecha]',d['cuenta'],d['nc'],d['ic'],d['cobr'],d['rbo'],d['idcliente'])
+    cuenta = d['cuenta']
+    con.close()
+    return send_file(f"/home/hero/recibotransferencia{cuenta}.pdf")
 
 
 @buscador.route('/buscador/wapp', methods=["POST"])

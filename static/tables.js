@@ -282,6 +282,6 @@ function msgDelay(text) {
 	title: 'Aguarde...',
 	text: text,
 	icon: 'warning',
-	timer: 10000,
+	timer: 20000,
 	timerProgressBar: true});
 }

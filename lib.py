@@ -3,6 +3,7 @@ import queue
 import requests
 from con import get_con, log
 from flask_login import current_user
+import os
 
 # Constante de uso de sistema whatsapp-API
 timer = time.time()
@@ -282,94 +283,130 @@ def letras(num):
 
 def send_msg_whatsapp(idcliente, wapp, msg):
     """Funcion que encola y envia los whatsapp."""
-    global timer
-    print('timer al iniciar el llamado', timer)
-    timeup = timer
-    timer = time.time()+10 if timer+10 < time.time()+10 else timer+10
-    wapp = "+549"+wapp
-    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&text={msg}"
-    if wapp:
-        while True:
-            if time.time() > timeup+10:
-                response = requests.request("GET", payload)
-                break
-            time.sleep(1)
-            print('paso', msg[:5])
-        time.sleep(1)
-        timer = time.time()+10
-        print('time al response', time.time())
-        print('timer al response', timer)
-        wapp_log(response.status_code, response.text)
-        if "Success" in response.text:
-            logwhatsapp(idcliente, wapp, msg)
-            return "success"
-        elif "Invalid Destination WhatsApp" in response.text:
-            upd = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' where id={idcliente}"
-            con = get_con()
-            cur = con.cursor()
-            cur.execute(upd)
-            log(upd)
-            con.commit()
-            con.close()
-            return "invalid"
-        elif "Failed" in response.text:
-            return "failed"
-    else:
-        return 'error', 401
-
-
-def send_file_whatsapp(idcliente, file, wapp, msg=""):
-    """Funcion que envia un archivo por whatsapp."""
-    global timer
-    print('timer al iniciar el llamado', timer)
-    timeup = timer
-    timer = time.time()+10 if timer+10 < time.time()+10 else timer+10
-    wapp = "+549"+wapp
-    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&document={file}"
-    if wapp:
-        while True:
-            if time.time() > timeup+10:
-                response = requests.request("GET", payload)
-                break
-            time.sleep(1)
-            print('paso', msg[:5])
-        time.sleep(1)
-        timer = time.time()+10
-        print('time al response', time.time())
-        print('timer al response', timer)
-        wapp_log(response.status_code, response.text)
-        if "Success" in response.text:
-            logwhatsapp(idcliente, wapp, msg, file)
-            return "success"
-        elif "Invalid Destination WhatsApp" in response.text:
-            upd = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' where id={idcliente}"
-            con = get_con()
-            cur = con.cursor()
-            cur.execute(upd)
-            log(upd)
-            con.commit()
-            con.close()
-            return "invalid"
-        elif "Failed" in response.text:
-            return "failed"
-    else:
-        return 'error', 401
-
-
-def logwhatsapp(idcliente, wapp, msg, file=''):
-    """Funcion que hace un log de los whatsapps enviados."""
-    msg = msg[:100].replace('%20', '')
+    wapp_original = wapp
     if "@" in str(current_user):
         email = current_user.email
     else:
         email = ""
-    ins = f"insert into logwhatsapp(idcliente, wapp,msg,file,user) values({idcliente}, {wapp}, '{msg}' ,'{file}','{email}' )"
+    wapp = "+549"+wapp
+    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&text={msg}"
+    # primero encolo el mensaje en la base de datos
     con = get_con()
+    last_timeout = pgonecolumn(con, f"select timeout from logwhatsapp order by id desc limit 1")
+    last_enviado = pgonecolumn(con, f"select enviado from logwhatsapp where enviado!=0 order by id desc limit 1")
+    if not last_timeout:
+        last_timeout = int(time.time())
+    if not last_enviado:
+        last_enviado = int(time.time())
+    timeout = last_enviado if last_enviado > last_timeout else last_timeout
+    ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,timeout,response,enviado) values({idcliente},{wapp_original},'{msg.replace('%20',' ')[:100]}','','{email}',{int(time.time())},{timeout+10},'',0)"
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
-    con.close()
-    return None
+    id = pgonecolumn(con, f"SELECT LAST_INSERT_ID()")
+    time_delivery = timeout+10
+    while True:
+        if time.time() > time_delivery:
+            response = requests.request("GET", payload)
+            break
+        time.sleep(1)
+    wapp_log(response.status_code, response.text)
+    if "Success" in response.text:
+        upd = f"update logwhatsapp set response='success', enviado={int(time.time())} where id = {id}"
+        cur.execute(upd)
+        con.commit()
+        con.close()
+        return "success"
+    elif "Invalid Destination WhatsApp" in response.text:
+        updinv = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' where id={idcliente}"
+        con = get_con()
+        cur = con.cursor()
+        cur.execute(updinv)
+        log(upd)
+        upd = f"update logwhatsapp set response='invalid', enviado={int(time.time())} where id = {id}"
+        cur.execute(upd)
+        con.commit()
+        con.close()
+        return "invalid"
+    elif "Failed" in response.text:
+        upd = f"update logwhatsapp set response='failed', enviado={int(time.time())} where id = {id}"
+        cur.execute(upd)
+        con.commit()
+        con.close()
+        return "failed"
+    elif "limit" in response.text:
+        upd = f"update logwhatsapp set response='limit', enviado={int(time.time())} where id = {id}"
+        cur.execute(upd)
+        con.commit()
+        con.close()
+        return "limit"
+    else:
+        return 'error', 401
+
+
+
+def send_file_whatsapp(idcliente, file, wapp, msg=""):
+    """Funcion que envia un archivo por whatsapp."""
+    wapp_original = wapp
+    file_log = os.path.split(file)[1]
+    if "@" in str(current_user):
+        email = current_user.email
+    else:
+        email = ""
+    wapp = "+549"+wapp
+    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&document={file}"
+    # primero encolo el mensaje en la base de datos
+    con = get_con()
+    last_timeout = pgonecolumn(con, f"select timeout from logwhatsapp order by id desc limit 1")
+    last_enviado = pgonecolumn(con, f"select enviado from logwhatsapp where enviado!=0 order by id desc limit 1")
+    if not last_timeout:
+        last_timeout = int(time.time())
+    if not last_enviado:
+        last_enviado = int(time.time())
+    timeout = last_enviado if last_enviado > last_timeout else last_timeout
+    ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,timeout,response,enviado) values({idcliente},{wapp_original},'{msg.replace('%20',' ')[:100]}','{file_log}','{email}',{int(time.time())},{timeout+10},'',0)"
+    cur = con.cursor()
+    cur.execute(ins)
+    con.commit()
+    id = pgonecolumn(con, f"SELECT LAST_INSERT_ID()")
+    time_delivery = timeout+10
+    while True:
+        if time.time() > time_delivery:
+            response = requests.request("GET", payload)
+            break
+        time.sleep(1)
+    wapp_log(response.status_code, response.text)
+    if "Success" in response.text:
+        upd = f"update logwhatsapp set response='success', enviado={int(time.time())} where id = {id}"
+        cur.execute(upd)
+        con.commit()
+        con.close()
+        return "success"
+    elif "Invalid Destination WhatsApp" in response.text:
+        updinv = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' where id={idcliente}"
+        con = get_con()
+        cur = con.cursor()
+        cur.execute(updinv)
+        log(upd)
+        upd = f"update logwhatsapp set response='invalid', enviado={int(time.time())} where id = {id}"
+        cur.execute(upd)
+        con.commit()
+        con.close()
+        return "invalid"
+    elif "Failed" in response.text:
+        upd = f"update logwhatsapp set response='failed', enviado={int(time.time())} where id = {id}"
+        cur.execute(upd)
+        con.commit()
+        con.close()
+        return "failed"
+    elif "limit" in response.text:
+        upd = f"update logwhatsapp set response='limit', enviado={int(time.time())} where id = {id}"
+        cur.execute(upd)
+        con.commit()
+        con.close()
+        return "limit"
+    else:
+        return 'error', 401
 
 
 def wapp_log(log1, log2):

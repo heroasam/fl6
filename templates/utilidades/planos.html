@@ -10,12 +10,11 @@
 
 {% block content %}
 <div id="app" class="container" v-cloak>
-	<p class="title is-1">Utilidades</p>
+	<p class="title is-1">Planos</p>
     <div class="buttons">
         <a href="/utilidades/impresos" class="button is-primary">Impresos</a>
         <a href="/utilidades/pdfsistema" class="button is-primary">Sistema</a>
       </div>
-      <h2 class="title is-2">Planos</h2>
 
       <div class="grid-buscar mb-6 mr-3 mt-2">
         <input type="text" placeholder="Buscar" v-model="buscar" @keyup.enter="restringirBusqueda(buscar)"/>
