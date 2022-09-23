@@ -717,7 +717,7 @@
              }
          },
          intimarCliente(dni){
-             data: {dni:dni, idcliente:this.Cliente.id},
+	     data = {dni:dni, idcliente:this.Cliente.id},
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 	     axios.post("/buscador/intimar",data,{responseType: "blob"})
              .then((res) => {
@@ -919,10 +919,10 @@
 								 })
          },
          emitirLibreDeuda(dni){
-	     data: {dni:dni, wapp:this.Cliente.wapp, idcliente:this.Cliente.id, deuda:this.Cliente.deuda},
+	     data= {dni:dni, wapp:this.Cliente.wapp, idcliente:this.Cliente.id, deuda:this.Cliente.deuda},
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 	     axios.post("/buscador/libredeuda",data, {responseType: "blob"})
-             }).then((res) => {
+             .then((res) => {
                  if(this.Cliente.wapp && this.Cliente.deuda==0){
                      if(res.status==200){
 			 msgSuccess('WhatsApp!','Libre deuda enviado')
@@ -1064,7 +1064,6 @@
 								 })
          },
          sendMsgGeneral(){
-	     msgDelay('Espere mientras se envia el mensaje')
              this.verModalMsgWhatsapp = true
          },
          enviarWhatsapp(){
@@ -1074,7 +1073,7 @@
 	     }
              this.verModalMsgWhatsapp = false
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-	     axios.port('/buscador/wapp',data)
+	     axios.post('/buscador/wapp',data)
 								 .then(res=>{
 								     switch(res.data){
 									 case 'success': {

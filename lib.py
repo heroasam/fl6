@@ -174,8 +174,7 @@ def letras(num):
     unidad = str(num)[-1]
     dosdigitos = str(num)[-2:]
     if int(decena) > 2:
-        num = millares[millar]+' '+centenas[centena]+' '+decenas[decena] + \
-            ' ' + unidades[unidad]
+        num = millares[millar]+' '+centenas[centena]+' '+decenas[decena] +' '+ unidades[unidad]
     else:
         num = millares[millar]+' '+centenas[centena]+' '+sueltos[dosdigitos]
     return(num.lstrip().rstrip().upper())
@@ -288,8 +287,7 @@ def send_msg_whatsapp(idcliente, wapp, msg):
     timeup = timer
     timer = time.time()+10 if timer+10 < time.time()+10 else timer+10
     wapp = "+549"+wapp
-    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=\
-    kGdEFC1HvHVJ&text={msg}"
+    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&text={msg}"
     if wapp:
         while True:
             if time.time() > timeup+10:
@@ -306,8 +304,7 @@ def send_msg_whatsapp(idcliente, wapp, msg):
             logwhatsapp(idcliente, wapp, msg)
             return "success"
         elif "Invalid Destination WhatsApp" in response.text:
-            upd = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO'\
-            where id={idcliente}"
+            upd = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' where id={idcliente}"
             con = get_con()
             cur = con.cursor()
             cur.execute(upd)
@@ -328,8 +325,7 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
     timeup = timer
     timer = time.time()+10 if timer+10 < time.time()+10 else timer+10
     wapp = "+549"+wapp
-    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=\
-    kGdEFC1HvHVJ&document={file}"
+    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&apikey=kGdEFC1HvHVJ&document={file}"
     if wapp:
         while True:
             if time.time() > timeup+10:
@@ -346,8 +342,7 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
             logwhatsapp(idcliente, wapp, msg, file)
             return "success"
         elif "Invalid Destination WhatsApp" in response.text:
-            upd = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO'\
-            where id={idcliente}"
+            upd = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' where id={idcliente}"
             con = get_con()
             cur = con.cursor()
             cur.execute(upd)
@@ -368,8 +363,7 @@ def logwhatsapp(idcliente, wapp, msg, file=''):
         email = current_user.email
     else:
         email = ""
-    ins = f"insert into logwhatsapp(idcliente, wapp,msg,file,user) \
-    values({idcliente}, {wapp}, '{msg}' ,'{file}','{email}' )"
+    ins = f"insert into logwhatsapp(idcliente, wapp,msg,file,user) values({idcliente}, {wapp}, '{msg}' ,'{file}','{email}' )"
     con = get_con()
     cur = con.cursor()
     cur.execute(ins)

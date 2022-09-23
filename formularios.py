@@ -318,7 +318,7 @@ def intimacion(con,ldni):
         pdf.set_font_size(18)
         pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 155-297-472", 0, 1, 'L')
         pdf.set_font_size(12)
-    if pdf.page_no==1:
+    if len(ldni) == 1:
         pdf.output(f"/home/hero/intimacion{dni}.pdf")
     else:
         pdf.output("/home/hero/intimacion_global.pdf")

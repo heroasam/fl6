@@ -545,6 +545,8 @@ def buscador_wapp():
             cur.execute(upd)
             con.commit()
             con.close()
+        if response is None:
+            response = 'Rejected'
         return response
     else:
         return 'error', 400
