@@ -452,8 +452,18 @@ def buscador_libredeuda():
     if wapp and deuda==0:
         response = send_file_whatsapp(idcliente, f"https://www.fedesal.lol/pdf/libredeuda{dni}.pdf", wapp)
         return jsonify(response) 
-    else:
-        return send_file(f'/home/hero/libredeuda{dni}.pdf')
+
+
+@buscador.route('/buscador/libredeuda/nowapp', methods=['POST'])
+def buscador_libredeuda_nowapp():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    dni = d['dni']
+    wapp = d['wapp']
+    deuda = d['deuda']
+    idcliente = d['idcliente']
+    libredeuda(con,dni)
+    return send_file(f'/home/hero/libredeuda{dni}.pdf')
 
 
 @buscador.route('/buscador/obtenerlogs')

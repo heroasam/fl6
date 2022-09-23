@@ -20,7 +20,7 @@ axios.get('/buscador/obtenerlogs')
             columns:[
                 {select:0, 
                     render: function(data, cell, row) {
-                return dayjs.utc(data).format('YYYY-MM-DD')
+			return dayjs.utc(data).format('YYYY-MM-DD HH:mm:ss')
                     }
                 }
             ]

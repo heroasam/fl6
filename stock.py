@@ -372,7 +372,7 @@ def stock_borrarproveedor(id):
 @stock.route('/stock/listawapp')
 def stock_listawapp():
     con = get_con()
-    wapps = pgdict(con, f"select * from logwhatsapp")
+    wapps = pgdict(con, f"select wapp,fecha,msg,file,id,idcliente,user,timein,timeout,enviado,response from logwhatsapp order by id desc")
     return jsonify(wapps=wapps)
 
 

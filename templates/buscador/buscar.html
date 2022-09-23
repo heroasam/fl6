@@ -919,11 +919,12 @@
 								 })
          },
          emitirLibreDeuda(dni){
+	     msgDelay('Espere se esta enviando el libredeuda')
 	     data= {dni:dni, wapp:this.Cliente.wapp, idcliente:this.Cliente.id, deuda:this.Cliente.deuda},
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-	     axios.post("/buscador/libredeuda",data, {responseType: "blob"})
+             if(this.Cliente.wapp && this.Cliente.deuda<=0){
+	     axios.post("/buscador/libredeuda",data)
              .then((res) => {
-                 if(this.Cliente.wapp && this.Cliente.deuda<=0){
 			switch(res.data){
 			    case 'success': {
 				msgSuccess('Exito!','Mensaje Enviado')
@@ -939,14 +940,17 @@
 				break
 			    }
 			}
-                 }else{
-                     let url = window.URL.createObjectURL(res.data);
-                     window.open(url);
-		     if (this.Cliente.wapp && this.Cliente.deuda>0) {
-			 msgSuccess("Whatsapp!","No se envio el whatsapp porque todavia tiene deuda")}
+             })
+	     }else{
+		     axios.post('/buscador/libredeuda/nowapp',data,{responseType:"blob"})
+			 .then(res=>{
+			    let url = window.URL.createObjectURL(res.data);
+			    window.open(url);
+			    if (this.Cliente.wapp && this.Cliente.deuda>0) {
+				msgSuccess("Whatsapp!","No se envio el whatsapp porque todavia tiene deuda")}
+			 })
                  }
-	 }
-         )},
+	 },
          emitirRbo(){
 	     if(this.Cliente.deuda==0){msgError('Error!','El cliente no tiene deuda');return}
              this.verModalRecibo = true;
@@ -969,7 +973,7 @@
 								     axios.post('/buscador/enviarrbotransferencia',this.Recibo)
 											  .then(res=>{
 											      console.log(res.data)
-												switch(res.data){
+												switch(res.data.response){
 												    case 'success': {
 													msgSuccess('Exito!','Mensaje Enviado')
 													break

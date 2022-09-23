@@ -28,6 +28,7 @@ def cuotaje(con,idvta):
             pagado = pagado - ic
     return listcuotas
 
+
 def calc(con, idcliente):
     sql =  f"select id from ventas where idcliente={idcliente} and saldo>0"
     cur = con.cursor()
@@ -45,6 +46,7 @@ def calc(con, idcliente):
         cnt += dv + c + 1
     return cnt
     
+
 class MyFPDF(FPDF):
     def header(self):
         self.set_font('Helvetica', '', 10)
@@ -53,6 +55,8 @@ class MyFPDF(FPDF):
         self.ln(10)
     def footer(self):
         pass
+
+
 def ficha(con,ldni):
     pdf=MyFPDF()
     pdf.set_margins(30,15)
