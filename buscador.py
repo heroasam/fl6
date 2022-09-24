@@ -1,12 +1,10 @@
-from crypt import methods
 from flask import Blueprint,render_template,jsonify,make_response, request,send_file
 from flask_login import login_required
-from lib import *
+from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, pglflat
 import simplejson as json
 import re
-from formularios import *
+from formularios import intimacion, libredeuda, ficha, recibotransferencia
 from con import get_con, log
-
 
 
 buscador = Blueprint('buscador',__name__)
@@ -337,7 +335,7 @@ def busca_guardaredicioncliente(idcliente):
 @buscador.route('/buscador/obtenerlistadocalles')
 def buscar_obtenerlistadocalles():
     con = get_con()
-    sql = f"select calle from calles order by calle"
+    sql = "select calle from calles order by calle"
     cur = con.cursor(dictionary=True)
     cur.execute(sql)
     calles = cur.fetchall()
@@ -348,7 +346,7 @@ def buscar_obtenerlistadocalles():
 @buscador.route('/buscador/obtenerlistabarrios')
 def buscar_obtenerlistabarrios():
     con = get_con()
-    sql = f"select barrio from barrios order by barrio"
+    sql = "select barrio from barrios order by barrio"
     cur = con.cursor(dictionary=True)
     cur.execute(sql)
     barrios = cur.fetchall()
@@ -360,7 +358,7 @@ def buscar_obtenerlistabarrios():
 @buscador.route('/buscador/obtenerlistazonas')
 def buscar_obtenerlistazonas():
     con = get_con()
-    sql = f"select zona from zonas order by zona"
+    sql = "select zona from zonas order by zona"
     cur = con.cursor(dictionary=True)
     cur.execute(sql)
     zonas = cur.fetchall()
@@ -371,7 +369,7 @@ def buscar_obtenerlistazonas():
 @buscador.route('/buscador/obtenercobradores')
 def buscar_obtenercobradores():
     con = get_con()
-    sql = f"select id from cobr where activo=1 and prom=0 and id>100 and id!=820 order by id"
+    sql = "select id from cobr where activo=1 and prom=0 and id>100 and id!=820 order by id"
     cur = con.cursor()
     cur.execute(sql)
     result = cur.fetchall()
@@ -459,9 +457,6 @@ def buscador_libredeuda_nowapp():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     dni = d['dni']
-    wapp = d['wapp']
-    deuda = d['deuda']
-    idcliente = d['idcliente']
     libredeuda(con,dni)
     return send_file(f'/home/hero/libredeuda{dni}.pdf')
 
@@ -469,7 +464,7 @@ def buscador_libredeuda_nowapp():
 @buscador.route('/buscador/obtenerlogs')
 def buscador_obtenerlogs():
     con = get_con()
-    logs = pgdict(con, f"select * from log order by id desc limit 1000")
+    logs = pgdict(con, "select * from log order by id desc limit 1000")
     con.close()
     return jsonify(logs=logs)
 
@@ -507,12 +502,10 @@ def buscador_generarrbotransferencia():
     con = get_con()
     fecha = d['fecha']
     ic = d['ic']
-    nc = d['nc']
     cuenta = d['cuenta']
     cobr = d['cobr']
     idcliente = d['idcliente']
-    wapp = d['wapp']
-    rbo = pgonecolumn(con, f"select max(id) from pagos")+1
+    rbo = pgonecolumn(con, "select max(id) from pagos")+1
     ins = f"insert into pagos(idvta,fecha,imp,rec,rbo,cobr,idcliente) values({cuenta},'{fecha}',{ic},0,{rbo},{cobr},{idcliente})"
     cur = con.cursor()
     try:
@@ -576,7 +569,7 @@ def buscador_wapp():
 @buscador.route('/buscador/callesprueba')
 def buscador_callesprueba():
     con = get_con()
-    result = pgdict(con, f"select id, calle as text from calles order by id")
+    result = pgdict(con, "select id, calle as text from calles order by id")
     return jsonify(result=result)
 
 
