@@ -145,17 +145,28 @@
                 console.log(this.listImprimir.length);
             },
             imprimirListado(){
+		let formato
+		Swal.fire({
+		title: '¿Que tipo de listado quiere imprimir?',
+		showDenyButton: true,
+		showCancelButton: true,
+		confirmButtonText: 'Listado',
+		denyButtonText: `Fichas`,
+		}).then((result) => {
+		if (result.isConfirmed) {
+                formato = 'listado'
+		} else if (result.isDenied) {
+                formato = 'fichas'
+		}
                 this.listaSeleccionados()
+		data = {lista:this.listImprimir,formato:formato}
                 axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
-                axios({
-                method: "POST",
-                url: "/fichas/imprimirlistado",
-                responseType: "blob",
-                data: this.listImprimir,
-                }).then((res) => {
+                axios.post("/fichas/imprimirlistado", data ,{responseType: "blob"})
+                .then((res) => {
                 let url = window.URL.createObjectURL(res.data);
                 window.open(url);
                 });
+		})
             },
     }
 }

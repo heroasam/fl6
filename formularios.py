@@ -371,43 +371,54 @@ def loterbo(con, lrbo, fecha, cobr, idlote, estimado, cobrado):
     pdf.output("/home/hero/loterbo.pdf")
 
 
-def listado(con, ldni):
+def listado(con, ldni, formato):
     pdf = MyFPDF()
     pdf.set_margins(20,30)
     pdf.add_page()
     pdf.set_font("Helvetica","",14)
     listdni = pglflat(con,f"select dni from clientes where dni in {listsql(ldni)}")
-    listcallenum = pglflat(con, f"select  concat(calle, ' ' ,num) from clientes where dni in {listsql(listdni)} order by calle,num")
+    listcallenum = pglflat(con, f"select  distinct concat(calle, ' ' ,num) from clientes where dni in {listsql(listdni)} order by calle,num")
 
     for direccion in listcallenum:
         clientes = pgdict(con, f"select nombre,calle,num,acla,dni,year(ultcompra) as year,wapp,deuda,comprado from clientes where concat(calle,' ',num)='{direccion}'")
-        pdf.set_font("Helvetica","",14)
-        pdf.cell(0,10,direccion,0,1,'center')
         if clientes[0]['acla']:
-            pdf.set_font("Helvetica","",12)
-            pdf.cell(0,10,clientes[0]['acla'],0,1,'left')
+            pdf.set_font("Helvetica","B",14)
+            pdf.cell(80,10,direccion,0,0,'center')
+            pdf.set_font("Helvetica","",10)
+            pdf.cell(80,10,clientes[0]['acla'],0,1,'left')
+        else:
+            pdf.set_font("Helvetica","B",14)
+            pdf.cell(0,10,direccion,0,1,'center')
         pdf.line(10,pdf.get_y(),200,pdf.get_y())
         for cliente in clientes:
             pdf.set_font("Helvetica","",10)
-            pdf.cell(10,6,str(round(int(cliente['dni'])/1000000)),0,0)
-            pdf.cell(70,6,cliente['nombre'][0:24],0,0)
+            pdf.cell(10,10,str(round(int(cliente['dni'])/1000000)),0,0)
+            pdf.cell(70,10,cliente['nombre'][0:24],0,0)
             if cliente['deuda'] and cliente['deuda']>0:
                 pdf.cell(60,10,f"whats:{cliente['wapp']}",0,0)
                 pdf.set_font("Helvetica","B",10)
                 if cliente['year']<2018:
-                    pdf.cell(20,6,'consultar-',0,1)
+                    pdf.cell(20,10,'consultar-',0,1)
                 else:
-                    pdf.cell(20,6,'No Vender',0,1)
+                    pdf.cell(20,10,'No Vender',0,1)
                 pdf.set_font("Helvetica","",10)
             elif not cliente['comprado']:
                 pdf.cell(60,10,f"whats:{cliente['wapp']}",0,0)
                 pdf.set_font("Helvetica","B",10)
-                pdf.cell(20,6,'consultar',0,1)
+                pdf.cell(20,10,'consultar',0,1)
                 pdf.set_font("Helvetica","",10)
             else:
                 pdf.cell(60,10,f"whats:{cliente['wapp']}",0,1)
             pdf.line(10,pdf.get_y(),200,pdf.get_y())
         pdf.ln('40')
+        if formato=='fichas':
+            y = pdf.get_y()
+            if y<100:
+                pdf.set_y(101)
+            elif y>=100 and y<200:
+                pdf.set_y(201)
+            elif y>=201:
+                pdf.add_page()
     pdf.output("/home/hero/listado.pdf")
 
 

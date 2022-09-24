@@ -364,8 +364,10 @@ def fichas_getresumen(zona):
 @fichas.route('/fichas/imprimirlistado', methods=['POST'])
 def fichas_imprimirlistado():
     con = get_con()
-    listadni = json.loads(request.data.decode("UTF-8"))
-    listado(con, listadni)
+    d = json.loads(request.data.decode("UTF-8"))
+    listadni = d['lista']
+    formato = d['formato']
+    listado(con, listadni, formato)
     # print(len(listadni))
     con.close()
     return send_file('/home/hero/listado.pdf')
