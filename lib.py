@@ -4,10 +4,8 @@ import requests
 from con import get_con, log
 from flask_login import current_user
 import os
+import logging
 
-# Constante de uso de sistema whatsapp-API
-timer = time.time()
-whatsqueue = queue.Queue()
 
 
 def pgdict0(con, sel):
@@ -299,20 +297,26 @@ def send_msg_whatsapp(idcliente, wapp, msg):
     if not last_enviado:
         last_enviado = int(time.time())
     timeout = last_enviado if last_enviado > last_timeout else last_timeout
-    ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,timeout,response,enviado) values({idcliente},{wapp_original},'{msg.replace('%20',' ')[:100]}','','{email}',{int(time.time())},{timeout+10},'',0)"
+    ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,\
+    timeout,response,enviado) values({idcliente},{wapp_original},\
+    '{msg.replace('%20',' ')[:100]}','','{email}',{int(time.time())}\
+    ,{timeout+10},'',0)"
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
-    id = pgonecolumn(con, f"SELECT LAST_INSERT_ID()")
+    id = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
     time_delivery = timeout+10
+    logging.warning(f"time_delivery:{time_delivery}")
     while True:
         if time.time() > time_delivery:
             response = requests.request("GET", payload)
+            logging.warning(f"time al request:{time.time()}")
             break
-        time.sleep(1)
+        time.sleep(0.5)
     wapp_log(response.status_code, response.text)
     if "Success" in response.text:
-        upd = f"update logwhatsapp set response='success', enviado={int(time.time())} where id = {id}"
+        upd = f"update logwhatsapp set response='success',\
+        enviado={int(time.time())} where id = {id}"
         cur.execute(upd)
         con.commit()
         con.close()
@@ -364,15 +368,17 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
     if not last_enviado:
         last_enviado = int(time.time())
     timeout = last_enviado if last_enviado > last_timeout else last_timeout
-    ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,timeout,response,enviado) values({idcliente},{wapp_original},'{msg.replace('%20',' ')[:100]}','{file_log}','{email}',{int(time.time())},{timeout+10},'',0)"
+    ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,timeout,response,enviado) values({idcliente},{wapp_original},'{msg.replace('%20',' ')[:100]}','{file_log}','{email}',{int(time.time())},{timeout+20},'',0)"
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
     id = pgonecolumn(con, f"SELECT LAST_INSERT_ID()")
-    time_delivery = timeout+10
+    time_delivery = timeout+20
+    logging.warning(f"time_delivery:{time_delivery}")
     while True:
         if time.time() > time_delivery:
             response = requests.request("GET", payload)
+            logging.warning(f"Time al request:{time.time()}") 
             break
         time.sleep(1)
     wapp_log(response.status_code, response.text)
