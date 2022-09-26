@@ -20,7 +20,7 @@ def stock_asientos():
 def stock_proveedores():
     return render_template('stock/proveedores.html')
 
-    
+
 @stock.route('/stock/getasientos')
 def stock_getasientos():
     con = get_con()
@@ -103,7 +103,8 @@ def stock_pivotcuentas():
 @stock.route('/stock/retiros')
 def stock_retiros():
     con = get_con()
-    sql="select date_format(fecha,'%Y-%m') as fecha,cuenta,imp from caja where cuenta in ('retiro papi', 'retiro fede') order by id desc"
+    sql="select date_format(fecha,'%Y-%m') as fecha,cuenta,imp from caja\
+            where cuenta like '%retiro%'  order by id desc"
     pd.options.display.float_format = '{:20.0f}'.format
     dat = pd.read_sql_query(sql, con)
     df = pd.DataFrame(dat)
@@ -388,3 +389,55 @@ def stock_generarlistaprecios():
     grupos = pglflat(con, f"select distinct grupo from articulos where activo=1 and grupo is not null order by grupo")
     listaprecios(lista,grupos)
     return 'ok'
+
+@stock.route('/stock/cuentas')
+def stock_cuentas():
+    return render_template('stock/cuentas.html')
+
+
+@stock.route('/stock/getdictcuentas')
+def stock_getdictcuentas():
+    con = get_con()
+    cuentas = pgdict(con, "select * from ctas")
+    return jsonify(cuentas=cuentas)
+
+
+@stock.route('/stock/editarcuenta', methods=['POST'])
+def stock_editarcuenta():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    upd = f"update ctas set cuenta='{d['cuenta']}',tipo={d['tipo']} where\
+    id={d['id']}"
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    log(upd)
+    con.close()
+    return 'ok'
+
+
+@stock.route('/stock/agregarcuenta', methods=['POST'])
+def stock_agregarcuenta():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    ins = f"insert into ctas(cuenta,tipo) values('{d['cuenta']}',{d['tipo']})"
+    cur = con.cursor()
+    cur.execute(ins)
+    con.commit()
+    log(ins)
+    con.close()
+    return 'ok'
+
+
+@stock.route('/stock/borrarcuenta/<int:id>')
+def stock_borrarcuenta(id):
+    con = get_con()
+    stm = f"delete from ctas where id={id}"
+    cur = con.cursor()
+    cur.execute(stm)
+    con.commit()
+    log(stm)
+    con.close()
+    return 'ok'
+
+
