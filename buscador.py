@@ -426,7 +426,7 @@ def buscador_intimar():
     else:
         response = 'sin wapp'
     con.close()
-    return jsonify(response=response) 
+    return jsonify(response=response)
 
 
 @buscador.route('/buscador/intimar/nowapp/<dni>')
@@ -435,7 +435,7 @@ def buscador_intimar_nowapp(dni):
     con = get_con()
     intimacion(con, dni)
     return send_file(f'/home/hero/intimacion{dni}.pdf')
-    
+
 
 
 @buscador.route('/buscador/libredeuda', methods=['POST'])
@@ -449,7 +449,7 @@ def buscador_libredeuda():
     libredeuda(con,dni)
     if wapp and deuda==0:
         response = send_file_whatsapp(idcliente, f"https://www.fedesal.lol/pdf/libredeuda{dni}.pdf", wapp)
-        return jsonify(response) 
+        return jsonify(response)
 
 
 @buscador.route('/buscador/libredeuda/nowapp', methods=['POST'])
@@ -583,4 +583,4 @@ def buscador_bajaindividualseven(id):
     cliente = pgdict(con, f"select * from clientes where id={id}")
     con.close()
     log(upd)
-    return jsonify(cliente=cliente) 
+    return jsonify(cliente=cliente)
