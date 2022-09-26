@@ -24,7 +24,7 @@ def stock_proveedores():
 @stock.route('/stock/getasientos')
 def stock_getasientos():
     con = get_con()
-    asientos=pgddict(con, f"select id,fecha, cuenta, imp, comentario from caja\
+    asientos=pgdict(con, f"select id,fecha, cuenta, imp, comentario from caja\
             order by id desc limit 100")
     saldo = pgonecolumn(con, f"select sum(imp) from caja,ctas where\
             caja.cuenta=ctas.cuenta and tipo in (0,1)")

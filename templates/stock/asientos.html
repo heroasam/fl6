@@ -22,16 +22,16 @@ table td:nth-child(5):before  {
 
 {% block content %}
 
-<div id="app" class="container is-fullhd">
+<div class="container" x-data="main()" x-init="getAsientos();getCuentas()">
 <div class="columns">
     <div class="column is-4">
         <h1 class="title is-size-1">Asientos</h1>
     </div>
     <div class="column">
-        <h2 class="title is-size-1">Saldo $|saldo|</h2>
+        <h2 class="title is-size-1" x-text="'Saldo $'+saldo"></h2>
     </div>
     <div class="column">
-        <h2 class="title is-size-1" style="color:red;">Santander $|saldosantander|</h2>
+        <h2 class="title is-size-1" style="color:red;" x-text="'Saldo $'+saldosantander"></h2>
     </div>
 </div>
 <div class="block">
@@ -49,36 +49,23 @@ table td:nth-child(5):before  {
         <div class="field is-horizontal">
             <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
             <div class="control">
-                <input type="date" v-model="fecha" class="input" :class='{"is-danger":!fecha}'>
-                <p v-show="!fecha" class="help is-danger">Requerido</p>
+                <input type="date" x-model="Asiento.fecha" class="input" :class='{"is-danger":!Asiento.fecha}'>
+                <p x-show="!Asiento.fecha" class="help is-danger">Requerido</p>
             </div>
             <div class="control">
-                <!-- <input type="text" class="input"  name="cuenta" list="cuentalist" value="" autocomplete="off" v-model="cuenta" placeholder="Cuenta" ref="cuenta" @keyup.enter="$refs.imp.focus()" :class='{"is-danger":!cuenta}'>
-                <datalist id="cuentalist">
-                    <option v-for="cta in cuentas">|cta|</option>
-                </datalist> -->
-                <b-autocomplete
-                ref="cuenta"
-                @keyup.enter.native="$refs.imp.focus()"
-                v-model="cuenta"
-                :data="cuentasFiltradasArray"
-                placeholder="Cuenta"
-                clearable
-                keep-first
-                @select="option => selected = option">
-                <template #empty>No se encontraron resultados</template>
-                </b-autocomplete>
-                <p v-show="!cuenta" class="help is-danger">Requerido</p>
+              <input type="text" class="input mb-1" x-model="Asiento.cuenta" id="searchCuenta" autocomplete="off">
+              <div id="suggestionsCuenta" class="suggestions"></div>
+                <p x-show="!Asiento.cuenta" class="help is-danger">Requerido</p>
             </div>
             <div class="control">
-                <input type="text" v-model="imp" class="input" size="5" placeholder="Imp" ref="imp" @keyup.enter="$refs.comentario.focus()" :class='{"is-danger":!imp}'>
-                <p v-show="!imp" class="help is-danger">Requerido</p>
+                <input type="text" x-model="Asiento.imp" class="input" size="5" placeholder="Imp" x-ref="imp" @keyup.enter="$refs.comentario.focus()" :class='{"is-danger":!Asiento.imp}'>
+                <p x-show="!Asiento.imp" class="help is-danger">Requerido</p>
             </div>
             <div class="control">
-                <input type="text" v-model="comentario" class="input" size="50" placeholder="Comentario" ref="comentario" @keyup.enter="$refs.guardar.focus()">
+                <input type="text" x-model="Asiento.comentario" class="input" size="50" placeholder="Comentario" x-ref="comentario" @keyup.enter="$refs.guardar.focus()">
             </div>
             <div class="control">
-                <button type="button" class="button is-primary" @click="validarAsiento" ref="guardar" id="guardar">Guardar</button>
+                <button type="button" class="button is-primary" @click="validarAsiento" x-ref="guardar" id="guardar">Guardar</button>
             </div>
         </div>
 </div>
@@ -95,14 +82,16 @@ table td:nth-child(5):before  {
           </tr>
       </thead>
       <tbody>
-          <tr v-for="asiento in asientos">
-              <td><i class="fa fa-times" aria-hidden="true" @click="borrarAsiento(asiento[0])"></td>
-              <td>|asiento[0]|</td>
-              <td :class="dia(asiento[1])">|asiento[1]|</td>
-              <td :class="asiento[2].slice(0,9)=='santander'?'santander':''">|asiento[2]|</td>
-              <td :class="asiento[3]<0?'negativo':''">|asiento[3]|</td>
-              <td>|asiento[4]|</td>
-          </tr>
+          <template x-for="asiento in listAsientos">
+                <tr>
+               <td><i class="fa fa-times" aria-hidden="true" @click="borrarAsiento(asiento.id)"></td>
+              <td x-text="asiento.id"></td>
+              <td :class="dia(asiento.fecha)" x-text="asiento.fecha"></td>
+              <td :class="asiento.cuenta.slice(0,9)=='santander'?'santander':''" x-text="asiento.cuenta"></td>
+              <td :class="asiento.imp<0?'negativo':''" x-text="asiento.imp"></td>
+              <td x-text="asiento.comentario"></td>
+                </tr>
+          </template>
       </tbody>
   </table>
 </div>
@@ -111,38 +100,26 @@ table td:nth-child(5):before  {
 {% endblock %}
 {% block script %}
 <script>
-const app = new Vue({
-    el:"#app",
-    delimiters:['|','|'],
-    data:{
-        asientos:[],
+    function main(){
+            return{
+        listAsientos:[],
         saldo:0,
         saldosantander:0,
-        fecha:'',
-        imp:'',
-        cuenta:'',
-        comentario:'',
+        Asiento:{},
         cuentas:[],
         selected: null,
-    },
-    methods: {
         getAsientos(){
             axios.get('/stock/getasientos')
             .then(res=>{
-                arrayAsientos = Array.from(res.data.asientos)
-                arrayAsientos.forEach(row=>{
-                    row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD')
-                })
-                this.asientos = arrayAsientos
+                this.listAsientos = res.data.asientos
+                this.listAsientos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                    console.log(this.listAsientos)
                 this.saldo = res.data.saldo
                 this.saldosantander  =  res.data.saldosantander
-                //console.log(this.planillas);
             })
         },
         borrarAsiento(id){
-                console.log(this.asientos)
             Asiento = this.asientos.filter(row=>row[0]==id)[0]
-                console.log(Asiento)
             Swal.fire({
             title: '¿Esta seguro?',
             text: `Afecta al asiento ${id} ${Asiento[2]} ${Asiento[3]}`,
@@ -161,7 +138,6 @@ const app = new Vue({
         getCuentas(){
             axios.get('/stock/getcuentas')
             .then(res=>{
-                //console.log(res.data.cuentas)
                 this.cuentas=res.data.cuentas
             })
         },
@@ -169,35 +145,17 @@ const app = new Vue({
             if(this.fecha!=''&&this.cuenta!=''&&this.imp!=''){
                 this.guardarAsiento()
             }else{
-                // let toast = this.$toasted.error("Complete los datos faltantes", {
-                // theme: "outline",
-                // position: "top-right",
-                // duration : 3000,
-                // fullWidth: true,
-                // });
-                bulmaToast.toast({ message: 'Complete los datos faltantes', type: 'is-danger' })
+                msgError('Error!','Complete los datos faltantes')
             }
         },
         guardarAsiento(){
             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-            axios({
-                method:'POST',
-                url: '/stock/guardarasiento',
-                data:{
-                    fecha:this.fecha,
-                    cuenta:this.cuenta,
-                    imp:this.imp,
-                    comentario:this.comentario,
-                }
-            })
+            axios.post('/stock/guardarasiento',this.Asiento)
             .then(res=>{
-                //console.log(res)
                 this.getAsientos()
-                this.cuenta=''
-                this.imp=''
-                this.comentario=''
+                Asiento = {fecha:dayjs.utc().format('YYYY'-'MM'-'DD')}
                 this.$refs.cuenta.focus();
-                bulmaToast.toast({message:"Asiento guardado con exito", type:'is-success'})
+                msgSuccess('Exito!','Asiento guardado con exito')
             })
         },
         dia(day){
@@ -205,24 +163,37 @@ const app = new Vue({
             //el ultimo digito de los dias para tener solo diez colores
             return "color" + dayjs.utc(day).format('DD').slice(1,2)
         },
-
-
-    },
-    computed: {
-        cuentasFiltradasArray() {
-            return this.cuentas.filter((option) => {
-                return option
-                    .toString()
-                    .toLowerCase()
-                    .indexOf(this.cuenta.toLowerCase()) >= 0
-            })
-        },
-    },
-    created: function(){
-        this.getAsientos();
-        this.getCuentas();
-    },
-})
+        obtenerCalles(){
+                    axios.get('/stock/getcuentas')
+                    .then(res=>{
+                        const cuenta = res.data.cuentas
+                        const $input = document.getElementById('searchCuenta')
+                        const $suggestions = document.getElementById('suggestionsCuenta')
+                        $input.addEventListener('keyup',(e)=>{
+                        const input = $input.value
+                        $suggestions.innerHTML='';
+                        const suggestions = cuenta.filter(cuenta=>{
+                            return cuenta.toLocaleLowerCase().includes(input.toLocaleLowerCase())
+                        })
+                        suggestions.forEach(suggested=>{
+                            const $div = document.createElement('div');
+                            $div.innerHTML = suggested.cuenta;
+                            $suggestions.appendChild($div)
+                        })
+                        if(input==='') $suggestions.innerHTML=''
+                        if(e.key==='Enter'){
+                            this.Asiento.cuenta = $suggestions.firstChild.innerHTML
+                            $suggestions.innerHTML=''
+                        }
+                        })
+                        $suggestions.addEventListener('click',(e)=>{
+                            this.Asiento.cuenta=e.target.innerHTML
+                            $suggestions.innerHTML=''
+                        })
+                        })
+                    },
+    }
+}
 
 </script>
 {% endblock %}
