@@ -62,7 +62,7 @@ def stock_guardarasiento():
     d = json.loads(request.data.decode("UTF-8"))
     tipo = pgonecolumn(con, f"select tipo from ctas where cuenta='{d['cuenta']}'")
     # print('tipo',tipo)
-    if tipo in [1, 3]:
+    if tipo in [0, 3]:
         importe = int(d['imp'])*(-1)
     else:
         importe = int(d['imp'])

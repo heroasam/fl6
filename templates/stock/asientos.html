@@ -49,23 +49,20 @@ table td:nth-child(5):before  {
         <div class="field is-horizontal">
             <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
             <div class="control">
-                <input type="date" x-model="Asiento.fecha" class="input" :class='{"is-danger":!Asiento.fecha}'>
-                <p x-show="!Asiento.fecha" class="help is-danger">Requerido</p>
+                <input type="date" x-model="Asiento.fecha" class="input">
             </div>
             <div class="control">
               <input type="text" class="input mb-1" x-model="Asiento.cuenta" id="searchCuenta" autocomplete="off">
               <div id="suggestionsCuenta" class="suggestions"></div>
-                <p x-show="!Asiento.cuenta" class="help is-danger">Requerido</p>
             </div>
             <div class="control">
-                <input type="text" x-model="Asiento.imp" class="input" size="5" placeholder="Imp" x-ref="imp" @keyup.enter="$refs.comentario.focus()" :class='{"is-danger":!Asiento.imp}'>
-                <p x-show="!Asiento.imp" class="help is-danger">Requerido</p>
+                <input type="text" x-model="Asiento.imp" class="input" size="5" placeholder="Imp">
             </div>
             <div class="control">
-                <input type="text" x-model="Asiento.comentario" class="input" size="50" placeholder="Comentario" x-ref="comentario" @keyup.enter="$refs.guardar.focus()">
+                <input type="text" x-model="Asiento.comentario" class="input" size="50" placeholder="Comentario">
             </div>
             <div class="control">
-                <button type="button" class="button is-primary" @click="validarAsiento" x-ref="guardar" id="guardar">Guardar</button>
+                <button type="button" class="button is-primary" @click="validarAsiento" id="guardar">Guardar</button>
             </div>
         </div>
 </div>
@@ -105,7 +102,7 @@ table td:nth-child(5):before  {
         listAsientos:[],
         saldo:0,
         saldosantander:0,
-        Asiento:{},
+        Asiento:{fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',comentario:''},
         cuentas:[],
         selected: null,
         getAsientos(){
@@ -113,7 +110,6 @@ table td:nth-child(5):before  {
             .then(res=>{
                 this.listAsientos = res.data.asientos
                 this.listAsientos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
-                    console.log(this.listAsientos)
                 this.saldo = res.data.saldo
                 this.saldosantander  =  res.data.saldosantander
             })
@@ -142,7 +138,7 @@ table td:nth-child(5):before  {
             })
         },
         validarAsiento(){
-            if(this.fecha!=''&&this.cuenta!=''&&this.imp!=''){
+            if(this.Asiento.fecha!=''&&this.Asiento.cuenta!=''&&this.Asiento.imp!=''){
                 this.guardarAsiento()
             }else{
                 msgError('Error!','Complete los datos faltantes')
@@ -153,8 +149,7 @@ table td:nth-child(5):before  {
             axios.post('/stock/guardarasiento',this.Asiento)
             .then(res=>{
                 this.getAsientos()
-                Asiento = {cuenta:'',imp:'',comentario:''}
-                this.$refs.cuenta.focus();
+                this.Asiento={fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',comentario:''},
                 msgSuccess('Exito!','Asiento guardado con exito')
             })
         },
@@ -175,7 +170,6 @@ table td:nth-child(5):before  {
                         const suggestions = cuenta.filter(cuenta=>{
                             return cuenta.toLocaleLowerCase().includes(input.toLocaleLowerCase())
                         })
-                                console.log(suggestions)
                         suggestions.forEach(suggested=>{
                             const $div = document.createElement('div');
                             $div.innerHTML = suggested;
