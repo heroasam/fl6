@@ -24,10 +24,14 @@ def stock_proveedores():
 @stock.route('/stock/getasientos')
 def stock_getasientos():
     con = get_con()
-    asientos=pgddict(con, f"select id,fecha, cuenta, imp, comentario from caja order by id desc limit 100")
-    saldo = pgonecolumn(con, f"select sum(imp) from caja")
+    asientos=pgddict(con, f"select id,fecha, cuenta, imp, comentario from caja\
+            order by id desc limit 100")
+    saldo = pgonecolumn(con, f"select sum(imp) from caja,ctas where\
+            caja.cuenta=ctas.cuenta and tipo in (0,1)")
+    saldosantander = pgonecolumn(con, f"select sum(imp) from caja,ctas where\
+            caja.cuenta=ctas.cuenta and tipo in (2,3)")
     con.close()
-    return jsonify(asientos=asientos,saldo=saldo)
+    return jsonify(asientos=asientos,saldo=saldo,saldosantander=saldosantander)
 
 
 @stock.route('/stock/deleteasiento/<int:id>')
@@ -58,7 +62,7 @@ def stock_guardarasiento():
     d = json.loads(request.data.decode("UTF-8"))
     tipo = pgonecolumn(con, f"select tipo from ctas where cuenta='{d['cuenta']}'")
     # print('tipo',tipo)
-    if tipo==0:
+    if tipo in [1, 3]:
         importe = int(d['imp'])*(-1)
     else:
         importe = int(d['imp'])

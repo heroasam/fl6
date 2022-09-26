@@ -3,59 +3,20 @@
 {% block title %}Asientos{% endblock %}
 {% block style %}
 <style>
-.block:not(:last-child) {
-    margin-bottom: 1.5rem;
+.santander{
+    color:dodgerblue;
 }
-.color1 {
-    background-color: rgb(178, 42, 32);
-    color: black;
-    text-align: center;
+.negativo{
+    color:red;
 }
-.color2 {
-    background-color: rgb(178, 127, 32);
-    color: black;
-    text-align: center;
+table td:nth-child(5) {
+    text-align: right;
 }
-.color3 {
-    background-color: rgb(176, 178, 32);
-    color: black;
-    text-align: center;
+table td:nth-child(5):before  {
+    content:  "$\00a0";
+    float: left;
 }
-.color4 {
-    background-color: rgb(32, 178, 98);
-    color: black;
-    text-align: center;
-}
-.color5 {
-    background-color: rgb(147, 196, 193);
-    color: black;
-    text-align: center;
-}
-.color6 {
-    background-color: orange;
-    color: black;
-    text-align: center;
-}
-.color7 {
-    background-color: rgb(80, 89, 214);
-    color: black;
-    text-align: center;
-}
-.color8 {
-    background-color: rgb(13, 130, 148);
-    color: black;
-    text-align: center;
-}
-.color9 {
-    background-color: rgb(141, 11, 104);
-    color: black;
-    text-align: center;
-}
-.color0 {
-    background-color: rgb(127, 19, 189);
-    color: black;
-    text-align: center;
-}
+
 </style>
 {% endblock %}
 
@@ -63,11 +24,14 @@
 
 <div id="app" class="container is-fullhd">
 <div class="columns">
-    <div class="column is-7">
+    <div class="column is-4">
         <h1 class="title is-size-1">Asientos</h1>
     </div>
     <div class="column">
         <h2 class="title is-size-1">Saldo $|saldo|</h2>
+    </div>
+    <div class="column">
+        <h2 class="title is-size-1" style="color:red;">Santander $|saldosantander|</h2>
     </div>
 </div>
 <div class="block">
@@ -132,11 +96,11 @@
       </thead>
       <tbody>
           <tr v-for="asiento in asientos">
-              <td><button class="button is-danger is-small" @click="borrarAsiento(asiento[0])">Borrar</button></td>
+              <td><i class="fa fa-times" aria-hidden="true" @click="borrarAsiento(asiento[0])"></td>
               <td>|asiento[0]|</td>
               <td :class="dia(asiento[1])">|asiento[1]|</td>
-              <td>|asiento[2]|</td>
-              <td>|asiento[3]|</td>
+              <td :class="asiento[2].slice(0,9)=='santander'?'santander':''">|asiento[2]|</td>
+              <td :class="asiento[3]<0?'negativo':''">|asiento[3]|</td>
               <td>|asiento[4]|</td>
           </tr>
       </tbody>
@@ -153,6 +117,7 @@ const app = new Vue({
     data:{
         asientos:[],
         saldo:0,
+        saldosantander:0,
         fecha:'',
         imp:'',
         cuenta:'',
@@ -170,18 +135,28 @@ const app = new Vue({
                 })
                 this.asientos = arrayAsientos
                 this.saldo = res.data.saldo
+                this.saldosantander  =  res.data.saldosantander
                 //console.log(this.planillas);
             })
         },
         borrarAsiento(id){
-            const borrar = confirm("¿Esta seguro que quiere borrar permanentemente esta fila?")
-            if(borrar){
+                console.log(this.asientos)
+            Asiento = this.asientos.filter(row=>row[0]==id)[0]
+                console.log(Asiento)
+            Swal.fire({
+            title: '¿Esta seguro?',
+            text: `Afecta al asiento ${id} ${Asiento[2]} ${Asiento[3]}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, borrarlo!'
+            }).then((result) => {
+            if (result.isConfirmed) {
                 axios.get('/stock/deleteasiento/'+id)
-                .then(res=>{
-                    console.log(res)
+                .then(res=>msgSuccess('Borrado!','El registro ha sido borrado'))
                     this.getAsientos()
-                })
-            }
+                }})
         },
         getCuentas(){
             axios.get('/stock/getcuentas')
