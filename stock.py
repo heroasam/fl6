@@ -438,10 +438,16 @@ def stock_borrarcuenta(id):
     con = get_con()
     stm = f"delete from ctas where id={id}"
     cur = con.cursor()
-    cur.execute(stm)
-    con.commit()
-    log(stm)
-    con.close()
-    return 'ok'
+    try:
+        cur.execute(stm)
+    except mysql.connector.Error as e:
+        con.rollback()
+        error = e.msg
+        return make_response(error,400)
+    else:
+        con.commit()
+        log(stm)
+        con.close()
+        return 'ok',200
 
 
