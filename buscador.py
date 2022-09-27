@@ -36,21 +36,35 @@ def buscar_cuenta(buscar):
     con = get_con()
     rcuenta = r'^[0-9]{5}$'
     rdni = r'^[0-9]{7,8}$'
+    rid = r'^id[0-9]{4,5}$'
+    rwapp = r'^[0-9]{10,15}$'
     if (re.match(rcuenta,buscar)):
         cur = con.cursor()
-        cur.execute(f'select idcliente from ventas where id={buscar}')
-        idcliente = cur.fetchone()[0]
-        sql = f"select * from clientes where id={idcliente}"
+        try:
+            cur.execute(f'select idcliente from ventas where id={buscar}')
+            idcliente = cur.fetchone()[0]
+            sql = f"select * from clientes where id={idcliente}"
+        except:
+            sql = "select * from clientes where id=0"
+            error_msg = "Cuenta no encontrada"
     elif (re.match(rdni,buscar)):
         sql = f"select * from clientes where dni='{buscar}'"
+        error_msg ="DNI no encontrado"
+    elif (re.match(rwapp,buscar)):
+        sql = f"select * from clientes where wapp='{buscar}'"
+        error_msg ="Whatsapp no encontrado"
+    elif (re.match(rid,buscar)):
+        sql = f"select * from clientes where id={buscar[2:]}"
+        error_msg = "idcliente no encontrado"
     else:
         buscar = '%'+buscar.replace(' ','%')+'%'
-        sql = f"select * from clientes where lower(concat(nombre,calle,num,barrio,wapp)) like lower('{buscar}')"
+        sql = f"select * from clientes where lower(concat(nombre,calle,num,acla)) like lower('{buscar}')"
+        error_msg = "no hay respuesta para esa busqueda"
     cur = con.cursor(dictionary=True)
     cur.execute(sql)
     clientes = cur.fetchall()
     if len(clientes)==0:
-        return make_response("No hay respuesta para esa busqueda",400)
+        return make_response(error_msg,400)
     con.close()
     return jsonify(clientes=clientes)
 
