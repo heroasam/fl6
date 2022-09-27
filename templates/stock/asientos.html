@@ -52,14 +52,16 @@ table td:nth-child(5):before  {
                 <input type="date" x-model="Asiento.fecha" class="input">
             </div>
             <div class="control">
-              <input type="text" class="input mb-1" x-model="Asiento.cuenta" id="searchCuenta" autocomplete="off">
+		<input type="text" class="input mb-1" x-model="Asiento.cuenta" id="searchCuenta" autocomplete="off"
+		@keyup.enter="$refs.imp.focus()">
               <div id="suggestionsCuenta" class="suggestions"></div>
             </div>
             <div class="control">
-                <input type="text" x-model="Asiento.imp" class="input" size="5" placeholder="Imp">
+                <input type="text" x-model="Asiento.imp" class="input" size="5" placeholder="Imp" x-ref="imp"
+		@keyup.enter="$refs.comentario.focus()">
             </div>
             <div class="control">
-                <input type="text" x-model="Asiento.comentario" class="input" size="50" placeholder="Comentario">
+                <input type="text" x-model="Asiento.comentario" class="input" size="50" placeholder="Comentario" x-ref="comentario">
             </div>
             <div class="control">
                 <button type="button" class="button is-primary" @click="validarAsiento" id="guardar">Guardar</button>
@@ -84,8 +86,8 @@ table td:nth-child(5):before  {
                <td><i class="fa fa-times" aria-hidden="true" @click="borrarAsiento(asiento.id)"></td>
               <td x-text="asiento.id"></td>
               <td :class="dia(asiento.fecha)" x-text="asiento.fecha"></td>
-              <td :class="asiento.cuenta.slice(0,9)=='santander'?'santander':''" x-text="asiento.cuenta"></td>
-              <td :class="asiento.imp<0?'negativo':''" x-text="asiento.imp"></td>
+              <td :class="asiento.cuenta.slice(0,9)=='santander'?'santander':''" x-text="asiento.cuenta" style="min-width:250px;"></td>
+              <td :class="asiento.imp<0?'negativo':''" x-text="asiento.imp" style="min-width:100px;"></td>
               <td x-text="asiento.comentario"></td>
                 </tr>
           </template>
