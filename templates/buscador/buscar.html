@@ -25,11 +25,46 @@
     </div>
 
     <div class="buttons m-3" >
-        <template x-for="cliente in listaClientes" x-show="!verCard">
+        <template x-for="cliente in listaClientesCasa" x-show="!verCard">
             <!-- [dni,nombre,direccion] -->
-            <button class="button is-small" @mouseover="buscar=cliente.calle+' '+cliente.num" @click="buscaCuentaporDni(cliente.dni)" x-text="cliente.nombre" x-bind:class="cliente.deuda?'is-danger':'is-info'"></button>
+            <button class="button is-small"  @click="buscaCuentaporDni(cliente.dni)" x-text="cliente.nombre"
+		    x-bind:class="cliente.deuda?'is-danger':'is-info'"></button>
         </template>
     </div>
+
+    <table class="table tablebuscar" x-show="listaClientes_.length">
+	<thead>
+	    <tr>
+		<th>dni</th>
+		<th>nombre</th>
+		<th>direccion</th>
+		<th>zona</th>
+		<th>deuda</th>
+		<th>ultpago</th>
+		<th>status</th>
+	    </tr>
+	</thead>
+	<tbody>
+	    <template x-for="cliente in listaClientes_">
+	    <tr @click="buscaCuentaporDni(cliente.dni)">
+		<td x-text="cliente.dni"></td>
+		<td x-text="cliente.nombre"></td>
+		<td x-text="cliente.calle+' '+cliente.num"></td>
+		<td x-text="cliente.zona"></td>
+		<td x-text="cliente.deuda"></td>
+		<td x-text="cliente.ultpago"></td>
+		<td><button class="button is-small is-success"  x-show="cliente.sev">SEVEN</button>
+		    <button class="button is-small is-info"  x-show="cliente.subirseven">SUBE</button>
+		    <button class="button is-small is-danger"  x-show="cliente.novendermas">LN</button>
+		    <button class="button is-small is-warning"  x-show="cliente.gestion">GESTION</button>
+		    <button class="button is-small is-danger"  x-show="cliente.incobrable">INC</button>
+		    <button class="button is-small is-warning"  x-show="cliente.mudo">MUDO</button>
+		    <button class="button is-small is-info"  x-show="cliente.seguir">SEGUIR</button>
+		</td>
+	    </tr>
+	    </template>
+	</tbody>
+    </table>
 
     <!-- card datos clientes -->
 
@@ -487,6 +522,8 @@
          // Calles:[],
          DatosCalle:[],
          listaClientes:[],
+	 listaClientes_:[],
+	 listaClientesCasa:[],
          listaVentas:[],
          listaCuotas:[],
          listaVentasCanceladas:[],
@@ -520,26 +557,33 @@
          calleMostrada:'',
 
          buscarCliente(){
+	     this.verCard=false
+	     this.listaClientesCasa=[]
 	     buscar = this.buscar1.length>0?this.buscar1:this.buscar
              textToClipboard(buscar)
+	     if(buscar=='') buscar='-'
              axios.get('/buscador/'+buscar)
-							     .then(res=>{
-								 this.listaClientes=res.data.clientes
-								 if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
-							     })
-							     .catch(error=>{
-								 msgError('Error!',error.response.data)
-							     })
+	    .then(res=>{
+	     this.listaClientes=res.data.clientes
+	     this.listaClientes_=this.listaClientes
+             this.listaClientes.map(row=>row.pmovto=dayjs.utc(row.pmovto).format('YYYY-MM-DD'))
+             this.listaClientes.map(row=>row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD'))
+		if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
+	    })
+	    .catch(error=>{
+		msgError('Error!',error.response.data)
+	    })
          },
          buscaCuentaporDni(dni){
-             this.listaClientes.map(row=>row.pmovto=dayjs.utc(row.pmovto).format('YYYY-MM-DD'))
-             this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
+	     this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
+	     this.buscar = this.Cliente.calle+' '+this.Cliente.num
+	     this.listaClientes_=[]
              this.obtenerVentas(this.Cliente.id)
              this.verCard = true;
              this.clipWappVentas()
 	     axios.get('/buscador/clientesdireccion/'+this.Cliente.calle+'/'+this.Cliente.num)
 		 .then(res=>{
-		     this.listaClientes=res.data.clientes
+		     this.listaClientesCasa=res.data.clientes
 		 })
          },
          clipWappIntimacion(){
@@ -565,7 +609,6 @@
              let messajeVenta;
              messajeVenta = `${this.Cliente.nombre.toUpperCase()} Hola! Nos comunicamos de ROMITEX para informarle que en estos dias esta en su zona nuestro visitador de clientes exclusivos. Si Usted desea que ${this.Cliente.sex=="F"?'la':'lo'} visitemos SIN COMPROMISO avisenos asi le comentamos todas las promociones y articulos nuevos que tenemos para ofrecerle. Desde ya, gracias!`
              this.ventaWapp = messajeVenta.replaceAll(' ','%20')
-             // console.log(messajeVenta.replaceAll(' ','%20'))
          },
          clipDatos(idcliente){
              let text = this.Cliente.nombre+'\n'+this.Cliente.dni+'\n'+this.Cliente.calle+' '+this.Cliente.num+'\n'+this.Cliente.barrio+'\n'+this.Cliente.wapp
@@ -575,7 +618,6 @@
          obtenerVentas(idcliente){
              axios.get('/buscador/obtenerventasporidcliente/'+idcliente)
                   .then(res=>{
-                      //console.log(res.data.ventas);
                       let arrayVentas=res.data.ventas
                       arrayVentas.map(row=>{
                           row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD')
@@ -704,7 +746,6 @@
 			  axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 			  axios.post("/buscador/imprimirficha", data)
 									      .then(res=>{
-										  console.log(res.data)
 										  this.verModalImprimirFicha = false
 										  if(res.data.response=='success') msgSuccess('WhatsApp!','Ficha enviada al cobrador');
 										  this.cobrEnviar = ''
@@ -980,7 +1021,6 @@
 								     if(this.Cliente.wapp){
 								     axios.post('/buscador/enviarrbotransferencia',this.Recibo)
 											  .then(res=>{
-											      console.log(res.data)
 												switch(res.data.response){
 												    case 'success': {
 													msgSuccess('Exito!','Mensaje Enviado')
@@ -1018,7 +1058,6 @@
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/buscador/wapp',data)
 								 .then(res=>{
-								     console.log(res.data)
 								     switch(res.data){
 									 case 'success': {
 									     msgSuccess('Exito!','Mensaje Enviado')
@@ -1048,7 +1087,6 @@
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/buscador/wapp', data)
 								 .then(res=>{
-								     console.log(res)
 								     switch(res.data){
 									 case 'success': {
 									     msgSuccess('Exito!','Mensaje Enviado')
@@ -1072,7 +1110,6 @@
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post("/buscador/intimar",this.Cliente)
 								 .then(res=>{
-								     console.log(res)
 								     if(wapp){
 									 switch(res.data.response){
 									     case 'success': {
@@ -1140,7 +1177,6 @@
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 	     axios.post('/buscador/wapp',data)
 								 .then(res=>{
-								     console.log(res.data)
 								     switch(res.data){
 									 case 'success': {
 									     msgSuccess('Exito!','Mensaje Enviado')

@@ -38,7 +38,10 @@ def buscar_cuenta(buscar):
     rdni = r'^[0-9]{7,8}$'
     rid = r'^id[0-9]{4,5}$'
     rwapp = r'^[0-9]{10,15}$'
-    if (re.match(rcuenta,buscar)):
+    if buscar=="-":
+        sql = "select * from clientes where id=0"
+        error_msg = "ingrese algo para buscar"
+    elif (re.match(rcuenta,buscar)):
         cur = con.cursor()
         try:
             cur.execute(f'select idcliente from ventas where id={buscar}')
@@ -57,8 +60,14 @@ def buscar_cuenta(buscar):
         sql = f"select * from clientes where id={buscar[2:]}"
         error_msg = "idcliente no encontrado"
     else:
-        buscar = '%'+buscar.replace(' ','%')+'%'
-        sql = f"select * from clientes where lower(concat(nombre,calle,num,acla)) like lower('{buscar}')"
+        buscar = re.sub(r'^(\D)','%'+r'\1',buscar)
+        buscar = re.sub(r'(\s)(\D)','%'+r'\2',buscar) 
+        buscar = re.sub(r'(\s)(\d)','% '+r'\2',buscar)  
+        buscar = re.sub(r'\*','%',buscar) 
+        buscar = re.sub(r'(\D)$',r'\1'+'%',buscar)
+        print('cadena busqueda',buscar)
+        sql = f"select * from clientes where lower(concat(nombre,calle,acla,' ',num)) like lower('{buscar}') order by calle,num"
+        print('sql',sql)
         error_msg = "no hay respuesta para esa busqueda"
     cur = con.cursor(dictionary=True)
     cur.execute(sql)
@@ -73,7 +82,9 @@ def buscar_cuenta(buscar):
 def clientesdireccion(calle,num):
     con = get_con()
     cur = con.cursor(dictionary=True)
-    cur.execute(f"select * from clientes where calle='{calle}' and num='{num}'")
+    sql = f"select * from clientes where calle='{calle}' and num='{num}'"
+    print("sql clientesdireccion",sql)
+    cur.execute(sql)
     clientes = cur.fetchall()
     con.close()
     return jsonify(clientes=clientes)

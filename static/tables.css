@@ -237,3 +237,6 @@ thead th {
     color: black;
     text-align: center;
 }
+.tablebuscar tr:hover{
+    cursor:pointer;
+}
