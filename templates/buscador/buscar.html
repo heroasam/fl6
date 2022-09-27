@@ -24,15 +24,15 @@
         </div>
     </div>
 
-    <div class="buttons m-3" >
-        <template x-for="cliente in listaClientesCasa" x-show="!verCard">
+    <!-- <div class="buttons m-3" > -->
+    <!-- <template x-for="cliente in listaClientesCasa" x-show="!verCard"> -->
             <!-- [dni,nombre,direccion] -->
-            <button class="button is-small"  @click="buscaCuentaporDni(cliente.dni)" x-text="cliente.nombre"
-		    x-bind:class="cliente.deuda?'is-danger':'is-info'"></button>
-        </template>
-    </div>
+    <!-- <button class="button is-small"  @click="buscaCuentaporDni(cliente.dni)" x-text="cliente.nombre" -->
+    <!-- x-bind:class="cliente.deuda?'is-danger':'is-info'"></button> -->
+    <!-- </template> -->
+    <!-- </div> -->
 
-    <table class="table tablebuscar" x-show="listaClientes_.length">
+    <table class="table tablebuscar mt-6" x-show="listaClientes_.length">
 	<thead>
 	    <tr>
 		<th>dni</th>
@@ -40,7 +40,7 @@
 		<th>direccion</th>
 		<th>zona</th>
 		<th>deuda</th>
-		<th>ultpago</th>
+		<th>pmovto</th>
 		<th>status</th>
 	    </tr>
 	</thead>
@@ -52,14 +52,19 @@
 		<td x-text="cliente.calle+' '+cliente.num"></td>
 		<td x-text="cliente.zona"></td>
 		<td x-text="cliente.deuda"></td>
-		<td x-text="cliente.ultpago"></td>
-		<td><button class="button is-small is-success"  x-show="cliente.sev">SEVEN</button>
-		    <button class="button is-small is-info"  x-show="cliente.subirseven">SUBE</button>
-		    <button class="button is-small is-danger"  x-show="cliente.novendermas">LN</button>
-		    <button class="button is-small is-warning"  x-show="cliente.gestion">GESTION</button>
-		    <button class="button is-small is-danger"  x-show="cliente.incobrable">INC</button>
-		    <button class="button is-small is-warning"  x-show="cliente.mudo">MUDO</button>
-		    <button class="button is-small is-info"  x-show="cliente.seguir">SEGUIR</button>
+		<td x-text="cliente.pmovto"></td>
+		<td style="min-width:300px;"><span class="tag is-small is-success"  x-show="cliente.sev">SEVEN</span>
+		    <span class="tag is-small is-info"  x-show="cliente.subirseven">SUBE</span>
+		    <span class="tag is-small is-primary"  x-show="cliente.novendermas">LN</span>
+		    <span class="tag is-small is-warning"  x-show="cliente.gestion">GESTION</span>
+		    <span class="tag is-small is-danger"  x-show="cliente.incobrable">INC</span>
+		    <span class="tag is-small is-warning"  x-show="cliente.mudo">MUDO</span>
+		    <span class="tag is-small is-info"  x-show="cliente.seguir">SEGUIR</span>
+		    <div class="tags has-addons" x-show="cliente.deuda>0&&cliente.sev==0&&dayjs.utc().diff(cliente.pmovto,'d')>30&&
+			    dayjs(cliente.ultcompra)>dayjs().subtract(1,'y')">
+			<span class="tag is-danger">atrasada</span>
+			<span class="tag is-light" x-text="dayjs().diff(cliente.pmovto,'M')"></span>
+		    </div>
 		</td>
 	    </tr>
 	    </template>
@@ -68,7 +73,7 @@
 
     <!-- card datos clientes -->
 
-    <div class="box"  x-show="verCard">
+    <div class="box mt-6"  x-show="verCard">
         <p class="title is-2" x-text="Cliente.nombre+'  '+Cliente.dni"></p>
         <p class="subtitle is-4" x-text="Cliente.calle+' '+Cliente.num+' '+Cliente.barrio+' '+Cliente.zona"></p>
         <p class="subtitle is-4"x-text="'tel:'+Cliente.tel+' wapp:'+Cliente.wapp"></p>
@@ -523,7 +528,7 @@
          DatosCalle:[],
          listaClientes:[],
 	 listaClientes_:[],
-	 listaClientesCasa:[],
+	 /* listaClientesCasa:[], */
          listaVentas:[],
          listaCuotas:[],
          listaVentasCanceladas:[],
@@ -575,16 +580,16 @@
 	    })
          },
          buscaCuentaporDni(dni){
+	     this.listaClientes_=[]
 	     this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
 	     this.buscar = this.Cliente.calle+' '+this.Cliente.num
-	     this.listaClientes_=[]
              this.obtenerVentas(this.Cliente.id)
              this.verCard = true;
              this.clipWappVentas()
-	     axios.get('/buscador/clientesdireccion/'+this.Cliente.calle+'/'+this.Cliente.num)
-		 .then(res=>{
-		     this.listaClientesCasa=res.data.clientes
-		 })
+	     /* axios.get('/buscador/clientesdireccion/'+this.Cliente.calle+'/'+this.Cliente.num) */
+	     /* .then(res=>{ */
+	     /* this.listaClientesCasa=res.data.clientes */
+	     /* }) */
          },
          clipWappIntimacion(){
              let text,

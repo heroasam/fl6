@@ -240,3 +240,6 @@ thead th {
 .tablebuscar tr:hover{
     cursor:pointer;
 }
+span{
+    position: relative;
+}
