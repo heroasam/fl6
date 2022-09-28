@@ -11,14 +11,14 @@
             <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
 	</div>
 	<div class="grid-buscar ml-3 mr-3 mt-2">
-        <input type="search" placeholder="Busca por: Nombre Calle Num aclaracion / DNI / Cuenta / wapp / id9999" class="input" x-model="buscar"
-	       @focus="buscar1=''" @keyup.enter="buscarCliente";verCard=false">
-        <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
+            <input type="search" placeholder="Busca por: Nombre Calle Num aclaracion / DNI / Cuenta / wapp / id9999" class="input" x-model="buscar"
+		   @focus="buscar1=''" @keyup.enter="buscarCliente";verCard=false" autofocus>
+            <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
 	</div>
         <div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
 	    <div class="grid col-1 gap-0">
-            <input type="text" class="input mb-1" x-model="calleMostrada" id="searchCalle" autocomplete="off">
-            <div id="suggestionsCalle" class="suggestions"></div>
+		<input type="text" class="input mb-1" x-model="calleMostrada" id="searchCalle" autocomplete="off">
+		<div id="suggestionsCalle" class="suggestions"></div>
 	    </div>
 	    <button type="button" @click="mostrarCalle" class="button is-primary">Mostrar</button>
         </div>
@@ -26,7 +26,7 @@
 
     <!-- <div class="buttons m-3" > -->
     <!-- <template x-for="cliente in listaClientesCasa" x-show="!verCard"> -->
-            <!-- [dni,nombre,direccion] -->
+    <!-- [dni,nombre,direccion] -->
     <!-- <button class="button is-small"  @click="buscaCuentaporDni(cliente.dni)" x-text="cliente.nombre" -->
     <!-- x-bind:class="cliente.deuda?'is-danger':'is-info'"></button> -->
     <!-- </template> -->
@@ -47,28 +47,33 @@
 	</thead>
 	<tbody>
 	    <template x-for="cliente in listaClientes_">
-	    <tr @click="buscaCuentaporDni(cliente.dni)">
-		<td x-text="cliente.dni"></td>
-		<td x-text="cliente.nombre"></td>
-		<td x-text="cliente.calle+' '+cliente.num"></td>
-		<td x-text="cliente.zona"></td>
-		<td x-text="cliente.deuda"></td>
-		<td x-text="cliente.pmovto"></td>
-		<td x-text="cliente.ultpago"></td>
-		<td style="min-width:300px;"><span class="tag is-small is-success"  x-show="cliente.sev">SEVEN</span>
-		    <span class="tag is-small is-info"  x-show="cliente.subirseven">SUBE</span>
-		    <span class="tag is-small is-primary"  x-show="cliente.novendermas">LN</span>
-		    <span class="tag is-small is-warning"  x-show="cliente.gestion">GESTION</span>
-		    <span class="tag is-small is-danger"  x-show="cliente.incobrable">INC</span>
-		    <span class="tag is-small is-warning"  x-show="cliente.mudo">MUDO</span>
-		    <span class="tag is-small is-info"  x-show="cliente.seguir">SEGUIR</span>
-		    <div class="tags has-addons" x-show="cliente.deuda>0&&cliente.sev==0&&dayjs.utc().diff(cliente.ultpago,'d')>30&&
-			    dayjs(cliente.ultcompra)>dayjs().subtract(1,'y')">
-			<span class="tag is-danger">atrasada</span>
-			<span class="tag is-light" x-text="dayjs().diff(cliente.ultpago,'M')"></span>
-		    </div>
-		</td>
-	    </tr>
+		<tr @click="buscaCuentaporDni(cliente.dni)">
+		    <td x-text="cliente.dni"></td>
+		    <td x-text="cliente.nombre"></td>
+		    <td x-text="cliente.calle+' '+cliente.num"></td>
+		    <td x-text="cliente.zona"></td>
+		    <td x-text="cliente.deuda"></td>
+		    <td x-text="cliente.pmovto"></td>
+		    <td x-text="cliente.ultpago"></td>
+		    <td style="min-width:300px; text-align:left;">
+			<span class="tag is-small is-success"  x-show="cliente.sev">SEVEN</span>
+			<span class="tag is-small is-info"  x-show="cliente.subirseven">SUBE</span>
+			<span class="tag is-small is-primary"  x-show="cliente.novendermas">LN</span>
+			<span class="tag is-small is-warning"  x-show="cliente.gestion">GESTION</span>
+			<span class="tag is-small is-info"  x-show="cliente.seguir">SEGUIR</span>
+			<span class="tag is-small is-warning"  x-show="cliente.mudo">MUDO</span>
+			<span class="tag is-small is-danger"  x-show="cliente.incobrable">INC</span>
+			<div class="xtags has-addons m-0" x-show="cliente.devueltas>0">
+				<span class="tag is-small is-warning m-0">devueltas</span>
+				<span class="tag is-small is-light m-0" x-text="cliente.devueltas"></span>
+			</div>
+			<div class="xtags has-addons m-0" x-show="cliente.deuda>0&&cliente.sev==0&&dayjs.utc().diff(cliente.ultpago,'d')>30&&
+				    dayjs(cliente.ultcompra)>dayjs().subtract(1,'y')">
+			    <span class="tag is-small is-danger m-0">atrasada</span>
+			    <span class="tag is-small is-light m-0" x-text="dayjs().diff(cliente.ultpago,'M')"></span>
+			</div>
+		    </td>
+		</tr>
 	    </template>
 	</tbody>
     </table>
@@ -94,10 +99,24 @@
             <button class="button is-danger is-small" x-show="Cliente.incobrable">INC</button>
             <button class="button is-info is-small" x-show="Cliente.seguir">SEGUIR</button>
         </div>
-        <div style="display: flex; align-items:center;">
-            <h2 x-text="'$'+Cliente.deuda" class="title is-3 mb-1" x-show="Cliente.deuda"></h2>
-            <h2 x-text="'PmoVto: '+Cliente.pmovto" class="subtitle is-5 mt-1 ml-3" x-show="Cliente.pmovto"></h2>
-            <h2 x-text="'Hay comentarios'" class="subtitle is-5 mt-1 ml-3" x-show="listaComentarios.length" style="color:red;"></h2>
+        <div style="display: flex;align-items:baseline;">
+            <h2 x-text="Cliente.deuda?'$'+Cliente.deuda:'SIN DEUDA'" class="title is-2"></h2>
+            <h2 x-text="Cliente.pmovto" class="subtitle is-3 ml-3" x-show="Cliente.deuda"></h2>
+            <a href="#table-comentarios" x-text="'Hay comentarios'" class="ml-3"
+	       x-show="listaComentarios.length"></a>
+	    <!-- tags informativos que se muestran para los deudores -->
+	    <div class="tags has-addons ml-3"
+		 x-show="Cliente.deuda>0&&dayjs.utc().diff(Cliente.ultpago,'d')>30">
+		    <span class="tag is-danger">atrasada</span>
+		    <span class="tag is-light" x-text="dayjs.utc().diff(Cliente.ultpago,'M')"></span>
+	    </div>
+	    <div class="tags has-addons ml-3"
+		 x-show="Cliente.devueltas>0">
+		    <span class="tag is-warning">devueltas</span>
+		    <span class="tag is-light" x-text="Cliente.devueltas"></span>
+	    </div>
+	    <!-- tags informativos que se muestran para los cancelados -->
+
 
         </div>
     </div>
@@ -283,9 +302,9 @@
 			<td data-titulo="comprado" x-text="venta.comprado"></td>
 			<td data-titulo="vdor" x-text="venta.idvdor"></td>
 			<td data-titulo="arts" x-text="venta.cnt+'/'+venta.art"></td>
-			<td x-show="venta.pcondo" x-text="'CUENTA INCLUIDA EN UN PLAN DE PAGOS'" class="button is-info"></td>
-			<td x-show="venta.devuelta" x-text="'DEVUELTA'" class="button is-danger"></td>
-			<td x-show="venta.condonada" x-text="'CONDONADA'" class="button is-danger"></td>
+			<td x-show="venta.pcondo" x-text="'CUENTA INCLUIDA EN UN PLAN DE PAGOS'" class="tag is-small is-info"></td>
+			<td x-show="venta.devuelta" x-text="'DEVUELTA'" class="tag is-small is-danger"></td>
+			<td x-show="venta.condonada" x-text="'CONDONADA'" class="tag is-small is-danger" @click="condonarVenta(venta.id)"></td>
 		    </tr>
 		</template>
             </tbody>
@@ -294,7 +313,7 @@
 
     <div class="m-2">
         <h3 class="title is-3 m-2" x-show="verCard && listaComentarios.length">Comentarios</h3>
-        <table class="table " x-show="verCard && listaComentarios.length">
+        <table class="table " x-show="verCard && listaComentarios.length" id="table-comentarios">
             <thead>
                 <tr>
                     <th>Fecha</th>
@@ -565,34 +584,46 @@
 
          buscarCliente(){
 	     this.verCard=false
-	     this.listaClientesCasa=[]
+	     this.resetBuscar()
+	     /* this.listaClientesCasa=[] */
 	     buscar = this.buscar1.length>0?this.buscar1:this.buscar
              textToClipboard(buscar)
 	     if(buscar=='') buscar='-'
              axios.get('/buscador/'+buscar)
-	    .then(res=>{
-	     this.listaClientes=res.data.clientes
-	     this.listaClientes_=this.listaClientes
-             this.listaClientes.map(row=>row.pmovto=dayjs.utc(row.pmovto).format('YYYY-MM-DD'))
-             this.listaClientes.map(row=>row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD'))
-		if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
-	    })
-	    .catch(error=>{
-		msgError('Error!',error.response.data)
-	    })
+		  .then(res=>{
+		      this.listaClientes=res.data.clientes
+		      this.listaClientes_=this.listaClientes
+		      this.listaClientes.map(row=>row.pmovto=dayjs.utc(row.pmovto).format('YYYY-MM-DD'))
+		      this.listaClientes.map(row=>row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD'))
+		      this.listaClientes.map(row=>row.ultcompra=dayjs.utc(row.ultcompra).format('YYYY-MM-DD'))
+		      /* corrijo Cliente.ultpago en los casos que ha comprado de nuevo */
+		      this.listaClientes.map(row=>{
+			  if(row.ultcompra>row.ultpago) row.ultpago=row.ultcompra
+		      }) 
+		      if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
+		  })
+		  .catch(error=>{
+		      msgError('Error!',error.response.data)
+		  })
          },
          buscaCuentaporDni(dni){
-	     this.listaClientes_=[]
+	     this.resetBuscar()
 	     this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
 	     this.buscar = this.Cliente.calle+' '+this.Cliente.num
              this.obtenerVentas(this.Cliente.id)
              this.verCard = true;
              this.clipWappVentas()
-	     /* axios.get('/buscador/clientesdireccion/'+this.Cliente.calle+'/'+this.Cliente.num) */
-	     /* .then(res=>{ */
-	     /* this.listaClientesCasa=res.data.clientes */
-	     /* }) */
          },
+	 resetBuscar(){
+	     this.Cliente={}
+	     this.listaClientes_=[]
+	     this.listaVentas=[]
+	     this.listaCuotas=[]
+	     this.listaPagadas=[]
+	     this.listaCuentas=[]
+	     this.listaComentarios=[]
+	     this.listaLogCambioDireccion=[]
+	 },
          clipWappIntimacion(){
              let text,
                  messaje;
@@ -633,9 +664,9 @@
                       this.listaVentas = arrayVentas
                       this.listaCuentas = arrayVentas.map(row=>row.id)
                       this.listaCuotas = this.hacerCuotas()
-                      if(this.listaVentas.length===0) {
-			  msgError('Error!','no hay cuentas ACTIVAS')
-		      }
+                      /* if(this.listaVentas.length===0) { */
+		      /* msgError('Error!','no hay cuentas ACTIVAS') */
+		      /* } */
                       this.pedirPagadas(idcliente)
                       this.obtenerVentasCanceladas(idcliente)
                       this.pedirComentarios(idcliente)
@@ -776,10 +807,10 @@
 	     data = {dni:dni, idcliente:this.Cliente.id},
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 	     axios.post("/buscador/intimar",data,{responseType: "blob"})
-             .then((res) => {
-                 let url = window.URL.createObjectURL(res.data);
-                 window.open(url);
-             });
+								 .then((res) => {
+								     let url = window.URL.createObjectURL(res.data);
+								     window.open(url);
+								 });
          },
          fecharPmovto(idcliente){
              this.verModalPmovto=true
@@ -943,8 +974,10 @@
              axios.post('/buscador/generarplandepagos/'+this.Cliente.id,this.Venta)
 								 .then(res=>{
 								     msgSuccess('Exito','Plan de pagos generado')
+								     this.buscarCliente(this.Cliente.dni)
 								 })
 								 .catch(error=>{
+								     console.log(error)
 								     msgError('Error',error.request.response)
 								 })
 
@@ -979,33 +1012,33 @@
 	     data= {dni:dni, wapp:this.Cliente.wapp, idcliente:this.Cliente.id, deuda:this.Cliente.deuda},
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              if(this.Cliente.wapp && this.Cliente.deuda<=0){
-	     axios.post("/buscador/libredeuda",data)
-             .then((res) => {
-			switch(res.data){
-			    case 'success': {
-				msgSuccess('Exito!','Mensaje Enviado')
-				break
-			    }
-			    case 'invalid': {
-				msgError('Error!','Whatsapp INVALIDO')
-				this.obtenerWappCliente()
-				break
-			    }
-			    case 'failed': {
-				msgError('Error!','Mensaje no enviado - Failed')
-				break
-			    }
-			}
-             })
+		 axios.post("/buscador/libredeuda",data)
+		      .then((res) => {
+			  switch(res.data){
+			      case 'success': {
+				  msgSuccess('Exito!','Mensaje Enviado')
+				  break
+			      }
+			      case 'invalid': {
+				  msgError('Error!','Whatsapp INVALIDO')
+				  this.obtenerWappCliente()
+				  break
+			      }
+			      case 'failed': {
+				  msgError('Error!','Mensaje no enviado - Failed')
+				  break
+			      }
+			  }
+		      })
 	     }else{
-		     axios.post('/buscador/libredeuda/nowapp',data,{responseType:"blob"})
-			 .then(res=>{
-			    let url = window.URL.createObjectURL(res.data);
-			    window.open(url);
-			    if (this.Cliente.wapp && this.Cliente.deuda>0) {
-				msgSuccess("Whatsapp!","No se envio el whatsapp porque todavia tiene deuda")}
-			 })
-                 }
+		 axios.post('/buscador/libredeuda/nowapp',data,{responseType:"blob"})
+		      .then(res=>{
+			  let url = window.URL.createObjectURL(res.data);
+			  window.open(url);
+			  if (this.Cliente.wapp && this.Cliente.deuda>0) {
+			      msgSuccess("Whatsapp!","No se envio el whatsapp porque todavia tiene deuda")}
+		      })
+             }
 	 },
          emitirRbo(){
 	     if(this.Cliente.deuda==0){msgError('Error!','El cliente no tiene deuda');return}
@@ -1019,39 +1052,40 @@
              this.Recibo.idcliente = this.Cliente.id
              this.Recibo.wapp = this.Cliente.wapp
              this.verModalRecibo = false
+             if (!this.listaCuentas.includes(parseInt(this.Recibo.cuenta))) {msgError('Error!','Numero de cuenta NO existe');return}
 	     msgDelay('Espere mientras se envia el Recibo')
-             if (!this.listaCuentas.includes(parseInt(this.Recibo.cuenta))) {msgError('Error!','Numero de cuenta NO existe')}
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/buscador/generarrbotransferencia',this.Recibo)
 								 .then(res=>{
 								     this.Recibo.rbo = res.data.rbo
 								     if(this.Cliente.wapp){
-								     axios.post('/buscador/enviarrbotransferencia',this.Recibo)
-											  .then(res=>{
-												switch(res.data.response){
-												    case 'success': {
-													msgSuccess('Exito!','Mensaje Enviado')
-													break
-												    }
-												    case 'invalid': {
-													msgError('Error!','Whatsapp INVALIDO')
-													this.obtenerWappCliente()
-													break
-												    }
-												    case 'failed': {
-													msgError('Error!','Mensaje no enviado - Failed')
-													break
-												    }
-												}
-											      this.Recibo = {fecha:dayjs.utc().format('YYYY-MM-DD')}
-											  })
-											  .catch(error=>msgError('Error!','no se pudo enviar el Recibo'))
+									 axios.post('/buscador/enviarrbotransferencia',this.Recibo)
+									      .then(res=>{
+										  switch(res.data.response){
+										      case 'success': {
+											  msgSuccess('Exito!','Mensaje Enviado')
+											  break
+										      }
+										      case 'invalid': {
+											  msgError('Error!','Whatsapp INVALIDO')
+											  this.obtenerWappCliente()
+											  break
+										      }
+										      case 'failed': {
+											  msgError('Error!','Mensaje no enviado - Failed')
+											  break
+										      }
+										  }
+										  this.Recibo = {fecha:dayjs.utc().format('YYYY-MM-DD')}
+										  this.buscarCliente(this.Cliente.dni)
+									      })
+									      .catch(error=>msgError('Error!','no se pudo enviar el Recibo'))
 								     }else{
-									axios.post('/buscador/enviarrbotransferencia/nowapp',this.Recibo,{responseType:"blob"})
-									     .then(res=>{
-											let url = window.URL.createObjectURL(res.data);
-											window.open(url);
-									     })
+									 axios.post('/buscador/enviarrbotransferencia/nowapp',this.Recibo,{responseType:"blob"})
+									      .then(res=>{
+										  let url = window.URL.createObjectURL(res.data);
+										  window.open(url);
+									      })
 								     }
 								 })
 								 .catch(error=>msgError('Error!','El recibo no se genero'))
@@ -1241,7 +1275,7 @@ Titular de la cuenta: Heredie Maria Isabel`
 	 condonarVenta(id){
 	     axios.get('/ventas/condonar/'+id)
 		  .then(res=>{
-		      this.buscaCuentaporDni(this.Cliente.dni)			 })
+		      this.buscarCliente(this.Cliente.dni)			 })
 	 },
 	 hacerLlamada(tel){
 	     re = /[0-9]*/

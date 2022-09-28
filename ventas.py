@@ -637,7 +637,9 @@ def ventas_agregararticulo():
 @ventas.route('/ventas/condonar/<int:id>')
 def ventas_condonar(id):
     con = get_con()
-    upd = f"update ventas set condonada=1, saldo=0 where id={id}"
+    condonada = pgonecolumn(con, f"select condonada from ventas where id={id}")
+    condonada = 1 if condonada == 0 or condonada is None else 0
+    upd = f"update ventas set condonada={condonada} where id={id}"
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
