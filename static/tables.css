@@ -246,3 +246,6 @@ thead th {
     flex-wrap:wrap;
     justify-content:flex-start;
 }
+.pointer{
+    cursor:pointer;
+}

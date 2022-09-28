@@ -76,15 +76,24 @@
 				<span class="tag is-small is-danger m-0">condonada</span>
 				<span class="tag is-small is-light m-0" x-text="cliente.condonadas"></span>
 			</div>
+			<div class="xtags has-addons m-0" x-show="cliente.compras>1">
+			    <span class="tag is-small is-info m-0">compras</span>
+			    <span class="tag is-small is-light m-0" x-text="cliente.compras"></span>
+			</div>
+			<div class="xtags has-addons m-0" x-show="cliente.planes>0">
+				<span class="tag is-small is-warning m-0">planes</span>
+				<span class="tag is-small is-light m-0" x-text="cliente.planes"></span>
+			</div>
 		    </td>
 		</tr>
 	    </template>
 	</tbody>
     </table>
 
-    <!-- card datos clientes -->
+    <!-- carddatos clientes -->
 
     <div class="box mt-6"  x-show="verCard">
+	<div class="pointer" @click="editarCliente(Cliente.id)">
         <p class="title is-2" x-text="Cliente.nombre+'  '+Cliente.dni"></p>
         <p class="subtitle is-4" x-text="Cliente.calle+' '+Cliente.num+' '+Cliente.barrio+' '+Cliente.zona"></p>
         <p class="subtitle is-4"x-text="'tel:'+Cliente.tel+' wapp:'+Cliente.wapp"></p>
@@ -93,19 +102,21 @@
         <p class="" x-show="Cliente.mjecobr" x-text="Cliente.mjecobr"></p>
         <p class="" x-show="Cliente.horario" x-text="Cliente.horario"></p>
         <p class="" x-show="Cliente.infoseven" x-text="Cliente.infoseven"></p>
-        <div class="buttons">
-            <button class="button is-danger is-small" x-show="Cliente.baja">Ex-SEVEN</button>
-            <button class="button is-danger is-small" x-show="Cliente.novendermas">LN</button>
-            <button class="button is-success is-small" x-show="Cliente.sev">SEVEN</button>
-            <button class="button is-info is-small" x-show="Cliente.subirseven">SUBE</button>
-            <button class="button is-danger is-small" x-show="Cliente.mudo">MUDO</button>
-            <button class="button is-warning is-small" x-show="Cliente.gestion">GESTION</button>
-            <button class="button is-danger is-small" x-show="Cliente.incobrable">INC</button>
-            <button class="button is-info is-small" x-show="Cliente.seguir">SEGUIR</button>
+	</div>
+        <div class="grid">
+            <span class="tag is-danger is-small" x-show="Cliente.baja">Ex-SEVEN</span>
+            <span class="tag is-danger is-small" x-show="Cliente.novendermas">LN</span>
+            <span class="tag is-success is-small" x-show="Cliente.sev">SEVEN</span>
+            <span class="tag is-info is-small" x-show="Cliente.subirseven">SUBE</span>
+            <span class="tag is-danger is-small" x-show="Cliente.mudo">MUDO</span>
+            <span class="tag is-warning is-small" x-show="Cliente.gestion">GESTION</span>
+            <span class="tag is-danger is-small" x-show="Cliente.incobrable">INC</span>
+            <span class="tag is-info is-small" x-show="Cliente.seguir">SEGUIR</span>
         </div>
         <div style="display: flex;align-items:baseline;">
             <h2 x-text="Cliente.deuda?'$'+Cliente.deuda:'SIN DEUDA'" class="title is-2 mr-3"></h2>
-            <h2 x-text="Cliente.pmovto" class="subtitle is-3 mr-3" x-show="Cliente.deuda"></h2>
+            <h2 x-text="Cliente.pmovto" class="subtitle is-3 mr-3 pointer" x-show="Cliente.deuda"
+	    @click="fecharPmovto(Cliente.id)"></h2>
             <a href="#table-comentarios" x-text="'Hay comentarios'" class="mr-3"
 	       x-show="listaComentarios.length"></a>
 	    <!-- tags informativos que se muestran para los deudores -->
@@ -122,6 +133,14 @@
 		    <span class="tag is-small is-danger m-0">condonada</span>
 		    <span class="tag is-small is-light m-0" x-text="Cliente.condonadas"></span>
 	    </div>
+	    <div class="xtags has-addons m-0" x-show="Cliente.compras>1">
+		    <span class="tag is-small is-info m-0">compras</span>
+		    <span class="tag is-small is-light m-0" x-text="Cliente.compras"></span>
+	    </div>
+	    <div class="xtags has-addons m-0" x-show="Cliente.planes>0">
+		    <span class="tag is-small is-warning m-0">planes</span>
+		    <span class="tag is-small is-light m-0" x-text="Cliente.planes"></span>
+	    </div>
 
 	    <!-- tags informativos que se muestran para los cancelados -->
 
@@ -136,24 +155,7 @@
         <button class="button is-secondary is-small"  @click="toggleMudo()">MUDO</button>
         <button class="button is-secondary is-small"  @click="toggleSeguir()">SEGUIR</button>
         <button class="button is-primary is-small" @click="dialogoImprimirFicha()">IMPRIMIR</button>
-        <!-- <button class="button is-primary is-small" @click="intimarCliente(Cliente.dni)">INTIM</button> -->
-        <!-- <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${intimacionWhatsapp}` class="button is-success is-small" target="blank" style="text-decoration: none;">INT</a> -->
-        <!-- <button class="button is-danger is-small" @click="sendIntWhatsapp()">INTWhat</button> -->
-        <!-- <button class="button is-danger is-small" @click="sendIntimacion(Cliente.dni, Cliente.wapp)">IntPDF</button> -->
         <button class="button is-success is-small" @click="clipDatos(Cliente.id)">DATOS</button>
-        <!-- <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${Cliente.nombre}` class="button is-success is-small" target="blank" style="text-decoration: none;">WAPP</a> -->
-        <!-- <button class="button is-danger is-small" @click="sendMsgGeneral()">WHAPP</button> -->
-        <!-- <button class="button is-success is-small" @click="hacerLlamada(Cliente.wapp||Cliente.tel)">CALL</button> -->
-        <!-- <button class="button is-info is-small" @click="fecharPmovto(Cliente.id)">FECHAR</button> -->
-        <!-- <button class="button is-info is-small" @click="editarCliente(Cliente.id)">EDITAR</button> -->
-        <!-- <button class="button is-info is-small" @click="agregarComentario()">COMENTAR</button> -->
-        <!-- <button class="button is-info is-small" @click="agregarPlanPago()">PLAN PAGOS</button> -->
-        <!-- <button class="button is-danger is-small" @click="emitirLibreDeuda(Cliente.dni)">LIBRE</button> -->
-        <!-- <button class="button is-danger is-small" @click="emitirRbo()">RBO</button> -->
-	<!--        <a x-bind:href=`https://wa.me/549${Cliente.wapp}?text=${ventaWapp}` class="button is-danger is-small" target="blank" style="text-decoration: none;">VENDER</a>-->
-        <!-- <button class="button is-danger is-small" @click="sendMsgVenta(Cliente.wapp)">Vender</button> -->
-        <!-- <button class="button is-danger is-small" @click="sendMsgRecordatorio(Cliente.wapp)">RecTrans</button> -->
-        <!-- <button class="button is-danger is-small" @click="sendMsgCbu(Cliente.wapp)">CBU</button> -->
 
 	<div class="dropdown is-hoverable">
 	    <div class="dropdown-trigger">
@@ -313,12 +315,12 @@
 			<td x-show="venta.pcondo" x-text="'CUENTA INCLUIDA EN UN PLAN DE PAGOS'" class="tag is-small is-info"></td>
 			<td x-show="venta.devuelta" x-text="'DEVUELTA'" class="tag is-small is-danger"></td>
 			<td>
-			<div class="xtags has-addons m-0" x-show="venta.condonada" @click="condonarVenta(venta.id)">
+			    <div class="xtags has-addons m-0" x-show="venta.condonada&&venta.montocondonado/venta.comprado>0.05"
+				 @click="condonarVenta(venta.id)">
 				<span class="tag is-small is-danger m-0">condonada</span>
 				<span class="tag is-small is-light m-0" x-text="parseInt((venta.montocondonado/venta.comprado)*100)+'%'"></span>
 			</div>
 			</td>
-			<!-- <td x-show="venta.condonada" x-text="'CONDONADA'" class="tag is-small is-danger" @click="condonarVenta(venta.id)"></td> -->
 		    </tr>
 		</template>
             </tbody>
@@ -376,7 +378,7 @@
     <div x-bind:class="verModalPmovto?'xmodal-container':''">
         <div class="xcard xmodal" x-show="verModalPmovto">
             <button class="btn-close" @click="verModalPmovto=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-            <h1 class="title is-3">Fechar PmoVto</h1>
+            <h2 class="title is-3" style="color:black;">Fechar PmoVto</h2>
             <input type="date" class="input mb-3" x-model="Cliente.pmovto">
             <button class="button is-primary" @click="guardarPmovto">Fechar</button>
         </div>
@@ -384,7 +386,7 @@
     <div x-bind:class="verModalComentario?'xmodal-container':''">
         <div class="xcard xmodal" x-show="verModalComentario">
             <button class="btn-close" @click="verModalComentario=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-            <h3 class="title is-4">Agregar Comentario</h3>
+            <h3 class="title is-4" style="color:black;">Agregar Comentario</h3>
             <input type="date" class="input mb-3" x-model="Comentario.fechahora">
             <textarea class="textarea mb-3" rows="4" x-model="Comentario.comentario"></textarea>
             <button class="button is-primary" @click="guardarComentario">Guardar</button>
@@ -395,7 +397,7 @@
             <div class="flex justify-content-end">
                 <button class="btn-close" @click="verModalEdicion=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
             </div>
-            <h1 class="title is-3">Editar Cliente</h1>
+            <h1 class="title is-3" style="color:black;">Editar Cliente</h1>
             <input type="text" class="input mb-1" x-model="Cliente.dni">
             <input type="text" class="input mb-1" x-model="Cliente.nombre">
 
@@ -428,7 +430,7 @@
     <div x-bind:class="verModalPlanPago?'xmodal-container':''">
         <div class="xcard xmodal" x-show="verModalPlanPago">
             <button class="btn-close" @click="verModalPlanPago=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-            <h1 class="title is-3">Plan Pagos</h1>
+            <h1 class="title is-3" style="color:black;">Plan Pagos</h1>
             <label for="fecha" class="label">Fecha</label>
             <input type="date" class="input mb-3" x-model="Venta.fecha" id="fecha" autocomplete="off">
             <label for="cc" class="label">Cuotas</label>
@@ -451,7 +453,7 @@
     <div x-bind:class="verModalRecibo?'xmodal-container':''">
         <div class="xcard xmodal" x-show="verModalRecibo">
             <button class="btn-close" @click="verModalRecibo=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-            <h1 class="title is-3">Recibo</h1>
+            <h1 class="title is-3" style="color:black;">Recibo</h1>
             <label for="fecha" class="label">Fecha</label>
             <input type="date" class="input mb-3" x-model="Recibo.fecha" id="fecha" autocomplete="off">
             <label for="cuenta" class="label">Cuenta</label>
@@ -474,7 +476,7 @@
     <div x-bind:class="verModalMsgWhatsapp?'xmodal-container':''">
         <div class="xcard xmodal" x-show="verModalMsgWhatsapp">
             <button class="btn-close" @click="verModalMsgWhatsapp=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-            <h1 class="title is-3">WhatsApp</h1>
+            <h1 class="title is-3" style="color:black;">WhatsApp</h1>
             <label for="nombre" class="label">Nombre</label>
             <input type="text" class="input mb-3" x-model="Cliente.nombre" id="nombre" autocomplete="off" readonly>
             <label for="whatsapp" class="label">WhatsApp</label>
@@ -487,7 +489,7 @@
     <div x-bind:class="verModalImprimirFicha?'xmodal-container':''">
         <div class="xcard xmodal" x-show="verModalImprimirFicha">
             <button class="btn-close" @click="verModalImprimirFicha=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-            <h1 class="title is-3">Imprimir Ficha</h1>
+            <h1 class="title is-3" style="color:black;">Imprimir Ficha</h1>
             <button class="button is-primary is-small" @click="mostrarFichaPorPantalla=true;imprimirFicha()">Imprimir en pantalla</button>
             <div class="buttons m-3">
 		<template x-for="cobr in listaCobradores">
@@ -499,7 +501,7 @@
     <div x-bind:class="verModalAsunto?'xmodal-container':''">
         <div class="xcard xmodal" x-show="verModalAsunto">
             <button class="btn-close" @click="verModalAsunto=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-            <h1 class="title is-3">Asunto</h1>
+            <h1 class="title is-3" style="color:black;">Asunto</h1>
             <label for="fecha" class="label">Fecha</label>
             <input type="date" class="input mb-3" x-model="Asunto.fecha" id="fecha" autocomplete="off">
             <label for="p" class="label">Tipo</label>
