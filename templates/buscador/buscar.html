@@ -93,7 +93,7 @@
     <!-- carddatos clientes -->
 
     <div class="box mt-6"  x-show="verCard">
-	<div class="pointer" @click="editarCliente(Cliente.id)">
+	<div>
         <p class="title is-2" x-text="Cliente.nombre+'  '+Cliente.dni"></p>
         <p class="subtitle is-4" x-text="Cliente.calle+' '+Cliente.num+' '+Cliente.barrio+' '+Cliente.zona"></p>
         <p class="subtitle is-4"x-text="'tel:'+Cliente.tel+' wapp:'+Cliente.wapp"></p>
