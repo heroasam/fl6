@@ -136,17 +136,17 @@ endblock %} {% block style %}
 </div>
 {% endblock %} {% block script %}
 <script>
-const markSelected1 = ()=>{
-    if (event.target.parentElement.parentElement.tagName!='TBODY') return;
-    const $row = event.target.parentElement;
-    $row.classList.toggle('selected');
-}
-document.addEventListener('click',()=>{
-        if(event.target.tagName==='TD') {
-            markSelected1()
-        }
-        })
-
+ /* const markSelected1 = ()=>{
+  *     if (event.target.parentElement.parentElement.tagName!='TBODY') return;
+  *     const $row = event.target.parentElement;
+  *     $row.classList.toggle('selected');
+  * }
+  * document.addEventListener('click',()=>{
+  *         if(event.target.tagName==='TD') {
+  *             markSelected1()
+  *         }
+  *         })
+  *  */
 
   const app = new Vue({
     el: "#app",
