@@ -37,15 +37,17 @@ def fichas_muestraclientes(tipo,zona):
     if tipo=='normales':
         clientes = pgdict(con,f"select * from clientes where zona='{zona}' and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  and gestion=0 and incobrable=0 and mudo=0 order by pmovto")
     elif tipo=='gestion':
-        clientes = pgdict(con,f"select * from clientes where zona='{zona}' and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  and (gestion=1 or incobrable=1 or mudo=1) order by pmovto")
+        clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  and (gestion=1 or incobrable=1 or mudo=1) order by pmovto")
     elif tipo=='antiguos':
-        clientes = pgdict(con,f"select * from clientes where zona='{zona}' and pmovto<=date_sub(curdate(),interval 210 day) and deuda>0  order by ultpago desc")
+        clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and pmovto<=date_sub(curdate(),interval 210 day) and deuda>0  order by ultpago desc")
     elif tipo=='nuevomoroso':
-        clientes = pgdict(con,f"select * from clientes where zona='{zona}' and pmovto<=date_sub(curdate(),interval 5 day) and deuda>0 and ultcompra>date_sub(curdate(),interval 30 day)  order by pmovto")
+        clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and pmovto<=date_sub(curdate(),interval 5 day) and deuda>0 and ultcompra>date_sub(curdate(),interval 30 day)  order by pmovto")
     elif tipo=='morosos':
-        clientes = pgdict(con,f"select * from clientes where zona='{zona}' and pmovto<=date_sub(curdate(),interval 60 day) and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  order by pmovto")
+        clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and pmovto<=date_sub(curdate(),interval 60 day) and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  order by pmovto")
+    elif tipo=='vender':
+        clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and pmovto>=curdate() and deuda>0 and deuda<=cuota and sev=0 and novendermas=0 and gestion=0 and mudo=0 and incobrable=0  order by zona,calle,num")
     elif tipo=='cancelados':
-        clientes = pgdict(con,f"select * from clientes where zona='{zona}' and deuda=0  order by ultpago desc")
+        clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and deuda=0  order by ultpago desc")
     # print(clientes)
     con.close()
     return jsonify(clientes=clientes)

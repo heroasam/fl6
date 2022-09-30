@@ -531,10 +531,13 @@ def ventas_devoluciones():
 @ventas.route('/ventas/devolucion/buscarcliente/<int:idvta>')
 def ventas_devolucion_buscarcliente(idvta):
     con = get_con()
-    idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
-    nombre = pgonecolumn(con, f"select nombre from clientes where id={idcliente}")
+    venta = pgdict(con, f"select * from ventas where id={idvta}")[0]
+    nombre = pgonecolumn(con, f"select nombre from clientes where id={venta['idcliente']}")
     arts = pgdict(con, f"select * from detvta where idvta={idvta}")
-    return jsonify(nombre=nombre, arts=arts)
+    ic = venta['ic']
+    cc = venta['cc']
+
+    return jsonify(nombre=nombre, arts=arts, ic=ic, cc=cc)
 
 
 @ventas.route('/ventas/devolucion/borrararticulo/<int:id>')

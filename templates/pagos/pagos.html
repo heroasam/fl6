@@ -47,7 +47,7 @@
           </template>
       </div>
 
-      <div class="field is-horizontal">
+      <div>
                 <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
 				<span class="tag is-danger is-large" x-text="`Saldo ${Venta.saldo?Venta.saldo:''}`"></span>
 				<span class="tag is-secondary is-large" x-text="`Cuota ${Venta.ic?Venta.ic:''}`"></span>

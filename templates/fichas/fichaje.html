@@ -9,14 +9,7 @@ endblock %} {% block style %}
     position: -webkit-sticky;
     top: 0px;
     z-index: 10;
-      /* background-color: #837e7e;
-	 color: white; */
-  }
- /* .selected {
-    background-color: orange;
-    color: black;
-    cursor: pointer;
-    } */
+    } 
   .flex{
     display:flex;
   }
@@ -41,6 +34,7 @@ endblock %} {% block style %}
     </div>
 
   <div class="ml-1 mt-1 mb-1">
+    <span class="tag is-small is-black"  v-show="clientes.length">|clientes.length|</span>
     <label for="desde"></label>
     <input type="date" name="desde" v-model="desde" class="input" style="width:140px;" />
     <label for="hasta"></label>
@@ -49,10 +43,11 @@ endblock %} {% block style %}
     <button class="button is-info" @click="imprimir()">Imprimir</button>
     <button class="button is-danger" @click="intimar()">Intimar</button>
     <button class="button is-dark" @click="muestraClientes('cancelados',zonaactual)">Cancelados</button>
-    <button class="button is-warning" @click="muestraClientes('gestion',zonaactual)">Gestion</button>
+    <button class="button is-warning" @click="muestraClientes('gestion',zonaactual||'%')">Gestion</button>
     <button class="button is-dark" @click="muestraClientes('antiguos',zonaactual)">Antiguos</button>
-    <button class="button is-info" @click="muestraClientes('nuevomoroso',zonaactual)">Atraso</button>
-    <button class="button is-info" @click="muestraClientes('morosos',zonaactual)">Morosos</button>
+    <button class="button is-info" @click="muestraClientes('nuevomoroso',zonaactual||'%')">Atraso</button>
+    <button class="button is-info" @click="muestraClientes('morosos',zonaactual||'%')">Morosos</button>
+    <button class="button is-info" @click="muestraClientes('vender',zonaactual||'%')">Vender</button>
     <button class="button is-warning" @click="verZonas==true?verZonas=false:verZonas=true">Cambiar Zonas</button>
     <input type="text" name="zona" v-model="zona" list="zonalist" autocomplete="off" v-if="verZonas">
                   <datalist id="zonalist">
@@ -136,18 +131,6 @@ endblock %} {% block style %}
 </div>
 {% endblock %} {% block script %}
 <script>
- /* const markSelected1 = ()=>{
-  *     if (event.target.parentElement.parentElement.tagName!='TBODY') return;
-  *     const $row = event.target.parentElement;
-  *     $row.classList.toggle('is-selected');
-  * }
-  * document.addEventListener('click',()=>{
-  *         if(event.target.tagName==='TD') {
-  *             markSelected1()
-  *         }
-  *         })
-  *  */
-
   const app = new Vue({
     el: "#app",
     delimiters: ["|", "|"],

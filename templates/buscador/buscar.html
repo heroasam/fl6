@@ -3,7 +3,7 @@
 {% block title %}Clientes{% endblock %}
 {% block content %}
 <div x-data="main()"  class="container" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores()">
-
+    
     <div>
 	<div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
             <input  placeholder="DNI o N° Cuenta" class="input" x-model="buscar1" @keyup.enter="buscarCliente"
@@ -12,7 +12,7 @@
 	</div>
 	<div class="grid-buscar ml-3 mr-3 mt-2 center">
             <input type="search" placeholder="Busca por: Nombre Calle Num aclaracion / DNI / Cuenta / wapp / id9999" class="input" x-model="buscar"
-		   @focus="buscar1=''" @keyup.enter="buscarCliente";verCard=false" autofocus>
+		   @focus="buscar1='';buscar=''" @keyup.enter="buscarCliente";verCard=false" autofocus>
             <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
 	</div>
         <div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
@@ -24,7 +24,7 @@
         </div>
     </div>
 
-    <!-- tablebuscar -->
+    <!-- Tablebuscar -->
     <table class="table tablebuscar noselect is-narrow is-striped mt-6 center" x-show="listaClientes_.length">
 	<thead>
 	    <tr>
@@ -87,7 +87,7 @@
 	</tbody>
     </table>
 
-    <!-- carddatos clientes -->
+    <!-- cardclientes -->
 
     <div class="box mt-6"  x-show="verCard">
 	<div>
@@ -116,7 +116,6 @@
 	    @click="fecharPmovto(Cliente.id)"></h2>
             <a href="#table-comentarios" class="mr-3"
 	       x-show="listaComentarios.length">Hay comentarios</a>
-	    <!-- tags informativos que se muestran para los deudores -->
 	    <div class="xtags has-addons m0"
 		 x-show="Cliente.deuda>0&&dayjs.utc().diff(Cliente.ultpago,'d')>30">
 		    <span class="tag is-danger">atrasada</span>
@@ -142,10 +141,10 @@
 		    <span class="tag is-small is-warning m-0">planes</span>
 		    <span class="tag is-small is-light m-0" x-text="Cliente.planes"></span>
 	    </div>
-
-	    <!-- tags informativos que se muestran para los cancelados -->
-
-
+	    <div class="xtags has-addons m-0" x-show="dayjs.utc().diff(Cliente.fechaintimacion,'d')<30">
+		    <span class="tag is-small is-success m-0">intimado</span>
+		    <span class="tag is-small is-light m-0" x-text="Cliente.fechaintimacion"></span>
+	    </div>
         </div>
     </div>
     <div class="buttons ml-3 mr-3 mb-1" x-show="verCard">
@@ -632,6 +631,7 @@
 		      this.listaClientes.map(row=>row.pmovto=dayjs.utc(row.pmovto).format('YYYY-MM-DD'))
 		      this.listaClientes.map(row=>row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD'))
 		      this.listaClientes.map(row=>row.ultcompra=dayjs.utc(row.ultcompra).format('YYYY-MM-DD'))
+		      this.listaClientes.map(row=>row.fechaintimacion=dayjs.utc(row.fechaintimacion).format('YYYY-MM-DD'))
 		      /* corrijo Cliente.ultpago en los casos que ha comprado de nuevo */
 		      this.listaClientes.map(row=>{
 			  if(row.ultcompra>row.ultpago) row.ultpago=row.ultcompra

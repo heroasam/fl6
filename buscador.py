@@ -7,6 +7,7 @@ from formularios import intimacion, libredeuda, ficha, recibotransferencia
 from con import get_con, log
 
 
+
 buscador = Blueprint('buscador',__name__)
 
 
