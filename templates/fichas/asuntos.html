@@ -188,7 +188,7 @@ block style %}
 				let tbody = document.querySelector("tbody");
 				let rowsArray = Array.from(tbody.rows);
 				rowsArray.forEach((row) => {
-					if (row.classList.contains("selected")) {
+					if (row.classList.contains("is-selected")) {
 						ids.push(row.cells[3].innerHTML);
 						//la celda que corresponda a dni OJO
 					}

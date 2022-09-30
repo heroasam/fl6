@@ -40,7 +40,7 @@
         </div>
         <button class="button is-success" @click="limpiarToggles();imprimirListado()">Imprimir</button>
 
-        <table class="table isnarrow">
+        <table class="table isnarrow nototal">
             <thead>
                 <tr>
                     <th>year</th>
@@ -117,7 +117,7 @@
                 arrayRows = arrayRows.slice(1,arrayRows.length)
                 arrayRows.forEach(row=>{
                     if(Array.from(row.children)[0].innerHTML===year){
-                        row.classList.toggle('selected')
+                        row.classList.toggle('is-selected')
                     }
                 })
             },
@@ -125,7 +125,7 @@
                 $tbody = document.querySelector('tbody')
                 arrayRows = Array.from($tbody.children)
                 arrayRows = arrayRows.slice(1,arrayRows.length)
-                arrayRows.forEach(row=>row.classList.remove('selected'))
+                arrayRows.forEach(row=>row.classList.remove('is-selected'))
             },
             limpiarToggles(){
                 $btnYear = document.getElementById('btnYear')
@@ -138,7 +138,7 @@
                 this.listImprimir = []
                 $tbody = document.querySelector('tbody')
                 Array.from($tbody.children).slice(1).forEach(row=>{
-                    if(row.classList.contains('selected')){
+                    if(row.classList.contains('is-selected')){
                         this.listImprimir.push(row.cells[2].innerHTML)
                     }
                 })

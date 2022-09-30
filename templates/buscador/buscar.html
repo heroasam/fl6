@@ -240,8 +240,8 @@
         </tbody>
     </table>
 
-    <!-- tablecuotas -->
     <div class="columns m-2">
+	<!-- tablecuotas -->
         <div class="column is-3">
 	    <div class="flex-center" x-show="verCard">
             <h4 class="title is-4 text-center m-2">Cuotas a pagar</h4>
@@ -271,11 +271,11 @@
         <div class="column is-5" x-show="verCard && listaPagadas.length">
 	    <div class="flex-center">
 		<h4 class="title is-4 text-center m-2">Cuotas pagadas</h4>
-		<span class="tag is-small is-dark" x-text="listaPagadas.length" x-show="!verCuotasPagadas"></span> 
+		<span class="tag is-small is-dark" x-text="listaPagadas.length" x-show="listaPagadas.length>5"></span> 
 		<span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
-		 @click="verCuotasPagadas=!verCuotasPagadas"></i></span>
+		 @click="verCuotasPagadas=!verCuotasPagadas" x-show="listaPagadas.length>5"></i></span>
 	    </div>
-            <table class="table is-narrow is-striped" x-show="verCuotasPagadas">
+            <table class="table is-narrow is-striped" x-bind:class="verCuotasPagadas?'':'table5'">
                 <thead>
                     <tr>
                         <th>Fecha</th>
@@ -646,7 +646,6 @@
 	     this.resetBuscar()
 	     this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
 	     this.buscar = this.Cliente.calle+' '+this.Cliente.num
-	     if(this.Cliente.deuda==0) this.verCuotasPagadas=false
              this.obtenerVentas(this.Cliente.id)
              this.verCard = true;
              this.clipWappVentas()
@@ -764,6 +763,7 @@
                   .then(res=>{
                       this.listaPagadas=res.data.pagadas
                       this.listaPagadas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+	              if(this.listaPagadas.length>5) this.verCuotasPagadas=false
                   })
          },
          toggleInc(){
