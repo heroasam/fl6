@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}{% endblock %}</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+	<link rel="stylesheet" href="https://unpkg.com/buefy/dist/buefy.min.css">
+        <link id="bulma" rel="stylesheet" href="https://unpkg.com/bulmaswatch/darkly/bulmaswatch.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css"">
+	<script defer src="https://unpkg.com/alpinejs@3.10.3/dist/cdn.min.js"></script>
+
+        {% block style %} {% endblock %}
+      </head>
+<body>
+    
+	<header>
+	    {% include "_nav.html" %}
+	</header>
+
+
+        {% block content %}{% endblock %}
+
+
+<script src="{{ url_for('static', filename='scripts.js') }}" ></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.5/plugin/utc.min.js"></script>
+<script>dayjs.extend(window.dayjs_plugin_utc)</script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/buefy/dist/components/autocomplete"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/bulma-toast@2.4.1/dist/bulma-toast.min.js"></script>
+
+
+<script>
+</script>
+{% block script %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,21 @@
+
+<span class="nav-bar" id="btnMenu"><span class="icon-menu"><i class="fa fa-bars" aria-hidden="true"></i></span></span>
+<nav class="main-nav">
+  <div class="menu" id="menu">
+    <a href="/buscador" class="menu__link">Clientes</a>
+    <a href="/ventas/ventas" class="menu__link">Ventas</a>
+    <a href="/pagos" class="menu__link">Pagos</a>
+    <a href="/fichas" class="menu__link">Fichas</a>
+    <a href="/stock/asientos" class="menu__link">Stock</a>
+    <a href="/utilidades/planos" class="menu__link">Utilidades</a>
+    <a href="#" class="menu__link" role="button" onclick="toggleTheme()">Theme</a>
+    {% if not current_user.email %}
+    <a href="signup" class="menu__link">Registrarse</a>
+    <a href="/login" class="menu__link">Login</a>
+    {% endif %}
+    {% if current_user.email %}
+    <label class="email__link">{{current_user.email}}</label>
+    <a href="/logout" class="menu__link">LogOut</a>
+    {% endif %}
+  </div>
+</nav>
