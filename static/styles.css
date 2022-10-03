@@ -1,0 +1,302 @@
+td {text-align: center;
+}
+
+tr,th {text-align:center;}
+
+/* tr:hover td {background-color: lightyellow; */
+/*              color:black;} */
+
+/* tr:hover th {background-color: lightyellow; */
+/*              color:black;} */
+#table tr{
+    cursor:pointer;
+}
+
+
+thead th {
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0px;
+    /* z-index: 10; */
+    /* background-color: white;
+    color:black; */
+}
+/* .selected{ */
+/*     background-color: orange; */
+/*     color: black; */
+/* } */
+.subtotal{
+    /* background-color: yellow; */
+    /* color: blue; */
+    font-weight: bold;
+}
+.block:not(:last-child) {
+      margin-bottom: 1.5rem;
+}
+
+
+/* Menu responsive */
+
+.nav-bar{
+    background: orange;
+    padding: 20px;
+    display: block;
+    color: white;
+    cursor: pointer;
+    font-size: 1.5em;
+    width: 100%;
+}
+.menu{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background: #555;
+    width: 100%;
+    margin-left: -100%;
+    height: 0;
+    overflow: hidden;
+    transition: all 0.5s;
+}
+.submenu{
+    height: 0;
+    overflow: hidden;
+    transition: all 0.5s;
+}
+.menu__link{
+    display:block;
+    padding: 20px;
+    color: white;
+    font-size: 1.2em;
+    text-decoration: none;
+}
+.menu__link:hover{
+    background: #444;
+    color: white;
+}
+.email__link{
+    display:block;
+    padding: 20px;
+    color: antiquewhite;
+    font-size: 1.2em;
+    text-decoration: none;
+}
+.mostrar {
+    margin-left:0;
+    overflow: visible;
+    height: auto;
+}
+@media(min-width:1024px) {
+    .nav-bar{
+        display: none;
+    }
+    .menu{
+        margin-left: 0;
+        display: flex;
+        justify-content: flex-end;
+        overflow:visible;
+        height: auto;
+    }
+}
+
+/* grid buscar */
+
+.grid-buscar{
+    display: grid;
+    grid-template-columns: 1fr 20%;
+}
+
+/* modal */
+.xcard {
+    padding: 24px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 6px 0px 10px gray ;
+}
+.xmodal-container{
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0,0,0,0.3);
+}
+.xmodal{
+    display:flex;
+    flex-direction: column;
+    position: relative;
+}
+.btn-close{
+    color:purple;
+    background-color: white;
+    border: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+/* input textarea suggestions */
+.textarea {
+        border: solid 1px purple;
+        border-radius: 5px;
+    }
+.textarea:focus{
+        border: solid 2px turquoise;
+        border-radius: 5px;
+}
+.input:focus{
+        border: solid 2px turquoise;
+        border-radius: 5px;
+}
+.suggestions{
+    max-height: 200px;
+    width: 100%;
+    border-radius: 5px;
+    overflow: auto;
+}
+.suggestions>div{
+    padding: 5px;
+    padding-left: 15px;
+    font-size: 1em;
+    color: #999;
+    cursor: pointer;
+}
+.suggestions>div:hover{
+    background: black;
+    color: white;
+}
+/* mora cliente cancelado */
+.mora{
+    background-color: red;
+}
+.cliente{
+    background-color: yellow;
+}
+.cancelado{
+    background-color: mediumaquamarine;
+}
+
+/* placeholder */
+:placeholder-shown{
+        font-size: larger;
+        font-weight: bold;
+}
+
+.inactive{
+  background-color:rgb(178, 42, 32);
+}
+.active{
+  background-color:rgb(13, 130, 148);
+}
+.color1 {
+    background-color: rgb(178, 42, 32);
+    color: black;
+    text-align: center;
+}
+.color2 {
+    background-color: rgb(178, 127, 32);
+    color: black;
+    text-align: center;
+}
+.color3 {
+    background-color: rgb(176, 178, 32);
+    color: black;
+    text-align: center;
+}
+.color4 {
+    background-color: rgb(32, 178, 98);
+    color: black;
+    text-align: center;
+}
+.color5 {
+    background-color: rgb(147, 196, 193);
+    color: black;
+    text-align: center;
+}
+.color6 {
+    background-color: orange;
+    color: black;
+    text-align: center;
+}
+.color7 {
+    background-color: rgb(80, 89, 214);
+    color: black;
+    text-align: center;
+}
+.color8 {
+    background-color: rgb(13, 130, 148);
+    color: black;
+    text-align: center;
+}
+.color9 {
+    background-color: rgb(141, 11, 104);
+    color: black;
+    text-align: center;
+}
+.color0 {
+    background-color: rgb(127, 19, 189);
+    color: black;
+    text-align: center;
+}
+.tablebuscar tr:hover{
+    cursor:pointer;
+}
+.xtags{
+    display:inline-flex;
+    align-items:start;
+    flex-wrap:wrap;
+    justify-content:flex-start;
+}
+.pointer{
+    cursor:pointer;
+}
+.center{
+    margin:0 auto;
+}
+.flex{
+    display:flex;
+}
+.grid{
+    display:grid;
+}
+.flex-center{
+    display:flex;
+    align-items:center;
+}
+.flex-left{
+    display:flex;
+    align-items:flex-start;
+}
+.table5 tr:nth-child(n+7){
+    display:none;
+}
+.gap-1{
+    gap:10px;
+}
+.input-billete{
+    width: 350px;
+    font-size: 3em;
+    font-weight: bold;
+    text-align: center;
+}
+.div-billete{
+    width: 350px;
+    font-size: 3em;
+    text-align: right;
+    color:red;
+}
+.div-billete-total{
+    font-weight: bold;
+}
+.div-billete:before{
+    content:'$';
+}
+.input-arqueo-negativo{
+    font-weight: bold;
+    color:red !important;
+}
+.pesos:before{
+    content:'$';
+}
