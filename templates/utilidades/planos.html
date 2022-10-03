@@ -12,8 +12,9 @@
 <div id="app" class="container" v-cloak>
 	<p class="title is-1">Planos</p>
     <div class="buttons">
-        <a href="/utilidades/impresos" class="button is-primary">Impresos</a>
-        <a href="/utilidades/pdfsistema" class="button is-primary">Sistema</a>
+      <a href="/utilidades/impresos" class="button is-primary">Impresos</a>
+      <a href="/utilidades/pdfsistema" class="button is-primary">Sistema</a>
+      <a href="/utilidades/contador" class="button is-primary">Contador</a>
       </div>
 
       <div class="grid-buscar mb-6 mr-3 mt-2">
@@ -64,7 +65,7 @@ const app = new Vue({
         			}).then((res) => {
           			let url = window.URL.createObjectURL(res.data);
           			window.open(url);
-        
+
                     })},
         getPlanos(){
             axios.get('/utilidades/getplanos')

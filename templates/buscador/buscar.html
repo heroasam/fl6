@@ -81,6 +81,10 @@
 				<span class="tag is-small is-warning m-0">planes</span>
 				<span class="tag is-small is-light m-0" x-text="cliente.planes"></span>
 			</div>
+            <div class="xtags has-addons m-0" x-show="cliente.atraso>0 && cliente.deuda==0">
+                <span class="tag is-small is-warning m-0">atrasos</span>
+                <span class="tag is-small is-light m-0" x-text="cliente.atraso+' dias'"></span>
+            </div>
 		    </td>
 		</tr>
 	    </template>

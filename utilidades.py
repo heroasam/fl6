@@ -52,7 +52,7 @@ def utilidades_imprimirimpreso(impreso):
 @utilidades.route('/utilidades/getpdfsistema')
 def utilidades_pdfsistema():
     listapdfs = os.listdir('/home/hero')
-    pdfs = [os.path.split(pdf)[1] for pdf in listapdfs if pdf[-3:]=='pdf'] 
+    pdfs = [os.path.split(pdf)[1] for pdf in listapdfs if pdf[-3:]=='pdf']
     pdfs.sort()
     return jsonify(pdfs=pdfs)
 
@@ -60,3 +60,8 @@ def utilidades_pdfsistema():
 @utilidades.route('/utilidades/imprimirpdfsistema/<pdf>')
 def utilidades_imprimirpdfsistema(pdf):
     return send_file(os.path.join('/home/hero',pdf))
+
+
+@utilidades.route('/utilidades/contador')
+def utilidades_contador():
+    return render_template('/utilidades/contador.html')
