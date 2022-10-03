@@ -3,7 +3,7 @@
 {% block title %}Clientes{% endblock %}
 {% block content %}
 <div x-data="main()"  class="container" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores()">
-    
+
     <div>
 	<div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
             <input  placeholder="DNI o N° Cuenta" class="input" x-model="buscar1" @keyup.enter="buscarCliente"
@@ -145,6 +145,10 @@
 		    <span class="tag is-small is-success m-0">intimado</span>
 		    <span class="tag is-small is-light m-0" x-text="Cliente.fechaintimacion"></span>
 	    </div>
+	    <div class="xtags has-addons m-0" x-show="Cliente.atraso>0 && Cliente.deuda==0">
+		    <span class="tag is-small is-warning m-0">atrasos</span>
+		    <span class="tag is-small is-light m-0" x-text="Cliente.atraso+' dias'"></span>
+	    </div>
         </div>
     </div>
     <div class="buttons ml-3 mr-3 mb-1" x-show="verCard">
@@ -270,7 +274,7 @@
         <div class="column is-5" x-show="verCard && listaPagadas.length">
 	    <div class="flex-center">
 		<h4 class="title is-4 text-center m-2">Cuotas pagadas</h4>
-		<span class="tag is-small is-dark" x-text="listaPagadas.length" x-show="listaPagadas.length>5"></span> 
+		<span class="tag is-small is-dark" x-text="listaPagadas.length" x-show="listaPagadas.length>5"></span>
 		<span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
 		 @click="verCuotasPagadas=!verCuotasPagadas" x-show="listaPagadas.length>5"></i></span>
 	    </div>
@@ -635,7 +639,7 @@
 		      /* corrijo Cliente.ultpago en los casos que ha comprado de nuevo */
 		      this.listaClientes.map(row=>{
 			  if(row.ultcompra>row.ultpago) row.ultpago=row.ultcompra
-		      }) 
+		      })
 		      if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
 		  })
 		  .catch(error=>{
