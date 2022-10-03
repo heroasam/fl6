@@ -1,4 +1,4 @@
-from flask import Blueprint,render_template,jsonify,make_response, request,send_file
+from flask import Blueprint, render_template, jsonify, make_response, request, send_file
 from flask_login import login_required
 from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, pglflat
 import simplejson as json
@@ -7,13 +7,11 @@ from formularios import intimacion, libredeuda, ficha, recibotransferencia
 from con import get_con, log
 
 
-
-buscador = Blueprint('buscador',__name__)
-
+buscador = Blueprint('buscador', __name__)
 
 
 @buscador.route('/')
-@buscador.route('/buscador', methods = ['GET','POST'])
+@buscador.route('/buscador', methods=['GET', 'POST'])
 @login_required
 def buscador_():
     return render_template("buscador/buscar.html")
@@ -24,12 +22,10 @@ def buscador_pdf(pdf):
     return send_file('/home/hero/'+pdf)
 
 
-
 @buscador.route('/log')
 @login_required
 def buscador_log():
     return render_template('buscador/log.html')
-
 
 
 @buscador.route('/buscador/<string:buscar>')
@@ -39,10 +35,10 @@ def buscar_cuenta(buscar):
     rdni = r'^[0-9]{7,8}$'
     rid = r'^id[0-9]{4,5}$'
     rwapp = r'^[0-9]{10,15}$'
-    if buscar=="-":
+    if buscar == "-":
         sql = "select * from clientes where id=0"
         error_msg = "ingrese algo para buscar"
-    elif (re.match(rcuenta,buscar)):
+    elif (re.match(rcuenta, buscar)):
         cur = con.cursor()
         try:
             cur.execute(f'select idcliente from ventas where id={buscar}')
@@ -51,45 +47,44 @@ def buscar_cuenta(buscar):
         except:
             sql = "select * from clientes where id=0"
             error_msg = "Cuenta no encontrada"
-    elif (re.match(rdni,buscar)):
+    elif (re.match(rdni, buscar)):
         sql = f"select * from clientes where dni='{buscar}'"
-        error_msg ="DNI no encontrado"
-    elif (re.match(rwapp,buscar)):
+        error_msg = "DNI no encontrado"
+    elif (re.match(rwapp, buscar)):
         sql = f"select * from clientes where wapp='{buscar}'"
-        error_msg ="Whatsapp no encontrado"
-    elif (re.match(rid,buscar)):
+        error_msg = "Whatsapp no encontrado"
+    elif (re.match(rid, buscar)):
         sql = f"select * from clientes where id={buscar[2:]}"
         error_msg = "idcliente no encontrado"
     else:
-        buscar = re.sub(r'^(\D)','%'+r'\1',buscar)
-        buscar = re.sub(r'(\s)(\D)','%'+r'\2',buscar) 
-        buscar = re.sub(r'(\s)(\d)','% '+r'\2',buscar)  
-        buscar = re.sub(r'\*','%',buscar) 
-        buscar = re.sub(r'(\D)$',r'\1'+'%',buscar)
-        print('cadena busqueda',buscar)
+        buscar = re.sub(r'^(\D)', '%'+r'\1', buscar)
+        buscar = re.sub(r'(\s)(\D)', '%'+r'\2', buscar)
+        buscar = re.sub(r'(\s)(\d)', '% '+r'\2', buscar)
+        buscar = re.sub(r'\*', '%', buscar)
+        buscar = re.sub(r'(\D)$', r'\1'+'%', buscar)
+        print('cadena busqueda', buscar)
         sql = f"select * from clientes where lower(concat(nombre,calle,acla,' ',num)) like lower('{buscar}') order by calle,num"
-        print('sql',sql)
+        print('sql', sql)
         error_msg = "no hay respuesta para esa busqueda"
     cur = con.cursor(dictionary=True)
     cur.execute(sql)
     clientes = cur.fetchall()
-    if len(clientes)==0:
-        return make_response(error_msg,400)
+    if len(clientes) == 0:
+        return make_response(error_msg, 400)
     con.close()
     return jsonify(clientes=clientes)
 
 
 @buscador.route('/buscador/clientesdireccion/<string:calle>/<string:num>')
-def clientesdireccion(calle,num):
+def clientesdireccion(calle, num):
     con = get_con()
     cur = con.cursor(dictionary=True)
     sql = f"select * from clientes where calle='{calle}' and num='{num}'"
-    print("sql clientesdireccion",sql)
+    print("sql clientesdireccion", sql)
     cur.execute(sql)
     clientes = cur.fetchall()
     con.close()
     return jsonify(clientes=clientes)
-
 
 
 @buscador.route('/buscador/pedirpagadasporidcliente/<int:idcliente>')
@@ -161,7 +156,7 @@ def buscar_obtenerventascanceladasporidcliente(idcliente):
 
 
 @buscador.route('/buscador/guardarpmovto/<int:idcliente>/<string:pmovto>')
-def buscar_guardarpmovto(idcliente,pmovto):
+def buscar_guardarpmovto(idcliente, pmovto):
     con = get_con()
     sql = f"update clientes set pmovto='{pmovto}' where id={idcliente}"
     cur = con.cursor()
@@ -172,21 +167,21 @@ def buscar_guardarpmovto(idcliente,pmovto):
     return 'ok'
 
 
-@buscador.route('/buscador/imprimirficha' , methods = ['POST'])
+@buscador.route('/buscador/imprimirficha', methods=['POST'])
 def buscar_imprimirficha():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     dni = d['dni']
     wapp = d['whatsapp']
     idcliente = d['idcliente']
-    ficha(con,[dni])
+    ficha(con, [dni])
     con.close()
     if wapp:
-        response = send_file_whatsapp(idcliente, "https://www.fedesal.lol/pdf/ficha.pdf", wapp)
-        return jsonify(response=response) 
+        response = send_file_whatsapp(
+            idcliente, "https://www.fedesal.lol/pdf/ficha.pdf", wapp)
+        return jsonify(response=response)
     else:
         return send_file('/home/hero/ficha.pdf')
-    
 
 
 @buscador.route('/buscador/togglesube/<string:dni>')
@@ -196,7 +191,7 @@ def buscar_togglesube(dni):
     selsev = f"select sev from clientes where dni='{dni}'"
     sube = pgonecolumn(con, selsube)
     sev = pgonecolumn(con, selsev)
-    if sev==0:
+    if sev == 0:
         if sube:
             upd = f"update clientes set subirseven=0 where dni='{dni}'"
             msg = "Registro desmarcado para subir seven"
@@ -211,7 +206,7 @@ def buscar_togglesube(dni):
         return jsonify(msg=msg)
     else:
         con.close()
-        msg =  'No se sube pq ya esta en el seven'
+        msg = 'No se sube pq ya esta en el seven'
         return jsonify(msg=msg)
 
 
@@ -250,7 +245,7 @@ def buscar_togglemudado(dni):
     try:
         cur.execute(upd)
     except:
-        return make_response("un error se ha producido",400)
+        return make_response("un error se ha producido", 400)
     else:
         con.commit()
         log(upd)
@@ -339,18 +334,19 @@ def buscar_toggleseguir(dni):
     return jsonify(msg=msg)
 
 
-@buscador.route('/buscador/guardaredicioncliente/<int:idcliente>' , methods = ['POST'])
+@buscador.route('/buscador/guardaredicioncliente/<int:idcliente>', methods=['POST'])
 def busca_guardaredicioncliente(idcliente):
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    cliente_viejo = pgdict(con, f"select * from clientes where id={d['id']}")[0]    
+    cliente_viejo = pgdict(
+        con, f"select * from clientes where id={d['id']}")[0]
     upd = f"update clientes set sex='{d['sex']}', dni='{d['dni']}', nombre='{d['nombre']}', calle='{d['calle']}', num={d['num']}, barrio='{d['barrio']}', zona='{d['zona']}', tel='{d['tel']}', wapp='{d['wapp']}', acla='{d['acla']}', mjecobr='{d['mjecobr']}', horario='{d['horario']}', infoseven='{d['infoseven']}' where id={idcliente}"
     cur = con.cursor()
     cur.execute(upd)
     log(upd)
     con.commit()
     ins = f"insert into logcambiodireccion(idcliente,calle,num,barrio,tel,acla,fecha,nombre,dni,wapp) values({cliente_viejo['id']},'{cliente_viejo['calle']}','{cliente_viejo['num']}','{cliente_viejo['barrio']}','{cliente_viejo['tel']}','{cliente_viejo['acla']}',curdate(),'{cliente_viejo['nombre']}','{cliente_viejo['dni']}','{cliente_viejo['wapp']}')"
-    if cliente_viejo['calle']!=d['calle'] or cliente_viejo['num']!=d['num'] or cliente_viejo['acla']!=d['acla'] or cliente_viejo['wapp']!=d['wapp']:
+    if cliente_viejo['calle'] != d['calle'] or cliente_viejo['num'] != d['num'] or cliente_viejo['acla'] != d['acla'] or cliente_viejo['wapp'] != d['wapp']:
         cur.execute(ins)
         con.commit()
         log(ins)
@@ -378,7 +374,6 @@ def buscar_obtenerlistabarrios():
     barrios = cur.fetchall()
     con.close()
     return jsonify(barrios=barrios)
-
 
 
 @buscador.route('/buscador/obtenerlistazonas')
@@ -443,7 +438,8 @@ def buscador_intimar():
     con = get_con()
     intimacion(con, [dni])
     if wapp:
-        response = send_file_whatsapp(idcliente, f"https://www.fedesal.lol/pdf/intimacion{dni}.pdf", wapp)
+        response = send_file_whatsapp(
+            idcliente, f"https://www.fedesal.lol/pdf/intimacion{dni}.pdf", wapp)
         if response == 'success':
             upd = f"update clientes set fechaintimacion=curdate() where dni={dni}"
             cur = con.cursor()
@@ -463,7 +459,6 @@ def buscador_intimar_nowapp(dni):
     return send_file(f'/home/hero/intimacion{dni}.pdf')
 
 
-
 @buscador.route('/buscador/libredeuda', methods=['POST'])
 def buscador_libredeuda():
     con = get_con()
@@ -472,9 +467,10 @@ def buscador_libredeuda():
     wapp = d['wapp']
     deuda = d['deuda']
     idcliente = d['idcliente']
-    libredeuda(con,dni)
-    if wapp and deuda==0:
-        response = send_file_whatsapp(idcliente, f"https://www.fedesal.lol/pdf/libredeuda{dni}.pdf", wapp)
+    libredeuda(con, dni)
+    if wapp and deuda == 0:
+        response = send_file_whatsapp(
+            idcliente, f"https://www.fedesal.lol/pdf/libredeuda{dni}.pdf", wapp)
         return jsonify(response)
 
 
@@ -483,7 +479,7 @@ def buscador_libredeuda_nowapp():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     dni = d['dni']
-    libredeuda(con,dni)
+    libredeuda(con, dni)
     return send_file(f'/home/hero/libredeuda{dni}.pdf')
 
 
@@ -495,7 +491,7 @@ def buscador_obtenerlogs():
     return jsonify(logs=logs)
 
 
-@buscador.route('/buscador/cargarasunto' , methods=['POST'])
+@buscador.route('/buscador/cargarasunto', methods=['POST'])
 def buscador_cargarasunto():
     d = json.loads(request.data.decode("UTF-8"))
     con = get_con()
@@ -518,7 +514,8 @@ def buscador_obtenerlistacalles():
 @buscador.route('/buscador/mostrarcalle/<string:calle>')
 def buscador_mostrarcalle(calle):
     con = get_con()
-    calle = pgdict(con, f"select num,nombre,deuda,dni, coalesce(datediff(now(), ultpago),0) as atraso from clientes where calle='{calle}' and comprado>0 order by num")
+    calle = pgdict(
+        con, f"select num,nombre,deuda,dni, coalesce(datediff(now(), ultpago),0) as atraso from clientes where calle='{calle}' and comprado>0 order by num")
     return jsonify(calle=calle)
 
 
@@ -538,7 +535,7 @@ def buscador_generarrbotransferencia():
         cur.execute(ins)
         con.commit()
     except:
-        return make_response("No se registro el Recibo, hay un error",400)
+        return make_response("No se registro el Recibo, hay un error", 400)
     else:
         log(ins)
         con.close()
@@ -549,13 +546,15 @@ def buscador_generarrbotransferencia():
 def buscador_enviarrbotransferencia():
     d = json.loads(request.data.decode("UTF-8"))
     con = get_con()
-    recibotransferencia(con,'d[fecha]',d['cuenta'],d['nc'],d['ic'],d['cobr'],d['rbo'],d['idcliente'])
+    recibotransferencia(con, 'd[fecha]', d['cuenta'], d['nc'],
+                        d['ic'], d['cobr'], d['rbo'], d['idcliente'])
     wapp = d['wapp']
     cuenta = d['cuenta']
     idcliente = d['idcliente']
     con.close()
     if wapp:
-        response = send_file_whatsapp(idcliente, f"https://www.fedesal.lol/pdf/recibotransferencia{cuenta}.pdf", wapp)
+        response = send_file_whatsapp(
+            idcliente, f"https://www.fedesal.lol/pdf/recibotransferencia{cuenta}.pdf", wapp)
         return jsonify(response=response)
 
 
@@ -563,7 +562,8 @@ def buscador_enviarrbotransferencia():
 def buscador_enviarrbotransferencia_nowapp():
     d = json.loads(request.data.decode("UTF-8"))
     con = get_con()
-    recibotransferencia(con,'d[fecha]',d['cuenta'],d['nc'],d['ic'],d['cobr'],d['rbo'],d['idcliente'])
+    recibotransferencia(con, 'd[fecha]', d['cuenta'], d['nc'],
+                        d['ic'], d['cobr'], d['rbo'], d['idcliente'])
     cuenta = d['cuenta']
     con.close()
     return send_file(f"/home/hero/recibotransferencia{cuenta}.pdf")
@@ -589,7 +589,6 @@ def buscador_wapp():
         return response
     else:
         return 'error', 400
-
 
 
 @buscador.route('/buscador/callesprueba')

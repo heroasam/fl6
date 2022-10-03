@@ -7,4 +7,7 @@ __pychache__/
 .vscode/settings.json
 .ycm*
 *~
-
+.vim/
+.vscode/
+#*#
+*flymake*
