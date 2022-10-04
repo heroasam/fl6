@@ -1,10 +1,10 @@
 {% extends "base.html" %} {% block title %}Altas{% endblock %} {%
     block style %}
     <style></style>
-    {% endblock %} 
-    
+    {% endblock %}
+
     {% block content %}
-    
+
     <div class="container">
         <p class="title is-1">Altas Seven</p>
         <div class="buttons">
@@ -19,7 +19,7 @@
             <a href="/pagos/comisiones" class="button is-primary">Comisiones</a>
             <a href="/pagos/bajas" class="button is-primary">Bajas</a>
           </div>
-    
+
         <div x-data="main()" x-init="loadAltas()">
             <div>
                 <button class="button is-black" @click="generarCSV()">Generar CSV</button>
@@ -34,7 +34,7 @@
                         <th>sex</th>
                         <th>calle</th>
                         <th>num</th>
-                        <th>deuda</th>
+                        <th class="numeric">deuda</th>
                         <th>ultpago</th>
                         <th>SUBE</th>
                     </tr>
@@ -88,7 +88,7 @@
                         this.sevenAltas=res.data.sevenaltas
                         let enc = ['adherente','nro_credit','nro_docume','tipo','sexo','clase','cant','ayn','domicilio','cpostal', 'barrio','localidad','provincia','codigo_cob','fecha_ingr','codigo_act','aval','mail','telefono']
                         this.sevenAltas.unshift(enc)
-                        let csvContent = "data:text/csv;charset=utf-8," 
+                        let csvContent = "data:text/csv;charset=utf-8,"
                         + this.sevenAltas.map(e => e.join(",")).join("\n");
                         console.log(csvContent)
                         var encodedUri = encodeURI(csvContent);
@@ -99,7 +99,7 @@
 
                         link.click(); //
                     })
-                    
+
                 },
                 marcarSubidos(){
                     this.loadAltas()
@@ -107,7 +107,7 @@
                     this.listAltas.forEach(row=>{
                         listdni.push(row['dni'])
                     })
-                    
+
                     axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
                     axios({
                         method:'POST',
@@ -128,12 +128,11 @@
                         })
                     })
                 },
-               
-           
-                
+
+
+
             }
         }
-        
+
     </script>
     {% endblock %}
-    

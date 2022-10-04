@@ -259,15 +259,16 @@
                     <tr>
                         <th>N</th>
                         <th>Fecha</th>
-                        <th>Saldo</th>
+                        <th class="sumar numeric">Saldo</th>
                     </tr>
                 </thead>
                 <tbody>
                     <template x-for="cuota in listaCuotas">
+                      <!-- nc-vto-saldo -->
 			<tr x-show="cuota[2]">
                             <td x-text="cuota[0]"></td>
                             <td x-text="cuota[1]" style="min-width: 100px;"></td>
-                            <td x-text="cuota[2]"></td>
+                            <td x-text="cuota[2]" class="pesos"></td>
 			</tr>
                     </template>
                 </tbody>
@@ -287,8 +288,8 @@
                     <tr>
                         <th>Fecha</th>
                         <th>Rbo</th>
-                        <th class="sumar">Imp</th>
-                        <th class="sumar">Rec</th>
+                        <th class="sumar numeric">Imp</th>
+                        <th class="sumar numeric">Rec</th>
                         <th>Cobr</th>
                         <th>Cuenta</th>
                     </tr>

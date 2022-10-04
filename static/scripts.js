@@ -43,7 +43,7 @@ const totalizar = (tableId)=>{
     }
     $rowTotal.cells[0].innerHTML = "Subtotal";
 
-    const $ths = document.querySelectorAll('th');
+    const $ths = tableId.querySelectorAll('th');
     const $thtotal = [];
     const $thclass = [];
     Array.from($ths).forEach(th=>
@@ -100,7 +100,7 @@ const markSelected = (forma=null)=>{
 };
 
 
-const sortGrid = (colNum,dir)=>{
+const sortGrid = (colNum,dir,table)=>{
         let tbody = table.querySelector('tbody');
         let rowsArray = Array.from(tbody.rows);
         let compare;
@@ -122,7 +122,7 @@ const sortGrid = (colNum,dir)=>{
 };
 
 
-const sortGridNumerica = (colNum,dir)=>{
+const sortGridNumerica = (colNum,dir,table)=>{
         let tbody = table.querySelector('tbody');
         let rowsArray = Array.from(tbody.rows);
         let compare;
@@ -143,17 +143,30 @@ const sortGridNumerica = (colNum,dir)=>{
         tbody.append(...rowsArray);
 };
 
-
-// click en encabezados para ordenar en forma numerica
-// click con Ctrl presionado en encabezados para ordenar en forma alfabetica
+let colOrder={};
 document.addEventListener('click', ()=>{
-    if(event.target.tagName=== 'TH' && (event.altKey===false||event.ctrlKey===false)) {
+    let t=event.target.parentElement.parentElement.parentElement || 0;
+    if(event.target.tagName=== 'TH') {
         let th = event.target;
-        sortGridNumerica(th.cellIndex,'ASC');
-    }
-    if(event.target.tagName=== 'TH' && (event.altKey===true||event.ctrlKey===true)) {
-	let th = event.target;
-	sortGridNumerica(th.cellIndex,'DESC');
+        let col = th.cellIndex;
+        let numeric = th.classList.contains('numeric');
+        if(numeric){
+            if(colOrder.col=='ASC'){
+            sortGridNumerica(th.cellIndex,'DESC',t);
+                colOrder.col='DESC';
+            }else{
+            sortGridNumerica(th.cellIndex,'ASC',t);
+                colOrder.col='ASC';
+            }
+        }else{
+            if(colOrder.col=='ASC'){
+            sortGrid(th.cellIndex,'DESC',t);
+                colOrder.col='DESC';
+            }else{
+            sortGrid(th.cellIndex,'ASC',t);
+                colOrder.col='ASC';
+            }
+        }
     }
 });
 
@@ -162,13 +175,13 @@ document.addEventListener('click', ()=>{
 // click con alt presionado deselecciona todo
 // hay una class "noselect" que se le puede agregar a la tabla para que no tenga seleccion
 document.addEventListener('click', ()=>{
+        let t=event.target.parentElement.parentElement.parentElement || 0;
         if(event.target.tagName==='TD') {
 	    if (event.target.parentElement.parentElement.parentElement.classList.contains("noselect")) return;
             markSelected();
         };
         if(event.target.tagName=== 'TD' && event.altKey===true){
 	    if (event.target.parentElement.parentElement.parentElement.classList.contains("noselect")) return;
-            t=event.target.parentElement.parentElement.parentElement;
             restaurar(t);
         };
 });
@@ -176,8 +189,8 @@ document.addEventListener('click', ()=>{
 
 // restauro el table al hacer click en la fila subtotal
 document.addEventListener('click', ()=>{
+    let t=event.target.parentElement.parentElement.parentElement || 0;
     if(event.target.parentElement.classList.contains('subtotal')){
-        t=event.target.parentElement.parentElement.parentElement;
         restaurar(t);
     }
 });
@@ -205,30 +218,14 @@ document.addEventListener('mouseover',()=>{
 document.addEventListener('contextmenu', ()=>{
     // sort tabla por columnas con boton derecho en el encabezado
     event.preventDefault();
+    let t=event.target.parentElement.parentElement.parentElement || 0;
     // prevenDefault para que no funcione como esta predeterminado
     if(!event.target.parentElement.parentElement.parentElement.classList.contains('nototal')&&
        !event.target.parentElement.parentElement.parentElement.classList.contains('noselect')){
         if(event.target.tagName=== 'TD'){
-            t=event.target.parentElement.parentElement.parentElement || 0;
             totalizar(t);
         };
         }
-        // el event.target entrega el elemento clickado, si su tagName es TD
-        // buscampos el parent del parent del parent que es la tabla
-        // y lanzamos la funcion restaurar(tabla)
-
-        // luego si no es un TH terminamos
-        if(event.target.tagName!= 'TH') return;
-        // si es un TH lanzamos la funcion sortGrid
-        if(event.target.tagName=== 'TH' && (event.altKey===false||event.ctrlKey===false)) {
-        let th = event.target;
-            sortGrid(th.cellIndex,'ASC');
-        }
-        // con Alt o Ctrl ordenamos en sentido desc
-	if(event.target.tagName=== 'TH' && (event.altKey===true||event.ctrlKey===true)) {
-	    let th = event.target;
-		sortGrid(th.cellIndex,'DESC');
-	    }
     });
 
 

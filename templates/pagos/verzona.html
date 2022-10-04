@@ -51,7 +51,7 @@
                 <tr>
                     <th>cobr</th>
                     <th>nombre</th>
-                    <th>total</th>
+                    <th class="sumar numeric">total</th>
                 </tr>
             </thead>
             <tbody>
@@ -73,7 +73,7 @@
                     <th>Cobr</th>
                     <th>Nombre</th>
                     <th>Cnt</th>
-                    <th>Cuotas</th>
+                    <th class="sumar numeric">Cuotas</th>
                 </tr>
             </thead>
             <tbody>
@@ -87,17 +87,17 @@
                     <td>|zona[5]|</td>
                 </tr>
             </tbody>
-           
+
         </table>
     </div>
-    
+
 
     <div class="modal" :class="{'is-active':toggleModal}">
         <div class="modal-background"></div>
         <div class="modal-content">
           <div class="block">
                   <div class="field is-horizontal">
-        
+
                 <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
                       <div class="control">
                         <input type="text" v-model="zonaed" class="input"  size="25" disabled>
@@ -109,7 +109,7 @@
                       <div class="control">
                         <input type="text" v-model="nombreed" class="input" size="35" disabled>
                       </div>
-        
+
                       <div class="control">
                           <button type="button" class="button is-primary" @click="guardarEdicion()" id="guardar">Guardar</button>
                       </div>
@@ -175,7 +175,7 @@
                 this.getTotalesZonas()
             })
         },
-        
+
     },
     created:function(){
         this.getZonas()

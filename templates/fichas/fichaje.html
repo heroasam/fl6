@@ -9,7 +9,7 @@ endblock %} {% block style %}
     position: -webkit-sticky;
     top: 0px;
     z-index: 10;
-    } 
+    }
   .flex{
     display:flex;
   }
@@ -83,9 +83,9 @@ endblock %} {% block style %}
           <th>Num</th>
           <th>UltPago</th>
           <th>PmoVto</th>
-          <th>Compra</th>
+          <th class="sumar numeric">Compra</th>
           <th>Fecha</th>
-          <th>Deuda</th>
+          <th class="sumar numeric">Deuda</th>
           <th>Wapp</th>
           <th>Zona</th>
           <th>Barrio</th>
@@ -121,12 +121,12 @@ endblock %} {% block style %}
           <td><button class="button is-outlined is-primary is-small" @click="toggleGestion(cliente['dni'])">Ge</button></td>
           <td><button class="button is-outlined is-primary is-small" @click="toggleMudo(cliente['dni'])">Mu</button></td>
           <td><button class="button is-outlined is-primary is-small" @click="toggleInc(cliente['dni']);">IN</button></td>
-          
+
         </tr>
       </tbody>
     </table>
     <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
-  
+
 </div>
 </div>
 {% endblock %} {% block script %}
@@ -294,7 +294,7 @@ endblock %} {% block style %}
             //la celda que corresponda a dni OJO
           }
         });
- 
+
         axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
         axios({
           method: "POST",
@@ -395,7 +395,7 @@ endblock %} {% block style %}
                 this.muestraClientes(this.ultimotipo,this.ultimazona)
               }
         })
-      
+
       },
       toggleGestion(dni){
         axios.get('/buscador/togglegestion/'+dni)

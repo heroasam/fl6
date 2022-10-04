@@ -5,7 +5,7 @@
 <style>
   </style>
   {% endblock %}
-  
+
 {% block content %}
 
 <div id="app" class="container">
@@ -209,7 +209,7 @@
               </div>
           </div>
     </div>
-       
+
     <div class="column is-2">
       <input type="text" v-model="detallevta.ic" size=5 class="input" ref="cuota" placeholder="cuota" @keyup.enter="$refs.guardardetalle.focus()">
         <p v-show="!detallevta.ic" class="help is-danger">Requerido</p>
@@ -231,7 +231,7 @@
               <th>cnt</th>
               <th>art</th>
               <th>cc</th>
-              <th>ic</th>
+              <th class="sumar numeric">ic</th>
             </tr>
           </thead>
           <tbody>
@@ -278,7 +278,7 @@ const app = new Vue({
       detallevta:{art:''},
       selected: null,
       periodicidad:['mensual','quincenal','semanal'],
-      
+
       articulos:[],
       detvta: [],
       sumic: 0,
@@ -303,7 +303,7 @@ const app = new Vue({
                 this.buscar = '';
                 this.clientes = [];
                 this.$refs.sex.focus()
-          
+
         },
       getCalles(){
         axios.get('/ventas/getcalles')
@@ -350,7 +350,7 @@ const app = new Vue({
         }
       },
       guardarCliente(){
-            
+
             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
             axios({
                 method:'POST',
@@ -409,7 +409,7 @@ const app = new Vue({
       guardarDetalleVta(){
         this.detallevta.idvta = this.venta.id
         this.detallevta.cc = this.venta.cc
-        this.detallevta.art = this.detallevta.art.substring(3) 
+        this.detallevta.art = this.detallevta.art.substring(3)
         axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
             axios({
                 method:'POST',
@@ -499,7 +499,7 @@ const app = new Vue({
                     .indexOf(this.detallevta.art.toLowerCase()) >= 0
             })
         },
-        
+
     },
   })
   </script>
