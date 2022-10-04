@@ -29,6 +29,9 @@ const totalizar = (tableId)=>{
                 rowIndex.push(row.rowIndex-1);
                 //hago factor 1 pq se eliminan las filas sobrantes y se deja 1
             }
+            if(row.classList.contains('subtotal')){
+                row.remove();
+            };
         });
         let maxRow = Math.max(...rowIndex)+1;
         let $rowTotal = tbody.insertRow(maxRow);
@@ -206,7 +209,7 @@ document.addEventListener('contextmenu', ()=>{
     if(!event.target.parentElement.parentElement.parentElement.classList.contains('nototal')&&
        !event.target.parentElement.parentElement.parentElement.classList.contains('noselect')){
         if(event.target.tagName=== 'TD'){
-            t=event.target.parentElement.parentElement.parentElement;
+            t=event.target.parentElement.parentElement.parentElement || 0;
             totalizar(t);
         };
         }
