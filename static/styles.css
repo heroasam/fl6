@@ -297,6 +297,18 @@ thead th {
     font-weight: bold;
     color:red !important;
 }
+.pesos{
+    text-align: right !important;
+}
 .pesos:before{
     content:'$';
+}
+.perc{
+    text-align: right !important;
+}
+.perc:after{
+    content:'%';
+}
+.cuotavencida{
+    color:red;
 }

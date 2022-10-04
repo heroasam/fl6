@@ -259,7 +259,7 @@
                     <tr>
                         <th>N</th>
                         <th>Fecha</th>
-                        <th class="sumar numeric">Saldo</th>
+                        <th class="sumar numeric">Saldo</i></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -296,9 +296,9 @@
                 </thead>
                 <tbody>
                     <template x-for="paga in listaPagadas">
-			<tr>
+			<tr :class="dayjs(Vtos[paga.idvta])<dayjs(paga.fecha)?'cuotavencida':''">
                             <td x-text="paga.fecha" style="min-width: 150px;"></td>
-                            <td x-text="paga.rbo"></td>
+                            <td x-text="paga.rbo">
                             <td x-text="paga.imp" class="pesos"></td>
                             <td x-text="paga.rec" class="pesos"></td>
                             <td x-text="paga.cobr"></td>
@@ -600,6 +600,7 @@
          listaLogCambioDireccion:[],
          listaPagadas:[],
          listaCuentas:[],
+         Vtos:{},
          buscar:'',
 	 buscar1:'',
          verCard:false,
@@ -705,13 +706,11 @@
                       arrayVentas.map(row=>{
                           row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD')
                           row.p=1?'MEN':3?'SEM':'QUI'
+                          this.Vtos[row.id]=row.vto;
                       })
                       this.listaVentas = arrayVentas
                       this.listaCuentas = arrayVentas.map(row=>row.id)
                       this.listaCuotas = this.hacerCuotas()
-                      /* if(this.listaVentas.length===0) { */
-		      /* msgError('Error!','no hay cuentas ACTIVAS') */
-		      /* } */
                       this.pedirPagadas(idcliente)
                       this.obtenerVentasCanceladas(idcliente)
                       this.pedirComentarios(idcliente)
@@ -725,6 +724,7 @@
                       arrayVentasCanceladas.map(row=>{
                           row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD')
                           row.p=1?'MEN':3?'SEM':'QUI'
+                          this.Vtos[row.id]=row.vto;
                       })
                       this.listaVentasCanceladas = arrayVentasCanceladas
                   })

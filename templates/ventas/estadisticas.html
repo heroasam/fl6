@@ -40,17 +40,17 @@
                         <th>year</th>
                         <th class="sumar numeric">comprado</th>
                         <th class="sumar numeric">saldo</th>
-                        <th>inc</th>
-                        <th>cnt</th>
+                        <th class="numeric">inc</th>
+                        <th class="numeric">cnt</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="anual in est_anuales">
                         <td><button type="button" class="button is-info is-small" @click="verYear(anual['y'])">Ver</button></td>
                         <td>|anual['y']|</td>
-                        <td class="cur">|anual['comprado']|</td>
-                        <td class="cur">|anual['saldo']|</td>
-                        <td class="right">|(anual['inc']*100).toFixed(2)+"%"|</td>
+                        <td class="pesos">|anual['comprado']|</td>
+                        <td class="pesos">|anual['saldo']|</td>
+                        <td class="perc">|(anual['inc']*100).toFixed(2)|</td>
                         <td class="right">|anual['cnt']|</td>
                     </tr>
                 </tbody>
@@ -61,18 +61,18 @@
                 <thead>
                     <tr>
                         <th>mes</th>
-                        <th>comprado</th>
-                        <th>saldo</th>
-                        <th>inc</th>
-                        <th>cnt</th>
+                        <th class="numeric sumar">comprado</th>
+                        <th class="numeric sumar">saldo</th>
+                        <th class="numeric">inc</th>
+                        <th class="numeric">cnt</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="mes in est_mensuales">
                         <td>|mes['ym']|</td>
-                        <td class="cur">|mes['comprado']|</td>
-                        <td class="cur">|mes['saldo']|</td>
-                        <td class="right">|(mes['inc']*100).toFixed(2)+"%"|</td>
+                        <td class="pesos">|mes['comprado']|</td>
+                        <td class="pesos">|mes['saldo']|</td>
+                        <td class="perc">|(mes['inc']*100).toFixed(2)|</td>
                         <td class="right">|mes['cnt']|</td>
                     </tr>
                 </tbody>

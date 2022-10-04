@@ -25,7 +25,7 @@
                 <button class="button is-black" @click="generarCSV()">Generar CSV</button>
                 <button class="button is-black" @click="marcarSubidos()">Marcar Subidos</button>
             </div>
-            <table class="table nototal" id="table">
+            <table class="table" id="table">
                 <thead>
                     <tr>
                         <th>id</th>
@@ -34,7 +34,7 @@
                         <th>sex</th>
                         <th>calle</th>
                         <th>num</th>
-                        <th class="numeric">deuda</th>
+                        <th class="sumar numeric">deuda</th>
                         <th>ultpago</th>
                         <th>SUBE</th>
                     </tr>
@@ -48,7 +48,7 @@
                         <td x-text="item['sex']"></td>
                         <td x-text="item['calle']"></td>
                         <td x-text="item['num']"></td>
-                        <td x-text="item['deuda']"></td>
+                        <td class="pesos" x-text="item['deuda']"></td>
                         <td x-text="item['ultpago']"></td>
                         <td><button class="button is-small is-info" x-text="item['subirseven']?'SUBE':'noSUBE'" @click="toggleSube(item['id'])"></button></td>
                     </tr>

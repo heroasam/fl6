@@ -51,7 +51,6 @@ const totalizar = (tableId)=>{
             $thtotal.push(th.cellIndex);
             $thclass.push(Array.from(rowsArray[0].cells[th.cellIndex].classList));
         }});
-    console.log($thclass);
 
         for(let index in $thtotal){
             let i = parseInt($thtotal[index]);
@@ -61,7 +60,6 @@ const totalizar = (tableId)=>{
         });
         let total = col.reduce((a,b)=>Number(a)+Number(b),0);
         let $cell = $rowTotal.cells[i];
-            console.log(...$thclass[index]);
             $cell.classList.add(...$thclass[index]);
             if (!(Number.isNaN(total))) $cell.innerHTML = total;
         }
@@ -77,7 +75,7 @@ const restaurar = (tableId)=>{
                 row.classList.remove('is-selected');
             }
         });
-        let $rowSubTotal = document.querySelectorAll('.subtotal');
+        let $rowSubTotal = tableId.querySelectorAll('.subtotal');
         $rowSubTotal.forEach((row)=>{
             row.remove();
         });
@@ -86,7 +84,7 @@ const restaurar = (tableId)=>{
 
 // markSelected es un toggle que selecciona/deselecciona
 const markSelected = (forma=null)=>{
-    if (event.target.parentElement.parentElement.tagName!='TBODY') return;
+    if (event.target.parentElement?.parentElement?.tagName!='TBODY') return;
     const $row = event.target.parentElement;
     if(forma=='add') {
 	$row.classList.add('is-selected');
@@ -143,44 +141,59 @@ const sortGridNumerica = (colNum,dir,table)=>{
         tbody.append(...rowsArray);
 };
 
+let i_num_asc = '<i class="fa fa-sort-numeric-asc" aria-hidden="true"></i>';
+let i_alpha_asc = '<i class="fa fa-sort-alpha-asc" aria-hidden="true"></i>';
+let i_num_desc = '<i class="fa fa-sort-numeric-desc" aria-hidden="true"></i>';
+let i_alpha_desc = '<i class="fa fa-sort-alpha-desc" aria-hidden="true"></i>';
 let colOrder={};
 document.addEventListener('click', ()=>{
-    let t=event.target.parentElement.parentElement.parentElement || 0;
     if(event.target.tagName=== 'TH') {
+        let t=event.target.parentElement.parentElement?.parentElement || 0;
         let th = event.target;
         let col = th.cellIndex;
         let numeric = th.classList.contains('numeric');
         if(numeric){
             if(colOrder.col=='ASC'){
             sortGridNumerica(th.cellIndex,'DESC',t);
+                agregarIcon(th,i_num_desc);
                 colOrder.col='DESC';
             }else{
             sortGridNumerica(th.cellIndex,'ASC',t);
+                agregarIcon(th,i_num_asc);
                 colOrder.col='ASC';
             }
         }else{
             if(colOrder.col=='ASC'){
             sortGrid(th.cellIndex,'DESC',t);
+                agregarIcon(th,i_alpha_desc);
                 colOrder.col='DESC';
             }else{
             sortGrid(th.cellIndex,'ASC',t);
+                agregarIcon(th,i_alpha_asc);
                 colOrder.col='ASC';
             }
         }
     }
 });
-
+const agregarIcon=(th,icon)=>{
+    for(let item of th.parentElement.children){
+        item.innerHTML=item.innerText;
+    }
+    if(th.clientWidth<100) th.width=100;
+    th.innerHTML=th.innerText.trim()+' '+icon;
+};
 
 // click para seleccionar/deseleccionar filas de la tabla.
 // click con alt presionado deselecciona todo
 // hay una class "noselect" que se le puede agregar a la tabla para que no tenga seleccion
 document.addEventListener('click', ()=>{
-        let t=event.target.parentElement.parentElement.parentElement || 0;
         if(event.target.tagName==='TD') {
-	    if (event.target.parentElement.parentElement.parentElement.classList.contains("noselect")) return;
+        let t=event.target.parentElement?.parentElement?.parentElement || 0;
+	    if (event.target.parentElement?.parentElement?.parentElement?.classList?.contains("noselect")) return;
             markSelected();
         };
         if(event.target.tagName=== 'TD' && event.altKey===true){
+        let t=event.target.parentElement.parentElement.parentElement || 0;
 	    if (event.target.parentElement.parentElement.parentElement.classList.contains("noselect")) return;
             restaurar(t);
         };
@@ -189,7 +202,7 @@ document.addEventListener('click', ()=>{
 
 // restauro el table al hacer click en la fila subtotal
 document.addEventListener('click', ()=>{
-    let t=event.target.parentElement.parentElement.parentElement || 0;
+    let t=event.target.parentElement?.parentElement?.parentElement || 0;
     if(event.target.parentElement.classList.contains('subtotal')){
         restaurar(t);
     }
@@ -218,10 +231,10 @@ document.addEventListener('mouseover',()=>{
 document.addEventListener('contextmenu', ()=>{
     // sort tabla por columnas con boton derecho en el encabezado
     event.preventDefault();
-    let t=event.target.parentElement.parentElement.parentElement || 0;
     // prevenDefault para que no funcione como esta predeterminado
     if(!event.target.parentElement.parentElement.parentElement.classList.contains('nototal')&&
        !event.target.parentElement.parentElement.parentElement.classList.contains('noselect')){
+        let t=event.target.parentElement.parentElement.parentElement || 0;
         if(event.target.tagName=== 'TD'){
             totalizar(t);
         };

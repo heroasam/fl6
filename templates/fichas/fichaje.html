@@ -75,7 +75,7 @@ endblock %} {% block style %}
 
   </div>
 
-    <table id="table" class="table is-narrow nototal ml-1">
+    <table id="table" class="table is-narrow ml-1">
       <thead>
         <tr>
           <th>Nombre</th>
@@ -103,9 +103,9 @@ endblock %} {% block style %}
           <td>|cliente['num']|</td>
           <td style="min-width: 100px;">|cliente['ultpago']|</td>
           <td style="min-width: 100px;">|cliente['pmovto']|</td>
-          <td>|cliente['comprado']|</td>
+          <td class="pesos">|cliente['comprado']|</td>
           <td style="min-width: 100px;">|cliente['ultcompra']|</td>
-          <td>|cliente['deuda']|</td>
+          <td class="pesos">|cliente['deuda']|</td>
           <td>|cliente['wapp']|</td>
           <td>|cliente['zona']|</td>
           <td>|cliente['barrio']|</td>
