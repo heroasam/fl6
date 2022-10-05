@@ -153,6 +153,10 @@
 		    <span class="tag is-small is-warning m-0">atrasos</span>
 		    <span class="tag is-small is-light m-0" x-text="Cliente.atraso+' dias'"></span>
 	    </div>
+	    <div class="xtags has-addons m-0" x-show="listaVentasCanceladas.length">
+		    <span class="tag is-small is-success m-0">cancelado</span>
+		    <span class="tag is-small is-light m-0" x-text="'$'+parseInt(totalCompradoActualizado)"></span>
+	    </div>
         </div>
     </div>
     <div class="buttons ml-3 mr-3 mb-1" x-show="verCard">
@@ -247,6 +251,7 @@
         </tbody>
     </table>
 
+
     <div class="columns m-2">
 	<!-- tablecuotas -->
         <div class="column is-3">
@@ -269,8 +274,8 @@
 			<tr x-show="cuota[2]">
                             <td x-text="cuota[0]"></td>
                             <td x-text="cuota[1]" style="min-width: 100px;"></td>
-                            <td x-text="cuota[2]" class="pesos"></td>
-                            <td x-text="cuota[3]" class="pesos red"></td>
+                            <td x-text="cuota[2]" class="pesos" :class="cuota[3]>cuota[2]?'strike':''"></td>
+                            <td x-text="cuota[3]" class="pesos red" x-show="cuota[3]>cuota[2]"></td>
 			</tr>
                     </template>
                 </tbody>
@@ -315,14 +320,15 @@
     </div>
     <div class="m-2" id="ventas-canceladas">
         <h4 class="title is-4 m-2" x-show="verCard && listaVentasCanceladas.length">Ventas Canceladas</h4>
-        <table class="table noselect is-narrow is-striped" x-show="verCard && listaVentasCanceladas.length">
+        <table class="table is-narrow is-striped" x-show="verCard && listaVentasCanceladas.length">
             <thead>
 		<tr>
                     <th>id</th>
                     <th>fecha</th>
                     <th>Ant</th>
                     <th>plan</th>
-                    <th>comprado</th>
+                    <th class="numeric">monto</th>
+                    <th class="sumar numeric">actual</th>
                     <th>vdor</th>
                     <th>cnt/art</th>
                     <th>info</th>
@@ -335,7 +341,9 @@
 			<td data-titulo="fecha vta"x-text="venta.fecha" style="min-width: 100px;"></td>
 			<td data-titulo="anticipo" x-text="venta.ant" style="min-width: 40px;"></td>
 			<td data-titulo="plan" x-text="venta.cc+' CUO de $'+venta.ic+' '+venta.p" style="min-width: 200px;"></td>
-			<td data-titulo="comprado" x-text="venta.comprado"></td>
+			<td data-titulo="monto" x-text="venta.comprado" class="pesos"></td>
+			<td data-titulo="actual" x-text="parseInt(venta.comprado*listaInflacion[dayjs(venta.fecha).format('YYYYM')])"
+            class="red pesos"></td>
 			<td data-titulo="vdor" x-text="venta.idvdor"></td>
 			<td data-titulo="arts" x-text="venta.cnt+'/'+venta.art"></td>
 			<td x-show="venta.pcondo" x-text="'CUENTA INCLUIDA EN UN PLAN DE PAGOS'" class="tag is-small is-info"></td>
@@ -627,6 +635,7 @@
          listaCobradores:[],
          wappCobrador:'',
          calleMostrada:'',
+         totalCompradoActualizado:0,
 
          buscarCliente(){
 	     this.verCard=false
@@ -721,11 +730,13 @@
          obtenerVentasCanceladas(idcliente){
              axios.get('/buscador/obtenerventascanceladasporidcliente/'+idcliente)
                   .then(res=>{
+                      this.totalCompradoActualizado = 0
                       let arrayVentasCanceladas=res.data.ventascanceladas
                       arrayVentasCanceladas.map(row=>{
                           row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD')
                           row.p=1?'MEN':3?'SEM':'QUI'
                           this.Vtos[row.id]=row.vto;
+                          this.totalCompradoActualizado += this.listaInflacion[dayjs(row.fecha).format('YYYYM')]*row.comprado
                       })
                       this.listaVentasCanceladas = arrayVentasCanceladas
                   })

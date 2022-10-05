@@ -242,7 +242,9 @@ document.addEventListener('mouseover',()=>{
     if(event.target.tagName==='TD' &&  event.ctrlKey===true) {
                     if(!event.target.parentElement.parentElement.parentElement.classList.contains('noselect')){
                     // este if condiciona a que la tabla no tenga la clase noselect
-                        markSelected('add');
+                        // fixme:cuando este evento se dispara el wheel achica la letra.
+                        event.target.removeEventListener('onwheel',
+                                                         markSelected('add'));
                     }
                 }
 });
