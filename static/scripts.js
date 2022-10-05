@@ -21,7 +21,14 @@ function nop(pesos){
 };
 
 const totalizar = (tableId)=>{
-        let tbody = tableId.querySelector('tbody');
+    let table;
+    console.log(typeof tableId);
+    if(typeof tableId =='string'){
+        table = document.getElementById(tableId);
+    }else{
+        table = tableId
+    }
+        let tbody = table.querySelector('tbody');
         let rowsArray = Array.from(tbody.rows);
         let rowIndex=[];
         rowsArray.forEach((row)=>{
@@ -43,7 +50,7 @@ const totalizar = (tableId)=>{
     }
     $rowTotal.cells[0].innerHTML = "Subtotal";
 
-    const $ths = tableId.querySelectorAll('th');
+    const $ths = table.querySelectorAll('th');
     const $thtotal = [];
     const $thclass = [];
     Array.from($ths).forEach(th=>
@@ -95,6 +102,21 @@ const markSelected = (forma=null)=>{
 	    $row.classList.add('is-selected');
 	}
     }
+};
+
+
+const markAll = (tableId)=>{
+    let table;
+    console.log(typeof tableId);
+    if(typeof tableId =='string'){
+        table = document.getElementById(tableId);
+    }else{
+        table = tableId
+    }
+    const $tbody = table.querySelector('tbody');
+    Array.from($tbody.rows).forEach(row=>{
+        row.classList.add('is-selected');
+    })
 };
 
 
@@ -199,7 +221,6 @@ document.addEventListener('click', ()=>{
         };
 });
 
-
 // restauro el table al hacer click en la fila subtotal
 document.addEventListener('click', ()=>{
     let t=event.target.parentElement?.parentElement?.parentElement || 0;
@@ -207,7 +228,6 @@ document.addEventListener('click', ()=>{
         restaurar(t);
     }
 });
-
 
 
 document.addEventListener('mousedown',()=>{
@@ -227,6 +247,26 @@ document.addEventListener('mouseover',()=>{
                 }
 });
 
+const getTableId = (element)=>{
+    let table;
+    switch (element.tagName){
+        case 'TD' :
+            table = element.parentElement.parentElement.parentElement
+            return table;
+            break;
+        case 'TH' :
+            table = element.parentElement.parentElement.parentElement
+            console.log('th',table);
+            return table;
+            break;
+        case 'TR' :
+            table = element.parentElement.parentElement
+            return table;
+            break;
+    }
+}
+
+
 
 document.addEventListener('contextmenu', ()=>{
     // sort tabla por columnas con boton derecho en el encabezado
@@ -234,12 +274,17 @@ document.addEventListener('contextmenu', ()=>{
     // prevenDefault para que no funcione como esta predeterminado
     if(!event.target.parentElement.parentElement.parentElement.classList.contains('nototal')&&
        !event.target.parentElement.parentElement.parentElement.classList.contains('noselect')){
+        if(event.target.tagName === 'TD'){
         let t=event.target.parentElement.parentElement.parentElement || 0;
-        if(event.target.tagName=== 'TD'){
             totalizar(t);
-        };
+        }else if(event.target.tagName === 'TH'){
+            let t=getTableId(event.target);
+            console.log(t);
+            markAll(t);
+            totalizar(t);
         }
-    });
+    }
+});
 
 
 // Funcion usada en datatables vainilla js para dar formato a los datos obtenidos de json-flask

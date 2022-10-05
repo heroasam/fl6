@@ -310,5 +310,8 @@ thead th {
     content:'%';
 }
 .cuotavencida{
+    color: pink;
+}
+.red{
     color:red;
 }

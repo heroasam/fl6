@@ -609,3 +609,14 @@ def buscador_bajaindividualseven(id):
     con.close()
     log(upd)
     return jsonify(cliente=cliente)
+
+
+@buscador.route('/buscador/tablainflacion')
+def buscador_tablainflacion():
+    con = get_con()
+    inflacion = pgdict(con, "select year,month,indice from inflacion")
+    ultimo_valor = pgonecolumn(con, "select indice from inflacion order by id desc limit 1")
+    dict_inflacion = {}
+    for row in inflacion:
+        dict_inflacion[str(row['year'])+str(row['month'])] = ultimo_valor/row['indice']
+    return jsonify(inflacion=dict_inflacion)
