@@ -288,6 +288,18 @@ document.addEventListener('contextmenu', ()=>{
     }
 });
 
+const limpiarTabla = (tableId)=>{
+   let $table = document.getElementById(tableId);
+    let $tbody = $table.querySelector('tbody');
+    let rowsArray = Array.from($tbody.rows);
+    rowsArray.forEach(row=>{
+        if(row.classList.contains('subtotal')){
+            row.remove()
+        }})
+};
+
+
+
 
 // Funcion usada en datatables vainilla js para dar formato a los datos obtenidos de json-flask
 function dataWrapper(datos){

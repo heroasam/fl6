@@ -153,7 +153,7 @@
 		    <span class="tag is-small is-warning m-0">atrasos</span>
 		    <span class="tag is-small is-light m-0" x-text="Cliente.atraso+' dias'"></span>
 	    </div>
-	    <div class="xtags has-addons m-0" x-show="listaVentasCanceladas.length">
+	    <div class="xtags has-addons m-0" x-show="totalCompradoActualizado">
 		    <span class="tag is-small is-success m-0">cancelado</span>
 		    <span class="tag is-small is-light m-0" x-text="'$'+parseInt(totalCompradoActualizado)"></span>
 	    </div>
@@ -259,7 +259,7 @@
             <h4 class="title is-4 text-center m-2">Cuotas a pagar</h4>
             <!-- <span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"></i></span> -->
 	    </div>
-            <table class="table is-narrow is-striped" x-show="verCard && listaCuotas.length">
+            <table class="table is-narrow is-striped" x-show="verCard && listaCuotas.length" id="table-cuotas">
                 <thead>
                     <tr>
                         <th>N</th>
@@ -290,7 +290,7 @@
 		<span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
 		 @click="verCuotasPagadas=!verCuotasPagadas" x-show="listaPagadas.length>5"></i></span>
 	    </div>
-            <table class="table is-narrow is-striped" x-bind:class="verCuotasPagadas?'':'table5'">
+            <table class="table is-narrow is-striped" x-bind:class="verCuotasPagadas?'':'table5'" id="table-cuotaspagadas">
                 <thead>
                     <tr>
                         <th>Fecha</th>
@@ -342,7 +342,8 @@
 			<td data-titulo="anticipo" x-text="venta.ant" style="min-width: 40px;"></td>
 			<td data-titulo="plan" x-text="venta.cc+' CUO de $'+venta.ic+' '+venta.p" style="min-width: 200px;"></td>
 			<td data-titulo="monto" x-text="venta.comprado" class="pesos"></td>
-			<td data-titulo="actual" x-text="parseInt(venta.comprado*listaInflacion[dayjs(venta.fecha).format('YYYYM')])"
+			<td data-titulo="actual" x-text="parseInt(venta.comprado*listaInflacion[dayjs(venta.fecha).format('YYYYM')])?
+                             parseInt(venta.comprado*listaInflacion[dayjs(venta.fecha).format('YYYYM')]):venta.comprado"
             class="red pesos"></td>
 			<td data-titulo="vdor" x-text="venta.idvdor"></td>
 			<td data-titulo="arts" x-text="venta.cnt+'/'+venta.art"></td>
@@ -679,6 +680,8 @@
 	     this.listaCuentas=[]
 	     this.listaComentarios=[]
 	     this.listaLogCambioDireccion=[]
+         limpiarTabla('table-cuotaspagadas')
+         limpiarTabla('table-cuotas')
 	 },
          clipWappIntimacion(){
              let text,
@@ -736,7 +739,9 @@
                           row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD')
                           row.p=1?'MEN':3?'SEM':'QUI'
                           this.Vtos[row.id]=row.vto;
+                          if(row.condonada==0&&row.devuelta==0&&row.pp==0){
                           this.totalCompradoActualizado += this.listaInflacion[dayjs(row.fecha).format('YYYYM')]*row.comprado
+                          }
                       })
                       this.listaVentasCanceladas = arrayVentasCanceladas
                   })
