@@ -291,11 +291,17 @@ document.addEventListener('contextmenu', ()=>{
 const limpiarTabla = (tableId)=>{
    let $table = document.getElementById(tableId);
     let $tbody = $table.querySelector('tbody');
+    let $thead = $table.querySelector('thead');
     let rowsArray = Array.from($tbody.rows);
     rowsArray.forEach(row=>{
         if(row.classList.contains('subtotal')){
-            row.remove()
+            row.remove();
         }})
+    let $tr = $thead.children[0];
+    let thsArray = Array.from($tr.children);
+    thsArray.forEach(th=>{
+        th.innerHTML = th.innerText
+    });
 };
 
 
