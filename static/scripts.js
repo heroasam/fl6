@@ -22,11 +22,10 @@ function nop(pesos){
 
 const totalizar = (tableId)=>{
     let table;
-    console.log(typeof tableId);
     if(typeof tableId =='string'){
         table = document.getElementById(tableId);
     }else{
-        table = tableId
+        table = tableId;
     }
         let tbody = table.querySelector('tbody');
         let rowsArray = Array.from(tbody.rows);
@@ -73,6 +72,7 @@ const totalizar = (tableId)=>{
 
     };
 
+
 const restaurar = (tableId)=>{
         let tbody = tableId.querySelector('tbody');
         let rowsArray = Array.from(tbody.rows);
@@ -107,7 +107,6 @@ const markSelected = (forma=null)=>{
 
 const markAll = (tableId)=>{
     let table;
-    console.log(typeof tableId);
     if(typeof tableId =='string'){
         table = document.getElementById(tableId);
     }else{
@@ -258,7 +257,6 @@ const getTableId = (element)=>{
             break;
         case 'TH' :
             table = element.parentElement.parentElement.parentElement
-            console.log('th',table);
             return table;
             break;
         case 'TR' :
@@ -281,7 +279,6 @@ document.addEventListener('contextmenu', ()=>{
             totalizar(t);
         }else if(event.target.tagName === 'TH'){
             let t=getTableId(event.target);
-            console.log(t);
             markAll(t);
             totalizar(t);
         }
@@ -296,7 +293,7 @@ const limpiarTabla = (tableId)=>{
     rowsArray.forEach(row=>{
         if(row.classList.contains('subtotal')){
             row.remove();
-        }})
+        }});
     let $tr = $thead.children[0];
     let thsArray = Array.from($tr.children);
     thsArray.forEach(th=>{
@@ -378,7 +375,7 @@ function toggleTheme() {
                 localStorage.setItem("bulma", "https://unpkg.com/bulmaswatch/flatly/bulmaswatch.min.css");
             }
         }
-document.addEventListener("DOMContentLoaded",(e)=>{
+document.addEventListener("DOMContentLoaded",()=>{
     let bulma = localStorage.getItem('bulma');
     const theme = document.getElementById('bulma');
     theme.setAttribute('href',bulma);

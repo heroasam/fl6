@@ -19,6 +19,7 @@ def buscador_():
 
 @buscador.route('/pdf/<pdf>')
 def buscador_pdf(pdf):
+    """Reenvia un pdf por una ruta."""
     return send_file('/home/hero/'+pdf)
 
 
