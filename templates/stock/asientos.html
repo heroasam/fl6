@@ -28,10 +28,10 @@ table td:nth-child(5):before  {
         <h1 class="title is-size-1">Asientos</h1>
     </div>
     <div class="column">
-        <h2 class="title is-size-1" x-text="'Caja $'+saldo"></h2>
+        <h2 class="title is-size-1 pointer" x-text="'Caja $'+saldo" @click="aplicarFiltro('caja')"></h2>
     </div>
     <div class="column">
-        <h2 class="title is-size-1" style="color:red;" x-text="'Santander $'+saldosantander"></h2>
+        <h2 class="title is-size-1 pointer" style="color:red;" x-text="'Santander $'+saldosantander" @click="aplicarFiltro('santander')"></h2>
     </div>
 </div>
 <div class="block">
@@ -115,6 +115,7 @@ table td:nth-child(5):before  {
     function main(){
             return{
         listAsientos:[],
+        listAsientos_:[],
         saldo:0,
         saldosantander:0,
         Asiento:{fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',comentario:''},
@@ -127,6 +128,7 @@ table td:nth-child(5):before  {
             .then(res=>{
                 this.listAsientos = res.data.asientos
                 this.listAsientos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                this.listAsientos_=this.listAsientos
                 this.saldo = res.data.saldo
                 this.saldosantander  =  res.data.saldosantander
             })
@@ -166,6 +168,11 @@ table td:nth-child(5):before  {
             axios.post('/stock/guardarasiento',this.Asiento)
             .then(res=>{
                 this.getAsientos()
+                if(this.Asiento.cuenta.includes('santander')) {
+                    setTimeout(()=>{
+                    this.aplicarFiltro('santander')},600
+                    )
+                }
                 this.Asiento={fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',comentario:''},
                 msgSuccess('Exito!','Asiento guardado con exito')
             })
@@ -183,6 +190,13 @@ table td:nth-child(5):before  {
                                                                     this.verModalEdicionComentario=false
                                                                     msgSuccess('Edicion Exitosa')
                                                                 })},
+                aplicarFiltro(tipo){
+                    if(tipo=='santander'){
+                        this.listAsientos = this.listAsientos_.filter(row=>row.cuenta.includes('santander'))
+                    }else{
+                        this.listAsientos = this.listAsientos_.filter(row=>!row.cuenta.includes('santander'))
+                    }
+                },
         dia(day){
             //formamos el nombre de la clase con la palabra color mas
             //el ultimo digito de los dias para tener solo diez colores
