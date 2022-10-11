@@ -1,11 +1,12 @@
 from flask import Blueprint,render_template,jsonify,make_response, request, send_file
-from flask_login import login_required
-from lib import *
+from flask_login import login_required, current_user
+from lib import pgdict, pgonecolumn, pglflat, pgdict0
 import simplejson as json
 from con import get_con, log
 from formularios import *
 import mysql.connector
 import time
+from datetime import date
 
 fichas = Blueprint('fichas',__name__)
 
@@ -18,7 +19,7 @@ def fichas_():
 @fichas.route('/fichas/getcobradores')
 def fichas_getcobradores():
     con = get_con()
-    cobradores = pgdict(con,f"select id from cobr where activo=1 and prom=0 and id>15")
+    cobradores = pgdict(con,"select id from cobr where activo=1 and prom=0 and id>15")
     con.close()
     return jsonify(cobradores=cobradores)
 
@@ -334,8 +335,9 @@ def fichas_listado():
 def fichas_getzonas():
     con = get_con()
     zonas = pglflat(con,f"select zona from zonas where asignado>700 and asignado !=820 order by zona")
+    vdores = pglflat(con, "select id from cobr where activo=1 and vdor=1 and id>500")
     con.close()
-    return jsonify(zonas=zonas)
+    return jsonify(zonas=zonas, vdores=vdores)
 
 
 @fichas.route('/fichas/getmsgs')
@@ -529,3 +531,57 @@ def fichas_programarboton():
     return 'ok'
 
 
+@fichas.route('/fichas/procesarlistado', methods=['POST'])
+def fichas_procesarlistado():
+    """Proceso la planilla de clientes a visitar."""
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    cobr = d['vdor']
+    zona = d['zona']
+    clientes = d['clientes']
+    cnt_cl = len(clientes)
+    user = current_user.email
+
+    ins = f"insert into listavisitar(fecha,cobr,zona,cntclientes,\
+           user) values(curdate(),{cobr},'{zona}',{cnt_cl},'{user}')"
+    cur = con.cursor()
+    cur.execute(ins)
+    con.commit()
+    log(ins)
+    idlistavisitar = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
+
+    for dni in clientes:
+        cliente = pgdict(con, f"select id, year(ultcompra) as yultcompra from\
+                  clientes where dni={dni}")[0]
+        if not cliente['yultcompra']:
+            cliente['yultcompra'] = date.today().year
+        ins = f"insert into prospectos(idlistavisitar,idcliente,yultcompra,\
+              fecha,vdor,zona) values({idlistavisitar},{cliente['id']},\
+              {cliente['yultcompra']},curdate(),{cobr},'{zona}')"
+        cur.execute(ins)
+    con.commit()
+    con.close()
+    return 'ok'
+
+@fichas.route('/fichas/listavisitar')
+def fichas_listavisitar():
+    return render_template('/fichas/listavisitar.html')
+
+
+@fichas.route('/fichas/getlistalistados')
+def fichas_getlistalistados():
+    con = get_con()
+    listalistados = pgdict(con, "select * from listavisitar order by id desc")
+    return jsonify(listalistados=listalistados)
+
+
+@fichas.route('/fichas/borrarlistavisitar/<int:id>')
+def fichas_borrarlistavisitar(id):
+    con = get_con()
+    stm = f"delete from listavisitar where id={id}"
+    cur = con.cursor()
+    cur.execute(stm)
+    con.commit()
+    con.close()
+    log(stm)
+    return 'ok', 200
