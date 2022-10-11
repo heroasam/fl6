@@ -138,13 +138,13 @@ def signup():
     return render_template('signup.html')
 
 
-@app.route('/apache')
+@app.route('/log1')
 @login_required
-def apache_log():
+def log1_log():
     f = open('/tmp/log.txt', "a")
-    log = open('/var/log/apache2/error.log', "r")
-    apachelog = log.read()
-    f.write(apachelog)
+    log = open('/var/log/app/1.log', "r")
+    log1log = log.read()
+    f.write(log1log)
     f.close()
     log.close()
     return send_file('/tmp/log.txt')

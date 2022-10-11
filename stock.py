@@ -77,6 +77,19 @@ def stock_guardarasiento():
     return 'OK'
 
 
+@stock.route('/stock/editarcomentarioasiento', methods=['POST'])
+def stock_editarcomentarioasiento():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    upd = f"update caja set comentario='{d['comentario']}' where id={d['id']}"
+    cur = con.cursor()
+    cur.execute(upd)
+    log(upd)
+    con.commit()
+    con.close()
+    return 'ok'
+
+
 @stock.route('/stock/mayor')
 def stock_mayor():
     return render_template('stock/mayor.html')
@@ -449,5 +462,3 @@ def stock_borrarcuenta(id):
         log(stm)
         con.close()
         return 'ok',200
-
-

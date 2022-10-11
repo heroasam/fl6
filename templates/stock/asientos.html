@@ -68,7 +68,6 @@ table td:nth-child(5):before  {
             </div>
         </div>
 </div>
-<div class="block">
   <table id="table" class="table is-narrow ">
       <thead>
           <tr>
@@ -78,22 +77,36 @@ table td:nth-child(5):before  {
               <th>cuenta</th>
               <th class="sumar numeric">imp</th>
               <th>comentario</th>
+              <th>op</th>
           </tr>
       </thead>
       <tbody>
           <template x-for="asiento in listAsientos">
                 <tr>
-               <td><i class="fa fa-times" aria-hidden="true" @click="borrarAsiento(asiento.id)"></td>
+              <td><i class="fa fa-times" aria-hidden="true" @click="borrarAsiento(asiento.id)"></td>
               <td x-text="asiento.id"></td>
               <td :class="dia(asiento.fecha)" x-text="asiento.fecha"></td>
               <td :class="asiento.cuenta.slice(0,9)=='santander'?'santander':''" x-text="asiento.cuenta" style="min-width:250px;"></td>
               <td :class="asiento.imp<0?'negativo':''" x-text="asiento.imp" style="min-width:100px;"></td>
               <td x-text="asiento.comentario"></td>
+              <td><i class="fa fa-pencil" aria-hidden="true" @click="editarComentarioAsiento(asiento.id)"></td>
                 </tr>
           </template>
       </tbody>
   </table>
-</div>
+<!-- modal edicion de comentario de asiento -->
+
+    <div x-bind:class="verModalEdicionComentario?'xmodal-container':''">
+        <div class="xcard xmodal" x-show="verModalEdicionComentario">
+            <button class="btn-close" @click="verModalEdicionComentario=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
+            <h3 class="title is-4" style="color:black;">Editar Comentario</h3>
+            <h4 class="title is-5" style="color:black;" x-text="'Asiento N°'+AsientoEdicion.id"></h4>
+            <textarea class="textarea mb-3" rows="4" x-model="AsientoEdicion.comentario"></textarea>
+            <button class="button is-primary" @click="guardarComentarioAsiento()">Guardar</button>
+        </div>
+    </div>
+
+    <!-- fin modal -->
 </div>
 
 {% endblock %}
@@ -105,8 +118,10 @@ table td:nth-child(5):before  {
         saldo:0,
         saldosantander:0,
         Asiento:{fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',comentario:''},
+        AsientoEdicion:{},
         cuentas:[],
         selected: null,
+        verModalEdicionComentario:false,
         getAsientos(){
             axios.get('/stock/getasientos')
             .then(res=>{
@@ -155,6 +170,19 @@ table td:nth-child(5):before  {
                 msgSuccess('Exito!','Asiento guardado con exito')
             })
         },
+                editarComentarioAsiento(id){
+                    this.AsientoEdicion = this.listAsientos.filter(row=>row.id==id)[0];
+                    this.verModalEdicionComentario=true;
+                },
+
+                guardarComentarioAsiento(){
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+                    axios.post('/stock/editarcomentarioasiento',this.AsientoEdicion)
+                                                                .then(res=>{
+                                                                    this.getAsientos()
+                                                                    this.verModalEdicionComentario=false
+                                                                    msgSuccess('Edicion Exitosa')
+                                                                })},
         dia(day){
             //formamos el nombre de la clase con la palabra color mas
             //el ultimo digito de los dias para tener solo diez colores

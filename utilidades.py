@@ -12,15 +12,18 @@ import glob
 utilidades = Blueprint('utilidades',__name__)
 
 @utilidades.route('/utilidades/planos')
+@login_required
 def utilidades_planos():
     return render_template('/utilidades/planos.html')
 
 @utilidades.route('/utilidades/impresos')
+@login_required
 def utilidades_impresos():
     return render_template('/utilidades/impresos.html')
 
 
 @utilidades.route('/utilidades/pdfsistema')
+@login_required
 def utilidades_pdfimpresos():
     return render_template('/utilidades/pdfsistema.html')
 
@@ -63,5 +66,6 @@ def utilidades_imprimirpdfsistema(pdf):
 
 
 @utilidades.route('/utilidades/contador')
+@login_required
 def utilidades_contador():
     return render_template('/utilidades/contador.html')
