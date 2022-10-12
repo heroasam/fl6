@@ -57,7 +57,12 @@ const totalizar = (tableId)=>{
             $thtotal.push(th.cellIndex);
             $thclass.push(Array.from(rowsArray[0].cells[th.cellIndex].classList));
         }});
-
+    //para el caso de pandas donde no se puede usar el sistema de classList
+    if($thtotal.length==0) {
+        for(let n=1;n<cols;n++) {
+            $thtotal.push(n);
+        }
+    }
         for(let index in $thtotal){
             let i = parseInt($thtotal[index]);
         let col = [];
@@ -66,8 +71,8 @@ const totalizar = (tableId)=>{
         });
         let total = col.reduce((a,b)=>Number(a)+Number(b),0);
         let $cell = $rowTotal.cells[i];
-            $cell.classList.add(...$thclass[index]);
             if (!(Number.isNaN(total))) $cell.innerHTML = total;
+            if($thclass.length) $cell.classList.add(...$thclass[index]);
         }
 
     };

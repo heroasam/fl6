@@ -13,6 +13,9 @@ endblock %} {% block style %}
   .flex{
     display:flex;
   }
+ .wapp{
+     background-color: seagreen;
+ }
 </style>
 {% endblock %} {% block content %}
 <div class="conteiner-fluid">
@@ -96,7 +99,8 @@ endblock %} {% block style %}
         </tr>
       </thead>
       <tbody>
-        <tr v-for="cliente in clientes">
+        <tr v-for="cliente in clientes" :class="dayjs.utc().diff(cliente['fechaultwapp'],'d')>0&&
+                   dayjs.utc().diff(cliente['fechaultwapp'],'d')<4?'wapp':''">
           <!-- nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni[10],subirseven,comprado,deuda,zona,barrio -->
           <td>|cliente['nombre']|</td>
           <td>|cliente['calle']|</td>

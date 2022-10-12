@@ -300,9 +300,9 @@ def send_msg_whatsapp(idcliente, wapp, msg):
         last_enviado = int(time.time())
     timeout = last_enviado if last_enviado > last_timeout else last_timeout
     ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,\
-    timeout,response,enviado) values({idcliente},{wapp_original},\
+    timeout,response,enviado,fecha) values({idcliente},{wapp_original},\
     '{msg.replace('%20',' ')[:100]}','','{email}',{int(time.time())}\
-    ,{timeout+10},'',0)"
+    ,{timeout+10},'',0,curdate())"
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
@@ -377,9 +377,9 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
         last_enviado = int(time.time())
     timeout = last_enviado if last_enviado > last_timeout else last_timeout
     ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,\
-            timeout,response,enviado) values({idcliente},{wapp_original},\
-            '{msg.replace('%20',' ')[:100]}','{file_log}','{email}',\
-            {int(time.time())},{timeout+20},'',0)"
+            timeout,response,enviado,fecha) values({idcliente},\
+            {wapp_original},'{msg.replace('%20',' ')[:100]}','{file_log}'\
+            ,'{email}',{int(time.time())},{timeout+20},'',0,curdate())"
     cur = con.cursor()
     cur.execute(ins)
     con.commit()

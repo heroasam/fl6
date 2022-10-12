@@ -1,6 +1,6 @@
 from flask import Blueprint,render_template,jsonify,make_response, request, send_file
 from flask_login import login_required, current_user
-from lib import pgdict, pgonecolumn, pglflat, pgdict0
+from lib import *
 import simplejson as json
 from con import get_con, log
 from formularios import *
