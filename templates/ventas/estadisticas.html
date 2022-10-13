@@ -12,12 +12,15 @@
 .right{
     text-align: right !important;
 }
+ .children{
+     background-color: gray;
+ }
   </style>
   {% endblock %}
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getEstAnuales()">
+<div class="container" x-data="main()" x-init="getEstAnuales();getInflacion()">
     <p class="title is-1">Estadisticas de Venta</p>
     <div class="buttons">
         <a href="/ventas/ventas" class="button is-primary">Pasar Ventas</a>
@@ -33,12 +36,13 @@
     </div>
     <div class="columns">
         <div class="column is-6">
-            <table class="table is-narrow">
+            <table class="table is-narrow" id="table">
                 <thead>
                     <tr>
                         <th>op</th>
                         <th>year</th>
                         <th class="sumar numeric">comprado</th>
+                        <th class="sumar numeric">actual</th>
                         <th class="sumar numeric">saldo</th>
                         <th class="numeric">inc</th>
                         <th class="numeric">cnt</th>
@@ -46,41 +50,33 @@
                 </thead>
                 <tbody>
                   <template x-for="anual in est_anuales">
-                    <tr>
-                        <td><button type="button" class="button is-info is-small" @click="verYear(anual['y'])">Ver</button></td>
+                    <tr :id="anual['y']">
+                        <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true" @click="expandChildren(anual['y'])"></td>
                         <td x-text="anual['y']"></td>
                         <td class="pesos" x-text="anual['comprado']"></td>
+                        <td class="pesos red" x-text="(anual['comprado']*listaInflacion[anual['y']+'1']).toFixed()"></td>
                         <td class="pesos" x-text="anual['saldo']"></td>
                         <td class="perc" x-text="(anual['inc']*100).toFixed(2)"></td>
                         <td class="right" x-text="anual['cnt']"></td>
                     </tr>
-                </template>
-                </tbody>
-            </table>
-        </div>
-        <div class="column is-6">
-            <table class="table is-narrow">
-                <thead>
-                    <tr>
-                        <th>mes</th>
-                        <th class="numeric sumar">comprado</th>
-                        <th class="numeric sumar">saldo</th>
-                        <th class="numeric">inc</th>
-                        <th class="numeric">cnt</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <template x-for="mes in est_mensuales">
-                    <tr>
+                  </template>
+
+                    <template x-for="mes in est_mensuales">
+                    <tr class="children">
+                        <td></td>
                         <td x-text="mes['ym']"></td>
                         <td class="pesos" x-text="mes['comprado']"></td>
+                        <td class="pesos" x-text="(mes['comprado']*listaInflacion[dayjs(mes['ym']).format('YYYYM')]).toFixed()"></td>
                         <td class="pesos" x-text="mes['saldo']"></td>
                         <td class="perc" x-text="(mes['inc']*100).toFixed(2)"></td>
                         <td class="right" x-text="mes['cnt']"></td>
                     </tr>
-                </template>
-                </tbody>
+                    </template>
+                 </tbody>
             </table>
+        </div>
+        <div class="is-6">
+          <canvas id="grafico-estadistica" width="700" height="600"></canvas>
         </div>
     </div>
 
@@ -94,10 +90,18 @@
      return{
         est_anuales:[],
         est_mensuales:[],
+        listaInflacion:{},
+         ventaYears:[],
+         years:[],
         getEstAnuales(){
             axios.get('/ventas/estadisticasanuales')
             .then(res=>{
                 this.est_anuales = res.data.est_anuales
+                this.ventaYears = this.est_anuales.map(row=>(row.comprado*this.listaInflacion[dayjs(row.y).format('YYYYM')]).toFixed())
+                this.years = this.est_anuales.map(row=>row.y)
+                console.log('ventayears', this.ventaYears);
+                console.log('years', this.years);
+                this.getGrafico()
             })
         },
         verYear(year){
@@ -106,6 +110,68 @@
                 this.est_mensuales = res.data.est_mensuales
             })
         },
+         expandChildren(year){
+             if(this.year==year && this.est_mensuales.length>0){
+                 this.est_mensuales = []
+                 return
+             }
+            axios.get('/ventas/estadisticasmensuales/'+year)
+            .then(res=>{
+                this.est_mensuales = res.data.est_mensuales
+                this.year = year
+                setTimeout(()=>{
+             $tbody = document.querySelector('tbody')
+             $tryear = document.getElementById(year)
+             let arrayrows = Array.from($tbody.children)
+             let children = arrayrows.filter(row=>row.classList.contains('children'))
+             children = children.reverse()
+             for(el of children){
+                 $tbody.insertBefore(el,$tryear.nextSibling)
+             }},10)
+            })
+         },
+         getInflacion(){
+             axios.get('/buscador/tablainflacion')
+                  .then(res=>{
+                      this.listaInflacion = res.data.inflacion
+                  })},
+         getGrafico(){
+             const canvas = document.getElementById('grafico-estadistica').getContext('2d');
+             const chart = new Chart(canvas, {
+                 type: 'bar',
+                 data: {
+                     labels: this.years,
+                     datasets: [{
+                        label: 'Monto Vendido Actualizado',
+                        data: this.ventaYears,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+},
     }
   }
   </script>
