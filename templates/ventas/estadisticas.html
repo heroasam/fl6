@@ -17,7 +17,7 @@
 
 {% block content %}
 
-<div id="app" class="container">
+<div class="container" x-data="main()" x-init="getEstAnuales()">
     <p class="title is-1">Estadisticas de Venta</p>
     <div class="buttons">
         <a href="/ventas/ventas" class="button is-primary">Pasar Ventas</a>
@@ -45,14 +45,16 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="anual in est_anuales">
+                  <template x-for="anual in est_anuales">
+                    <tr>
                         <td><button type="button" class="button is-info is-small" @click="verYear(anual['y'])">Ver</button></td>
-                        <td>|anual['y']|</td>
-                        <td class="pesos">|anual['comprado']|</td>
-                        <td class="pesos">|anual['saldo']|</td>
-                        <td class="perc">|(anual['inc']*100).toFixed(2)|</td>
-                        <td class="right">|anual['cnt']|</td>
+                        <td x-text="anual['y']"></td>
+                        <td class="pesos" x-text="anual['comprado']"></td>
+                        <td class="pesos" x-text="anual['saldo']"></td>
+                        <td class="perc" x-text="(anual['inc']*100).toFixed(2)"></td>
+                        <td class="right" x-text="anual['cnt']"></td>
                     </tr>
+                </template>
                 </tbody>
             </table>
         </div>
@@ -68,13 +70,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="mes in est_mensuales">
-                        <td>|mes['ym']|</td>
-                        <td class="pesos">|mes['comprado']|</td>
-                        <td class="pesos">|mes['saldo']|</td>
-                        <td class="perc">|(mes['inc']*100).toFixed(2)|</td>
-                        <td class="right">|mes['cnt']|</td>
+                <template x-for="mes in est_mensuales">
+                    <tr>
+                        <td x-text="mes['ym']"></td>
+                        <td class="pesos" x-text="mes['comprado']"></td>
+                        <td class="pesos" x-text="mes['saldo']"></td>
+                        <td class="perc" x-text="(mes['inc']*100).toFixed(2)"></td>
+                        <td class="right" x-text="mes['cnt']"></td>
                     </tr>
+                </template>
                 </tbody>
             </table>
         </div>
@@ -86,14 +90,10 @@
 
 {% block script %}
 <script>
-  const app = new Vue({
-    el:"#app",
-    delimiters:['|','|'],
-    data:{
+ function main(){
+     return{
         est_anuales:[],
         est_mensuales:[],
-    },
-    methods:{
         getEstAnuales(){
             axios.get('/ventas/estadisticasanuales')
             .then(res=>{
@@ -105,12 +105,8 @@
             .then(res=>{
                 this.est_mensuales = res.data.est_mensuales
             })
-
         },
-    },
-    created:function(){
-        this.getEstAnuales()
     }
-  })
+  }
   </script>
   {% endblock %}

@@ -2,7 +2,7 @@
 
 {% block title %}Clientes{% endblock %}
 {% block content %}
-<div x-data="main()"  class="container" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores();getInflacion()">
+<div x-data="main()"  class="container" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores();getInflacion();autoLoad()">
 
     <div>
 	<div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
@@ -587,7 +587,6 @@
 {% block script %}
 <script>
 
-
  function textToClipboard (text) {
      var dummy = document.createElement("textarea");
      document.body.appendChild(dummy);
@@ -638,9 +637,9 @@
          calleMostrada:'',
          totalCompradoActualizado:0,
 
-         buscarCliente(){
-	     this.verCard=false
-	     this.resetBuscar()
+    buscarCliente(){
+        this.verCard = false
+        this.resetBuscar()
 	     /* this.listaClientesCasa=[] */
 	     buscar = this.buscar1.length>0?this.buscar1:this.buscar
              textToClipboard(buscar)
@@ -682,7 +681,7 @@
 	     this.listaLogCambioDireccion=[]
          limpiarTabla('table-cuotaspagadas')
          limpiarTabla('table-cuotas')
-	 },
+    },
          clipWappIntimacion(){
              let text,
                  messaje;
@@ -1384,6 +1383,12 @@ Titular de la cuenta: Heredie Maria Isabel`
                       this.listaInflacion = res.data.inflacion
                       console.log(this.listaInflacion);
                   })},
+         autoLoad(){
+            {% if dnilistado %}
+             if(this.buscar=='') this.buscar = {{dnilistado|tojson}}
+             this.buscarCliente()
+            {% endif %}
+         },
      }
 
  }

@@ -81,6 +81,7 @@ endblock %} {% block style %}
     <table  class="table is-narrow ml-1" id="table">
       <thead>
         <tr>
+        <th>op</th>
           <th>Nombre</th>
           <th>Calle</th>
           <th>Num</th>
@@ -99,9 +100,10 @@ endblock %} {% block style %}
         </tr>
       </thead>
       <tbody>
-        <tr v-for="cliente in clientes" :class="dayjs.utc().diff(cliente['fechaultwapp'],'d')>0&&
-                   dayjs.utc().diff(cliente['fechaultwapp'],'d')<4?'wapp':''">
+        <tr v-for="cliente in clientes" :class="dayjs.utc().diff(cliente['fechaultwapp'],'d')==0&&
+                   dayjs.utc().diff(cliente['fechaultwapp'],'d')<11?'wapp':''">
           <!-- nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni[10],subirseven,comprado,deuda,zona,barrio -->
+        <td><a :href="'/buscador/interno/'+cliente['dni']" target="_blank">Ir</a></td>
           <td>|cliente['nombre']|</td>
           <td>|cliente['calle']|</td>
           <td>|cliente['num']|</td>

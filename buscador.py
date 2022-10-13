@@ -29,6 +29,11 @@ def buscador_log():
     return render_template('buscador/log.html')
 
 
+@buscador.route('/buscador/interno/<dni>')
+def buscar_interno_buscar(dni):
+    return render_template('/buscador/buscar.html', dnilistado=dni)
+
+
 @buscador.route('/buscador/<string:buscar>')
 def buscar_cuenta(buscar):
     con = get_con()
