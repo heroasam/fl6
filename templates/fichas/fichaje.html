@@ -201,7 +201,7 @@ endblock %} {% block style %}
        let rowsArray = Array.from(tbody.rows);
        rowsArray.forEach((row) => {
          if (row.classList.contains("is-selected")) {
-           ids.push(row.cells[12].innerHTML);
+           ids.push(row.cells[13].innerHTML);
            //la celda que corresponda a dni OJO
          }
        });
@@ -297,7 +297,7 @@ endblock %} {% block style %}
        let rowsArray = Array.from(tbody.rows);
        rowsArray.forEach((row) => {
          if (row.classList.contains("is-selected")) {
-           ids.push(row.cells[12].innerHTML);
+           ids.push(row.cells[13].innerHTML);
            //la celda que corresponda a dni OJO
          }
        });
@@ -379,7 +379,7 @@ endblock %} {% block style %}
        const $tbody = document.querySelector("tbody");
        arrayRows = Array.from($tbody.children);
        arrayRows.forEach((row) => {
-         let pmovto = dayjs(row.cells[4].innerHTML).format('YYYY-MM-DD');
+         let pmovto = dayjs(row.cells[5].innerHTML).format('YYYY-MM-DD');
          if (pmovto>=this.desde && pmovto <= this.hasta) {
            row.classList.add("is-selected");
          }
@@ -444,7 +444,7 @@ endblock %} {% block style %}
         let rowsArray = Array.from(tbody.rows);
         rowsArray.forEach((row) => {
           if (row.classList.contains("is-selected")) {
-            ids.push(row.cells[7].innerHTML);
+            ids.push(row.cells[8].innerHTML);
             //la celda que corresponda a dni OJO
           }
         });
