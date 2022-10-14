@@ -54,7 +54,7 @@
                         <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true" @click="expandChildren(anual['y'])"></td>
                         <td x-text="anual['y']"></td>
                         <td class="pesos" x-text="anual['comprado']"></td>
-                        <td class="pesos red" x-text="(anual['comprado']*listaInflacion[anual['y']+'1']).toFixed()"></td>
+                        <td class="pesos red" x-text="(anual['comprado']*(listaInflacion[anual['y']+'6']||1)).toFixed()"></td>
                         <td class="pesos" x-text="anual['saldo']"></td>
                         <td class="perc" x-text="(anual['inc']*100).toFixed(2)"></td>
                         <td class="right" x-text="anual['cnt']"></td>
@@ -66,7 +66,7 @@
                         <td></td>
                         <td x-text="mes['ym']"></td>
                         <td class="pesos" x-text="mes['comprado']"></td>
-                        <td class="pesos" x-text="(mes['comprado']*listaInflacion[dayjs(mes['ym']).format('YYYYM')]).toFixed()"></td>
+                        <td class="pesos" x-text="(mes['comprado']*(listaInflacion[dayjs(mes['ym']).format('YYYYM')]||1)).toFixed()"></td>
                         <td class="pesos" x-text="mes['saldo']"></td>
                         <td class="perc" x-text="(mes['inc']*100).toFixed(2)"></td>
                         <td class="right" x-text="mes['cnt']"></td>
@@ -97,7 +97,7 @@
             axios.get('/ventas/estadisticasanuales')
             .then(res=>{
                 this.est_anuales = res.data.est_anuales
-                this.ventaYears = this.est_anuales.map(row=>(row.comprado*this.listaInflacion[dayjs(row.y).format('YYYYM')]).toFixed())
+                this.ventaYears = this.est_anuales.map(row=>(row.comprado*(this.listaInflacion[row.y+'6']||1)).toFixed())
                 this.years = this.est_anuales.map(row=>row.y)
                 console.log('ventayears', this.ventaYears);
                 console.log('years', this.years);
