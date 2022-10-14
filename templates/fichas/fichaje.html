@@ -201,11 +201,11 @@ endblock %} {% block style %}
        let rowsArray = Array.from(tbody.rows);
        rowsArray.forEach((row) => {
          if (row.classList.contains("is-selected")) {
-           ids.push(row.cells[12].innerHTML);
-           //la celda que corresponda a dni OJO
+           ids.push(row.cells[13].innerHTML);
+           //la columna que corresponda al dni OJO
          }
        });
-       // console.log(ids)
+       //console.log(ids)
        return ids
      },
      intimar() {
@@ -260,7 +260,7 @@ endblock %} {% block style %}
        ids = this.seleccionarRows()
        if(ids.length>0) {
          idle = ids.length * 10000
-         console.log(idle)
+         //console.log(idle)
          axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
          Swal.fire({
                                  title: 'WhatsApp!',
@@ -292,16 +292,7 @@ endblock %} {% block style %}
        }
      },
      imprimir() {
-       let ids = [];
-       let tbody = table.querySelector("tbody");
-       let rowsArray = Array.from(tbody.rows);
-       rowsArray.forEach((row) => {
-         if (row.classList.contains("is-selected")) {
-           ids.push(row.cells[12].innerHTML);
-           //la celda que corresponda a dni OJO
-         }
-       });
-
+       let ids = this.seleccionarRows()
        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
        axios({
          method: "POST",
@@ -348,7 +339,7 @@ endblock %} {% block style %}
        if(ids.length>0) {
        idle = ids.length * 10000
        msg = this.listamsgs.filter(row=>row.nombre==nombre)[0]['msg']
-       console.log(msg)
+       //console.log(msg)
        }
        Swal.fire({
                                  title: 'WhatsApp!',
@@ -379,7 +370,8 @@ endblock %} {% block style %}
        const $tbody = document.querySelector("tbody");
        arrayRows = Array.from($tbody.children);
        arrayRows.forEach((row) => {
-         let pmovto = dayjs(row.cells[4].innerHTML).format('YYYY-MM-DD');
+         let pmovto = dayjs(row.cells[5].innerHTML).format('YYYY-MM-DD');
+           // OJO la columna del pmovto
          if (pmovto>=this.desde && pmovto <= this.hasta) {
            row.classList.add("is-selected");
          }
@@ -435,19 +427,11 @@ endblock %} {% block style %}
         axios.get('/fichas/getmsgs')
         .then(res=>{
           this.listamsgs = res.data.msgs
-          console.log(this.listamsgs)
+          //console.log(this.listamsgs)
         })
       },
       cambiarZona(zona){
-        let ids = [];
-        let tbody = table.querySelector("tbody");
-        let rowsArray = Array.from(tbody.rows);
-        rowsArray.forEach((row) => {
-          if (row.classList.contains("is-selected")) {
-            ids.push(row.cells[7].innerHTML);
-            //la celda que corresponda a dni OJO
-          }
-        });
+        let ids = this.seleccionarRows()
         axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
         axios({
           method:'POST',

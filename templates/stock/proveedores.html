@@ -20,6 +20,7 @@
     <a href="/stock/articulos"  type="button" class="button is-primary">Articulos</a>
     <a href="/stock/verstock"  type="button" class="button is-primary">Stock</a>
     <a href="/stock/cuentas"  type="button" class="button is-primary">Cuentas</a>
+    <a href="/stock/cuadro"  type="button" class="button is-primary">Cuadro</a>
 </div>
 
 <button class="button is-success mb-3" @click="Proveedor={};agregarProveedor()">Agregar Proveedor</button>
@@ -126,7 +127,7 @@ function main(){
                                             icon: 'success',
                                             timer: 3000,
                                             });
-            this.getProveedores() 
+            this.getProveedores()
             })
         },
         borrarProveedor(id){

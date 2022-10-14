@@ -462,3 +462,17 @@ def stock_borrarcuenta(id):
         log(stm)
         con.close()
         return 'ok',200
+
+
+@stock.route('/stock/cuadro')
+def stock_cuadro():
+    return render_template('/stock/cuadro.html')
+
+
+@stock.route('/stock/obtenerresumenmensual/<mes>')
+def stock_obtenerresumenmensual(mes):
+    con = get_con()
+    resumen = pgdict(con, f"select caja.cuenta as cuenta,sum(imp) as imp,tipo from caja,ctas where\
+              date_format(fecha,'%Y-%m')='{mes}' and caja.cuenta=ctas.cuenta group by caja.cuenta")
+    print(resumen)
+    return jsonify(resumen=resumen)
