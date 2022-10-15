@@ -456,7 +456,7 @@ def stock_borrarcuenta(id):
     except mysql.connector.Error as e:
         con.rollback()
         error = e.msg
-        return make_response(error,400)
+        return make_response(error, 400)
     else:
         con.commit()
         log(stm)
