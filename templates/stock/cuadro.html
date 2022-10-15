@@ -33,21 +33,27 @@
       <div class="mt-5">
         <table class="table">
           <h1 class="title is-3" x-text="'Ingresos $'+ingresos"></h1>
+          <thead><tr><th>cuenta</th><th>importe</th></tr></thead>
+          <tbody>
           <template x-for="item in listaIngresos">
             <tr>
               <td x-text="item.cuenta" style="min-width:450px;"></td>
-              <td x-text="item.imp" class="pesos"></td>
+              <td x-text="item.imp" class="sumar pesos"></td>
             </tr>
           </template>
+          </tbody>
         </table>
         <table class="table">
           <h1 class="title is-3" x-text="'Egresos $'+egresos"></h1>
+          <thead><tr><th>cuenta</th><th>importe</th></tr></thead>
+          <tbody>
           <template x-for="item in listaEgresos">
             <tr>
               <td x-text="item.cuenta" style="min-width:450px;" :class="item.cuenta=='compras'||item.cuenta=='depositos sorpresa'?'red':''"></td>
-              <td x-text="item.imp" class="pesos"></td>
+              <td x-text="item.imp" class="sumar pesos"></td>
             </tr>
           </template>
+          </tbody>
         </table>
       </div>
     </div>
