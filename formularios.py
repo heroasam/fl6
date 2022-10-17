@@ -507,3 +507,23 @@ def listaprecios(lista,grupos):
     for f in filelist:
         os.remove(f)
     pdf.output(f"/home/hero/documentos/impresos/listapreciosGENERADA{aleatorio}.pdf")
+
+
+def imprimir_stock(con, stock):
+    """Impresion de planilla de stock para control."""
+    today = datetime.today().strftime('%d-%m-%Y')
+    pdf=FPDF('P','mm','A4')
+    pdf.set_margins(30,30)
+    pdf.add_page()
+    pdf.set_font("Helvetica","",10)
+    pdf.set_font_size(22)
+    pdf.ln(5)
+    pdf.cell(100,12,f"STOCK {today}",0,1,'L')
+    pdf.set_font_size(16)
+    pdf.ln(5)
+    for item in stock:
+        if int(item['stock'])!=0:
+            pdf.cell(100,12,item['art'],1,0,'L')
+            pdf.cell(20,12,item['stock'],1,0,'C')
+            pdf.cell(40,12,'',1,1)
+    pdf.output("/home/hero/stock.pdf")

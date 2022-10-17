@@ -4,25 +4,12 @@
 
 {% block content %}
 <div class="container mt-6">
-    <!-- <div id="dropdown1"></div> -->
-    <!-- <input type="text" id="autocomplete1"> -->
     <table class="table is-narrow" id="table-whatsapp">
     </table>
 </div>
 {% endblock %}
 {% block script %}
 <script>
-    // axios.get('/buscador/obtenerlistacalles')
-    // .then(res=>{
-    //     const autocomplete1 = new autoComplete({
-    //     selector: "#autocomplete1",
-    //     data:{
-    //         src: res.data.calles
-    //     }
-    // })
-    // })
-   
-   
     axios.get('/stock/listawapp')
     .then(res=>{
         wapps = res.data.wapps
@@ -31,7 +18,7 @@
             searchable: true,
             data: obj,
             columns:[
-                {select:1, 
+                {select:1,
                     render: function(data, cell, row) {
                 return dayjs.utc(data).format('YYYY-MM-DD')
                     }

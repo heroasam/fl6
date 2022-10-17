@@ -8,13 +8,13 @@
 
 {% block content %}
 
-<div id="app" class="container">
-<div class="columns">
+<div class="container" x-data="main()" x-init="getStock()">
+  <div class="columns">
     <div class="column is-7">
-        <h1 style="width:70%;" class="title is-size-1">Stock</h1>
+      <h1 style="width:70%;" class="title is-size-1">Stock</h1>
     </div>
-</div>
-<div class="block">
+  </div>
+  <div class="block">
     <a href="/stock/asientos"  type="button" class="button is-primary">Asientos</a>
     <a href="/stock/mayor"  type="button" class="button is-primary">Mayor</a>
     <a href="/stock/pivotcuentas"  type="button" class="button is-primary">Pivot-Cuentas</a>
@@ -25,62 +25,68 @@
     <a href="/stock/proveedores"  type="button" class="button is-primary">Proveedores</a>
     <a href="/stock/cuentas"  type="button" class="button is-primary">Cuentas</a>
     <a href="/stock/cuadro"  type="button" class="button is-primary">Cuadro</a>
-</div>
+  </div>
+
+  <button class="button is-primary" @click="imprimirStock()">Imprimir</button>
 
 
-<div class="block">
+  <div class="block">
     <table id="table" class="table table-sm ">
-        <thead>
-            <tr>
-                <th>art</th>
-                <th class="sumar numeric">ingreso</th>
-                <th class="sumar numeric">egreso</th>
-                <th class="sumar numeric">stock</th>
-                <th class="sumar numeric">costo</th>
-                <th class="sumar numeric">monto</th>
-                <th class="sumar numeric">cuota</th>
-                <th class="sumar numeric">precio</th>
-                <th>delta</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="item in stock" v-show="item['stock']!=0">
-                <td style="text-align:left;">|item['art']|</td>
-                <td>|item['ingreso']|</td>
-                <td>|item['egreso']|</td>
-                <td>|item['stock']|</td>
-                <td>|item['costo']|</td>
-                <td>|item['stock']*item['costo']|</td>
-                <td>|item['cuota']|</td>
-                <td>|item['stock']*item['cuota']*6|</td>
-                <td>|(item['cuota']*6/item['costo']).toFixed(2)|</td>
-            </tr>
-        </tbody>
+      <thead>
+        <tr>
+          <th>art</th>
+          <th class="sumar numeric">ingreso</th>
+          <th class="sumar numeric">egreso</th>
+          <th class="sumar numeric">stock</th>
+          <th class="numeric">costo</th>
+          <th class="sumar numeric">monto</th>
+          <th class="numeric">cuota</th>
+          <th class="sumar numeric">precio</th>
+          <th>delta</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="item in stock">
+          <tr  x-show="item.stock>0">
+            <td x-text="item.art" style="text-align:left;"></td>
+            <td x-text="item.ingreso"></td>
+            <td x-text="item.egreso"></td>
+            <td x-text="item.stock"></td>
+            <td x-text="item.costo" class="pesos"></td>
+            <td x-text="item.stock*item.costo" class="pesos"></td>
+            <td x-text="item.cuota" class="pesos"></td>
+            <td x-text="item.stock*item.cuota*6" class="pesos"></td>
+            <td x-text="(item.cuota*6/item.costo).toFixed(2)"></td>
+          </tr>
+        </template>
+      </tbody>
     </table>
-</div>
+    <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+  </div>
 </div>
 {% endblock %}
 {% block script %}
 <script>
-const app = new Vue({
-    el:"#app",
-    delimiters:['|','|'],
-    data:{
-      stock:[],
-    },
-    methods: {
-        getStock(){
-            axios.get('/stock/generarstock')
-            .then(res=>{
-                this.stock = res.data.stock
-            })
-        },
-
-    },
-    created: function(){
-        this.getStock();
-    },
-})
+ function main(){
+     return{
+         stock:[],
+         getStock(){
+             axios.get('/stock/generarstock')
+                  .then(res=>{
+                      this.stock = res.data.stock
+                  })
+         },
+         imprimirStock(){
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/stock/imprimirstock',this.stock, {responseType:"blob"})
+                                                                 .then(res=>{
+                                                                     let url = window.URL.createObjectURL(res.data);
+                                                                     window.open(url);
+                                                                     msgSuccess('Stock impreso con exito')
+                                                                 })
+         },
+     }
+ }
 
 </script>
 {% endblock %}

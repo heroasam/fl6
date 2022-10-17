@@ -392,3 +392,8 @@ document.addEventListener("DOMContentLoaded",()=>{
     const theme = document.getElementById('bulma');
     theme.setAttribute('href',bulma);
 });
+
+function toggleModal(id){
+    let $id = document.getElementById(id);
+    $id.classList.toggle('is-active');
+}

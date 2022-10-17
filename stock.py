@@ -1,9 +1,9 @@
-from flask import Blueprint,render_template,jsonify,make_response, request
+from flask import Blueprint,render_template,jsonify,make_response, request, send_file
 from flask_login import login_required
 from lib import *
 import simplejson as json
 from con import get_con, log
-from formularios import listaprecios
+from formularios import listaprecios, imprimir_stock
 import pandas as pd
 import mysql.connector
 
@@ -479,3 +479,11 @@ def stock_obtenerresumenmensual(mes):
               date_format(fecha,'%Y-%m')='{mes}' and caja.cuenta=ctas.cuenta group by caja.cuenta")
     print(resumen)
     return jsonify(resumen=resumen)
+
+
+@stock.route('/stock/imprimirstock', methods = ['POST'])
+def stock_imprimirstock():
+    con = get_con()
+    stock = json.loads(request.data.decode("UTF-8"))
+    imprimir_stock(con,stock)
+    return send_file('/home/hero/stock.pdf')
