@@ -217,6 +217,11 @@ document.addEventListener('click', ()=>{
         let t=event.target.parentElement?.parentElement?.parentElement || 0;
 	    if (event.target.parentElement?.parentElement?.parentElement?.classList?.contains("noselect")) return;
             markSelected();
+
+        if(event.target.parentElement.classList.contains('subtotal')){
+            restaurar(t);
+        };
+
         };
         if(event.target.tagName=== 'TD' && event.altKey===true){
         let t=event.target.parentElement.parentElement.parentElement || 0;
@@ -226,12 +231,14 @@ document.addEventListener('click', ()=>{
 });
 
 // restauro el table al hacer click en la fila subtotal
-document.addEventListener('click', ()=>{
-    let t=event.target.parentElement?.parentElement?.parentElement || 0;
-    if(event.target.parentElement.classList.contains('subtotal')){
-        restaurar(t);
-    }
-});
+// document.addEventListener('click', ()=>{
+//     if(event.target.tagName==='TD'){
+//     let t=event.target.parentElement?.parentElement?.parentElement || 0;
+//     if(event.target.parentElement.classList.contains('subtotal')){
+//         restaurar(t);
+//     }
+//     }
+// });
 
 
 document.addEventListener('mousedown',()=>{

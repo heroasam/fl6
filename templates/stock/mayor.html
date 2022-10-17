@@ -3,75 +3,18 @@
 {% block title %}Mayor{% endblock %}
 {% block style %}
 <style>
-.block:not(:last-child) {
-      margin-bottom: 1.5rem;
-}
-.floated{
-     float:left;
-     margin-right: 5px;
- }
-.color1 {
-    background-color: rgb(178, 42, 32);
-    color: black;
-    text-align: center;
-}
-.color2 {
-    background-color: rgb(178, 127, 32);
-    color: black;
-    text-align: center;
-}
-.color3 {
-    background-color: rgb(176, 178, 32);
-    color: black;
-    text-align: center;
-}
-.color4 {
-    background-color: rgb(32, 178, 98);
-    color: black;
-    text-align: center;
-}
-.color5 {
-    background-color: rgb(147, 196, 193);
-    color: black;
-    text-align: center;
-}
-.color6 {
-    background-color: lightyellow;
-    color: black;
-    text-align: center;
-}
-.color7 {
-    background-color: rgb(80, 89, 214);
-    color: black;
-    text-align: center;
-}
-.color8 {
-    background-color: rgb(13, 130, 148);
-    color: black;
-    text-align: center;
-}
-.color9 {
-    background-color: rgb(141, 11, 104);
-    color: black;
-    text-align: center;
-}
-.color0 {
-    background-color: rgb(127, 19, 189);
-    color: black;
-    text-align: center;
-}
 </style>
 {% endblock %}
 
 {% block content %}
 
-<div id="app" class="container">
-<div class="columns">
+<div class="container" x-data="main()" x-init="obtenerCuentas()">
+  <div class="columns">
     <div class="column is-7">
-        <h1 style="width:70%;" class="title is-size-1">Mayor</h1>
+      <h1 style="width:70%;" class="title is-size-1">Mayor</h1>
     </div>
-</div>
-<div class="block">
+  </div>
+  <div class="block">
     <a href="/stock/asientos"  type="button" class="button is-primary">Asientos</a>
     <a href="/stock/pivotcuentas"  type="button" class="button is-primary">Pivot-Cuentas</a>
     <a href="/stock/retiros"  type="button" class="button is-primary">Retiros</a>
@@ -82,96 +25,121 @@
     <a href="/stock/proveedores"  type="button" class="button is-primary">Proveedores</a>
     <a href="/stock/cuentas"  type="button" class="button is-primary">Cuentas</a>
     <a href="/stock/cuadro"  type="button" class="button is-primary">Cuadro</a>
-</div>
-<div class="block">
-    <div class="field is-grouped is-grouped-multiline">
-      <div v-for="cuenta in cuentas">
-          <button type="button" class="button is-info is-small m-1" @click="getAsientos(cuenta)">|cuenta|</button>
+  </div>
+  <div class="block">
+	<div class="grid-buscar  mr-3 mt-2 center">
+      <div class="grid col-1 gap-0">
+        <input type="search" placeholder="Busca por: Cuenta" class="input" x-model="buscar"
+		       @focus="buscar=''" @keyup.enter="getAsientos(buscar)" autofocus id="searchCuenta">
+		<div id="suggestionsCuenta" class="suggestions"></div>
       </div>
-    </div>
-</div>
+      <button type="button" @click="getAsientos(buscar)" class="button is-primary">Buscar</button>
+	</div>
+  </div>
 
-<div class="block">
+  <div class="block">
     <table id="table" class="table table-sm ">
-        <thead>
-            <tr>
-                <th>op</th>
-                <th>id</th>
-                <th>fecha</th>
-                <th>cuenta</th>
-                <th class="sumar importe">imp</th>
-                <th>comentario</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="asiento in asientos">
-                <td><button class="button is-danger is-small" @click="borrarAsiento(asiento[0],asiento[2])">Borrar</button></td>
-                <td>|asiento[0]|</td>
-                <td :class="dia(asiento[1])">|asiento[1]|</td>
-                <td>|asiento[2]|</td>
-                <td>|asiento[3]|</td>
-                <td>|asiento[4]|</td>
-            </tr>
-        </tbody>
+      <thead>
+        <tr>
+          <th>op</th>
+          <th>id</th>
+          <th>fecha</th>
+          <th>cuenta</th>
+          <th class="sumar importe">imp</th>
+          <th>comentario</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="asiento in listaAsientos">
+          <tr>
+            <td><i class="fa fa-times" aria-hidden="true" @click="borrarAsiento(asiento.id,asiento.cuenta)"></td>
+              <td x-text="asiento.id"></td>
+              <td :class="dia(asiento.fecha)" x-text="asiento.fecha"></td>
+              <td x-text="asiento.cuenta" style="min-width:200px;"></td>
+              <td x-text="asiento.imp" class="pesos" style="min-width:100px;"></td>
+              <td x-text="asiento.comentario"></td>
+          </tr>
+        </template>
+      </tbody>
     </table>
-</div>
+  </div>
 </div>
 {% endblock %}
 {% block script %}
 <script>
-const app = new Vue({
-    el:"#app",
-    delimiters:['|','|'],
-    data:{
-        asientos:[],
-        saldo:0,
-        fecha:'',
-        imp:'',
-        cuenta:'',
-        comentario:'',
-        cuentas:[],
-    },
-    methods: {
-        getAsientos(cuenta){
-            axios.get('/stock/getmayor/'+cuenta)
-            .then(res=>{
-                arrayAsientos = Array.from(res.data.asientos)
-                arrayAsientos.forEach(row=>{
-                    row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD')
-                })
-                this.asientos = arrayAsientos
-            })
-        },
-        borrarAsiento(id,cuenta){
-            const borrar = confirm("¿Esta seguro que quiere borrar permanentemente esta fila?")
-            if(borrar){
-                axios.get('/stock/deleteasiento/'+id)
-                .then(res=>{
-                    //console.log(res)
-                    this.getAsientos(cuenta)
-                })
-            }
-        },
-        getCuentas(){
-            axios.get('/stock/getcuentas')
-            .then(res=>{
-                //console.log(res.data.cuentas)
-                this.cuentas=res.data.cuentas
-            })
-        },
-        dia(day){
-            //formamos el nombre de la clase con la palabra color mas
-            //el ultimo digito de los dias para tener solo diez colores
-            return "color" + dayjs.utc(day).format('DD').slice(1,2)
-        },
-
-
-
-    },
-    created: function(){
-        this.getCuentas();
-    },
-})
+ function main(){
+     return{
+         listaAsientos:[],
+         cuentas:[],
+         buscar:'',
+         getAsientos(cuenta){
+             axios.get('/stock/getmayor/'+cuenta)
+                  .then(res=>{
+                      arrayAsientos = Array.from(res.data.asientos)
+                      arrayAsientos.forEach(row=>{
+                          row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD')
+                      })
+                      this.listaAsientos = arrayAsientos
+                  })
+         },
+         borrarAsiento(id,cuenta){
+             Swal.fire({
+                 title: '¿Esta seguro?',
+                 text: `Borrando asiento ${id} cuenta ${cuenta}`,
+                 icon: 'warning',
+                 showCancelButton: true,
+                 confirmButtonColor: '#3085d6',
+                 cancelButtonColor: '#d33',
+                 confirmButtonText: 'Si, borrarlo!'
+             }).then((result) => {
+                 if (result.isConfirmed) {
+                     axios.get('/stock/deleteasiento/'+id)
+                          .then(res=>{
+                              Swal.fire(
+                                  'Borrado!',
+                                  'El registro ha sido borrado.',
+                                  'success'
+                              )
+                              this.getAsientos(cuenta)
+                          })
+             }})
+         },
+         dia(day){
+             //formamos el nombre de la clase con la palabra color mas
+             //el ultimo digito de los dias para tener solo diez colores
+             return "color" + dayjs.utc(day).format('DD').slice(1,2)
+         },
+         obtenerCuentas(){
+             axios.get('/stock/getcuentas')
+                  .then(res=>{
+                      const cuentas = res.data.cuentas
+                      const $input = document.getElementById('searchCuenta')
+                      const $suggestions = document.getElementById('suggestionsCuenta')
+                      $input.addEventListener('keyup',(e)=>{
+			              const input = $input.value
+			              $suggestions.innerHTML='';
+			              const suggestions = cuentas.filter(cuenta=>{
+                              return cuenta.toLocaleLowerCase().includes(input.toLocaleLowerCase())
+			              })
+			              suggestions.forEach(suggested=>{
+                              const $div = document.createElement('div');
+                              $div.innerHTML = suggested;
+                              $suggestions.appendChild($div)
+			              })
+			              if(input==='') $suggestions.innerHTML=''
+			              if(e.key==='Enter'){
+                              this.buscar = $suggestions.firstChild.innerHTML
+                              $suggestions.innerHTML=''
+			              }
+                      })
+                      $suggestions.addEventListener('click',(e)=>{
+                          this.buscar=e.target.innerHTML
+                          $suggestions.innerHTML=''
+                      })
+                  })
+         },
+     }
+ }
 
 </script>
 {% endblock %}

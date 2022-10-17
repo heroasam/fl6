@@ -98,7 +98,7 @@ def stock_mayor():
 @stock.route('/stock/getmayor/<string:cuenta>')
 def stock_getmayor(cuenta):
     con = get_con()
-    asientos=pgddict(con, f"select id,fecha, cuenta, imp, comentario from caja where cuenta='{cuenta}' order by id desc")
+    asientos=pgdict(con, f"select id,fecha, cuenta, imp, comentario from caja where cuenta='{cuenta}' order by id desc")
     con.close()
     return jsonify(asientos=asientos)
 
@@ -229,7 +229,7 @@ def stock_salidas():
 @stock.route('/stock/getsalidas')
 def stock_getsalidas():
     con = get_con()
-    salidas=pgddict(con, f"select id,fecha,cnt,art,costo,comentario from detallesalida order by id desc limit 200")
+    salidas=pgdict(con, f"select id,fecha,cnt,art,costo,comentario from detallesalida order by id desc limit 200")
     con.close()
     return jsonify(salidas=salidas)
 

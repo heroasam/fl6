@@ -328,3 +328,7 @@ thead th {
 .negativo{
     color:red;
 }
+.floated{
+     float:left;
+     margin-right: 5px;
+ }
