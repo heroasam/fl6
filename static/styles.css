@@ -301,7 +301,8 @@ thead th {
     text-align: right !important;
 }
 .pesos:before{
-    content:'$';
+    content:"$\00a0";
+    float: left;
 }
 .perc{
     text-align: right !important;
@@ -320,4 +321,10 @@ thead th {
 }
 .grande{
     font-size:1.5em;
+}
+.santander{
+    color:dodgerblue;
+}
+.negativo{
+    color:red;
 }

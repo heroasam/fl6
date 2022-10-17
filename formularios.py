@@ -1,31 +1,34 @@
-from fpdf import FPDF 
-from lib import pgdict0, pgddict, per, desnull,pglflat,pgdict,pgonecolumn, letras, listsql
-from datetime import date, datetime
-from dateutil.relativedelta import relativedelta
-import time
-import os
 import glob
+import os
+import time
+from datetime import date, datetime
+from fpdf import FPDF
+from dateutil.relativedelta import relativedelta
+from lib import pgdict0, pgddict, per, pglflat,pgdict,pgonecolumn, letras, listsql
 
 
 def cuotaje(con,idvta):
-    venta = pgdict0(con, f"select id,fecha,cc,ic,saldo,pagado,primera,p from ventas where id={idvta}")
+    """Funcion que entrega la matriz de cuotas a pagar para una cuenta dada."""
+    venta = pgdict(con, f"select id,fecha,cc,ic,saldo,pagado,primera,p from \
+                           ventas where id={idvta}")[0]
     listcuotas = []
-    saldo = venta[4]
+    saldo = venta['saldo']
     if saldo!=0:
-        pagado=venta[5]
-        cc=venta[2]
-        ic=venta[3]
-        p=venta[7]
-        primera=venta[6]
-        for i in range(1,cc+1):
-            if p==1:
+        pagado=venta['pagado']
+        cant_cuotas=venta['cc']
+        imp_cuota=venta['ic']
+        periodicidad=venta['p']
+        primera=venta['primera']
+        for i in range(1,cant_cuotas+1):
+            if periodicidad==1:
                 vto = primera + relativedelta(months=+(i-1))
-            if p==3:
+            if periodicidad==3:
                 vto = primera + relativedelta(weeks= +(i-1))
-            if p==2:
+            if periodicidad==2:
                 vto = primera + relativedelta(weeks= +((i-1)*2))
-            listcuotas.append([i,vto,0 if pagado>=ic else (ic if pagado<=0 else ic-pagado)])
-            pagado = pagado - ic
+            listcuotas.append([i,vto,0 if pagado>=imp_cuota else \
+                               (imp_cuota if pagado<=0 else imp_cuota-pagado)])
+            pagado = pagado - imp_cuota
     return listcuotas
 
 
@@ -45,7 +48,7 @@ def calc(con, idcliente):
             c = cuotas
         cnt += dv + c + 1
     return cnt
-    
+
 
 class MyFPDF(FPDF):
     def header(self):
@@ -108,10 +111,10 @@ def ficha(con,ldni):
             pdf.cell(0,4,cliente[10],0,1)
         if len(cliente[2])>4:
             pdf.set_font_size(7)
-            pdf.cell(0,4,f"En numero se registra lo siguiente:{cliente[2]}",0,1) 
+            pdf.cell(0,4,f"En numero se registra lo siguiente:{cliente[2]}",0,1)
         if len(cliente[3])>8:
             pdf.set_font_size(7)
-            pdf.cell(0,4,f"En telefono se registra lo siguiente:{cliente[3]}",0,1)       
+            pdf.cell(0,4,f"En telefono se registra lo siguiente:{cliente[3]}",0,1)
         pdf.ln(2)
         pdf.set_font_size(10)
         pdf.cell(40,6,f'Visitar el {pmovto}',1,1)
@@ -129,7 +132,7 @@ def ficha(con,ldni):
                 pdf.cell(10,4,f"{detvta[0]}",1,0,'C')
                 pdf.cell(80,4,f"{detvta[1]}",1,0)
                 pdf.cell(35,4,f"{detvta[2]} cuotas de ${detvta[3]}",1,1,'C')
-            
+
             cuotas = cuotaje(con,venta[0])
             pagadas = pgddict(con, f"select fecha,imp,rec,rbo,cobr from pagos where idvta={venta[0]} order by fecha")
             # Calculo el largo total que tendra la grilla de pagos
@@ -137,7 +140,7 @@ def ficha(con,ldni):
                 max=len(cuotas)
             else:
                 max=len(pagadas)
-            
+
             # Formula para el calculo del espacio ocupable
             # if ((pdf.get_y()+max*7)>280):
             #     pdf.add_page()
@@ -153,7 +156,7 @@ def ficha(con,ldni):
                     pdf.cell(5,4,f"{cuota[0]}",1,0,'C')
                     pdf.cell(25,4,f"{cuota[1]}",1,0,'C')
                     pdf.cell(15,4,f"${cuota[2]}",1,1,'C')
-            pdf.ln(2)    
+            pdf.ln(2)
             y1=pdf.get_y()
             pgy1 = pdf.page_no()
             pdf.set_y(y0)
@@ -176,13 +179,13 @@ def ficha(con,ldni):
             pdf.ln(5)
         pdf.line(10,pdf.get_y(),200,pdf.get_y())
         i+=1
-    
+
     if (len(ldni)>1):
         pdf.add_page()
         # for x in dictPos.keys():
-        #     pdf.cell(10,5,str(x),1,0,'C')  
-        #     pdf.cell(60,5,dictNombre[x],1,0,'L') 
-        #     pdf.cell(60,5,dictDir[x],1,0,'L') 
+        #     pdf.cell(10,5,str(x),1,0,'C')
+        #     pdf.cell(60,5,dictNombre[x],1,0,'L')
+        #     pdf.cell(60,5,dictDir[x],1,0,'L')
         #     pdf.cell(20,5,'Pag N°'+str(dictPos[x]),1,1,'C')
         suma_a_cobrar = 0
         for row in lisdatos:
@@ -223,10 +226,10 @@ def libredeuda(con,dni):
     pdf.cell(100,6,cliente[0][0:38],0,1)
     pdf.cell(100,6,f"{cliente[1]} {cliente[2]} {cliente[3]}",0,1)
     pdf.ln(5)
-    pdf.multi_cell(0, 8, libre , border = 0, 
+    pdf.multi_cell(0, 8, libre , border = 0,
                 align = 'J', fill = False)
     if cliente[4]:
-        pdf.multi_cell(0, 8, seven , border = 0, 
+        pdf.multi_cell(0, 8, seven , border = 0,
                 align = 'J', fill = False)
     pdf.ln(7)
     pdf.cell(150,6,"DEPARTAMENTO DE COBRANZAS ROMITEX", 0, 1, 'R')
@@ -255,10 +258,10 @@ def recibotransferencia(con,fecha,cuenta,nc,ic,cobr,rbo,idcliente):
     pdf.cell(150,8,f"Recibo de pago por transferencia N°{rbo}", 0, 1, 'R')
     pdf.cell(150,8,f"Importe ${ic}", 0, 1, 'R')
     pdf.ln(2)
-    pdf.multi_cell(0, 8, texto , border = 0, 
+    pdf.multi_cell(0, 8, texto , border = 0,
                 align = 'J', fill = False)
     pdf.ln(5)
-    pdf.multi_cell(0, 8, advertencia , border = 0, 
+    pdf.multi_cell(0, 8, advertencia , border = 0,
                 align = 'J', fill = False)
     pdf.ln(5)
     pdf.cell(150,6,"DEPARTAMENTO DE COBRANZAS ROMITEX", 0, 1, 'R')
@@ -274,14 +277,14 @@ def intimacion(con,ldni):
     today = datetime.today().strftime('%Y-%m-%d')
     intim1 = """
     Por la presente le recordamos que segun nuestros registros mantiene una DEUDA VENCIDA E IMPAGA con nuestra empresa.
-    A pesar de las numerosas visitas de cobro que hemos realizado no hemos podido obtener repuesta de su parte, por lo que nos vemos en la obligacion de concluir que no existe voluntad de su parte de pagar la cuenta segun lo acordado. 
+    A pesar de las numerosas visitas de cobro que hemos realizado no hemos podido obtener repuesta de su parte, por lo que nos vemos en la obligacion de concluir que no existe voluntad de su parte de pagar la cuenta segun lo acordado.
     Cumplimos en avisarle que su nombre sera informado al registro de morosos SEVEN en los proximos dias. El sistema de informacion de morosos SEVEN mantiene una base de datos de morosos de nuestra ciudad, por lo cual se inclusion en el mismo le trabara y/o dificultara cualquier operacion comercial presente o futura.
     """
     intim2 = """
     Por la presente le recordamos que segun nuestros registros mantiene una DEUDA VENCIDA E IMPAGA con nuestra empresa.
     A pesar de las numerosas visitas de cobro que hemos realizado no hemos podido obtener repuesta de su parte, por lo que nos vemos en la obligacion de concluir que no existe voluntad de su parte de pagar la cuenta segun lo acordado.
     Cumplimos en avisarle que su nombre fue informado al registro de morosos SEVEN. El sistema de informacion de morosos SEVEN mantiene una base de datos de morosos de nuestra ciudad, por lo cual se inclusion en el mismo le trabara y/o dificultara cualquier operacion comercial presente o futura.
-    
+
     En el caso de querer regularizar su deuda puede solicitar un plan de pagos por WhatsApp al 351-5-297-472.
     Una vez cancelada la cuenta se informa inmediatamente al SEVEN para proceder a eliminar su nombre de dicho registro.
     """
@@ -313,7 +316,7 @@ def intimacion(con,ldni):
             intim = intim2
         else:
             intim = intim1
-        pdf.multi_cell(0, 8, intim , border = 0, 
+        pdf.multi_cell(0, 8, intim , border = 0,
                 align = 'J', fill = False)
         # pdf.image('/root/anonymous.jpg')
         pdf.ln(3)

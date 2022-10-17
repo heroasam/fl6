@@ -135,7 +135,7 @@ def stock_retiros():
 @stock.route('/stock/getcompras')
 def stock_getcompras():
     con = get_con()
-    compras=pgddict(con, f"select id,fecha,art,cnt, costo,total,proveedor from artcomprado order by id desc limit 200")
+    compras=pgdict(con, f"select id,fecha,art,cnt, costo,total,proveedor from artcomprado order by id desc limit 200")
     con.close()
     return jsonify(compras=compras)
 
@@ -170,7 +170,10 @@ def stock_deletecompra(id):
 def stock_guardarcompra():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    ins = f"insert into artcomprado(fecha,cnt,art,costo,total,proveedor) values('{d['fecha']}',{d['cnt']},'{d['art']}',{d['costo']},{d['total']},'{d['proveedor']}')"
+    total = int(d['cnt']) * int(d['costo'])
+    ins = f"insert into artcomprado(fecha,cnt,art,costo,total,proveedor)\
+            values('{d['fecha']}',{d['cnt']},'{d['art']}',{d['costo']},\
+            {total},'{d['proveedor']}')"
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
@@ -193,7 +196,7 @@ def stock_saldosorpresa():
 @stock.route('/stock/getdepositos')
 def stock_getdepositos():
     con = get_con()
-    depositos=pgddict(con, f"select fecha,imp from caja where cuenta='depositos sorpresa' order by id desc")
+    depositos=pgdict(con, f"select fecha,imp from caja where cuenta='depositos sorpresa' order by id desc")
     con.close()
     return jsonify(depositos=depositos)
 

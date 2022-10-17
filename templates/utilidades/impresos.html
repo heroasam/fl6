@@ -1,29 +1,31 @@
 {% extends "base.html" %} {% block title %}Impresos{% endblock %}
 
 {% block content %}
-<div id="app" class="container" v-cloak>
-	<p class="title is-1">Impresos</p>
-    <div class="buttons">
-        <a href="/utilidades/planos" class="button is-primary">Planos</a>
-        <a href="/utilidades/pdfsistema" class="button is-primary">Sistema</a>
-        <a href="/utilidades/contador" class="button is-primary">Contador</a>
-      </div>
+<div class="container" x-data="main()" x-init="getImpresos()">
+  <p class="title is-1">Impresos</p>
+  <div class="buttons">
+    <a href="/utilidades/planos" class="button is-primary">Planos</a>
+    <a href="/utilidades/pdfsistema" class="button is-primary">Sistema</a>
+    <a href="/utilidades/contador" class="button is-primary">Contador</a>
+  </div>
 
-      <table class="table">
-        <thead>
-            <tr>
-                <th>Imp</th>
-                <th>Impreso</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="impreso in impresos">
-                <td><button class="button is-danger is-small" @click="imprimirImpreso(impreso)">Imprimir</button></td>
-                <td>|impreso|</td>
-            </tr>
-        </tbody>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Imp</th>
+        <th>Impreso</th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="impreso in impresos">
+        <tr>
+          <td><button class="button is-danger is-small" @click="imprimirImpreso(impreso)">Imprimir</button></td>
+          <td x-text="impreso"></td>
+        </tr>
+      </template>
+    </tbody>
 
-      </table>
+  </table>
 
 
 </div>
@@ -33,33 +35,25 @@
 
 {% endblock %} {% block script %}
 <script>
-const app = new Vue({
-    el: '#app',
-    delimiters: ['|', '|'],
-    data: {
-        impresos:[],
-    },
-    methods: {
-        imprimirImpreso(impreso){
-        		axios({
-          			method: "GET",
-          			url: "/utilidades/imprimirimpreso/"+impreso,
-          			responseType: "blob",
-        			}).then((res) => {
-          			let url = window.URL.createObjectURL(res.data);
-          			window.open(url);
-                    })},
-        getImpresos(){
-            axios.get('/utilidades/getimpresos')
-				.then(res=>{
-					this.impresos=res.data.impresos
-				})
-        },
-    },
-    created: function(){
-			this.getImpresos()
-    },
-})
-
-    </script>
+ function main(){
+     return{
+         impresos:[],
+         imprimirImpreso(impreso){
+        	 axios({
+          		 method: "GET",
+          		 url: "/utilidades/imprimirimpreso/"+impreso,
+          		 responseType: "blob",
+        	 }).then((res) => {
+          		 let url = window.URL.createObjectURL(res.data);
+          		 window.open(url);
+         })},
+         getImpresos(){
+             axios.get('/utilidades/getimpresos')
+				  .then(res=>{
+					  this.impresos=res.data.impresos
+				  })
+         },
+     }
+ }
+</script>
 {% endblock %}

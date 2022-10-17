@@ -3,20 +3,6 @@
 {% block title %}Asientos{% endblock %}
 {% block style %}
 <style>
-.santander{
-    color:dodgerblue;
-}
-.negativo{
-    color:red;
-}
-table td:nth-child(5) {
-    text-align: right;
-}
-table td:nth-child(5):before  {
-    content:  "$\00a0";
-    float: left;
-}
-
 </style>
 {% endblock %}
 
@@ -88,7 +74,7 @@ table td:nth-child(5):before  {
               <td x-text="asiento.id"></td>
               <td :class="dia(asiento.fecha)" x-text="asiento.fecha"></td>
               <td :class="asiento.cuenta.slice(0,9)=='santander'?'santander':''" x-text="asiento.cuenta" style="min-width:250px;"></td>
-              <td :class="asiento.imp<0?'negativo':''" x-text="asiento.imp" style="min-width:100px;"></td>
+              <td :class="asiento.imp<0?'negativo':''" x-text="asiento.imp" style="min-width:100px;" class="pesos"></td>
               <td x-text="asiento.comentario"></td>
               <td><i class="fa fa-pencil" aria-hidden="true" @click="editarComentarioAsiento(asiento.id)"></td>
                 </tr>
