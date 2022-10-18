@@ -180,7 +180,7 @@
                 console.log(this.listImprimir.length);
             },
             imprimirListado(){
-                this.toggleModal('listado')
+                toggleModal('listado')
             },
             imprimirListado_() {
                 let formato = this.tipoListado
@@ -190,7 +190,7 @@
                         axios.post("/fichas/imprimirlistado", data, { responseType: "blob" })
                             .then((res) => {
                                 let url = window.URL.createObjectURL(res.data);
-                                this.toggleModal('listado')
+                                toggleModal('listado')
                                 msgSuccess('Se registro el listado al vendedor')
                                 setTimeout(()=>{
                                     window.open(url);

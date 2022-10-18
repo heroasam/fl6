@@ -332,3 +332,12 @@ thead th {
      float:left;
      margin-right: 5px;
  }
+.cur::before {
+    content:"$";
+}
+.cur{
+    text-align: right !important;
+}
+.deudora{
+    background-color: tomato;
+}

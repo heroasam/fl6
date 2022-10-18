@@ -3,54 +3,56 @@
 {% block title %}Ver Clientes{% endblock %}
 {% block style %}
 <style>
-  </style>
-  {% endblock %}
-  
+</style>
+{% endblock %}
+
 {% block content %}
 
-<div id="app" class="container">
-    <p class="title is-1">Ver Clientes</p>
-    <div class="buttons">
-        <a href="/ventas/ventas" class="button is-primary">Pasar Ventas</a>
-        <a href="/ventas/listado" class="button is-primary">Listado</a>
-        <a href="/ventas/calles" class="button is-primary">Calles</a>
-        <a href="/ventas/barrios" class="button is-primary">Barrios</a>
-        <a href="/ventas/zonas" class="button is-primary">Zonas</a>
-        <a href="/ventas/estadisticas" class="button is-primary">Estadisticas</a>
-	    <a href="/ventas/morosidad" class="button is-primary">Morosidad</a>
-        <a href="/ventas/devolucion" class="button is-primary">Devoluciones</a>
-        <a href="/ventas/pordia" class="button is-primary">Ventas</a>
-        <a href="/ventas/pivotdevoluciones" class="button is-primary">Pivot-Devol.</a>
-    </div>
+<div class="container" x-data="main()" x-init="getClientes()">
+  <p class="title is-1">Ver Clientes</p>
+  <div class="buttons">
+    <a href="/ventas/ventas" class="button is-primary">Pasar Ventas</a>
+    <a href="/ventas/listado" class="button is-primary">Listado</a>
+    <a href="/ventas/calles" class="button is-primary">Calles</a>
+    <a href="/ventas/barrios" class="button is-primary">Barrios</a>
+    <a href="/ventas/zonas" class="button is-primary">Zonas</a>
+    <a href="/ventas/estadisticas" class="button is-primary">Estadisticas</a>
+	<a href="/ventas/morosidad" class="button is-primary">Morosidad</a>
+    <a href="/ventas/devolucion" class="button is-primary">Devoluciones</a>
+    <a href="/ventas/pordia" class="button is-primary">Ventas</a>
+    <a href="/ventas/pivotdevoluciones" class="button is-primary">Pivot-Devol.</a>
+  </div>
 
-      <table class="table is-narrow nototal">
-          <thead>
-              <tr>
-                  <th>idvta</th>
-                  <th>nombre</th>
-                  <th>calle</th>
-                  <th>num</th>
-                  <th>zona</th>
-                  <th>gestion</th>
-                  <th>mudo</th>
-                  <th>incobrable</th>
-                  <th>acla</th>
-              </tr>
-          </thead>
-          <tbody>
-              <tr v-for="cliente in clientes">
-                  <td>|cliente['idvta']|</td>
-                  <td>|cliente['nombre']|</td>
-                  <td>|cliente['calle']|</td>
-                  <td>|cliente['num']|</td>
-                  <td>|cliente['zona']|</td>
-                  <td><button type="button"  class="button is-danger is-small" v-show="cliente['gestion']==1">Gestion</button></td>
-                  <td><button type="button"  class="button is-danger is-small" v-show="cliente['mudo']==1">Mudado</button></td>
-                  <td><button type="button"  class="button is-danger is-small" v-show="cliente['incobrable']==1">Incobrable</button></td>
-                  <td>|cliente['acla']|</td>
-              </tr>
-          </tbody>
-      </table>
+  <table class="table is-narrow nototal">
+    <thead>
+      <tr>
+        <th>idvta</th>
+        <th>nombre</th>
+        <th>calle</th>
+        <th>num</th>
+        <th>zona</th>
+        <th>gestion</th>
+        <th>mudo</th>
+        <th>incobrable</th>
+        <th>acla</th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="cliente in listaClientes">
+        <tr>
+          <td x-text="cliente.idvta"></td>
+          <td x-text="cliente.nombre"></td>
+          <td x-text="cliente.calle"></td>
+          <td x-text="cliente.num"></td>
+          <td x-text="cliente.zona"></td>
+          <td><button type="button"  class="button is-danger is-small" x-show="cliente.gestion==1">Gestion</button></td>
+          <td><button type="button"  class="button is-danger is-small" x-show="cliente.mudo==1">Mudado</button></td>
+          <td><button type="button"  class="button is-danger is-small" x-show="cliente.incobrable==1">Incobrable</button></td>
+          <td x-text="cliente.acla"></td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
 
 
 
@@ -59,23 +61,15 @@
 
 {% block script %}
 <script>
-  const app = new Vue({
-    el:"#app",
-    delimiters:['|','|'],
-    data:{
-        clientes:[],
-    },
-    methods:{
-        getClientes(){
-            axios.get('/ventas/getclientes')
-            .then(res=>{
-                this.clientes=res.data.clientes
-            })
-        },
-    },
-    created:function(){
-        this.getClientes()
-    },
-  })
-  </script>
-  {% endblock %}
+ function main(){
+     return{
+         listaClientes:[],
+         getClientes(){
+             axios.get('/ventas/getclientes')
+                  .then(res=>{
+                      this.listaClientes=res.data.clientes
+                  })
+         },
+ }}
+</script>
+{% endblock %}
