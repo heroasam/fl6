@@ -104,34 +104,37 @@
                           })
              }})
          },
+         /* obtenerCuentas(){
+          *     axios.get('/stock/getcuentas')
+          *          .then(res=>{
+          *              const cuentas = res.data.cuentas
+          *              const $input = document.getElementById('searchCuenta')
+          *              const $suggestions = document.getElementById('suggestionsCuenta')
+          *              $input.addEventListener('keyup',(e)=>{
+			const input = $input.value
+			$suggestions.innerHTML='';
+			const suggestions = cuentas.filter(cuenta=>{
+          *                      return cuenta.toLocaleLowerCase().includes(input.toLocaleLowerCase())
+			})
+			suggestions.forEach(suggested=>{
+          *                      const $div = document.createElement('div');
+          *                      $div.innerHTML = suggested;
+          *                      $suggestions.appendChild($div)
+			})
+			if(input==='') $suggestions.innerHTML=''
+			if(e.key==='Enter'){
+          *                      this.buscar = $suggestions.firstChild.innerHTML
+          *                      $suggestions.innerHTML=''
+			}
+          *              })
+          *              $suggestions.addEventListener('click',(e)=>{
+          *                  this.buscar=e.target.innerHTML
+          *                  $suggestions.innerHTML=''
+          *              })
+          *          })
+          * }, */
          obtenerCuentas(){
-             axios.get('/stock/getcuentas')
-                  .then(res=>{
-                      const cuentas = res.data.cuentas
-                      const $input = document.getElementById('searchCuenta')
-                      const $suggestions = document.getElementById('suggestionsCuenta')
-                      $input.addEventListener('keyup',(e)=>{
-			              const input = $input.value
-			              $suggestions.innerHTML='';
-			              const suggestions = cuentas.filter(cuenta=>{
-                              return cuenta.toLocaleLowerCase().includes(input.toLocaleLowerCase())
-			              })
-			              suggestions.forEach(suggested=>{
-                              const $div = document.createElement('div');
-                              $div.innerHTML = suggested;
-                              $suggestions.appendChild($div)
-			              })
-			              if(input==='') $suggestions.innerHTML=''
-			              if(e.key==='Enter'){
-                              this.buscar = $suggestions.firstChild.innerHTML
-                              $suggestions.innerHTML=''
-			              }
-                      })
-                      $suggestions.addEventListener('click',(e)=>{
-                          this.buscar=e.target.innerHTML
-                          $suggestions.innerHTML=''
-                      })
-                  })
+             autoComplete('/stock/getcuentas','searchCuenta','suggestionsCuenta')
          },
      }
  }

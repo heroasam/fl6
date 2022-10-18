@@ -129,34 +129,37 @@
                                                                      msgSuccess('Salida procesada con exito')
                                                                  })
          },
+         /* obtenerArt(){
+          *     axios.get('/ventas/getarticulos')
+          *          .then(res=>{
+          *              const articulos = res.data.articulos
+          *              const $input = document.getElementById('searchArt')
+          *              const $suggestions = document.getElementById('suggestionsArt')
+          *              $input.addEventListener('keyup',(e)=>{
+			const input = $input.value
+			$suggestions.innerHTML='';
+			const suggestions = articulos.filter(art=>{
+          *                      return art.toLocaleLowerCase().includes(input.toLocaleLowerCase())
+			})
+			suggestions.forEach(suggested=>{
+          *                      const $div = document.createElement('div');
+          *                      $div.innerHTML = suggested;
+          *                      $suggestions.appendChild($div)
+			})
+			if(input==='') $suggestions.innerHTML=''
+			if(e.key==='Enter'){
+          *                      this.Salida.art = $suggestions.firstChild.innerHTML
+          *                      $suggestions.innerHTML=''
+			}
+          *              })
+          *              $suggestions.addEventListener('click',(e)=>{
+          *                  this.Salida.art=e.target.innerHTML
+          *                  $suggestions.innerHTML=''
+          *              })
+          *          })
+          * }, */
          obtenerArt(){
-             axios.get('/ventas/getarticulos')
-                  .then(res=>{
-                      const articulos = res.data.articulos
-                      const $input = document.getElementById('searchArt')
-                      const $suggestions = document.getElementById('suggestionsArt')
-                      $input.addEventListener('keyup',(e)=>{
-			              const input = $input.value
-			              $suggestions.innerHTML='';
-			              const suggestions = articulos.filter(art=>{
-                              return art.toLocaleLowerCase().includes(input.toLocaleLowerCase())
-			              })
-			              suggestions.forEach(suggested=>{
-                              const $div = document.createElement('div');
-                              $div.innerHTML = suggested;
-                              $suggestions.appendChild($div)
-			              })
-			              if(input==='') $suggestions.innerHTML=''
-			              if(e.key==='Enter'){
-                              this.Salida.art = $suggestions.firstChild.innerHTML
-                              $suggestions.innerHTML=''
-			              }
-                      })
-                      $suggestions.addEventListener('click',(e)=>{
-                          this.Salida.art=e.target.innerHTML
-                          $suggestions.innerHTML=''
-                      })
-                  })
+             autoComplete('/ventas/getarticulos','searchArt','suggestionsArt')
          },
      }
  }

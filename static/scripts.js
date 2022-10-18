@@ -402,4 +402,36 @@ function dia(day){
                 //formamos el nombre de la clase con la palabra color mas
                 //el ultimo digito de los dias para tener solo diez colores
     return "color" + dayjs.utc(day).format('DD').slice(1,2);
+
 }
+function autoComplete(url,inputId, suggestionId){
+             axios.get(url)
+                  .then(res=>{
+                      const result = res.data.result;
+                      const $input = document.getElementById(inputId);
+                      const $suggestions = document.getElementById(suggestionId);
+                      $input.addEventListener('keyup',(e)=>{
+			              const input = $input.value;
+			  $suggestions.innerHTML='';
+			  const suggestions = result.filter(item=>{
+                  return item.toLocaleLowerCase().includes(input.toLocaleLowerCase());
+			  });
+			  suggestions.forEach(suggested=>{
+                              const $div = document.createElement('div');
+                              $div.innerHTML = suggested;
+                              $suggestions.appendChild($div);
+			  });
+			              if(input==='') $suggestions.innerHTML='';
+			  if(e.key==='Enter'){
+                  $input.value = $suggestions.firstChild.innerHTML;
+                  $input.dispatchEvent(new InputEvent('input'));
+                  $suggestions.innerHTML='';
+			  }
+                      });
+                      $suggestions.addEventListener('click',(e)=>{
+                          $input.value=e.target.innerHTML;
+                          $input.dispatchEvent(new InputEvent('input'));
+                          $suggestions.innerHTML='';
+                      });
+                  });
+         }

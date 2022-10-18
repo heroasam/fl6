@@ -8,7 +8,7 @@
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getAsientos();getCuentas();obtenerCuentas()">
+<div class="container" x-data="main()" x-init="getAsientos();obtenerCuentas()">
 <div class="columns">
     <div class="column is-4">
         <h1 class="title is-size-1">Asientos</h1>
@@ -107,7 +107,7 @@
         saldosantander:0,
         Asiento:{fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',comentario:''},
         AsientoEdicion:{},
-        cuentas:[],
+                /* cuentas:[], */
         selected: null,
         verModalEdicionComentario:false,
         getAsientos(){
@@ -137,12 +137,12 @@
                     this.getAsientos()
                 }})
         },
-        getCuentas(){
-            axios.get('/stock/getcuentas')
-            .then(res=>{
-                this.cuentas=res.data.cuentas
-            })
-        },
+                /* getCuentas(){
+                 *     axios.get('/stock/getcuentas')
+                 *     .then(res=>{
+                 *         this.cuentas=res.data.cuentas
+                 *     })
+                 * }, */
         validarAsiento(){
             if(this.Asiento.fecha!=''&&this.Asiento.cuenta!=''&&this.Asiento.imp!=''){
                 this.guardarAsiento()
@@ -184,35 +184,38 @@
                         this.listAsientos = this.listAsientos_.filter(row=>!row.cuenta.includes('santander'))
                     }
                 },
-        obtenerCuentas(){
-                    axios.get('/stock/getcuentas')
-                    .then(res=>{
-                        const cuenta = res.data.cuentas
-                        const $input = document.getElementById('searchCuenta')
-                        const $suggestions = document.getElementById('suggestionsCuenta')
-                        $input.addEventListener('keyup',(e)=>{
-                        const input = $input.value
-                        $suggestions.innerHTML='';
-                        const suggestions = cuenta.filter(cuenta=>{
-                            return cuenta.toLocaleLowerCase().includes(input.toLocaleLowerCase())
-                        })
-                        suggestions.forEach(suggested=>{
-                            const $div = document.createElement('div');
-                            $div.innerHTML = suggested;
-                            $suggestions.appendChild($div)
-                        })
-                        if(input==='') $suggestions.innerHTML=''
-                        if(e.key==='Enter'){
-                            this.Asiento.cuenta = $suggestions.firstChild.innerHTML
-                            $suggestions.innerHTML=''
-                        }
-                        })
-                        $suggestions.addEventListener('click',(e)=>{
-                            this.Asiento.cuenta=e.target.innerHTML
-                            $suggestions.innerHTML=''
-                        })
-                        })
-                    },
+                /* obtenerCuentas(){
+                 *             axios.get('/stock/getcuentas')
+                 *             .then(res=>{
+                 *                 const cuenta = res.data.cuentas
+                 *                 const $input = document.getElementById('searchCuenta')
+                 *                 const $suggestions = document.getElementById('suggestionsCuenta')
+                 *                 $input.addEventListener('keyup',(e)=>{
+                 *                 const input = $input.value
+                 *                 $suggestions.innerHTML='';
+                 *                 const suggestions = cuenta.filter(cuenta=>{
+                 *                     return cuenta.toLocaleLowerCase().includes(input.toLocaleLowerCase())
+                 *                 })
+                 *                 suggestions.forEach(suggested=>{
+                 *                     const $div = document.createElement('div');
+                 *                     $div.innerHTML = suggested;
+                 *                     $suggestions.appendChild($div)
+                 *                 })
+                 *                 if(input==='') $suggestions.innerHTML=''
+                 *                 if(e.key==='Enter'){
+                 *                     this.Asiento.cuenta = $suggestions.firstChild.innerHTML
+                 *                     $suggestions.innerHTML=''
+                 *                 }
+                 *                 })
+                 *                 $suggestions.addEventListener('click',(e)=>{
+                 *                     this.Asiento.cuenta=e.target.innerHTML
+                 *                     $suggestions.innerHTML=''
+                 *                 })
+                 *                 })
+                 *             }, */
+                obtenerCuentas(){
+                    autoComplete('/stock/getcuentas','searchCuenta','suggestionsCuenta')
+                },
     }
 }
 

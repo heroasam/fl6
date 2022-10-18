@@ -363,34 +363,37 @@ def busca_guardaredicioncliente(idcliente):
 @buscador.route('/buscador/obtenerlistadocalles')
 def buscar_obtenerlistadocalles():
     con = get_con()
-    sql = "select calle from calles order by calle"
-    cur = con.cursor(dictionary=True)
-    cur.execute(sql)
-    calles = cur.fetchall()
+    # sql = "select calle from calles order by calle"
+    # cur = con.cursor(dictionary=True)
+    # cur.execute(sql)
+    # calles = cur.fetchall()
+    calles = pglflat(con, "select calle from calles order by calle")
     con.close()
-    return jsonify(calles=calles)
+    return jsonify(result=calles)
 
 
 @buscador.route('/buscador/obtenerlistabarrios')
 def buscar_obtenerlistabarrios():
     con = get_con()
-    sql = "select barrio from barrios order by barrio"
-    cur = con.cursor(dictionary=True)
-    cur.execute(sql)
-    barrios = cur.fetchall()
+    # sql = "select barrio from barrios order by barrio"
+    # cur = con.cursor(dictionary=True)
+    # cur.execute(sql)
+    # barrios = cur.fetchall()
+    barrios = pglflat(con,"select barrio from barrios order by barrio")
     con.close()
-    return jsonify(barrios=barrios)
+    return jsonify(result=barrios)
 
 
 @buscador.route('/buscador/obtenerlistazonas')
 def buscar_obtenerlistazonas():
     con = get_con()
-    sql = "select zona from zonas order by zona"
-    cur = con.cursor(dictionary=True)
-    cur.execute(sql)
-    zonas = cur.fetchall()
+    # sql = "select zona from zonas order by zona"
+    # cur = con.cursor(dictionary=True)
+    # cur.execute(sql)
+    # zonas = cur.fetchall()
+    zonas = pglflat(con,"select zona from zonas order by zona")
     con.close()
-    return jsonify(zonas=zonas)
+    return jsonify(result=zonas)
 
 
 @buscador.route('/buscador/obtenercobradores')

@@ -60,7 +60,7 @@ def ventas_guardarcliente():
     cur = con.cursor()
     d = json.loads(request.data.decode("UTF-8"))
     if d['id']: # o sea existe el id, es decir es un update
-        cliente_viejo = pgdict(con, f"select * from clientes where id={d['id']}")[0]    
+        cliente_viejo = pgdict(con, f"select * from clientes where id={d['id']}")[0]
     if d['id']=="":
         stm = f"insert into clientes(sex,dni,nombre,calle,num,barrio,zona,tel,wapp,acla,horario,mjecobr,infoseven) values('{d['sex']}','{d['dni']}','{d['nombre']}','{d['calle']}','{d['num']}','{d['barrio']}','{d['zona']}','{d['tel']}','{d['wapp']}','{d['acla']}','{d['horario']}','{d['mjecobr']}','{d['infoseven']}')"
     else:
@@ -95,7 +95,7 @@ def ventas_guardarventa():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     ant = d['ant'] or 0
-    
+
     print(ant)
     per = d['p']
     if per=='mensual':
@@ -172,9 +172,8 @@ def ventas_borrardetvta(id):
 def ventas_getarticulos():
     con = get_con()
     articulos = pglflat(con, f"select concat(codigo,'-',art) as art from articulos where activo=1 and codigo is not null")
-    print(articulos)
     con.close()
-    return jsonify(articulos=articulos)
+    return jsonify(result=articulos)
 
 
 @ventas.route('/ventas/getlistado')
@@ -233,7 +232,7 @@ def ventas_guardaredicionvta():
         log(upd)
         cur.close()
         con.close()
-        return 'OK'   
+        return 'OK'
 
 @ventas.route('/ventas/clientes')
 def ventas_clientes():
@@ -331,7 +330,7 @@ def ventas_guardaredicionbarrio():
         log(upd)
         cur.close()
         con.close()
-        return 'OK'    
+        return 'OK'
 
 
 @ventas.route('/ventas/guardaredicionzona', methods=['POST'])
@@ -351,10 +350,10 @@ def ventas_guardaredicionzona():
         log(upd)
         cur.close()
         con.close()
-        return 'OK'   
+        return 'OK'
 
 
-@ventas.route('/ventas/borrarcalle/<int:id>')  
+@ventas.route('/ventas/borrarcalle/<int:id>')
 def ventas_borrarcalle(id):
     con = get_con()
     stm = f"delete from calles where id={id}"
@@ -374,7 +373,7 @@ def ventas_borrarcalle(id):
 
 
 
-@ventas.route('/ventas/borrarbarrio/<int:id>')  
+@ventas.route('/ventas/borrarbarrio/<int:id>')
 def ventas_borrarbarrio(id):
     con = get_con()
     stm = f"delete from barrios where id={id}"
@@ -393,7 +392,7 @@ def ventas_borrarbarrio(id):
         return 'OK'
 
 
-@ventas.route('/ventas/borrarzona/<int:id>')  
+@ventas.route('/ventas/borrarzona/<int:id>')
 def ventas_borrarzona(id):
     con = get_con()
     stm = f"delete from zonas where id={id}"
@@ -566,7 +565,7 @@ def ventas_devolucion_procesar():
     d = json.loads(request.data.decode("UTF-8"))
     idvta = d['idvta']
     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
-    comprado = pgonecolumn(con, f"select comprado from ventas where id={idvta}")  
+    comprado = pgonecolumn(con, f"select comprado from ventas where id={idvta}")
     cc = int(d['cc'])
     ic = int(d['imp'])
     fechadev = d['fechadev']
@@ -585,7 +584,7 @@ def ventas_devolucion_procesar():
 
     cnt = pgonecolumn(con, f"select sum(cnt) from detvta where idvta={idvta}")
     art = pgonecolumn(con, f"select group_concat(art,'|') from detvta where idvta={idvta}")
-    
+
     # update ventas cc/ic/cnt/art para una devolucion parcial
     # update ventas devuelta=1, saldo=0 para una devolucion total
     cur = con.cursor(buffered=True)
@@ -610,9 +609,9 @@ def ventas_devolucion_procesar():
         cur.execute(updnvm)
         con.commit()
         log(updnvm)
-        
+
     # insert devoluciones con todos los datos de la devolucion
-    ins = f"insert into devoluciones(idvta,fechadev,cobr,comprdejado,rboN,totparc,novendermas,vdor,mesvta,montodev,registro) values({idvta},'{fechadev}',{cobr},'{comprdejado}','{rboN}','{totparc}',{novendermas}, {vdor}, '{mesvta}', {montodev},'{registro}')" 
+    ins = f"insert into devoluciones(idvta,fechadev,cobr,comprdejado,rboN,totparc,novendermas,vdor,mesvta,montodev,registro) values({idvta},'{fechadev}',{cobr},'{comprdejado}','{rboN}','{totparc}',{novendermas}, {vdor}, '{mesvta}', {montodev},'{registro}')"
     print(ins)
     cur.execute(ins)
     con.commit()

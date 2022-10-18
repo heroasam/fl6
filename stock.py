@@ -53,7 +53,7 @@ def stock_getcuentas():
     cuentas = pglflat(con, f"select cuenta from ctas order by cuenta")
     # print(cuentas)
     con.close()
-    return jsonify(cuentas=cuentas)
+    return jsonify(result=cuentas)
 
 
 @stock.route('/stock/guardarasiento' , methods = ['POST'])
@@ -145,7 +145,7 @@ def stock_getarticulos():
     con = get_con()
     articulos=pglflat(con, f"select art from articulos")
     con.close()
-    return jsonify(articulos=articulos)
+    return jsonify(result=articulos)
 
 
 @stock.route('/stock/compras')
