@@ -10,7 +10,7 @@ import mysql.connector
 
 pagos = Blueprint('pagos',__name__)
 
-    
+
 @pagos.route('/loterbo')
 @login_required
 def loterbo_():
@@ -301,7 +301,7 @@ def pagos_guardaredicionrbo():
 @pagos.route('/pagos/getzonasasignadas')
 def pagos_getzonasasignadas():
     con = get_con()
-    zonas = pgddict(con, f"select zonas.id as id,zonas.zona as zona,asignado,(select nombre from cobr where cobr.id=asignado) as nombre, count(*) as cnt, sum(cuota) as cuota from zonas,clientes where clientes.zona=zonas.zona and pmovto>=date_sub(curdate(),interval 90 day) and zonas.zona not like '-%' group by zonas.id order by asignado")
+    zonas = pgdict(con, f"select zonas.id as id,zonas.zona as zona,asignado as cobr,(select nombre from cobr where cobr.id=asignado) as nombre, count(*) as cnt, sum(cuota) as cuotas from zonas,clientes where clientes.zona=zonas.zona and pmovto>=date_sub(curdate(),interval 90 day) and zonas.zona not like '-%' group by zonas.id order by asignado")
     con.close()
     return jsonify(zonas=zonas)
 
@@ -316,7 +316,7 @@ def pagos_verzona():
 def pagos_editarasignado():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    upd = f"update zonas set asignado={d['asignado']} where id={d['id']}"
+    upd = f"update zonas set asignado={d['cobr']} where id={d['id']}"
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
@@ -329,7 +329,7 @@ def pagos_editarasignado():
 @pagos.route('/pagos/gettotaleszonas')
 def pagos_gettotaleszonas():
     con = get_con()
-    totales = pgddict(con, f"select asignado,(select nombre from cobr where cobr.id=asignado) as nombre, sum(cuota) as cuota from zonas,clientes where clientes.zona=zonas.zona and pmovto>=date_sub(curdate(),interval 90 day) and zonas.zona not like '-%' group by asignado order by asignado")
+    totales = pgdict(con, f"select asignado as cobr,(select nombre from cobr where cobr.id=asignado) as nombre, sum(cuota) as total from zonas,clientes where clientes.zona=zonas.zona and pmovto>=date_sub(curdate(),interval 90 day) and zonas.zona not like '-%' group by asignado order by asignado")
     con.close()
     return jsonify(totales=totales)
 
@@ -373,7 +373,7 @@ def pagos_estimados():
     tbl = tbl.to_html(table_id="totales",classes="table")
     tbl1 = tbl1.to_html(table_id="totaleszona",classes="table")
     con.close()
-    return render_template("pagos/estimados.html", tbl=tbl, tbl1=tbl1 ) 
+    return render_template("pagos/estimados.html", tbl=tbl, tbl1=tbl1 )
 
 
 @pagos.route('/pagos/comisiones')
