@@ -376,3 +376,12 @@ thead th {
     color: black;
     text-align: center;
 }
+
+.procesada{
+    background-color: gainsboro;
+    color: black;
+}
+.noprocesada{
+    background-color: yellow;
+    color: black;
+}
