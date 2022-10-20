@@ -79,7 +79,7 @@
     </div>
     <div class="columns">
       <div class="column is-5" >
-        <button type="button" class="button is-danger" @click="$validate.submit;validarCliente">Guardar</button>
+        <button type="button" class="button is-danger" @click="validarCliente">Guardar</button>
         <button type="button" class="button is-warning" x-show="cliente.incobrable">INC</button>
         <button type="button" class="button is-warning" x-show="cliente.gestion">GESTION</button>
         <button type="button" class="button is-warning" x-show="cliente.mudo">MUDO</button>
@@ -225,20 +225,28 @@
                       msgError('No hay clientes con ese DNI')
                       this.cliente.dni = this.buscar
                   })
-                  $refs.sex.focus()
+                  this.$refs.sex.focus()
          },
          obtenerCalles(){
              autoComplete('/ventas/getcalles','searchCalle','suggestionsCalle')
+	     axios.get('/ventas/getcalles')
+		  .then(res=>{this.calles=res.data.result})
          },
          obtenerBarrios(){
              autoComplete('/ventas/getbarrios','searchBarrio','suggestionsBarrio')
-         },
+	     axios.get('/ventas/getbarrios')
+		  .then(res=>{this.barrios=res.data.result})
+        },
          obtenerZonas(){
-             autoComplete('/ventas/getzonas','searchZona','suggestionsZona')
+	     autoComplete('/ventas/getzonas','searchZona','suggestionsZona')
+             axios.get('/ventas/getzonas')
+		  .then(res=>{this.zonas=res.data.result})
          },
          obtenerArt(){
              autoComplete('/ventas/getarticulos','searchArt','suggestionsArt')
-         },
+             axios.get('/ventas/getarticulos')
+		  .then(res=>this.articulos=res.data.result)
+	 },
          obtenerPeriodicidad(){
              autoComplete('/ventas/getperiodicidad','searchPeriodicidad','suggestionsPeriodicidad')
          },
@@ -257,7 +265,8 @@
       validarCliente(){
           if(this.cliente.sex!=''&&this.cliente.dni!=''&&this.cliente.nombre!=''&&this.cliente.calle!=''
              &&this.cliente.num!=''&&this.cliente.barrio!=''&&this.cliente.zona!=''&&(this.cliente.sex=='M'||
-             this.cliente.sex=='F')){
+	     this.cliente.sex=='F')&&this.calles.includes(this.cliente.calle)&&this.barrios.includes(this.cliente.barrio)
+	     &&this.zonas.includes(this.cliente.zona)){
           this.guardarCliente()
         }else{
             msgError('Complete o corrija los datos minimos requeridos')
@@ -296,7 +305,8 @@
                 })
       },
       validarDetalleVta(){
-          if(this.detallevta.cnt!=''&&this.detallevta.art!=''&&this.detallevta.ic!=''){
+          if(this.detallevta.cnt!=''&&this.detallevta.art!=''&&this.detallevta.ic!=''
+	  && this.articulos.includes(this.detallevta.art)){
           this.guardarDetalleVta()
         }else{
             msgError('Complete los datos minimos requeridos')
