@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+
+{% block title %}Ventas{% endblock %}
+{% block style %}
+<style>
+  </style>
+  {% endblock %}
+
+{% block content %}
+
+<div class="container" x-data="main()" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerArt();obtenerPeriodicidad()">
+    <p class="title is-1">Pasar Venta</p>
+
+    <div class="field is-horizontal box">
+      <input type="search" placeholder="Buscar en Romitex"  class="input" x-model="buscar" @keyup.enter="buscarDni" x-ref="buscar">
+      <button type="button" @click="buscarDni" class="button is-primary">Buscar</button>
+      <button type="button" @click="nuevoCliente" class="button is-danger" :disabled="!verVtaTerminada">Nuevo</button>
+    </div>
+
+
+  <form class="box" @keydown.enter="$focus.next()">
+    <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+    <div class="columns">
+      <div class="column is-1">
+        <input type="text" x-model="cliente.sex" placeholder="Sexo" size="1" x-ref="sex" class="input">
+      </div>
+      <div class="column is-2">
+        <input type="text" x-model="cliente.dni" placeholder="DNI" size="6" class="input">
+      </div>
+      <div class="column is-5">
+        <input type="text" x-model="cliente.nombre" placeholder="Nombre" size="60" class="input">
+      </div>
+      <div class="column is-2">
+        <input type="text" x-model="cliente.tel" placeholder="Telefono" size="20" class="input">
+      </div>
+      <div class="column is-2">
+        <input type="text" x-model="cliente.wapp" placeholder="WhatApp" size="20" class="input">
+      </div>
+    </div>
+    <div class="columns">
+      <div class="column is-4">
+	    <div class="grid col-1 gap-0">
+		<input type="text" class="input mb-1" x-model="cliente.calle" id="searchCalle" autocomplete="off">
+		<div id="suggestionsCalle" class="suggestions"></div>
+	    </div>
+      </div>
+      <div class="column is-1">
+        <input type="text" x-model="cliente.num" placeholder="Num" size="10" class="input">
+      </div>
+      <div class="column is-4">
+	    <div class="grid col-1 gap-0">
+		<input type="text" class="input mb-1" x-model="cliente.barrio" id="searchBarrio" autocomplete="off">
+		<div id="suggestionsBarrio" class="suggestions"></div>
+	    </div>
+      </div>
+      <div class="column is-3">
+	    <div class="grid col-1 gap-0">
+		<input type="text" class="input mb-1" x-model="cliente.zona" id="searchZona" autocomplete="off">
+		<div id="suggestionsZona" class="suggestions"></div>
+	    </div>
+      </div>
+    </div>
+    <div class="columns">
+      <div class="column is-3">
+        <input type="text" x-model="cliente.acla" placeholder="Aclaracion" size="30" class="input">
+      </div>
+      <div class="column is-3">
+        <input type="text" x-model="cliente.horario" placeholder="Horario" size="30" class="input">
+      </div>
+      <div class="column is-3">
+        <input type="text" x-model="cliente.mjecobr" placeholder="Mje Cobrador" size="30" class="input">
+      </div>
+      <div class="column is-3">
+        <input type="text" x-model="cliente.infoseven" placeholder="InfoSeven" size="30" class="input">
+      </div>
+    </div>
+    <div class="columns">
+      <div class="column is-5" >
+        <button type="button" class="button is-danger" @click="$validate.submit;validarCliente">Guardar</button>
+        <button type="button" class="button is-warning" x-show="cliente.incobrable">INC</button>
+        <button type="button" class="button is-warning" x-show="cliente.gestion">GESTION</button>
+        <button type="button" class="button is-warning" x-show="cliente.mudo">MUDO</button>
+      </div>
+    </div>
+  </form>
+
+  <!-- form pasar ventas -->
+  <form class="box" @keydown.enter="$focus.next()">
+    <div class="columns">
+      <div class="column is-2">
+        <input type="date" x-model="venta.fecha" size=12 class="input">
+      </div>
+      <div class="column is-1">
+        <input type="text" x-model="venta.idvdor" size=5 class="input" placeholder="Vdor">
+      </div>
+      <div class="column is-1">
+        <input type="text" x-model="venta.ant" size=5 class="input" placeholder="Ant">
+      </div>
+      <div class="column is-1">
+        <input type="text" x-model="venta.cc" size=5 class="input" placeholder="Cuotas">
+      </div>
+      <div class="column is-1">
+        <input type="text" x-model="venta.ic" size=5 class="input" placeholder="Importe">
+      </div>
+      <div class="column is-2">
+	    <div class="grid col-1 gap-0">
+		  <input type="text" class="input mb-1" x-model="venta.p" id="searchPeriodicidad" autocomplete="off">
+		  <div id="suggestionsPeriodicidad" class="suggestions"></div>
+	    </div>
+      </div>
+      <div class="column is-2">
+        <input type="date" x-model="venta.primera" size=12 class="input"  @blur="validaFecha(venta.primera)">
+      </div>
+      <div class="column is-1">
+        <button class="button is-danger" type="button"  @click="validarVenta">Guardar</button>
+      </div>
+      <div class="column is-2" x-show="venta.id">
+        <span class="tag is-primary is-large" x-text="venta.id"></span>
+      </div>
+    </div>
+  </form>
+
+  <!-- form detalle de ventas -->
+  <form class="box" @keydown.enter="$focus.next()">
+    <div class="columns">
+   <div class="column is-1">
+    <input type="text" x-model="detallevta.cnt" size=5 class="input" x-ref="cnt" placeholder="cnt">
+   </div>
+   <div class="column is-8">
+	 <div class="grid col-1 gap-0">
+	   <input type="text" class="input mb-1" x-model="detallevta.art" id="searchArt" autocomplete="off">
+	   <div id="suggestionsArt" class="suggestions"></div>
+	 </div>
+   </div>
+
+    <div class="column is-2">
+      <input type="text" x-model="detallevta.ic" size=5 class="input" placeholder="cuota">
+    </div>
+    <div class="column is-1">
+      <button class="button is-danger" type="button" @click="validarDetalleVta">Guardar</button>
+    </div>
+    </div>
+  </form>
+  <!-- tabla detalle de venta -->
+  <form class="box">
+    <div class="columns">
+      <div class="column is-6">
+        <table class="table" x-show="detvta.length">
+          <thead>
+            <tr>
+              <th>op</th>
+              <th>id</th>
+              <th>cnt</th>
+              <th>art</th>
+              <th>cc</th>
+              <th class="sumar numeric">ic</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="dv in detvta">
+            <tr>
+              <td><i class="fa fa-times" aria-hidden="true" @click="borrarDetVta(dv.id)"></td>
+              <td x-text="dv.id"></td>
+              <td x-text="dv.cnt"></td>
+              <td x-text="dv.art"></td>
+              <td x-text="dv.cc"></td>
+              <td x-text="dv.ic"></td>
+            </tr>
+</template>
+          </tbody>
+        </table>
+      </div>
+      <div class="column is-6">
+        <div class="notification is-warning" x-show="sumic-venta.ic && sumic<=venta.ic">
+          <p class="title is-4">Falta agregar los articulos comprados</p>
+        </div>
+        <div class="notification is-danger" x-show="sumic>venta.ic">
+          <p class="title is-4">Error la suma de los item es mayor al total</p>
+        </div>
+        <div class="notification is-success" x-show="verVtaTerminada">
+          <p class="title is-4">Venta Terminada</p>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+ function main(){
+     return{
+      buscar:'',
+      clientes:[],
+      calles:[],
+      barrios:[],
+      zonas:[],
+      cliente:{id:'',sex:'',dni:'',calle:'', barrio:'', zona:'',acla:'', tel:'',wapp:'',mjecobr:'',horario:'',infoseven:''},
+      venta:{p:'', id:'', ant:''},
+      detallevta:{art:''},
+      selected: null,
+      periodicidad:['mensual','quincenal','semanal'],
+
+      articulos:[],
+      detvta: [],
+      sumic: 0,
+      verVtaTerminada:false,
+         buscarDni(){
+             axios.get('/buscador/'+this.buscar)
+                  .then(res=>{
+                      msgSuccess('Cliente encontrado')
+                      this.cliente = res.data.clientes
+                      this.cliente = this.cliente[0]
+                  })
+                  .catch(error=>{
+                      msgError('No hay clientes con ese DNI')
+                      this.cliente.dni = this.buscar
+                  })
+                  $refs.sex.focus()
+         },
+         obtenerCalles(){
+             autoComplete('/ventas/getcalles','searchCalle','suggestionsCalle')
+         },
+         obtenerBarrios(){
+             autoComplete('/ventas/getbarrios','searchBarrio','suggestionsBarrio')
+         },
+         obtenerZonas(){
+             autoComplete('/ventas/getzonas','searchZona','suggestionsZona')
+         },
+         obtenerArt(){
+             autoComplete('/ventas/getarticulos','searchArt','suggestionsArt')
+         },
+         obtenerPeriodicidad(){
+             autoComplete('/ventas/getperiodicidad','searchPeriodicidad','suggestionsPeriodicidad')
+         },
+      nuevoCliente(){
+        this.buscar=''
+        this.cliente={id:'', sex:'',dni:'',calle:'', barrio:'', zona:'',acla:'', tel:'',wapp:'',mjecobr:'',horario:'',infoseven:''}
+        this.$refs.buscar.focus()
+        this.venta.id=''
+        this.venta.ic=''
+        this.venta.primera=''
+        this.detvta=[]
+        this.sumic=0
+        this.verVtaTerminada=false
+        this.detallevta={art:''}
+      },
+      validarCliente(){
+          if(this.cliente.sex!=''&&this.cliente.dni!=''&&this.cliente.nombre!=''&&this.cliente.calle!=''
+             &&this.cliente.num!=''&&this.cliente.barrio!=''&&this.cliente.zona!=''&&(this.cliente.sex=='M'||
+             this.cliente.sex=='F')){
+          this.guardarCliente()
+        }else{
+            msgError('Complete o corrija los datos minimos requeridos')
+        }
+      },
+      guardarCliente(){
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+            axios.post('/ventas/guardarcliente',this.cliente)
+                .then(res=>{
+                    msgSuccess('Cliente creado/editado con exito')
+                  if (this.cliente.id=='') this.cliente.id=res.data.id
+                })
+                .catch(error=>{
+                    msgError('No se pudo crear/editar el cliente')
+                })
+      },
+      validarVenta(){
+          if(this.venta.fecha!=''&&this.venta.idvdor!=''&&this.venta.cc!=''&&this.venta.ic!=''&&
+             this.venta.p!=''&&this.venta.primera!=''&&this.validaFecha(this.venta.primera)&&
+             (this.venta.p=='mensual'||this.venta.p=='quincenal'||this.venta.p=='semanal')){
+          this.guardarVenta()
+        }else{
+            msgError('Complete o corrija los datos minimos requeridos')
+        }
+      },
+      guardarVenta(){
+            this.venta.idcliente = this.cliente.id
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+            axios.post('/ventas/guardarventa',this.venta)
+                .then(res=>{
+                    msgSuccess('Venta creada con exito')
+                  this.venta.id=res.data.idvta
+                })
+                .catch(error=>{
+                    msgError('No se pudo crear la venta. Hubo un error.')
+                })
+      },
+      validarDetalleVta(){
+          if(this.detallevta.cnt!=''&&this.detallevta.art!=''&&this.detallevta.ic!=''){
+          this.guardarDetalleVta()
+        }else{
+            msgError('Complete los datos minimos requeridos')
+        }
+      },
+      guardarDetalleVta(){
+        this.detallevta.idvta = this.venta.id
+        this.detallevta.cc = this.venta.cc
+        this.detallevta.art = this.detallevta.art.substring(3)
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+            axios.post('/ventas/guardardetvta',this.detallevta)
+                .then(res=>{
+                    msgSuccess('Detalle de Venta ingresado con exito')
+                  this.detvta = res.data.detvta
+                  this.sumic = res.data.sumic
+                  if (this.sumic==Number(this.venta.ic)) this.verVtaTerminada=true;
+                  if (this.sumic>Number(this.venta.ic)) this.verVtaTerminada=false;
+                  this.detallevta = {art:''}
+                  this.$refs.cnt.focus()
+                })
+                .catch(error=>{
+                    msgError('No se pudo ingresar Detalle de Venta. Hubo un Error.')
+                })
+      },
+      borrarDetVta(id){
+        axios.get('/ventas/borrardetvta/'+id)
+        .then(res=>{
+            msgSuccess('Item borrado con exito')
+          this.detvta = res.data.detvta
+          this.sumic = res.data.sumic
+          if (this.sumic==Number(this.venta.ic)) this.verVtaTerminada=true;
+          if (this.sumic>Number(this.venta.ic)) this.verVtaTerminada=false;
+          if (this.sumic==0) this.verVtaTerminada=false;
+        })
+        .catch(error=>{
+            msgError('No se pudo borrar el item. Hubo un error.')
+        })
+      },
+      validaFecha(fecha){
+          if(fecha<dayjs.utc(this.venta.fecha).format('YYYY-MM-DD')||fecha>dayjs.utc().add(3,'month').format('YYYY-MM-DD')){
+              msgError('Fecha Invalida')
+            return false
+          }else{
+            return true
+          }
+        },
+     }}
+  </script>
+  {% endblock %}
