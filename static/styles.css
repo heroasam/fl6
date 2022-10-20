@@ -385,3 +385,10 @@ thead th {
     background-color: yellow;
     color: black;
 }
+ input:required{
+     background-color:lightyellow;
+ }
+ input:required:valid{
+     background-color:white;
+     border: 4px solid forestgreen;
+ }

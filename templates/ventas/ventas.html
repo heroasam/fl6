@@ -22,40 +22,43 @@
     <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
     <div class="columns">
       <div class="column is-1">
-        <input type="text" x-model="cliente.sex" placeholder="Sexo" size="1" x-ref="sex" class="input">
+        <input type="text" x-model="cliente.sex" placeholder="Sexo" size="1" x-ref="sex" class="input"
+	       required pattern="^[M|F]$">
       </div>
       <div class="column is-2">
-        <input type="text" x-model="cliente.dni" placeholder="DNI" size="6" class="input">
+        <input type="text" x-model="cliente.dni" placeholder="DNI" size="6" class="input" required
+	pattern="^(\d){7,8}$">
       </div>
       <div class="column is-5">
-        <input type="text" x-model="cliente.nombre" placeholder="Nombre" size="60" class="input">
+        <input type="text" x-model="cliente.nombre" placeholder="Nombre" size="60" class="input" required>
       </div>
       <div class="column is-2">
         <input type="text" x-model="cliente.tel" placeholder="Telefono" size="20" class="input">
       </div>
       <div class="column is-2">
-        <input type="text" x-model="cliente.wapp" placeholder="WhatApp" size="20" class="input">
+        <input type="text" x-model="cliente.wapp" placeholder="WhatApp" size="20" class="input"
+	 pattern="(\d){10}$">
       </div>
     </div>
     <div class="columns">
       <div class="column is-4">
 	    <div class="grid col-1 gap-0">
-		<input type="text" class="input mb-1" x-model="cliente.calle" id="searchCalle" autocomplete="off">
+		<input type="text" class="input mb-1" x-model="cliente.calle" id="searchCalle" autocomplete="off" required>
 		<div id="suggestionsCalle" class="suggestions"></div>
 	    </div>
       </div>
       <div class="column is-1">
-        <input type="text" x-model="cliente.num" placeholder="Num" size="10" class="input">
+        <input type="text" x-model="cliente.num" placeholder="Num" size="10" class="input" required pattern="(\d){2,4}$">
       </div>
       <div class="column is-4">
 	    <div class="grid col-1 gap-0">
-		<input type="text" class="input mb-1" x-model="cliente.barrio" id="searchBarrio" autocomplete="off">
+		<input type="text" class="input mb-1" x-model="cliente.barrio" id="searchBarrio" autocomplete="off" required>
 		<div id="suggestionsBarrio" class="suggestions"></div>
 	    </div>
       </div>
       <div class="column is-3">
 	    <div class="grid col-1 gap-0">
-		<input type="text" class="input mb-1" x-model="cliente.zona" id="searchZona" autocomplete="off">
+		<input type="text" class="input mb-1" x-model="cliente.zona" id="searchZona" autocomplete="off" required>
 		<div id="suggestionsZona" class="suggestions"></div>
 	    </div>
       </div>
@@ -88,28 +91,32 @@
   <form class="box" @keydown.enter="$focus.next()">
     <div class="columns">
       <div class="column is-2">
-        <input type="date" x-model="venta.fecha" size=12 class="input">
+        <input type="date" x-model="venta.fecha" size=12 class="input" required>
       </div>
       <div class="column is-1">
-        <input type="text" x-model="venta.idvdor" size=5 class="input" placeholder="Vdor">
+        <input type="text" x-model="venta.idvdor" size=5 class="input" placeholder="Vdor" required
+	pattern="(\d){2,3}$">
       </div>
       <div class="column is-1">
         <input type="text" x-model="venta.ant" size=5 class="input" placeholder="Ant">
       </div>
       <div class="column is-1">
-        <input type="text" x-model="venta.cc" size=5 class="input" placeholder="Cuotas">
+        <input type="text" x-model="venta.cc" size=5 class="input" placeholder="Cuotas" required
+	pattern="^(\d){1,2}$">
       </div>
       <div class="column is-1">
-        <input type="text" x-model="venta.ic" size=5 class="input" placeholder="Importe">
+        <input type="text" x-model="venta.ic" size=5 class="input" placeholder="Importe" required
+	pattern="^(\d){3,5}$">
       </div>
       <div class="column is-2">
 	    <div class="grid col-1 gap-0">
-		  <input type="text" class="input mb-1" x-model="venta.p" id="searchPeriodicidad" autocomplete="off">
+	      <input type="text" class="input mb-1" x-model="venta.p" id="searchPeriodicidad" autocomplete="off" required
+	      pattern="^(mensual|quincenal|semanal)$">
 		  <div id="suggestionsPeriodicidad" class="suggestions"></div>
 	    </div>
       </div>
       <div class="column is-2">
-        <input type="date" x-model="venta.primera" size=12 class="input"  @blur="validaFecha(venta.primera)">
+        <input type="date" x-model="venta.primera" size=12 class="input"  @blur="validaFecha(venta.primera)" required>
       </div>
       <div class="column is-1">
         <button class="button is-danger" type="button"  @click="validarVenta">Guardar</button>
@@ -124,17 +131,19 @@
   <form class="box" @keydown.enter="$focus.next()">
     <div class="columns">
    <div class="column is-1">
-    <input type="text" x-model="detallevta.cnt" size=5 class="input" x-ref="cnt" placeholder="cnt">
+     <input type="text" x-model="detallevta.cnt" size=5 class="input" x-ref="cnt" placeholder="cnt" required
+     pattern="^(\d){1}$">
    </div>
    <div class="column is-8">
 	 <div class="grid col-1 gap-0">
-	   <input type="text" class="input mb-1" x-model="detallevta.art" id="searchArt" autocomplete="off">
+	   <input type="text" class="input mb-1" x-model="detallevta.art" id="searchArt" autocomplete="off" required>
 	   <div id="suggestionsArt" class="suggestions"></div>
 	 </div>
    </div>
 
     <div class="column is-2">
-      <input type="text" x-model="detallevta.ic" size=5 class="input" placeholder="cuota">
+      <input type="text" x-model="detallevta.ic" size=5 class="input" placeholder="cuota" required
+      pattern="^(\d){3,5}$">
     </div>
     <div class="column is-1">
       <button class="button is-danger" type="button" @click="validarDetalleVta">Guardar</button>
