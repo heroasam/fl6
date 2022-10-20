@@ -8,22 +8,11 @@
 
 {% block content %}
 
-<div id="app" class="container">
-    <p class="title is-1">Pasar Ventas</p>
-    <div class="buttons">
-      <a href="/ventas/listado" class="button  is-primary">Listado</a>
-      <a href="/ventas/clientes" class="button  is-primary">Clientes</a>
-      <a href="/ventas/calles" class="button  is-primary">Calles</a>
-      <a href="/ventas/barrios" class="button  is-primary">Barrios</a>
-      <a href="/ventas/zonas" class="button  is-primary">Zonas</a>
-      <a href="/ventas/estadisticas" class="button  is-primary">Estadisticas</a>
-      <a href="/ventas/morosidad" class="button is-primary">Morosidad</a>
-      <a href="/ventas/devolucion" class="button is-primary">Devoluciones</a>
-      <a href="/ventas/pordia" class="button is-primary">Ventas</a>
-      <a href="/ventas/pivotdevoluciones" class="button is-primary">Pivot-Devol.</a>
-    </div>
+<div class="container" x-data="main()">
+    <p class="title is-1">Pasar Venta</p>
+
     <div class="field is-horizontal box">
-      <input type="search" placeholder="Buscar en Romitex" size="73" class="input" v-model="buscar" @keyup.enter="buscarCliente"  ref="buscar">
+      <input type="search" placeholder="Buscar en Romitex"  class="input" x-model="buscar" @keyup.enter="buscarCliente">
       <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
       <button type="button" @click="nuevoCliente" class="button is-danger" :disabled="!verVtaTerminada">Nuevo</button>
     </div>
@@ -326,7 +315,7 @@ const app = new Vue({
       getArticulos(){
         axios.get('/ventas/getarticulos')
         .then(res=>{
-          this.articulos = res.data.articulos
+          this.articulos = res.data.result
           //console.log(this.articulos);
         })
       },

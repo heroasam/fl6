@@ -115,12 +115,12 @@ const markAll = (tableId)=>{
     if(typeof tableId =='string'){
         table = document.getElementById(tableId);
     }else{
-        table = tableId
+        table = tableId;
     }
     const $tbody = table.querySelector('tbody');
     Array.from($tbody.rows).forEach(row=>{
         row.classList.add('is-selected');
-    })
+    });
 };
 
 
@@ -309,7 +309,7 @@ const limpiarTabla = (tableId)=>{
     let $tr = $thead.children[0];
     let thsArray = Array.from($tr.children);
     thsArray.forEach(th=>{
-        th.innerHTML = th.innerText
+        th.innerHTML = th.innerText;
     });
 };
 

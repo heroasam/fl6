@@ -22,7 +22,15 @@
     <a href="/ventas/devolucion" class="button is-primary">Devoluciones</a>
     <a href="/ventas/pivotdevoluciones" class="button is-primary">Pivot-Devol.</a>
   </div>
-
+  <div class="columns">
+    <div class="column is-4">
+	<div class="grid-buscar mt-2">
+            <input type="search" placeholder="Busca por: N° de cuenta" class="input" x-model="buscar"
+		   @focus="buscar=''" @keyup.enter="buscarCuenta" autofocus>
+            <button type="button" @click="buscarCuenta" class="button is-primary">Buscar</button>
+	</div>
+    </div>
+  </div>
   <table class="table is-narrow">
     <thead>
       <tr>
@@ -109,7 +117,9 @@
  function main(){
      return{
          listadoVentas:[],
+         listadoVentas_:[],
          Venta:{},
+         buscar:'',
          getListado(){
              axios.get('/ventas/getlistado')
                   .then(res=>{
@@ -119,6 +129,7 @@
                           row.pmovto=dayjs.utc(row.pmovto).format('YYYY-MM-DD')
                           row.primera=dayjs.utc(row.primera).format('YYYY-MM-DD')
                       })
+                      this.listadoVentas_=this.listadoVentas
                   })
          },
          borrarVenta(id){
@@ -165,6 +176,21 @@
                                                                  .catch(error=>{
                                                                      msgError('No se proceso la edicion. Hubo un error.')
                                                                  })
+         },
+         buscarCuenta(){
+             if(this.buscar==''){
+                 this.listadoVentas=this.listadoVentas_
+                 return
+             }
+             axios.get('/ventas/getlistadocuenta/'+this.buscar)
+                  .then(res=>{
+                      this.listadoVentas = res.data.listado
+                      this.listadoVentas.map(row=>{
+                          row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD')
+                          row.pmovto=dayjs.utc(row.pmovto).format('YYYY-MM-DD')
+                          row.primera=dayjs.utc(row.primera).format('YYYY-MM-DD')
+                      })
+                  })
          },
      }
  }

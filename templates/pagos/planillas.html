@@ -132,21 +132,21 @@
                  this.planillaFecha = []
                  return
              }
-            axios.get('/pagos/getplanillas/'+fecha)
-            .then(res=>{
-                this.planillaFecha = res.data.planillas
-                this.planillaFecha.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
-                this.fecha = fecha
-                setTimeout(()=>{
-             $tbody = document.querySelector('tbody')
-             $trfecha = document.getElementById(fecha)
-             let arrayrows = Array.from($tbody.children)
-             let children = arrayrows.filter(row=>row.classList.contains('children'))
-             children = children.reverse()
-             for(el of children){
-                 $tbody.insertBefore(el,$trfecha.nextSibling)
-             }},10)
-            })
+             axios.get('/pagos/getplanillas/'+fecha)
+                  .then(res=>{
+                      this.planillaFecha = res.data.planillas
+                      this.planillaFecha.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      this.fecha = fecha
+                      setTimeout(()=>{
+                          $tbody = document.querySelector('tbody')
+                          $trfecha = document.getElementById(fecha)
+                          let arrayrows = Array.from($tbody.children)
+                          let children = arrayrows.filter(row=>row.classList.contains('children'))
+                          children = children.reverse()
+                          for(el of children){
+                              $tbody.insertBefore(el,$trfecha.nextSibling)
+                      }},10)
+                  })
          },
  }}
 

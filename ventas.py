@@ -19,7 +19,7 @@ def ventas_getcalles():
     con = get_con()
     calles = pglflat(con, f"select calle from calles order by calle")
     con.close()
-    return jsonify(calles= calles)
+    return jsonify(result=calles)
 
 
 @ventas.route('/ventas/getbarrios')
@@ -27,7 +27,7 @@ def ventas_getbarrios():
     con = get_con()
     barrios = pglflat(con, f"select barrio from barrios order by barrio")
     con.close()
-    return jsonify(barrios= barrios)
+    return jsonify(result=barrios)
 
 
 @ventas.route('/ventas/getzonas')
@@ -35,7 +35,13 @@ def ventas_getzonas():
     con = get_con()
     zonas = pglflat(con, f"select zona from zonas order by zona")
     con.close()
-    return jsonify(zonas= zonas)
+    return jsonify(result=zonas)
+
+
+@ventas.route('/ventas/getperiodicidad')
+def ventas_getperiodicidad():
+    periodicidad=['mensual','quincenal','semanal']
+    return jsonify(result=periodicidad)
 
 
 @ventas.route('/ventas/getcuentapordni/<string:dni>')
@@ -179,7 +185,15 @@ def ventas_getarticulos():
 @ventas.route('/ventas/getlistado')
 def ventas_getlistado():
     con = get_con()
-    listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count from ventas where pp=0 order by id desc limit 2500")
+    listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count from ventas where pp=0 order by id desc limit 100")
+    con.close()
+    return jsonify(listado=listado)
+
+
+@ventas.route('/ventas/getlistadocuenta/<int:cuenta>')
+def ventas_getlistadocuenta(cuenta):
+    con = get_con()
+    listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count from ventas where id={cuenta}")
     con.close()
     return jsonify(listado=listado)
 
