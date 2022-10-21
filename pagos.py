@@ -1,4 +1,6 @@
-from flask import Blueprint,render_template,jsonify,make_response, request, send_file,url_for,redirect
+"""Modulo que responde a todo lo relativo a pagos."""
+from flask import Blueprint,render_template,jsonify,make_response,\
+     request, send_file,url_for,redirect
 from flask_login import login_required
 from lib import *
 import simplejson as json

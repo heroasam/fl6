@@ -332,6 +332,7 @@ def send_msg_whatsapp(idcliente, wapp, msg):
         log(updinv)
         upd = f"update logwhatsapp set response='invalid', enviado=\
                 {int(time.time())} where id = {id}"
+        logging.warning(updinv)
         cur.execute(upd)
         con.commit()
         con.close()
@@ -405,6 +406,7 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
                 where id={idcliente}"
         con = get_con()
         cur = con.cursor()
+        logging.warning(updinv)
         cur.execute(updinv)
         log(updinv)
         upd = f"update logwhatsapp set response='invalid', enviado=\
