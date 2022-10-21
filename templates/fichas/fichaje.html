@@ -157,13 +157,11 @@ endblock %} {% block style %}
     methods: {
       getCobradores() {
         axios.get("/fichas/getcobradores").then((res) => {
-          //console.log(res.data.cobradores);
           this.cobradores = res.data.cobradores;
         });
       },
       muestraZonas(cobr) {
         axios.get("/fichas/muestrazonas/" + cobr).then((res) => {
-          //console.log(res.data.zonas)
           this.zonas = res.data.zonas;
         });
       },
@@ -172,7 +170,6 @@ endblock %} {% block style %}
        this.ultimotipo = tipo
        this.ultimazona = zona
        axios.get("/fichas/muestraclientes/"+ tipo +'/'+ zona).then((res) => {
-         // console.log(res.data.clientes)
          /* nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni */
          arrayClientes = Array.from(res.data.clientes);
          arrayClientes.forEach((row) => {
@@ -205,7 +202,6 @@ endblock %} {% block style %}
            //la columna que corresponda al dni OJO
          }
        });
-       //console.log(ids)
        return ids
      },
      intimar() {
@@ -225,7 +221,6 @@ endblock %} {% block style %}
        ids = this.seleccionarRows()
        if(ids.length>0) {
          idle = ids.length * 10000
-         // console.log(idle)
          axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
          Swal.fire({
                                  title: 'WhatsApp!',
@@ -260,7 +255,6 @@ endblock %} {% block style %}
        ids = this.seleccionarRows()
        if(ids.length>0) {
          idle = ids.length * 10000
-         //console.log(idle)
          axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
          Swal.fire({
                                  title: 'WhatsApp!',
@@ -339,7 +333,6 @@ endblock %} {% block style %}
        if(ids.length>0) {
        idle = ids.length * 10000
        msg = this.listamsgs.filter(row=>row.nombre==nombre)[0]['msg']
-       //console.log(msg)
        }
        Swal.fire({
                                  title: 'WhatsApp!',
@@ -387,7 +380,6 @@ endblock %} {% block style %}
      toggleSube(dni){
        axios.get('/buscador/togglesube/'+dni)
        .then(res=>{
-         //console.log(res);
          if (res.data=='No se sube pq ya esta en el seven'){
          bulmaToast.toast({message:res.data,type:"is-danger"})
              }else{
@@ -420,15 +412,12 @@ endblock %} {% block style %}
         axios.get('/fichas/getzonas')
             .then(res=>{
                 this.listazonas=res.data.zonas
-                //console.log(this.listazonas)
             })
       },
       cargarMsgs(){
         axios.get('/fichas/getmsgs')
         .then(res=>{
           this.listamsgs = res.data.msgs
-          //console.log(this.listamsgs)
-        })
       },
       cambiarZona(zona){
         let ids = this.seleccionarRows()

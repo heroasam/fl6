@@ -1,10 +1,10 @@
 {% extends "base.html" %} {% block title %}LoteRbos{% endblock %} {%
     block style %}
     <style></style>
-    {% endblock %} 
-    
+    {% endblock %}
+
     {% block content %}
-    
+
     <div class="container">
         <p class="title is-1">Lote Recibos</p>
         <div class="buttons">
@@ -19,7 +19,7 @@
             <a href="/pagos/altas" class="button is-primary">Altas</a>
             <a href="/pagos/bajas" class="button is-primary">Bajas</a>
           </div>
-    
+
         <div x-data="main()">
             <div class="fields is-horizontal block">
                 <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
@@ -36,13 +36,13 @@
                 <button type="button" class="button is-danger" @click="agregarRbos(desde,hasta)">Agregar</button>
                 <button type="button" class="button is-warning" @click="quitarRbos(desde,hasta)">Quitar</button>
             </div>
-            
+
             <div class="buttons">
                 <template x-for="rbo in listaRbos">
                 <button type="button" class="button is-success" x-text="rbo" @dblclick="borrarRbo(rbo)"></button>
                 </template>
             </div>
-            
+
 
     </div>
     {% endblock %} {% block script %}
@@ -56,7 +56,7 @@
                 desde:'',
                 hasta:'',
                 idloterbo:'',
-               
+
                 agregarRbos(desde,hasta){
                     for(i=desde;i<=hasta;i++){
                         this.listaRbos.push(i)
@@ -101,7 +101,6 @@
 
                     })
                     .then(res=>{
-                        //console.log(res.data.idlote)
                         this.idloterbo = res.data.idlote
                         this.imprimirLote()
                     })
@@ -124,10 +123,9 @@
                     this.desde=''
                     this.hasta=''
                 }
-                
+
             }
         }
-        
+
     </script>
     {% endblock %}
-    

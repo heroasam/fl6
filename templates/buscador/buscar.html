@@ -1056,7 +1056,6 @@
 								     this.buscarCliente(this.Cliente.dni)
 								 })
 								 .catch(error=>{
-								     console.log(error)
 								     msgError('Error',error.request.response)
 								 })
 
@@ -1394,7 +1393,6 @@ Titular de la cuenta: Heredie Maria Isabel`
              axios.get('/buscador/tablainflacion')
                   .then(res=>{
                       this.listaInflacion = res.data.inflacion
-                      console.log(this.listaInflacion);
                   })},
          autoLoad(){
             {% if dnilistado %}

@@ -46,7 +46,7 @@ block style %}
         <a href="/fichas/cobradores" class="button is-primary">Cobradores</a>
 		<a href="/fichas/cancelados" class="button is-primary">Cancelados</a>
       </div>
-	  
+
 	<table class="table">
 		<thead>
 			<tr>
@@ -71,12 +71,12 @@ block style %}
 				<td>|mudado.wapp|</td>
 				<td>|mudado.dni|</td>
 			</tr>
-			
+
 			<input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
 		</tbody>
 	</table>
-</div>	
-</div>	  
+</div>
+</div>
 {% endblock %} {% block script %}
 <script>
 	const app = new Vue({
@@ -92,7 +92,6 @@ block style %}
 			getMudados(){
 				axios.get('/fichas/getmudados')
 				.then(res=>{
-					console.log(res.data.mudados)
 					this.mudados=res.data.mudados
 					this.mudados.map(row=>{row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD')})
 				})
@@ -117,7 +116,7 @@ block style %}
             			//la celda que corresponda a dni OJO
           			}
         		});
- 
+
         		axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
         		axios({
           			method: "POST",
@@ -137,7 +136,7 @@ block style %}
 			},
 		},
 
-		
+
 		created: function(){
 			this.getMudados()
     },

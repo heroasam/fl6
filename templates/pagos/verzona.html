@@ -126,7 +126,6 @@
          editarZona(id){
              toggleModal('modal-edicion')
              this.zonaEditar = this.listaZonas.filter(row=>row.id==id)[0]
-             console.log( this.zonaEditar);
          },
          guardarEdicion(){
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;

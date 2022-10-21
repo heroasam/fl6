@@ -76,7 +76,6 @@ block style %}
 	     axios.get('/ventas/getmorosidadprimercuota')
 		  .then(res=>{
 		      this.morosidad = res.data.morosidad
-		      //console.log(res.data.morosidad)
 		      this.morosidad.map(row=>{
 			  row[1]=dayjs.utc(row[1]).format('YYYY-MM-DD')
 			  row[5]=dayjs.utc(row[5]).format('YYYY-MM-DD')

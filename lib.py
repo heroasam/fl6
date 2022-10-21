@@ -434,7 +434,6 @@ def wapp_log(log1, log2):
     """Funcion que hace un log en txt de las responses de la api."""
     log = open("/home/hero/log/wapp.log", "a")
     log.write('\n')
-    log.write(str(log1))
-    log.write(str(time.time()))
+    log.write(str(log1)+' '+str(time.ctime(time.time()))+' '+str(time.time()))
     log.write(str(log2))
     log.close()

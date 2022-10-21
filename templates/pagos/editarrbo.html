@@ -72,7 +72,7 @@
 
 
 
-  
+
   <form v-on:submit.prevent class="box field is-horizontal">
     <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
     <div class="field">
@@ -101,9 +101,9 @@
     </div>
    </form>
       <button type="button" class="button is-danger ml-5" @click="validarEdicionRbo">Guardar</button>
-    
-    
-    
+
+
+
 </div>
 
 
@@ -144,7 +144,6 @@
         // ojo aca se busca por id de la tabla pagos
         axios.get('/pagos/obtenerrbo/'+id)
         .then(res=>{
-          console.log(res.data.reg)
           this.fecha = dayjs.utc(res.data.reg[0]['fecha']).format('YYYY-MM-DD')
           this.idvta = res.data.reg[0]['idvta']
           this.imp = res.data.reg[0]['imp']
@@ -157,7 +156,6 @@
       },
       validarEdicionRbo(){
         if(this.fecha!=''&&this.idvta!=''&&this.imp!=''&&this.rbo!=''&&this.cobr!=''){
-          console.log('validado')
           this.guardarEdicionRbo();
         }
       },

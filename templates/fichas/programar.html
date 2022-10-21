@@ -1,7 +1,7 @@
-{% extends "base.html" %} 
+{% extends "base.html" %}
 
 {% block title %}Programacion de Botones{%endblock %}
-    
+
     {% block style %}
     <style>
         .grid-buscar{
@@ -78,8 +78,8 @@
 }
 
     </style>
-    {% endblock %} 
-    
+    {% endblock %}
+
     {% block content %}
     <div x-data="main()" x-init="cargarMsg()">
     <a href="/fichas" class="button is-primary">Volver a Fichas</a>
@@ -94,7 +94,7 @@
             </tr>
         </thead>
         <tbody>
-            
+
                 <template x-for="item in listamsgs">
                 <tr>
                 <td><button class="button is-danger is-small" @click="editarMsg(item['id'])">Editar</button></td>
@@ -118,8 +118,8 @@
     </div>
 
     </div>
-    {% endblock %} 
-    
+    {% endblock %}
+
     {% block script %}
     <script>
     function main(){
@@ -152,10 +152,9 @@
                 axios.get('/fichas/getmsgs')
                 .then(res=>{
                 this.listamsgs = res.data.msgs
-                console.log(this.listamsgs)
                 })
             },
         }
     }
     </script>
-    {% endblock %} 
+    {% endblock %}

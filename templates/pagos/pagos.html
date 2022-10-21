@@ -128,7 +128,6 @@
                 viatico:'',
 
                 buscaCobrador(cobr){
-                //console.log(cobr)
                 axios.get('/loterbo/buscanombrecobr/'+cobr)
                     .then(res=>{
                         this.nombrecobrador=res.data.nombrecobr
@@ -137,7 +136,6 @@
                 cargarListado(){
                 axios.get('/pagos/planilla/'+this.Pagos.fecha+'/'+this.Pagos.cobr)
                  .then(res=>{
-                        //console.log(res.data.planilla)
                         this.listado = res.data.planilla
                         this.listado.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                         this.buscaCobrador(this.Pagos.cobr)
@@ -147,7 +145,6 @@
 							rbos.push(row.rbo)
                             imppagos.push(row.total)
 						})
-                        //console.log(rbos,imppagos)
 						let setrbos = new Set(rbos)
 						this.cntRbos = setrbos.size
 
@@ -165,7 +162,6 @@
                 pedirVentas(dni){
                         axios.get('/pagos/idvtas/'+dni)
                             .then(res=>{
-                                    //console.log(res.data.idvtas)
                                     this.Ventas=res.data.idvtas
                                     this.obtenerVenta(this.Ventas[0]['id'])
                                 })
@@ -232,8 +228,6 @@
 						cntrbos: this.cntRbos,
 					},
 				}).then(res => {
-					//console.log(res)
-					bulmaToast.toast({
 						message: 'Planilla agregada/corregida con exito',
 						type: 'is-success',
 					})

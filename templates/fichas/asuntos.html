@@ -142,7 +142,6 @@ block style %}
 			},
 			validarAsunto(){
                     if(this.Asunto.fecha!=''&&this.Asunto.tipo!=''&&this.Asunto.vdor!=''&&this.Asunto.asunto!=''){
-                        console.log("validado")
                         this.guardarAsunto()
                     }else{
                         bulmaToast.toast({message:"Complete datos necesarios",type:"is-danger"})

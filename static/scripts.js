@@ -218,7 +218,7 @@ document.addEventListener('click', ()=>{
 	    if (event.target.parentElement?.parentElement?.parentElement?.classList?.contains("noselect")) return;
             markSelected();
 
-        if(event.target.parentElement.classList.contains('subtotal')){
+        if(event.target.parentElement?.classList.contains('subtotal')){
             restaurar(t);
         };
 

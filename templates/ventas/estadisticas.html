@@ -99,8 +99,6 @@
                 this.est_anuales = res.data.est_anuales
                 this.ventaYears = this.est_anuales.map(row=>(row.comprado*(this.listaInflacion[row.y+'6']||1)).toFixed())
                 this.years = this.est_anuales.map(row=>row.y)
-                console.log('ventayears', this.ventaYears);
-                console.log('years', this.years);
                 this.getGrafico()
             })
         },
