@@ -30,6 +30,12 @@ thead th {
     /* color: blue; */
     font-weight: bold;
 }
+.total{
+  background-color: lightyellow;
+  color: black;
+  font-weight:bold;
+}
+
 .block:not(:last-child) {
       margin-bottom: 1.5rem;
 }
