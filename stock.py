@@ -51,7 +51,6 @@ def stock_deleteasiento(id):
 def stock_getcuentas():
     con = get_con()
     cuentas = pglflat(con, f"select cuenta from ctas order by cuenta")
-    # print(cuentas)
     con.close()
     return jsonify(result=cuentas)
 
@@ -61,7 +60,6 @@ def stock_guardarasiento():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     tipo = pgonecolumn(con, f"select tipo from ctas where cuenta='{d['cuenta']}'")
-    # print('tipo',tipo)
     if tipo in [0, 3]:
         importe = int(d['imp'])*(-1)
     else:
@@ -477,7 +475,6 @@ def stock_obtenerresumenmensual(mes):
     con = get_con()
     resumen = pgdict(con, f"select caja.cuenta as cuenta,sum(imp) as imp,tipo from caja,ctas where\
               date_format(fecha,'%Y-%m')='{mes}' and caja.cuenta=ctas.cuenta group by caja.cuenta")
-    print(resumen)
     return jsonify(resumen=resumen)
 
 

@@ -4,14 +4,13 @@ from flask import Blueprint,render_template,jsonify,make_response,\
 from flask_login import login_required
 from lib import *
 import simplejson as json
-from con import get_con, log
+from con import get_con, log,engine
 import pandas as pd
 import re
 from formularios import *
 import mysql.connector
 
 pagos = Blueprint('pagos',__name__)
-
 
 @pagos.route('/loterbo')
 @login_required
@@ -54,7 +53,6 @@ def loterbo_imprimir(fecha,cobr,idlote):
 def loterbo_reimprimir(fecha,cobr,idlote):
     con = get_con()
     listarbo = pglflat(con, f"select rbo from rbos where idloterbos={idlote}")
-    print(listarbo)
     loterbo(con, listarbo, fecha,cobr,idlote)
     con.close()
     return send_file('/home/hero/loterbo.pdf')
@@ -149,7 +147,6 @@ def pagos_pasarpagos():
     if(d['rec']==''):
         d['rec']=0
     ins = f"insert into pagos(idvta,fecha,imp,rec,rbo,cobr,idcliente) values({d['idvta']},'{d['fecha']}',{d['imp']},{d['rec']},{d['rbo']},{d['cobr']},{d['idcliente']})"
-    print(ins)
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
@@ -339,96 +336,84 @@ def pagos_gettotaleszonas():
 @pagos.route('/pagos/cobrostotales')
 @login_required
 def pagos_cobrostotales():
-    con = get_con()
     pd.options.display.float_format = '{:.0f}'.format
     sql="select date_format(fecha,'%Y-%m') as fp,imp+rec as cuota,cobr from pagos where fecha >date_sub(curdate(),interval 365 day)"
     sql1="select date_format(fecha,'%Y-%m') as fp,imp+rec as cuota,pagos.cobr as cobr,zona,(select asignado from zonas where zona=clientes.zona) as asignado from pagos,clientes where clientes.id=pagos.idcliente and fecha >date_sub(curdate(),interval 365 day) and zona not like '-%'"
-    dat = pd.read_sql_query(sql, con)
-    dat1= pd.read_sql_query(sql1,con)
+    dat = pd.read_sql_query(sql, engine)
+    dat1= pd.read_sql_query(sql1,engine)
     df = pd.DataFrame(dat)
     df1 = pd.DataFrame(dat1)
-    tbl = pd.pivot_table(df, values=['cuota'],index='cobr',columns='fp',aggfunc='sum').sort_index(1, 'fp',False)
-    tbl1 = pd.pivot_table(df1, values=['cuota'],index=['asignado','zona'],columns='fp',aggfunc='sum').sort_index(1, 'fp',False)
+    tbl = pd.pivot_table(df, values=['cuota'],index='cobr',columns='fp',aggfunc='sum').sort_index(axis=1, level='fp',ascending=False)
+    tbl1 = pd.pivot_table(df1, values=['cuota'],index=['asignado','zona'],columns='fp',aggfunc='sum').sort_index(axis=1, level='fp',ascending=False)
     tbl = tbl.fillna("")
     tbl1 = tbl1.fillna("")
     tbl = tbl.to_html(table_id="totales",classes="table")
     tbl1 = tbl1.to_html(table_id="totaleszona",classes="table")
-    con.close()
     return render_template("pagos/totales.html", tbl=tbl, tbl1=tbl1 )
 
 
 @pagos.route('/pagos/estimados')
 @login_required
 def pagos_estimados():
-    con = get_con()
     pd.options.display.float_format = '{:.0f}'.format
     sql="select date_format(pmovto,'%Y-%m') as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%'"
     sql1="select date_format(pmovto,'%Y-%m') as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%'"
-    dat = pd.read_sql_query(sql, con)
-    dat1= pd.read_sql_query(sql1,con)
+    dat = pd.read_sql_query(sql, engine)
+    dat1= pd.read_sql_query(sql1,engine)
     df = pd.DataFrame(dat)
     df1 = pd.DataFrame(dat1)
-    tbl = pd.pivot_table(df, values=['cuota'],index='asignado',columns='pmovto',aggfunc='sum').sort_index(1, 'pmovto',False)
-    tbl1 = pd.pivot_table(df1, values=['cuota'],index=['asignado','zona'],columns='pmovto',aggfunc='sum').sort_index(1, 'pmovto',False)
+    tbl = pd.pivot_table(df, values=['cuota'],index='asignado',columns='pmovto',aggfunc='sum').sort_index(axis=1, level='pmovto',ascending=False)
+    tbl1 = pd.pivot_table(df1, values=['cuota'],index=['asignado','zona'],columns='pmovto',aggfunc='sum').sort_index(axis=1, level='pmovto',ascending=False)
     tbl = tbl.fillna("")
     tbl1 = tbl1.fillna("")
     tbl = tbl.to_html(table_id="totales",classes="table")
     tbl1 = tbl1.to_html(table_id="totaleszona",classes="table")
-    con.close()
     return render_template("pagos/estimados.html", tbl=tbl, tbl1=tbl1 )
 
 
 @pagos.route('/pagos/comisiones')
 @login_required
 def pagos_comisiones():
-    con = get_con()
     pd.options.display.float_format = '${:.0f}'.format
     sql="select date_format(fecha,'%Y-%m') as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,816) and fecha>'2018-07-31'"
-    dat = pd.read_sql_query(sql, con)
+    dat = pd.read_sql_query(sql, engine)
     df = pd.DataFrame(dat)
-    tbl = pd.pivot_table(df, values=['comision','cobranza'],index='fecha',columns='cobr',aggfunc='sum').sort_index(0, 'fecha',False)
+    tbl = pd.pivot_table(df, values=['comision','cobranza'],index='fecha',columns='cobr',aggfunc='sum').sort_index(axis=0, level='fecha',ascending=False)
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="tablecomisiones",classes="table")
-    con.close()
     return render_template("pagos/comisiones.html", tbl=tbl )
 
 
 @pagos.route('/pivot/pagos_cobr')
 def pivot_pagos_cobr():
-    con = get_con()
     sql="select date_format(fecha,'%Y-%m') as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,816) and fecha>'2018-07-31'"
-    dat = pd.read_sql_query(sql, con)
+    dat = pd.read_sql_query(sql, engine)
     df = pd.DataFrame(dat)
     tbl = pd.pivot_table(df, values=['comision','cobranza'],index='fecha',columns='cobr',aggfunc='sum')
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="table",classes="table table-sm")
-    con.close()
     return render_template("pivot_cobr.html", tbl=tbl)
 
 
 @pagos.route('/pivot/retiros')
 def pivot_retiros():
-    con = get_con()
     sql="select date_format(fecha,'%Y-%m') as fecha, cuenta, imp from caja where cuenta like 'retiro%'"
-    dat = pd.read_sql_query(sql, con)
+    dat = pd.read_sql_query(sql, engine)
     df = pd.DataFrame(dat)
     tbl = pd.pivot_table(df, values='imp',index='fecha',columns='cuenta',aggfunc='sum')
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="table",classes="table  table-sm")
-    con.close()
     return render_template("pivot_retiros.html", tbl=tbl)
 
 
 @pagos.route('/pivot/retiros/excel')
 def pivot_retiros_excel():
-    con = get_con()
     sql="select date_format(fecha,'%Y-%m') as fecha, cuenta, imp from caja where cuenta like 'retiro%'"
-    dat = pd.read_sql_query(sql, con)
+    dat = pd.read_sql_query(sql, engine)
     df = pd.DataFrame(dat)
     tbl = pd.pivot_table(df, values='imp',index='fecha',columns='cuenta',aggfunc='sum')
     tbl = tbl.fillna("")
     tbl = tbl.to_excel('retiros.xlsx', index=False)
-    con.close()
     return send_file('retiros.xlsx')
 
 

@@ -234,7 +234,6 @@ def letras(num):
 #     img_bas64=urllib.parse.quote_plus(encoded_string)
 #     payload = f"https://api.trenalyze.com/send?receiver={wapp}&msgtext=\
     # {msg}&sender=5493513882892&token=CRCNu7mOce4dN7S18iXW&document={img_bas64}"
-#     print(payload)
 #     response = requests.request("GET", payload)
 
 #     return response.text
@@ -258,7 +257,6 @@ def letras(num):
 #         'caption':msg,
 #     }
 #     response = requests.post(url,json=data)
-#     print(response.text)
 #     return response.text
 
 
@@ -274,7 +272,6 @@ def letras(num):
 #         'text':msg,
 #     }
 #     response = requests.post(url,json=data)
-#     print(response.text)
 #     return response.text
 
 
@@ -308,7 +305,7 @@ def send_msg_whatsapp(idcliente, wapp, msg):
     con.commit()
     id = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
     time_delivery = timeout+10
-    logging.warning(f"time_delivery:{time_delivery}")
+    logging.warning(f"time_delivery:{time_delivery} real-time:{time.ctime(time.time())}")
     while True:
         if time.time() > time_delivery:
             response = requests.request("GET", payload)
@@ -386,7 +383,7 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
     con.commit()
     id = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
     time_delivery = timeout+20
-    logging.warning(f"time_delivery:{time_delivery}")
+    logging.warning(f"time_delivery:{time_delivery} real-time:{time.ctime(time.time())}")
     while True:
         if time.time() > time_delivery:
             response = requests.request("GET", payload)

@@ -68,9 +68,7 @@ def buscar_cuenta(buscar):
         buscar = re.sub(r'(\s)(\d)', '% '+r'\2', buscar)
         buscar = re.sub(r'\*', '%', buscar)
         buscar = re.sub(r'(\D)$', r'\1'+'%', buscar)
-        print('cadena busqueda', buscar)
         sql = f"select * from clientes where lower(concat(nombre,calle,acla,' ',num)) like lower('{buscar}') order by calle,num"
-        print('sql', sql)
         error_msg = "no hay respuesta para esa busqueda"
     cur = con.cursor(dictionary=True)
     cur.execute(sql)
@@ -86,7 +84,6 @@ def clientesdireccion(calle, num):
     con = get_con()
     cur = con.cursor(dictionary=True)
     sql = f"select * from clientes where calle='{calle}' and num='{num}'"
-    print("sql clientesdireccion", sql)
     cur.execute(sql)
     clientes = cur.fetchall()
     con.close()
@@ -462,7 +459,6 @@ def buscador_intimar():
 
 @buscador.route('/buscador/intimar/nowapp/<dni>')
 def buscador_intimar_nowapp(dni):
-    print(dni)
     con = get_con()
     intimacion(con, dni)
     return send_file(f'/home/hero/intimacion{dni}.pdf')

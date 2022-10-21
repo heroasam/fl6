@@ -58,7 +58,6 @@ def load_user(id):
     try:
         log = pgdict(con, f"select id,name,email,password,auth from users where id={id}")[0]
         user = User(log['id'], log['name'], log['email'], log['password'], log['auth'])
-        print('load_user', user.name)
         return user
     except:
         return None

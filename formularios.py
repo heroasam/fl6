@@ -214,8 +214,6 @@ def libredeuda(con,dni):
     pdf.add_page()
     pdf.set_font("Helvetica","",10)
     cliente = pgdict0(con, f"select nombre, calle,num,barrio,sev from clientes where dni='{dni}'")
-    # print(dni)
-    # print(cliente)
     pdf.set_font_size(22)
     pdf.image('/home/hero/imagenes/romitex.png', w=80, h=20)
     pdf.ln(5)
@@ -296,9 +294,7 @@ def intimacion(con,ldni):
     for dni in ldni:
         lpg+=str(dni)+','
     lpg = lpg[0:-1]+')'
-    print(lpg)
     listdni = pglflat(con,f"select dni from clientes where dni in {lpg} order by calle,num")
-    print(listdni)
     for dni in listdni:
         if (pdf.get_y()>250):
             pdf.add_page()
