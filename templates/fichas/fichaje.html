@@ -417,7 +417,8 @@ endblock %} {% block style %}
       cargarMsgs(){
         axios.get('/fichas/getmsgs')
         .then(res=>{
-          this.listamsgs = res.data.msgs
+            this.listamsgs = res.data.msgs
+	})
       },
       cambiarZona(zona){
         let ids = this.seleccionarRows()

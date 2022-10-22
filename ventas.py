@@ -1,7 +1,7 @@
 from flask import Blueprint,render_template,jsonify,make_response, request
 from flask_login import login_required, current_user
 from lib import *
-from con import get_con, log
+from con import get_con, log, engine
 import pandas as pd
 import simplejson as json
 import mysql.connector
@@ -663,30 +663,26 @@ def ventas_condonar(id):
 @ventas.route('/ventas/pordia')
 @login_required
 def ventas_pordia():
-    con = get_con()
     pd.options.display.float_format = '${:.0f}'.format
     sql="select fecha,comprado,idvdor from ventas where devuelta=0 and pp=0 order by id desc limit 1000"
-    dat = pd.read_sql_query(sql, con)
+    dat = pd.read_sql_query(sql, engine)
     df = pd.DataFrame(dat)
-    tbl = pd.pivot_table(df, values=['comprado'],index='fecha',columns='idvdor',aggfunc='sum').sort_index(0, 'fecha',False)
+    tbl = pd.pivot_table(df, values=['comprado'],index='fecha',columns='idvdor',aggfunc='sum').sort_index(axis=0, level='fecha',ascending=False)
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="tableventas",classes="table")
-    con.close()
     return render_template("ventas/pordia.html", tbl=tbl )
 
 
 @ventas.route('/ventas/pivotdevoluciones')
 @login_required
 def ventas_pivotdevoluciones():
-    con = get_con()
     pd.options.display.float_format = '${:.0f}'.format
     sql="select montodev,vdor,mesvta from devoluciones"
-    dat = pd.read_sql_query(sql, con)
+    dat = pd.read_sql_query(sql, engine)
     df = pd.DataFrame(dat)
-    tbl = pd.pivot_table(df, values=['montodev'],index='mesvta',columns='vdor',aggfunc='sum').sort_index(0, 'mesvta',False)
+    tbl = pd.pivot_table(df, values=['montodev'],index='mesvta',columns='vdor',aggfunc='sum').sort_index(axis=0, level='mesvta',ascending=False)
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="pivotdevoluciones",classes="table")
-    con.close()
     return render_template("ventas/pivotdevoluciones.html", tbl=tbl )
 
 
