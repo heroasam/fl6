@@ -219,8 +219,8 @@ def stock_saldosorpresa():
 def stock_getdepositos():
     """Obtengo lista depositos."""
     con = get_con()
-    depositos=pgdict(con, "select fecha,imp from caja where cuenta='depositos \
-                          sorpresa' order by id desc")
+    depositos=pgdict(con, "select fecha,imp from caja where cuenta=\
+    'depositos sorpresa' order by id desc")
     con.close()
     return jsonify(depositos=depositos)
 
