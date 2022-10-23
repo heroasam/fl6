@@ -7,7 +7,7 @@ $theads.forEach($thead=>{
 	$thead.removeChild($thead.firstElementChild);
 	heads = $thead.children.length;
     }
-});
+})
 
 function nop(pesos){
     let signo = pesos.substr(0,1);
@@ -18,7 +18,7 @@ function nop(pesos){
   }else{
       return pesos;
   }
-};
+}
 
 const totalizar = (tableId)=>{
     let table;

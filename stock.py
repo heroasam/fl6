@@ -2,6 +2,7 @@
 from flask import Blueprint,render_template,jsonify,make_response, request, send_file
 from flask_login import login_required
 import simplejson as json
+
 import pandas as pd
 import mysql.connector
 from lib import pgdict, pgonecolumn, pglflat
@@ -129,6 +130,7 @@ def stock_pivotcuentas():
 
 @stock.route('/stock/retiros')
 def stock_retiros():
+    """Pandas de retiro socios."""
     sql="select date_format(fecha,'%Y-%m') as fecha,cuenta,imp from caja\
             where cuenta like '%retiro%'  order by id desc"
     pd.options.display.float_format = '{:20.0f}'.format
@@ -142,6 +144,7 @@ def stock_retiros():
 
 @stock.route('/stock/getcompras')
 def stock_getcompras():
+    """Obtengo lista compras."""
     con = get_con()
     compras=pgdict(con, f"select id,fecha,art,cnt, costo,total,proveedor from artcomprado order by id desc limit 200")
     con.close()
@@ -150,6 +153,7 @@ def stock_getcompras():
 
 @stock.route('/stock/getarticulos')
 def stock_getarticulos():
+    """Obtengo lista de articulos."""
     con = get_con()
     articulos=pglflat(con, f"select art from articulos")
     con.close()
@@ -158,11 +162,13 @@ def stock_getarticulos():
 
 @stock.route('/stock/compras')
 def stock_compras():
+    """Muestro pagina de compras."""
     return render_template('stock/compras.html')
 
 
 @stock.route('/stock/deletecompra/<int:id>')
 def stock_deletecompra(id):
+    """Borrar compra."""
     con = get_con()
     stm=f'delete from artcomprado where id={id}'
     cur = con.cursor()
@@ -176,6 +182,7 @@ def stock_deletecompra(id):
 
 @stock.route('/stock/guardarcompra' , methods = ['POST'])
 def stock_guardarcompra():
+    """Guardar compra."""
     con = get_con()
     d_data = json.loads(request.data.decode("UTF-8"))
     total = int(d_data['cnt']) * int(d_data['costo'])
