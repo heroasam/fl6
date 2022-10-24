@@ -227,11 +227,9 @@
 						viatico: this.viatico,
 						cntrbos: this.cntRbos,
 					},
-				}).then(res => {
-						message: 'Planilla agregada/corregida con exito',
-						type: 'is-success',
-					})
-				})
+				    }).then(res => {
+                        msgSuccess('Planilla agregada/corregida con exito')
+					    })
                     },
             }}
 //el event up/down no funciona para cambio de numero de recibo
