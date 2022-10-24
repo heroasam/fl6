@@ -27,5 +27,21 @@
 
 {% block script %}
 <script>
+ const table = document.getElementById('retiros')
+ const thead = table.querySelector('thead')
+ const tr = thead.children
+ const ths = tr[0].children
+ ths[5].innerText = "Efectivo"
+ ths[6].innerText = "Banco"
+ const tbody = table.querySelector('tbody')
+ const arrayRows = Array.from(tbody.rows)
+ console.log( arrayRows)
+ arrayRows.forEach(row=>{
+     console.log( row)
+     if(row.rowIndex>1){
+         row.cells[5].innerText=""
+         row.cells[6].innerText=""
+     }
+ })
 </script>
 {% endblock %}

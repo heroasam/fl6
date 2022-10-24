@@ -397,10 +397,10 @@ def pivot_pagos_cobr():
 
 @pagos.route('/pivot/retiros')
 def pivot_retiros():
-    sql="select date_format(fecha,'%Y-%m') as fecha, cuenta, imp from caja where cuenta like 'retiro%'"
+    sql="select date_format(fecha,'%Y-%m') as fecha, cuenta, imp from caja where cuenta like 'retiro%' and not like '%capital%' order by fecha desc"
     dat = pd.read_sql_query(sql, engine)
     df = pd.DataFrame(dat)
-    tbl = pd.pivot_table(df, values='imp',index='fecha',columns='cuenta',aggfunc='sum')
+    tbl = pd.pivot_table(df, values='imp',index='fecha',columns='cuenta',aggfunc='sum').sort_index(axis=1, level='fecha',ascending=False)
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="table",classes="table  table-sm")
     return render_template("pivot_retiros.html", tbl=tbl)

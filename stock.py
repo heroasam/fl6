@@ -135,11 +135,22 @@ def stock_pivotcuentas():
 def stock_retiros():
     """Pandas de retiro socios."""
     sql="select date_format(fecha,'%Y-%m') as fecha,cuenta,imp from caja \
-            where cuenta like '%retiro%'  order by id desc"
+            where cuenta like '%retiro%' and cuenta not like '%capital%' \
+            order by id desc"
     pd.options.display.float_format = '{:20.0f}'.format
     dat = pd.read_sql_query(sql, engine)
     dframe = pd.DataFrame(dat)
-    tbl = pd.pivot_table(dframe, values=['imp'],index='fecha',columns='cuenta',aggfunc='sum')
+    print(dframe)
+    tbl = pd.pivot_table(dframe, values=['imp'],index='fecha',columns='cuenta'\
+        ,aggfunc='sum').sort_index(axis=0,level='fecha',ascending=False)
+    s0 = tbl.iloc[:,0]
+    s1 = tbl.iloc[:,1]
+    diff1 = s0.sub(s1,axis=0)
+    s2 = tbl.iloc[:,2]
+    s3 = tbl.iloc[:,3]
+    diff2 = s2.sub(s3,axis=0)
+    tbl.insert(4,'diff1', diff1)
+    tbl.insert(5,'diff2', diff2)
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="retiros",classes="table is-narrow")
     return render_template("stock/retiros.html", tbl=tbl)

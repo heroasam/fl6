@@ -43,7 +43,8 @@
     <div class="columns">
       <div class="column is-4">
 	    <div class="grid col-1 gap-0">
-		<input type="text" class="input mb-1" x-model="cliente.calle" id="searchCalle" autocomplete="off" required>
+	      <input type="text" class="input mb-1" x-model="cliente.calle" id="searchCalle" autocomplete="off"
+		     required placeholder="Calle">
 		<div id="suggestionsCalle" class="suggestions"></div>
 	    </div>
       </div>
@@ -52,13 +53,15 @@
       </div>
       <div class="column is-4">
 	    <div class="grid col-1 gap-0">
-		<input type="text" class="input mb-1" x-model="cliente.barrio" id="searchBarrio" autocomplete="off" required>
+	      <input type="text" class="input mb-1" x-model="cliente.barrio" id="searchBarrio" autocomplete="off"
+		     placeholder="Barrio" required>
 		<div id="suggestionsBarrio" class="suggestions"></div>
 	    </div>
       </div>
       <div class="column is-3">
 	    <div class="grid col-1 gap-0">
-		<input type="text" class="input mb-1" x-model="cliente.zona" id="searchZona" autocomplete="off" required>
+	      <input type="text" class="input mb-1" x-model="cliente.zona" id="searchZona" autocomplete="off"
+		     placeholder="Zona" required>
 		<div id="suggestionsZona" class="suggestions"></div>
 	    </div>
       </div>
@@ -111,7 +114,7 @@
       <div class="column is-2">
 	    <div class="grid col-1 gap-0">
 	      <input type="text" class="input mb-1" x-model="venta.p" id="searchPeriodicidad" autocomplete="off" required
-	      pattern="^(mensual|quincenal|semanal)$">
+		     pattern="^(mensual|quincenal|semanal)$" placeholder="Periodicidad">
 		  <div id="suggestionsPeriodicidad" class="suggestions"></div>
 	    </div>
       </div>
@@ -136,7 +139,8 @@
    </div>
    <div class="column is-8">
 	 <div class="grid col-1 gap-0">
-	   <input type="text" class="input mb-1" x-model="detallevta.art" id="searchArt" autocomplete="off" required>
+	   <input type="text" class="input mb-1" x-model="detallevta.art" id="searchArt" autocomplete="off"
+		  placeholder="Articulo" required>
 	   <div id="suggestionsArt" class="suggestions"></div>
 	 </div>
    </div>
