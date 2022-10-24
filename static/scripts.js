@@ -334,19 +334,19 @@ function dataWrapper(datos){
 }
 
 // wrapper a Swal
-function msgSuccess(title, text) {
+function msgSuccess(title, text, timer=3000) {
     Swal.fire({
 	title: title,
 	text: text,
 	icon: 'success',
-	timer:3000});
+	timer:timer});
 }
-function msgError(title, text) {
+function msgError(title, text, timer=3000) {
     Swal.fire({
 	title: title,
 	text: text,
 	icon: 'error',
-	timer:3000});
+	timer:timer});
 }
 function msgDelay(text) {
     Swal.fire({

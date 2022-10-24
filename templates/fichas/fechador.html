@@ -1,169 +1,169 @@
 {% extends "base.html" %} {% block title %}Fechador{% endblock %} {%
-    block style %}
-    <style></style>
-    {% endblock %}
+block style %}
+<style></style>
+{% endblock %}
 
-    {% block content %}
+{% block content %}
 
-    <div class="container">
-        <p class="title is-1">Fechador</p>
-        <div class="buttons">
-            <a href="/fichas" class="button is-primary">Fichas</a>
-            <a href="/fichas/cobradores" class="button is-primary">Cobradores</a>
-            <a href="/fichas/listado" class="button is-primary">Listado</a>
-            <a href="/fichas/cancelados" class="button is-primary">Cancelados</a>
-            <a href="/fichas/mudados" class="button is-primary">Mudados</a>
-          </div>
+<div class="container">
+  <p class="title is-1">Fechador</p>
+  <div class="buttons">
+    <a href="/fichas" class="button is-primary">Fichas</a>
+    <a href="/fichas/cobradores" class="button is-primary">Cobradores</a>
+    <a href="/fichas/listado" class="button is-primary">Listado</a>
+    <a href="/fichas/cancelados" class="button is-primary">Cancelados</a>
+    <a href="/fichas/mudados" class="button is-primary">Mudados</a>
+  </div>
 
-        <div x-data="main()" x-init="llenaListado()">
-            <div class="columns">
-                <div class="column is-3">
-                    <input type="text" class="input is-large" x-model="idvta" @keyup.enter="buscaCuenta(idvta);$refs.pmovto.focus()" x-ref="idvta">
-                </div>
-                <div class="column is-9">
-                    <span class="tag is-large is-danger" x-text="nombre" x-show="nombre"></span>
-                </div>
-            </div>
-            <div class="columns">
-                <div class="column is-3">
-                    <input type="date" class="input is-large" x-model="pmovto" @keyup=fechar(event) @keyup.enter=validaFecha(idvta,pmovto) x-ref="pmovto">
-                </div>
-            </div>
+  <div x-data="main()" x-init="llenaListado()">
+    <div class="columns">
+      <div class="column is-3">
+        <input type="text" class="input is-large" x-model="idvta" @keyup.enter="buscaCuenta(idvta);$refs.pmovto.focus()" x-ref="idvta">
+      </div>
+      <div class="column is-9">
+        <span class="tag is-large is-danger" x-text="nombre" x-show="nombre"></span>
+      </div>
+    </div>
+    <div class="columns">
+      <div class="column is-3">
+        <input type="date" class="input is-large" x-model="pmovto" @keyup=fechar(event) @keyup.enter=validaFecha(idvta,pmovto) x-ref="pmovto">
+      </div>
+    </div>
 
-        <div class="columns">
-            <div class="column is-6">
-                <div class="box" x-show="listFechados.length">
-                    <span class="tag is-small is-dark" x-text="`${listFechados.length} Fechados`" ></span>
-                    <span class="tag is-small is-info" x-text="`${sumaCobr(750)} Cobr750`"></span>
-                    <span class="tag is-small is-success" x-text="`${sumaCobr(796)} Cobr796`"></span>
-                    <span class="tag is-small is-warning" x-text="`${sumaCobr(800)} Cobr800`"></span>
-                    <span class="tag is-small is-danger" x-text="`${sumaCobr(815)} Cobr815`"></span>
-                </div>
-            </div>
+    <div class="columns">
+      <div class="column is-6">
+        <div class="box" x-show="listFechados.length">
+          <span class="tag is-small is-dark" x-text="`${listFechados.length} Fechados`" ></span>
+          <span class="tag is-small is-info" x-text="`${sumaCobr(750)} Cobr750`"></span>
+          <span class="tag is-small is-success" x-text="`${sumaCobr(796)} Cobr796`"></span>
+          <span class="tag is-small is-warning" x-text="`${sumaCobr(800)} Cobr800`"></span>
+          <span class="tag is-small is-primary" x-text="`${sumaCobr(802)} Cobr802`"></span>
+          <span class="tag is-small is-danger" x-text="`${sumaCobr(815)} Cobr815`"></span>
         </div>
-        <table class=" block table is-narrow nototal noselect">
-            <thead>
-                <tr>
-                    <th>op</th>
-                    <th>id</th>
-                    <th>nombre</th>
-                    <th>expmovto</th>
-                    <th>pmovto</th>
-                    <th>cobr</th>
-                </tr>
-            </thead>
-            <tbody>
-                <template x-for="item in listFechados" :key="item['id']">
-                    <tr>
-                        <td><button class="button is-danger is-small" @click="borraFechado(item['id'])">Borrar</button></td>
-                        <td x-text="item['id']"></td>
-                        <td x-text="item['nombre']"></td>
-                        <td x-text="item['expmovto']"></td>
-                        <td x-text="item['pmovto']"></td>
-                        <td x-text="item['cobr']"></td>
-                    </tr>
-                    </template>
-            </tbody>
-        </table>
+      </div>
     </div>
+    <table class=" block table is-narrow nototal noselect">
+      <thead>
+        <tr>
+          <th>op</th>
+          <th>id</th>
+          <th>nombre</th>
+          <th>expmovto</th>
+          <th>pmovto</th>
+          <th>cobr</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="item in listFechados" :key="item.id">
+          <tr>
+            <td><i class="fa fa-times" aria-hidden="true" @click="borrarFechado(item.id)"></td>
+              <td x-text="item.id"></td>
+              <td x-text="item.nombre"></td>
+              <td x-text="item.expmovto"></td>
+              <td x-text="item.pmovto"></td>
+              <td x-text="item.cobr"></td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
 
-    </div>
-    {% endblock %} {% block script %}
-    <script>
-        function main(){
-            return {
-                idvta:'',
-                pmovto:'',
-                nombre:'',
-                listFechados:[],
-                cobr:'',
-                buscaCuenta:function(idvta){
-                    axios.get('/fichas/buscacuenta/'+idvta)
-                    .then(res=>{
-                        if(res.data.cuenta.length===0) {
-                            bulmaToast.toast({
-                                message: "El Num de Cuenta no existe o no tiene saldo",
-                                type: "is-danger"
-                            })
-                            this.$refs.idvta.focus()
-                        }else{
-                            this.nombre = res.data.cuenta['nombre']
-                            this.pmovto = dayjs.utc(res.data.cuenta['pmovto']).format('YYYY-MM-DD')
-                            this.cobr = res.data.cuenta['asignado']
-                        }
-                    })
-                },
-                fechar: function(e){
-                    if(e.key==='.') this.pmovto = dayjs.utc().format('YYYY-MM-DD')
-                    if(e.key==='+') this.pmovto = dayjs.utc(this.pmovto).add(1,'day').format('YYYY-MM-DD')
-                    if(e.key==='-') this.pmovto = dayjs.utc(this.pmovto).add(-1,'day').format('YYYY-MM-DD')
-                    if(e.key==='*') this.pmovto = dayjs.utc(this.pmovto).add(7,'day').format('YYYY-MM-DD')
-                    if(e.key==='/') this.pmovto = dayjs.utc(this.pmovto).add(-7,'day').format('YYYY-MM-DD')
-                    if(e.key==='PageUp') this.pmovto = dayjs.utc(this.pmovto).add(1,'month').format('YYYY-MM-DD')
-                    if(e.key==='PageDown') this.pmovto = dayjs.utc(this.pmovto).add(-1,'month').format('YYYY-MM-DD')
-                },
-                guardarFechado: function(idvta,pmovto){
-                    axios.get('/fichas/guardarfechado/'+idvta+'/'+pmovto+'/'+this.cobr)
-                    .then(res=>{
-                        bulmaToast.toast({
-                        message: "Fechado guardado",
-                        type: "is-success",
-                        position: "top-left",
-                        })
-                        this.idvta=''
-                        this.nombre=''
-                        this.pmovto=''
-                        this.$refs.idvta.focus()
-			this.llenaListado()
-                    })
-                    .catch(error=>{
-                        bulmaToast.toast({
-                            message: error.request.response,
-                            type: "is-danger"
-                        })
-                    })
-                },
-		llenaListado(){
-		    axios.get('/fichas/obtenerlistadofechados')
-			 .then(res=>{
-			     this.listFechados=res.data.listado
-			     this.listFechados.map(row=>{
-				 row['fecha']=dayjs.utc(row['fecha']).format('YYYY-MM-DD')
-				 row['expmovto']=dayjs.utc(row['expmovto']).format('YYYY-MM-DD')
-				 row['pmovto']=dayjs.utc(row['pmovto']).format('YYYY-MM-DD')
-			     })
-			 })
-		},
-                sumaCobr(id){
-                    if(this.listFechados.length){
-                    let col=[]
-                    this.listFechados.forEach(row=>{
-                        col.push(row['cobr'])
-                    })
-                    let colid = col.filter(el=>el===id)
-                    return colid.length
-                    } else{
-                        return
-                    }
-                },
-                        borraFechado(id){
-                                    axios.get('/fichas/borrarfechado/'+id)
-                                        .then(res=>{
-                                                    bulmaToast.toast({
-                                                                message:"Fechado borrado correctamente",
-                                                                type: "is-success"
-                                                            })
-                                                                this.llenaListado()
-                                                })
-                                },
-                    validaFecha(idvta,fecha) {
-                    if (fecha < dayjs.utc().format('YYYY-MM-DD') || fecha > dayjs.utc().add(3, 'month').format('YYYY-MM-DD')) {
-                        bulmaToast.toast({ message: "Fecha invalida", type: "is-danger" })
-                        }else{
-                        this.guardarFechado(idvta,fecha)
-                        }
-                    },
-            }
-        }
-    </script>
-    {% endblock %}
+</div>
+{% endblock %} {% block script %}
+<script>
+ function main(){
+     return {
+         idvta:'',
+         pmovto:'',
+         nombre:'',
+         listFechados:[],
+         cobr:'',
+         buscaCuenta(idvta){
+             axios.get('/fichas/buscacuenta/'+idvta)
+                  .then(res=>{
+                      if(res.data.cuenta.length===0) {
+                          msgError('La cuenta no existe o ya esta cancelada.')
+                          this.$refs.idvta.focus()
+                      }else{
+                          this.nombre = res.data.cuenta['nombre']
+                          this.pmovto = dayjs.utc(res.data.cuenta['pmovto']).format('YYYY-MM-DD')
+                          this.cobr = res.data.cuenta['asignado']
+                      }
+                  })
+         },
+         fechar(e){
+             if(e.key==='.') this.pmovto = dayjs.utc().format('YYYY-MM-DD')
+             if(e.key==='+') this.pmovto = dayjs.utc(this.pmovto).add(1,'day').format('YYYY-MM-DD')
+             if(e.key==='-') this.pmovto = dayjs.utc(this.pmovto).add(-1,'day').format('YYYY-MM-DD')
+             if(e.key==='*') this.pmovto = dayjs.utc(this.pmovto).add(7,'day').format('YYYY-MM-DD')
+             if(e.key==='/') this.pmovto = dayjs.utc(this.pmovto).add(-7,'day').format('YYYY-MM-DD')
+             if(e.key==='PageUp') this.pmovto = dayjs.utc(this.pmovto).add(1,'month').format('YYYY-MM-DD')
+             if(e.key==='PageDown') this.pmovto = dayjs.utc(this.pmovto).add(-1,'month').format('YYYY-MM-DD')
+         },
+         guardarFechado(idvta,pmovto){
+             axios.get('/fichas/guardarfechado/'+idvta+'/'+pmovto+'/'+this.cobr)
+                  .then(res=>{
+                      this.idvta=''
+                      this.nombre=''
+                      this.pmovto=''
+			          this.llenaListado()
+                      this.$refs.idvta.focus()
+                      msgSuccess('Fechado guardado','', timer=1000)
+                  })
+                  .catch(error=>{
+                      msgError(error.requests.response)
+                  })
+         },
+		 llenaListado(){
+		     axios.get('/fichas/obtenerlistadofechados')
+			      .then(res=>{
+			          this.listFechados=res.data.listado
+			          this.listFechados.map(row=>{
+				          row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD')
+				          row.expmovto=dayjs.utc(row.expmovto).format('YYYY-MM-DD')
+				          row.pmovto=dayjs.utc(row.pmovto).format('YYYY-MM-DD')
+			          })
+			      })
+		 },
+         sumaCobr(id){
+             if(this.listFechados.length){
+                 let col=[]
+                 this.listFechados.forEach(row=>{
+                     col.push(row['cobr'])
+                 })
+                 let colid = col.filter(el=>el===id)
+                 return colid.length
+             } else{
+                 return
+             }
+         },
+         borrarFechado(id){
+             Swal.fire({
+                 title: '¿Esta seguro?',
+                 text: `Se borrara el fechado ${id}`,
+                 icon: 'warning',
+                 showCancelButton: true,
+                 confirmButtonColor: '#3085d6',
+                 cancelButtonColor: '#d33',
+                 confirmButtonText: 'Si, borrarlo!'
+             }).then((result) => {
+                 if (result.isConfirmed) {
+                     axios.get('/fichas/borrarfechado/'+id)
+                          .then(res=>{
+                              msgSuccess('Borrado!','El fechado ha sido borrado')
+                              this.llenaListado()})
+                          .catch(error=>msgError(error.request.response))
+             }})
+
+         },
+         validaFecha(idvta,fecha) {
+             if (fecha < dayjs.utc().format('YYYY-MM-DD') || fecha > dayjs.utc().add(3, 'month').format('YYYY-MM-DD')) {
+                 msgError('Fecha Invalida')
+             }else{
+                 this.guardarFechado(idvta,fecha)
+             }
+         },
+     }
+ }
+</script>
+{% endblock %}

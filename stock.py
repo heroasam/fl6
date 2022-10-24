@@ -143,12 +143,12 @@ def stock_retiros():
     print(dframe)
     tbl = pd.pivot_table(dframe, values=['imp'],index='fecha',columns='cuenta'\
         ,aggfunc='sum').sort_index(axis=0,level='fecha',ascending=False)
-    s0 = tbl.iloc[:,0]
-    s1 = tbl.iloc[:,1]
-    diff1 = s0.sub(s1,axis=0)
-    s2 = tbl.iloc[:,2]
-    s3 = tbl.iloc[:,3]
-    diff2 = s2.sub(s3,axis=0)
+    col0 = tbl.iloc[:,0]
+    col1 = tbl.iloc[:,1]
+    diff1 = col0.sub(col1,axis=0)
+    col2 = tbl.iloc[:,2]
+    col3 = tbl.iloc[:,3]
+    diff2 = col2.sub(col3,axis=0)
     tbl.insert(4,'diff1', diff1)
     tbl.insert(5,'diff2', diff2)
     tbl = tbl.fillna("")

@@ -312,10 +312,11 @@ def send_msg_whatsapp(idcliente, wapp, msg):
             logging.warning(f"time al request:{time.time()}")
             break
         time.sleep(0.5)
-    wapp_log(response.status_code, response.text)
+    wapp_log(response.status_code, response.text, idcliente)
     if "Success" in response.text:
         upd = f"update logwhatsapp set response='success',\
         enviado={int(time.time())} where id = {id}"
+        logging.warning(upd)
         cur.execute(upd)
         con.commit()
         con.close()
@@ -323,6 +324,7 @@ def send_msg_whatsapp(idcliente, wapp, msg):
     elif "Invalid Destination WhatsApp" in response.text:
         updinv = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO'\
                 where id={idcliente}"
+        logging.warning(updinv)
         con = get_con()
         cur = con.cursor()
         cur.execute(updinv)
@@ -337,6 +339,7 @@ def send_msg_whatsapp(idcliente, wapp, msg):
     elif "Failed" in response.text:
         upd = f"update logwhatsapp set response='failed', enviado=\
                 {int(time.time())} where id = {id}"
+        logging.warning(upd)
         cur.execute(upd)
         con.commit()
         con.close()
@@ -344,6 +347,7 @@ def send_msg_whatsapp(idcliente, wapp, msg):
     elif "limit" in response.text:
         upd = f"update logwhatsapp set response='limit', enviado=\
                 {int(time.time())} where id = {id}"
+        logging.warning(upd)
         cur.execute(upd)
         con.commit()
         con.close()
@@ -390,10 +394,11 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
             logging.warning(f"Time al request:{time.time()}")
             break
         time.sleep(1)
-    wapp_log(response.status_code, response.text)
+    wapp_log(response.status_code, response.text, idcliente)
     if "Success" in response.text:
         upd = f"update logwhatsapp set response='success', enviado=\
                 {int(time.time())} where id = {id}"
+        logging.warning(upd)
         cur.execute(upd)
         con.commit()
         con.close()
@@ -401,6 +406,7 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
     elif "Invalid Destination WhatsApp" in response.text:
         updinv = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO'\
                 where id={idcliente}"
+        logging.warning(updinv)
         con = get_con()
         cur = con.cursor()
         logging.warning(updinv)
@@ -408,6 +414,7 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
         log(updinv)
         upd = f"update logwhatsapp set response='invalid', enviado=\
                 {int(time.time())} where id = {id}"
+        logging.warning(updinv)
         cur.execute(upd)
         con.commit()
         con.close()
@@ -415,6 +422,7 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
     elif "Failed" in response.text:
         upd = f"update logwhatsapp set response='failed', enviado=\
                 {int(time.time())} where id = {id}"
+        logging.warning(upd)
         cur.execute(upd)
         con.commit()
         con.close()
@@ -422,6 +430,7 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
     elif "limit" in response.text:
         upd = f"update logwhatsapp set response='limit', enviado=\
                 {int(time.time())} where id = {id}"
+        logging.warning(upd)
         cur.execute(upd)
         con.commit()
         con.close()
@@ -430,10 +439,11 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
         return 'error', 401
 
 
-def wapp_log(log1, log2):
+def wapp_log(log1, log2, idcliente):
     """Funcion que hace un log en txt de las responses de la api."""
     log = open("/home/hero/log/wapp.log", "a")
     log.write('\n')
-    log.write(str(log1)+' '+str(time.ctime(time.time()))+' '+str(time.time()))
+    log.write(str(log1)+' '+str(time.ctime(time.time()))+' '+str(time.time())\
+              +' '+str(idcliente))
     log.write(str(log2))
     log.close()
