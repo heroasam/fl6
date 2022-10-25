@@ -395,7 +395,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 function toggleModal(id){
     let $id = document.getElementById(id);
-    $id.classList.toggle('is-active');
+    $id.classList.toggle('is-active'); //
 }
 
 function dia(day){

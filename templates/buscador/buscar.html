@@ -13,7 +13,12 @@
 	</div>
 	<div class="grid-buscar ml-3 mr-3 mt-2 center">
             <input type="search" placeholder="Busca por: Nombre Calle Num aclaracion / DNI / Cuenta / wapp / id9999" class="input" x-model="buscar"
-		   @focus="buscar1='';buscar=''" @keyup.enter="buscarCliente";verCard=false" autofocus>
+		           @focus="buscar1='';buscar=''" @keyup.enter="buscarCliente";verCard=false" autofocus list="busquedasrecientes">
+            <datalist id="busquedasrecientes">
+              <template x-for="item in listaBusquedasRecientes">
+                <option :value="item"></option>
+              </template>
+            </datalist>
             <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
 	</div>
         <div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
@@ -610,6 +615,7 @@
          listaPagadas:[],
          listaCuentas:[],
          listaInflacion:{},
+         listaBusquedasRecientes:[],
          Vtos:{},
          buscar:'',
 	     buscar1:'',
@@ -641,7 +647,6 @@
     buscarCliente(){
         this.verCard = false
         this.resetBuscar()
-	     /* this.listaClientesCasa=[] */
 	     buscar = this.buscar1.length>0?this.buscar1:this.buscar
              textToClipboard(buscar)
 	     if(buscar=='') buscar='-'
@@ -658,8 +663,10 @@
 			  if(row.ultcompra>row.ultpago) row.ultpago=row.ultcompra
 		      })
 		      if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
+              this.listaBusquedasRecientes.push(buscar)
+              console.log( this.listaBusquedasRecientes)
 		  })
-		  .catch(error=>{
+		          .catch(error=>{
 		      msgError('Error!',error.response.data)
 		  })
          },
