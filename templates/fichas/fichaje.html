@@ -14,7 +14,16 @@ endblock %} {% block style %}
     display:flex;
   }
  .wapp{
-     background-color: seagreen;
+     background-color: darkgreen;
+     color: white;
+ }
+ .ultpago60{
+     background-color: lightyellow;
+     color: black;
+ }
+ .ultpago60campo{
+     background-color: #8B0808;
+     color:white;
  }
 </style>
 {% endblock %} {% block content %}
@@ -38,6 +47,7 @@ endblock %} {% block style %}
 
   <div class="ml-1 mt-1 mb-1">
     <span class="tag is-small is-black"  v-show="clientes.length">|clientes.length|</span>
+    <!-- <span class="tag is-small is-warning"  v-show="cntSeleccionados">|cntSeleccionados|</span> -->
     <label for="desde"></label>
     <input type="date" name="desde" v-model="desde" class="input" style="width:140px;" />
     <label for="hasta"></label>
@@ -96,38 +106,27 @@ endblock %} {% block style %}
           <th>Intimado</th>
           <th>dni</th>
           <th colspan="5">Estados</th>
-          <th colspan="5">Operaciones</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="cliente in clientes" :class="dayjs.utc().diff(cliente['fechaultwapp'],'d')==0&&
-                   dayjs.utc().diff(cliente['fechaultwapp'],'d')<11?'wapp':''">
+        <tr v-for="cliente in clientes" :class="dayjs.utc().diff(cliente['ultpago'],'d')<60?'ultpago60':''">
           <!-- nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni[10],subirseven,comprado,deuda,zona,barrio -->
-        <td><a :href="'/buscador/interno/'+cliente['dni']" target="_blank">Ir</a></td>
+          <td><a :href="'/buscador/interno/'+cliente['dni']" target="_blank" class="button is-small is-outlined is-primary">Ir</a></td>
           <td>|cliente['nombre']|</td>
           <td>|cliente['calle']|</td>
           <td>|cliente['num']|</td>
-          <td style="min-width: 100px;">|cliente['ultpago']|</td>
+          <td :class="dayjs.utc().diff(cliente['ultpago'],'d')<60?'ultpago60campo':''" style="min-width: 100px;">|cliente['ultpago']|</td>
           <td style="min-width: 100px;">|cliente['pmovto']|</td>
           <td class="pesos">|cliente['comprado']|</td>
           <td style="min-width: 100px;">|cliente['ultcompra']|</td>
           <td class="pesos">|cliente['deuda']|</td>
-          <td>|cliente['wapp']|</td>
+          <td :class="dayjs.utc().diff(cliente['fechaultwapp'],'d')==0&&
+                   dayjs.utc().diff(cliente['fechaultwapp'],'d')<11?'wapp':''">|cliente['wapp']|</td>
           <td>|cliente['zona']|</td>
           <td>|cliente['barrio']|</td>
           <td>|cliente['fechaintimacion']|</td>
           <td>|cliente['dni']|</td>
-          <td><button class="button is-success is-small" v-show="cliente['sev']||cliente['subirseven']">|cliente['sev']==1?'SEVEN':cliente['subirseven']==1?'SUBE':null|</button></td>
-          <td><button class="button is-primary is-small" v-if="cliente['novendermas']">|cliente['novendermas']==1?'NV+':null|</button></td>
-          <td><button class="button is-info is-small" v-if="cliente['gestion']">|cliente['gestion']==1?'GESTION':null|</button></td>
-          <td><button class="button is-warning is-small" v-if="cliente['mudo']">|cliente['mudo']==1?'MUDO':null|</button></td>
-          <td><button class="button is-danger is-small" v-if="cliente['incobrable']">|cliente['incobrable']==1?'INC':''|</button></td>
-          <td><button class="button is-outlined is-primary is-small" @click="toggleSube(cliente['dni'])">SU</button></td>
-          <td><button class="button is-outlined is-primary is-small" @click="toggleLN(cliente['dni'])">NV</button></td>
-          <td><button class="button is-outlined is-primary is-small" @click="toggleGestion(cliente['dni'])">Ge</button></td>
-          <td><button class="button is-outlined is-primary is-small" @click="toggleMudo(cliente['dni'])">Mu</button></td>
-          <td><button class="button is-outlined is-primary is-small" @click="toggleInc(cliente['dni']);">IN</button></td>
-
+          <td><span class="tag is-success is-small" v-show="cliente['sev']||cliente['subirseven']">|cliente['sev']==1?'SEVEN':cliente['subirseven']==1?'SUBE':null|</span></td>
         </tr>
       </tbody>
     </table>
@@ -141,21 +140,22 @@ endblock %} {% block style %}
     el: "#app",
     delimiters: ["|", "|"],
     data: {
-      cobradores: [],
-      zonas: [],
-      clientes: [],
-      zonaactual:'',
-      verZonas: false,
-      zona:'',
-      listazonas:[],
-      listamsgs:[],
-      ultimazona:'',
-      ultimotipo:'',
-      hasta:dayjs.utc().format('YYYY-MM-DD'),
-      desde:dayjs.utc().format('YYYY-MM-DD'),
+        cobradores: [],
+        zonas: [],
+        clientes: [],
+        zonaactual:'',
+        verZonas: false,
+        zona:'',
+        listazonas:[],
+        listamsgs:[],
+        ultimazona:'',
+        cntSeleccionados:'',
+        ultimotipo:'',
+        hasta:dayjs.utc().format('YYYY-MM-DD'),
+        desde:dayjs.utc().format('YYYY-MM-DD'),
     },
-    methods: {
-      getCobradores() {
+      methods: {
+          getCobradores() {
         axios.get("/fichas/getcobradores").then((res) => {
           this.cobradores = res.data.cobradores;
         });
@@ -369,9 +369,10 @@ endblock %} {% block style %}
            row.classList.add("is-selected");
          }
        });
+         /* this.cntSeleccionados = this.cuentaSeleccionados().length */
      },
-     toggleInc(dni){
-       axios.get('/buscador/toggleinc/'+dni)
+        toggleInc(dni){
+            axios.get('/buscador/toggleinc/'+dni)
        .then(res=>{
          this.muestraClientes(this.ultimotipo,this.ultimazona)
          if(this.ultimotipo=="normales") bulmaToast.toast({message:"Movido a Gestion",type:"is-warning"})
@@ -436,11 +437,33 @@ endblock %} {% block style %}
           bulmaToast.toast({message:error.request.response,type:"is-danger"})
         })
       },
+                 cuentaSeleccionados(){
+             let arraySeleccionados = []
+			 const $tbody = document.querySelector("tbody");
+        	 arrayRows = Array.from($tbody.children);
+        	 arrayRows.forEach((row) => {
+                 if(row.classList.contains('is-selected')){
+                     arraySeleccionados.push(row.cells[13].innerHTML)
+                     //OJO la celda de los DNI pq lo usa imprimir
+             }})
+                     return arraySeleccionados
+                 },
+         eventTable(){
+             const table = document.getElementById('table')
+             table.addEventListener('click',()=>{
+                 if(event.target.tagName=='TD'){
+                     setTimeout(()=>{
+                         this.cntSeleccionados=this.cuentaSeleccionados().length
+                     },100)
+             }})
+         },
+
     },
-    created: function () {
-      this.getCobradores();
-      this.cargarZonas();
-      this.cargarMsgs();
+      created: function () {
+          this.getCobradores();
+          this.cargarZonas();
+          this.cargarMsgs();
+          /* this.eventTable(); */
     },
   });
 </script>
