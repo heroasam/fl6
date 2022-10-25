@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
+"""Librerias generales."""
 import time
-import requests
-from con import get_con, log
-from flask_login import current_user
 import os
 import logging
+import requests
+from flask_login import current_user
+from con import get_con, log
 
 
 def pgdict0(con, sel):
@@ -441,9 +443,22 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
 
 def wapp_log(log1, log2, idcliente):
     """Funcion que hace un log en txt de las responses de la api."""
-    log = open("/home/hero/log/wapp.log", "a")
-    log.write('\n')
-    log.write(str(log1)+' '+str(time.ctime(time.time()))+' '+str(time.time())\
-              +' '+str(idcliente))
-    log.write(str(log2))
-    log.close()
+    with open("/home/hero/log/wapp.log", "a", encoding="utf-8") as log_file:
+        log_file.write('\n')
+        log_file.write(str(log1)+' '+str(time.ctime(time.time()))+' '+\
+                       str(time.time())+' '+str(idcliente))
+        log_file.write(str(log2))
+        log_file.close()
+
+def log_busqueda(busqueda):
+    """Funcion que hace un log de busquedas globales en buscador."""
+    with open("/home/hero/log/busquedas.log", "a", encoding="utf-8") as log_file:
+        if "@" in str(current_user):
+            email = current_user.email
+        else:
+            email = ""
+        log_file.write('\n')
+        log_file.write(time.strftime('%Y-%m-%d',time.localtime())+', '+\
+                      time.strftime('%H:%M:%S',time.localtime())+', '+\
+                      busqueda+', '+email)
+        log_file.close()

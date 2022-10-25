@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, jsonify, make_response, request, send_file
 from flask_login import login_required
-from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, pglflat
+from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
+    pglflat, log_busqueda
 import simplejson as json
 import re
 from formularios import intimacion, libredeuda, ficha, recibotransferencia
@@ -76,6 +77,7 @@ def buscar_cuenta(buscar):
     if len(clientes) == 0:
         return make_response(error_msg, 400)
     con.close()
+    log_busqueda(buscar)
     return jsonify(clientes=clientes)
 
 
