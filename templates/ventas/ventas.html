@@ -8,7 +8,7 @@
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerArt();obtenerPeriodicidad()">
+<div class="container" x-data="main()" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerArt()">
     <p class="title is-1">Pasar Venta</p>
 
     <div class="field is-horizontal box">
@@ -42,28 +42,33 @@
     </div>
     <div class="columns">
       <div class="column is-4">
-	    <div class="grid col-1 gap-0">
-	      <input type="text" class="input mb-1" x-model="cliente.calle" id="searchCalle" autocomplete="off"
-		     required placeholder="Calle">
-		<div id="suggestionsCalle" class="suggestions"></div>
-	    </div>
+        <input type="text" list="listacalles" class="input mb-1" x-model="cliente.calle" required placeholder="Calle" />
+        <datalist id="listacalles">
+          <template x-for="item in calles">
+            <option :value="item"></option>
+          </template>
+        </datalist>
       </div>
       <div class="column is-1">
         <input type="text" x-model="cliente.num" placeholder="Num" size="10" class="input" required pattern="(\d){2,4}$">
       </div>
       <div class="column is-4">
 	    <div class="grid col-1 gap-0">
-	      <input type="text" class="input mb-1" x-model="cliente.barrio" id="searchBarrio" autocomplete="off"
-		     placeholder="Barrio" required>
-		<div id="suggestionsBarrio" class="suggestions"></div>
+          <input type="text" list="listabarrios" class="input mb-1" x-model="cliente.barrio" required placeholder="Barrio" />
+          <datalist id="listabarrios">
+            <template x-for="item in barrios">
+              <option :value="item"></option>
+            </template>
+          </datalist>
 	    </div>
       </div>
       <div class="column is-3">
-	    <div class="grid col-1 gap-0">
-	      <input type="text" class="input mb-1" x-model="cliente.zona" id="searchZona" autocomplete="off"
-		     placeholder="Zona" required>
-		<div id="suggestionsZona" class="suggestions"></div>
-	    </div>
+        <input type="text" list="listazonas" class="input mb-1" x-model="cliente.zona" required placeholder="Zonas" />
+        <datalist id="listazonas">
+          <template x-for="item in zonas">
+            <option :value="item"></option>
+          </template>
+        </datalist>
       </div>
     </div>
     <div class="columns">
@@ -112,11 +117,12 @@
 	pattern="^(\d){3,5}$">
       </div>
       <div class="column is-2">
-	    <div class="grid col-1 gap-0">
-	      <input type="text" class="input mb-1" x-model="venta.p" id="searchPeriodicidad" autocomplete="off" required
-		     pattern="^(mensual|quincenal|semanal)$" placeholder="Periodicidad">
-		  <div id="suggestionsPeriodicidad" class="suggestions"></div>
-	    </div>
+        <input type="text" list="listaperiodicidad" class="input mb-1" x-model="venta.p" required placeholder="periodicidad" />
+        <datalist id="listaperiodicidad">
+          <template x-for="item in ['mensual','quincenal','semanal']">
+            <option :value="item"></option>
+          </template>
+        </datalist>
       </div>
       <div class="column is-2">
         <input type="date" x-model="venta.primera" size=12 class="input"  @blur="validaFecha(venta.primera)" required>
@@ -138,13 +144,13 @@
      pattern="^(\d){1}$">
    </div>
    <div class="column is-8">
-	 <div class="grid col-1 gap-0">
-	   <input type="text" class="input mb-1" x-model="detallevta.art" id="searchArt" autocomplete="off"
-		  placeholder="Articulo" required>
-	   <div id="suggestionsArt" class="suggestions"></div>
-	 </div>
+     <input type="text" list="listaarticulos" class="input mb-1" x-model="detallevta.art" required placeholder="Articulo" />
+     <datalist id="listaarticulos">
+       <template x-for="item in articulos">
+         <option :value="item"></option>
+       </template>
+     </datalist>
    </div>
-
     <div class="column is-2">
       <input type="text" x-model="detallevta.ic" size=5 class="input" placeholder="cuota" required
       pattern="^(\d){3,5}$">
@@ -209,8 +215,8 @@
       barrios:[],
       zonas:[],
       cliente:{id:'',sex:'',dni:'',calle:'', barrio:'', zona:'',acla:'', tel:'',wapp:'',mjecobr:'',horario:'',infoseven:''},
-      venta:{p:'', id:'', ant:''},
-      detallevta:{art:''},
+      venta:{p:'', id:'', ant:'', fecha:'', idvdor:'', cc:'', ic:'',primera:''},
+      detallevta:{art:'', cnt:'', ic:''},
       selected: null,
       periodicidad:['mensual','quincenal','semanal'],
 
@@ -232,28 +238,21 @@
                   this.$refs.sex.focus()
          },
          obtenerCalles(){
-             autoComplete('/ventas/getcalles','searchCalle','suggestionsCalle')
 	     axios.get('/ventas/getcalles')
 		  .then(res=>{this.calles=res.data.result})
          },
          obtenerBarrios(){
-             autoComplete('/ventas/getbarrios','searchBarrio','suggestionsBarrio')
 	     axios.get('/ventas/getbarrios')
 		  .then(res=>{this.barrios=res.data.result})
         },
          obtenerZonas(){
-	     autoComplete('/ventas/getzonas','searchZona','suggestionsZona')
              axios.get('/ventas/getzonas')
 		  .then(res=>{this.zonas=res.data.result})
          },
          obtenerArt(){
-             autoComplete('/ventas/getarticulos','searchArt','suggestionsArt')
              axios.get('/ventas/getarticulos')
 		  .then(res=>this.articulos=res.data.result)
 	 },
-         obtenerPeriodicidad(){
-             autoComplete('/ventas/getperiodicidad','searchPeriodicidad','suggestionsPeriodicidad')
-         },
       nuevoCliente(){
         this.buscar=''
         this.cliente={id:'', sex:'',dni:'',calle:'', barrio:'', zona:'',acla:'', tel:'',wapp:'',mjecobr:'',horario:'',infoseven:''}
@@ -267,14 +266,18 @@
         this.detallevta={art:''}
       },
       validarCliente(){
-          if(this.cliente.sex!=''&&this.cliente.dni!=''&&this.cliente.nombre!=''&&this.cliente.calle!=''
-             &&this.cliente.num!=''&&this.cliente.barrio!=''&&this.cliente.zona!=''&&(this.cliente.sex=='M'||
-	     this.cliente.sex=='F')&&this.calles.includes(this.cliente.calle)&&this.barrios.includes(this.cliente.barrio)
-	     &&this.zonas.includes(this.cliente.zona)){
+          if(this.cliente.sex=='') {msgError('Complete los datos:','Falta poner sexo');return}
+          if(this.cliente.sex!='F'&& this.cliente.sex!='M') {msgError('Corrija los datos:','Sexo solo admite M o F');return}
+          if(this.cliente.dni=='') {msgError('Complete los datos:','Falta poner dni');return}
+          if(this.cliente.nombre=='') {msgError('Complete los datos:','Falta poner nombre');return}
+          if(this.cliente.calle=='') {msgError('Complete los datos:','Falta poner calle');return}
+          if(!this.calles.includes(this.cliente.calle)) {msgError('Corrija los datos:','La calle no se encuentra en la base de datos');return}
+          if(this.cliente.num=='') {msgError('Complete los datos:','Falta poner num');return}
+          if(this.cliente.barrio=='') {msgError('Complete los datos:','Falta poner barrio');return}
+          if(!this.barrios.includes(this.cliente.barrio)) {msgError('Corrija los datos:','El barrio no se encuentra en la base de datos');return}
+          if(this.cliente.zona=='') {msgError('Complete los datos:','Falta poner zona');return}
+          if(!this.zonas.includes(this.cliente.zona)) {msgError('Corrija los datos:','La zona no se encuentra en la base de datos');return}
           this.guardarCliente()
-        }else{
-            msgError('Complete o corrija los datos minimos requeridos')
-        }
       },
       guardarCliente(){
             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
@@ -288,18 +291,20 @@
                 })
       },
       validarVenta(){
-          if(this.venta.fecha!=''&&this.venta.idvdor!=''&&this.venta.cc!=''&&this.venta.ic!=''&&
-             this.venta.p!=''&&this.venta.primera!=''&&this.validaFecha(this.venta.primera)&&
-             (this.venta.p=='mensual'||this.venta.p=='quincenal'||this.venta.p=='semanal')){
+          if(this.venta.fecha==''){msgError('Complete datos faltantes:','Falta fecha');return}
+          if(this.venta.idvdor==''){msgError('Complete datos faltantes:','Falta cod Vendedor');return}
+          if(this.venta.cc==''){msgError('Complete datos faltantes:','Falta Cant de cuotas');return}
+          if(Number(this.venta.cc)>12){msgError('Corrija datos:','La cantidad de cuotas no puede ser mayor a 12');return}
+          if(this.venta.ic==''){msgError('Complete datos faltantes:','Falta Importe de cuota');return}
+          if(!(this.venta.p=='mensual'||this.venta.p=='quincenal'||this.venta.p=='semanal')){msgError('Corrija datos:',
+                                                                                                      'La periodicidad puede ser mensual,quincenal o semanal');return}
+          if(!this.validaFecha(this.venta.primera)){msgError('Corrija datos:','La fecha esta en un rango invalido');return}
           this.guardarVenta()
-        }else{
-            msgError('Complete o corrija los datos minimos requeridos')
-        }
       },
-      guardarVenta(){
-            this.venta.idcliente = this.cliente.id
-            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-            axios.post('/ventas/guardarventa',this.venta)
+         guardarVenta(){
+             this.venta.idcliente = this.cliente.id
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/ventas/guardarventa',this.venta)
                 .then(res=>{
                     msgSuccess('Venta creada con exito')
                   this.venta.id=res.data.idvta
@@ -309,12 +314,10 @@
                 })
       },
       validarDetalleVta(){
-          if(this.detallevta.cnt!=''&&this.detallevta.art!=''&&this.detallevta.ic!=''
-	  && this.articulos.includes(this.detallevta.art)){
+          if(this.detallevta.cnt==''){msgError('Complete datos:','Ponga la cantidad de articulos');return}
+          if(!this.articulos.includes(this.detallevta.art)){msgError('Corrija datos:','El articulo no esta en la base de datos');return}
+          if(this.detallevta.ic==''){msgError('Complete datos:','Ponga el importe de cuota');return}
           this.guardarDetalleVta()
-        }else{
-            msgError('Complete los datos minimos requeridos')
-        }
       },
       guardarDetalleVta(){
         this.detallevta.idvta = this.venta.id
