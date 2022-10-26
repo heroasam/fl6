@@ -515,7 +515,7 @@ def buscador_cargarasunto():
 def buscador_obtenerlistacalles():
     con = get_con()
     calles = pglflat(con, 'select calle from calles order by calle')
-    return jsonify(calles=calles)
+    return jsonify(result=calles)
 
 
 @buscador.route('/buscador/mostrarcalle/<string:calle>')

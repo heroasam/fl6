@@ -247,7 +247,9 @@
         },
          obtenerZonas(){
              axios.get('/ventas/getzonas')
-		  .then(res=>{this.zonas=res.data.result})
+		          .then(res=>{this.zonas=res.data.result
+                      this.zonas = this.zonas.filter(row=>!row.includes('-'))
+                  })
          },
          obtenerArt(){
              axios.get('/ventas/getarticulos')

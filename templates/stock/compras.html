@@ -39,10 +39,13 @@
       <div class="control">
         <input type="text" x-model="Compra.cnt" class="input" placeholder="Cantidad" size="5" x-ref="cnt">
       </div>
-      <div class="control">
-		<input type="text" class="input mb-1" x-model="Compra.art" id="searchArticulo" autocomplete="off">
-		<div id="suggestionsArticulo" class="suggestions"></div>
-      </div>
+      <input type="text" list="listaarticulos" class="input mb-1" x-model="Compra.art"  placeholder="Articulo" />
+      <datalist id="listaarticulos">
+        <template x-for="item in articulos">
+          <option :value="item"></option>
+        </template>
+      </datalist>
+
       <div class="control">
         <input type="text" x-model="Compra.costo" class="input" size="5" placeholder="Costo"
                @blur="Compra.total=parseInt(Compra.cnt)*parseInt(Compra.costo)">
@@ -186,37 +189,11 @@ function main(){
                                                                      msgError('No procesado. ¿Existe el articulo?')
                                                                  })
          },
-         /* obtenerArt(){
-          *     axios.get('/stock/getlistaarticulos')
-          *          .then(res=>{
-          *              const articulos = res.data.articulos
-          *              const $input = document.getElementById('searchArt')
-          *              const $suggestions = document.getElementById('suggestionsArt')
-          *              $input.addEventListener('keyup',(e)=>{
-			const input = $input.value
-			$suggestions.innerHTML='';
-			const suggestions = articulos.filter(art=>{
-          *                      return art.art.toLocaleLowerCase().includes(input.toLocaleLowerCase())
-			})
-			suggestions.forEach(suggested=>{
-          *                      const $div = document.createElement('div');
-          *                      $div.innerHTML = suggested.art;
-          *                      $suggestions.appendChild($div)
-			})
-			if(input==='') $suggestions.innerHTML=''
-			if(e.key==='Enter'){
-          *                      this.Compra.art = $suggestions.firstChild.innerHTML
-          *                      $suggestions.innerHTML=''
-			}
-          *              })
-          *              $suggestions.addEventListener('click',(e)=>{
-          *                  this.Compra.art=e.target.innerHTML
-          *                  $suggestions.innerHTML=''
-          *              })
-          *          })
-          * }, */
          obtenerArt(){
-             autoComplete('/stock/getarticulos','searchArticulo', 'suggestionsArticulo')
+             axios.get('/stock/getarticulos')
+                  .then(res=>{
+                      this.articulos = res.data.result
+             })
          },
      }
  }

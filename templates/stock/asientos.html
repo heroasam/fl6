@@ -9,18 +9,18 @@
 {% block content %}
 
 <div class="container" x-data="main()" x-init="getAsientos();obtenerCuentas()">
-<div class="columns">
+  <div class="columns">
     <div class="column is-4">
-        <h1 class="title is-size-1">Asientos</h1>
+      <h1 class="title is-size-1">Asientos</h1>
     </div>
     <div class="column">
-        <h2 class="title is-size-1 pointer" x-text="'Caja $'+saldo" @click="aplicarFiltro('caja')"></h2>
+      <h2 class="title is-size-1 pointer" x-text="'Caja $'+saldo" @click="aplicarFiltro('caja')"></h2>
     </div>
     <div class="column">
-        <h2 class="title is-size-1 pointer" style="color:red;" x-text="'Santander $'+saldosantander" @click="aplicarFiltro('santander')"></h2>
+      <h2 class="title is-size-1 pointer" style="color:red;" x-text="'Santander $'+saldosantander" @click="aplicarFiltro('santander')"></h2>
     </div>
-</div>
-<div class="block">
+  </div>
+  <div class="block">
     <a href="/stock/mayor"  type="button" class="button is-primary">Mayor</a>
     <a href="/stock/pivotcuentas"  type="button" class="button is-primary">Pivot-Cuentas</a>
     <a href="/stock/retiros"  type="button" class="button is-primary">Retiros</a>
@@ -31,193 +31,171 @@
     <a href="/stock/proveedores"  type="button" class="button is-primary">Proveedores</a>
     <a href="/stock/cuentas"  type="button" class="button is-primary">Cuentas</a>
     <a href="/stock/cuadro"  type="button" class="button is-primary">Cuadro</a>
-</div>
-<div class="block">
-        <div class="field is-horizontal">
-            <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
-            <div class="control">
-                <input type="date" x-model="Asiento.fecha" class="input">
-            </div>
-            <div class="control">
-		<input type="text" class="input mb-1" x-model="Asiento.cuenta" id="searchCuenta" autocomplete="off"
-		@keyup.enter="$refs.imp.focus()">
-              <div id="suggestionsCuenta" class="suggestions"></div>
-            </div>
-            <div class="control">
-                <input type="text" x-model="Asiento.imp" class="input" size="5" placeholder="Imp" x-ref="imp"
-		@keyup.enter="$refs.comentario.focus()">
-            </div>
-            <div class="control">
-                <input type="text" x-model="Asiento.comentario" class="input" size="50" placeholder="Comentario" x-ref="comentario">
-            </div>
-            <div class="control">
-                <button type="button" class="button is-primary" @click="validarAsiento" id="guardar">Guardar</button>
-            </div>
-        </div>
-</div>
-  <table id="table" class="table is-narrow ">
-      <thead>
-          <tr>
-              <th>op</th>
-              <th>id</th>
-              <th>fecha</th>
-              <th>cuenta</th>
-              <th class="sumar numeric">imp</th>
-              <th>comentario</th>
-              <th>op</th>
-          </tr>
-      </thead>
-      <tbody>
-          <template x-for="asiento in listAsientos">
-                <tr>
-              <td><i class="fa fa-times" aria-hidden="true" @click="borrarAsiento(asiento.id)"></td>
-              <td x-text="asiento.id"></td>
-              <td :class="dia(asiento.fecha)" x-text="asiento.fecha"></td>
-              <td :class="asiento.cuenta.slice(0,9)=='santander'?'santander':''" x-text="asiento.cuenta" style="min-width:250px;"></td>
-              <td :class="asiento.imp<0?'negativo':''" x-text="asiento.imp" style="min-width:100px;" class="pesos"></td>
-              <td x-text="asiento.comentario"></td>
-              <td><i class="fa fa-pencil" aria-hidden="true" @click="editarComentarioAsiento(asiento.id)"></td>
-                </tr>
+  </div>
+  <div class="block">
+    <div class="field is-horizontal">
+      <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+      <div class="control">
+        <input type="date" x-model="Asiento.fecha" class="input">
+      </div>
+      <div class="control">
+        <input type="text" list="listacuentas" class="input mb-1" x-model="Asiento.cuenta"  placeholder="Cuenta" />
+        <datalist id="listacuentas">
+          <template x-for="item in cuentas">
+            <option :value="item"></option>
           </template>
-      </tbody>
-  </table>
-<!-- modal edicion de comentario de asiento -->
-
-    <div x-bind:class="verModalEdicionComentario?'xmodal-container':''">
-        <div class="xcard xmodal" x-show="verModalEdicionComentario">
-            <button class="btn-close" @click="verModalEdicionComentario=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-            <h3 class="title is-4" style="color:black;">Editar Comentario</h3>
-            <h4 class="title is-5" style="color:black;" x-text="'Asiento N°'+AsientoEdicion.id"></h4>
-            <textarea class="textarea mb-3" rows="4" x-model="AsientoEdicion.comentario"></textarea>
-            <button class="button is-primary" @click="guardarComentarioAsiento()">Guardar</button>
-        </div>
+        </datalist>
+      </div>
+      <div class="control">
+        <input type="text" x-model="Asiento.imp" class="input" size="5" placeholder="Imp" x-ref="imp"
+		             @keyup.enter="$refs.comentario.focus()">
+      </div>
+      <div class="control">
+        <input type="text" x-model="Asiento.comentario" class="input" size="50" placeholder="Comentario" x-ref="comentario">
+      </div>
+      <div class="control">
+        <button type="button" class="button is-primary" @click="validarAsiento" id="guardar">Guardar</button>
+      </div>
     </div>
+  </div>
+  <table id="table" class="table is-narrow ">
+    <thead>
+      <tr>
+        <th>op</th>
+        <th>id</th>
+        <th>fecha</th>
+        <th>cuenta</th>
+        <th class="sumar numeric">imp</th>
+        <th>comentario</th>
+        <th>op</th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="asiento in listAsientos">
+        <tr>
+          <td><i class="fa fa-times" aria-hidden="true" @click="borrarAsiento(asiento.id)"></td>
+            <td x-text="asiento.id"></td>
+            <td :class="dia(asiento.fecha)" x-text="asiento.fecha"></td>
+            <td :class="asiento.cuenta.slice(0,9)=='santander'?'santander':''" x-text="asiento.cuenta" style="min-width:250px;"></td>
+            <td :class="asiento.imp<0?'negativo':''" x-text="asiento.imp" style="min-width:100px;" class="pesos"></td>
+            <td x-text="asiento.comentario"></td>
+            <td><i class="fa fa-pencil" aria-hidden="true" @click="editarComentarioAsiento(asiento.id)"></td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
+  <!-- modal edicion de comentario de asiento -->
 
-    <!-- fin modal -->
+  <div x-bind:class="verModalEdicionComentario?'xmodal-container':''">
+    <div class="xcard xmodal" x-show="verModalEdicionComentario">
+      <button class="btn-close" @click="verModalEdicionComentario=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
+      <h3 class="title is-4" style="color:black;">Editar Comentario</h3>
+      <h4 class="title is-5" style="color:black;" x-text="'Asiento N°'+AsientoEdicion.id"></h4>
+      <textarea class="textarea mb-3" rows="4" x-model="AsientoEdicion.comentario"></textarea>
+      <button class="button is-primary" @click="guardarComentarioAsiento()">Guardar</button>
+    </div>
+  </div>
+
+  <!-- fin modal -->
 </div>
 
 {% endblock %}
 {% block script %}
 <script>
-    function main(){
-            return{
-        listAsientos:[],
-        listAsientos_:[],
-        saldo:0,
-        saldosantander:0,
-        Asiento:{fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',comentario:''},
-        AsientoEdicion:{},
-                /* cuentas:[], */
-        selected: null,
-        verModalEdicionComentario:false,
-        getAsientos(){
-            axios.get('/stock/getasientos')
-            .then(res=>{
-                this.listAsientos = res.data.asientos
-                this.listAsientos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
-                this.listAsientos_=this.listAsientos
-                this.saldo = res.data.saldo
-                this.saldosantander  =  res.data.saldosantander
-            })
-        },
-        borrarAsiento(id){
-            Asiento = this.listAsientos.filter(row=>row.id==id)[0]
-            Swal.fire({
-            title: '¿Esta seguro?',
-            text: `Afecta al asiento ${id} ${Asiento.cuenta} ${Asiento.imp}`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Si, borrarlo!'
-            }).then((result) => {
-            if (result.isConfirmed) {
-                axios.get('/stock/deleteasiento/'+id)
-                .then(res=>msgSuccess('Borrado!','El registro ha sido borrado'))
-                    this.getAsientos()
-                }})
-        },
-                /* getCuentas(){
-                 *     axios.get('/stock/getcuentas')
-                 *     .then(res=>{
-                 *         this.cuentas=res.data.cuentas
-                 *     })
-                 * }, */
-        validarAsiento(){
-            if(this.Asiento.fecha!=''&&this.Asiento.cuenta!=''&&this.Asiento.imp!=''){
-                this.guardarAsiento()
-            }else{
-                msgError('Error!','Complete los datos faltantes')
-            }
-        },
-        guardarAsiento(){
-            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-            axios.post('/stock/guardarasiento',this.Asiento)
-            .then(res=>{
-                this.getAsientos()
-                if(this.Asiento.cuenta.includes('santander')) {
-                    setTimeout(()=>{
-                    this.aplicarFiltro('santander')},600
-                    )
-                }
-                this.Asiento={fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',comentario:''},
-                msgSuccess('Exito!','Asiento guardado con exito')
-            })
-        },
-                editarComentarioAsiento(id){
-                    this.AsientoEdicion = this.listAsientos.filter(row=>row.id==id)[0];
-                    this.verModalEdicionComentario=true;
-                },
+ function main(){
+     return{
+         listAsientos:[],
+         listAsientos_:[],
+         cuentas:[],
+         saldo:0,
+         saldosantander:0,
+         Asiento:{fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',comentario:''},
+         AsientoEdicion:{},
+         /* cuentas:[], */
+         selected: null,
+         verModalEdicionComentario:false,
+         getAsientos(){
+             axios.get('/stock/getasientos')
+                  .then(res=>{
+                      this.listAsientos = res.data.asientos
+                      this.listAsientos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      this.listAsientos_=this.listAsientos
+                      this.saldo = res.data.saldo
+                      this.saldosantander  =  res.data.saldosantander
+                  })
+         },
+         borrarAsiento(id){
+             Asiento = this.listAsientos.filter(row=>row.id==id)[0]
+             Swal.fire({
+                 title: '¿Esta seguro?',
+                 text: `Afecta al asiento ${id} ${Asiento.cuenta} ${Asiento.imp}`,
+                 icon: 'warning',
+                 showCancelButton: true,
+                 confirmButtonColor: '#3085d6',
+                 cancelButtonColor: '#d33',
+                 confirmButtonText: 'Si, borrarlo!'
+             }).then((result) => {
+                 if (result.isConfirmed) {
+                     axios.get('/stock/deleteasiento/'+id)
+                          .then(res=>msgSuccess('Borrado!','El registro ha sido borrado'))
+                     this.getAsientos()
+             }})
+         },
+         /* getCuentas(){
+          *     axios.get('/stock/getcuentas')
+          *     .then(res=>{
+          *         this.cuentas=res.data.cuentas
+          *     })
+          * }, */
+         validarAsiento(){
+             if(this.Asiento.fecha!=''&&this.Asiento.cuenta!=''&&this.Asiento.imp!=''){
+                 this.guardarAsiento()
+             }else{
+                 msgError('Error!','Complete los datos faltantes')
+             }
+         },
+         guardarAsiento(){
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/stock/guardarasiento',this.Asiento)
+                                                                 .then(res=>{
+                                                                     this.getAsientos()
+                                                                     if(this.Asiento.cuenta.includes('santander')) {
+                                                                         setTimeout(()=>{
+                                                                             this.aplicarFiltro('santander')},600
+                                                                         )
+                                                                     }
+                                                                     this.Asiento={fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',comentario:''},
+                                                                     msgSuccess('Exito!','Asiento guardado con exito')
+                                                                 })
+         },
+         editarComentarioAsiento(id){
+             this.AsientoEdicion = this.listAsientos.filter(row=>row.id==id)[0];
+             this.verModalEdicionComentario=true;
+         },
 
-                guardarComentarioAsiento(){
-            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                    axios.post('/stock/editarcomentarioasiento',this.AsientoEdicion)
-                                                                .then(res=>{
-                                                                    this.getAsientos()
-                                                                    this.verModalEdicionComentario=false
-                                                                    msgSuccess('Edicion Exitosa')
-                                                                })},
-                aplicarFiltro(tipo){
-                    if(tipo=='santander'){
-                        this.listAsientos = this.listAsientos_.filter(row=>row.cuenta.includes('santander'))
-                    }else{
-                        this.listAsientos = this.listAsientos_.filter(row=>!row.cuenta.includes('santander'))
-                    }
-                },
-                /* obtenerCuentas(){
-                 *             axios.get('/stock/getcuentas')
-                 *             .then(res=>{
-                 *                 const cuenta = res.data.cuentas
-                 *                 const $input = document.getElementById('searchCuenta')
-                 *                 const $suggestions = document.getElementById('suggestionsCuenta')
-                 *                 $input.addEventListener('keyup',(e)=>{
-                 *                 const input = $input.value
-                 *                 $suggestions.innerHTML='';
-                 *                 const suggestions = cuenta.filter(cuenta=>{
-                 *                     return cuenta.toLocaleLowerCase().includes(input.toLocaleLowerCase())
-                 *                 })
-                 *                 suggestions.forEach(suggested=>{
-                 *                     const $div = document.createElement('div');
-                 *                     $div.innerHTML = suggested;
-                 *                     $suggestions.appendChild($div)
-                 *                 })
-                 *                 if(input==='') $suggestions.innerHTML=''
-                 *                 if(e.key==='Enter'){
-                 *                     this.Asiento.cuenta = $suggestions.firstChild.innerHTML
-                 *                     $suggestions.innerHTML=''
-                 *                 }
-                 *                 })
-                 *                 $suggestions.addEventListener('click',(e)=>{
-                 *                     this.Asiento.cuenta=e.target.innerHTML
-                 *                     $suggestions.innerHTML=''
-                 *                 })
-                 *                 })
-                 *             }, */
-                obtenerCuentas(){
-                    autoComplete('/stock/getcuentas','searchCuenta','suggestionsCuenta')
-                },
-    }
-}
+         guardarComentarioAsiento(){
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/stock/editarcomentarioasiento',this.AsientoEdicion)
+                                                                 .then(res=>{
+                                                                     this.getAsientos()
+                                                                     this.verModalEdicionComentario=false
+                                                                     msgSuccess('Edicion Exitosa')
+         })},
+         aplicarFiltro(tipo){
+             if(tipo=='santander'){
+                 this.listAsientos = this.listAsientos_.filter(row=>row.cuenta.includes('santander'))
+             }else{
+                 this.listAsientos = this.listAsientos_.filter(row=>!row.cuenta.includes('santander'))
+             }
+         },
+         obtenerCuentas(){
+             axios.get('/stock/getcuentas')
+                  .then(res=>{
+                      this.cuentas = res.data.result
+                  })
+         },
+     }
+ }
 
 </script>
 {% endblock %}

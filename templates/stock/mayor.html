@@ -28,11 +28,14 @@
   </div>
   <div class="block">
 	<div class="grid-buscar  mr-3 mt-2 center">
-      <div class="grid col-1 gap-0">
-        <input type="search" placeholder="Busca por: Cuenta" class="input" x-model="buscar"
-		       @focus="buscar=''" @keyup.enter="getAsientos(buscar)" autofocus id="searchCuenta">
-		<div id="suggestionsCuenta" class="suggestions"></div>
-      </div>
+      <input type="text" list="listacuentas" class="input mb-1" x-model="buscar"  placeholder="Busca por: Cuenta"
+             @focus="buscar=''" @keyup.enter="getAsientos(buscar)" autofocus id="searchCuenta"/>
+      <datalist id="listacuentas">
+        <template x-for="item in cuentas">
+          <option :value="item"></option>
+        </template>
+      </datalist>
+
       <button type="button" @click="getAsientos(buscar)" class="button is-primary">Buscar</button>
 	</div>
   </div>
@@ -104,37 +107,11 @@
                           })
              }})
          },
-         /* obtenerCuentas(){
-          *     axios.get('/stock/getcuentas')
-          *          .then(res=>{
-          *              const cuentas = res.data.cuentas
-          *              const $input = document.getElementById('searchCuenta')
-          *              const $suggestions = document.getElementById('suggestionsCuenta')
-          *              $input.addEventListener('keyup',(e)=>{
-			const input = $input.value
-			$suggestions.innerHTML='';
-			const suggestions = cuentas.filter(cuenta=>{
-          *                      return cuenta.toLocaleLowerCase().includes(input.toLocaleLowerCase())
-			})
-			suggestions.forEach(suggested=>{
-          *                      const $div = document.createElement('div');
-          *                      $div.innerHTML = suggested;
-          *                      $suggestions.appendChild($div)
-			})
-			if(input==='') $suggestions.innerHTML=''
-			if(e.key==='Enter'){
-          *                      this.buscar = $suggestions.firstChild.innerHTML
-          *                      $suggestions.innerHTML=''
-			}
-          *              })
-          *              $suggestions.addEventListener('click',(e)=>{
-          *                  this.buscar=e.target.innerHTML
-          *                  $suggestions.innerHTML=''
-          *              })
-          *          })
-          * }, */
          obtenerCuentas(){
-             autoComplete('/stock/getcuentas','searchCuenta','suggestionsCuenta')
+             axios.get('/stock/getcuentas')
+                  .then(res=>{
+                      this.cuentas = res.data.result
+             })
          },
      }
  }

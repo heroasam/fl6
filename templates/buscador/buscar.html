@@ -2,7 +2,7 @@
 
 {% block title %}Clientes{% endblock %}
 {% block content %}
-<div x-data="main()"  class="container" x-init="obtenerCalles();obtenerCalles1();obtenerBarrios();obtenerZonas();obtenerCobradores();
+<div x-data="main()"  class="container" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores();
                                                 getInflacion();autoLoad()">
 
     <div>
@@ -21,11 +21,15 @@
             </datalist>
             <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
 	</div>
-        <div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
-	    <div class="grid col-1 gap-0">
-		<input type="text" class="input mb-1" x-model="calleMostrada" id="searchCalle" autocomplete="off">
-		<div id="suggestionsCalle" class="suggestions"></div>
-	    </div>
+    <div class="grid-buscar ml-3 mr-3 mt-2">
+      <!-- x-show="isMobileDevice"> -->
+        <input type="text" list="listacalles" class="input mb-1" x-model="calleMostrada" required placeholder="Calle" />
+        <datalist id="listacalles">
+          <template x-for="item in calles">
+            <option :value="item"></option>
+          </template>
+        </datalist>
+
 	    <button type="button" @click="mostrarCalle" class="button is-primary">Mostrar</button>
         </div>
     </div>
@@ -444,22 +448,29 @@
             <input type="text" class="input mb-1" x-model="Cliente.dni">
             <input type="text" class="input mb-1" x-model="Cliente.nombre">
 
-            <div class="grid col-1 gap-0">
-		<input type="text" class="input mb-1" x-model="Cliente.calle" id="searchCalle1" autocomplete="off">
-		<div id="suggestionsCalle1" class="suggestions"></div>
-            </div>
+            <input type="text" list="listacalles" class="input mb-1" x-model="Cliente.calle" required placeholder="Calle" />
+            <datalist id="listacalles">
+              <template x-for="item in calles">
+                <option :value="item"></option>
+              </template>
+            </datalist>
 
             <input type="text" class="input mb-1" x-model="Cliente.num">
 
-            <div class="grid col-1 gap-0">
-              <input type="text" class="input mb-1" x-model="Cliente.barrio" id="searchBarrio" autocomplete="off">
-                <div id="suggestionsBarrio" class="suggestions"></div>
-            </div>
+            <input type="text" list="listabarrios" class="input mb-1" x-model="Cliente.barrio" required placeholder="Barrio" />
+            <datalist id="listabarrios">
+              <template x-for="item in barrios">
+                <option :value="item"></option>
+              </template>
+            </datalist>
 
-            <div class="grid col-1 gap-0">
-                <input type="text" class="input mb-1" x-model="Cliente.zona" id="searchZona" autocomplete="off">
-                <div id="suggestionsZona" class="suggestions"></div>
-            </div>
+            <input type="text" list="listazonas" class="input mb-1" x-model="Cliente.zona" required placeholder="Zonas" />
+            <datalist id="listazonas">
+              <template x-for="item in zonas">
+                <option :value="item"></option>
+              </template>
+            </datalist>
+
 
             <input type="text" class="input mb-1" x-model="Cliente.tel" placeholder="telefono">
             <input type="text" class="input mb-1" x-model="Cliente.wapp" placeholder="wapp">
@@ -592,7 +603,6 @@
 
 {% block script %}
 <script>
-
  function textToClipboard (text) {
      var dummy = document.createElement("textarea");
      document.body.appendChild(dummy);
@@ -604,6 +614,9 @@
  function main(){
      return{
          calle:'',
+         calles:[],
+         barrios:[],
+         zonas:[],
          DatosCalle:[],
          listaClientes:[],
 	     listaClientes_:[],
@@ -922,128 +935,24 @@
 								     msgError('Error',error.request.response)
 								 })
          },
-         /* obtenerCalles(){
-          *     axios.get('/buscador/obtenerlistadocalles')
-          *          .then(res=>{
-          *              const calles = res.data.calles
-          *              const $input = document.getElementById('searchCalle')
-          *              const $input1 = document.getElementById('searchCalle1')
-          *              const $suggestions = document.getElementById('suggestionsCalle')
-          *              const $suggestions1 = document.getElementById('suggestionsCalle1')
-          *              $input.addEventListener('keyup',(e)=>{
-			const input = $input.value
-			$suggestions.innerHTML='';
-			const suggestions = calles.filter(calle=>{
-          *                      return calle.calle.toLocaleLowerCase().includes(input.toLocaleLowerCase())
-			})
-			suggestions.forEach(suggested=>{
-          *                      const $div = document.createElement('div');
-          *                      $div.innerHTML = suggested.calle;
-          *                      $suggestions.appendChild($div)
-			})
-			if(input==='') $suggestions.innerHTML=''
-			if(e.key==='Enter'){
-          *                      this.calleMostrada = $suggestions.firstChild.innerHTML
-          *                      $suggestions.innerHTML=''
-			}
-          *              })
-          *              $suggestions.addEventListener('click',(e)=>{
-          *                  this.calleMostrada=e.target.innerHTML
-          *                  $suggestions.innerHTML=''
-          *              })
-          *              $input1.addEventListener('keyup',(e)=>{
-			const input = $input1.value
-			$suggestions1.innerHTML='';
-			const suggestions = calles.filter(calle=>{
-          *                      return calle.calle.toLocaleLowerCase().includes(input.toLocaleLowerCase())
-			})
-			suggestions.forEach(suggested=>{
-          *                      const $div = document.createElement('div');
-          *                      $div.innerHTML = suggested.calle;
-          *                      $suggestions1.appendChild($div)
-			})
-			if(input==='') $suggestions1.innerHTML=''
-			if(e.key==='Enter'){
-          *                      this.Cliente.calle = $suggestions1.firstChild.innerHTML
-          *                      $suggestions1.innerHTML=''
-			}
-          *              })
-          *              $suggestions1.addEventListener('click',(e)=>{
-          *                  this.Cliente.calle=e.target.innerHTML
-          *                  $suggestions1.innerHTML=''
-          *              })
-          *          })
-          * }, */
-         /* obtenerBarrios(){
-          *     axios.get('/buscador/obtenerlistabarrios')
-          *          .then(res=>{
-          *              const barrios = res.data.barrios
-          *              const $input = document.getElementById('searchBarrio')
-          *              const $suggestions = document.getElementById('suggestionsBarrio')
-          *              $input.addEventListener('keyup',(e)=>{
-			const input = $input.value
-			$suggestions.innerHTML='';
-			const suggestions = barrios.filter(barrio=>{
-          *                      return barrio.toLocaleLowerCase().includes(input.toLocaleLowerCase())
-			})
-			suggestions.forEach(suggested=>{
-          *                      const $div = document.createElement('div');
-          *                      $div.innerHTML = suggested;
-          *                      $suggestions.appendChild($div)
-			})
-			if(input==='') $suggestions.innerHTML=''
-			if(e.key==='Enter'){
-          *                      this.Cliente.barrio = $suggestions.firstChild.innerHTML
-          *                      $suggestions.innerHTML=''
-			}
-          *              })
-          *              $suggestions.addEventListener('click',(e)=>{
-          *                  this.Cliente.barrio=e.target.innerHTML
-          *                  $suggestions.innerHTML=''
-          *              })
-          *          })
-          * }, */
          obtenerCalles(){
-             autoComplete('/buscador/obtenerlistadocalles','searchCalle','suggestionsCalle')
-         },
-         obtenerCalles1(){
-             autoComplete('/buscador/obtenerlistadocalles','searchCalle1','suggestionsCalle1')
+             axios.get('/buscador/obtenerlistacalles')
+                  .then(res=>{
+                      this.calles = res.data.result
+             })
          },
          obtenerBarrios(){
-             autoComplete('/buscador/obtenerlistabarrios','searchBarrio','suggestionsBarrio')
+                          axios.get('/buscador/obtenerlistabarrios')
+                  .then(res=>{
+                      this.barrios = res.data.result
+                  })
          },
          obtenerZonas(){
-             autoComplete('/buscador/obtenerlistazonas','searchZona','suggestionsZona')
+                          axios.get('/buscador/obtenerlistazonas')
+                  .then(res=>{
+                      this.zonas = res.data.result
+                  })
          },
-         /* obtenerZonas(){
-          *     axios.get('/buscador/obtenerlistazonas')
-          *          .then(res=>{
-          *              const zonas = res.data.zonas
-          *              const $input = document.getElementById('searchZona')
-          *              const $suggestions = document.getElementById('suggestionsZona')
-          *              $input.addEventListener('keyup',(e)=>{
-			const input = $input.value
-			$suggestions.innerHTML='';
-			const suggestions = zonas.filter(zona=>{
-          *                      return zona.zona.toLocaleLowerCase().includes(input.toLocaleLowerCase())
-			})
-			suggestions.forEach(suggested=>{
-          *                      const $div = document.createElement('div');
-          *                      $div.innerHTML = suggested.zona;
-          *                      $suggestions.appendChild($div)
-			})
-			if(input==='') $suggestions.innerHTML=''
-			if(e.key==='Enter'){
-          *                      this.Cliente.zona = $suggestions.firstChild.innerHTML
-          *                      $suggestions.innerHTML=''
-			}
-          *              })
-          *              $suggestions.addEventListener('click',(e)=>{
-          *                  this.Cliente.zona=e.target.innerHTML
-          *                  $suggestions.innerHTML=''
-          *              })
-          *          })
-          * }, */
          obtenerCobradores(){
              axios.get('/buscador/obtenercobradores')
                   .then(res=>{
