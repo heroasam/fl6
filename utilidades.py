@@ -92,6 +92,5 @@ def utilidades_getdocumentos(desde,hasta):
 def utilidades_imprimirlistadocumentos():
     con = get_con()
     lista_documentos = json.loads(request.data.decode("UTF-8"))
-    print(lista_documentos)
     listadocumentos(con, lista_documentos)
     return send_file('/home/hero/documentos/listadocumentos.pdf')

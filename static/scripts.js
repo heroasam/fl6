@@ -348,6 +348,13 @@ function msgError(title, text, timer=3000) {
 	icon: 'error',
 	timer:timer});
 }
+function msgWarning(title, text, timer=3000) {
+    Swal.fire({
+	title: title,
+	text: text,
+	icon: 'warning',
+	timer:timer});
+}
 function msgDelay(text) {
     Swal.fire({
 	title: 'Aguarde...',

@@ -403,3 +403,15 @@ thead th {
      font-size: 1.2em;
      vertical-align: center;
  }
+  .ultpago60{
+     background-color: lightyellow;
+     color: black;
+ }
+ .ultpago60campo{
+     background-color: #8B0808;
+     color:white;
+ }
+ .wapp{
+     background-color: darkgreen;
+     color: white;
+ }
