@@ -523,3 +523,19 @@ def imprimir_stock(con, stock):
             pdf.cell(20,12,item['stock'],1,0,'C')
             pdf.cell(40,12,'',1,1)
     pdf.output("/home/hero/stock.pdf")
+
+def listadocumentos(con, lista):
+    """Imprimo lista documentos para purgar."""
+    pdf=FPDF('P','mm','A4')
+    pdf.set_margins(10,10)
+    pdf.add_page()
+    pdf.set_font("Helvetica","",10)
+    pdf.set_font_size(12)
+    pdf.cell(0,10,'LISTADO DE DOCUMENTOS A CONSERVAR CON DEUDA',0,1,'C')
+    pdf.set_font_size(10)
+    for row in lista:
+        pdf.cell(30,10,str(row['id']),0,0,'C')
+        pdf.cell(80,10,row['nombre'],0,0,'L')
+        pdf.cell(60,10,row['direccion'],0,0,'L')
+        pdf.cell(30,10,str(row['saldo']),0,1,'C')
+    pdf.output("/home/hero/documentos/listadocumentos.pdf")

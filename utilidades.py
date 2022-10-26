@@ -7,6 +7,7 @@ import simplejson as json
 import mysql.connector
 import os
 import glob
+from formularios import listadocumentos
 
 
 utilidades = Blueprint('utilidades',__name__)
@@ -69,3 +70,28 @@ def utilidades_imprimirpdfsistema(pdf):
 @login_required
 def utilidades_contador():
     return render_template('/utilidades/contador.html')
+
+
+@utilidades.route('/utilidades/documentos')
+@login_required
+def utilidades_documentos():
+    return render_template('/utilidades/documentos.html')
+
+
+@utilidades.route('/utilidades/getdocumentos/<int:desde>/<int:hasta>')
+def utilidades_getdocumentos(desde,hasta):
+    con = get_con()
+    documentos = pgdict(con, f"select ventas.id as id,nombre,concat\
+    (calle,' ',num) as direccion, saldo from ventas,clientes where \
+    ventas.idcliente=clientes.id and ventas.id>={desde} and ventas.id\
+    <={hasta} and saldo>0")
+    return jsonify(documentos=documentos)
+
+
+@utilidades.route('/utilidades/imprimirlistadocumentos',   methods=["POST"])
+def utilidades_imprimirlistadocumentos():
+    con = get_con()
+    lista_documentos = json.loads(request.data.decode("UTF-8"))
+    print(lista_documentos)
+    listadocumentos(con, lista_documentos)
+    return send_file('/home/hero/documentos/listadocumentos.pdf')
