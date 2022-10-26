@@ -155,6 +155,7 @@ endblock %} {% block style %}
          },
          muestraClientes(tipo,zona) {
              limpiarTabla('table');
+             this.cntSeleccionados = 0
              this.ultimotipo = tipo
              this.ultimazona = zona
              axios.get("/fichas/muestraclientes/"+ tipo +'/'+ zona).then((res) => {

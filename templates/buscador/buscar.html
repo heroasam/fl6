@@ -21,9 +21,8 @@
             </datalist>
             <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
 	</div>
-    <div class="grid-buscar ml-3 mr-3 mt-2">
-      <!-- x-show="isMobileDevice"> -->
-        <input type="text" list="listacalles" class="input mb-1" x-model="calleMostrada" required placeholder="Calle" />
+    <div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
+      <input type="text" list="listacalles" class="input mb-1" x-model="calleMostrada" required placeholder="Calle" />
         <datalist id="listacalles">
           <template x-for="item in calles">
             <option :value="item"></option>
