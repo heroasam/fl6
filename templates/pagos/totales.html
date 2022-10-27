@@ -13,7 +13,6 @@
 
 <div class="container" x-data="main()" x-init="getInflacion()">
 
-  <p class="title is-1">Totales Cobrados</p>
 
   <div class="buttons">
     <a href="/pagos" class="button is-primary">Pagos</a>
@@ -27,6 +26,7 @@
     <a href="/pagos/altas" class="button is-primary">Altas</a>
     <a href="/pagos/bajas" class="button is-primary">Bajas</a>
   </div>
+  <p class="title is-1">Totales Cobrados</p>
 
   {{tbl|safe}}
   <div class="is-6">
