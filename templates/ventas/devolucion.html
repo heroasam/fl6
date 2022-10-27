@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Devoluciones{% endblock %}
-    
+
 {% block style %}
 <style>
 .grid-buscar{
@@ -40,7 +40,7 @@
 </style>
 {% endblock %}
 {% block content %}
-    
+
 <div class="container">
 <p class="title is-1">Devoluciones</p>
 <div class="buttons">
@@ -55,7 +55,7 @@
     <a href="/ventas/pordia" class="button is-primary">Ventas</a>
     <a href="/ventas/pivotdevoluciones" class="button is-primary">Pivot-Devol.</a>
 </div>
-    
+
 <div x-data="main()" x-init="obtenerArticulos()">
 	<div class="field">
 	    <div class="control">
@@ -103,7 +103,7 @@
 	</table>
 	<button class="button is-success" @click="agregarArticulo">Agregar Articulo</button>
 	<button class="button is-danger" @click="procesarDevolucion">Procesar Devolucion</button>
-	
+
 	<!-- Ventana modal de agregado de detalle de venta -->
     <div x-bind:class="verModalAgregar?'modal-container':''">
         <div class=" micard modal" x-show="verModalAgregar">
@@ -188,13 +188,10 @@
 			cc:this.cc,
 			imp:this.imp,
 		}})
-		.then(res=>{
-		    bulmaToast.toast({
-			message: 'Devolucion procesada con exito',
-			type: 'is-success'
-		    })
-		})
-		},
+                                                                    .then(res=>{
+                                                                        msgSuccess('Devolucion procesada con exito')
+		                                                            })
+        },
         guardarAgregar(cnt,art,ic){
                 axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 		axios({
@@ -207,21 +204,17 @@
 			ic,
             cc:this.cc,
 		}})
-		.then(res=>{
-		    bulmaToast.toast({
-			message: 'Articulo agregado con exito',
-			type: 'is-success'
-		    })
+		                                                            .then(res=>{
+                                                                        msgSuccess('Articulo agregado con exito')
             this.verModalAgregar=false
             this.buscarCliente()
 		})
         },
 
-	   
-	    
+
+
 	}
     }
 
 </script>
 {% endblock %}
-    

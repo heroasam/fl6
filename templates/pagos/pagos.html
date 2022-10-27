@@ -177,10 +177,9 @@
                 validatePasarPagos(){
                         if(this.Pagos.imp&&this.Pagos.rbo&&this.Pagos.cobr&&this.Pagos.fecha){
                                 this.procesarPagos()
-                            }else{bulmaToast.toast({
-                                    message:'Complete los datos faltantes',
-                                    type: 'is-danger'
-                                })}
+                        }else{
+                            msgError('Complete los datos faltantes')
+}
                     },
                 procesarPagos(){
                         this.Pagos.idvta = this.Venta.id
@@ -205,11 +204,8 @@
                     const borrar = confirm("¿Esta seguro que quiere borrar este pago?")
                     if(borrar){
                     axios.get('/pagos/borrarpago/'+idpago)
-                            .then(res=>{
-                                    bulmaToast.toast({
-                                            message:'Registro borrado',
-                                            type:'is-success'
-                                        })
+                         .then(res=>{
+                             msgSuccess('Registro borrado con exito')
                                     this.cargarListado()
                                 })
                     }

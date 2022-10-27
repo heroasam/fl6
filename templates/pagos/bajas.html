@@ -107,18 +107,12 @@
                         url: '/pagos/marcarbajados',
                         data: listdni
                     })
-                    .then(res=>{
-                        bulmaToast.toast({
-                            message: "Registros marcados correctamente",
-                            type: "is-success"
-                        })
+                                                                        .then(res=>{
+                                                                            msgSuccess('Registros marcados correctamente')
                         this.loadBajas()
                     })
-                    .catch(error=>{
-                        bulmaToast.toast({
-                            message:error.request.response,
-                            type: "is-danger"
-                        })
+                                                                        .catch(error=>{
+                                                                            msgError(error.request.response)
                     })
                 },
                 marcarBaja(dni){
@@ -129,18 +123,12 @@
                         url: '/pagos/marcarbajados',
                         data: listdni
                     })
-                    .then(res=>{
-                        bulmaToast.toast({
-                            message: "Registro marcado correctamente",
-                            type: "is-success"
-                        })
+                                                                        .then(res=>{
+                                                                            msgSuccess('Registro marcado correctamente')
                         this.loadBajas()
                     })
-                    .catch(error=>{
-                        bulmaToast.toast({
-                            message:error.request.response,
-                            type: "is-danger"
-                        })
+                                                                        .catch(error=>{
+                                                                            msgError(error.request.response)
                     })
                 },
 

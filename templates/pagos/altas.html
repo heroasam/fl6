@@ -111,18 +111,12 @@
                         url: '/pagos/marcarsubidos',
                         data: listdni
                     })
-                    .then(res=>{
-                        bulmaToast.toast({
-                            message: "Registros marcados correctamente",
-                            type: "is-success"
-                        })
+                                                                        .then(res=>{
+                                                                            msgSuccess('Registros marcados correctamente')
                         this.loadAltas()
                     })
-                    .catch(error=>{
-                        bulmaToast.toast({
-                            message:error.request.response,
-                            type: "is-danger"
-                        })
+                                                                        .catch(error=>{
+                                                                            msgError(error.request.response)
                     })
                 },
 

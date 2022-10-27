@@ -86,10 +86,7 @@
                     if(this.fecha!=''&&this.cobr!=''&&this.cnt!=''){
                         this.guardarLote()
                     }else{
-                        bulmaToast.toast({
-                            message:"Complete los campos faltantes",
-                            type: "is-danger",
-                        })
+                        msgError('Complete los campos faltantes')
                     }
                 },
                 guardarLote(){

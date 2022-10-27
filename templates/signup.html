@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div id="app">
+<div>
     <div class="column is-4 is-offset-4">
         <h3 class="title">Sign Up</h3>
         <div class="box">
@@ -39,38 +39,6 @@
 {% endblock %}
 
 {% block script %}
-<!-- <script>
-  const app = new Vue({
-    el:"#app",
-    delimiters:['|','|'],
-    data:{
-        email:'',
-        name:'',
-        password:'',
-    },
-    methods:{
-        guardarRegistro(){
-            if(this.email!=''&&this.name!=''&&this.password!=''){
-                axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                axios({
-                method:'POST',
-                url:'/signup/guardardatos',
-                data:{
-                    name:this.name,
-                    email:this.email,
-                    password:this.password,
-                }
-                })
-                .then(res=>{
-                    bulmaToast.toast({message:"Registro ingresado con exito", type:"is-success"})
-                    axios.get('/verlogin')
-                })
-                .catch(error=>{
-                    bulmaToast.toast({message:error.request.response, type:"is-danger"})
-                })
-            }
-        },
-    },
-  })
-  </script> -->
-  {% endblock %}
+<script>
+</script>
+{% endblock %}
