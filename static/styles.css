@@ -415,3 +415,10 @@ thead th {
      background-color: darkgreen;
      color: white;
  }
+.inputrbo{
+    color: black !important;
+    background-color: lightyellow !important;
+    font-size: 2em !important;
+    font-weight: bold !important;
+    text-align: center !important;
+}

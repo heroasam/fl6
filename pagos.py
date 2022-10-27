@@ -252,6 +252,14 @@ def pagos_obtenerrbo(id):
     return jsonify (reg=reg)
 
 
+@pagos.route('/pagos/obtenernuevonombre/<int:idvta>')
+def pagos_obtenernuevonombre(idvta):
+    con = get_con()
+    idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
+    nombre = pgonecolumn(con, f"select nombre from clientes where id={idcliente}")
+    return jsonify(nombre=nombre)
+
+
 @pagos.route('/pagos/obtenerregrbo/<int:buscar>')
 def pagos_obtenerregrbo(buscar):
     con = get_con()
