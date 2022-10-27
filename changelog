@@ -1,3 +1,6 @@
 	[2022-10-25] Busquedas Recientes en campo buscar del buscador en forma local por cada session.
 	[2022-10-25] Log de busquedas globales.
 	[2022-10-25] Cambio de combo de busqueda en Pasar ventas y mejora en la validacion de campos.
+	[2022-10-26] Cambio de combo de busqueda en todas las paginas que usaban autoComplete.
+	[2022-10-26] Nuevo look y refactorizacion de fichaje con indicacion de cantidad de seleccionados.
+	[2022-10-26] Gestion de documentos.

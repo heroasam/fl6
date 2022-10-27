@@ -324,7 +324,7 @@ def send_msg_whatsapp(idcliente, wapp, msg):
         con.close()
         return "success"
     elif "Invalid Destination WhatsApp" in response.text:
-        updinv = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO'\
+        updinv = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' \
                 where id={idcliente}"
         logging.warning(updinv)
         con = get_con()
@@ -406,7 +406,7 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
         con.close()
         return "success"
     elif "Invalid Destination WhatsApp" in response.text:
-        updinv = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO'\
+        updinv = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' \
                 where id={idcliente}"
         logging.warning(updinv)
         con = get_con()
