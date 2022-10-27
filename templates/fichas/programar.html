@@ -2,159 +2,90 @@
 
 {% block title %}Programacion de Botones{%endblock %}
 
-    {% block style %}
-    <style>
-        .grid-buscar{
-    display: grid;
-    grid-template-columns: 1fr 20%;
-}
-.micard {
-    padding: 24px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 6px 0px 10px gray ;
-}
-.modal-container{
-        width: 100vw;
-        height: 100vh;
-        position: fixed;
-        left: 0;
-        top: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: rgba(0,0,0,0.3);
-}
-.modal{
-    display:flex;
-    flex-direction: column;
-    position: relative;
-}
-.btn-close{
-    color:purple;
-    background-color: white;
-    border: none;
-    position: absolute;
-    top: 0;
-    right: 0;
-}
-.textarea {
-        border: solid 1px purple;
-        border-radius: 5px;
-    }
-.textarea:focus{
-        border: solid 2px turquoise;
-        border-radius: 5px;
-}
-.input:focus{
-        border: solid 2px turquoise;
-        border-radius: 5px;
-}
-.suggestions{
-    max-height: 200px;
-    width: 100%;
-    border-radius: 5px;
-    overflow: auto;
-}
-.suggestions>div{
-    padding: 5px;
-    padding-left: 15px;
-    font-size: 0.75em;
-    color: #999;
-    cursor: pointer;
-}
-.suggestions>div:hover{
-    background: black;
-    color: white;
-}
-.mora{
-    background-color: red;
-}
-.cliente{
-    background-color: yellow;
-}
-.cancelado{
-    background-color: mediumaquamarine;
-}
+{% block style %}
+<style>
+</style>
+{% endblock %}
 
-    </style>
-    {% endblock %}
+{% block content %}
+<div x-data="main()" x-init="cargarMsg()">
+  <a href="/fichas" class="button is-primary">Volver a Fichas</a>
+  <h1 class="title is-1">Programacion de botones</h1>
 
-    {% block content %}
-    <div x-data="main()" x-init="cargarMsg()">
-    <a href="/fichas" class="button is-primary">Volver a Fichas</a>
-    <h1 class="title is-1">Programacion de botones</h1>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Editar</th>
+        <th>boton</th>
+        <th>mensaje</th>
+      </tr>
+    </thead>
+    <tbody>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Editar</th>
-                <th>boton</th>
-                <th>mensaje</th>
-            </tr>
-        </thead>
-        <tbody>
+      <template x-for="item in listamsgs">
+        <tr>
+          <td><i class="fa fa-pencil" aria-hidden="true" @click="editarMsg(item.id)"></td>
+            <td x-text="item.nombre"></td>
+            <td x-text="item.msg"></td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
 
-                <template x-for="item in listamsgs">
-                <tr>
-                <td><button class="button is-danger is-small" @click="editarMsg(item['id'])">Editar</button></td>
-                <td x-text="item['nombre']"></td>
-                <td x-text="item['msg']"></td>
-                </tr>
-                </template>
-        </tbody>
-    </table>
-    <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
-    <div x-bind:class="verModalEdicion?'modal-container':''">
-        <div class=" micard modal" x-show="verModalEdicion">
-            <button class="btn-close" @click="verModalEdicion=false"><i class="fa fa-times" aria-hidden="true"></i></button>
-            <h1 class="title is-3">Editar Boton y Mensaje</h1>
-            <label for="boton" class="label">Boton</label>
-            <input type="text" class="input mb-3" x-model="Msg.nombre" id="boton" autocomplete="off">
-            <label for="msg" class="label">Mensaje</label>
-            <textarea x-model="Msg.msg" id="msg" autocomplete="off" rows="10" cols="30"></textarea>
-            <button class="button is-primary" @click="enviarMsg">Enviar</button>
-        </div>
+  <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+
+  <!-- modal Bulma -->
+  <div class="modal" id="modal-edicion">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Edicion del Mensaje programado</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="boton">Boton</label>
+        <input name="boton" class="input" type="text" x-model="Msg.nombre" />
+        <label for="msg" class="label">Mensaje</label>
+        <textarea x-model="Msg.msg" id="msg" autocomplete="off" rows="10" cols="62"></textarea>
+
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-success" @click="enviarMsg()">Editar</button>
+        <button class="button" @click="toggleModal('modal-edicion')">Cancelar</button>
+      </footer>
     </div>
+  </div>
 
-    </div>
-    {% endblock %}
+</div>
+{% endblock %}
 
-    {% block script %}
-    <script>
-    function main(){
-        return {
-            listamsgs:[],
-            verModalEdicion:false,
-            Msg:{},
-            editarMsg(id){
-                this.verModalEdicion=true
-                this.Msg = this.listamsgs.filter(row=>row.id==id)[0]
-            },
-            enviarMsg(){
-                this.verModalEdicion = false
-                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                        axios({
-                            method: "POST",
-                            url: '/fichas/programarboton',
-                            data: this.Msg,
-                        })
-                    .then(res=>{
-                                Swal.fire({
-                                title: 'Programacion!',
-                                text: 'Mensaje programado',
-                                icon: 'success',
-                                timer: 3000,
-                                })
-                        })
-            },
-            cargarMsg(){
-                axios.get('/fichas/getmsgs')
-                .then(res=>{
-                this.listamsgs = res.data.msgs
-                })
-            },
-        }
-    }
-    </script>
-    {% endblock %}
+{% block script %}
+<script>
+ function main(){
+     return {
+         listamsgs:[],
+         verModalEdicion:false,
+         Msg:{},
+         editarMsg(id){
+             toggleModal('modal-edicion')
+             this.Msg = this.listamsgs.filter(row=>row.id==id)[0]
+         },
+         enviarMsg(){
+             toggleModal('modal-edicion')
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/fichas/programarboton',this.Msg)
+                                                                 .then(res=>{
+                                                                     msgSuccess('Mensaje programado!')
+                                                                 })
+         },
+         cargarMsg(){
+             axios.get('/fichas/getmsgs')
+                  .then(res=>{
+                      this.listamsgs = res.data.msgs
+                  })
+         },
+     }
+ }
+</script>
+{% endblock %}

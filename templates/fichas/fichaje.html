@@ -12,7 +12,6 @@ endblock %} {% block style %}
     <a href="/fichas/fechador" class="button is-primary">Fechador</a>
     <a href="/fichas/listado" class="button is-primary">Listado</a>
     <a href="/fichas/cancelados" class="button is-primary">Cancelados</a>
-    <a href="/fichas/mudados" class="button is-primary">Mudados</a>
     <a href="/fichas/programar" class="button is-primary">Programar Botones</a>
   </div>
 
@@ -36,30 +35,30 @@ endblock %} {% block style %}
     <input type="date" name="desde" x-model="desde" class="input" style="width:140px;" />
     <label for="hasta"></label>
     <input type="date" name="hasta" x-model="hasta" class="input" style="width:140px;" />
-    <button class="button is-primary" @click="seleccionarHasta()">Seleccionar</button>
-    <button class="button is-danger" @click="imprimir()">Imprimir</button>
-    <button class="button is-danger" @click="intimar()">Intimar</button>
-    <button class="button is-dark" @click="muestraClientes('cancelados',zonaactual)">Cancelados</button>
-    <button class="button is-warning" @click="muestraClientes('gestion',zonaactual||'%')">Gestion</button>
-    <button class="button is-dark" @click="muestraClientes('antiguos',zonaactual)">Antiguos</button>
-    <button class="button is-info" @click="muestraClientes('nuevomoroso',zonaactual||'%')">Atraso</button>
-    <button class="button is-info" @click="muestraClientes('morosos',zonaactual||'%')">Morosos</button>
-    <button class="button is-info" @click="muestraClientes('vender',zonaactual||'%')">Vender</button>
-    <button class="button is-warning" @click="verZonas==true?verZonas=false:verZonas=true">Cambiar Zonas</button>
+    <button class="button is-small is-primary" @click="seleccionarHasta()">Seleccionar</button>
+    <button class="button is-small is-danger" @click="imprimir()">Imprimir</button>
+    <button class="button is-small is-danger" @click="intimar()">Intimar</button>
+    <button class="button is-small is-dark" @click="muestraClientes('cancelados',zonaactual)">Cancelados</button>
+    <button class="button is-small is-warning" @click="muestraClientes('gestion',zonaactual||'%')">Gestion</button>
+    <button class="button is-small is-dark" @click="muestraClientes('antiguos',zonaactual)">Antiguos</button>
+    <button class="button is-small is-info" @click="muestraClientes('nuevomoroso',zonaactual||'%')">Atraso</button>
+    <button class="button is-small is-info" @click="muestraClientes('morosos',zonaactual||'%')">Morosos</button>
+    <button class="button is-small is-info" @click="muestraClientes('vender',zonaactual||'%')">Vender</button>
+    <button class="button is-small is-warning" @click="verZonas==true?verZonas=false:verZonas=true">Cambiar Zonas</button>
     <input type="text" name="zona" x-model="zona" list="zonalist" autocomplete="off" x-show="verZonas" class="input" style="width:100px;">
     <datalist id="zonalist">
       <template x-for="zona in listaZonas">
         <option  :value="zona"></option>
       </template>
     </datalist>
-    <button class="button is-danger" @click="cambiarZona(zona)" x-show="verZonas">Guardar</button>
-    <button class="button is-danger" @click="intimarWhatsapp()">INTWhat</button>
-    <button class="button is-danger" @click="intimarPdf()">INTpdf</button>
-    <button class="button is-danger" @click="sendMsgRecordatorio()">RecTrans</button>
+    <button class="button is-small is-danger" @click="cambiarZona(zona)" x-show="verZonas">Guardar</button>
+    <button class="button is-small is-danger" @click="intimarWhatsapp()">INTWhat</button>
+    <button class="button is-small is-danger" @click="intimarPdf()">INTpdf</button>
+    <button class="button is-small is-danger" @click="sendMsgRecordatorio()">RecTrans</button>
 
     <div class="dropdown is-hoverable">
 	  <div class="dropdown-trigger">
-	    <button class="button is-danger" aria-haspopup="true" aria-controls="dropdown-menu">
+	    <button class="button is-small is-danger" aria-haspopup="true" aria-controls="dropdown-menu">
 		  <span>Programados</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
 	    </button>
 	  </div>
@@ -95,14 +94,18 @@ endblock %} {% block style %}
         <th>Barrio</th>
         <th>Intimado</th>
         <th>dni</th>
-        <th colspan="5">Estados</th>
+        <th>Sev</th>
+        <th>Sub</th>
+        <th>Mud</th>
+        <th>Inc</th>
+        <th>LN</th>
       </tr>
     </thead>
     <tbody>
       <template x-for="cliente in listaClientes">
         <tr  :class="dayjs.utc().diff(cliente.ultpago,'d')<60?'ultpago60':''">
           <td><a :href="'/buscador/interno/'+cliente.dni" target="_blank" class="button is-small is-outlined is-primary">Ir</a></td>
-          <td x-text="cliente.nombre"></td>
+          <td x-text="cliente.nombre.substring(0,20)"></td>
           <td x-text="cliente.calle"></td>
           <td x-text="cliente.num"></td>
           <td x-text="cliente.ultpago" :class="dayjs.utc().diff(cliente['ultpago'],'d')<60?'ultpago60campo':''" style="min-width: 100px;"></td>
@@ -112,12 +115,15 @@ endblock %} {% block style %}
           <td x-text="cliente.deuda" class="pesos"></td>
           <td x-text="cliente.wapp" :class="dayjs.utc().diff(cliente['fechaultwapp'],'d')==0&&
                       dayjs.utc().diff(cliente['fechaultwapp'],'d')<11?'wapp':''"></td>
-          <td x-text="cliente.zona"></td>
-          <td x-text="cliente.barrio"></td>
+          <td x-text="cliente.zona.substring(0,10)"></td>
+          <td x-text="cliente.barrio.substring(0,20)"></td>
           <td x-text="cliente.fechaintimacion"></td>
           <td x-text="cliente.dni"></td>
-          <td><span class="tag is-success is-small" x-show="cliente.sev||cliente.subirseven" x-text="cliente.sev==1?'SEVEN':cliente.subirseven==1
-                           ?'SUBE':null"></span></td>
+          <td><span class="tag is-success is-small" x-show="cliente.sev">SEV</span></td>
+          <td><span class="tag is-info is-small" x-show="cliente.subirseven">SUB</span></td>
+          <td><span class="tag is-warning is-small" x-show="cliente.mudo">MUD</span></td>
+          <td><span class="tag is-danger is-small" x-show="cliente.incobrable">INC</span></td>
+          <td><span class="tag is-small" x-show="cliente.novendermas">LN</span></td>
         </tr>
       </template>
     </tbody>
