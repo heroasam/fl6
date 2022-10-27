@@ -344,7 +344,7 @@ def pagos_gettotaleszonas():
 @pagos.route('/pagos/cobrostotales')
 @login_required
 def pagos_cobrostotales():
-    pd.options.display.float_format = '{:.0f}'.format
+    pd.options.display.float_format = '${:.0f}'.format
     sql="select date_format(fecha,'%Y-%m') as fp,imp+rec as cuota,cobr from pagos where fecha >date_sub(curdate(),interval 365 day)"
     sql1="select date_format(fecha,'%Y-%m') as fp,imp+rec as cuota,pagos.cobr as cobr,zona,(select asignado from zonas where zona=clientes.zona) as asignado from pagos,clientes where clientes.id=pagos.idcliente and fecha >date_sub(curdate(),interval 365 day) and zona not like '-%'"
     dat = pd.read_sql_query(sql, engine)
@@ -363,7 +363,7 @@ def pagos_cobrostotales():
 @pagos.route('/pagos/estimados')
 @login_required
 def pagos_estimados():
-    pd.options.display.float_format = '{:.0f}'.format
+    pd.options.display.float_format = '${:.0f}'.format
     sql="select date_format(pmovto,'%Y-%m') as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%'"
     sql1="select date_format(pmovto,'%Y-%m') as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%'"
     dat = pd.read_sql_query(sql, engine)
@@ -383,13 +383,19 @@ def pagos_estimados():
 @login_required
 def pagos_comisiones():
     pd.options.display.float_format = '${:.0f}'.format
-    sql="select date_format(fecha,'%Y-%m') as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,816) and fecha>'2018-07-31'"
+    sql="select date_format(fecha,'%Y-%m') as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,802) and fecha>date_sub(curdate(), interval 1 year)"
     dat = pd.read_sql_query(sql, engine)
     df = pd.DataFrame(dat)
-    tbl = pd.pivot_table(df, values=['comision','cobranza'],index='fecha',columns='cobr',aggfunc='sum').sort_index(axis=0, level='fecha',ascending=False)
+    tbl = pd.pivot_table(df, values=['comision'],index='fecha',columns='cobr',aggfunc='sum').sort_index(axis=0, level='fecha',ascending=False)
     tbl = tbl.fillna("")
+    c750 = tbl.iloc[:,0][:12].tolist()
+    c796 = tbl.iloc[:,1][:12].tolist()
+    c800 = tbl.iloc[:,2][:12].tolist()
+    c802 = tbl.iloc[:,3][:12].tolist()
+    c815 = tbl.iloc[:,4][:12].tolist()
+    index = tbl.index[:12].tolist()
     tbl = tbl.to_html(table_id="tablecomisiones",classes="table")
-    return render_template("pagos/comisiones.html", tbl=tbl )
+    return render_template("pagos/comisiones.html", tbl=tbl,c750=c750,c796=c796,c800=c800,c802=c802,c815=c815,index=index )
 
 
 @pagos.route('/pivot/pagos_cobr')
