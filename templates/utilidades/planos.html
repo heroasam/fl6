@@ -6,7 +6,6 @@
 
 {% block content %}
 <div class="container" x-data="main()" x-init="getPlanos()">
-  <p class="title is-1">Planos</p>
   <div class="buttons">
     <a href="/utilidades/impresos" class="button is-primary">Impresos</a>
     <a href="/utilidades/pdfsistema" class="button is-primary">Sistema</a>
@@ -14,9 +13,16 @@
     <a href="/utilidades/documentos" class="button is-primary">Documentos</a>
   </div>
 
-  <div class="grid-buscar mb-6 mr-3 mt-2">
-    <input type="text" placeholder="Buscar" x-model="buscar" @keyup.enter="restringirBusqueda(buscar)"/>
-    <button class="button is-primary" @click="restringirBusqueda(buscar)">Buscar</button>
+  <p class="title is-1">Planos</p>
+  <div class="columns">
+    <div class="column is-4">
+      <div class="box">
+        <div class="grid-buscar m-6">
+          <input type="text" placeholder="Buscar" x-model="buscar" @keyup.enter="restringirBusqueda(buscar)" class="input text-big" />
+          <button class="button is-primary text-big" @click="restringirBusqueda(buscar)">Buscar</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <table class="table">
@@ -29,8 +35,9 @@
     <tbody>
       <template x-for="plano in planos">
         <tr>
-          <td><button class="button is-danger is-small" @click="imprimirPlano(plano)">Imprimir</button></td>
-          <td x-text="plano"></td>
+          <td><i class="fa fa-print fa-2x" aria-hidden="true" @click="imprimirPlano(plano)"></td>
+            <!-- <td><button class="button is-danger is-small" @click="imprimirPlano(plano)">Imprimir</button></td> -->
+          <td x-text="plano" style="width:380px;"></td>
         </tr>
       </template>
     </tbody>
@@ -55,7 +62,7 @@
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
         	 axios({
           		 method: "GET",
-          		 url: "/utilidades/imprimirplanos/"+plano,
+          		 url: "/utilidades/imprimirplanos/"+plano+'.pdf',
           		 responseType: "blob",
         	 }).then((res) => {
           		 let url = window.URL.createObjectURL(res.data);
@@ -66,7 +73,9 @@
              axios.get('/utilidades/getplanos')
 				  .then(res=>{
 					  this.planos=res.data.planos
+                      this.planos = this.planos.map(row=>row.slice(0,-4))
                       this.planos_=this.planos
+                      console.log( this.planos)
 				  })
          },
          restringirBusqueda(buscar){

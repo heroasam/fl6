@@ -1,14 +1,14 @@
 """Modulo que responde a todo lo relativo a pagos."""
-from flask import Blueprint,render_template,jsonify,make_response,\
-     request, send_file,url_for,redirect
-from flask_login import login_required
-from lib import *
-import simplejson as json
-from con import get_con, log,engine
-import pandas as pd
 import re
-from formularios import *
+from flask import Blueprint, render_template, jsonify, make_response,\
+     request, send_file, url_for, redirect
+from flask_login import login_required
+import pandas as pd
+import simplejson as json
 import mysql.connector
+from lib import *
+from con import get_con, log, engine
+from formularios import *
 
 pagos = Blueprint('pagos',__name__)
 
@@ -18,8 +18,10 @@ def loterbo_():
     return render_template("pagos/loterbo.html" )
 
 
-@pagos.route('/loterbo/guardarlote/<string:fecha>/<string:cobr>', methods = ['POST'])
-def guardarlote(fecha,cobr):
+@pagos.route('/loterbo/guardarlote/<string:fecha>/<string:cobr>',\
+             methods=['POST'])
+def guardarlote(fecha, cobr):
+    """Guarda lote de recibos."""
     con = get_con()
     listarbos = json.loads(request.data.decode("UTF-8"))
     cnt = len(listarbos)
@@ -27,7 +29,7 @@ def guardarlote(fecha,cobr):
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
-    idlote = pgonecolumn(con, f"select max(id) from loterbos")
+    idlote = pgonecolumn(con, "select max(id) from loterbos")
     for rbo in listarbos:
         ins = f"insert into rbos(idloterbos,rbo) values({idlote},{rbo})"
         cur.execute(ins)
@@ -37,7 +39,8 @@ def guardarlote(fecha,cobr):
     return jsonify(idlote=idlote)
 
 
-@pagos.route('/loterbo/imprimir/<string:fecha>/<string:cobr>/<int:idlote>', methods = ['POST'])
+@pagos.route('/loterbo/imprimir/<string:fecha>/<string:cobr>/<int:idlote>',\
+             methods=['POST'])
 def loterbo_imprimir(fecha,cobr,idlote):
     con = get_con()
     listarbo = json.loads(request.data.decode("UTF-8"))

@@ -4,3 +4,6 @@
 	[2022-10-26] Cambio de combo de busqueda en todas las paginas que usaban autoComplete.
 	[2022-10-26] Nuevo look y refactorizacion de fichaje con indicacion de cantidad de seleccionados.
 	[2022-10-26] Gestion de documentos.
+	[2022-10-27] Refactorizado de editarrbo, estimados, comisiones con agregado de graficos, programar msg.
+	[2022-10-27] eliminacion de las dependencias de Vue/Buefy y bulmaToast.
+	[2022-10-27] borrado de paginas obsoletas de asuntos y mudados.

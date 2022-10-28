@@ -140,7 +140,7 @@ def signup():
 @app.route('/log1')
 @login_required
 def log1_log():
-    f = open('/tmp/log.txt', "a")
+    f = open('/tmp/log.txt', "w")
     log = open('/var/log/app/1.log', "r")
     log1log = log.read()
     f.write(log1log)

@@ -2,13 +2,13 @@
 
 {% block content %}
 <div class="container" x-data="main()">
-  <p class="title is-1">Gestion de Documentos</p>
   <div class="buttons">
     <a href="/utilidades/planos" class="button is-primary">Planos</a>
     <a href="/utilidades/pdfsistema" class="button is-primary">Sistema</a>
     <a href="/utilidades/contador" class="button is-primary">Contador</a>
     <a href="/utilidades/impresos" class="button is-primary">Impresos</a>
   </div>
+  <p class="title is-1">Gestion de Documentos</p>
   <div class="columns">
     <div class="column is-5">
       <div class="flex" @keydown.enter="$focus.next()">
@@ -16,10 +16,10 @@
         <input type="text" name="desde" x-model="desde"  class="input mr-2" />
         <label for="hasta" class="labelinput mr-2">Hasta</label>
         <input type="text" name="hasta" x-model="hasta"  class="input mr-2" />
-        <button class="button is-primary mr-2" @click="buscaDocumentos()">Buscar</button>
+        <button class="button is-primary ml-2" @click="buscaDocumentos()">Buscar</button>
         <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
 
-        <button class="button is-danger" @click="imprimirListaDocumentos()">Imprimir</button>
+        <button class="button is-danger ml-2" @click="imprimirListaDocumentos()">Imprimir</button>
       </div>
     </div>
   </div>

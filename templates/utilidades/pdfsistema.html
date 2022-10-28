@@ -2,20 +2,26 @@
 
 {% block content %}
 <div class="container" x-data="main()" x-init="getPDFSistema()">
-  <p class="title is-1">PDF-Sistema</p>
   <div class="buttons">
     <a href="/utilidades/planos" class="button is-primary">Planos</a>
     <a href="/utilidades/impresos" class="button is-primary">Impresos</a>
     <a href="/utilidades/contador" class="button is-primary">Contador</a>
     <a href="/utilidades/documentos" class="button is-primary">Documentos</a>
   </div>
-
-  <div class="grid-buscar mb-6 mr-3 mt-2">
-    <input type="text" placeholder="Buscar" x-model="buscar" @keyup.enter="restringirBusqueda(buscar)"/>
-    <button class="button is-primary" @click="restringirBusqueda(buscar)">Buscar</button>
+  <p class="title is-1">PDF-Sistema</p>
+  <div class="columns">
+    <div class="column is-4">
+  <div class="box">
+  <div class="grid-buscar m-6">
+    <input type="text" placeholder="Buscar" x-model="buscar" @keyup.enter="restringirBusqueda(buscar)"
+     class="input text-big" />
+    <button class="button is-primary text-big" @click="restringirBusqueda(buscar)">Buscar</button>
+  </div>
+  </div>
+    </div>
   </div>
 
-  <table class="table">
+  <table class="table mt-6">
     <thead>
       <tr>
         <th>Imp</th>
@@ -25,8 +31,8 @@
     <tbody>
       <template x-for="pdf in pdfs">
         <tr>
-          <td><button class="button is-danger is-small" @click="imprimirPdfSistema(pdf)">Imprimir</button></td>
-          <td x-text="pdf"></td>
+          <td><i class="fa fa-print fa-2x" aria-hidden="true" @click="imprimirPdfSistema(pdf)"></td>
+            <td x-text="pdf" style="width:380px;"></td>
         </tr>
       </template>
     </tbody>
@@ -44,7 +50,7 @@
          imprimirPdfSistema(pdf){
         	 axios({
           		 method: "GET",
-          		 url: "/utilidades/imprimirpdfsistema/"+pdf,
+          		 url: "/utilidades/imprimirpdfsistema/"+pdf+".pdf",
           		 responseType: "blob",
         	 }).then((res) => {
           		 let url = window.URL.createObjectURL(res.data);
@@ -54,6 +60,7 @@
              axios.get('/utilidades/getpdfsistema')
 				  .then(res=>{
 					  this.pdfs=res.data.pdfs
+                      this.pdfs=this.pdfs.map(row=>row.slice(0,-4))
 				      this.pdfs_=this.pdfs
 				  })
          },
