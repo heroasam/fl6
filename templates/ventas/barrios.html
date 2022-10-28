@@ -9,7 +9,6 @@
 {% block content %}
 
 <div class="container" x-data="main()" x-init="getBarrios()">
-  <p class="title is-1">Gestion de Barrios</p>
   <div class="buttons">
     <a href="/ventas/ventas" class="button is-primary">Pasar Ventas</a>
     <a href="/ventas/listado" class="button is-primary">Listado</a>
@@ -22,9 +21,21 @@
     <a href="/ventas/devolucion" class="button is-primary">Devoluciones</a>
     <a href="/ventas/pivotdevoluciones" class="button is-primary">Pivot-Devol.</a>
   </div>
+  <p class="title is-1">Gestion de Barrios</p>
+
+  <div class="columns">
+    <div class="column is-4">
+  <div class="grid-buscar  mr-3 mt-2">
+    <input type="search" placeholder="Filtrar:" class="input text-big" x-model="buscar"
+		   @focus="buscar=''" @keyup.enter="filtrarBarrio(buscar)" autofocus>
+    <button type="button" @click="filtrarBarrio(buscar)" class="button is-primary text-big">Buscar</button>
+  </div>
+    </div>
+  </div>
+
 
   <button class="button is-primary" @click="toggleModal('modal-add')">Agregar Barrio</button>
-  <table class="table is-narrow nototal">
+  <table class="table is-narrow nototal" style="width:430px;">
     <thead>
       <tr>
         <th>op</th>
@@ -34,7 +45,7 @@
       </tr>
     </thead>
     <tbody>
-      <template x-for="barrio in listaBarrios">
+      <template x-for="barrio in listaBarrios_">
         <tr>
           <td><i class="fa fa-times" aria-hidden="true" @click="borrarBarrio(barrio.id)"></td>
             <td><i class="fa fa-pencil" aria-hidden="true" @click="editarBarrio(barrio.id)"></td>
@@ -94,12 +105,15 @@
  function main(){
      return{
          listaBarrios:[],
+         listaBarrios_:[],
          barrioEditar:{},
          Barrio:{},
+         buscar:'',
          getBarrios(){
              axios.get('/ventas/getbarriosconid')
                   .then(res=>{
                       this.listaBarrios = res.data.barrios
+                      this.listaBarrios_ = this.listaBarrios
                   })
          },
          borrarBarrio(id){
@@ -150,6 +164,10 @@
                                                                      msgError('No se pudo agregar el barrio')
                                                                  })
          },
+                    filtrarBarrio(buscar){
+                        this.listaBarrios_=this.listaBarrios.filter(row=>row.barrio.toLocaleLowerCase().includes(buscar.toLocaleLowerCase()))
+                    },
+
      }
  }
 </script>

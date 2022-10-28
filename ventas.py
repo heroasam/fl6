@@ -252,10 +252,18 @@ def ventas_clientes():
     return render_template('ventas/clientes.html')
 
 
-@ventas.route('/ventas/getclientes')
-def ventas_getclientes():
+@ventas.route('/ventas/getclientes/<tipo>')
+def ventas_getclientes(tipo):
+    """Entrego lista de cliente segun tipo pedido."""
     con = get_con()
-    clientes = pgdict(con, f"select ventas.id as idvta, nombre, calle,num, zona, gestion, mudo, incobrable,acla from ventas, clientes where ventas.idcliente=clientes.id order by ventas.id desc limit 200")
+    if tipo=='idvta':
+        clientes = pgdict(con, "select ventas.id as idvta, nombre, calle,num,\
+        zona, gestion, mudo, incobrable,acla from ventas, clientes where \
+        ventas.idcliente=clientes.id order by ventas.id desc limit 200")
+    else:
+        clientes = pgdict(con, "select id, nombre, calle,num, zona, gestion,\
+        mudo, incobrable,acla from  clientes  order by id desc limit 200")
+
     con.close()
     return jsonify(clientes=clientes)
 
@@ -422,6 +430,25 @@ def ventas_borrarzona(id):
         cur.close()
         con.close()
         return 'OK'
+
+@ventas.route('/ventas/borrarcliente/<int:id>')
+def ventas_borrarcliente(id):
+    con = get_con()
+    stm = f"delete from clientes where id={id}"
+    cur = con.cursor()
+    try:
+        cur.execute(stm)
+    except mysql.connector.Error as e:
+        con.rollback()
+        error = e.msg
+        return make_response(error,400)
+    else:
+        con.commit()
+        log(stm)
+        cur.close()
+        con.close()
+        return 'OK'
+
 
 @ventas.route('/ventas/guardarcallenueva', methods=['POST'])
 def ventas_guardarcallenueva():

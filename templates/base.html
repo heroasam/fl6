@@ -1,40 +1,42 @@
 <!DOCTYPE html>
 <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}{% endblock %}</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-        <link id="bulma" rel="stylesheet" href="https://unpkg.com/bulmaswatch/darkly/bulmaswatch.min.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@3.2.2/dist/style.css">
-    <script defer src="https://unpkg.com/@alpinejs/focus@3.10.3/dist/cdn.min.js"></script>
-	<script defer src="https://unpkg.com/alpinejs@3.10.3/dist/cdn.min.js"></script>
-
-        {% block style %} {% endblock %}
-      </head>
-<body>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- <link id="bulma" rel="stylesheet" href="https://unpkg.com/bulmaswatch/darkly/bulmaswatch.min.css"> -->
+    <link id="bulma" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/darkly/bulmaswatch.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@3.2.2/dist/style.css">
+    <!-- <script defer src="https://unpkg.com/@alpinejs/focus@3.10.3/dist/cdn.min.js"></script> -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.10.3/dist/cdn.min.js"></script>
+	<!-- <script defer src="https://unpkg.com/alpinejs@3.10.3/dist/cdn.min.js"></script> -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.10.3/dist/cdn.min.js"></script>
+    {% block style %} {% endblock %}
+  </head>
+  <body>
 
 	<header>
-	    {% include "_nav.html" %}
+	  {% include "_nav.html" %}
 	</header>
 
 
-        {% block content %}{% endblock %}
+    {% block content %}{% endblock %}
 
 
-<script src="{{ url_for('static', filename='scripts.js') }}" ></script>
-<script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.5/dayjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.5/plugin/utc.min.js"></script>
-<script>dayjs.extend(window.dayjs_plugin_utc)</script>
-<script src="https://cdn.jsdelivr.net/npm/axios@0.27.2/dist/axios.min.js"></script>
-<script src="//cdn.jsdelivr.net/npm/sweetalert2@11.4.38"></script>
-<script src="https://cdn.jsdelivr.net/npm/simple-datatables@3.2.2/dist/umd/simple-datatables.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="{{ url_for('static', filename='scripts.js') }}" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.5/dayjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.5/plugin/utc.min.js"></script>
+    <script>dayjs.extend(window.dayjs_plugin_utc)</script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.27.2/dist/axios.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11.4.38"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@3.2.2/dist/umd/simple-datatables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 
-<script>
-</script>
-{% block script %}{% endblock %}
-</body>
+    <script>
+    </script>
+    {% block script %}{% endblock %}
+  </body>
 </html>

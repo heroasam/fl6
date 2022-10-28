@@ -9,7 +9,6 @@
 {% block content %}
 
 <div class="container" x-data="main()" x-init="getZonas()">
-  <p class="title is-1">Gestion de Zonas</p>
   <div class="buttons">
     <a href="/ventas/ventas" class="button is-primary">Pasar Ventas</a>
     <a href="/ventas/listado" class="button is-primary">Listado</a>
@@ -22,10 +21,20 @@
     <a href="/ventas/devolucion" class="button is-primary">Devoluciones</a>
     <a href="/ventas/pivotdevoluciones" class="button is-primary">Pivot-Devol.</a>
   </div>
+  <p class="title is-1">Gestion de Zonas</p>
 
+  <div class="columns">
+    <div class="column is-4">
+      <div class="grid-buscar  mr-3 mt-2">
+        <input type="search" placeholder="Filtrar:" class="input text-big" x-model="buscar"
+		       @focus="buscar=''" @keyup.enter="filtrarZona(buscar)" autofocus>
+        <button type="button" @click="filtrarZona(buscar)" class="button is-primary text-big">Buscar</button>
+      </div>
+    </div>
+  </div>
 
   <button class="button is-primary" @click="toggleModal('modal-add')">Agregar Zona</button>
-  <table class="table is-narrow nototal">
+  <table class="table is-narrow nototal" style="width:430px;">
     <thead>
       <tr>
         <th>op</th>
@@ -35,7 +44,7 @@
       </tr>
     </thead>
     <tbody>
-      <template x-for="zona in listaZonas">
+      <template x-for="zona in listaZonas_">
         <tr>
           <td><i class="fa fa-times" aria-hidden="true" @click="borrarZona(zona.id)"></td>
             <td><i class="fa fa-pencil" aria-hidden="true" @click="editarZona(zona.id)"></td>
@@ -95,12 +104,15 @@
  function main(){
      return{
          listaZonas:[],
+         listaZonas_:[],
+         buscar:'',
          zonaEditar:{},
          Zona:{},
          getZonas(){
              axios.get('/ventas/getzonasconid')
                   .then(res=>{
                       this.listaZonas = res.data.zonas
+                      this.listaZonas_ = this.listaZonas
                   })
          },
          borrarZona(id){
@@ -151,6 +163,10 @@
                                                                      msgError('No se pudo agregar la zona')
                                                                  })
          },
+                             filtrarZona(buscar){
+                                 this.listaZonas_=this.listaZonas.filter(row=>row.zona.toLocaleLowerCase().includes(buscar.toLocaleLowerCase()))
+                             },
+
      }
  }
 </script>

@@ -9,7 +9,6 @@
 {% block content %}
 
 <div class="container" x-data="main()" x-init="getClientes()">
-  <p class="title is-1">Ver Clientes</p>
   <div class="buttons">
     <a href="/ventas/ventas" class="button is-primary">Pasar Ventas</a>
     <a href="/ventas/listado" class="button is-primary">Listado</a>
@@ -22,11 +21,18 @@
     <a href="/ventas/pordia" class="button is-primary">Ventas</a>
     <a href="/ventas/pivotdevoluciones" class="button is-primary">Pivot-Devol.</a>
   </div>
+  <p class="title is-1">Revision Clientes</p>
+  <div class="block">
+  <button class="button" @click="getClientes('idvta')">Ver Clientes por idvta</button>
+  <button class="button" @click="getClientes('idcliente')">Nuevos Clientes</button>
+  </div>
 
   <table class="table is-narrow nototal">
     <thead>
       <tr>
-        <th>idvta</th>
+        <th x-show="idcliente">op</th>
+        <th x-show="idcliente">idcliente</th>
+        <th x-show="!idcliente">idvta</th>
         <th>nombre</th>
         <th>calle</th>
         <th>num</th>
@@ -40,14 +46,15 @@
     <tbody>
       <template x-for="cliente in listaClientes">
         <tr>
-          <td x-text="cliente.idvta"></td>
+          <td x-show="idcliente"><i class="fa fa-times" aria-hidden="true" @click="borrarCliente(cliente.id)"></td>
+            <td x-text="cliente.idvta||cliente.id"></td>
           <td x-text="cliente.nombre"></td>
           <td x-text="cliente.calle"></td>
           <td x-text="cliente.num"></td>
           <td x-text="cliente.zona"></td>
-          <td><button type="button"  class="button is-danger is-small" x-show="cliente.gestion==1">Gestion</button></td>
-          <td><button type="button"  class="button is-danger is-small" x-show="cliente.mudo==1">Mudado</button></td>
-          <td><button type="button"  class="button is-danger is-small" x-show="cliente.incobrable==1">Incobrable</button></td>
+          <td><span class="tag is-small is-warning" x-show="cliente.gestion==1">Gestion</span></td>
+          <td><span class="tag is-small is-info" x-show="cliente.mudo==1">Mudado</span></td>
+          <td><span class="tag is-small is-danger" x-show="cliente.incobrable==1">Incobrable</span></td>
           <td x-text="cliente.acla"></td>
         </tr>
       </template>
@@ -63,13 +70,37 @@
 <script>
  function main(){
      return{
+         idcliente:false,
          listaClientes:[],
-         getClientes(){
-             axios.get('/ventas/getclientes')
+         getClientes(tipo='idvta'){
+             axios.get('/ventas/getclientes/'+tipo)
                   .then(res=>{
                       this.listaClientes=res.data.clientes
+                      if(tipo=='idcliente'){
+                          this.idcliente=true
+                      }else{
+                          this.idcliente=false
+                      }
                   })
          },
+         borrarCliente(id){
+                         Swal.fire({
+            title: '¿Esta seguro?',
+            text: `Se borrara el cliente ${id}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, borrarlo!'
+            }).then((result) => {
+            if (result.isConfirmed) {
+                axios.get('/ventas/borrarcliente/'+id)
+                     .then(res=>{
+                         msgSuccess('Borrado!','El cliente ha sido borrado')
+                         this.getClientes('idcliente')})
+                     .catch(error=>msgError('No se pudo borrar. Posiblemente el cliente tenga operaciones.'))
+            }})
+         }
  }}
 </script>
 {% endblock %}

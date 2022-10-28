@@ -6,7 +6,6 @@ block style %}
 {% block content %}
 
 <div class="container">
-  <p class="title is-1">Gestion de Calles</p>
   <div class="buttons">
     <a href="/ventas/ventas" class="button  is-primary">Pasar Ventas</a>
     <a href="/ventas/listado" class="button  is-primary">Listado</a>
@@ -19,18 +18,19 @@ block style %}
     <a href="/ventas/devolucion" class="button is-primary">Devoluciones</a>
     <a href="/ventas/pivotdevoluciones" class="button is-primary">Pivot-Devol.</a>
   </div>
+  <p class="title is-1">Gestion de Calles</p>
 
   <div x-data="main()" x-init="getCalles()">
 
-    <button class="button is-primary" @click="toggleModal('modal-add')">Agregar Calle</button>
     <div class="columns"><div class="column is-4">
 	  <div class="grid-buscar  mr-3 mt-2">
-        <input type="search" placeholder="Filtrar:" class="input" x-model="buscar"
-		       @focus="buscar1='';buscar=''" @keyup.enter="filtrarCalle(buscar)" autofocus>
-        <button type="button" @click="filtrarCalle(buscar)" class="button is-primary">Buscar</button>
+        <input type="search" placeholder="Filtrar:" class="input text-big" x-model="buscar"
+		       @focus="buscar=''" @keyup.enter="filtrarCalle(buscar)" autofocus>
+        <button type="button" @click="filtrarCalle(buscar)" class="button is-primary text-big">Buscar</button>
 	  </div>
     </div></div>
-    <table class="table is-narrow nototal">
+    <button class="button is-primary" @click="toggleModal('modal-add')">Agregar Calle</button>
+    <table class="table is-narrow nototal" style="width:430px;">
       <thead>
         <tr>
           <th>op</th>

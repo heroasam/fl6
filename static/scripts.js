@@ -1,3 +1,4 @@
+
 let listaheads = document.querySelectorAll('thead');
 $theads = Array.from(listaheads);
 $theads.forEach($thead => {
@@ -379,15 +380,20 @@ btnMenu.addEventListener('click', () => {
 });
 
 function toggleTheme() {
+    // const dark = "https://unpkg.com/bulmaswatch/darkly/bulmaswatch.min.css">
+    // const light = "https://unpkg.com/bulmaswatch/flatly/bulmaswatch.min.css">
+    const dark = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/darkly/bulmaswatch.min.css"
+    const light = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/flatly/bulmaswatch.min.css"
+
     var theme = document.getElementById('bulma');
     // Change the value of href attribute
     // to change the css sheet.
-    if (theme.getAttribute('href') == "https://unpkg.com/bulmaswatch/flatly/bulmaswatch.min.css") {
-        theme.setAttribute('href', "https://unpkg.com/bulmaswatch/darkly/bulmaswatch.min.css");
-        localStorage.setItem("bulma", "https://unpkg.com/bulmaswatch/darkly/bulmaswatch.min.css");
+    if (theme.getAttribute('href') == light) {
+        theme.setAttribute('href', dark);
+        localStorage.setItem("bulma", dark);
     } else {
-        theme.setAttribute('href', "https://unpkg.com/bulmaswatch/flatly/bulmaswatch.min.css");
-        localStorage.setItem("bulma", "https://unpkg.com/bulmaswatch/flatly/bulmaswatch.min.css");
+        theme.setAttribute('href', light);
+        localStorage.setItem("bulma", light);
     }
 }
 document.addEventListener("DOMContentLoaded", () => {
