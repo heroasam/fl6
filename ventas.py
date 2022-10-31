@@ -690,8 +690,10 @@ def ventas_condonar(id):
 @ventas.route('/ventas/pordia')
 @login_required
 def ventas_pordia():
-    pd.options.display.float_format = '${:.0f}'.format
-    sql="select fecha,comprado,idvdor from ventas where devuelta=0 and pp=0 order by id desc limit 1000"
+    """Pivot-table de ventas por dia para controlar entradas."""
+    pd.options.display.float_format = '{:.0f}'.format
+    sql = "select fecha,comprado,idvdor from ventas where devuelta=0 and pp=0 \
+    and fecha>date_sub(curdate(),interval 1 month) order by id desc"
     dat = pd.read_sql_query(sql, engine)
     df = pd.DataFrame(dat)
     tbl = pd.pivot_table(df, values=['comprado'],index='fecha',columns='idvdor',aggfunc='sum').sort_index(axis=0, level='fecha',ascending=False)
@@ -704,8 +706,8 @@ def ventas_pordia():
 @login_required
 def ventas_pivotdevoluciones():
     pd.options.display.float_format = '${:.0f}'.format
-    sql="select montodev,vdor,mesvta from devoluciones where fechadev>\
-    date_sub(curdate(),interval 1 year)"
+    sql = "select montodev,vdor,mesvta from devoluciones where \
+    fechadev>date_sub(curdate(),interval 1 year)"
     dat = pd.read_sql_query(sql, engine)
     df = pd.DataFrame(dat)
     tbl = pd.pivot_table(df, values=['montodev'],index='mesvta',columns='vdor',aggfunc='sum').sort_index(axis=0, level='mesvta',ascending=False)
