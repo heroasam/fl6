@@ -3,25 +3,12 @@
 {% block title %}Estadisticas{% endblock %}
 {% block style %}
 <style>
-.cur::before {
-    content:"$";
-}
-.cur{
-    text-align: right !important;
-}
-.right{
-    text-align: right !important;
-}
- .children{
-     background-color: gray;
- }
   </style>
   {% endblock %}
 
 {% block content %}
 
 <div class="container" x-data="main()" x-init="getEstAnuales();getInflacion()">
-    <p class="title is-1">Estadisticas de Venta</p>
     <div class="buttons">
         <a href="/ventas/ventas" class="button is-primary">Pasar Ventas</a>
         <a href="/ventas/listado" class="button is-primary">Listado</a>
@@ -29,11 +16,11 @@
         <a href="/ventas/calles" class="button is-primary">Calles</a>
         <a href="/ventas/barrios" class="button is-primary">Barrios</a>
         <a href="/ventas/zonas" class="button is-primary">Zonas</a>
-    	<a href="/ventas/morosidad" class="button is-primary">Morosidad</a>
         <a href="/ventas/pordia" class="button is-primary">Ventas</a>
         <a href="/ventas/devolucion" class="button is-primary">Devoluciones</a>
         <a href="/ventas/pivotdevoluciones" class="button is-primary">Pivot-Devol.</a>
     </div>
+    <p class="title is-1">Estadisticas de Venta</p>
     <div class="columns">
         <div class="column is-6">
             <table class="table is-narrow" id="table">
@@ -66,7 +53,7 @@
                         <td></td>
                         <td x-text="mes['ym']"></td>
                         <td class="pesos" x-text="mes['comprado']"></td>
-                        <td class="pesos" x-text="(mes['comprado']*(listaInflacion[dayjs(mes['ym']).format('YYYYM')]||1)).toFixed()"></td>
+                        <td class="pesos red" x-text="(mes['comprado']*(listaInflacion[dayjs(mes['ym']).format('YYYYM')]||1)).toFixed()"></td>
                         <td class="pesos" x-text="mes['saldo']"></td>
                         <td class="perc" x-text="(mes['inc']*100).toFixed(2)"></td>
                         <td class="right" x-text="mes['cnt']"></td>
@@ -143,12 +130,12 @@
                         label: 'Monto Vendido Actualizado',
                         data: this.ventaYears,
                         backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(153, 102, 255, 0.2)',
-                            'rgba(255, 159, 64, 0.2)'
+                            'rgba(255, 99, 132, 0.5)',
+                            'rgba(54, 162, 235, 0.5)',
+                            'rgba(255, 206, 86, 0.5)',
+                            'rgba(75, 192, 192, 0.5)',
+                            'rgba(153, 102, 255, 0.5)',
+                            'rgba(255, 159, 64, 0.5)'
                         ],
                         borderColor: [
                             'rgba(255, 99, 132, 1)',

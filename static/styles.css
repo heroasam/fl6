@@ -344,6 +344,13 @@ thead th {
 .cur{
     text-align: right !important;
 }
+.right{
+    text-align: right !important;
+}
+.children{
+    background-color: antiquewhite;
+    color: black;
+}
 .deudora{
     background-color: tomato;
 }

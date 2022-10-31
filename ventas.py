@@ -704,7 +704,8 @@ def ventas_pordia():
 @login_required
 def ventas_pivotdevoluciones():
     pd.options.display.float_format = '${:.0f}'.format
-    sql="select montodev,vdor,mesvta from devoluciones"
+    sql="select montodev,vdor,mesvta from devoluciones where fechadev>\
+    date_sub(curdate(),interval 1 year)"
     dat = pd.read_sql_query(sql, engine)
     df = pd.DataFrame(dat)
     tbl = pd.pivot_table(df, values=['montodev'],index='mesvta',columns='vdor',aggfunc='sum').sort_index(axis=0, level='mesvta',ascending=False)
@@ -718,3 +719,16 @@ def ventas_obtenerwappcliente(id):
     con = get_con()
     wapp = pgonecolumn(con, f"select wapp from clientes where id={id}")
     return jsonify(wapp=wapp)
+
+
+@ventas.route('/ventas/obtenerventasultyear')
+def ventas_obtenerventasultyear():
+    """Entrega lista de ventas ultimo ano."""
+    con = get_con()
+    listventas = []
+    result = pgdict(con, "select date_format(fecha,'%Y-%m') as ym, \
+    sum(comprado) as vta from ventas where fecha>date_sub(curdate(),\
+    interval 1 year)  group by ym")
+    for row in result:
+        listventas.append(row['vta'])
+    return jsonify(ventas=listventas)
