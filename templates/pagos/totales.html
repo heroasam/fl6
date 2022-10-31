@@ -72,60 +72,60 @@
 	     }
              this.cobranzacorregida = this.cobranzatotal
 	 },
-	 getGrafico(){
+	     getGrafico(){
              const canvas = document.getElementById('grafico-estadistica').getContext('2d');
              const chart = new Chart(canvas, {
-		 type: 'bar',
-		 data: {
+		         type: 'bar',
+		         data: {
                      labels: this.mescobranza,
                      datasets: [{
-			 label: 'Cobranza Mensual',
-			 data: this.cobranzatotal,
-			 order: 1,
-			 backgroundColor: [
+			             label: 'Cobranza Mensual',
+			             data: this.cobranzatotal,
+			             order: 1,
+			             backgroundColor: [
                              'rgba(255, 99, 132, 0.2)',
                              'rgba(54, 162, 235, 0.2)',
                              'rgba(255, 206, 86, 0.2)',
                              'rgba(75, 192, 192, 0.2)',
                              'rgba(153, 102, 255, 0.2)',
                              'rgba(255, 159, 64, 0.2)'
-			 ],
-			 borderColor: [
+			             ],
+			             borderColor: [
                              'rgba(255, 99, 132, 1)',
                              'rgba(54, 162, 235, 1)',
                              'rgba(255, 206, 86, 1)',
                              'rgba(75, 192, 192, 1)',
                              'rgba(153, 102, 255, 1)',
                              'rgba(255, 159, 64, 1)'
-			 ],
-			 borderWidth: 1
+			             ],
+			             borderWidth: 1
                      },
-				{
-				    label: 'Actualizacion por Inflacion',
-				    data: this.cobranzacorregida,
-				    borderColor:                             'rgb(22, 183, 237)',
-				    type:'line',
-				    order:0,
-				}
-		     ]
-		 },
-		 options: {
+				                {
+				                    label: 'Actualizacion por Inflacion',
+				                    data: this.cobranzacorregida,
+				                    borderColor:                             'rgb(22, 183, 237)',
+				                    type:'line',
+				                    order:0,
+				                }
+		             ]
+		         },
+		         options: {
                      scales: {
-			 y: {
+			             y: {
                              beginAtZero: true
-			 }
+			             }
                      }
-		 }
+		         }
              });
-	 },
-	 getInflacion(){
+	     },
+	     getInflacion(){
              axios.get('/buscador/tablainflacion')
                   .then(res=>{
                       this.listaInflacion = res.data.inflacion
-		      this.obtenerTotales()
-		      //hacemos un array de cobranza corregida por inflacion
-		      this.cobranzacorregida=this.cobranzacorregida.map((row,index)=>row=row*this.listaInflacion[dayjs(this.mescobranza[index]).format('YYYYM')])
-		      this.getGrafico()
+		              this.obtenerTotales()
+		              //hacemos un array de cobranza corregida por inflacion
+		              this.cobranzacorregida=this.cobranzacorregida.map((row,index)=>row=row*this.listaInflacion[dayjs(this.mescobranza[index]).format('YYYYM')])
+		              this.getGrafico()
          })},
 
  }}
