@@ -5,9 +5,6 @@
 {% block content %}
 
 <div x-data="main()" x-init="getArticulos()" class="container">
-  <p class="title is-1">Articulos</p>
-
-
   <div class="block">
     <a href="/stock/asientos"  type="button" class="button is-primary">Asientos</a>
     <a href="/stock/mayor"  type="button" class="button is-primary">Mayor</a>
@@ -20,6 +17,7 @@
     <a href="/stock/cuentas"  type="button" class="button is-primary">Cuentas</a>
     <a href="/stock/cuadro"  type="button" class="button is-primary">Cuadro</a>
   </div>
+  <p class="title is-1">Articulos</p>
 
   <button class="button is-primary mb-5" @click="generarLista()">Generar Lista de Precios</button>
   <div class="block">
@@ -90,28 +88,6 @@
       </table>
     </div>
   </div>
-
-  <!-- <div x-bind:class="verModalEdicion?'xmodal-container':''">
-       <div class="xcard xmodal" x-show="verModalEdicion">
-       <div class="flex justify-content-end">
-       <button class="btn-close" @click="verModalEdicion=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-       </div>
-       <h1 class="title is-3">Edicion articulos</h1>
-       <input type="text" class="input mb-1" x-model="Articulo.codigo" placeholder="codigo">
-       <input type="text" class="input mb-1" x-model="Articulo.art" placeholder="articulo" style="min-width:400px;">
-       <input type="text" class="input mb-1" x-model="Articulo.costo" placeholder="costo">
-       <input type="text" class="input mb-1" x-model="Articulo.cuota" placeholder="cuota">
-       <input list="grupos" id="grupo" class="input mb-3" x-model="Articulo.grupo" placeholder="grupo" autocomplete="off">
-       <datalist id="grupos">
-       <template x-for="grupo in listaGrupos">
-       <option :value="grupo">
-       </template>
-       </datalist>
-       <input type="text" class="input mb-1" x-model="Articulo.activo" placeholder="activo">
-       <button class="button is-primary" @click="validarEdicion">Guardar</button>
-       <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
-       </div>
-       </div> -->
 
   <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}" />
   <!-- modal Bulma -->
@@ -199,12 +175,12 @@
          guardarArticulo(){
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/stock/guardararticulo',this.newArticulo)
-            .then(res=>{
-                this.getArticulos()
-                this.newArticulo={art:'',cuota:'',costo:'',grupo:'',activo:'',codigo:''},
-                msgSuccess('Articulo Agregado')
-                })
-            .catch(error=>msgError('El registro no se proceso'))
+                                                                 .then(res=>{
+                                                                     this.getArticulos()
+                                                                     this.newArticulo={art:'',cuota:'',costo:'',grupo:'',activo:'',codigo:''},
+                                                                     msgSuccess('Articulo Agregado')
+                                                                 })
+                                                                 .catch(error=>msgError('El registro no se proceso'))
          },
          toggleactivo(id){
              axios.get('/stock/articulotoggleactivo/'+id)
@@ -226,12 +202,12 @@
          guardarEdicion(){
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/stock/guardaredicionarticulo',this.Articulo)
-            .then(res=>{
-                toggleModal('modal-edicion')
-                this.getArticulos()
-                msgSuccess('Edicion procesada')
-                })
-            .catch(error=>msgError('No se hizo la edicion'))
+                                                                 .then(res=>{
+                                                                     toggleModal('modal-edicion')
+                                                                     this.getArticulos()
+                                                                     msgSuccess('Edicion procesada')
+                                                                 })
+                                                                 .catch(error=>msgError('No se hizo la edicion'))
          },
          isValid(obj){
              for (const item in obj){
@@ -246,7 +222,7 @@
                   })
                   .catch(error=>msgError('Error. Posiblemente falta algun codigo'))
          },
- }
+     }
  }
 
 
