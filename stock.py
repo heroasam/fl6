@@ -162,8 +162,9 @@ def stock_getcompras():
     con = get_con()
     compras=pgdict(con, "select id,fecha,art,cnt, costo,total,proveedor from \
                           artcomprado order by id desc limit 200")
+    proveedores = pglflat(con, "select distinct proveedor from artcomprado")
     con.close()
-    return jsonify(compras=compras)
+    return jsonify(compras=compras, proveedores=proveedores)
 
 
 @stock.route('/stock/getarticulos')

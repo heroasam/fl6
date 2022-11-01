@@ -5,11 +5,6 @@
 {% block content %}
 
 <div x-data="main()" class="container" x-init="obtenerListaMeses();obtenerDatos(dayjs().format('YYYY-MM'))">
-  <div class="columns">
-    <div class="column is-7">
-      <h1 style="width:70%;" class="title is-size-1">Cuadro Mensual</h1>
-    </div>
-  </div>
   <div class="block">
     <a href="/stock/asientos"  type="button" class="button is-primary">Asientos</a>
     <a href="/stock/mayor"  type="button" class="button is-primary">Mayor</a>
@@ -22,37 +17,44 @@
     <a href="/stock/cuentas"  type="button" class="button is-primary">Cuentas</a>
     <a href="/stock/proveedores"  type="button" class="button is-primary">Proveedores</a>
   </div>
+
+  <div class="columns">
+    <div class="column is-7">
+      <h1 style="width:70%;" class="title is-size-1">Cuadro Mensual</h1>
+    </div>
+  </div>
+
   <div class="columns">
     <div class="column is-6">
       <div id="btnMeses">
-      <template x-for="mes in listaMeses">
-        <button class="button is-primary is-small mr-1" x-text="mes" @click="obtenerDatos(mes);
-                       limpiarToggles();$event.target.classList.toggle('is-danger')"></button>
-      </template>
+        <template x-for="mes in listaMeses">
+          <button class="button is-primary is-small mr-1" x-text="mes" @click="obtenerDatos(mes);
+                         limpiarToggles();$event.target.classList.toggle('is-danger')"></button>
+        </template>
       </div>
       <div class="mt-5">
         <table class="table">
           <h1 class="title is-3" x-text="'Ingresos $'+ingresos"></h1>
           <thead><tr><th>cuenta</th><th>importe</th></tr></thead>
           <tbody>
-          <template x-for="item in listaIngresos">
-            <tr>
-              <td x-text="item.cuenta" style="min-width:450px;"></td>
-              <td x-text="item.imp" class="sumar pesos"></td>
-            </tr>
-          </template>
+            <template x-for="item in listaIngresos">
+              <tr>
+                <td x-text="item.cuenta" style="min-width:450px;"></td>
+                <td x-text="item.imp" class="sumar pesos"></td>
+              </tr>
+            </template>
           </tbody>
         </table>
         <table class="table">
           <h1 class="title is-3" x-text="'Egresos $'+egresos"></h1>
           <thead><tr><th>cuenta</th><th>importe</th></tr></thead>
           <tbody>
-          <template x-for="item in listaEgresos">
-            <tr>
-              <td x-text="item.cuenta" style="min-width:450px;" :class="item.cuenta=='compras'||item.cuenta=='depositos sorpresa'?'red':''"></td>
-              <td x-text="item.imp" class="sumar pesos"></td>
-            </tr>
-          </template>
+            <template x-for="item in listaEgresos">
+              <tr>
+                <td x-text="item.cuenta" style="min-width:450px;" :class="item.cuenta=='compras'||item.cuenta=='depositos sorpresa'?'red':''"></td>
+                <td x-text="item.imp" class="sumar pesos"></td>
+              </tr>
+            </template>
           </tbody>
         </table>
       </div>
@@ -111,33 +113,33 @@
              const canvas = document.getElementById('grafico-estadistica').getContext('2d');
              this.chart = new Chart(canvas, {
                  type: 'doughnut',
-                data: {
-                labels: [
-                    'Gastos',
-                    'Compras',
-                    'Retiros',
-                    'No Usado'
-                ],
-                datasets: [{
-                    label: 'Uso del ingreso',
-                    data: this.cuentasEgresos,
-                    backgroundColor: [
-                    'rgb(255, 99, 132)',
-                    'rgb(78, 245, 66)',
-                    'rgb(255, 205, 86)',
-                    'rgb(66, 135, 245)',
-                    ],
-                    hoverOffset: 4
-                }]
-                }
+                 data: {
+                     labels: [
+                         'Gastos',
+                         'Compras',
+                         'Retiros',
+                         'No Usado'
+                     ],
+                     datasets: [{
+                         label: 'Uso del ingreso',
+                         data: this.cuentasEgresos,
+                         backgroundColor: [
+                             'rgb(255, 99, 132)',
+                             'rgb(78, 245, 66)',
+                             'rgb(255, 205, 86)',
+                             'rgb(66, 135, 245)',
+                         ],
+                         hoverOffset: 4
+                     }]
+                 }
              })
          },
-        limpiarToggles() {
-            $btnMeses = document.getElementById('btnMeses')
-            Array.from($btnMeses.children).slice(1).forEach(btn => {
-                btn.classList.remove('is-danger')
-            })
-        },
+         limpiarToggles() {
+             $btnMeses = document.getElementById('btnMeses')
+             Array.from($btnMeses.children).slice(1).forEach(btn => {
+                 btn.classList.remove('is-danger')
+             })
+         },
      }
  }
 

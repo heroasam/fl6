@@ -324,7 +324,7 @@ thead th {
     color: pink;
 }
 .red{
-    color:red;
+    color:red !important;
 }
 .strike{
     text-decoration: line-through;
