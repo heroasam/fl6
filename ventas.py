@@ -1,10 +1,11 @@
 from flask import Blueprint,render_template,jsonify,make_response, request
 from flask_login import login_required, current_user
-from lib import *
 from con import get_con, log, engine
 import pandas as pd
 import simplejson as json
 import mysql.connector
+import logging
+from lib import *
 
 ventas = Blueprint('ventas',__name__)
 
@@ -626,7 +627,7 @@ def ventas_devolucion_procesar():
     # update ventas cc/ic/cnt/art para una devolucion parcial
     # update ventas devuelta=1, saldo=0 para una devolucion total
     cur = con.cursor(buffered=True)
-    if totparc=='Parcial':
+    if totparc in ('Parcial','Cambio'):
         updvta = f"update ventas set cc={cc},ic={ic},cnt={cnt},art='{art}' where id={idvta}"
         cur.execute(updvta)
         con.commit()
@@ -650,6 +651,7 @@ def ventas_devolucion_procesar():
 
     # insert devoluciones con todos los datos de la devolucion
     ins = f"insert into devoluciones(idvta,fechadev,cobr,comprdejado,rboN,totparc,novendermas,vdor,mesvta,montodev,registro) values({idvta},'{fechadev}',{cobr},'{comprdejado}','{rboN}','{totparc}',{novendermas}, {vdor}, '{mesvta}', {montodev},'{registro}')"
+    logging.warning(ins)
     cur.execute(ins)
     con.commit()
     log(ins)

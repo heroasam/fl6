@@ -31,13 +31,14 @@
       <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
       <input type="date" x-model="Salida.fecha" class="input" style="max-width:200px;">
       <input type="text" x-model="Salida.cnt" class="input" placeholder="Cantidad" style="max-width:100px;">
-            <input type="text" list="listaarticulos" class="input mb-1" x-model="Salida.art" placeholder="Articulo" />
-            <datalist id="listaarticulos">
-              <template x-for="item in articulos">
-                <option :value="item"></option>
-              </template>
-            </datalist>
-            <input type="text" x-model="Salida.costo" class="input" size="5" placeholder="Costo" style="max-width:100px;">
+      <input type="text" list="listaarticulos" class="input mb-1" x-model="Salida.art" placeholder="Articulo"
+             style="width:250px" />
+      <datalist id="listaarticulos">
+        <template x-for="item in articulos">
+          <option :value="item"></option>
+        </template>
+      </datalist>
+      <input type="text" x-model="Salida.costo" class="input" size="5" placeholder="Costo" style="max-width:100px;">
       <input type="text" x-model="Salida.comentario" class="input" size="15" placeholder="Comentario" style="max-width:200px;">
       <button type="button" class="button is-primary" @click="validarSalida">Guardar</button>
     </div>
@@ -84,7 +85,7 @@
      return{
          articulos:[],
          listaSalidas:[],
-         Salida:{fecha:dayjs.utc().format('YYYY-MM-DD')},
+         Salida:{fecha:dayjs.utc().format('YYYY-MM-DD'), cnt:'', art:'', costo:''},
          selected: null,
          getSalidas(){
              axios.get('/stock/getsalidas')
@@ -133,7 +134,7 @@
              axios.get('/ventas/getarticulos')
                   .then(res=>{
                       this.articulos = res.data.result
-             })
+                  })
          },
      }
  }
