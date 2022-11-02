@@ -8,6 +8,12 @@ $theads.forEach($thead => {
         $thead.removeChild($thead.firstElementChild);
         heads = $thead.children.length;
     }
+    if (heads ===2) {
+        console.log( 'es el caso')
+        $thead.insertRow(0)
+        $thead.removeChild($thead.firstElementChild);
+        $thead.removeChild($thead.firstElementChild);
+    }
 })
 
 function nop(pesos) {
@@ -40,6 +46,7 @@ const totalizar = (tableId) => {
             row.remove();
         };
     });
+    console.log( rowIndex)
     let maxRow = Math.max(...rowIndex) + 1;
     let $rowTotal = tbody.insertRow(maxRow);
     $rowTotal.classList.add('subtotal');
@@ -175,6 +182,8 @@ let i_num_desc = '<i class="fa fa-sort-numeric-desc" aria-hidden="true"></i>';
 let i_alpha_desc = '<i class="fa fa-sort-alpha-desc" aria-hidden="true"></i>';
 let colOrder = {};
 document.addEventListener('click', () => {
+    // tengo en cuenta que algunas tablas no les viene bien tener sort p.e algunos pivots.
+    if (event.target.parentElement?.parentElement?.parentElement?.classList?.contains("nosort")) return;
     if (event.target.tagName === 'TH') {
         let t = event.target.parentElement.parentElement?.parentElement || 0;
         let th = event.target;

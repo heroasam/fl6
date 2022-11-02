@@ -12,11 +12,7 @@
 
 
 {% block content %}
-<div class="columns">
-    <div class="column is-7">
-        <h1 style="width:70%;" class="title is-size-1">Pivot-Cuentas</h1>
-    </div>
-</div>
+<div class="container">
 <div class="block">
     <a href="/stock/asientos"  type="button" class="button is-primary">Asientos</a>
     <a href="/stock/mayor"  type="button" class="button is-primary">Mayor</a>
@@ -29,16 +25,38 @@
     <a href="/stock/cuentas"  type="button" class="button is-primary">Cuentas</a>
     <a href="/stock/cuadro"  type="button" class="button is-primary">Cuadro</a>
 </div>
+<div class="columns">
+  <div class="column is-7">
+    <h1 style="width:70%;" class="title is-size-1">Pivot-Cuentas</h1>
+  </div>
+</div>
 {{tbl|safe}}
+</div>
 
 
 
 {% block script %}
 <script>
-// let $thead = document.querySelector('thead');
-// let heads = $thead.children.length
-// if(heads===3) $thead.removeChild($thead.lastElementChild)
-//removemos el tr de fecha que complica y afea el encabezado
+ table = document.querySelector('table')
+ table.classList.add('nosort')
+ thead = document.querySelector('thead')
+ console.log( thead.children[0])
+ /* thead.children[0].style.cssText('display:none;') */
+ /* thead.children[0].removeChild(thead.children[0].firstElementChild); */
+ tbody = document.querySelector('tbody')
+ Array.from(tbody.children).forEach(row=>{
+     if(row.cells[0].innerText!='Total'){
+         row.cells[0].innerText=row.cells[0].innerText.substring(3).replace('\)','')
+     }
+     for(let i=1;i<13;i++){
+         if(row.cells[i].innerText<0){
+             row.cells[i].classList.add('orange')
+         }
+     }
+     if(row.cells[0].innerText=='Total'){
+         row.classList.add('total-pivot')
+     }
+ })
 </script>
 {% endblock %}
 

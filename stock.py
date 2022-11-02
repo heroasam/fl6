@@ -12,6 +12,7 @@ from formularios import listaprecios, imprimir_stock
 
 stock = Blueprint('stock',__name__)
 
+
 @stock.route('/stock/asientos')
 @login_required
 def stock_asientos():
@@ -119,16 +120,30 @@ def stock_getmayor(cuenta):
 @stock.route('/stock/pivotcuentas')
 def stock_pivotcuentas():
     """Pivot Cuentas."""
-    sql="select date_format(fecha,'%Y-%m') as fecha,cuenta,imp from caja \
-         order by id desc"
     pd.options.display.float_format = '{:20.0f}'.format
+    sql="select grupo,tipo,caja.cuenta as cuenta,date_format(fecha,'%Y-%m') as fecha,imp from caja,ctas \
+         where ctas.cuenta=caja.cuenta and fecha>date_sub(curdate(), interval 1 year) and grupo=0"
     dat = pd.read_sql_query(sql, engine)
     dframe = pd.DataFrame(dat)
-    tbl = pd.pivot_table(dframe, values=['imp'],index='cuenta',columns='fecha',\
-          aggfunc='sum').sort_index(axis=1, level='fecha',ascending=False)
+    tbl = pd.pivot_table(dframe, values=['imp'],index=['grupo','tipo','cuenta'],columns='fecha',\
+                         aggfunc='sum').sort_index(axis=0, level=['grupo','tipo','cuenta'],ascending=True).sort_index(axis=1,level='fecha',ascending=False)
+
+    tbl.loc['Total']= tbl.sum(numeric_only=True, axis=0)
     tbl = tbl.fillna("")
-    tbl = tbl.to_html(table_id="table",classes="table table-sm")
-    return render_template("stock/pivot_cuentas.html", tbl=tbl)
+    sql1="select grupo,tipo,caja.cuenta as cuenta,date_format(fecha,'%Y-%m') as fecha,imp from caja,ctas \
+         where ctas.cuenta=caja.cuenta and fecha>date_sub(curdate(), interval 1 year) and grupo=1"
+    dat1 = pd.read_sql_query(sql1, engine)
+    dframe1 = pd.DataFrame(dat1)
+    tbl1 = pd.pivot_table(dframe1, values=['imp'],index=['grupo','tipo','cuenta'],columns='fecha',\
+                         aggfunc='sum').sort_index(axis=0, level=['grupo','tipo','cuenta'],ascending=True).sort_index(axis=1,level='fecha',ascending=False)
+
+    tbl1.loc['Total']= tbl1.sum(numeric_only=True, axis=0)
+    tbl1 = tbl1.fillna("")
+
+    tab =pd.concat([tbl, tbl1], axis=0, join='inner')
+
+    tab = tab.to_html(table_id="table",classes="table table-sm")
+    return render_template("stock/pivot_cuentas.html", tbl=tab)
 
 
 @stock.route('/stock/retiros')

@@ -29,11 +29,16 @@ thead th {
     /* background-color: yellow; */
     /* color: blue; */
     font-weight: bold;
+    font-size: 1.1em;
 }
 .total{
   background-color: lightyellow;
   color: black;
   font-weight:bold;
+}
+.total-pivot{
+    font-weight: bold !important;
+    font-size: 1.1em;
 }
 
 .block:not(:last-child) {
@@ -325,6 +330,9 @@ thead th {
 }
 .red{
     color:red !important;
+}
+.orange{
+    color:orange !important;
 }
 .strike{
     text-decoration: line-through;

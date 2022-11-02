@@ -9,11 +9,6 @@
 {% block content %}
 
 <div class="container" x-data="main()" x-init="obtenerCuentas()">
-  <div class="columns">
-    <div class="column is-7">
-      <h1 style="width:70%;" class="title is-size-1">Mayor</h1>
-    </div>
-  </div>
   <div class="block">
     <a href="/stock/asientos"  type="button" class="button is-primary">Asientos</a>
     <a href="/stock/pivotcuentas"  type="button" class="button is-primary">Pivot-Cuentas</a>
@@ -26,6 +21,13 @@
     <a href="/stock/cuentas"  type="button" class="button is-primary">Cuentas</a>
     <a href="/stock/cuadro"  type="button" class="button is-primary">Cuadro</a>
   </div>
+
+  <div class="columns">
+    <div class="column is-7">
+      <h1 style="width:70%;" class="title is-size-1">Mayor</h1>
+    </div>
+  </div>
+
   <div class="block">
 	<div class="grid-buscar  mr-3 mt-2 center">
       <input type="text" list="listacuentas" class="input mb-1" x-model="buscar"  placeholder="Busca por: Cuenta"
@@ -100,7 +102,7 @@
                           .then(res=>{
                               Swal.fire(
                                   'Borrado!',
-                                  'El registro ha sido borrado.',
+                                  'El asiento ha sido borrado.',
                                   'success'
                               )
                               this.getAsientos(cuenta)
@@ -111,7 +113,7 @@
              axios.get('/stock/getcuentas')
                   .then(res=>{
                       this.cuentas = res.data.result
-             })
+                  })
          },
      }
  }
