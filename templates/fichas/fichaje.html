@@ -113,8 +113,7 @@ endblock %} {% block style %}
           <td x-text="cliente.comprado" class="pesos"></td>
           <td x-text="cliente.ultcompra" style="min-width: 100px;"></td>
           <td x-text="cliente.deuda" class="pesos"></td>
-          <td x-text="cliente.wapp" :class="dayjs.utc().diff(cliente['fechaultwapp'],'d')==0&&
-                      dayjs.utc().diff(cliente['fechaultwapp'],'d')<11?'wapp':''"></td>
+          <td x-text="cliente.wapp" :class="dayjs.utc().diff(cliente['fechaultwapp'],'d')<30?'wapp':''"></td>
           <td x-text="cliente.zona.substring(0,10)"></td>
           <td x-text="cliente.barrio.substring(0,20)"></td>
           <td x-text="cliente.fechaintimacion"></td>
@@ -173,6 +172,9 @@ endblock %} {% block style %}
                      row.ultcompra = dayjs.utc(row.ultcompra).format("YYYY-MM-DD");
                      if (row.fechaintimacion){
                          row.fechaintimacion = dayjs.utc(row.fechaintimacion).format("YYYY-MM-DD");
+                     }
+                     if (row.fechaultwapp){
+                         row.fechaultwapp = dayjs.utc(row.fechaultwapp).format("YYYY-MM-DD");
                      }
                  });
                  const $tbody = document.querySelector("tbody");
