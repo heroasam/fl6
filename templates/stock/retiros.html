@@ -5,7 +5,6 @@
 {% block content %}
 
 <div class="container">
-    <p class="title is-1">Retiro Socios</p>
 
 <div class="block">
   <a href="/stock/asientos"  type="button" class="button is-primary">Asientos</a>
@@ -20,8 +19,22 @@
     <a href="/stock/cuadro"  type="button" class="button is-primary">Cuadro</a>
 </div>
 
-{{tbl|safe}}
-
+<p class="title is-1">Retiro Socios</p>
+<div  x-data="main()" x-init="getGrafico();getGraficoPie()">
+  <div class="columns">
+    <div class="column is-10">
+        {{tbl|safe}}
+    </div>
+  </div>
+  <div class="columns">
+    <div class="column is-6">
+  <canvas id="grafico-estadistica" width="400" height="200"></canvas>
+    </div>
+    <div class="column is-4">
+      <canvas id="grafico-estadistica1" width="200" height="200"></canvas>
+    </div>
+  </div>
+</div>
 </div>
 {% endblock %}
 
@@ -41,5 +54,84 @@
          row.cells[6].innerText=""
      }
  })
+ function main(){
+     return{
+         totfede:'',
+         totpapi:'',
+         totalfede:'',
+         totalpapi:'',
+         retirosocios:'',
+         index:'',
+         getGrafico(){
+             this.totfede = {{totfede|tojson}}
+             this.totpapi = {{totpapi|tojson}}
+             this.index = {{index|tojson}}
+             this.totfede = this.totfede.map(el=>Math.abs(el))
+             this.totpapi = this.totpapi.map(el=>Math.abs(el))
+             this.totalfede = this.totfede.reduce((a,b)=>(a+b))
+             this.totalpapi = this.totpapi.reduce((a,b)=>(a+b))
+             this.retirosocios = [this.totalfede, this.totalpapi]
+
+             const canvas = document.getElementById('grafico-estadistica').getContext('2d');
+             const labels = this.index;
+             const data = {
+                 labels: labels,
+                 datasets: [
+                     {
+                         label: 'papi',
+                         data: this.totpapi,
+                         borderColor: '#2596be',
+                     },
+                     {
+                         label: 'fede',
+                         data: this.totfede,
+                         borderColor: '#9925be',
+                     },
+                 ]
+             };
+                          const chart = new Chart(canvas, {
+                     type: 'line',
+                     data: data,
+                     options: {
+                     responsive: true,
+                     plugins: {
+                         legend: {
+                             position: 'top',
+                         },
+                         title: {
+                             display: true,
+                             text: 'Retiros Socios'
+                         }
+                     }
+                     },
+                          });
+
+         },
+         getGraficoPie(){
+             const canvas = document.getElementById('grafico-estadistica1').getContext('2d');
+             this.chart = new Chart(canvas, {
+                 type: 'doughnut',
+                 data: {
+                     labels: [
+                         'Papi',
+                         'Fede',
+                     ],
+                     datasets: [{
+                         label: 'Retiro Socios',
+                         data: this.retirosocios,
+                         backgroundColor: [
+                             'rgb(255, 205, 86)',
+                             'rgb(66, 135, 245)',
+                         ],
+                         hoverOffset: 4
+                     }]
+                 }
+             })
+         },
+
+ }
+
+
+ }
 </script>
 {% endblock %}

@@ -151,8 +151,8 @@ def stock_retiros():
     """Pandas de retiro socios."""
     sql="select date_format(fecha,'%Y-%m') as fecha,cuenta,imp from caja \
             where cuenta like '%retiro%' and cuenta not like '%capital%' \
-            order by id desc"
-    pd.options.display.float_format = '{:20.0f}'.format
+            and fecha>date_sub(curdate(),interval 1 year)"
+    pd.options.display.float_format = '${:20.0f}'.format
     dat = pd.read_sql_query(sql, engine)
     dframe = pd.DataFrame(dat)
     print(dframe)
@@ -166,9 +166,12 @@ def stock_retiros():
     diff2 = col2.sub(col3,axis=0)
     tbl.insert(4,'diff1', diff1)
     tbl.insert(5,'diff2', diff2)
+    totfede = tbl.iloc[:,0].add(tbl.iloc[:,2],axis=0,fill_value=0).tolist()
+    totpapi = tbl.iloc[:,1].add(tbl.iloc[:,3],axis=0,fill_value=0).tolist()
+    index = tbl.index.tolist()
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="retiros",classes="table is-narrow")
-    return render_template("stock/retiros.html", tbl=tbl)
+    return render_template("stock/retiros.html", tbl=tbl, totfede=totfede, totpapi=totpapi, index=index)
 
 
 @stock.route('/stock/getcompras')
