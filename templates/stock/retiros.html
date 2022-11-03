@@ -49,7 +49,7 @@
  const tbody = table.querySelector('tbody')
  const arrayRows = Array.from(tbody.rows)
  arrayRows.forEach(row=>{
-     if(row.rowIndex>1){
+     if(row.rowIndex>2){
          row.cells[5].innerText=""
          row.cells[6].innerText=""
      }
@@ -68,8 +68,8 @@
              this.index = {{index|tojson}}
              this.totfede = this.totfede.map(el=>Math.abs(el))
              this.totpapi = this.totpapi.map(el=>Math.abs(el))
-             this.totalfede = this.totfede.reduce((a,b)=>(a+b))
-             this.totalpapi = this.totpapi.reduce((a,b)=>(a+b))
+             this.totalfede = this.totfede.map(a=>Number.isNaN(a)?0:a).reduce((a,b)=>(a+b))
+             this.totalpapi = this.totpapi.map(a=>Number.isNaN(a)?0:a).reduce((a,b)=>(a+b))
              this.retirosocios = [this.totalfede, this.totalpapi]
 
              const canvas = document.getElementById('grafico-estadistica').getContext('2d');
