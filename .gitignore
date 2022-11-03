@@ -11,3 +11,4 @@ __pychache__/
 .vscode/
 #*#
 *flymake*
+/flycheck_pagos.py

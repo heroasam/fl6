@@ -16,6 +16,10 @@ $theads.forEach($thead => {
     }
 })
 
+function isNumber(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
 function nop(pesos) {
     let signo = pesos.substr(0, 1);
     if (signo == "$") {
@@ -27,7 +31,7 @@ function nop(pesos) {
     }
 }
 
-const totalizar_tabla = (tableId) => {
+const totalizar_tabla = (tableId, nivel=2) => {
     let table = document.getElementById(tableId);
     let tbody = table.querySelector('tbody');
     let rowsArray = Array.from(tbody.rows);
@@ -44,7 +48,6 @@ const totalizar_tabla = (tableId) => {
 
 
     const cols = rowsArray[0].children.length; // determino la cant columnas
-    console.log( cols)
     for (let i = 0; i < cols; i++) {
         $rowTotal.insertCell(i);
     }
@@ -64,21 +67,42 @@ const totalizar_tabla = (tableId) => {
         for (let n = 1; n < cols; n++) {
             $thtotal.push(n);
         }
+        console.log( cols)
+        // let $row = Array.from(tbody.rows[1].children)
+        // $row.forEach(item=>{
+        //     if(item.tagName=='TD'){
+        //         $thtotal.push(item.cellIndex)
+        //     }
+        // })
     }
+    let listaTotales = []
     for (let index in $thtotal) {
         let i = parseInt($thtotal[index]);
         let col = [];
-        rowIndex.forEach((ix) => {
-            col.push(nop(tbody.rows[ix].cells[i].innerText));
+        rowIndex.forEach((rowindex) => {
+            col.push(nop(tbody.rows[rowindex].cells[i].innerText));
         });
+        col = col.map(item=>{
+            if(isNumber(item)==false) {
+                return 0
+            }else{
+                return item
+            }
+        })
         let total = col.reduce((a, b) => Number(a) + Number(b), 0);
         let $cell = $rowTotal.cells[i];
-        if (!(Number.isNaN(total))) $cell.innerHTML = total;
+        if (!(Number.isNaN(total))) {
+            $cell.innerHTML = total;
+            listaTotales.push(total)
+        }
         if ($thclass.length) $cell.classList.add(...$thclass[index]);
     }
-    let $rowTotalclone = $rowTotal.cloneNode(true)
-    tbody.appendChild($rowTotalclone)
-    tbody.insertBefore($rowTotalclone, tbody.firstChild)
+    if(nivel==2){
+        let $rowTotalclone = $rowTotal.cloneNode(true)
+        tbody.appendChild($rowTotalclone)
+        tbody.insertBefore($rowTotalclone, tbody.firstChild)
+    }
+    return listaTotales
 
 }
 const totalizar = (tableId) => {
@@ -102,7 +126,6 @@ const totalizar = (tableId) => {
         row.cells[0].innerText=row.rowIndex
     });
     let maxRow = Math.max(...rowIndex) + 1;
-    console.log( rowIndex,maxRow)
     let $rowTotal = tbody.insertRow(maxRow);
     $rowTotal.classList.add('subtotal');
 
@@ -130,8 +153,8 @@ const totalizar = (tableId) => {
     for (let index in $thtotal) {
         let i = parseInt($thtotal[index]);
         let col = [];
-        rowIndex.forEach((ix) => {
-            col.push(nop(tbody.rows[ix].cells[i].innerText));
+        rowIndex.forEach((rowindex) => {
+            col.push(nop(tbody.rows[rowindex].cells[i].innerText));
         });
         let total = col.reduce((a, b) => Number(a) + Number(b), 0);
         let $cell = $rowTotal.cells[i];

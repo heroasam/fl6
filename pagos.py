@@ -376,10 +376,11 @@ def pagos_estimados():
     tbl = pd.pivot_table(df, values=['cuota'],index='asignado',columns='pmovto',aggfunc='sum').sort_index(axis=1, level='pmovto',ascending=False)
     tbl1 = pd.pivot_table(df1, values=['cuota'],index=['asignado','zona'],columns='pmovto',aggfunc='sum').sort_index(axis=1, level='pmovto',ascending=False)
     tbl = tbl.fillna("")
+    index = tbl.index.tolist()
     tbl1 = tbl1.fillna("")
-    tbl = tbl.to_html(table_id="totales",classes="table")
-    tbl1 = tbl1.to_html(table_id="totaleszona",classes="table")
-    return render_template("pagos/estimados.html", tbl=tbl, tbl1=tbl1 )
+    tbl = tbl.to_html(table_id="estimados",classes="table")
+    tbl1 = tbl1.to_html(table_id="estimadoszona",classes="table")
+    return render_template("pagos/estimados.html", tbl=tbl, tbl1=tbl1, index=index )
 
 
 @pagos.route('/pagos/comisiones')

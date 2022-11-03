@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Ver datos Clientes{% endblock %}
+{% block title %}Comisiones{% endblock %}
 {% block style %}
 <style>
  td {
@@ -87,10 +87,10 @@
                      }
                  ]
              };
-                          const chart = new Chart(canvas, {
-                     type: 'line',
-                     data: data,
-                     options: {
+             const chart = new Chart(canvas, {
+                 type: 'line',
+                 data: data,
+                 options: {
                      responsive: true,
                      plugins: {
                          legend: {
@@ -101,9 +101,8 @@
                              text: 'Comisiones Cobradores'
                          }
                      }
-                     },
-                          });
-
+                 },
+             });
          },
      }
  }
