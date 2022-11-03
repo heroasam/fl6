@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Mayor{% endblock %}
+{% block title %}Stock{% endblock %}
 {% block style %}
 <style>
 </style>
@@ -9,11 +9,6 @@
 {% block content %}
 
 <div class="container" x-data="main()" x-init="getStock()">
-  <div class="columns">
-    <div class="column is-7">
-      <h1 style="width:70%;" class="title is-size-1">Stock</h1>
-    </div>
-  </div>
   <div class="block">
     <a href="/stock/asientos"  type="button" class="button is-primary">Asientos</a>
     <a href="/stock/mayor"  type="button" class="button is-primary">Mayor</a>
@@ -26,8 +21,13 @@
     <a href="/stock/cuentas"  type="button" class="button is-primary">Cuentas</a>
     <a href="/stock/cuadro"  type="button" class="button is-primary">Cuadro</a>
   </div>
+  <div class="columns">
+    <div class="column is-7">
+      <h1 style="width:70%;" class="title is-size-1">Stock</h1>
+    </div>
+  </div>
 
-  <button class="button is-primary" @click="imprimirStock()">Imprimir</button>
+  <button class="button is-primary block" @click="imprimirStock()">Imprimir</button>
 
 
   <div class="block">
@@ -74,6 +74,9 @@
              axios.get('/stock/generarstock')
                   .then(res=>{
                       this.stock = res.data.stock
+                      setTimeout(()=>{
+                          totalizar_tabla('table')
+                      },1000)
                   })
          },
          imprimirStock(){

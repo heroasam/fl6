@@ -40,9 +40,6 @@
  table = document.querySelector('table')
  table.classList.add('nosort')
  thead = document.querySelector('thead')
- console.log( thead.children[0])
- /* thead.children[0].style.cssText('display:none;') */
- /* thead.children[0].removeChild(thead.children[0].firstElementChild); */
  tbody = document.querySelector('tbody')
  Array.from(tbody.children).forEach(row=>{
      if(row.cells[0].innerText!='Total'){

@@ -9,11 +9,6 @@
 {% block content %}
 
 <div class="container" x-data="main()", x-init="getSalidas();obtenerArt()">
-  <div class="columns">
-    <div class="column is-7">
-      <p class="title is-1">Salida Mercaderia</p>
-    </div>
-  </div>
   <div class="block">
     <a href="/stock/asientos"  type="button" class="button is-primary">Asientos</a>
     <a href="/stock/mayor"  type="button" class="button is-primary">Mayor</a>
@@ -26,8 +21,14 @@
     <a href="/stock/cuentas"  type="button" class="button is-primary">Cuentas</a>
     <a href="/stock/cuadro"  type="button" class="button is-primary">Cuadro</a>
   </div>
+  <div class="columns">
+    <div class="column is-7">
+      <p class="title is-1">Salida Mercaderia</p>
+    </div>
+  </div>
+
   <div class="block">
-    <div class="flex">
+    <div class="flex" @keydown.enter="$focus.next()">
       <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
       <input type="date" x-model="Salida.fecha" class="input" style="max-width:200px;">
       <input type="text" x-model="Salida.cnt" class="input" placeholder="Cantidad" style="max-width:100px;">
@@ -109,7 +110,7 @@
              }).then((result) => {
                  if (result.isConfirmed) {
                      axios.get('/stock/deletesalida/'+id)
-                          .then(res=>msgSuccess('Borrado!','El registro ha sido borrado'))
+                          .then(res=>msgSuccess('Borrado!','La salida ha sido borrada'))
                      this.getSalidas()
              }})
          },

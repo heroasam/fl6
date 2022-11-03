@@ -94,3 +94,18 @@ def utilidades_imprimirlistadocumentos():
     lista_documentos = json.loads(request.data.decode("UTF-8"))
     listadocumentos(con, lista_documentos)
     return send_file('/home/hero/documentos/listadocumentos.pdf')
+
+
+@utilidades.route('/utilidades/listawapp')
+def utilidades_listawapp():
+    """Lista whatsapps."""
+    con = get_con()
+    wapps = pgdict(con, "select wapp,fecha,msg,file,id,idcliente,user,timein,\
+    timeout,enviado,response from logwhatsapp order by id desc")
+    return jsonify(wapps=wapps)
+
+
+@utilidades.route('/utilidades/wapp')
+def utilidades_wapp():
+    """Muestro pagina wapp."""
+    return render_template('/utilidades/wapp.html')

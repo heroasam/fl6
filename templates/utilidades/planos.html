@@ -11,6 +11,7 @@
     <a href="/utilidades/pdfsistema" class="button is-primary">Sistema</a>
     <a href="/utilidades/contador" class="button is-primary">Contador</a>
     <a href="/utilidades/documentos" class="button is-primary">Documentos</a>
+    <a href="/utilidades/wapp" class="button is-primary">Whatsapps</a>
   </div>
 
   <p class="title is-1">Planos</p>
@@ -75,7 +76,6 @@
 					  this.planos=res.data.planos
                       this.planos = this.planos.map(row=>row.slice(0,-4))
                       this.planos_=this.planos
-                      console.log( this.planos)
 				  })
          },
          restringirBusqueda(buscar){

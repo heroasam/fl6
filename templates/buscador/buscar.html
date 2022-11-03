@@ -676,7 +676,6 @@
 		      })
 		      if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
               this.listaBusquedasRecientes.push(buscar)
-              console.log( this.listaBusquedasRecientes)
 		  })
 		          .catch(error=>{
 		      msgError('Error!',error.response.data)

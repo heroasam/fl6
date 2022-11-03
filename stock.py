@@ -296,7 +296,7 @@ def stock_getsalidas():
     """Obtengo lista de salidas."""
     con = get_con()
     salidas=pgdict(con, "select id,fecha,cnt,art,costo,comentario from \
-    detallesalida order by id desc limit 200")
+    detallesalida order by id desc limit 100")
     con.close()
     return jsonify(salidas=salidas)
 
@@ -486,19 +486,6 @@ def stock_borrarproveedor(id_proveedor):
     return 'ok'
 
 
-@stock.route('/stock/listawapp')
-def stock_listawapp():
-    """Lista whatsapps."""
-    con = get_con()
-    wapps = pgdict(con, "select wapp,fecha,msg,file,id,idcliente,user,timein,\
-    timeout,enviado,response from logwhatsapp order by id desc")
-    return jsonify(wapps=wapps)
-
-
-@stock.route('/wapp')
-def stock_wapp():
-    """Muestro pagina wapp."""
-    return render_template('/stock/wapp.html')
 
 
 @stock.route('/stock/generarlistaprecios')

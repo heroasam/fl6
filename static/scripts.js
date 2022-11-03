@@ -9,7 +9,7 @@ $theads.forEach($thead => {
         heads = $thead.children.length;
     }
     if (heads ===2) {
-        console.log( 'es el caso')
+
         $thead.insertRow(0)
         $thead.removeChild($thead.firstElementChild);
         $thead.removeChild($thead.firstElementChild);
@@ -27,6 +27,60 @@ function nop(pesos) {
     }
 }
 
+const totalizar_tabla = (tableId) => {
+    let table = document.getElementById(tableId);
+    let tbody = table.querySelector('tbody');
+    let rowsArray = Array.from(tbody.rows);
+    let rowIndex = [];
+    rowsArray.forEach((row) => {
+        rowIndex.push(row.rowIndex - 1);
+        // if (row.classList.contains('total')) {
+        //     row.remove();
+        // };
+    })
+    let maxRow = Math.max(...rowIndex) + 1;
+    let $rowTotal = tbody.insertRow(maxRow);
+    $rowTotal.classList.add('total');
+
+
+    const cols = rowsArray[0].children.length; // determino la cant columnas
+    console.log( cols)
+    for (let i = 0; i < cols; i++) {
+        $rowTotal.insertCell(i);
+    }
+    $rowTotal.cells[0].innerHTML = "Total";
+
+    const $ths = table.querySelectorAll('th');
+    const $thtotal = [];
+    const $thclass = [];
+    Array.from($ths).forEach(th => {
+        if (th.classList.contains('sumar')) {
+            $thtotal.push(th.cellIndex);
+            $thclass.push(Array.from(rowsArray[0].cells[th.cellIndex].classList));
+        }
+    });
+    //para el caso de pandas donde no se puede usar el sistema de classList
+    if ($thtotal.length == 0) {
+        for (let n = 1; n < cols; n++) {
+            $thtotal.push(n);
+        }
+    }
+    for (let index in $thtotal) {
+        let i = parseInt($thtotal[index]);
+        let col = [];
+        rowIndex.forEach((ix) => {
+            col.push(nop(tbody.rows[ix].cells[i].innerText));
+        });
+        let total = col.reduce((a, b) => Number(a) + Number(b), 0);
+        let $cell = $rowTotal.cells[i];
+        if (!(Number.isNaN(total))) $cell.innerHTML = total;
+        if ($thclass.length) $cell.classList.add(...$thclass[index]);
+    }
+    let $rowTotalclone = $rowTotal.cloneNode(true)
+    tbody.appendChild($rowTotalclone)
+    tbody.insertBefore($rowTotalclone, tbody.firstChild)
+
+}
 const totalizar = (tableId) => {
     let table;
     if (typeof tableId == 'string') {
@@ -45,9 +99,10 @@ const totalizar = (tableId) => {
         if (row.classList.contains('subtotal')) {
             row.remove();
         };
+        row.cells[0].innerText=row.rowIndex
     });
-    console.log( rowIndex)
     let maxRow = Math.max(...rowIndex) + 1;
+    console.log( rowIndex,maxRow)
     let $rowTotal = tbody.insertRow(maxRow);
     $rowTotal.classList.add('subtotal');
 
