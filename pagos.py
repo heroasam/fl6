@@ -48,6 +48,8 @@ def loterbo_imprimir(fecha,cobr,idlote):
 
     estimado = pgdict(con, f"select date_format(pmovto,'%Y-%m') as periodo,sum(cuota) as cuotas from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%' and asignado={cobr} group by periodo having periodo=date_format(curdate(),'%Y-%m')")[0]
     cobrado = pgonecolumn(con, f"select sum(imp+rec) from pagos where cobr={cobr} and date_format(fecha,'%Y-%m')=date_format(curdate(),'%Y-%m')")
+    if cobrado is None:
+        cobrado = 0
     loterbo(con, listarbo,fecha,cobr,idlote, estimado['cuotas'], cobrado)
     con.close()
     return send_file('/home/hero/loterbo.pdf')
@@ -56,7 +58,11 @@ def loterbo_imprimir(fecha,cobr,idlote):
 def loterbo_reimprimir(fecha,cobr,idlote):
     con = get_con()
     listarbo = pglflat(con, f"select rbo from rbos where idloterbos={idlote}")
-    loterbo(con, listarbo, fecha,cobr,idlote)
+    estimado = pgdict(con, f"select date_format(pmovto,'%Y-%m') as periodo,sum(cuota) as cuotas from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%' and asignado={cobr} group by periodo having periodo=date_format(curdate(),'%Y-%m')")[0]
+    cobrado = pgonecolumn(con, f"select sum(imp+rec) from pagos where cobr={cobr} and date_format(fecha,'%Y-%m')=date_format(curdate(),'%Y-%m')")
+    if cobrado is None:
+        cobrado = 0
+    loterbo(con, listarbo, fecha,cobr,idlote,estimado['cuotas'],cobrado)
     con.close()
     return send_file('/home/hero/loterbo.pdf')
 
@@ -64,10 +70,16 @@ def loterbo_reimprimir(fecha,cobr,idlote):
 @pagos.route('/loterbo/ver')
 @login_required
 def loterbo_ver():
+    return render_template("pagos/loterbover.html")
+
+
+@pagos.route('/loterbo/getlistalotesrbo')
+def loterbo_getlistalotesrbo():
     con = get_con()
-    lotesrbo = pgddict(con,f"select id,fecha,cobr,cnt from loterbos order by id desc limit 100")
+    lotesrbo = pgdict(con,f"select id,fecha,cobr,cnt from loterbos order by id desc limit 100")
     con.close()
-    return render_template("pagos/loterbover.html", lotesrbo=lotesrbo )
+    return jsonify(listalotesrbo=lotesrbo)
+
 
 @pagos.route('/loterbo/delete/<string:id>')
 def loterbo_delete(id):

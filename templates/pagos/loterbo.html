@@ -1,128 +1,138 @@
-{% extends "base.html" %} {% block title %}LoteRbos{% endblock %} {%
-    block style %}
-    <style></style>
-    {% endblock %}
+{% extends "base.html" %} {% block title %}Cargar Lote Rbos{% endblock %} {%
+block style %}
+<style></style>
+{% endblock %}
 
-    {% block content %}
+{% block content %}
 
-    <div class="container">
-        <p class="title is-1">Lote Recibos</p>
-        <div class="buttons">
-            <a href="/pagos" class="button is-primary">Pagos</a>
-            <a href="/pagos/verplanillas" class="button is-primary">Planillas</a>
-            <a href="/loterbo/ver" class="button is-primary">Ver Lote Rbos</a>
-            <a href="/pagos/editarrbo" class="button is-primary">Editar Rbo</a>
-            <a href="/pagos/verzona" class="button is-primary">Ver Zona</a>
-            <a href="/pagos/cobrostotales" class="button is-primary">Totales</a>
-            <a href="/pagos/estimados" class="button is-primary">Estimados</a>
-            <a href="/pagos/comisiones" class="button is-primary">Comisiones</a>
-            <a href="/pagos/altas" class="button is-primary">Altas</a>
-            <a href="/pagos/bajas" class="button is-primary">Bajas</a>
-          </div>
-
-        <div x-data="main()">
-            <div class="fields is-horizontal block">
-                <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
-                <input type="date" x-model="fecha" class="input" style="width: 200px;">
-                <input type="text" x-model="cobr" class="input" style="width: 100px;" placeholder="Cobrador">
-                <input type="text" x-model="cnt" class="input" style="width: 100px;" placeholder="Cnt Rbos" disabled>
-                <button type="button" class="button is-danger" @click="validarLote()">Guardar e Imprimir</button>
-                <button type="button" class="button is-warning" @click="limpiar">Limpiar</button>
-            </div>
-            <div class="fields is-horizontal block">
-                <input type="text" x-model="desde" class="input" style="width: 100px;" placeholder="Desde" @keyup="hasta=desde" @keyup.enter="$refs.hasta.focus()" @focus="desde=''">
-                <button type="button" class="button is-info  is-rounded" @click="hasta=Number(desde)+49">50</button>
-                <input type="text" x-model="hasta" class="input" style="width: 100px;" placeholder="Hasta" x-ref="hasta" @keydown="cambiarNum(event)">
-                <button type="button" class="button is-danger" @click="agregarRbos(desde,hasta)">Agregar</button>
-                <button type="button" class="button is-warning" @click="quitarRbos(desde,hasta)">Quitar</button>
-            </div>
-
-            <div class="buttons">
-                <template x-for="rbo in listaRbos">
-                <button type="button" class="button is-success" x-text="rbo" @dblclick="borrarRbo(rbo)"></button>
-                </template>
-            </div>
-
-
+<div class="container"  x-data="main()">
+  <div class="buttons">
+    <a href="/pagos" class="button is-primary">Pagos</a>
+    <a href="/pagos/verplanillas" class="button is-primary">Planillas</a>
+    <a href="/loterbo/ver" class="button is-primary">Ver Lote Rbos</a>
+    <a href="/pagos/editarrbo" class="button is-primary">Editar Rbo</a>
+    <a href="/pagos/verzona" class="button is-primary">Ver Zona</a>
+    <a href="/pagos/cobrostotales" class="button is-primary">Totales</a>
+    <a href="/pagos/estimados" class="button is-primary">Estimados</a>
+    <a href="/pagos/comisiones" class="button is-primary">Comisiones</a>
+    <a href="/pagos/altas" class="button is-primary">Altas</a>
+    <a href="/pagos/bajas" class="button is-primary">Bajas</a>
+  </div>
+  <div class="columns">
+    <div class="column is-5">
+      <p class="title is-1">Cargar Lote Recibos</p>
     </div>
-    {% endblock %} {% block script %}
-    <script>
-        function main(){
-            return {
-                fecha:'',
-                cobr:'',
-                cnt:'',
-                listaRbos:[],
-                desde:'',
-                hasta:'',
-                idloterbo:'',
+    <div class="column is-5">
+      <span class="tag title is-3" x-text="nombreCobrador" x-show="nombreCobrador"></span>
+    </div>
+  </div>
 
-                agregarRbos(desde,hasta){
-                    for(i=desde;i<=hasta;i++){
-                        this.listaRbos.push(i)
-                    }
-                    this.cnt = this.listaRbos.length
-                },
-                quitarRbos(desde,hasta){
-                    for(i=desde;i<=hasta;i++){
-                        let index = this.listaRbos.indexOf(i)
-                        this.listaRbos.splice(index,1)
-                    }
-                    this.cnt = this.listaRbos.length
-                },
-                borrarRbo(rbo){
-                    let index = this.listaRbos.indexOf(rbo)
-                    this.listaRbos.splice(index,1)
-                    this.cnt = this.listaRbos.length
-                },
-                cambiarNum(e){
-                    e.preventDefault()
-                    if(e.key==='+') this.hasta=Number(this.hasta)+1
-                    if(e.key==='-') this.hasta=Number(this.hasta)-1
-                    if(e.key==='*') this.hasta=Number(this.hasta)+10
-                    if(e.key==='/') this.hasta=Number(this.hasta)-10
-                },
-                validarLote(){
-                    if(this.fecha!=''&&this.cobr!=''&&this.cnt!=''){
-                        this.guardarLote()
-                    }else{
-                        msgError('Complete los campos faltantes')
-                    }
-                },
-                guardarLote(){
-                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
-                    axios({
-                        method:'POST',
-                        url:'/loterbo/guardarlote/'+this.fecha+'/'+this.cobr,
-                        data:this.listaRbos,
+  <div class="fields is-horizontal block">
+    <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+    <input type="date" x-model="fecha" class="input" style="width: 200px;">
+    <input type="text" x-model="cobr" class="input" style="width: 100px;" placeholder="Cobrador"
+           @blur="buscarCobrador(cobr)" @keyup.enter="buscarCobrador(cobr)">
+    <input type="text" x-model="cnt" class="input" style="width: 100px;" placeholder="Cnt Rbos" disabled>
+    <button type="button" class="button is-danger" @click="validarLote()">Guardar e Imprimir</button>
+    <button type="button" class="button is-warning" @click="limpiar">Limpiar</button>
+  </div>
+  <div class="fields is-horizontal block">
+    <input type="text" x-model="desde" class="input" style="width: 100px;" placeholder="Desde"
+           @keyup="hasta=desde" @keyup.enter="$refs.hasta.focus()" @focus="desde=''">
+    <button type="button" class="button is-info  is-rounded" @click="hasta=Number(desde)+49">50</button>
+    <input type="text" x-model="hasta" class="input" style="width: 100px;" placeholder="Hasta"
+           x-ref="hasta" @keydown="cambiarNum(event)" @focusin="mostrarAyuda=true">
+    <button type="button" class="button is-danger" @click="agregarRbos(desde,hasta)">Agregar</button>
+    <button type="button" class="button is-warning" @click="quitarRbos(desde,hasta)">Quitar</button>
+  </div>
+  <div class="notification is-warning block pointer" x-show="mostrarAyuda" @click="mostrarAyuda=false">
+    <h2 class="subtitle is-5">|+| un numero adelante |-| un numero atras |*|
+      diez numeros adelante |/| diez numeros atras</h2>
+  </div>
 
-                    })
-                    .then(res=>{
-                        this.idloterbo = res.data.idlote
-                        this.imprimirLote()
-                    })
-                },
-                imprimirLote(){
-                    axios({
-                        method: "POST",
-                        url: "/loterbo/imprimir/"+this.fecha+"/"+this.cobr+"/"+this.idloterbo,
-                        responseType: "blob",
-                        data: this.listaRbos,
-                    }).then((res)=>{
-                        let url = window.URL.createObjectURL(res.data);
-                        window.open(url);
-                    })
-                },
-                limpiar(){
-                    this.listaRbos=[]
-                    this.cobr=''
-                    this.cnt=''
-                    this.desde=''
-                    this.hasta=''
-                }
+  <div class="buttons">
+    <template x-for="rbo in listaRbos">
+      <button type="button" class="button is-dark is-small" x-text="rbo" @dblclick="borrarRbo(rbo)"></button>
+    </template>
+  </div>
 
-            }
-        }
 
-    </script>
-    {% endblock %}
+</div>
+{% endblock %} {% block script %}
+<script>
+ function main(){
+     return {
+         fecha:'',
+         cobr:'',
+         cnt:'',
+         listaRbos:[],
+         desde:'',
+         hasta:'',
+         idloterbo:'',
+         nombreCobrador:'',
+         mostrarAyuda:false,
+         agregarRbos(desde,hasta){
+             for(i=desde;i<=hasta;i++){
+                 this.listaRbos.push(i)
+             }
+             this.cnt = this.listaRbos.length
+         },
+         quitarRbos(desde,hasta){
+             for(i=desde;i<=hasta;i++){
+                 let index = this.listaRbos.indexOf(i)
+                 this.listaRbos.splice(index,1)
+             }
+             this.cnt = this.listaRbos.length
+         },
+         borrarRbo(rbo){
+             let index = this.listaRbos.indexOf(rbo)
+             this.listaRbos.splice(index,1)
+             this.cnt = this.listaRbos.length
+         },
+         cambiarNum(e){
+             e.preventDefault()
+             if(e.key==='+') this.hasta=Number(this.hasta)+1
+             if(e.key==='-') this.hasta=Number(this.hasta)-1
+             if(e.key==='*') this.hasta=Number(this.hasta)+10
+             if(e.key==='/') this.hasta=Number(this.hasta)-10
+         },
+         validarLote(){
+             if(this.fecha!=''&&this.cobr!=''&&this.cnt!=''){
+                 this.guardarLote()
+             }else{
+                 msgError('Complete los campos faltantes')
+             }
+         },
+         guardarLote(){
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
+             axios.post('/loterbo/guardarlote/'+this.fecha+'/'+this.cobr,this.listaRbos)
+                  .then(res=>{
+                      this.idloterbo = res.data.idlote
+                      this.imprimirLote()
+                  })
+         },
+         imprimirLote(){
+             axios.post("/loterbo/imprimir/"+this.fecha+"/"+this.cobr+"/"+this.idloterbo,this.listaRbos,{responseType: "blob"})
+                  .then((res)=>{
+                      let url = window.URL.createObjectURL(res.data);
+                      window.open(url);
+                  })
+         },
+         limpiar(){
+             this.listaRbos=[]
+             this.cobr=''
+             this.cnt=''
+             this.desde=''
+             this.hasta=''
+         },
+         buscarCobrador(id){
+             axios.get('/loterbo/buscanombrecobr/'+id)
+                  .then(res=>{
+                      this.nombreCobrador=res.data.nombrecobr
+                  })
+         },
+
+     }
+ }
+</script>
+{% endblock %}

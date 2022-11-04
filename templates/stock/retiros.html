@@ -70,7 +70,8 @@
              this.totpapi = this.totpapi.map(el=>Math.abs(el))
              this.totalfede = this.totfede.map(a=>Number.isNaN(a)?0:a).reduce((a,b)=>(a+b))
              this.totalpapi = this.totpapi.map(a=>Number.isNaN(a)?0:a).reduce((a,b)=>(a+b))
-             this.retirosocios = [this.totalfede, this.totalpapi]
+             totalretiros = this.totalfede + this.totalpapi
+             this.retirosocios = [this.totalfede/totalretiros*100, this.totalpapi/totalretiros*100]
 
              const canvas = document.getElementById('grafico-estadistica').getContext('2d');
              const labels = this.index;
@@ -113,17 +114,17 @@
                  type: 'doughnut',
                  data: {
                      labels: [
-                         'Papi',
-                         'Fede',
+                         '% Papi',
+                         '% Fede',
                      ],
                      datasets: [{
-                         label: 'Retiro Socios',
+                         label: 'Porcentaje Retiro Socios',
                          data: this.retirosocios,
                          backgroundColor: [
                              'rgb(255, 205, 86)',
                              'rgb(66, 135, 245)',
                          ],
-                         hoverOffset: 4
+                         hoverOffset: 2
                      }]
                  }
              })

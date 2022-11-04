@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Planillas de Rendicion{% endblock %}
+{% block title %}Planillas de Cobranza{% endblock %}
 {% block style %}
 <style>
  table td:nth-child(n+3){
@@ -12,8 +12,6 @@
 {% block content %}
 
 <div class="container" x-data="main()" x-init="getPlanillas()">
-
-  <p class="title is-1">Planillas de Cobranza</p>
 
   <div class="buttons">
     <a href="/pagos" class="button is-primary">Pagos</a>
@@ -28,6 +26,8 @@
     <a href="/pagos/bajas" class="button is-primary">Bajas</a>
   </div>
 
+  <p class="title is-1">Planillas de Cobranza</p>
+
   <table class="table" id="table">
     <thead>
       <tr>
@@ -38,7 +38,7 @@
         <th class="sumar numeric">viatico</th>
         <th class="sumar numeric">neto</th>
         <th class="sumar numeric">cntrbos</th>
-        <th>Op</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -59,45 +59,19 @@
 
       <template x-for="item in planillaFecha">
         <tr class="children">
+          <td x-text="item.idcobr" class="bold text-big"></td>
           <td x-text="item.fecha"></td>
-          <td x-text="item.idcobr"></td>
           <td x-text="item.cobrado" class="pesos"></td>
           <td x-text="item.comision" class="pesos"></td>
           <td x-text="item.viatico" class="pesos"></td>
           <td x-text="item.cobrado-item.comision-item.viatico"
               class="pesos" style="font-weight:bold;"></td>
           <td x-text="item.cntrbos"></td>
+          <td></td>
         </tr>
       </template>
     </tbody>
   </table>
-  <!-- <table class="table">
-       <thead>
-       <tr>
-       <th>fecha</th>
-       <th>cobr</th>
-       <th class="sumar numeric">cobrado</th>
-       <th class="sumar numeric">comision</th>
-       <th class="sumar numeric">viatico</th>
-       <th class="sumar numeric">neto</th>
-       <th class="sumar numeric">cntrbos</th>
-       </tr>
-       </thead>
-       <tbody>
-       <template x-for="plcobr in planillasCobr">
-       <tr>
-       <td x-text="plcobr.fecha"></td>
-       <td x-text="plcobr.idcobr"></td>
-       <td x-text="plcobr.cobrado" class="pesos"></td>
-       <td x-text="plcobr.comision" class="pesos"></td>
-       <td x-text="plcobr.viatico" class="pesos"></td>
-       <td x-text="plcobr.cobrado-plcobr.comision-plcobr.viatico"
-       class="pesos" style="font-weight:bold;"></td>
-       <td x-text="plcobr.cntrbos"></td>
-       </tr>
-       </template>
-       </tbody>
-       </table> -->
   <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
 </div>
 

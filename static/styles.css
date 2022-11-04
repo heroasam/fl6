@@ -444,3 +444,7 @@ thead th {
 .text-big{
     font-size: 1.5em !important;
 }
+.bold{
+    font-weight: bold !important;
+    font-size: 1.1em !important;
+}

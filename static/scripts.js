@@ -67,13 +67,6 @@ const totalizar_tabla = (tableId, nivel=2) => {
         for (let n = 1; n < cols; n++) {
             $thtotal.push(n);
         }
-        console.log( cols)
-        // let $row = Array.from(tbody.rows[1].children)
-        // $row.forEach(item=>{
-        //     if(item.tagName=='TD'){
-        //         $thtotal.push(item.cellIndex)
-        //     }
-        // })
     }
     let listaTotales = []
     for (let index in $thtotal) {
@@ -123,7 +116,7 @@ const totalizar = (tableId) => {
         if (row.classList.contains('subtotal')) {
             row.remove();
         };
-        row.cells[0].innerText=row.rowIndex
+        // row.cells[0].innerText=row.rowIndex
     });
     let maxRow = Math.max(...rowIndex) + 1;
     let $rowTotal = tbody.insertRow(maxRow);

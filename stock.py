@@ -160,10 +160,10 @@ def stock_retiros():
         ,aggfunc='sum').sort_index(axis=0,level='fecha',ascending=False)
     col0 = tbl.iloc[:,0]
     col1 = tbl.iloc[:,1]
-    diff1 = col0.sub(col1,axis=0)
+    diff1 = col0.sub(col1,axis=0,fill_value=0)
     col2 = tbl.iloc[:,2]
     col3 = tbl.iloc[:,3]
-    diff2 = col2.sub(col3,axis=0)
+    diff2 = col2.sub(col3,axis=0,fill_value=0)
     tbl.insert(4,'diff1', diff1)
     tbl.insert(5,'diff2', diff2)
     totfede = tbl.iloc[:,0].add(tbl.iloc[:,2],axis=0,fill_value=0).tolist()
