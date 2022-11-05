@@ -410,13 +410,20 @@ def stock_guardaredicionarticulo():
     """Guardar edicion de articulo."""
     con = get_con()
     d_data = json.loads(request.data.decode("UTF-8"))
+    codigo = d_data['codigo']
+    if codigo is None or codigo=="anular":
+        print('codigo is None or anular')
+        updcod = f"update articulos set codigo=NULL where id={d_data['id']}"
+    else:
+        updcod = f"update articulos set codigo='{d_data['codigo']}' where \
+        id={d_data['id']}"
     upd = f"update articulos set art='{d_data['art']}', costo= \
     {d_data['costo']}, activo= {d_data['activo']}, cuota= {d_data['cuota']},\
-    grupo='{d_data['grupo']}',codigo='{d_data['codigo']}' where id=\
-    {d_data['id']}"
+    grupo='{d_data['grupo']}' where id= {d_data['id']}"
     cur = con.cursor()
     try:
         cur.execute(upd)
+        cur.execute(updcod)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
@@ -424,6 +431,7 @@ def stock_guardaredicionarticulo():
     else:
         con.commit()
         log(upd)
+        log(updcod)
         cur.close()
         con.close()
         return 'OK'

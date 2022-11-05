@@ -193,6 +193,9 @@
              this.Articulo = this.listaArticulos.filter(row=>row.id==id)[0]
          },
          validarEdicion(){
+             if(this.Articulo.codigo=="") this.Articulo.codigo= "anular"
+             // En el caso que el usuario quiera anular el codigo y lo borre pongo "anular" para que
+             // pase la validacion y luego en python lo procesa y pone NULL a mariadb
              if(this.isValid(this.Articulo)){
                  this.guardarEdicion()
              }else{

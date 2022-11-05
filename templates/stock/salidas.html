@@ -55,6 +55,7 @@
             <th>art</th>
             <th>cnt</th>
             <th class="sumar numeric">costo</th>
+            <th class="sumar numeric">total</th>
             <th>comentario</th>
           </tr>
         </thead>
@@ -67,6 +68,7 @@
                 <td x-text="salida.art"></td>
                 <td x-text="salida.cnt"></td>
                 <td x-text="salida.costo"></td>
+                <td x-text="salida.costo*salida.cnt"></td>
                 <td x-text="salida.comentario"></td>
             </tr>
           </template>
