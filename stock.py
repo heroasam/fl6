@@ -412,7 +412,6 @@ def stock_guardaredicionarticulo():
     d_data = json.loads(request.data.decode("UTF-8"))
     codigo = d_data['codigo']
     if codigo is None or codigo=="anular":
-        print('codigo is None or anular')
         updcod = f"update articulos set codigo=NULL where id={d_data['id']}"
     else:
         updcod = f"update articulos set codigo='{d_data['codigo']}' where \

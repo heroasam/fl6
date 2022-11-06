@@ -2,6 +2,9 @@
 <span class="nav-bar" id="btnMenu"><span class="icon-menu"><i class="fa fa-bars" aria-hidden="true"></i></span></span>
 <nav class="main-nav">
   <div class="menu" id="menu">
+    {% if current_user.email in ("sergiofedericosalvay@gmail.com","yooiiyoo@gmail.com") %}
+    <a href="/conta" class="menu__link">Conta</a>
+    {% endif %}
     <a href="/buscador" class="menu__link">Clientes</a>
     <a href="/ventas/listado" class="menu__link">Ventas</a>
     <a href="/pagos" class="menu__link">Pagos</a>
