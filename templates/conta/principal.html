@@ -10,7 +10,7 @@
   <div class="block">
     <a href="/conta/cuentas" class="button">Cuentas</a>
   </div>
-  <button class="button mb-3 block" @click="Cuenta={};agregarAsiento()">Agregar Asiento</button>
+  <button class="button mb-3 block" @click="Cuenta={};agregarasiento()">agregar asiento</button>
 
   <table class="table nototal" id="table">
     <thead>
@@ -52,6 +52,7 @@
         <input name="idfecha" class="input" type="date" x-model="Asiento.fecha" />
         <label for="idcuenta">Cuenta</label>
         <input name="idcuenta" class="input" type="text" x-model="Asiento.cuenta" list="listacuentas" />
+
         <datalist id="listacuentas">
           <template x-for="item in cuentas">
             <option :value="item"></option>
