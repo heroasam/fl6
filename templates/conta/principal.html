@@ -9,8 +9,10 @@
 <div class="container" x-data="main()" x-init="getAsientos()">
   <div class="block">
     <a href="/conta/cuentas" class="button">Cuentas</a>
+    <a href="/conta/cuadro" class="button">Cuadro</a>
   </div>
-  <button class="button mb-3 block" @click="Cuenta={};agregarasiento()">agregar asiento</button>
+  <h1 class="title is-3 orange right" x-text="'Saldo $'+saldoCaja"></h1>
+  <button class="button mb-3 block" @click="Cuenta={};agregarAsiento()">agregar asiento</button>
 
   <table class="table nototal" id="table">
     <thead>
@@ -81,12 +83,13 @@
          listAsientos:[],
          Asiento:{fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',comentario:''},
          cuentas:[],
+         saldoCaja:'',
          getAsientos(){
              axios.get('/conta/getasientos')
                   .then(res=>{
                       this.listAsientos = res.data.asientos
                       this.listAsientos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
-                      this.saldo = res.data.saldo
+                      this.saldoCaja = res.data.saldo
                       this.cuentas = res.data.cuentas
                   })
          },
@@ -109,7 +112,27 @@
                                                                      this.Asiento={fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',comentario:''},
                                                                      msgSuccess('Exito!','Asiento guardado con exito')
                                                                  })
+                                                                 .catch(error=>msgError('Asiento no guardado. Verifique la cuenta'))
          },
+         borrarAsiento(id){
+                     Swal.fire({
+            title: '¿Esta seguro?',
+            text: `Se borrara el asiento ${id}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, borrarlo!'
+            }).then((result) => {
+            if (result.isConfirmed) {
+                axios.get('/conta/borrarasiento/'+id)
+                     .then(res=>{
+                         msgSuccess('Borrado!','El asiento ha sido borrado')
+                         this.getAsientos()})
+                     .catch(error=>msgError('No se pudo borrar. Hubo un error.'))
+            }})
+         },
+
 
      }
  }

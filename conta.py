@@ -66,7 +66,7 @@ def conta_editarcuenta():
     """Editar Cuentas."""
     con = get_con()
     d_data = json.loads(request.data.decode("UTF-8"))
-    upd = f"update ctas1 set cuenta='{d_data['cuenta']}',tipo={d_data['tipo']} \
+    upd = f"update ctas1 set cuenta='{d_data['cuenta']}',tipo='{d_data['tipo']}' \
     where id={d_data['id']}"
     cur = con.cursor()
     cur.execute(upd)
@@ -81,12 +81,18 @@ def conta_agregarcuenta():
     con = get_con()
     d_data = json.loads(request.data.decode("UTF-8"))
     ins = f"insert into ctas1(cuenta,tipo) values('{d_data['cuenta']}',\
-    {d_data['tipo']})"
+    '{d_data['tipo']}')"
     cur = con.cursor()
-    cur.execute(ins)
-    con.commit()
-    con.close()
-    return 'ok'
+    try:
+        cur.execute(ins)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error,400)
+    else:
+        con.commit()
+        con.close()
+        return 'ok'
 
 
 @conta.route('/conta/borrarcuenta/<int:id_cuenta>')
@@ -113,11 +119,10 @@ def conta_guardarasiento():
     con = get_con()
     d_dato = json.loads(request.data.decode("UTF-8"))
     tipo = pgonecolumn(con, f"select tipo from ctas1 where cuenta='{d_dato['cuenta']}'")
-    if tipo in [0, 3]:
+    if tipo == "egresos":
         importe = int(d_dato['imp'])*(-1)
     else:
         importe = int(d_dato['imp'])
-    print(d_dato)
     ins = f"insert into caja1(fecha,cuenta,imp,comentario) values\
     ('{d_dato['fecha']}','{d_dato['cuenta']}',{importe},'{d_dato['comentario']}')"
     cur = con.cursor()
@@ -135,7 +140,41 @@ def conta_getasientos():
     asientos=pgdict(con, "select id,fecha, cuenta, imp, comentario from caja1 \
             order by id desc limit 100")
     saldo = pgonecolumn(con, "select sum(imp) from caja1,ctas1 where \
-            caja1.cuenta=ctas1.cuenta and tipo in (0,1)")
+            caja1.cuenta=ctas1.cuenta")
     cuentas = pglflat(con, "select cuenta from ctas1")
     con.close()
     return jsonify(asientos=asientos,saldo=saldo, cuentas=cuentas)
+
+
+@conta.route('/conta/borrarasiento/<int:id_asiento>')
+def conta_borrarasiento(id_asiento):
+    """Borrado de asiento."""
+    con = get_con()
+    stm=f'delete from caja1 where id={id_asiento}'
+    cur = con.cursor()
+    try:
+        cur.execute(stm)
+    except:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        cur.close()
+        con.close()
+        return 'OK'
+
+
+@conta.route('/conta/obtenerresumenmensual/<mes>')
+def conta_obtenerresumenmensual(mes):
+    """Obtengo resumen mensual."""
+    con = get_con()
+    resumen = pgdict(con, f"select caja1.cuenta as cuenta,sum(imp) as imp,tipo \
+    from caja1,ctas1 where date_format(fecha,'%Y-%m')='{mes}' and caja1.cuenta=\
+    ctas1.cuenta group by caja1.cuenta")
+    return jsonify(resumen=resumen)
+
+
+@conta.route('/conta/cuadro')
+def conta_cuadro():
+    return render_template("conta/cuadro.html")

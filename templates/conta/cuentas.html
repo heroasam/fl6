@@ -10,6 +10,7 @@
 <div class="container" x-data="main()" x-init="getCuentas()">
   <div class="block">
     <a href="/conta" class="button">Asientos</a>
+    <a href="/conta/cuadro" class="button">Cuadro</a>
   </div>
   <h1 class="title is-size-1">Cuentas</h1>
 
@@ -53,11 +54,15 @@
         <label for="idcuenta">Cuenta</label>
         <input name="idcuenta" class="input" type="text" x-model="Cuenta.cuenta" />
         <label for="idtipo">Tipo</label>
-        <input name="idtipo" class="input" type="text" x-model="Cuenta.tipo" />
+        <input name="idtipo" class="input" type="text" x-model="Cuenta.tipo" list="listTipos" />
+        <datalist id="listTipos">
+          <option value="ingresos"></option>
+          <option value="egresos"></option>
+        </datalist>
 
       </section>
       <footer class="modal-card-foot">
-        <button class="button is-success" @click="guardarRegistro()">Editar</button>
+        <button class="button is-success" @click="guardarRegistro()">Agregar</button>
         <button class="button" @click="toggleModal('modal-add')">Cancelar</button>
       </footer>
     </div>
@@ -77,7 +82,11 @@
         <label for="idcuenta">Cuenta</label>
         <input name="idcuenta" class="input" type="text" x-model="Cuenta.cuenta" />
         <label for="idtipo">Tipo</label>
-        <input name="idtipo" class="input" type="text" x-model="Cuenta.tipo" />
+        <input name="idtipo" class="input" type="text" x-model="Cuenta.tipo" list="listTipos" />
+        <datalist id="listTipos">
+            <option value="ingresos"></option>
+            <option value="egresos"></option>
+        </datalist>
 
       </section>
       <footer class="modal-card-foot">

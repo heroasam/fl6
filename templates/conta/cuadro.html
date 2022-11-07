@@ -6,16 +6,8 @@
 
 <div x-data="main()" class="container" x-init="obtenerListaMeses();obtenerDatos(dayjs().format('YYYY-MM'))">
   <div class="block">
-    <a href="/stock/asientos"  type="button" class="button is-primary">Asientos</a>
-    <a href="/stock/mayor"  type="button" class="button is-primary">Mayor</a>
-    <a href="/stock/pivotcuentas"  type="button" class="button is-primary">Pivot-Cuentas</a>
-    <a href="/stock/retiros"  type="button" class="button is-primary">Retiros</a>
-    <a href="/stock/compras"  type="button" class="button is-primary">Compras</a>
-    <a href="/stock/salidas"  type="button" class="button is-primary">Salidas</a>
-    <a href="/stock/articulos"  type="button" class="button is-primary">Articulos</a>
-    <a href="/stock/verstock"  type="button" class="button is-primary">Stock</a>
-    <a href="/stock/cuentas"  type="button" class="button is-primary">Cuentas</a>
-    <a href="/stock/proveedores"  type="button" class="button is-primary">Proveedores</a>
+    <a href="/conta" class="button">Asientos</a>
+    <a href="/conta/cuentas" class="button">Cuentas</a>
   </div>
 
   <div class="columns">
@@ -39,7 +31,7 @@
           <tbody>
             <template x-for="item in listaIngresos">
               <tr>
-                <td x-text="item.cuenta" style="min-width:250px;"></td>
+                <td x-text="item.cuenta" style="width:250px;"></td>
                 <td x-text="item.imp" class="sumar pesos"></td>
               </tr>
             </template>
@@ -51,7 +43,7 @@
           <tbody>
             <template x-for="item in listaEgresos">
               <tr>
-                <td x-text="item.cuenta" style="min-width:250px;" :class="item.cuenta=='compras'||item.cuenta=='depositos sorpresa'?'red':''"></td>
+                <td x-text="item.cuenta" style="width:250px;" :class="item.cuenta=='compras'||item.cuenta=='depositos sorpresa'?'red':''"></td>
                 <td x-text="item.imp" class="sumar pesos"></td>
               </tr>
             </template>
@@ -78,11 +70,11 @@
          cuentasEgresos:[],
          chart:'',
          obtenerDatos(mes){
-             axios.get('/stock/obtenerresumenmensual/'+mes)
+             axios.get('/conta/obtenerresumenmensual/'+mes)
                   .then(res=>{
                       this.listaResumen = res.data.resumen
-                      this.listaIngresos = this.listaResumen.filter(row=>(row.tipo==1||row.tipo==2) && row.cuenta!='santander ingreso cobradores');
-                      this.listaEgresos = this.listaResumen.filter(row=>(row.tipo==0||row.tipo==3) && row.cuenta!='transferencia de cobradores');
+                      this.listaIngresos = this.listaResumen.filter(row=>(row.tipo=="ingresos"));
+                      this.listaEgresos = this.listaResumen.filter(row=>(row.tipo=="egresos"));
                       this.ingresos = this.sumarLista(this.listaIngresos)
                       this.egresos = this.sumarLista(this.listaEgresos)
                       this.calculoEgresos(this.listaEgresos)
@@ -90,11 +82,9 @@
                   })
          },
          calculoEgresos(lista){
-             let compras = this.sumarLista(lista.filter(row=>row.cuenta=='compras'||row.cuenta=='depositos sorpresa'))
-             let retiros = this.sumarLista(lista.filter(row=>row.cuenta=='retiro papi'||row.cuenta=='retiro fede'||row.cuenta=='santander retiro papi'|| row.cuenta=='santander retiro fede'))
-             let gastos = Math.abs(this.egresos) - Math.abs(compras) - Math.abs(retiros)
+             let gastos = Math.abs(this.egresos)
              let noUsado = this.ingresos - Math.abs(this.egresos)
-             this.cuentasEgresos=[gastos, Math.abs(compras), Math.abs(retiros), noUsado]
+             this.cuentasEgresos=[gastos, noUsado]
          },
          obtenerListaMeses(){
              for(let i=0;i<12;i++){
@@ -116,8 +106,6 @@
                  data: {
                      labels: [
                          'Gastos',
-                         'Compras',
-                         'Retiros',
                          'No Usado'
                      ],
                      datasets: [{
@@ -125,8 +113,6 @@
                          data: this.cuentasEgresos,
                          backgroundColor: [
                              'rgb(255, 99, 132)',
-                             'rgb(78, 245, 66)',
-                             'rgb(255, 205, 86)',
                              'rgb(66, 135, 245)',
                          ],
                          hoverOffset: 4
