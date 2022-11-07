@@ -23,15 +23,15 @@
       <h1 style="width:70%;" class="title is-size-1">Cuadro Mensual</h1>
     </div>
   </div>
+  <div id="btnMeses" class="block buttons">
+    <template x-for="mes in listaMeses">
+      <button class="button is-primary is-small" x-text="mes" @click="obtenerDatos(mes);
+                     limpiarToggles();$event.target.classList.toggle('is-danger')"></button>
+    </template>
+  </div>
 
   <div class="columns">
     <div class="column is-6">
-      <div id="btnMeses">
-        <template x-for="mes in listaMeses">
-          <button class="button is-primary is-small mr-1" x-text="mes" @click="obtenerDatos(mes);
-                         limpiarToggles();$event.target.classList.toggle('is-danger')"></button>
-        </template>
-      </div>
       <div class="mt-5">
         <table class="table">
           <h1 class="title is-3" x-text="'Ingresos $'+ingresos"></h1>
@@ -60,7 +60,9 @@
       </div>
     </div>
     <div class="column is-6">
-      <canvas id="grafico-estadistica" width="700" height="600"></canvas>
+      <div class="box">
+        <canvas id="grafico-estadistica" width="700" height="600"></canvas>
+      </div>
     </div>
   </div>
 </div>

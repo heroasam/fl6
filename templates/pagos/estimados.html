@@ -25,12 +25,17 @@
 
   <p class="title is-1">Estimados a Cobrar</p>
 
+  <div class="columns">
+    <div class="column is-8">
   {{tbl|safe}}
-  <div class="block">
-    <canvas id="grafico-estadistica" width="400" height="200"></canvas>
+  <div class="box">
+    <canvas id="grafico-estadistica" width="300" height="200"></canvas>
   </div>
-  <p class="subtitle is-3">Estimados por Zona</p>
+  <p class="title is-1">Estimados por Zona</p>
   {{tbl1|safe}}
+    </div>
+  </div>
+
 </div>
 {% endblock %}
 

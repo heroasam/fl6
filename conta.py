@@ -16,7 +16,7 @@ def create_tables():
 CREATE TABLE IF NOT EXISTS `ctas1` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `cuenta` varchar(45) COLLATE latin1_spanish_ci NOT NULL,
-  `tipo` int(11) DEFAULT NULL,
+  `tipo` varchar(20) DEFAULT NULL,
   `grupo` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `cuenta_UNIQUE` (`cuenta`)

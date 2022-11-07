@@ -370,9 +370,10 @@ def pagos_cobrostotales():
     tbl1 = pd.pivot_table(df1, values=['cuota'],index=['asignado','zona'],columns='fp',aggfunc='sum').sort_index(axis=1, level='fp',ascending=False)
     tbl = tbl.fillna("")
     tbl1 = tbl1.fillna("")
+    index = tbl.columns.tolist()
     tbl = tbl.to_html(table_id="totales",classes="table")
     tbl1 = tbl1.to_html(table_id="totaleszona",classes="table")
-    return render_template("pagos/totales.html", tbl=tbl, tbl1=tbl1 )
+    return render_template("pagos/totales.html", tbl=tbl, tbl1=tbl1, index=index )
 
 
 @pagos.route('/pagos/estimados')
