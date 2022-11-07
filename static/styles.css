@@ -161,6 +161,10 @@ thead th {
         border: solid 2px turquoise;
         border-radius: 5px;
 }
+.input-dark{
+    background-color:#282f2f !important;
+    color:white !important;
+}
 .suggestions{
     max-height: 200px;
     width: 100%;
@@ -187,6 +191,10 @@ thead th {
 }
 .cancelado{
     background-color: mediumaquamarine;
+}
+.cancelada{
+     background-color:pink;
+     color: grey;
 }
 
 /* placeholder */
@@ -269,12 +277,17 @@ thead th {
 .flex{
     display:flex;
 }
+.flex-col{
+    display:flex;
+    flex-direction: column;
+}
 .flex-space-between{
     display:flex;
     justify-content:space-between;
 }
 .grid{
     display:grid;
+    row-gap: 10px;
 }
 .flex-center{
     display:flex;
