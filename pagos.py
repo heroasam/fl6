@@ -105,15 +105,13 @@ def pagos_():
     return render_template("pagos/pagos.html")
 
 
-@pagos.route('/pagos/planilla/<string:fechapago>/<int:cobrador>')
-def pagos_planilla(fechapago, cobrador):
+@pagos.route('/pagos/listado/<string:fechapago>/<int:cobrador>')
+def pagos_listado(fechapago, cobrador):
     con = get_con()
-    sql = f"select pagos.id as id, rbo, fecha, idvta,imp as imp, rec as rec, (imp+rec) as total, nombre, concat(calle,' ',num) as direccion, zona,deuda as deuda from pagos, clientes where clientes.id=pagos.idcliente and fecha='{fechapago}' and pagos.cobr={cobrador} order by id desc"
-    cur = con.cursor(dictionary=True)
-    cur.execute(sql)
-    planilla = cur.fetchall()
+    listado = pgdict(con, f"select pagos.id as id, rbo, fecha, idvta,imp as imp, rec as rec, (imp+rec) as total, nombre, concat(calle,' ',num) as direccion, zona,deuda as deuda from pagos, clientes where clientes.id=pagos.idcliente and fecha='{fechapago}' and pagos.cobr={cobrador} order by id desc")
+    planilla = pgdict(con, f"select * from planillas where fecha='{fechapago}' and idcobr={cobrador}")
     con.close()
-    return jsonify(planilla=planilla)
+    return jsonify(listado=listado, planilla=planilla)
 
 
 @pagos.route('/pagos/buscar/<string:cuenta>')
