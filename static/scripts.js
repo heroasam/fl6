@@ -470,16 +470,16 @@ function toggleTheme() {
     // to change the css sheet.
     if (theme.getAttribute('href') == light) {
         theme.setAttribute('href', dark);
-        localStorage.setItem("bulma", dark);
+        localStorage.setItem("cdn-theme", dark);
     } else {
         theme.setAttribute('href', light);
-        localStorage.setItem("bulma", light);
+        localStorage.setItem("cdn-theme", light);
     }
 }
 document.addEventListener("DOMContentLoaded", () => {
-    let bulma = localStorage.getItem('bulma');
+    let cdnTheme = localStorage.getItem('cdn-theme');
     const theme = document.getElementById('bulma');
-    theme.setAttribute('href', bulma);
+    theme.setAttribute('href', cdnTheme);
 });
 
 function toggleModal(id) {
