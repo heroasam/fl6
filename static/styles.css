@@ -165,6 +165,11 @@ thead th {
     background-color:#282f2f !important;
     color:white !important;
 }
+.input-dark::placeholder{
+    font-weight: bold !important;
+    font-size: 1.2em !important;
+    color: antiquewhite !important;
+}
 .suggestions{
     max-height: 200px;
     width: 100%;

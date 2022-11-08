@@ -1,10 +1,11 @@
 from flask import Blueprint,render_template,jsonify,make_response, request
 from flask_login import login_required, current_user
-from con import get_con, log, engine
+import re
 import pandas as pd
 import simplejson as json
 import mysql.connector
 import logging
+from con import get_con, log, engine
 from lib import *
 
 ventas = Blueprint('ventas',__name__)
@@ -736,3 +737,20 @@ def ventas_obtenerventasultyear():
     for row in result:
         listventas.append(row['vta'])
     return jsonify(ventas=listventas)
+
+
+@ventas.route('/ventas/buscarcliente/<string:buscar>')
+def ventas_buscarcliente(buscar):
+    con = get_con()
+    rdni = r'^[0-9]{7,8}$'
+    sql = f"select * from clientes where dni='{buscar}'"
+    if (re.match(rdni, buscar)):
+        clientes = pgdict(con, sql)
+        error_msg = "DNI no encontrado"
+    else:
+        error_msg = "Ponga un formato valido de DNI"
+        clientes = []
+    if len(clientes) == 0:
+        return make_response(error_msg, 400)
+    con.close()
+    return jsonify(clientes=clientes)

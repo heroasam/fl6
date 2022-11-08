@@ -452,6 +452,13 @@ it returns boolean value*/
 let isMobileDevice = regexp.test(details);
 
 // bulma change theme dark-light
+let darkTheme;
+let cdnTheme = localStorage.getItem('cdn-theme');
+if(cdnTheme.includes('flatly')){
+    darkTheme = false;
+}else{
+    darkTheme = true;
+}
 
 const btnMenu = document.getElementById("btnMenu");
 const menu = document.getElementById("menu");
@@ -471,13 +478,14 @@ function toggleTheme() {
     if (theme.getAttribute('href') == light) {
         theme.setAttribute('href', dark);
         localStorage.setItem("cdn-theme", dark);
+        darkTheme = true;
     } else {
         theme.setAttribute('href', light);
         localStorage.setItem("cdn-theme", light);
+        darkTheme = false;
     }
 }
 document.addEventListener("DOMContentLoaded", () => {
-    let cdnTheme = localStorage.getItem('cdn-theme');
     const theme = document.getElementById('bulma');
     theme.setAttribute('href', cdnTheme);
 });

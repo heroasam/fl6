@@ -25,9 +25,11 @@
 
   <div class="grid block">
     <div class="flex">
-      <input type="date" x-model="Pagos.fecha" class="input" style="width:200px;">
+      <input type="date" x-model="Pagos.fecha" class="input" style="width:200px;"
+             :class="darkTheme?'input-dark':''">
       <input type="text" x-model="Pagos.cobr" class="input" style="width:100px;"
-             @keyup.enter="cargarListado();$refs.buscar.focus()" >
+             @keyup.enter="cargarListado();$refs.buscar.focus()"
+             :class="darkTheme?'input-dark':''" placeholder="Cobr">
       <button class="button is-primary" @click="cargarListado()">Cargar Planilla</button>
       <span x-text="nombrecobrador" x-show="nombrecobrador && !isMobileDevice" class="title is-5 ml-5 tag"></span>
     </div>
@@ -35,7 +37,7 @@
 	<div class="flex">
       <input type="text" x-model="buscar" class="input" style="width:300px;" @keyup.enter="buscarCliente();$refs.imp.focus();
                    setTimeout(()=>{$refs.imp.select()},600)" @focus="Clientes=[];Ventas=[];Venta={};Pagos.rec='';Pagos.imp='';buscar=''"
-             x-ref="buscar">
+             x-ref="buscar" :class="darkTheme?'input-dark':''" placeholder="Buscar Cuenta o Nombre">
 	  <button class="button is-primary" @click="buscarCliente()">Buscar</button>
 	</div>
 
@@ -55,23 +57,26 @@
 	  <span class="tag is-danger is-large" x-text="`Saldo ${Venta.saldo?Venta.saldo:''}`"></span>
 	  <span class="tag is-secondary is-large" x-text="`Cuota ${Venta.ic?Venta.ic:''}`"></span>
 	  <input id="importe" type="text" placeholder="Importe" class="input center" x-model="Pagos.imp" style="width: 100px;"
-             @keyup.enter="$refs.recibo.focus()" x-ref="imp"/>
-	  <input type="text" placeholder="Recargo" class="input center" x-model="Pagos.rec" style="width: 100px;"/>
+             @keyup.enter="$refs.recibo.focus()" x-ref="imp"
+             :class="darkTheme?'input-dark':''"/>
+	  <input type="text" placeholder="Recargo" class="input center" x-model="Pagos.rec" style="width: 100px;"
+             :class="darkTheme?'input-dark':''"/>
 	  <input type="text" placeholder="Total" class="input center" :value="+(Pagos.imp?Pagos.imp:0)+(+(Pagos.rec?Pagos.rec:0))"
-             style="width: 100px;"/>
-	  <input id="recibo" type="text" placeholder="Recibo N°" class="input center" style="width: 100px;" x-model="Pagos.rbo"
-             @keyup.page-up="+Pagos.rbo++" @keyup.page-down="+Pagos.rbo--" @keyup.enter="validatePasarPagos" x-ref="recibo"/>
+             style="width: 100px;" :class="darkTheme?'input-dark':''"/>
+	  <input id="recibo" type="text" placeholder="Rbo N°" class="input center" style="width: 100px;" x-model="Pagos.rbo"
+             @keyup.page-up="+Pagos.rbo++" @keyup.page-down="+Pagos.rbo--" @keyup.enter="validatePasarPagos" x-ref="recibo"
+             :class="darkTheme?'input-dark':''"/>
 	  <button class="button is-danger" type="button" @click="validatePasarPagos">Pasar</button>
 	</div>
   </div>
 
 
   <div class="flex" x-show="Planilla.cntrbos">
-    <span class="tag is-dark is-large" x-text="'Cnt Rbos  '+Planilla.cntrbos"></span>
-    <span class="tag is-dark is-large" x-text="'Cobrado $'+Planilla.cobrado"></span>
-    <span class="tag is-dark is-large" x-text="'Comision $'+Planilla.comision"></span>
-    <span class="tag is-dark is-large">Viatico $</span>
-	<input type="text" placeholder="Viaticos" class="input input-dark" size="6" x-model="Planilla.viatico"
+    <span class="tag is-large" :class="darkTheme?'is-dark':'is-light'" x-text="'Cnt Rbos  '+Planilla.cntrbos"></span>
+    <span class="tag is-large" :class="darkTheme?'is-dark':'is-light'" x-text="'Cobrado $'+Planilla.cobrado"></span>
+    <span class="tag is-large" :class="darkTheme?'is-dark':'is-light'" x-text="'Comision $'+Planilla.comision"></span>
+    <span class="tag is-large" :class="darkTheme?'is-dark':'is-light'">Viatico $</span>
+	<input type="text" placeholder="Viaticos" class="input" :class="darkTheme?'input-dark':''" size="6" x-model="Planilla.viatico"
            style="width: 100px;"  id="viatico" />
 	<button class="button is-dark" @click="pasarPlanilla">Guardar Planilla</button>
   </div>
