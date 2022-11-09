@@ -358,7 +358,7 @@ thead th {
 .grande{
     font-size:1.5em;
 }
-.santander{
+.bancos{
     color:dodgerblue;
 }
 .negativo{
@@ -433,8 +433,13 @@ thead th {
  }
  input:required:valid{
      background-color:white;
-     border: 4px solid forestgreen;
+     border: 1px solid green;
  }
+ input:required:invalid{
+     background-color:white;
+     border: 1px solid red;
+ }
+
  .labelinput{
      font-weight: bold;
      font-size: 1.2em;

@@ -83,7 +83,7 @@
              axios.get('/stock/obtenerresumenmensual/'+mes)
                   .then(res=>{
                       this.listaResumen = res.data.resumen
-                      this.listaIngresos = this.listaResumen.filter(row=>(row.tipo==1||row.tipo==2) && row.cuenta!='santander ingreso cobradores');
+                      this.listaIngresos = this.listaResumen.filter(row=>(row.tipo==1||row.tipo==2) && row.cuenta!='bancos ingreso cobradores');
                       this.listaEgresos = this.listaResumen.filter(row=>(row.tipo==0||row.tipo==3) && row.cuenta!='transferencia de cobradores');
                       this.ingresos = this.sumarLista(this.listaIngresos)
                       this.egresos = this.sumarLista(this.listaEgresos)
@@ -93,7 +93,7 @@
          },
          calculoEgresos(lista){
              let compras = this.sumarLista(lista.filter(row=>row.cuenta=='compras'||row.cuenta=='depositos sorpresa'))
-             let retiros = this.sumarLista(lista.filter(row=>row.cuenta=='retiro papi'||row.cuenta=='retiro fede'||row.cuenta=='santander retiro papi'|| row.cuenta=='santander retiro fede'))
+             let retiros = this.sumarLista(lista.filter(row=>row.cuenta=='retiro papi'||row.cuenta=='retiro fede'||row.cuenta=='bancos retiro papi'|| row.cuenta=='bancos retiro fede'))
              let gastos = Math.abs(this.egresos) - Math.abs(compras) - Math.abs(retiros)
              let noUsado = this.ingresos - Math.abs(this.egresos)
              this.cuentasEgresos=[gastos, Math.abs(compras), Math.abs(retiros), noUsado]

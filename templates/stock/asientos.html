@@ -27,7 +27,7 @@
       <div class="flex-space-between">
         <h1 class="title is-size-1 pointer" @click="aplicarFiltro('todo')">Asientos</h1>
         <h2 class="title is-size-1 pointer" x-text="'Caja $'+saldo" @click="aplicarFiltro('caja')"></h2>
-        <h2 class="title is-size-1 pointer" style="color:red;" x-text="'Santander $'+saldosantander" @click="aplicarFiltro('santander')"></h2>
+        <h2 class="title is-size-1 pointer" style="color:red;" x-text="'Bancos $'+saldobancos" @click="aplicarFiltro('bancos')"></h2>
       </div>
     </div>
   </div>
@@ -76,7 +76,7 @@
           <td><i class="fa fa-times" aria-hidden="true" @click="borrarAsiento(asiento.id)"></td>
             <td x-text="asiento.id"></td>
             <td :class="dia(asiento.fecha)" x-text="asiento.fecha"></td>
-            <td :class="asiento.cuenta.slice(0,9)=='santander'?'santander':''" x-text="asiento.cuenta" style="min-width:250px;"></td>
+            <td :class="asiento.cuenta.slice(0,6)=='bancos'?'bancos':''" x-text="asiento.cuenta" style="min-width:250px;"></td>
             <td :class="asiento.imp<0?'negativo':''" x-text="asiento.imp" style="min-width:100px;" class="pesos"></td>
             <td x-text="asiento.comentario"></td>
             <td><i class="fa fa-pencil" aria-hidden="true" @click="editarComentarioAsiento(asiento.id)"></td>
@@ -117,7 +117,7 @@
          listAsientos_:[],
          cuentas:[],
          saldo:0,
-         saldosantander:0,
+         saldobancos:0,
          Asiento:{fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',comentario:''},
          AsientoEdicion:{},
          selected: null,
@@ -128,7 +128,7 @@
                       this.listAsientos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                       this.listAsientos_=this.listAsientos
                       this.saldo = res.data.saldo
-                      this.saldosantander  =  res.data.saldosantander
+                      this.saldobancos  =  res.data.saldobancos
                   })
          },
          borrarAsiento(id){
@@ -160,9 +160,9 @@
              axios.post('/stock/guardarasiento',this.Asiento)
                                                                  .then(res=>{
                                                                      this.getAsientos()
-                                                                     if(this.Asiento.cuenta.includes('santander')) {
+                                                                     if(this.Asiento.cuenta.includes('bancos')) {
                                                                          setTimeout(()=>{
-                                                                             this.aplicarFiltro('santander')},600
+                                                                             this.aplicarFiltro('bancos')},600
                                                                          )
                                                                      }
                                                                      this.Asiento={fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',comentario:''},
@@ -184,11 +184,11 @@
          })},
          aplicarFiltro(tipo){
              switch(tipo){
-                 case 'santander':
-                     this.listAsientos = this.listAsientos_.filter(row=>row.cuenta.includes('santander'))
+                 case 'bancos':
+                     this.listAsientos = this.listAsientos_.filter(row=>row.cuenta.includes('bancos'))
                      break
                  case 'caja':
-                     this.listAsientos = this.listAsientos_.filter(row=>!row.cuenta.includes('santander'))
+                     this.listAsientos = this.listAsientos_.filter(row=>!row.cuenta.includes('bancos'))
                      break
                  default:
                      this.listAsientos = this.listAsientos_

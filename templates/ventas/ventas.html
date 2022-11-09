@@ -9,7 +9,17 @@
 {% block content %}
 
 <div class="container" x-data="main()" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerArt()">
+  <div class="columns">
+    <div class="column is-4">
   <p class="title is-1">Pasar Venta</p>
+    </div>
+    <div class="column is-3">
+      <!-- Notificacion Numero de idvta -->
+      <div class="notification is-warning flex-center" x-show="verIdVta">
+        <h2 class="title is-3" x-text="'Cuenta Nº ' + idvta"></h2>
+      </div>
+    </div>
+  </div>
 
   <div class="field is-horizontal box">
     <input type="search" placeholder="Buscar en Romitex"  class="input" x-model="buscar" @keyup.enter="buscarDni" x-ref="buscar"
@@ -106,6 +116,7 @@
     </div>
   </form>
 
+
   <!-- form pasar ventas -->
   <form class="box" @keydown.enter="$focus.next()">
     <div class="columns">
@@ -126,7 +137,7 @@
 	           pattern="^(\d){1,2}$" :class="darkTheme?'input-dark':''">
       </div>
       <div class="column is-1">
-        <input type="text" x-model="venta.ic" size=5 class="input" placeholder="Importe" required
+        <input type="text" x-model="venta.ic" size=5 class="input" placeholder="Imp" required
 	           pattern="^(\d){3,5}$" :class="darkTheme?'input-dark':''">
       </div>
       <div class="column is-2">
@@ -218,6 +229,7 @@
       </div>
     </div>
   </form>
+
 </div>
 {% endblock %}
 
@@ -240,6 +252,8 @@
          detvta: [],
          sumic: 0,
          verVtaTerminada:false,
+         verIdVta:false,
+         idvta:'',
          buscarDni(){
              axios.get('/ventas/buscarcliente/'+this.buscar)
                   .then(res=>{
@@ -281,6 +295,7 @@
              this.sumic=0
              this.verVtaTerminada=false
              this.detallevta={art:''}
+             this.verIdVta=false;
          },
          validarCliente(){
              if(this.cliente.sex=='') {msgError('Complete los datos:','Falta poner sexo');return}
@@ -323,8 +338,10 @@
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/ventas/guardarventa',this.venta)
                                                                  .then(res=>{
-                                                                     msgSuccess('Venta creada con exito')
                                                                      this.venta.id=res.data.idvta
+                                                                     /* msgSuccess(this.venta.id) */
+                                                                     this.idvta = this.venta.id
+                                                                     this.verIdVta = true
                                                                  })
                                                                  .catch(error=>{
                                                                      msgError('No se pudo crear la venta. Hubo un error.')

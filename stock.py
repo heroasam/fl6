@@ -35,10 +35,10 @@ def stock_getasientos():
             order by id desc limit 100")
     saldo = pgonecolumn(con, "select sum(imp) from caja,ctas where \
             caja.cuenta=ctas.cuenta and tipo in (0,1)")
-    saldosantander = pgonecolumn(con, "select sum(imp) from caja,ctas where \
+    saldobancos = pgonecolumn(con, "select sum(imp) from caja,ctas where \
             caja.cuenta=ctas.cuenta and tipo in (2,3)")
     con.close()
-    return jsonify(asientos=asientos,saldo=saldo,saldosantander=saldosantander)
+    return jsonify(asientos=asientos,saldo=saldo,saldobancos=saldobancos)
 
 
 @stock.route('/stock/deleteasiento/<int:id_asiento>')

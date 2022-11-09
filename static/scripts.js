@@ -476,13 +476,13 @@ function toggleTheme() {
     // Change the value of href attribute
     // to change the css sheet.
     if (theme.getAttribute('href') == light) {
+        darkTheme = true;
         theme.setAttribute('href', dark);
         localStorage.setItem("cdn-theme", dark);
-        darkTheme = true;
     } else {
+        darkTheme = false;
         theme.setAttribute('href', light);
         localStorage.setItem("cdn-theme", light);
-        darkTheme = false;
     }
 }
 document.addEventListener("DOMContentLoaded", () => {
