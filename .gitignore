@@ -12,3 +12,5 @@ __pychache__/
 #*#
 *flymake*
 /flycheck_pagos.py
+/TAGS
+/templates/ventas/TAGS
