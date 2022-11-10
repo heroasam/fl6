@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Zonas{% endblock %}
+{% block title %}Rezonificar{% endblock %}
 {% block style %}
 <style>
 </style>
@@ -16,86 +16,56 @@
     <a href="/ventas/clientes" class="button is-primary">Clientes</a>
     <a href="/ventas/calles" class="button is-primary">Calles</a>
     <a href="/ventas/barrios" class="button is-primary">Barrios</a>
-    <a href="/ventas/cambiazonas" class="button is-primary">Rezonificar</a>
+    <a href="/ventas/zonas" class="button is-primary">Zonas</a>
     <a href="/ventas/estadisticas" class="button is-primary">Estadisticas</a>
     <a href="/ventas/devolucion" class="button is-primary">Devoluciones</a>
     <a href="/ventas/pivotdevoluciones" class="button is-primary">Pivot-Devol.</a>
   </div>
-  <p class="title is-1">Gestion de Zonas</p>
+  <p class="title is-1">Rezonificar</p>
 
   <div class="columns">
     <div class="column is-4">
       <div class="grid-buscar  mr-3 mt-2">
-        <input type="search" placeholder="Filtrar:" class="input text-big" x-model="buscar"
-		       @focus="buscar=''" @keyup.enter="filtrarZona(buscar)" autofocus>
+        <input type="search" placeholder="Filtrar por zona:" class="input text-big" x-model="buscar"
+		       @focus="buscar=''"  autofocus list="zonas">
+        <datalist id="zonas">
+          <template x-for="item in listazonas">
+            <option :value="item"></option>
+          </template>
+        </datalist>
+
         <button type="button" @click="filtrarZona(buscar)" class="button is-primary text-big">Buscar</button>
       </div>
     </div>
   </div>
 
-  <button class="button is-primary" @click="toggleModal('modal-add')">Agregar Zona</button>
-  <table class="table is-narrow nototal" style="width:430px;">
+  <table class="table">
     <thead>
       <tr>
-        <th></th>
-        <th></th>
-        <th class="numeric">id</th>
+        <th>id</th>
+        <th>nombre</th>
+        <th>calle</th>
+        <th>num</th>
+        <th>barrio</th>
         <th>zona</th>
       </tr>
     </thead>
     <tbody>
-      <template x-for="zona in listaZonas_">
-        <tr>
-          <td><i class="fa fa-times" aria-hidden="true" @click="borrarZona(zona.id)"></td>
-            <td><i class="fa fa-pencil" aria-hidden="true" @click="editarZona(zona.id)"></td>
-              <td x-text="zona.id"></td>
-              <td x-text="zona.zona"></td>
-        </tr>
+      <template x-for="cliente in listaClientes">
+      <tr>
+        <td x-text="cliente.id"></td>
+        <td x-text="cliente.nombre"></td>
+        <td x-text="cliente.calle"></td>
+        <td x-text="cliente.num"></td>
+        <td x-text="cliente.barrio"></td>
+        <td x-text="cliente.zona"></td>
+      </tr>
       </template>
     </tbody>
   </table>
 
   <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}" />
-  <!-- modal Bulma -->
-  <div class="modal" id="modal-edicion">
-    <div class="modal-background"></div>
-    <div class="modal-card">
-      <header class="modal-card-head">
-        <p class="modal-card-title">Edicion de Zona</p>
-        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion')"></button>
-      </header>
-      <section class="modal-card-body">
-        <!-- Content ... -->
-        <label for="idZona">Zona</label>
-        <input name="idZona" class="input" type="text" x-model="zonaEditar.zona" />
-
-      </section>
-      <footer class="modal-card-foot">
-        <button class="button is-success" @click="guardarEdicion()">Editar</button>
-        <button class="button" @click="toggleModal('modal-edicion')">Cancelar</button>
-      </footer>
-    </div>
-  </div>
-
-  <div class="modal" id="modal-add">
-    <div class="modal-background"></div>
-    <div class="modal-card">
-      <header class="modal-card-head">
-        <p class="modal-card-title">Agregar Zona</p>
-        <button class="delete" aria-label="close" @click="toggleModal('modal-add')"></button>
-      </header>
-      <section class="modal-card-body">
-        <!-- Content ... -->
-        <label for="idzona">Zona</label>
-        <input name="idzona" class="input" type="text" x-model="Zona.zona" />
-
-      </section>
-      <footer class="modal-card-foot">
-        <button class="button is-success" @click="guardarZona()">Agregar</button>
-        <button class="button" @click="toggleModal('modal-add')">Cancelar</button>
-      </footer>
-    </div>
-  </div>
+  <!-- modal Bulma --></div>
 </div>
 {% endblock %}
 
@@ -103,16 +73,19 @@
 <script>
  function main(){
      return{
-         listaZonas:[],
-         listaZonas_:[],
+         listazonas:[],
+         listaClientes:[],
          buscar:'',
-         zonaEditar:{},
-         Zona:{},
          getZonas(){
-             axios.get('/ventas/getzonasconid')
+             axios.get('/ventas/getzonas')
                   .then(res=>{
-                      this.listaZonas = res.data.zonas
-                      this.listaZonas_ = this.listaZonas
+                      this.listazonas = res.data.result
+                  })
+         },
+         filtrarZona(zona){
+             axios.get('/ventas/getclienteszona/'+zona)
+                  .then(res=>{
+                      this.listaClientes = res.data.clientes
                   })
          },
          borrarZona(id){
@@ -163,9 +136,6 @@
                                                                      msgError('No se pudo agregar la zona')
                                                                  })
          },
-                             filtrarZona(buscar){
-                                 this.listaZonas_=this.listaZonas.filter(row=>row.zona.toLocaleLowerCase().includes(buscar.toLocaleLowerCase()))
-                             },
 
      }
  }

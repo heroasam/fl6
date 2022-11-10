@@ -6,18 +6,19 @@ block style %}
 {% block content %}
 
 <div class="container">
-  <p class="title is-1">Fechador</p>
   <div class="buttons">
     <a href="/fichas" class="button is-primary">Fichas</a>
     <a href="/fichas/cobradores" class="button is-primary">Cobradores</a>
     <a href="/fichas/listado" class="button is-primary">Listado</a>
     <a href="/fichas/cancelados" class="button is-primary">Cancelados</a>
   </div>
+  <p class="title is-1">Fechador</p>
 
   <div x-data="main()" x-init="llenaListado()">
     <div class="columns">
       <div class="column is-3">
-        <input type="text" class="input is-large" x-model="idvta" @keyup.enter="buscaCuenta(idvta);$refs.pmovto.focus()" x-ref="idvta">
+        <input type="text" class="input is-large" x-model="idvta" @keyup.enter="buscaCuenta(idvta);
+                     $refs.pmovto.focus()" x-ref="idvta" :class="darkTheme?'input-dark':''">
       </div>
       <div class="column is-9">
         <span class="tag is-large is-danger" x-text="nombre" x-show="nombre"></span>
@@ -25,7 +26,8 @@ block style %}
     </div>
     <div class="columns">
       <div class="column is-3">
-        <input type="date" class="input is-large" x-model="pmovto" @keyup=fechar(event) @keyup.enter=validaFecha(idvta,pmovto) x-ref="pmovto">
+        <input type="date" class="input is-large" x-model="pmovto" @keyup=fechar(event)
+               @keyup.enter=validaFecha(idvta,pmovto) x-ref="pmovto" :class="darkTheme?'input-dark':''">
       </div>
     </div>
 

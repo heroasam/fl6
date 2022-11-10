@@ -754,3 +754,15 @@ def ventas_buscarcliente(buscar):
         return make_response(error_msg, 400)
     con.close()
     return jsonify(clientes=clientes)
+
+
+@ventas.route('/ventas/cambiazonas')
+def ventas_cambiazonas():
+    return render_template('ventas/rezonificar.html')
+
+
+@ventas.route('/ventas/getclienteszona/<zona>')
+def ventas_getclienteszona(zona):
+    con = get_con()
+    clientes = pgdict(con, f"select * from clientes where zona='{zona}'")
+    return jsonify(clientes=clientes)
