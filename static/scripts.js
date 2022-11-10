@@ -378,6 +378,7 @@ const limpiarTabla = (tableId) => {
         if (row.classList.contains('subtotal')) {
             row.remove();
         }
+        row.classList.remove('is-selected')
     });
     let $tr = $thead.children[0];
     let thsArray = Array.from($tr.children);

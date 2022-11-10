@@ -433,6 +433,27 @@ def ventas_borrarzona(id):
         con.close()
         return 'OK'
 
+
+@ventas.route('/ventas/borrarzonapornombre/<zona>')
+def ventas_borrarzonapornombre(zona):
+    con = get_con()
+    stm = f"delete from zonas where zona='{zona}'"
+    cur = con.cursor()
+    try:
+        cur.execute(stm)
+    except mysql.connector.Error as e:
+        con.rollback()
+        error = e.msg
+        return make_response(error,400)
+    else:
+        con.commit()
+        log(stm)
+        cur.close()
+        con.close()
+        return 'OK'
+
+
+
 @ventas.route('/ventas/borrarcliente/<int:id>')
 def ventas_borrarcliente(id):
     con = get_con()
@@ -764,5 +785,29 @@ def ventas_cambiazonas():
 @ventas.route('/ventas/getclienteszona/<zona>')
 def ventas_getclienteszona(zona):
     con = get_con()
-    clientes = pgdict(con, f"select * from clientes where zona='{zona}'")
+    clientes = pgdict(con, f"select * from clientes where zona='{zona}' order by barrio")
     return jsonify(clientes=clientes)
+
+
+@ventas.route('/ventas/cambiarzona/<string:zona>',methods=['POST'])
+def ventas_cambiarzona(zona):
+    con = get_con()
+    listaid = json.loads(request.data.decode("UTF-8"))
+    lpg ='('
+    for id in listaid:
+        lpg+="'"+id+"'"+","
+    lpg = lpg[0:-1]+")"
+    upd = f"update clientes set zona='{zona}' where id in {lpg}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as e:
+        con.rollback()
+        error = e.msg
+        return make_response(error,400)
+    else:
+        con.commit()
+        log(upd)
+        cur.close()
+        con.close()
+        return 'OK'
