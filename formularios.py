@@ -94,10 +94,14 @@ def ficha(con,ldni):
         pdf.cell(30,6,cliente[4],1,1,'C')
         pdf.cell(80,6,cliente[1],1,0)
         pdf.cell(10,6,cliente[2][0:4],1,0)
-        if cliente[5]<date.today():
+        # arreglar esto
+        cliente_pmovto = cliente[5]
+        if cliente_pmovto is None:
+            cliente_pmovto = date.today()
+        if cliente_pmovto<date.today():
             pmovto = date.today().strftime('%Y-%m-%d')
         else:
-            pmovto = cliente[5]
+            pmovto = cliente_pmovto
         lisdatos.append((i,cliente[0][0:38],cliente[1]+' '+cliente[2],pdf.page_no(),pmovto,cliente[12],cliente[13]))
         pdf.cell(70,6,cliente[6],1,1)
         if cliente[8]:
