@@ -533,3 +533,9 @@ function autoComplete(url, inputId, suggestionId) {
             });
         });
 }
+function mapFechas(lista, arrayCampos) {
+    arrayCampos.forEach(item=>{
+        lista.map(row=>row.item=dayjs.utc(row.item).format('YYYY-MM-DD'))
+    })
+    return lista
+}

@@ -39,7 +39,7 @@ def buscar_interno_buscar(dni):
 def buscar_cuenta(buscar):
     con = get_con()
     rcuenta = r'^[0-9]{5}$'
-    rdni = r'^[0-9]{7,8}$'
+    rdni = r'^[0-9]{6,8}$'
     rid = r'^id[0-9]{4,5}$'
     rwapp = r'^[0-9]{10,15}$'
     if buscar == "-":

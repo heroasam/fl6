@@ -539,42 +539,58 @@
   </div>
 
 
+  <!-- bulma-modal plan-pagos  -->
+  <div class="modal" id="modal-edicion-plan-pagos">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Hacer un Plan de Pagos</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion-plan-pagos')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="idfecha">Fecha</label>
+        <input type="date" class="input mb-3" x-model="Venta.fecha" id="idfecha"
+               :class="darkTheme?'input-dark':''" >
+        <label for="cc" class="label">Cuotas</label>
+        <input type="text" class="input mb-3" x-model="Venta.cc" id="cc" autocomplete="off"
+               :class="darkTheme?'input-dark':''" >
+        <label for="ic" class="label">Importe</label>
+        <input type="text" class="input mb-3" x-model="Venta.ic" id="ic" autocomplete="off"
+               :class="darkTheme?'input-dark':''" >
+        <label for="p" class="label">Periodicidad</label>
+        <input list="per" id="p" class="input mb-3" x-model="Venta.p" autocomplete="off"
+               :class="darkTheme?'input-dark':''" >
+        <datalist id="per">
+          <option value="Mensual"></option>
+          <option value="Quincenal"></option>
+          <option value="Semanal"></option>
+        </datalist>
+        <label for="fechaprimer" class="label">Fecha Primer Cuota</label>
+        <input type="date" class="input mb-3" x-model="Venta.primera" id="fechaprimer"
+               :class="darkTheme?'input-dark':''" >
 
-
-
-
-
-
-
-
-
-
-
-
-
-  <div x-bind:class="verModalPlanPago?'xmodal-container':''">
-    <div class="xcard xmodal" x-show="verModalPlanPago">
-      <button class="btn-close" @click="verModalPlanPago=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-      <h1 class="title is-3" style="color:black;">Plan Pagos</h1>
-      <label for="fecha" class="label">Fecha</label>
-      <input type="date" class="input mb-3" x-model="Venta.fecha" id="fecha" autocomplete="off">
-      <label for="cc" class="label">Cuotas</label>
-      <input type="text" class="input mb-3" x-model="Venta.cc" id="cc" autocomplete="off">
-      <label for="ic" class="label">Importe</label>
-      <input type="text" class="input mb-3" x-model="Venta.ic" id="ic" autocomplete="off">
-      <label for="p" class="label">Periodicidad</label>
-      <input list="per" id="p" class="input mb-3" x-model="Venta.p" autocomplete="off">
-      <datalist id="per">
-        <option value="Mensual"></option>
-        <option value="Quincenal"></option>
-        <option value="Semanal"></option>
-      </datalist>
-      <label for="fechaprimer" class="label">Fecha Primer Cuota</label>
-      <input type="date" class="input mb-3" x-model="Venta.primera" id="fechaprimer">
-
-      <button class="button is-primary" @click="guardarPlanPagos">Generar</button>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="guardarPlanPagos">Generar</button>
+        <button class="button" @click="toggleModal('modal-edicion-plan-pagos')">Cancelar</button>
+      </footer>
     </div>
   </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <div x-bind:class="verModalRecibo?'xmodal-container':''">
     <div class="xcard xmodal" x-show="verModalRecibo">
       <button class="btn-close" @click="verModalRecibo=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
@@ -712,7 +728,6 @@
          Comentario:{fechahora:dayjs.utc().format('YYYY-MM-DD')},
          Asunto:{fecha:dayjs.utc().format('YYYY-MM-DD'),tipo:'',vdor:'',asunto:''},
          Recibo:{fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:''},
-         verModalPlanPago:false,
          verModalRecibo:false,
          verModalAsunto:false,
          verModalMsgWhatsapp:false,
@@ -728,10 +743,10 @@
          buscarCliente(){
              this.verCard = false
              this.resetBuscar()
-	         buscar = this.buscar1.length>0?this.buscar1:this.buscar
-             textToClipboard(buscar)
-	         if(buscar=='') buscar='-'
-             axios.get('/buscador/'+buscar)
+	         this.buscar = this.buscar1.length>0?this.buscar1:this.buscar
+             textToClipboard(this.buscar)
+	         if(this.buscar=='') this.buscar='-'
+             axios.get('/buscador/'+this.buscar)
 		          .then(res=>{
 		              this.listaClientes=res.data.clientes
 		              this.listaClientes_=this.listaClientes
@@ -744,7 +759,7 @@
 			              if(row.ultcompra>row.ultpago) row.ultpago=row.ultcompra
 		              })
 		              if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
-                      this.listaBusquedasRecientes.push(buscar)
+                      this.listaBusquedasRecientes.push(this.buscar)
 		          })
 		          .catch(error=>{
 		              msgError('Error!',error.response.data)
@@ -753,10 +768,27 @@
          buscaCuentaporDni(dni){
 	         this.resetBuscar()
 	         this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
-	         this.buscar = this.Cliente.calle+' '+this.Cliente.num
              this.obtenerVentas(this.Cliente.id)
              this.verCard = true;
              this.clipWappVentas()
+	         this.buscar = this.Cliente.calle+' '+this.Cliente.num
+         },
+         refreshCliente(dni){
+             axios.get('/buscador/'+dni)
+                  .then(res=>{
+                      this.resetBuscar()
+                      this.listaClientes=res.data.clientes
+                      this.listaClientes.map(row=>row.pmovto=dayjs.utc(row.pmovto).format('YYYY-MM-DD'))
+		              this.listaClientes.map(row=>row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD'))
+		              this.listaClientes.map(row=>row.ultcompra=dayjs.utc(row.ultcompra).format('YYYY-MM-DD'))
+		              this.listaClientes.map(row=>row.fechaintimacion=dayjs.utc(row.fechaintimacion).format('YYYY-MM-DD'))
+		              /* corrijo Cliente.ultpago en los casos que ha comprado de nuevo */
+		              this.listaClientes.map(row=>{
+			              if(row.ultcompra>row.ultpago) row.ultpago=row.ultcompra
+		              })
+                      this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
+                      this.obtenerVentas(this.Cliente.id)
+                  })
          },
 	     resetBuscar(){
 	         this.Cliente={}
@@ -1037,16 +1069,16 @@
                   })
          },
          agregarPlanPago(){
-             this.verModalPlanPago=true
+             toggleModal('modal-edicion-plan-pagos')
          },
          guardarPlanPagos(){
              this.Venta.p = this.Venta.p=="Mensual"?1:this.Venta.p=="Quincenal"?2:3
-             this.verModalPlanPago=false
+             toggleModal('modal-edicion-plan-pagos')
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/buscador/generarplandepagos/'+this.Cliente.id,this.Venta)
 								                                 .then(res=>{
 								                                     msgSuccess('Exito','Plan de pagos generado')
-								                                     this.buscarCliente(this.Cliente.dni)
+								                                     this.refreshCliente(this.Cliente.dni)
 								                                 })
 								                                 .catch(error=>{
 								                                     msgError('Error',error.request.response)
