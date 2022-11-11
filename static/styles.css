@@ -290,6 +290,10 @@ thead th {
     display:flex;
     justify-content:space-between;
 }
+.flex-column{
+    display: flex;
+    flex-flow: column;
+}
 .grid{
     display:grid;
     row-gap: 10px;
@@ -301,6 +305,11 @@ thead th {
 .flex-left{
     display:flex;
     align-items:flex-start;
+}
+.flex-baseline{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
 }
 .table5 tr:nth-child(n+7){
     display:none;
