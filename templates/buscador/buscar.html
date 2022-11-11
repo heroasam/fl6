@@ -446,70 +446,112 @@
     </div>
   </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <div x-bind:class="verModalComentario?'xmodal-container':''">
-    <div class="xcard xmodal" x-show="verModalComentario">
-      <button class="btn-close" @click="verModalComentario=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-      <h3 class="title is-4" style="color:black;">Agregar Comentario</h3>
-      <input type="date" class="input mb-3" x-model="Comentario.fechahora">
-      <textarea class="textarea mb-3" rows="4" x-model="Comentario.comentario"></textarea>
-      <button class="button is-primary" @click="guardarComentario">Guardar</button>
+  <!-- bulma-modal comentarios  -->
+  <div class="modal" id="modal-edicion-comentarios">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Agregar un Comentario Interno</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion-comentarios')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="idfecha">Fecha</label>
+        <input type="date" class="input mb-3" x-model="Comentario.fechahora" id="idfecha">
+        <label for="idcomentario">Comentario</label>
+        <textarea class="textarea mb-3" rows="4" x-model="Comentario.comentario" id="idcomentario"></textarea>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="guardarComentario">Guardar</button>
+        <button class="button" @click="toggleModal('modal-edicion-comentarios')">Cancelar</button>
+      </footer>
     </div>
   </div>
-  <div x-bind:class="verModalEdicion?'xmodal-container':''">
-    <div class="xcard xmodal" x-show="verModalEdicion">
-      <div class="flex justify-content-end">
-        <button class="btn-close" @click="verModalEdicion=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-      </div>
-      <h1 class="title is-3" style="color:black;">Editar Cliente</h1>
-      <input type="text" class="input mb-1" x-model="Cliente.dni">
-      <input type="text" class="input mb-1" x-model="Cliente.nombre">
 
-      <input type="text" list="listacalles" class="input mb-1" x-model="Cliente.calle" required placeholder="Calle" />
+  <!-- bulma-modal edicion-cliente  -->
+  <div class="modal" id="modal-edicion-cliente">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Editar datos cliente</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion-cliente')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="iddni">DNI</label>
+        <input type="text" class="input mb-1" x-model="Cliente.dni" id="iddni"
+               :class="darkTheme?'input-dark':''" required>
+        <label for="idnombre">Nombre</label>
+        <input type="text" class="input mb-1" x-model="Cliente.nombre" id="idnombre"
+               :class="darkTheme?'input-dark':''" required>
+        <label for="idcalle">Calle</label>
+        <input type="text" list="listacalles" class="input mb-1" x-model="Cliente.calle" required
+               id="idcalle" :class="darkTheme?'input-dark':''"  />
       <datalist id="listacalles">
         <template x-for="item in calles">
           <option :value="item"></option>
         </template>
       </datalist>
-
-      <input type="text" class="input mb-1" x-model="Cliente.num">
-
-      <input type="text" list="listabarrios" class="input mb-1" x-model="Cliente.barrio" required placeholder="Barrio" />
+      <label for="idnum">Num</label>
+      <input type="text" class="input mb-1" x-model="Cliente.num" id="idnum"
+             :class="darkTheme?'input-dark':''" required>
+      <label for="idbarrio">Barrio</label>
+      <input type="text" list="listabarrios" class="input mb-1" x-model="Cliente.barrio" required
+             id="idbarrio" :class="darkTheme?'input-dark':''" />
       <datalist id="listabarrios">
         <template x-for="item in barrios">
           <option :value="item"></option>
         </template>
       </datalist>
-
-      <input type="text" list="listazonas" class="input mb-1" x-model="Cliente.zona" required placeholder="Zonas" />
+      <label for="idzona">Zona</label>
+      <input type="text" list="listazonas" class="input mb-1" x-model="Cliente.zona" required
+             id="idzona" :class="darkTheme?'input-dark':''" />
       <datalist id="listazonas">
         <template x-for="item in zonas">
           <option :value="item"></option>
         </template>
       </datalist>
 
-
-      <input type="text" class="input mb-1" x-model="Cliente.tel" placeholder="telefono">
-      <input type="text" class="input mb-1" x-model="Cliente.wapp" placeholder="wapp">
-      <input type="text" class="input mb-1" x-model="Cliente.acla" placeholder="aclaracion">
-      <input type="text" class="input mb-1" x-model="Cliente.horario" placeholder="horario">
-      <input type="text" class="input mb-1" x-model="Cliente.mjecobr" placeholder="mjecobrador">
-      <input type="text" class="input mb-1" x-model="Cliente.infoseven" placeholder="infoseven">
-      <button class="button is-primary" @click="guardarEdicion">Guardar</button>
+      <label for="idtel">Telefono</label>
+      <input type="text" class="input mb-1" x-model="Cliente.tel" id="idtel"
+             :class="darkTheme?'input-dark':''" >
+      <label for="idwapp">Whatsapp</label>
+      <input type="text" class="input mb-1" x-model="Cliente.wapp" id="idwapp"
+             :class="darkTheme?'input-dark':''" >
+      <label for="idacla">Aclaracion</label>
+      <input type="text" class="input mb-1" x-model="Cliente.acla" id="idacla"
+             :class="darkTheme?'input-dark':''" >
+      <label for="idhorario">Horario</label>
+      <input type="text" class="input mb-1" x-model="Cliente.horario" id="idhorario"
+             :class="darkTheme?'input-dark':''" >
+      <label for="idmsg">Mensaje Cobrador</label>
+      <input type="text" class="input mb-1" x-model="Cliente.mjecobr" id="idmsg"
+             :class="darkTheme?'input-dark':''" >
+      <label for="idseven">Info Seven</label>
+      <input type="text" class="input mb-1" x-model="Cliente.infoseven" id="idseven"
+             :class="darkTheme?'input-dark':''" >
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="guardarEdicion">Guardar</button>
+        <button class="button" @click="toggleModal('modal-edicion-cliente')">Cancelar</button>
+      </footer>
     </div>
   </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <div x-bind:class="verModalPlanPago?'xmodal-container':''">
     <div class="xcard xmodal" x-show="verModalPlanPago">
       <button class="btn-close" @click="verModalPlanPago=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
@@ -670,8 +712,6 @@
          Comentario:{fechahora:dayjs.utc().format('YYYY-MM-DD')},
          Asunto:{fecha:dayjs.utc().format('YYYY-MM-DD'),tipo:'',vdor:'',asunto:''},
          Recibo:{fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:''},
-         verModalEdicion:false,
-         verModalComentario:false,
          verModalPlanPago:false,
          verModalRecibo:false,
          verModalAsunto:false,
@@ -947,10 +987,10 @@
                   })
          },
          agregarComentario(){
-             this.verModalComentario=true
+             toggleModal('modal-edicion-comentarios')
          },
          guardarComentario(){
-             this.verModalComentario=false
+             toggleModal('modal-edicion-comentarios')
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/buscador/guardarcomentario/'+this.Cliente.id,this.Comentario)
 								                                 .then(res=>{
@@ -959,10 +999,10 @@
 								                                 })
          },
          editarCliente(idcliente){
-             this.verModalEdicion=true
+             toggleModal('modal-edicion-cliente')
          },
          guardarEdicion(){
-             this.verModalEdicion=false
+             toggleModal('modal-edicion-cliente')
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/buscador/guardaredicioncliente/'+this.Cliente.id,this.Cliente)
 								                                 .then(res=>{
