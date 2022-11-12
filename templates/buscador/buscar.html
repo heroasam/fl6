@@ -106,7 +106,10 @@
 
   <div class="box mt-6"  x-show="verCard">
 	<div>
+      <div :class="!isMobileDevice?'flex-baseline':''">
       <p class="title is-2" x-text="Cliente.nombre+'  '+Cliente.dni"></p>
+      <span class="tag is-warning is-small" x-show="verAvisoDniCopiado">DNI copiado al portapapeles</span>
+      </div>
       <p class="subtitle is-4" x-text="Cliente.calle+' '+Cliente.num+' '+Cliente.barrio+' '+Cliente.zona"></p>
       <p class="subtitle is-4"x-text="'tel:'+Cliente.tel+' wapp:'+Cliente.wapp"></p>
 
@@ -733,17 +736,17 @@
          wappCobrador:'',
          calleMostrada:'',
          totalCompradoActualizado:0,
+         verAvisoDniCopiado:false,
 
          buscarCliente(){
              this.verCard = false
              this.resetBuscar()
 	         this.buscar = this.buscar1.length>0?this.buscar1:this.buscar
-             /* let patternDni = /^(\d){7,8}$/g */
-             const patternDni = new RegExp(/^(\d){7,8}$/, 'g');
-             console.log(this.buscar, patternDni.test(this.buscar))
+             let patternDni = /^(\d){7,8}$/
              if(patternDni.test(this.buscar)){
-                 console.log( 'copiando')
                  textToClipboard(this.buscar)
+                 this.verAvisoDniCopiado=true
+                 setTimeout(()=>{this.verAvisoDniCopiado=false},3000)
              }else{
                  clearClipboard()
              }

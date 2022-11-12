@@ -537,7 +537,6 @@ function autoComplete(url, inputId, suggestionId) {
 
  function textToClipboard(text) {
      navigator.clipboard.writeText(text)
-     alert('copiando text')
  }
  function copyToClipboard(input) {
      var copyText = document.getElementById(input);
