@@ -37,6 +37,7 @@ def buscar_interno_buscar(dni):
 
 @buscador.route('/buscador/<string:buscar>')
 def buscar_cuenta(buscar):
+    print('ingresa buscar',buscar)
     con = get_con()
     rcuenta = r'^[0-9]{5}$'
     rdni = r'^[0-9]{6,8}$'
@@ -64,14 +65,20 @@ def buscar_cuenta(buscar):
         sql = f"select * from clientes where id={buscar[2:]}"
         error_msg = "idcliente no encontrado"
     else:
-        buscar = re.sub(r'^(\D)', '%'+r'\1', buscar)
+        buscar = re.sub(r'^(\w)', '%'+r'\1', buscar)
+        print(buscar)
         buscar = re.sub(r'(\s)(\D)', '%'+r'\2', buscar)
+        print(buscar)
         buscar = re.sub(r'(\s)(\d)', '% '+r'\2', buscar)
+        print(buscar)
         buscar = re.sub(r'\*', '%', buscar)
+        print(buscar)
         buscar = re.sub(r'(\D)$', r'\1'+'%', buscar)
+        print(buscar)
         sql = f"select * from clientes where lower(concat(nombre,calle,acla,' ',num)) like lower('{buscar}') order by calle,num"
         error_msg = "no hay respuesta para esa busqueda"
     cur = con.cursor(dictionary=True)
+    print(sql)
     cur.execute(sql)
     clientes = cur.fetchall()
     if len(clientes) == 0:

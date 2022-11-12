@@ -533,9 +533,21 @@ function autoComplete(url, inputId, suggestionId) {
             });
         });
 }
-function mapFechas(lista, arrayCampos) {
-    arrayCampos.forEach(item=>{
-        lista.map(row=>row.item=dayjs.utc(row.item).format('YYYY-MM-DD'))
-    })
-    return lista
-}
+
+
+ function textToClipboard(text) {
+     navigator.clipboard.writeText(text)
+     alert('copiando text')
+ }
+ function copyToClipboard(input) {
+     var copyText = document.getElementById(input);
+     // Select the text field
+     copyText.select();
+     copyText.setSelectionRange(0, 99999); // For mobile devices
+
+     // Copy the text inside the text field
+     navigator.clipboard.writeText(copyText.value);
+ }
+ function clearClipboard(){
+     navigator.clipboard.writeText('');
+ }
