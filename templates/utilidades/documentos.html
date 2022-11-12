@@ -1,0 +1,78 @@
+{% extends "base.html" %} {% block title %}Documentos{% endblock %}
+
+{% block content %}
+<div class="container" x-data="main()">
+  <div class="buttons">
+    <a href="/utilidades/planos" class="button is-primary">Planos</a>
+    <a href="/utilidades/pdfsistema" class="button is-primary">Sistema</a>
+    <a href="/utilidades/contador" class="button is-primary">Contador</a>
+    <a href="/utilidades/impresos" class="button is-primary">Impresos</a>
+    <a href="/utilidades/wapp" class="button is-primary">Whatsapps</a>
+  </div>
+  <p class="title is-1">Gestion de Documentos</p>
+  <div class="columns">
+    <div class="column is-5">
+      <div class="flex" @keydown.enter="$focus.next()">
+        <label for="desde" class="labelinput mr-2">Desde</label>
+        <input type="text" name="desde" x-model="desde"  class="input mr-2" />
+        <label for="hasta" class="labelinput mr-2">Hasta</label>
+        <input type="text" name="hasta" x-model="hasta"  class="input mr-2" />
+        <button class="button is-primary ml-2" @click="buscaDocumentos()">Buscar</button>
+        <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+
+        <button class="button is-danger ml-2" @click="imprimirListaDocumentos()">Imprimir</button>
+      </div>
+    </div>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Numero</th>
+        <th>Nombre</th>
+        <th>Direccion</th>
+        <th>Saldo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="doc in listaDocumentos">
+        <tr>
+          <td x-text="doc.id"></td>
+          <td x-text="doc.nombre"></td>
+          <td x-text="doc.direccion"></td>
+          <td class="pesos" x-text="doc.saldo"></td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
+
+</div>
+
+
+
+
+{% endblock %} {% block script %}
+<script>
+ function main(){
+     return{
+         desde:'',
+         hasta:'',
+         listaDocumentos:[],
+         buscaDocumentos(){
+             axios.get('/utilidades/getdocumentos/'+this.desde+'/'+this.hasta)
+                  .then(res=>{
+                      this.listaDocumentos = res.data.documentos
+                  })
+         },
+         imprimirListaDocumentos(){
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/utilidades/imprimirlistadocumentos',this.listaDocumentos,{responseType:"blob"})
+                                                                 .then(res=>{
+                      let url = window.URL.createObjectURL(res.data);
+          		      window.open(url);
+                  })
+         },
+     }
+ }
+</script>
+{% endblock %}

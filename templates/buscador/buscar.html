@@ -2,32 +2,43 @@
 
 {% block title %}Clientes{% endblock %}
 {% block content %}
-<div x-data="main()"  class="container" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores();getInflacion();autoLoad()">
+<div x-data="main()"  class="container" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores();
+             getInflacion();autoLoad()">
 
-    <div>
+  <div>
 	<div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
-            <input  placeholder="DNI o N° Cuenta" class="input" x-model="buscar1" @keyup.enter="buscarCliente"
-		    @focus="buscar='';verCard=false" type="number" pattern="[0-9]*" inputmode="numeric">
-            <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
+      <input  placeholder="DNI o N° Cuenta" class="input" x-model="buscar1" @keyup.enter="buscarCliente"
+		      @focus="buscar='';verCard=false" type="number" pattern="[0-9]*" inputmode="numeric" :class="darkTheme?'input-dark':''">
+      <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
 	</div>
 	<div class="grid-buscar ml-3 mr-3 mt-2 center">
-            <input type="search" placeholder="Busca por: Nombre Calle Num aclaracion / DNI / Cuenta / wapp / id9999" class="input" x-model="buscar"
-		   @focus="buscar1='';buscar=''" @keyup.enter="buscarCliente";verCard=false" autofocus>
-            <button type="button" @click="buscarCliente" class="button is-primary">Buscar</button>
+      <input type="search" placeholder="Busca por: Nombre Calle Num aclaracion / DNI / Cuenta / wapp / id9999" class="input" x-model="buscar"
+		     @focus="buscar1='';buscar='';verCard=false" @keyup.enter="buscarCliente;$refs.buttonBuscar.focus()" list="busquedasrecientes"
+             :class="darkTheme?'input-dark':''" id="idbuscar">
+      <datalist id="busquedasrecientes">
+        <template x-for="item in listaBusquedasRecientes">
+          <option :value="item"></option>
+        </template>
+      </datalist>
+      <button type="button" @click="buscarCliente" class="button is-primary" x-ref="buttonBuscar">Buscar</button>
 	</div>
-        <div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
-	    <div class="grid col-1 gap-0">
-		<input type="text" class="input mb-1" x-model="calleMostrada" id="searchCalle" autocomplete="off">
-		<div id="suggestionsCalle" class="suggestions"></div>
-	    </div>
-	    <button type="button" @click="mostrarCalle" class="button is-primary">Mostrar</button>
-        </div>
-    </div>
+    <div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
+      <input type="text" list="listacalles" class="input mb-1" x-model="calleMostrada"  placeholder="Calle"
+             :class="darkTheme?'input-dark':''"/>
+      <datalist id="listacalles">
+        <template x-for="item in calles">
+          <option :value="item"></option>
+        </template>
+      </datalist>
 
-    <!-- Tablebuscar -->
-    <table class="table tablebuscar noselect is-narrow is-striped mt-6 center" x-show="listaClientes_.length">
+	  <button type="button" @click="mostrarCalle" class="button is-primary">Mostrar</button>
+    </div>
+  </div>
+
+  <!-- Tablebuscar -->
+  <table class="table tablebuscar noselect is-narrow is-striped mt-6 center" x-show="listaClientes_.length">
 	<thead>
-	    <tr>
+	  <tr>
 		<th>dni</th>
 		<th>nombre</th>
 		<th>direccion</th>
@@ -36,19 +47,19 @@
 		<th>pmovto</th>
 		<th>ultpago</th>
 		<th>status</th>
-	    </tr>
+	  </tr>
 	</thead>
 	<tbody>
-	    <template x-for="cliente in listaClientes_">
+	  <template x-for="cliente in listaClientes_">
 		<tr @click="buscaCuentaporDni(cliente.dni)">
-		    <td x-text="cliente.dni"></td>
-		    <td x-text="cliente.nombre"></td>
-		    <td x-text="cliente.calle+' '+cliente.num"></td>
-		    <td x-text="cliente.zona"></td>
-		    <td x-text="cliente.deuda"></td>
-		    <td x-text="cliente.pmovto"></td>
-		    <td x-text="cliente.ultpago"></td>
-		    <td style="min-width:300px; text-align:left;">
+		  <td x-text="cliente.dni"></td>
+		  <td x-text="cliente.nombre"></td>
+		  <td x-text="cliente.calle+' '+cliente.num"></td>
+		  <td x-text="cliente.zona"></td>
+		  <td x-text="cliente.deuda"></td>
+		  <td x-text="cliente.pmovto"></td>
+		  <td x-text="cliente.ultpago"></td>
+		  <td style="min-width:300px; text-align:left;">
 			<span class="tag is-small is-success"  x-show="cliente.sev">SEVEN</span>
 			<span class="tag is-small is-info"  x-show="cliente.subirseven">SUBE</span>
 			<span class="tag is-small is-primary"  x-show="cliente.novendermas">LN</span>
@@ -57,286 +68,292 @@
 			<span class="tag is-small is-warning"  x-show="cliente.mudo">MUDO</span>
 			<span class="tag is-small is-danger"  x-show="cliente.incobrable">INC</span>
 			<div class="xtags has-addons m-0" x-show="cliente.devueltas>0">
-				<span class="tag is-small is-warning m-0">devueltas</span>
-				<span class="tag is-small is-light m-0" x-text="cliente.devueltas"></span>
+			  <span class="tag is-small is-warning m-0">devueltas</span>
+			  <span class="tag is-small is-light m-0" x-text="cliente.devueltas"></span>
 			</div>
 			<div class="xtags has-addons m-0" x-show="cliente.deuda>0&&cliente.sev==0&&dayjs.utc().diff(cliente.ultpago,'d')>30&&
-				    dayjs(cliente.ultcompra)>dayjs().subtract(1,'y')">
-			    <span class="tag is-small is-danger m-0">atrasada</span>
-			    <span class="tag is-small is-light m-0" x-text="dayjs().diff(cliente.ultpago,'M')"></span>
+				        dayjs(cliente.ultcompra)>dayjs().subtract(1,'y')">
+			  <span class="tag is-small is-danger m-0">atrasada</span>
+			  <span class="tag is-small is-light m-0" x-text="dayjs().diff(cliente.ultpago,'M')"></span>
 			</div>
 			<div class="xtags has-addons m-0" x-show="cliente.condonadas>0">
-				<span class="tag is-small is-danger m-0">condonada</span>
-				<span class="tag is-small is-light m-0" x-text="cliente.condonadas"></span>
+			  <span class="tag is-small is-danger m-0">condonada</span>
+			  <span class="tag is-small is-light m-0" x-text="cliente.condonadas"></span>
 			</div>
 			<div class="xtags has-addons m-0" x-show="cliente.compras>1">
-			    <span class="tag is-small is-info m-0">compras</span>
-			    <span class="tag is-small is-light m-0" x-text="cliente.compras"></span>
+			  <span class="tag is-small is-info m-0">compras</span>
+			  <span class="tag is-small is-light m-0" x-text="cliente.compras"></span>
 			</div>
 			<div class="xtags has-addons m-0" x-show="cliente.compras==0">
-			    <span class="tag is-small is-black m-0">compras</span>
-			    <span class="tag is-small is-light m-0" x-text="cliente.compras"></span>
+			  <span class="tag is-small is-black m-0">compras</span>
+			  <span class="tag is-small is-light m-0" x-text="cliente.compras"></span>
 			</div>
 			<div class="xtags has-addons m-0" x-show="cliente.planes>0">
-				<span class="tag is-small is-warning m-0">planes</span>
-				<span class="tag is-small is-light m-0" x-text="cliente.planes"></span>
+			  <span class="tag is-small is-warning m-0">planes</span>
+			  <span class="tag is-small is-light m-0" x-text="cliente.planes"></span>
 			</div>
             <div class="xtags has-addons m-0" x-show="cliente.atraso>0 && cliente.deuda==0">
-                <span class="tag is-small is-warning m-0">atrasos</span>
-                <span class="tag is-small is-light m-0" x-text="cliente.atraso+' dias'"></span>
+              <span class="tag is-small is-warning m-0">atrasos</span>
+              <span class="tag is-small is-light m-0" x-text="cliente.atraso+' dias'"></span>
             </div>
-		    </td>
+		  </td>
 		</tr>
-	    </template>
+	  </template>
 	</tbody>
-    </table>
+  </table>
 
-    <!-- cardclientes -->
+  <!-- cardclientes -->
 
-    <div class="box mt-6"  x-show="verCard">
+  <div class="box mt-6"  x-show="verCard">
 	<div>
-        <p class="title is-2" x-text="Cliente.nombre+'  '+Cliente.dni"></p>
-        <p class="subtitle is-4" x-text="Cliente.calle+' '+Cliente.num+' '+Cliente.barrio+' '+Cliente.zona"></p>
-        <p class="subtitle is-4"x-text="'tel:'+Cliente.tel+' wapp:'+Cliente.wapp"></p>
+      <div :class="!isMobileDevice?'flex-baseline':''">
+      <p class="title is-2" x-text="Cliente.nombre+'  '+Cliente.dni"></p>
+      <span class="tag is-warning is-small" x-show="verAvisoDniCopiado">DNI copiado al portapapeles</span>
+      </div>
+      <p class="subtitle is-4" x-text="Cliente.calle+' '+Cliente.num+' '+Cliente.barrio+' '+Cliente.zona"></p>
+      <p class="subtitle is-4"x-text="'tel:'+Cliente.tel+' wapp:'+Cliente.wapp"></p>
 
-        <p class="" x-show="Cliente.acla" x-text="Cliente.acla"></p>
-        <p class="" x-show="Cliente.mjecobr" x-text="Cliente.mjecobr"></p>
-        <p class="" x-show="Cliente.horario" x-text="Cliente.horario"></p>
-        <p class="" x-show="Cliente.infoseven" x-text="Cliente.infoseven"></p>
+      <p class="" x-show="Cliente.acla" x-text="Cliente.acla"></p>
+      <p class="" x-show="Cliente.mjecobr" x-text="Cliente.mjecobr"></p>
+      <p class="" x-show="Cliente.horario" x-text="Cliente.horario"></p>
+      <p class="" x-show="Cliente.infoseven" x-text="Cliente.infoseven"></p>
 	</div>
-        <div class="flex-left">
-            <span class="tag is-danger is-small" x-show="Cliente.baja">Ex-SEVEN</span>
-            <span class="tag is-danger is-small" x-show="Cliente.novendermas">LN</span>
-            <span class="tag is-success is-small" x-show="Cliente.sev">SEVEN</span>
-            <span class="tag is-info is-small" x-show="Cliente.subirseven">SUBE</span>
-            <span class="tag is-danger is-small" x-show="Cliente.mudo">MUDO</span>
-            <span class="tag is-warning is-small" x-show="Cliente.gestion">GESTION</span>
-            <span class="tag is-danger is-small" x-show="Cliente.incobrable">INC</span>
-            <span class="tag is-info is-small" x-show="Cliente.seguir">SEGUIR</span>
-        </div>
-        <div style="display: flex;align-items:baseline;">
-            <h2 x-text="Cliente.deuda?'$'+Cliente.deuda:'SIN DEUDA'" class="title is-2 mr-3"></h2>
-            <h2 x-text="Cliente.pmovto" class="subtitle is-3 mr-3 pointer" x-show="Cliente.deuda"
-	    @click="fecharPmovto(Cliente.id)"></h2>
-            <a href="#table-comentarios" class="mr-3"
-	       x-show="listaComentarios.length">Hay comentarios</a>
-	    <div class="xtags has-addons m0"
-		 x-show="Cliente.deuda>0&&dayjs.utc().diff(Cliente.ultpago,'d')>30">
-		    <span class="tag is-danger">atrasada</span>
-		    <span class="tag is-light" x-text="dayjs.utc().diff(Cliente.ultpago,'M')"></span>
+    <div class="flex-left">
+      <span class="tag is-danger is-small" x-show="Cliente.baja">Ex-SEVEN</span>
+      <span class="tag is-danger is-small" x-show="Cliente.novendermas">LN</span>
+      <span class="tag is-success is-small" x-show="Cliente.sev">SEVEN</span>
+      <span class="tag is-info is-small" x-show="Cliente.subirseven">SUBE</span>
+      <span class="tag is-danger is-small" x-show="Cliente.mudo">MUDO</span>
+      <span class="tag is-warning is-small" x-show="Cliente.gestion">GESTION</span>
+      <span class="tag is-danger is-small" x-show="Cliente.incobrable">INC</span>
+      <span class="tag is-info is-small" x-show="Cliente.seguir">SEGUIR</span>
+    </div>
+    <div :class="!isMobileDevice?'flex-baseline':'flex-column'">
+      <h2 x-text="Cliente.deuda?'$'+Cliente.deuda:'SIN DEUDA'" class="title is-2"></h2>
+      <h2 x-text="Cliente.pmovto=='Invalid Date'?'':Cliente.pmovto" class="title is-2 pointer" x-show="Cliente.deuda"
+	      @click="fecharPmovto(Cliente.id)"></h2>
+      <a href="#table-comentarios"
+	     x-show="listaComentarios.length">Hay comentarios</a>
+
+      <div>
+        <div class="xtags has-addons m0"
+		     x-show="Cliente.deuda>0&&dayjs.utc().diff(Cliente.ultpago,'d')>30">
+		  <span class="tag is-danger">atrasada</span>
+		  <span class="tag is-light" x-text="dayjs.utc().diff(Cliente.ultpago,'M')"></span>
 	    </div>
 	    <div class="xtags has-addons m-0" x-show="Cliente.devueltas>0">
-		    <span class="tag is-warning">devueltas</span>
-		    <span class="tag is-light" x-text="Cliente.devueltas"></span>
+		  <span class="tag is-warning">devueltas</span>
+		  <span class="tag is-light" x-text="Cliente.devueltas"></span>
 	    </div>
 	    <div class="xtags has-addons m-0" x-show="Cliente.condonadas>0">
-		    <span class="tag is-small is-danger m-0">condonada</span>
-		    <span class="tag is-small is-light m-0" x-text="Cliente.condonadas"></span>
+		  <span class="tag is-small is-danger m-0">condonada</span>
+		  <span class="tag is-small is-light m-0" x-text="Cliente.condonadas"></span>
 	    </div>
 	    <div class="xtags has-addons m-0" x-show="Cliente.compras>1">
-		    <a href="#ventas-canceladas" class="tag is-small is-info m-0">compras</a>
-		    <span class="tag is-small is-light m-0" x-text="Cliente.compras"></span>
+		  <a href="#ventas-canceladas" class="tag is-small is-info m-0">compras</a>
+		  <span class="tag is-small is-light m-0" x-text="Cliente.compras"></span>
 	    </div>
 	    <div class="xtags has-addons m-0" x-show="Cliente.compras==0">
-		<span class="tag is-small is-black m-0">compras</span>
-		<span class="tag is-small is-light m-0" x-text="Cliente.compras"></span>
+		  <span class="tag is-small is-black m-0">compras</span>
+		  <span class="tag is-small is-light m-0" x-text="Cliente.compras"></span>
 	    </div>
 	    <div class="xtags has-addons m-0" x-show="Cliente.planes>0">
-		    <span class="tag is-small is-warning m-0">planes</span>
-		    <span class="tag is-small is-light m-0" x-text="Cliente.planes"></span>
+		  <span class="tag is-small is-warning m-0">planes</span>
+		  <span class="tag is-small is-light m-0" x-text="Cliente.planes"></span>
 	    </div>
 	    <div class="xtags has-addons m-0" x-show="dayjs.utc().diff(Cliente.fechaintimacion,'d')<30">
-		    <span class="tag is-small is-success m-0">intimado</span>
-		    <span class="tag is-small is-light m-0" x-text="Cliente.fechaintimacion"></span>
+		  <span class="tag is-small is-success m-0">intimado</span>
+		  <span class="tag is-small is-light m-0" x-text="Cliente.fechaintimacion"></span>
 	    </div>
 	    <div class="xtags has-addons m-0" x-show="Cliente.atraso>0 && Cliente.deuda==0">
-		    <span class="tag is-small is-warning m-0">atrasos</span>
-		    <span class="tag is-small is-light m-0" x-text="Cliente.atraso+' dias'"></span>
+		  <span class="tag is-small is-warning m-0">atrasos</span>
+		  <span class="tag is-small is-light m-0" x-text="Cliente.atraso+' dias'"></span>
 	    </div>
 	    <div class="xtags has-addons m-0" x-show="totalCompradoActualizado">
-		    <span class="tag is-small is-success m-0">cancelado</span>
-		    <span class="tag is-small is-light m-0" x-text="'$'+parseInt(totalCompradoActualizado)"></span>
+		  <span class="tag is-small is-success m-0">cancelado</span>
+		  <span class="tag is-small is-light m-0" x-text="'$'+parseInt(totalCompradoActualizado)"></span>
 	    </div>
-        </div>
+      </div>
     </div>
-    <div class="buttons ml-3 mr-3 mb-1" x-show="verCard">
-        <button class="button is-secondary is-small" x-show="!Cliente.sev" @click="toggleSube()">SUBE</button>
-        <button class="button is-secondary is-small"  @click="toggleInc()">INC</button>
-        <button class="button is-secondary is-small"  @click="toggleNvm()">LN</button>
-        <button class="button is-secondary is-small"  @click="toggleGestion()">GESTION</button>
-        <button class="button is-secondary is-small"  @click="toggleMudo()">MUDO</button>
-        <button class="button is-secondary is-small"  @click="toggleSeguir()">SEGUIR</button>
-        <button class="button is-primary is-small" @click="dialogoImprimirFicha()">IMPRIMIR</button>
-        <button class="button is-success is-small" @click="clipDatos(Cliente.id)">DATOS</button>
+  </div>
+  <div class="buttons ml-3 mr-3 mb-1" x-show="verCard">
+    <button class="button is-secondary is-small" x-show="!Cliente.sev" @click="toggleSube()">SUBE</button>
+    <button class="button is-secondary is-small"  @click="toggleInc()">INC</button>
+    <button class="button is-secondary is-small"  @click="toggleNvm()">LN</button>
+    <button class="button is-secondary is-small"  @click="toggleGestion()">GESTION</button>
+    <button class="button is-secondary is-small"  @click="toggleMudo()">MUDO</button>
+    <button class="button is-secondary is-small"  @click="toggleSeguir()">SEGUIR</button>
+    <button class="button is-primary is-small" @click="dialogoImprimirFicha()">IMPRIMIR</button>
+    <button class="button is-success is-small" @click="clipDatos(Cliente.id)">DATOS</button>
 
 	<div class="dropdown is-hoverable">
-	    <div class="dropdown-trigger">
+	  <div class="dropdown-trigger">
 		<button class="button is-primary is-small" aria-haspopup="true" aria-controls="dropdown-menu">
-		    <span>Acciones</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
+		  <span>Acciones</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
 		</button>
-	    </div>
-	    <div class="dropdown-menu" id="dropdown-menu" role="menu">
+	  </div>
+	  <div class="dropdown-menu" id="dropdown-menu" role="menu">
 		<div class="dropdown-content">
-		    <a href="#" @click="editarCliente(Cliente.id)" class="dropdown-item">Editar</a>
-		    <a href="#" @click="fecharPmovto(Cliente.id)"  class="dropdown-item">Fechar</a>
-		    <a href="#" @click="agregarComentario()"  class="dropdown-item">Comentario</a>
-		    <a href="#" @click="agregarPlanPago()"  class="dropdown-item">Plan de Pago</a>
-		    <a href="#" @click="gestionarBajaSeven()"  class="dropdown-item">Baja en Seven</a>
+		  <a href="#" @click="editarCliente(Cliente.id)" class="dropdown-item">Editar</a>
+		  <a href="#" @click="fecharPmovto(Cliente.id)"  class="dropdown-item">Fechar</a>
+		  <a href="#" @click="agregarComentario()"  class="dropdown-item">Comentario</a>
+		  <a href="#" @click="agregarPlanPago()"  class="dropdown-item">Plan de Pago</a>
+		  <a href="#" @click="gestionarBajaSeven()"  class="dropdown-item">Baja en Seven</a>
 		</div>
-	    </div>
+	  </div>
 	</div>
 	<div class="dropdown is-hoverable">
-	    <div class="dropdown-trigger">
+	  <div class="dropdown-trigger">
 		<button class="button is-danger is-small" aria-haspopup="true" aria-controls="dropdown-menu">
-		    <span>whatsapp</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
+		  <span>whatsapp</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
 		</button>
-	    </div>
-	    <div class="dropdown-menu" id="dropdown-menu" role="menu">
+	  </div>
+	  <div class="dropdown-menu" id="dropdown-menu" role="menu">
 		<div class="dropdown-content">
-		    <a href="#" @click="sendMsgVenta(Cliente.wapp)" class="dropdown-item">Vender</a>
-		    <a href="#" @click="sendMsgCbu(Cliente.wapp)"  class="dropdown-item">CBU</a>
-		    <a href="#" @click="sendMsgRecordatorio(Cliente.wapp)"  class="dropdown-item">Recordatorio transferencia</a>
-		    <a href="#" @click="sendIntWhatsapp(Cliente.wapp)"  class="dropdown-item">Intimacion por Whats</a>
-		    <a href="#" @click="sendMsgGeneral(Cliente.wapp)"  class="dropdown-item">mensaje General</a>
+		  <a href="#" @click="sendMsgVenta(Cliente.wapp)" class="dropdown-item">Vender</a>
+		  <a href="#" @click="sendMsgCbu(Cliente.wapp)"  class="dropdown-item">CBU</a>
+		  <a href="#" @click="sendMsgRecordatorio(Cliente.wapp)"  class="dropdown-item">Recordatorio transferencia</a>
+		  <a href="#" @click="sendIntWhatsapp(Cliente.wapp)"  class="dropdown-item">Intimacion por Whats</a>
+		  <a href="#" @click="sendMsgGeneral(Cliente.wapp)"  class="dropdown-item">mensaje General</a>
 		</div>
-	    </div>
+	  </div>
 	</div>
 	<div class="dropdown is-hoverable">
-	    <div class="dropdown-trigger">
+	  <div class="dropdown-trigger">
 		<button class="button is-info is-small" aria-haspopup="true" aria-controls="dropdown-menu">
-		    <span>Emitir PDF</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
+		  <span>Emitir PDF</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
 		</button>
-	    </div>
-	    <div class="dropdown-menu" id="dropdown-menu" role="menu">
+	  </div>
+	  <div class="dropdown-menu" id="dropdown-menu" role="menu">
 		<div class="dropdown-content">
-		    <a href="#" @click="emitirRbo()" class="dropdown-item">Emitir Recibo</a>
-		    <a href="#" @click="emitirLibreDeuda(Cliente.dni)"  class="dropdown-item">Emitir Libre Deuda</a>
-		    <a href="#" @click="sendIntimacion(Cliente.dni,Cliente.wapp)"  class="dropdown-item">Emitir Intimacion</a>
+		  <a href="#" @click="emitirRbo()" class="dropdown-item">Emitir Recibo</a>
+		  <a href="#" @click="emitirLibreDeuda(Cliente.dni)"  class="dropdown-item">Emitir Libre Deuda</a>
+		  <a href="#" @click="sendIntimacion(Cliente.dni,Cliente.wapp)"  class="dropdown-item">Emitir Intimacion</a>
 		</div>
-	    </div>
+	  </div>
 	</div>
 
 
-        <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
-    </div>
+    <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+  </div>
 
-    <!-- tableventas -->
-    <table class="table noselect is-narrow is-striped m-3" x-show="verCard && listaVentas.length">
+  <!-- tableventas -->
+  <table class="table noselect is-narrow is-striped m-3" x-show="verCard && listaVentas.length">
+    <thead>
+      <tr>
+        <th>id</th>
+        <th>fecha</th>
+        <th>Ant</th>
+        <th>plan</th>
+        <th>saldo/comprado</th>
+        <th>vdor</th>
+        <th>cnt/art</th>
+		<th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="venta in listaVentas">
+		<tr>
+          <td x-text="venta.id"></td>
+          <td x-text="venta.fecha" style="min-width: 150px;"></td>
+          <td x-text="venta.ant" style="min-width: 40px;"></td>
+          <td x-text="venta.cc+' CUO de $'+venta.ic+' '+venta.p" style="min-width: 200px;"></td>
+          <td x-text="venta.saldo+'/'+venta.comprado"></td>
+          <td x-text="venta.idvdor"></td>
+          <td x-text="venta.cnt+'/'+venta.art" x-show="venta.cnt"></td>
+          <td x-text="'PLAN DE PAGOS'" x-show="venta.pp" class="tag-danger"></td>
+		  <td><button class="button is-primary is-small" @click="condonarVenta(venta.id)">Condonar</button></td>
+		</tr>
+      </template>
+    </tbody>
+  </table>
+
+
+  <div class="columns m-2">
+	<!-- tablecuotas -->
+    <div class="column is-3">
+	  <div class="flex-center" x-show="verCard">
+        <h4 class="title is-4 text-center m-2">Cuotas a pagar</h4>
+        <!-- <span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"></i></span> -->
+	  </div>
+      <table class="table is-narrow is-striped" x-show="verCard && listaCuotas.length" id="table-cuotas">
         <thead>
-            <tr>
-                <th>id</th>
-                <th>fecha</th>
-                <th>Ant</th>
-                <th>plan</th>
-                <th>saldo/comprado</th>
-                <th>vdor</th>
-                <th>cnt/art</th>
-		<th>op</th>
-            </tr>
+          <tr>
+            <th>N</th>
+            <th>Fecha</th>
+            <th class="sumar numeric">Saldo</i></th>
+            <th class="sumar numeric">Actual</i></th>
+          </tr>
         </thead>
         <tbody>
-            <template x-for="venta in listaVentas">
-		<tr>
-                    <td x-text="venta.id"></td>
-                    <td x-text="venta.fecha" style="min-width: 150px;"></td>
-                    <td x-text="venta.ant" style="min-width: 40px;"></td>
-                    <td x-text="venta.cc+' CUO de $'+venta.ic+' '+venta.p" style="min-width: 200px;"></td>
-                    <td x-text="venta.saldo+'/'+venta.comprado"></td>
-                    <td x-text="venta.idvdor"></td>
-                    <td x-text="venta.cnt+'/'+venta.art" x-show="venta.cnt"></td>
-                    <td x-text="'PLAN DE PAGOS'" x-show="venta.pp" class="tag-danger"></td>
-		    <td><button class="button is-primary is-small" @click="condonarVenta(venta.id)">Condonar</button></td>
-		</tr>
-            </template>
-        </tbody>
-    </table>
-
-
-    <div class="columns m-2">
-	<!-- tablecuotas -->
-        <div class="column is-3">
-	    <div class="flex-center" x-show="verCard">
-            <h4 class="title is-4 text-center m-2">Cuotas a pagar</h4>
-            <!-- <span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"></i></span> -->
-	    </div>
-            <table class="table is-narrow is-striped" x-show="verCard && listaCuotas.length" id="table-cuotas">
-                <thead>
-                    <tr>
-                        <th>N</th>
-                        <th>Fecha</th>
-                        <th class="sumar numeric">Saldo</i></th>
-                        <th class="sumar numeric">Actual</i></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <template x-for="cuota in listaCuotas">
-                      <!-- nc-vto-saldo -->
+          <template x-for="cuota in listaCuotas">
+            <!-- nc-vto-saldo -->
 			<tr x-show="cuota[2]">
-                            <td x-text="cuota[0]"></td>
-                            <td x-text="cuota[1]" style="min-width: 100px;"></td>
-                            <td x-text="cuota[2]" class="pesos" :class="cuota[3]>cuota[2]?'strike':''"></td>
-                            <td x-text="cuota[3]" class="pesos red" x-show="cuota[3]>cuota[2]"></td>
+              <td x-text="cuota[0]"></td>
+              <td x-text="cuota[1]" style="min-width: 100px;"></td>
+              <td x-text="cuota[2]" class="pesos" :class="cuota[3]>cuota[2]?'strike':''"></td>
+              <td x-text="cuota[3]" class="pesos red" x-show="cuota[3]>cuota[2]"></td>
 			</tr>
-                    </template>
-                </tbody>
-            </table>
-        </div>
+          </template>
+        </tbody>
+      </table>
+    </div>
 
 	<!-- tablepagadas -->
-        <div class="column is-5" x-show="verCard && listaPagadas.length">
-	    <div class="flex-center">
+    <div class="column is-5" x-show="verCard && listaPagadas.length">
+	  <div class="flex-center">
 		<h4 class="title is-4 text-center m-2">Cuotas pagadas</h4>
 		<span class="tag is-small is-dark" x-text="listaPagadas.length" x-show="listaPagadas.length>5"></span>
 		<span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
-		 @click="verCuotasPagadas=!verCuotasPagadas" x-show="listaPagadas.length>5"></i></span>
-	    </div>
-            <table class="table is-narrow is-striped" x-bind:class="verCuotasPagadas?'':'table5'" id="table-cuotaspagadas">
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Rbo</th>
-                        <th class="sumar numeric">Imp</th>
-                        <th class="sumar numeric">Rec</th>
-                        <th>Cobr</th>
-                        <th>Cuenta</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <template x-for="paga in listaPagadas">
+		                               @click="verCuotasPagadas=!verCuotasPagadas" x-show="listaPagadas.length>5"></i></span>
+	  </div>
+      <table class="table is-narrow is-striped" x-bind:class="verCuotasPagadas?'':'table5'" id="table-cuotaspagadas">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Rbo</th>
+            <th class="sumar numeric">Imp</th>
+            <th class="sumar numeric">Rec</th>
+            <th>Cobr</th>
+            <th>Cuenta</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="paga in listaPagadas">
 			<tr :class="dayjs(Vtos[paga.idvta])<dayjs(paga.fecha)?'cuotavencida':''">
-                            <td x-text="paga.fecha" style="min-width: 150px;"></td>
-                            <td x-text="paga.rbo">
-                            <td x-text="paga.imp" class="pesos"></td>
-                            <td x-text="paga.rec" class="pesos"></td>
-                            <td x-text="paga.cobr"></td>
-                            <td x-text="paga.idvta"></td>
+              <td x-text="paga.fecha" style="min-width: 150px;"></td>
+              <td x-text="paga.rbo">
+                <td x-text="paga.imp" class="pesos"></td>
+                <td x-text="paga.rec" class="pesos"></td>
+                <td x-text="paga.cobr"></td>
+                <td x-text="paga.idvta"></td>
 			</tr>
-                    </template>
-                </tbody>
-            </table>
-        </div>
+          </template>
+        </tbody>
+      </table>
+    </div>
 
 	<!-- tableventascanceladas -->
-    </div>
-    <div class="m-2" id="ventas-canceladas">
-        <h4 class="title is-4 m-2" x-show="verCard && listaVentasCanceladas.length">Ventas Canceladas</h4>
-        <table class="table is-narrow is-striped" x-show="verCard && listaVentasCanceladas.length">
-            <thead>
+  </div>
+  <div class="m-2" id="ventas-canceladas">
+    <h4 class="title is-4 m-2" x-show="verCard && listaVentasCanceladas.length">Ventas Canceladas</h4>
+    <table class="table is-narrow is-striped" x-show="verCard && listaVentasCanceladas.length">
+      <thead>
 		<tr>
-                    <th>id</th>
-                    <th>fecha</th>
-                    <th>Ant</th>
-                    <th>plan</th>
-                    <th class="numeric">monto</th>
-                    <th class="sumar numeric">actual</th>
-                    <th>vdor</th>
-                    <th>cnt/art</th>
-                    <th>info</th>
+          <th>id</th>
+          <th>fecha</th>
+          <th>Ant</th>
+          <th>plan</th>
+          <th class="numeric">monto</th>
+          <th class="sumar numeric">actual</th>
+          <th>vdor</th>
+          <th>cnt/art</th>
+          <th>info</th>
 		</tr>
-            </thead>
-            <tbody>
+      </thead>
+      <tbody>
 		<template x-for="venta in listaVentasCanceladas">
-		    <tr>
+		  <tr>
 			<td data-titulo="cuenta" x-text="venta.id"></td>
 			<td data-titulo="fecha vta"x-text="venta.fecha" style="min-width: 100px;"></td>
 			<td data-titulo="anticipo" x-text="venta.ant" style="min-width: 40px;"></td>
@@ -344,241 +361,336 @@
 			<td data-titulo="monto" x-text="venta.comprado" class="pesos"></td>
 			<td data-titulo="actual" x-text="parseInt(venta.comprado*listaInflacion[dayjs(venta.fecha).format('YYYYM')])?
                              parseInt(venta.comprado*listaInflacion[dayjs(venta.fecha).format('YYYYM')]):venta.comprado"
-            class="red pesos"></td>
+                class="red pesos"></td>
 			<td data-titulo="vdor" x-text="venta.idvdor"></td>
 			<td data-titulo="arts" x-text="venta.cnt+'/'+venta.art"></td>
 			<td x-show="venta.pcondo" x-text="'CUENTA INCLUIDA EN UN PLAN DE PAGOS'" class="tag is-small is-info"></td>
 			<td x-show="venta.devuelta" x-text="'DEVUELTA'" class="tag is-small is-danger"></td>
 			<td>
-			    <div class="xtags has-addons m-0" x-show="venta.condonada&&venta.montocondonado/venta.comprado>0.05"
-				 @click="condonarVenta(venta.id)">
+			  <div class="xtags has-addons m-0" x-show="venta.condonada&&venta.montocondonado/venta.comprado>0.05"
+				   @click="condonarVenta(venta.id)">
 				<span class="tag is-small is-danger m-0">condonada</span>
 				<span class="tag is-small is-light m-0" x-text="parseInt((venta.montocondonado/venta.comprado)*100)+'%'"></span>
-			</div>
+			  </div>
 			</td>
-		    </tr>
+		  </tr>
 		</template>
-            </tbody>
-        </table>
-    </div>
+      </tbody>
+    </table>
+  </div>
 
-    <!-- tablecomentarios -->
-    <div class="m-2">
-        <h4 class="title is-4 m-2" x-show="verCard && listaComentarios.length">Comentarios</h4>
-        <table class="table noselect is-narrow is-striped" x-show="verCard && listaComentarios.length" id="table-comentarios">
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Comentario</th>
-                </tr>
-            </thead>
-            <tbody>
-                <template x-for="comentario in listaComentarios">
-                    <tr>
+  <!-- tablecomentarios -->
+  <div class="m-2">
+    <h4 class="title is-4 m-2" x-show="verCard && listaComentarios.length">Comentarios</h4>
+    <table class="table noselect is-narrow is-striped" x-show="verCard && listaComentarios.length" id="table-comentarios">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Comentario</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="comentario in listaComentarios">
+          <tr>
 			<td  x-text="comentario.fechahora" style="min-width: 100px;"></td>
 			<td  x-text="comentario.comentario"></td>
-                    </tr>
+          </tr>
 		</template>
-            </tbody>
-        </table>
-    </div>
+      </tbody>
+    </table>
+  </div>
 
-    <!-- tablelogcambiodireccion -->
-    <div class="m-2">
-        <h4 class="title is-4 m-2" x-show="verCard && listaLogCambioDireccion.length">LogCambioDireccion</h4>
-        <table class="table noselect is-narrow is-striped" x-show="verCard && listaLogCambioDireccion.length">
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>calle</th>
-                    <th>num</th>
-                    <th>wapp</th>
-                    <th>acla</th>
-                </tr>
-            </thead>
-            <tbody>
-                <template x-for="log in listaLogCambioDireccion">
-                    <tr>
+  <!-- tablelogcambiodireccion -->
+  <div class="m-2">
+    <h4 class="title is-4 m-2" x-show="verCard && listaLogCambioDireccion.length">LogCambioDireccion</h4>
+    <table class="table noselect is-narrow is-striped" x-show="verCard && listaLogCambioDireccion.length">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>calle</th>
+          <th>num</th>
+          <th>wapp</th>
+          <th>acla</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="log in listaLogCambioDireccion">
+          <tr>
 			<td  x-text="log.fecha" style="min-width: 100px;"></td>
 			<td  x-text="log.calle"></td>
 			<td  x-text="log.num"></td>
 			<td  x-text="log.wapp"></td>
 			<td  x-text="log.acla"></td>
-                    </tr>
+          </tr>
 		</template>
-            </tbody>
-        </table>
-    </div>
-
-
-    <!-- MODALES -->
-    <div x-bind:class="verModalPmovto?'xmodal-container':''">
-        <div class="xcard xmodal" x-show="verModalPmovto">
-            <button class="btn-close" @click="verModalPmovto=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-            <h2 class="title is-3" style="color:black;">Fechar PmoVto</h2>
-            <input type="date" class="input mb-3" x-model="Cliente.pmovto">
-            <button class="button is-primary" @click="guardarPmovto">Fechar</button>
-        </div>
-    </div>
-    <div x-bind:class="verModalComentario?'xmodal-container':''">
-        <div class="xcard xmodal" x-show="verModalComentario">
-            <button class="btn-close" @click="verModalComentario=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-            <h3 class="title is-4" style="color:black;">Agregar Comentario</h3>
-            <input type="date" class="input mb-3" x-model="Comentario.fechahora">
-            <textarea class="textarea mb-3" rows="4" x-model="Comentario.comentario"></textarea>
-            <button class="button is-primary" @click="guardarComentario">Guardar</button>
-        </div>
-    </div>
-    <div x-bind:class="verModalEdicion?'xmodal-container':''">
-        <div class="xcard xmodal" x-show="verModalEdicion">
-            <div class="flex justify-content-end">
-                <button class="btn-close" @click="verModalEdicion=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-            </div>
-            <h1 class="title is-3" style="color:black;">Editar Cliente</h1>
-            <input type="text" class="input mb-1" x-model="Cliente.dni">
-            <input type="text" class="input mb-1" x-model="Cliente.nombre">
-
-            <div class="grid col-1 gap-0">
-		<input type="text" class="input mb-1" x-model="Cliente.calle" id="searchCalle1" autocomplete="off">
-		<div id="suggestionsCalle1" class="suggestions"></div>
-            </div>
-
-            <input type="text" class="input mb-1" x-model="Cliente.num">
-
-            <div class="grid col-1 gap-0">
-                <input type="text" class="input mb-1" x-model="Cliente.barrio" id="searchBarrio" autocomplete="off">
-                <div id="suggestionsBarrio" class="suggestions"></div>
-            </div>
-
-            <div class="grid col-1 gap-0">
-                <input type="text" class="input mb-1" x-model="Cliente.zona" id="searchZona" autocomplete="off">
-                <div id="suggestionsZona" class="suggestions"></div>
-            </div>
-
-            <input type="text" class="input mb-1" x-model="Cliente.tel" placeholder="telefono">
-            <input type="text" class="input mb-1" x-model="Cliente.wapp" placeholder="wapp">
-            <input type="text" class="input mb-1" x-model="Cliente.acla" placeholder="aclaracion">
-            <input type="text" class="input mb-1" x-model="Cliente.horario" placeholder="horario">
-            <input type="text" class="input mb-1" x-model="Cliente.mjecobr" placeholder="mjecobrador">
-            <input type="text" class="input mb-1" x-model="Cliente.infoseven" placeholder="infoseven">
-            <button class="button is-primary" @click="guardarEdicion">Guardar</button>
-        </div>
-    </div>
-    <div x-bind:class="verModalPlanPago?'xmodal-container':''">
-        <div class="xcard xmodal" x-show="verModalPlanPago">
-            <button class="btn-close" @click="verModalPlanPago=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-            <h1 class="title is-3" style="color:black;">Plan Pagos</h1>
-            <label for="fecha" class="label">Fecha</label>
-            <input type="date" class="input mb-3" x-model="Venta.fecha" id="fecha" autocomplete="off">
-            <label for="cc" class="label">Cuotas</label>
-            <input type="text" class="input mb-3" x-model="Venta.cc" id="cc" autocomplete="off">
-            <label for="ic" class="label">Importe</label>
-            <input type="text" class="input mb-3" x-model="Venta.ic" id="ic" autocomplete="off">
-            <label for="p" class="label">Periodicidad</label>
-            <input list="per" id="p" class="input mb-3" x-model="Venta.p" autocomplete="off">
-            <datalist id="per">
-                <option value="Mensual"></option>
-                <option value="Quincenal"></option>
-                <option value="Semanal"></option>
-            </datalist>
-            <label for="fechaprimer" class="label">Fecha Primer Cuota</label>
-            <input type="date" class="input mb-3" x-model="Venta.primera" id="fechaprimer">
-
-            <button class="button is-primary" @click="guardarPlanPagos">Generar</button>
-        </div>
-    </div>
-    <div x-bind:class="verModalRecibo?'xmodal-container':''">
-        <div class="xcard xmodal" x-show="verModalRecibo">
-            <button class="btn-close" @click="verModalRecibo=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-            <h1 class="title is-3" style="color:black;">Recibo</h1>
-            <label for="fecha" class="label">Fecha</label>
-            <input type="date" class="input mb-3" x-model="Recibo.fecha" id="fecha" autocomplete="off">
-            <label for="cuenta" class="label">Cuenta</label>
-            <input list="cuentas" id="cuenta" class="input mb-3" x-model="Recibo.cuenta" autocomplete="off">
-            <datalist id="cuentas">
-                <template x-for="cuenta in listaCuentas">
-                    <option :value="cuenta"></option>
-                </template>
-            </datalist>
-            <label for="cuota" class="label">Cuota</label>
-            <input type="text" class="input mb-3" x-model="Recibo.nc" id="cuota" autocomplete="off">
-            <label for="ic" class="label">Importe</label>
-            <input type="text" class="input mb-3" x-model="Recibo.ic" id="ic" autocomplete="off">
-            <label for="cobr" class="label">Cobr</label>
-            <input type="text" class="input mb-3" x-model="Recibo.cobr" id="cobr" autocomplete="off">
-
-            <button class="button is-primary" @click="guardarRecibo">Generar</button>
-        </div>
-    </div>
-    <div x-bind:class="verModalMsgWhatsapp?'xmodal-container':''">
-        <div class="xcard xmodal" x-show="verModalMsgWhatsapp">
-            <button class="btn-close" @click="verModalMsgWhatsapp=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-            <h1 class="title is-3" style="color:black;">WhatsApp</h1>
-            <label for="nombre" class="label">Nombre</label>
-            <input type="text" class="input mb-3" x-model="Cliente.nombre" id="nombre" autocomplete="off" readonly>
-            <label for="whatsapp" class="label">WhatsApp</label>
-            <input type="text" class="input mb-3" x-model="Cliente.wapp" id="whatsapp" autocomplete="off" readonly>
-            <label for="msg" class="label">Mensaje</label>
-            <textarea x-model="msgWhatsapp" id="msg" autocomplete="off" rows="10" cols="30"></textarea>
-            <button class="button is-primary" @click="enviarWhatsapp">Enviar</button>
-        </div>
-    </div>
-    <div x-bind:class="verModalImprimirFicha?'xmodal-container':''">
-        <div class="xcard xmodal" x-show="verModalImprimirFicha">
-            <button class="btn-close" @click="verModalImprimirFicha=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-            <h1 class="title is-3" style="color:black;">Imprimir Ficha</h1>
-            <button class="button is-primary is-small" @click="mostrarFichaPorPantalla=true;imprimirFicha()">Imprimir en pantalla</button>
-            <div class="buttons m-3">
-		<template x-for="cobr in listaCobradores">
-                    <button class="button is-success is-small" x-text="cobr" @click="cobrEnviar=cobr;imprimirFicha()"></button>
-		</template>
-            </div>
-        </div>
-    </div>
-    <div x-bind:class="verModalAsunto?'xmodal-container':''">
-        <div class="xcard xmodal" x-show="verModalAsunto">
-            <button class="btn-close" @click="verModalAsunto=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-            <h1 class="title is-3" style="color:black;">Asunto</h1>
-            <label for="fecha" class="label">Fecha</label>
-            <input type="date" class="input mb-3" x-model="Asunto.fecha" id="fecha" autocomplete="off">
-            <label for="p" class="label">Tipo</label>
-            <input list="type" id="tipo" class="input mb-3" x-model="Asunto.tipo" autocomplete="off">
-            <datalist id="type">
-                <option value="Cambio"></option>
-                <option value="Devolucion"></option>
-                <option value="Venta"></option>
-                <option value="Reclamo"></option>
-            </datalist>
-            <label for="vdor" class="label">Vendedor</label>
-            <input type="text" class="input mb-3" x-model="Asunto.vdor" id="vdor" autocomplete="off">
-            <label for="asunto" class="label">Asunto</label>
-            <input type="text" class="input mb-3" x-model="Asunto.asunto" id="asunto" autocomplete="off">
-
-
-
-            <button class="button is-primary" @click="validarAsunto">Generar</button>
-        </div>
-    </div>
-
-    <!-- tabledatos -->
-    <table class="table noselect is-narrow is-striped" x-show="!verCard && DatosCalle.length">
-        <thead>
-            <tr>
-                <th>Num</th>
-                <th>Nombre</th>
-                <th>Deuda</th>
-            </tr>
-        </thead>
-        <tbody>
-            <template x-for="dato in DatosCalle">
-                <tr :class="dato.deuda>0?(dato.atraso>45?'mora':'cliente'):'cancelado'">
-                    <td><button class="button is-primary is-small" x-text=dato.num @click="buscar1='';buscar=dato.dni;buscarCliente();scroll(0,0)"></button></td>
-                    <td x-text=dato.nombre></td>
-                    <td x-text=dato.deuda></td>
-                </tr>
-            </template>
-        </tbody>
+      </tbody>
     </table>
+  </div>
+
+
+  <!-- MODALES -->
+  <!-- bulma-modal edicion-pmo-vto -->
+  <div class="modal" id="modal-edicion-pmovto">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Fechar PmoVto</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion-pmovto')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="idpmovto">PmoVto</label>
+        <input type="date" class="input mb-3" x-model="Cliente.pmovto" id="idpmovto">
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="validarPmoVto">Fechar</button>
+        <button class="button" @click="toggleModal('modal-edicion-pmovto')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- bulma-modal comentarios  -->
+  <div class="modal" id="modal-edicion-comentarios">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Agregar un Comentario Interno</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion-comentarios')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="idfecha">Fecha</label>
+        <input type="date" class="input mb-3" x-model="Comentario.fechahora" id="idfecha">
+        <label for="idcomentario">Comentario</label>
+        <textarea class="textarea mb-3" rows="4" x-model="Comentario.comentario" id="idcomentario"></textarea>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="guardarComentario">Guardar</button>
+        <button class="button" @click="toggleModal('modal-edicion-comentarios')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- bulma-modal edicion-cliente  -->
+  <div class="modal" id="modal-edicion-cliente">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Editar datos cliente</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion-cliente')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="iddni">DNI</label>
+        <input type="text" class="input mb-1" x-model="Cliente.dni" id="iddni"
+               :class="darkTheme?'input-dark':''" required>
+        <label for="idnombre">Nombre</label>
+        <input type="text" class="input mb-1" x-model="Cliente.nombre" id="idnombre"
+               :class="darkTheme?'input-dark':''" required>
+        <label for="idcalle">Calle</label>
+        <input type="text" list="listacalles" class="input mb-1" x-model="Cliente.calle" required
+               id="idcalle" :class="darkTheme?'input-dark':''"  />
+        <datalist id="listacalles">
+          <template x-for="item in calles">
+            <option :value="item"></option>
+          </template>
+        </datalist>
+        <label for="idnum">Num</label>
+        <input type="text" class="input mb-1" x-model="Cliente.num" id="idnum"
+               :class="darkTheme?'input-dark':''" required>
+        <label for="idbarrio">Barrio</label>
+        <input type="text" list="listabarrios" class="input mb-1" x-model="Cliente.barrio" required
+               id="idbarrio" :class="darkTheme?'input-dark':''" />
+        <datalist id="listabarrios">
+          <template x-for="item in barrios">
+            <option :value="item"></option>
+          </template>
+        </datalist>
+        <label for="idzona">Zona</label>
+        <input type="text" list="listazonas" class="input mb-1" x-model="Cliente.zona" required
+               id="idzona" :class="darkTheme?'input-dark':''" />
+        <datalist id="listazonas">
+          <template x-for="item in zonas">
+            <option :value="item"></option>
+          </template>
+        </datalist>
+
+        <label for="idtel">Telefono</label>
+        <input type="text" class="input mb-1" x-model="Cliente.tel" id="idtel"
+               :class="darkTheme?'input-dark':''" >
+        <label for="idwapp">Whatsapp</label>
+        <input type="text" class="input mb-1" x-model="Cliente.wapp" id="idwapp"
+               :class="darkTheme?'input-dark':''" >
+        <label for="idacla">Aclaracion</label>
+        <input type="text" class="input mb-1" x-model="Cliente.acla" id="idacla"
+               :class="darkTheme?'input-dark':''" >
+        <label for="idhorario">Horario</label>
+        <input type="text" class="input mb-1" x-model="Cliente.horario" id="idhorario"
+               :class="darkTheme?'input-dark':''" >
+        <label for="idmsg">Mensaje Cobrador</label>
+        <input type="text" class="input mb-1" x-model="Cliente.mjecobr" id="idmsg"
+               :class="darkTheme?'input-dark':''" >
+        <label for="idseven">Info Seven</label>
+        <input type="text" class="input mb-1" x-model="Cliente.infoseven" id="idseven"
+               :class="darkTheme?'input-dark':''" >
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="guardarEdicion">Guardar</button>
+        <button class="button" @click="toggleModal('modal-edicion-cliente')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+
+
+  <!-- bulma-modal plan-pagos  -->
+  <div class="modal" id="modal-edicion-plan-pagos">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Hacer un Plan de Pagos</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion-plan-pagos')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="idfecha">Fecha</label>
+        <input type="date" class="input mb-3" x-model="Venta.fecha" id="idfecha"
+               :class="darkTheme?'input-dark':''" >
+        <label for="cc" class="label">Cuotas</label>
+        <input type="text" class="input mb-3" x-model="Venta.cc" id="cc" autocomplete="off"
+               :class="darkTheme?'input-dark':''" >
+        <label for="ic" class="label">Importe</label>
+        <input type="text" class="input mb-3" x-model="Venta.ic" id="ic" autocomplete="off"
+               :class="darkTheme?'input-dark':''" >
+        <label for="p" class="label">Periodicidad</label>
+        <input list="per" id="p" class="input mb-3" x-model="Venta.p" autocomplete="off"
+               :class="darkTheme?'input-dark':''" >
+        <datalist id="per">
+          <option value="Mensual"></option>
+          <option value="Quincenal"></option>
+          <option value="Semanal"></option>
+        </datalist>
+        <label for="fechaprimer" class="label">Fecha Primer Cuota</label>
+        <input type="date" class="input mb-3" x-model="Venta.primera" id="fechaprimer"
+               :class="darkTheme?'input-dark':''" >
+
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="guardarPlanPagos">Generar</button>
+        <button class="button" @click="toggleModal('modal-edicion-plan-pagos')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- bulma-modal recibos  -->
+  <div class="modal" id="modal-edicion-recibos">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Emitir Recibo por transferencia</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion-recibos')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="fecha" class="label">Fecha</label>
+        <input type="date" class="input mb-3" x-model="Recibo.fecha" id="fecha" autocomplete="off"
+               :class="darkTheme?'input-dark':''">
+        <label for="cuenta" class="label">Cuenta</label>
+        <input list="cuentas" id="cuenta" class="input mb-3" x-model="Recibo.cuenta" autocomplete="off"
+               :class="darkTheme?'input-dark':''">
+        <datalist id="cuentas">
+          <template x-for="cuenta in listaCuentas">
+            <option :value="cuenta"></option>
+          </template>
+        </datalist>
+        <label for="cuota" class="label">Cuota</label>
+        <input type="text" class="input mb-3" x-model="Recibo.nc" id="cuota" autocomplete="off"
+               :class="darkTheme?'input-dark':''">
+        <label for="ic" class="label">Importe</label>
+        <input type="text" class="input mb-3" x-model="Recibo.ic" id="ic" autocomplete="off"
+               :class="darkTheme?'input-dark':''">
+        <label for="cobr" class="label">Cobr</label>
+        <input type="text" class="input mb-3" x-model="Recibo.cobr" id="cobr" autocomplete="off"
+               :class="darkTheme?'input-dark':''">
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="validarRecibo">Guardar</button>
+        <button class="button" @click="toggleModal('modal-edicion-recibos')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- bulma-modal msg-wapp  -->
+  <div class="modal" id="modal-edicion-msg-wapp">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Enviar Whatsapp</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion-msg-wapp')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="nombre" class="label">Nombre</label>
+        <input type="text" class="input mb-3" x-model="Cliente.nombre" id="nombre" autocomplete="off"
+               readonly :class="darkTheme?'input-dark':''">
+        <label for="whatsapp" class="label">WhatsApp</label>
+        <input type="text" class="input mb-3" x-model="Cliente.wapp" id="whatsapp" autocomplete="off" readonly
+               :class="darkTheme?'input-dark':''">
+        <label for="msg" class="label">Mensaje</label>
+        <textarea x-model="msgWhatsapp" id="msg" autocomplete="off" rows="10" :cols="!isMobileDevice?'62':'32'"
+                  :class="darkTheme?'input-dark':''"></textarea>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="enviarWhatsapp">Enviar</button>
+        <button class="button" @click="toggleModal('modal-edicion-msg-wapp')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- bulma-modal impr-ficha  -->
+  <div class="modal" id="modal-edicion-impr-ficha">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Imprimir Ficha</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion-impr-ficha')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <div class="block">
+          <button class="button is-primary" @click="mostrarFichaPorPantalla=true;imprimirFicha()">Imprimir en pantalla</button>
+        </div>
+        <div class="buttons">
+		  <template x-for="cobr in listaCobradores">
+            <button class="button is-success" x-text="cobr" @click="cobrEnviar=cobr;imprimirFicha()"></button>
+		  </template>
+        </div>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button" @click="toggleModal('modal-edicion-impr-ficha')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+
+
+  <!-- tabledatos -->
+  <table class="table noselect is-narrow is-striped" x-show="!verCard && DatosCalle.length">
+    <thead>
+      <tr>
+        <th>Num</th>
+        <th>Nombre</th>
+        <th>Deuda</th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="dato in DatosCalle">
+        <tr :class="dato.deuda>0?(dato.atraso>45?'mora':'cliente'):'cancelado'">
+          <td><button class="button is-primary is-small" x-text=dato.num @click="buscar1='';buscar=dato.dni;buscarCliente();scroll(0,0)"></button></td>
+          <td x-text=dato.nombre></td>
+          <td x-text=dato.deuda></td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
 
 
 </div>
@@ -587,17 +699,12 @@
 {% block script %}
 <script>
 
- function textToClipboard (text) {
-     var dummy = document.createElement("textarea");
-     document.body.appendChild(dummy);
-     dummy.value = text;
-     dummy.select();
-     document.execCommand("copy");
-     document.body.removeChild(dummy);
- }
  function main(){
      return{
          calle:'',
+         calles:[],
+         barrios:[],
+         zonas:[],
          DatosCalle:[],
          listaClientes:[],
 	     listaClientes_:[],
@@ -609,6 +716,7 @@
          listaPagadas:[],
          listaCuentas:[],
          listaInflacion:{},
+         listaBusquedasRecientes:[],
          Vtos:{},
          buscar:'',
 	     buscar1:'',
@@ -621,14 +729,6 @@
          Comentario:{fechahora:dayjs.utc().format('YYYY-MM-DD')},
          Asunto:{fecha:dayjs.utc().format('YYYY-MM-DD'),tipo:'',vdor:'',asunto:''},
          Recibo:{fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:''},
-         verModalPmovto:false,
-         verModalEdicion:false,
-         verModalComentario:false,
-         verModalPlanPago:false,
-         verModalRecibo:false,
-         verModalAsunto:false,
-         verModalMsgWhatsapp:false,
-         verModalImprimirFicha:false,
 	     verCuotasPagadas:true,
          mostrarFichaPorPantalla:false,
          cobrEnviar:'',
@@ -636,52 +736,78 @@
          wappCobrador:'',
          calleMostrada:'',
          totalCompradoActualizado:0,
+         verAvisoDniCopiado:false,
 
-    buscarCliente(){
-        this.verCard = false
-        this.resetBuscar()
-	     /* this.listaClientesCasa=[] */
-	     buscar = this.buscar1.length>0?this.buscar1:this.buscar
-             textToClipboard(buscar)
-	     if(buscar=='') buscar='-'
-             axios.get('/buscador/'+buscar)
-		  .then(res=>{
-		      this.listaClientes=res.data.clientes
-		      this.listaClientes_=this.listaClientes
-		      this.listaClientes.map(row=>row.pmovto=dayjs.utc(row.pmovto).format('YYYY-MM-DD'))
-		      this.listaClientes.map(row=>row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD'))
-		      this.listaClientes.map(row=>row.ultcompra=dayjs.utc(row.ultcompra).format('YYYY-MM-DD'))
-		      this.listaClientes.map(row=>row.fechaintimacion=dayjs.utc(row.fechaintimacion).format('YYYY-MM-DD'))
-		      /* corrijo Cliente.ultpago en los casos que ha comprado de nuevo */
-		      this.listaClientes.map(row=>{
-			  if(row.ultcompra>row.ultpago) row.ultpago=row.ultcompra
-		      })
-		      if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
-		  })
-		  .catch(error=>{
-		      msgError('Error!',error.response.data)
-		  })
+         buscarCliente(){
+             this.verCard = false
+             this.resetBuscar()
+	         this.buscar = this.buscar1.length>0?this.buscar1:this.buscar
+             let patternDni = /^(\d){7,8}$/
+             if(patternDni.test(this.buscar)){
+                 textToClipboard(this.buscar)
+                 this.verAvisoDniCopiado=true
+                 setTimeout(()=>{this.verAvisoDniCopiado=false},3000)
+             }else{
+                 clearClipboard()
+             }
+	         if(this.buscar=='') this.buscar='-'
+             axios.get('/buscador/'+this.buscar)
+		          .then(res=>{
+		              this.listaClientes=res.data.clientes
+		              this.listaClientes_=this.listaClientes
+		              this.listaClientes.map(row=>row.pmovto=dayjs.utc(row.pmovto).format('YYYY-MM-DD'))
+		              this.listaClientes.map(row=>row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD'))
+		              this.listaClientes.map(row=>row.ultcompra=dayjs.utc(row.ultcompra).format('YYYY-MM-DD'))
+		              this.listaClientes.map(row=>row.fechaintimacion=dayjs.utc(row.fechaintimacion).format('YYYY-MM-DD'))
+		              /* corrijo Cliente.ultpago en los casos que ha comprado de nuevo */
+		              this.listaClientes.map(row=>{
+			              if(row.ultcompra>row.ultpago) row.ultpago=row.ultcompra
+		              })
+		              if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
+                      this.listaBusquedasRecientes.push(this.buscar)
+
+		          })
+		          .catch(error=>{
+		              msgError('Error!',error.response.data)
+		          })
          },
          buscaCuentaporDni(dni){
-	     this.resetBuscar()
-	     this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
-	     this.buscar = this.Cliente.calle+' '+this.Cliente.num
+	         this.resetBuscar()
+	         this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
              this.obtenerVentas(this.Cliente.id)
              this.verCard = true;
              this.clipWappVentas()
+	         this.buscar = this.Cliente.calle+' '+this.Cliente.num
          },
-	 resetBuscar(){
-	     this.Cliente={}
-	     this.listaClientes_=[]
-	     this.listaVentas=[]
-	     this.listaCuotas=[]
-	     this.listaPagadas=[]
-	     this.listaCuentas=[]
-	     this.listaComentarios=[]
-	     this.listaLogCambioDireccion=[]
-         limpiarTabla('table-cuotaspagadas')
-         limpiarTabla('table-cuotas')
-    },
+         refreshCliente(dni){
+             axios.get('/buscador/'+dni)
+                  .then(res=>{
+                      this.resetBuscar()
+                      this.listaClientes=res.data.clientes
+                      this.listaClientes.map(row=>row.pmovto=dayjs.utc(row.pmovto).format('YYYY-MM-DD'))
+		              this.listaClientes.map(row=>row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD'))
+		              this.listaClientes.map(row=>row.ultcompra=dayjs.utc(row.ultcompra).format('YYYY-MM-DD'))
+		              this.listaClientes.map(row=>row.fechaintimacion=dayjs.utc(row.fechaintimacion).format('YYYY-MM-DD'))
+		              /* corrijo Cliente.ultpago en los casos que ha comprado de nuevo */
+		              this.listaClientes.map(row=>{
+			              if(row.ultcompra>row.ultpago) row.ultpago=row.ultcompra
+		              })
+                      this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
+                      this.obtenerVentas(this.Cliente.id)
+                  })
+         },
+	     resetBuscar(){
+	         this.Cliente={}
+	         this.listaClientes_=[]
+	         this.listaVentas=[]
+	         this.listaCuotas=[]
+	         this.listaPagadas=[]
+	         this.listaCuentas=[]
+	         this.listaComentarios=[]
+	         this.listaLogCambioDireccion=[]
+             limpiarTabla('table-cuotaspagadas')
+             limpiarTabla('table-cuotas')
+         },
          clipWappIntimacion(){
              let text,
                  messaje;
@@ -709,7 +835,7 @@
          clipDatos(idcliente){
              let text = this.Cliente.nombre+'\n'+this.Cliente.dni+'\n'+this.Cliente.calle+' '+this.Cliente.num+'\n'+this.Cliente.barrio+'\n'+this.Cliente.wapp
              textToClipboard(text)
-	     msgSuccess('Exito','Datos copiados al portapapeles')
+	         msgSuccess('Exito','Datos copiados al portapapeles')
          },
          obtenerVentas(idcliente){
              axios.get('/buscador/obtenerventasporidcliente/'+idcliente)
@@ -739,7 +865,7 @@
                           row.p=1?'MEN':3?'SEM':'QUI'
                           this.Vtos[row.id]=row.vto;
                           if(row.condonada==0&&row.devuelta==0&&row.pp==0){
-                          this.totalCompradoActualizado += this.listaInflacion[dayjs(row.fecha).format('YYYYM')]*row.comprado
+                              this.totalCompradoActualizado += this.listaInflacion[dayjs(row.fecha).format('YYYYM')]*row.comprado
                           }
                       })
                       this.listaVentasCanceladas = arrayVentasCanceladas
@@ -792,236 +918,154 @@
                   .then(res=>{
                       this.listaPagadas=res.data.pagadas
                       this.listaPagadas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
-	              if(this.listaPagadas.length>5) this.verCuotasPagadas=false
+	                  if(this.listaPagadas.length>5) this.verCuotasPagadas=false
                   })
          },
          toggleInc(){
              axios.get('/buscador/toggleinc/'+this.Cliente.dni)
-		  .then(res=>{
-		      msgSuccess('Exito',res.data.msg)
+		          .then(res=>{
+		              msgSuccess('Exito',res.data.msg)
                       this.Cliente.incobrable = !this.Cliente.incobrable
-		  })
+		          })
          },
          toggleNvm(){
              axios.get('/buscador/togglenvm/'+this.Cliente.dni)
                   .then(res=>{
-		      msgSuccess('Exito',res.data.msg)
+		              msgSuccess('Exito',res.data.msg)
                       this.Cliente.novendermas = !this.Cliente.novendermas
                   })
          },
          toggleSube(){
              axios.get('/buscador/togglesube/'+this.Cliente.dni)
                   .then(res=>{
-		      msgSuccess('Exito',res.data.msg)
+		              msgSuccess('Exito',res.data.msg)
                       this.Cliente.subirseven = !this.Cliente.subirseven
                   })
          },
          toggleGestion(){
              axios.get('/buscador/togglegestion/'+this.Cliente.dni)
                   .then(res=>{
-		      msgSuccess('Exito',res.data.msg)
+		              msgSuccess('Exito',res.data.msg)
                       this.Cliente.gestion = !this.Cliente.gestion
                   })
          },
          toggleMudo(){
              axios.get('/buscador/togglemudo/'+this.Cliente.dni)
                   .then(res=>{
-		      msgSuccess('Exito',res.data.msg)
+		              msgSuccess('Exito',res.data.msg)
                       this.Cliente.mudo = !this.Cliente.mudo
                   })
          },
          toggleSeguir(){
              axios.get('/buscador/toggleseguir/'+this.Cliente.dni)
                   .then(res=>{
-		      msgSuccess('Exito',res.data.msg)
+		              msgSuccess('Exito',res.data.msg)
                       this.Cliente.seguir = !this.Cliente.seguir
                   })
          },
          dialogoImprimirFicha(){
-             this.verModalImprimirFicha = true
+             toggleModal('modal-edicion-impr-ficha')
          },
          imprimirFicha(){
              if (this.cobrEnviar) {
-		 msgDelay('Espere que se envie la ficha')
+		         msgDelay('Espere que se envie la ficha')
                  axios.get('/buscador/pedirwappcobrador/'+this.cobrEnviar)
                       .then(res=>{
-			  this.wappCobrador = res.data.wapp
-			  data = {dni:this.Cliente.dni, whatsapp:this.wappCobrador, idcliente:this.Cliente.id}
-			  axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-			  axios.post("/buscador/imprimirficha", data)
-									      .then(res=>{
-										  this.verModalImprimirFicha = false
-										  if(res.data.response=='success') msgSuccess('WhatsApp!','Ficha enviada al cobrador');
-										  this.cobrEnviar = ''
-									      })
+			              this.wappCobrador = res.data.wapp
+			              data = {dni:this.Cliente.dni, whatsapp:this.wappCobrador, idcliente:this.Cliente.id}
+			              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+			              axios.post("/buscador/imprimirficha", data)
+									                                          .then(res=>{
+                                                                                  toggleModal('modal-edicion-impr-ficha')
+										                                          if(res.data.response=='success') msgSuccess('WhatsApp!','Ficha enviada al cobrador');
+										                                          this.cobrEnviar = ''
+									                                          })
                       })
              }else{
                  data = {dni:this.Cliente.dni, whatsapp:"", idcliente:this.Cliente.id}
                  axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-		 axios.post("/buscador/imprimirficha",data, {responseType: "blob"})
-								     .then((res)=>{
-									 this.verModalImprimirFicha = false
-									 if (this.mostrarFichaPorPantalla) {
-									     let url = window.URL.createObjectURL(res.data);
-									     window.open(url);
-									 }
-									 this.mostrarFichaPorPantalla = false
-								     })
+		         axios.post("/buscador/imprimirficha",data, {responseType: "blob"})
+								                                     .then((res)=>{
+                                                                         toggleModal('modal-edicion-impr-ficha')
+									                                     if (this.mostrarFichaPorPantalla) {
+									                                         let url = window.URL.createObjectURL(res.data);
+									                                         window.open(url);
+									                                     }
+									                                     this.mostrarFichaPorPantalla = false
+								                                     })
              }
          },
          intimarCliente(dni){
-	     data = {dni:dni, idcliente:this.Cliente.id},
+	         data = {dni:dni, idcliente:this.Cliente.id},
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-	     axios.post("/buscador/intimar",data,{responseType: "blob"})
-								 .then((res) => {
-								     let url = window.URL.createObjectURL(res.data);
-								     window.open(url);
-								 });
+	         axios.post("/buscador/intimar",data,{responseType: "blob"})
+								                                 .then((res) => {
+								                                     let url = window.URL.createObjectURL(res.data);
+								                                     window.open(url);
+								                                 });
          },
          fecharPmovto(idcliente){
-             this.verModalPmovto=true
+             if(dayjs.utc(this.Cliente.pmovto).isBefore(dayjs.utc())){
+                 this.Cliente.pmovto = dayjs.utc().format('YYYY-MM-DD')
+             }
+             toggleModal('modal-edicion-pmovto')
+         },
+         validarPmoVto(){
+             if(dayjs.utc(this.Cliente.pmovto).isAfter(dayjs.utc())){
+                 this.guardarPmovto()
+             }else{
+                 msgError('La fecha debe ser posterior a hoy')
+             }
          },
          guardarPmovto(){
-             this.verModalPmovto=false
+             toggleModal('modal-edicion-pmovto')
              axios.get('/buscador/guardarpmovto/'+this.Cliente.id+'/'+this.Cliente.pmovto)
                   .then(res=>{
-		      msgSuccess('Exito','Fechado realizado')
+		              msgSuccess('Exito','Fechado realizado')
                   })
          },
          agregarComentario(){
-             this.verModalComentario=true
+             toggleModal('modal-edicion-comentarios')
          },
          guardarComentario(){
-             this.verModalComentario=false
+             toggleModal('modal-edicion-comentarios')
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/buscador/guardarcomentario/'+this.Cliente.id,this.Comentario)
-								 .then(res=>{
-								     msgSuccess('Exito','Comentario agregado')
-								     this.pedirComentarios(this.Cliente.id)
-								 })
+								                                 .then(res=>{
+								                                     msgSuccess('Exito','Comentario agregado')
+								                                     this.pedirComentarios(this.Cliente.id)
+								                                 })
          },
          editarCliente(idcliente){
-             this.verModalEdicion=true
+             toggleModal('modal-edicion-cliente')
          },
          guardarEdicion(){
-             this.verModalEdicion=false
+             toggleModal('modal-edicion-cliente')
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/buscador/guardaredicioncliente/'+this.Cliente.id,this.Cliente)
-								 .then(res=>{
-								     msgSuccess('Exito','Cliente editado con exito')
-								 })
-								 .catch(error=>{
-								     msgError('Error',error.request.response)
-								 })
+								                                 .then(res=>{
+								                                     msgSuccess('Exito','Cliente editado con exito')
+								                                 })
+								                                 .catch(error=>{
+								                                     msgError('Error',error.request.response)
+								                                 })
          },
          obtenerCalles(){
-             axios.get('/buscador/obtenerlistadocalles')
+             axios.get('/buscador/obtenerlistacalles')
                   .then(res=>{
-                      const calles = res.data.calles
-                      const $input = document.getElementById('searchCalle')
-                      const $input1 = document.getElementById('searchCalle1')
-                      const $suggestions = document.getElementById('suggestionsCalle')
-                      const $suggestions1 = document.getElementById('suggestionsCalle1')
-                      $input.addEventListener('keyup',(e)=>{
-			  const input = $input.value
-			  $suggestions.innerHTML='';
-			  const suggestions = calles.filter(calle=>{
-                              return calle.calle.toLocaleLowerCase().includes(input.toLocaleLowerCase())
-			  })
-			  suggestions.forEach(suggested=>{
-                              const $div = document.createElement('div');
-                              $div.innerHTML = suggested.calle;
-                              $suggestions.appendChild($div)
-			  })
-			  if(input==='') $suggestions.innerHTML=''
-			  if(e.key==='Enter'){
-                              this.calleMostrada = $suggestions.firstChild.innerHTML
-                              $suggestions.innerHTML=''
-			  }
-                      })
-                      $suggestions.addEventListener('click',(e)=>{
-                          this.calleMostrada=e.target.innerHTML
-                          $suggestions.innerHTML=''
-                      })
-                      $input1.addEventListener('keyup',(e)=>{
-			  const input = $input1.value
-			  $suggestions1.innerHTML='';
-			  const suggestions = calles.filter(calle=>{
-                              return calle.calle.toLocaleLowerCase().includes(input.toLocaleLowerCase())
-			  })
-			  suggestions.forEach(suggested=>{
-                              const $div = document.createElement('div');
-                              $div.innerHTML = suggested.calle;
-                              $suggestions1.appendChild($div)
-			  })
-			  if(input==='') $suggestions1.innerHTML=''
-			  if(e.key==='Enter'){
-                              this.Cliente.calle = $suggestions1.firstChild.innerHTML
-                              $suggestions1.innerHTML=''
-			  }
-                      })
-                      $suggestions1.addEventListener('click',(e)=>{
-                          this.Cliente.calle=e.target.innerHTML
-                          $suggestions1.innerHTML=''
-                      })
+                      this.calles = res.data.result
                   })
          },
          obtenerBarrios(){
              axios.get('/buscador/obtenerlistabarrios')
                   .then(res=>{
-                      const barrios = res.data.barrios
-                      const $input = document.getElementById('searchBarrio')
-                      const $suggestions = document.getElementById('suggestionsBarrio')
-                      $input.addEventListener('keyup',(e)=>{
-			  const input = $input.value
-			  $suggestions.innerHTML='';
-			  const suggestions = barrios.filter(barrio=>{
-                              return barrio.barrio.toLocaleLowerCase().includes(input.toLocaleLowerCase())
-			  })
-			  suggestions.forEach(suggested=>{
-                              const $div = document.createElement('div');
-                              $div.innerHTML = suggested.barrio;
-                              $suggestions.appendChild($div)
-			  })
-			  if(input==='') $suggestions.innerHTML=''
-			  if(e.key==='Enter'){
-                              this.Cliente.barrio = $suggestions.firstChild.innerHTML
-                              $suggestions.innerHTML=''
-			  }
-                      })
-                      $suggestions.addEventListener('click',(e)=>{
-                          this.Cliente.barrio=e.target.innerHTML
-                          $suggestions.innerHTML=''
-                      })
+                      this.barrios = res.data.result
                   })
          },
          obtenerZonas(){
              axios.get('/buscador/obtenerlistazonas')
                   .then(res=>{
-                      const zonas = res.data.zonas
-                      const $input = document.getElementById('searchZona')
-                      const $suggestions = document.getElementById('suggestionsZona')
-                      $input.addEventListener('keyup',(e)=>{
-			  const input = $input.value
-			  $suggestions.innerHTML='';
-			  const suggestions = zonas.filter(zona=>{
-                              return zona.zona.toLocaleLowerCase().includes(input.toLocaleLowerCase())
-			  })
-			  suggestions.forEach(suggested=>{
-                              const $div = document.createElement('div');
-                              $div.innerHTML = suggested.zona;
-                              $suggestions.appendChild($div)
-			  })
-			  if(input==='') $suggestions.innerHTML=''
-			  if(e.key==='Enter'){
-                              this.Cliente.zona = $suggestions.firstChild.innerHTML
-                              $suggestions.innerHTML=''
-			  }
-                      })
-                      $suggestions.addEventListener('click',(e)=>{
-                          this.Cliente.zona=e.target.innerHTML
-                          $suggestions.innerHTML=''
-                      })
+                      this.zonas = res.data.result
                   })
          },
          obtenerCobradores(){
@@ -1031,366 +1075,344 @@
                   })
          },
          agregarPlanPago(){
-             this.verModalPlanPago=true
+             toggleModal('modal-edicion-plan-pagos')
          },
          guardarPlanPagos(){
              this.Venta.p = this.Venta.p=="Mensual"?1:this.Venta.p=="Quincenal"?2:3
-             this.verModalPlanPago=false
+             toggleModal('modal-edicion-plan-pagos')
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/buscador/generarplandepagos/'+this.Cliente.id,this.Venta)
-								 .then(res=>{
-								     msgSuccess('Exito','Plan de pagos generado')
-								     this.buscarCliente(this.Cliente.dni)
-								 })
-								 .catch(error=>{
-								     console.log(error)
-								     msgError('Error',error.request.response)
-								 })
+								                                 .then(res=>{
+								                                     msgSuccess('Exito','Plan de pagos generado')
+								                                     this.refreshCliente(this.Cliente.dni)
+								                                 })
+								                                 .catch(error=>{
+								                                     msgError('Error',error.request.response)
+								                                 })
 
          },
-         agregarAsunto(){
-             this.verModalAsunto=true
-         },
-         validarAsunto(){
-             if(this.Asunto.fecha!=''&&this.Asunto.tipo!=''&&this.Asunto.vdor!=''&&this.Asunto.asunto!=''){
-                 this.guardarAsunto()
-             }else{
-		 msgError('Error','Complete los datos necesarios')
-             }
-         },
-         guardarAsunto(){
-             this.Asunto.idcliente = this.Cliente.id
-             this.verModalAsunto = false
-             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-             axios.post('/buscador/cargarasunto',this.Asunto)
-								 .then(res=>{
-								     msgSuccess('Exito','Asunto Cargado')
-								     this.Asunto.tipo=''
-								     this.Asunto.vdor=''
-								     this.Asunto.asunto=''
-								 })
-								 .catch(error=>{
-								     msgError('Error',error.request.response)
-								 })
-         },
          emitirLibreDeuda(dni){
-	     data= {dni:dni, wapp:this.Cliente.wapp, idcliente:this.Cliente.id, deuda:this.Cliente.deuda},
+	         data= {dni:dni, wapp:this.Cliente.wapp, idcliente:this.Cliente.id, deuda:this.Cliente.deuda},
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              if(this.Cliente.wapp && this.Cliente.deuda<=0){
-		 msgDelay('Espere se esta enviando el libredeuda')
-		 axios.post("/buscador/libredeuda",data)
-		      .then((res) => {
-			  switch(res.data){
-			      case 'success': {
-				  msgSuccess('Exito!','Mensaje Enviado')
-				  break
-			      }
-			      case 'invalid': {
-				  msgError('Error!','Whatsapp INVALIDO')
-				  this.obtenerWappCliente()
-				  break
-			      }
-			      case 'failed': {
-				  msgError('Error!','Mensaje no enviado - Failed')
-				  break
-			      }
-			  }
-		      })
-	     }else{
-		 axios.post('/buscador/libredeuda/nowapp',data,{responseType:"blob"})
-		      .then(res=>{
-			  let url = window.URL.createObjectURL(res.data);
-			  window.open(url);
-			  if (this.Cliente.wapp && this.Cliente.deuda>0) {
-			      msgSuccess("Whatsapp!","No se envio el whatsapp porque todavia tiene deuda")}
-		      })
+		         msgDelay('Espere se esta enviando el libredeuda')
+		         axios.post("/buscador/libredeuda",data)
+		              .then((res) => {
+			              switch(res.data){
+			                  case 'success': {
+				                  msgSuccess('Exito!','Mensaje Enviado')
+				                  break
+			                  }
+			                  case 'invalid': {
+				                  msgError('Error!','Whatsapp INVALIDO')
+				                  this.obtenerWappCliente()
+				                  break
+			                  }
+			                  case 'failed': {
+				                  msgError('Error!','Mensaje no enviado - Failed')
+				                  break
+			                  }
+			              }
+		              })
+	         }else{
+		         axios.post('/buscador/libredeuda/nowapp',data,{responseType:"blob"})
+		              .then(res=>{
+			              let url = window.URL.createObjectURL(res.data);
+			              window.open(url);
+			              if (this.Cliente.wapp && this.Cliente.deuda>0) {
+			                  msgSuccess("Whatsapp!","No se envio el whatsapp porque todavia tiene deuda")}
+		              })
              }
-	 },
+	     },
          emitirRbo(){
-	     if(this.Cliente.deuda==0){msgError('Error!','El cliente no tiene deuda');return}
-             this.verModalRecibo = true;
+	         if(this.Cliente.deuda==0){msgError('Error!','El cliente no tiene deuda');return}
+             toggleModal('modal-edicion-recibos')
              this.Recibo.cuenta = ''
              this.Recibo.nc = ''
              this.Recibo.ic = ''
              this.Recibo.cobr = ''
          },
+         validarRecibo(){
+             if(!this.listaCuentas.includes(this.Recibo.cuenta)){
+                 msgError('El Nº de cuenta no corresponde al cliente')
+                 return}
+             this.guardarRecibo()
+         },
          guardarRecibo(){
              this.Recibo.idcliente = this.Cliente.id
              this.Recibo.wapp = this.Cliente.wapp
-             this.verModalRecibo = false
+             toggleModal('modal-edicion-recibos')
              if (!this.listaCuentas.includes(parseInt(this.Recibo.cuenta))) {msgError('Error!','Numero de cuenta NO existe');return}
-	     msgDelay('Espere mientras se envia el Recibo')
+	         msgDelay('Espere mientras se envia el Recibo')
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/buscador/generarrbotransferencia',this.Recibo)
-								 .then(res=>{
-								     this.Recibo.rbo = res.data.rbo
-								     if(this.Cliente.wapp){
-									 axios.post('/buscador/enviarrbotransferencia',this.Recibo)
-									      .then(res=>{
-										  switch(res.data.response){
-										      case 'success': {
-											  msgSuccess('Exito!','Mensaje Enviado')
-											  break
-										      }
-										      case 'invalid': {
-											  msgError('Error!','Whatsapp INVALIDO')
-											  this.obtenerWappCliente()
-											  break
-										      }
-										      case 'failed': {
-											  msgError('Error!','Mensaje no enviado - Failed')
-											  break
-										      }
-										  }
-										  this.Recibo = {fecha:dayjs.utc().format('YYYY-MM-DD')}
-										  this.buscarCliente(this.Cliente.dni)
-									      })
-									      .catch(error=>msgError('Error!','no se pudo enviar el Recibo'))
-								     }else{
-									 axios.post('/buscador/enviarrbotransferencia/nowapp',this.Recibo,{responseType:"blob"})
-									      .then(res=>{
-										  let url = window.URL.createObjectURL(res.data);
-										  window.open(url);
-									      })
-								     }
-								 })
-								 .catch(error=>msgError('Error!','El recibo no se genero'))
+								                                 .then(res=>{
+								                                     this.Recibo.rbo = res.data.rbo
+								                                     if(this.Cliente.wapp){
+									                                     axios.post('/buscador/enviarrbotransferencia',this.Recibo)
+									                                          .then(res=>{
+										                                          switch(res.data.response){
+										                                              case 'success': {
+											                                              msgSuccess('Exito!','Mensaje Enviado')
+											                                              break
+										                                              }
+										                                              case 'invalid': {
+											                                              msgError('Error!','Whatsapp INVALIDO')
+											                                              this.obtenerWappCliente()
+											                                              break
+										                                              }
+										                                              case 'failed': {
+											                                              msgError('Error!','Mensaje no enviado - Failed')
+											                                              break
+										                                              }
+										                                          }
+										                                          this.Recibo = {fecha:dayjs.utc().format('YYYY-MM-DD')}
+										                                          this.refreshCliente(this.Cliente.dni)
+									                                          })
+									                                          .catch(error=>msgError('Error!','no se pudo enviar el Recibo'))
+								                                     }else{
+									                                     axios.post('/buscador/enviarrbotransferencia/nowapp',this.Recibo,{responseType:"blob"})
+									                                          .then(res=>{
+										                                          let url = window.URL.createObjectURL(res.data);
+										                                          window.open(url);
+									                                          })
+								                                     }
+								                                 })
+								                                 .catch(error=>msgError('Error!','El recibo no se genero'))
          },
          sendMsgVenta(wapp){
-	     msgDelay('Espere mientras se envia el Whatsapp')
-	     data = {idcliente:this.Cliente.id,
-		     wapp:this.Cliente.wapp,
-		     msg:this.ventaWapp,
-	     }
+	         msgDelay('Espere mientras se envia el Whatsapp')
+	         data = {idcliente:this.Cliente.id,
+		             wapp:this.Cliente.wapp,
+		             msg:this.ventaWapp,
+	         }
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/buscador/wapp',data)
-								 .then(res=>{
-								     switch(res.data){
-									 case 'success': {
-									     msgSuccess('Exito!','Mensaje Enviado')
-									     break
-									 }
-									 case 'invalid': {
-									     msgError('Error!','Whatsapp INVALIDO')
-									     this.obtenerWappCliente()
-									     break
-									 }
-									 case 'failed': {
-									     msgError('Error!','Mensaje no enviado - Failed')
-									     break
-									 }
-								     }
-								 })
-								 .catch(error=>msgError('Error','Mensaje no enviado'))
+								                                 .then(res=>{
+								                                     switch(res.data){
+									                                     case 'success': {
+									                                         msgSuccess('Exito!','Mensaje Enviado')
+									                                         break
+									                                     }
+									                                     case 'invalid': {
+									                                         msgError('Error!','Whatsapp INVALIDO')
+									                                         this.obtenerWappCliente()
+									                                         break
+									                                     }
+									                                     case 'failed': {
+									                                         msgError('Error!','Mensaje no enviado - Failed')
+									                                         break
+									                                     }
+								                                     }
+								                                 })
+								                                 .catch(error=>msgError('Error','Mensaje no enviado'))
          },
          sendIntWhatsapp(){
-	     msgDelay('Espere mientras se envia la intimacion')
+	         msgDelay('Espere mientras se envia la intimacion')
              this.clipWappIntimacion()
-	     data = {idcliente:this.Cliente.id,
-		     wapp:this.Cliente.wapp,
-		     msg:this.intimacionWhatsapp,
-	     }
+	         data = {idcliente:this.Cliente.id,
+		             wapp:this.Cliente.wapp,
+		             msg:this.intimacionWhatsapp,
+	         }
              if(!this.Cliente.deuda) msgError('Error!','Cliente SIN deuda')
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/buscador/wapp', data)
-								 .then(res=>{
-								     switch(res.data){
-									 case 'success': {
-									     msgSuccess('Exito!','Mensaje Enviado')
-									     break
-									 }
-									 case 'invalid': {
-									     msgError('Error!','Whatsapp INVALIDO')
-									     this.obtenerWappCliente()
-									     break
-									 }
-									 case 'failed': {
-									     msgError('Error!','Mensaje no enviado - Failed')
-									     break
-									 }
-								     }
-								 })
-								 .catch(error=>msgError('Error!','Mensaje NO enviado'))
+								                                 .then(res=>{
+								                                     switch(res.data){
+									                                     case 'success': {
+									                                         msgSuccess('Exito!','Mensaje Enviado')
+									                                         break
+									                                     }
+									                                     case 'invalid': {
+									                                         msgError('Error!','Whatsapp INVALIDO')
+									                                         this.obtenerWappCliente()
+									                                         break
+									                                     }
+									                                     case 'failed': {
+									                                         msgError('Error!','Mensaje no enviado - Failed')
+									                                         break
+									                                     }
+								                                     }
+								                                 })
+								                                 .catch(error=>msgError('Error!','Mensaje NO enviado'))
          },
          sendIntimacion(dni, wapp){
-	     msgDelay('Espere mientras se envia la intimacion')
+	         msgDelay('Espere mientras se envia la intimacion')
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post("/buscador/intimar",this.Cliente)
-								 .then(res=>{
-								     if(wapp){
-									 switch(res.data.response){
-									     case 'success': {
-										 msgSuccess('Exito!','Mensaje Enviado')
-										 break
-									     }
-									     case 'invalid': {
-										 msgError('Error!','Whatsapp INVALIDO')
-										 this.obtenerWappCliente()
-										 break
-									     }
-									     case 'failed': {
-										 msgError('Error!','Mensaje no enviado - Failed')
-										 break
-									     }
-									 }
-								     }else{
-									 axios.get('/buscador/intimar/nowapp/'+this.Cliente.dni,{responseType:"blob"})
-									      .then(res=>{
-										  let url = window.URL.createObjectURL(res.data);
-										  window.open(url);
-										  msgSuccess('Exito!','Intimacion impresa en pantalla')
-									      })
-								     }
-								 })
+								                                 .then(res=>{
+								                                     if(wapp){
+									                                     switch(res.data.response){
+									                                         case 'success': {
+										                                         msgSuccess('Exito!','Mensaje Enviado')
+										                                         break
+									                                         }
+									                                         case 'invalid': {
+										                                         msgError('Error!','Whatsapp INVALIDO')
+										                                         this.obtenerWappCliente()
+										                                         break
+									                                         }
+									                                         case 'failed': {
+										                                         msgError('Error!','Mensaje no enviado - Failed')
+										                                         break
+									                                         }
+									                                     }
+								                                     }else{
+									                                     axios.get('/buscador/intimar/nowapp/'+this.Cliente.dni,{responseType:"blob"})
+									                                          .then(res=>{
+										                                          let url = window.URL.createObjectURL(res.data);
+										                                          window.open(url);
+										                                          msgSuccess('Exito!','Intimacion impresa en pantalla')
+									                                          })
+								                                     }
+								                                 })
          },
          sendMsgGeneral(){
-             this.verModalMsgWhatsapp = true
+             toggleModal('modal-edicion-msg-wapp')
          },
          enviarWhatsapp(){
-	     data= {idcliente:this.Cliente.id,
-		    wapp:this.Cliente.wapp,
-		    msg:this.msgWhatsapp,
-	     }
-             this.verModalMsgWhatsapp = false
-	     msgDelay('Espere mientras se envia el mensaje')
+	         data= {idcliente:this.Cliente.id,
+		            wapp:this.Cliente.wapp,
+		            msg:this.msgWhatsapp,
+	         }
+             toggleModal('modal-edicion-msg-wapp')
+	         msgDelay('Espere mientras se envia el mensaje')
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-	     axios.post('/buscador/wapp',data)
-								 .then(res=>{
-								     switch(res.data){
-									 case 'success': {
-									     msgSuccess('Exito!','Mensaje Enviado')
-									     break
-									 }
-									 case 'invalid': {
-									     msgError('Error!','Whatsapp INVALIDO')
-									     this.obtenerWappCliente()
-									     break
-									 }
-									 case 'failed': {
-									     msgError('Error!','Mensaje no enviado - Failed')
-									     break
-									 }
-								     }
-								 })
-								 .catch(error=>msgError('Error!','Mensaje no enviado'))
+	         axios.post('/buscador/wapp',data)
+								                                 .then(res=>{
+								                                     switch(res.data){
+									                                     case 'success': {
+									                                         msgSuccess('Exito!','Mensaje Enviado')
+									                                         break
+									                                     }
+									                                     case 'invalid': {
+									                                         msgError('Error!','Whatsapp INVALIDO')
+									                                         this.obtenerWappCliente()
+									                                         break
+									                                     }
+									                                     case 'failed': {
+									                                         msgError('Error!','Mensaje no enviado - Failed')
+									                                         break
+									                                     }
+								                                     }
+								                                 })
+								                                 .catch(error=>msgError('Error!','Mensaje no enviado'))
          },
          sendMsgRecordatorio(){
-	     msgDelay('Espere mientras se envia el recordatorio')
+	         msgDelay('Espere mientras se envia el recordatorio')
              msgRecordatorio = (this.Cliente.sex='M'?"Estimado ":"Estimada ")+this.Cliente.nombre.toUpperCase()+": Buenos dias, le escribimos de ROMITEX para recordarle el vencimiento de su cuota. Le pedimos que nos envie por este medio el comprobante de la transferencia, asi le enviamos el recibo correspondiente. Gracias!"
-	     data = {idcliente:this.Cliente.id,
-		     wapp:this.Cliente.wapp,
-		     msg:msgRecordatorio,
-	     }
+	         data = {idcliente:this.Cliente.id,
+		             wapp:this.Cliente.wapp,
+		             msg:msgRecordatorio,
+	         }
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-	     axios.post('/buscador/wapp',data)
-								 .then(res=>{
-								     switch(res.data){
-									 case 'success': {
-									     msgSuccess('Exito!','Mensaje Enviado')
-									     break
-									 }
-									 case 'invalid': {
-									     msgError('Error!','Whatsapp INVALIDO')
-									     this.obtenerWappCliente()
-									     break
-									 }
-									 case 'failed': {
-									     msgError('Error!','Mensaje no enviado - Failed')
-									     break
-									 }
-								     }
-								 })
-								 .catch(error=>msgError('Error!','Mensaje no Enviado'))
+	         axios.post('/buscador/wapp',data)
+								                                 .then(res=>{
+								                                     switch(res.data){
+									                                     case 'success': {
+									                                         msgSuccess('Exito!','Mensaje Enviado')
+									                                         break
+									                                     }
+									                                     case 'invalid': {
+									                                         msgError('Error!','Whatsapp INVALIDO')
+									                                         this.obtenerWappCliente()
+									                                         break
+									                                     }
+									                                     case 'failed': {
+									                                         msgError('Error!','Mensaje no enviado - Failed')
+									                                         break
+									                                     }
+								                                     }
+								                                 })
+								                                 .catch(error=>msgError('Error!','Mensaje no Enviado'))
          },
          sendMsgCbu(){
-	     msgDelay('Espere mientras se envian los datos')
+	         msgDelay('Espere mientras se envian los datos')
              msgCbu = `DATOS DE LA CUENTA:
-Número de CBU: 0720556988000035614454
-Alias de CBU: ROMITEX.GESTION
-Titular de la cuenta: Heredie Maria Isabel`
-		      data = {idcliente:this.Cliente.id,
-			      wapp:this.Cliente.wapp,
-			      msg:msgCbu,
-		      }
+Número de CBU: 0170084840000048757878
+Alias de CBU: ROMITEX
+Titular de la cuenta: SALVAY SERGIO FEDERICO`
+		              data = {idcliente:this.Cliente.id,
+			                  wapp:this.Cliente.wapp,
+			                  msg:msgCbu,
+		              }
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-	     axios.post('/buscador/wapp',data)
-								 .then(res=>{
-								     switch(res.data){
-									 case 'success': {
-									     msgSuccess('Exito!','Mensaje Enviado')
-									     break
-									 }
-									 case 'invalid': {
-									     msgError('Error!','Whatsapp INVALIDO')
-									     this.obtenerWappCliente()
-									     break
-									 }
-									 case 'failed': {
-									     msgError('Error!','Mensaje no enviado - Failed')
-									     break
-									 }
-								     }
-								 })
-								 .catch(error=>msgError('Error!','Mensaje NO enviado'))
-	 },
-	 obtenerWappCliente(){
-	     axios.get('/ventas/obtenerwappcliente/'+this.Cliente.id)
-		  .then(res=>{
-		      this.Cliente.wapp = res.data.wapp
-	 })},
-	 condonarVenta(id){
-	     axios.get('/ventas/condonar/'+id)
-		  .then(res=>{
-		      this.buscarCliente(this.Cliente.dni)			 })
-	 },
-	 hacerLlamada(tel){
-	     re = /[0-9]*/
-	     tel = re.exec(tel)[0]
-	     window.location.href = 'tel:' + tel;
-	 },
-	 mostrarCalle(){
-	     axios.get('/buscador/mostrarcalle/'+this.calleMostrada)
-		  .then(res=>{
-		      this.verCard = false
-		      this.DatosCalle = res.data.calle
-		  })
-	 },
-	 gestionarBajaSeven(){
-	     msg = `Buen día, te enviamos los siguientes datos para gestionar BAJA POR CANCELACIÓN, gracias!\nNombre ${this.Cliente.nombre}\nDNI ${this.Cliente.dni}\nDirección ${this.Cliente.calle} ${this.Cliente.num}\n\nROMITEX - Sergio Federico Salvay`
-	     data = {idcliente: this.Cliente.id,
-		     wapp: '3513007412',
-		     msg:msg,
-	     }
-	     if(this.Cliente.deuda>0) {msgError('Error','El cliente tiene deuda');return}
-	     if(this.Cliente.sev!=1) {msgError('Error', 'El cliente NO esta en el seven');return}
-	     axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-	     axios.post('/buscador/wapp', data)
-								 .then(res=>{
-								     msgSuccess('WhatsApp','Mensaje Enviado')
-								     this.sev = 0
-								     this.baja = dayjs.utc().format('YYYY-MM-DD')
-								     axios.get('/buscador/bajaindividualseven/'+this.Cliente.id)
-										      .then(res=>{
-											  this.Cliente.sev = res.data.cliente[0].sev
-											  this.Cliente.baja = res.data.cliente[0].baja
-										      })
-								 })
-								 .catch(error=>msgError('Error','Mensaje no enviado'))
-	 },
+	         axios.post('/buscador/wapp',data)
+								                                 .then(res=>{
+								                                     switch(res.data){
+									                                     case 'success': {
+									                                         msgSuccess('Exito!','Mensaje Enviado')
+									                                         break
+									                                     }
+									                                     case 'invalid': {
+									                                         msgError('Error!','Whatsapp INVALIDO')
+									                                         this.obtenerWappCliente()
+									                                         break
+									                                     }
+									                                     case 'failed': {
+									                                         msgError('Error!','Mensaje no enviado - Failed')
+									                                         break
+									                                     }
+								                                     }
+								                                 })
+								                                 .catch(error=>msgError('Error!','Mensaje NO enviado'))
+	     },
+	     obtenerWappCliente(){
+	         axios.get('/ventas/obtenerwappcliente/'+this.Cliente.id)
+		          .then(res=>{
+		              this.Cliente.wapp = res.data.wapp
+	     })},
+	     condonarVenta(id){
+	         axios.get('/ventas/condonar/'+id)
+		          .then(res=>{
+		              this.buscarCliente(this.Cliente.dni)			 })
+	     },
+	     hacerLlamada(tel){
+	         re = /[0-9]*/
+	         tel = re.exec(tel)[0]
+	         window.location.href = 'tel:' + tel;
+	     },
+	     mostrarCalle(){
+	         axios.get('/buscador/mostrarcalle/'+this.calleMostrada)
+		          .then(res=>{
+		              this.verCard = false
+		              this.DatosCalle = res.data.calle
+		          })
+	     },
+	     gestionarBajaSeven(){
+	         msg = `Buen día, te enviamos los siguientes datos para gestionar BAJA POR CANCELACIÓN, gracias!\nNombre ${this.Cliente.nombre}\nDNI ${this.Cliente.dni}\nDirección ${this.Cliente.calle} ${this.Cliente.num}\n\nROMITEX - Sergio Federico Salvay`
+	         data = {idcliente: this.Cliente.id,
+		             wapp: '3513007412',
+		             msg:msg,
+	         }
+	         if(this.Cliente.deuda>0) {msgError('Error','El cliente tiene deuda');return}
+	         if(this.Cliente.sev!=1) {msgError('Error', 'El cliente NO esta en el seven');return}
+	         axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+	         axios.post('/buscador/wapp', data)
+								                                 .then(res=>{
+								                                     msgSuccess('WhatsApp','Mensaje Enviado')
+								                                     this.sev = 0
+								                                     this.baja = dayjs.utc().format('YYYY-MM-DD')
+								                                     axios.get('/buscador/bajaindividualseven/'+this.Cliente.id)
+										                                              .then(res=>{
+											                                              this.Cliente.sev = res.data.cliente[0].sev
+											                                              this.Cliente.baja = res.data.cliente[0].baja
+										                                              })
+								                                 })
+								                                 .catch(error=>msgError('Error','Mensaje no enviado'))
+	     },
          getInflacion(){
              axios.get('/buscador/tablainflacion')
                   .then(res=>{
                       this.listaInflacion = res.data.inflacion
-                      console.log(this.listaInflacion);
-                  })},
+         })},
          autoLoad(){
-            {% if dnilistado %}
+             {% if dnilistado %}
              if(this.buscar=='') this.buscar = {{dnilistado|tojson}}
              this.buscarCliente()
-            {% endif %}
+             {% endif %}
          },
      }
-
  }
 </script>
 {% endblock %}

@@ -1,10 +1,12 @@
 from flask import Blueprint,render_template,jsonify,make_response, request
 from flask_login import login_required, current_user
-from lib import *
-from con import get_con, log
+import re
 import pandas as pd
 import simplejson as json
 import mysql.connector
+import logging
+from con import get_con, log, engine
+from lib import *
 
 ventas = Blueprint('ventas',__name__)
 
@@ -19,7 +21,7 @@ def ventas_getcalles():
     con = get_con()
     calles = pglflat(con, f"select calle from calles order by calle")
     con.close()
-    return jsonify(calles= calles)
+    return jsonify(result=calles)
 
 
 @ventas.route('/ventas/getbarrios')
@@ -27,7 +29,7 @@ def ventas_getbarrios():
     con = get_con()
     barrios = pglflat(con, f"select barrio from barrios order by barrio")
     con.close()
-    return jsonify(barrios= barrios)
+    return jsonify(result=barrios)
 
 
 @ventas.route('/ventas/getzonas')
@@ -35,7 +37,13 @@ def ventas_getzonas():
     con = get_con()
     zonas = pglflat(con, f"select zona from zonas order by zona")
     con.close()
-    return jsonify(zonas= zonas)
+    return jsonify(result=zonas)
+
+
+@ventas.route('/ventas/getperiodicidad')
+def ventas_getperiodicidad():
+    periodicidad=['mensual','quincenal','semanal']
+    return jsonify(result=periodicidad)
 
 
 @ventas.route('/ventas/getcuentapordni/<string:dni>')
@@ -60,7 +68,7 @@ def ventas_guardarcliente():
     cur = con.cursor()
     d = json.loads(request.data.decode("UTF-8"))
     if d['id']: # o sea existe el id, es decir es un update
-        cliente_viejo = pgdict(con, f"select * from clientes where id={d['id']}")[0]    
+        cliente_viejo = pgdict(con, f"select * from clientes where id={d['id']}")[0]
     if d['id']=="":
         stm = f"insert into clientes(sex,dni,nombre,calle,num,barrio,zona,tel,wapp,acla,horario,mjecobr,infoseven) values('{d['sex']}','{d['dni']}','{d['nombre']}','{d['calle']}','{d['num']}','{d['barrio']}','{d['zona']}','{d['tel']}','{d['wapp']}','{d['acla']}','{d['horario']}','{d['mjecobr']}','{d['infoseven']}')"
     else:
@@ -95,8 +103,7 @@ def ventas_guardarventa():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     ant = d['ant'] or 0
-    
-    print(ant)
+
     per = d['p']
     if per=='mensual':
         p=1
@@ -172,15 +179,22 @@ def ventas_borrardetvta(id):
 def ventas_getarticulos():
     con = get_con()
     articulos = pglflat(con, f"select concat(codigo,'-',art) as art from articulos where activo=1 and codigo is not null")
-    print(articulos)
     con.close()
-    return jsonify(articulos=articulos)
+    return jsonify(result=articulos)
 
 
 @ventas.route('/ventas/getlistado')
 def ventas_getlistado():
     con = get_con()
-    listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count from ventas where pp=0 order by id desc limit 2500")
+    listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count from ventas where pp=0 order by id desc limit 100")
+    con.close()
+    return jsonify(listado=listado)
+
+
+@ventas.route('/ventas/getlistadocuenta/<int:cuenta>')
+def ventas_getlistadocuenta(cuenta):
+    con = get_con()
+    listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count from ventas where id={cuenta}")
     con.close()
     return jsonify(listado=listado)
 
@@ -233,17 +247,25 @@ def ventas_guardaredicionvta():
         log(upd)
         cur.close()
         con.close()
-        return 'OK'   
+        return 'OK'
 
 @ventas.route('/ventas/clientes')
 def ventas_clientes():
     return render_template('ventas/clientes.html')
 
 
-@ventas.route('/ventas/getclientes')
-def ventas_getclientes():
+@ventas.route('/ventas/getclientes/<tipo>')
+def ventas_getclientes(tipo):
+    """Entrego lista de cliente segun tipo pedido."""
     con = get_con()
-    clientes = pgdict(con, f"select ventas.id as idvta, nombre, calle,num, zona, gestion, mudo, incobrable,acla from ventas, clientes where ventas.idcliente=clientes.id order by ventas.id desc limit 200")
+    if tipo=='idvta':
+        clientes = pgdict(con, "select ventas.id as idvta, nombre, calle,num,\
+        zona, gestion, mudo, incobrable,acla from ventas, clientes where \
+        ventas.idcliente=clientes.id order by ventas.id desc limit 200")
+    else:
+        clientes = pgdict(con, "select id, nombre, calle,num, zona, gestion,\
+        mudo, incobrable,acla from  clientes  order by id desc limit 200")
+
     con.close()
     return jsonify(clientes=clientes)
 
@@ -331,7 +353,7 @@ def ventas_guardaredicionbarrio():
         log(upd)
         cur.close()
         con.close()
-        return 'OK'    
+        return 'OK'
 
 
 @ventas.route('/ventas/guardaredicionzona', methods=['POST'])
@@ -351,10 +373,10 @@ def ventas_guardaredicionzona():
         log(upd)
         cur.close()
         con.close()
-        return 'OK'   
+        return 'OK'
 
 
-@ventas.route('/ventas/borrarcalle/<int:id>')  
+@ventas.route('/ventas/borrarcalle/<int:id>')
 def ventas_borrarcalle(id):
     con = get_con()
     stm = f"delete from calles where id={id}"
@@ -374,7 +396,7 @@ def ventas_borrarcalle(id):
 
 
 
-@ventas.route('/ventas/borrarbarrio/<int:id>')  
+@ventas.route('/ventas/borrarbarrio/<int:id>')
 def ventas_borrarbarrio(id):
     con = get_con()
     stm = f"delete from barrios where id={id}"
@@ -393,7 +415,7 @@ def ventas_borrarbarrio(id):
         return 'OK'
 
 
-@ventas.route('/ventas/borrarzona/<int:id>')  
+@ventas.route('/ventas/borrarzona/<int:id>')
 def ventas_borrarzona(id):
     con = get_con()
     stm = f"delete from zonas where id={id}"
@@ -410,6 +432,46 @@ def ventas_borrarzona(id):
         cur.close()
         con.close()
         return 'OK'
+
+
+@ventas.route('/ventas/borrarzonapornombre/<zona>')
+def ventas_borrarzonapornombre(zona):
+    con = get_con()
+    stm = f"delete from zonas where zona='{zona}'"
+    cur = con.cursor()
+    try:
+        cur.execute(stm)
+    except mysql.connector.Error as e:
+        con.rollback()
+        error = e.msg
+        return make_response(error,400)
+    else:
+        con.commit()
+        log(stm)
+        cur.close()
+        con.close()
+        return 'OK'
+
+
+
+@ventas.route('/ventas/borrarcliente/<int:id>')
+def ventas_borrarcliente(id):
+    con = get_con()
+    stm = f"delete from clientes where id={id}"
+    cur = con.cursor()
+    try:
+        cur.execute(stm)
+    except mysql.connector.Error as e:
+        con.rollback()
+        error = e.msg
+        return make_response(error,400)
+    else:
+        con.commit()
+        log(stm)
+        cur.close()
+        con.close()
+        return 'OK'
+
 
 @ventas.route('/ventas/guardarcallenueva', methods=['POST'])
 def ventas_guardarcallenueva():
@@ -483,7 +545,6 @@ def ventas_estadisticas():
 def ventas_estadisticasanuales():
     con = get_con()
     est_anuales = pgdict(con,f"select date_format(fecha,'%Y') as y, sum(comprado) as comprado, sum(saldo) as saldo, sum(saldo)/sum(comprado) as inc,sum(cnt) as cnt from ventas where devuelta=0 and pp=0 group by y order by y desc")
-    # print(est_anuales)
     con.close()
     return jsonify(est_anuales=est_anuales)
 
@@ -493,7 +554,6 @@ def ventas_estadisticasanuales():
 def ventas_estadisticasmensuales(year):
     con = get_con()
     est_mensuales = pgdict(con,f"select date_format(fecha,'%Y-%m') as ym, sum(comprado) as comprado, sum(saldo) as saldo, sum(saldo)/sum(comprado) as inc,sum(cnt) as cnt from ventas where devuelta=0 and pp=0 and date_format(fecha,'%Y')='{year}' group by ym order by ym")
-    print(est_mensuales)
     con.close()
     return jsonify(est_mensuales=est_mensuales)
 
@@ -566,7 +626,7 @@ def ventas_devolucion_procesar():
     d = json.loads(request.data.decode("UTF-8"))
     idvta = d['idvta']
     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
-    comprado = pgonecolumn(con, f"select comprado from ventas where id={idvta}")  
+    comprado = pgonecolumn(con, f"select comprado from ventas where id={idvta}")
     cc = int(d['cc'])
     ic = int(d['imp'])
     fechadev = d['fechadev']
@@ -585,11 +645,11 @@ def ventas_devolucion_procesar():
 
     cnt = pgonecolumn(con, f"select sum(cnt) from detvta where idvta={idvta}")
     art = pgonecolumn(con, f"select group_concat(art,'|') from detvta where idvta={idvta}")
-    
+
     # update ventas cc/ic/cnt/art para una devolucion parcial
     # update ventas devuelta=1, saldo=0 para una devolucion total
     cur = con.cursor(buffered=True)
-    if totparc=='Parcial':
+    if totparc in ('Parcial','Cambio'):
         updvta = f"update ventas set cc={cc},ic={ic},cnt={cnt},art='{art}' where id={idvta}"
         cur.execute(updvta)
         con.commit()
@@ -610,10 +670,10 @@ def ventas_devolucion_procesar():
         cur.execute(updnvm)
         con.commit()
         log(updnvm)
-        
+
     # insert devoluciones con todos los datos de la devolucion
-    ins = f"insert into devoluciones(idvta,fechadev,cobr,comprdejado,rboN,totparc,novendermas,vdor,mesvta,montodev,registro) values({idvta},'{fechadev}',{cobr},'{comprdejado}','{rboN}','{totparc}',{novendermas}, {vdor}, '{mesvta}', {montodev},'{registro}')" 
-    print(ins)
+    ins = f"insert into devoluciones(idvta,fechadev,cobr,comprdejado,rboN,totparc,novendermas,vdor,mesvta,montodev,registro) values({idvta},'{fechadev}',{cobr},'{comprdejado}','{rboN}','{totparc}',{novendermas}, {vdor}, '{mesvta}', {montodev},'{registro}')"
+    logging.warning(ins)
     cur.execute(ins)
     con.commit()
     log(ins)
@@ -654,30 +714,29 @@ def ventas_condonar(id):
 @ventas.route('/ventas/pordia')
 @login_required
 def ventas_pordia():
-    con = get_con()
-    pd.options.display.float_format = '${:.0f}'.format
-    sql="select fecha,comprado,idvdor from ventas where devuelta=0 and pp=0 order by id desc limit 1000"
-    dat = pd.read_sql_query(sql, con)
+    """Pivot-table de ventas por dia para controlar entradas."""
+    pd.options.display.float_format = '{:.0f}'.format
+    sql = "select fecha,comprado,idvdor from ventas where devuelta=0 and pp=0 \
+    and fecha>date_sub(curdate(),interval 1 month) order by id desc"
+    dat = pd.read_sql_query(sql, engine)
     df = pd.DataFrame(dat)
-    tbl = pd.pivot_table(df, values=['comprado'],index='fecha',columns='idvdor',aggfunc='sum').sort_index(0, 'fecha',False)
+    tbl = pd.pivot_table(df, values=['comprado'],index='fecha',columns='idvdor',aggfunc='sum').sort_index(axis=0, level='fecha',ascending=False)
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="tableventas",classes="table")
-    con.close()
     return render_template("ventas/pordia.html", tbl=tbl )
 
 
 @ventas.route('/ventas/pivotdevoluciones')
 @login_required
 def ventas_pivotdevoluciones():
-    con = get_con()
     pd.options.display.float_format = '${:.0f}'.format
-    sql="select montodev,vdor,mesvta from devoluciones"
-    dat = pd.read_sql_query(sql, con)
+    sql = "select montodev,vdor,mesvta from devoluciones where \
+    fechadev>date_sub(curdate(),interval 1 year)"
+    dat = pd.read_sql_query(sql, engine)
     df = pd.DataFrame(dat)
-    tbl = pd.pivot_table(df, values=['montodev'],index='mesvta',columns='vdor',aggfunc='sum').sort_index(0, 'mesvta',False)
+    tbl = pd.pivot_table(df, values=['montodev'],index='mesvta',columns='vdor',aggfunc='sum').sort_index(axis=0, level='mesvta',ascending=False)
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="pivotdevoluciones",classes="table")
-    con.close()
     return render_template("ventas/pivotdevoluciones.html", tbl=tbl )
 
 
@@ -686,3 +745,69 @@ def ventas_obtenerwappcliente(id):
     con = get_con()
     wapp = pgonecolumn(con, f"select wapp from clientes where id={id}")
     return jsonify(wapp=wapp)
+
+
+@ventas.route('/ventas/obtenerventasultyear')
+def ventas_obtenerventasultyear():
+    """Entrega lista de ventas ultimo ano."""
+    con = get_con()
+    listventas = []
+    result = pgdict(con, "select date_format(fecha,'%Y-%m') as ym, \
+    sum(comprado) as vta from ventas where fecha>date_sub(curdate(),\
+    interval 1 year)  group by ym")
+    for row in result:
+        listventas.append(row['vta'])
+    return jsonify(ventas=listventas)
+
+
+@ventas.route('/ventas/buscarcliente/<string:buscar>')
+def ventas_buscarcliente(buscar):
+    con = get_con()
+    rdni = r'^[0-9]{7,8}$'
+    sql = f"select * from clientes where dni='{buscar}'"
+    if (re.match(rdni, buscar)):
+        clientes = pgdict(con, sql)
+        error_msg = "DNI no encontrado"
+    else:
+        error_msg = "Ponga un formato valido de DNI"
+        clientes = []
+    if len(clientes) == 0:
+        return make_response(error_msg, 400)
+    con.close()
+    return jsonify(clientes=clientes)
+
+
+@ventas.route('/ventas/cambiazonas')
+def ventas_cambiazonas():
+    return render_template('ventas/rezonificar.html')
+
+
+@ventas.route('/ventas/getclienteszona/<zona>')
+def ventas_getclienteszona(zona):
+    con = get_con()
+    clientes = pgdict(con, f"select * from clientes where zona='{zona}' order by barrio")
+    return jsonify(clientes=clientes)
+
+
+@ventas.route('/ventas/cambiarzona/<string:zona>',methods=['POST'])
+def ventas_cambiarzona(zona):
+    con = get_con()
+    listaid = json.loads(request.data.decode("UTF-8"))
+    lpg ='('
+    for id in listaid:
+        lpg+="'"+id+"'"+","
+    lpg = lpg[0:-1]+")"
+    upd = f"update clientes set zona='{zona}' where id in {lpg}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as e:
+        con.rollback()
+        error = e.msg
+        return make_response(error,400)
+    else:
+        con.commit()
+        log(upd)
+        cur.close()
+        con.close()
+        return 'OK'

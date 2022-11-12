@@ -2,8 +2,13 @@
 <span class="nav-bar" id="btnMenu"><span class="icon-menu"><i class="fa fa-bars" aria-hidden="true"></i></span></span>
 <nav class="main-nav">
   <div class="menu" id="menu">
+    {% if current_user.email %}
+    {% if current_user.email in ("sergiofedericosalvay@gmail.com","yooiiyoo@gmail.com") %}
+    <a href="/conta" class="menu__link">Conta</a>
+    {% endif %}
+    {% endif %}
     <a href="/buscador" class="menu__link">Clientes</a>
-    <a href="/ventas/ventas" class="menu__link">Ventas</a>
+    <a href="/ventas/listado" class="menu__link">Ventas</a>
     <a href="/pagos" class="menu__link">Pagos</a>
     <a href="/fichas" class="menu__link">Fichas</a>
     <a href="/stock/asientos" class="menu__link">Stock</a>

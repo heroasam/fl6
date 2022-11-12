@@ -3,10 +3,6 @@
 
 {% block style %}
 <style>
-    .clicked {
-        background: grey;
-    }
-
 </style>
 {% endblock %}
 
@@ -14,82 +10,83 @@
 
 
 <div x-data="main()" x-init="getZonas()" class="container">
-    <div class="buttons">
-        <a href="/fichas" class="button is-primary">Volver a Fichas</a>
-        <a href="/fichas/listavisitar" class="button is-primary">Registro de Listados</a>
+  <div class="buttons">
+    <a href="/fichas" class="button is-primary">Volver a Fichas</a>
+    <a href="/fichas/listavisitar" class="button is-primary">Registro de Listados</a>
+  </div>
+  <div class="columns">
+    <div class="column is-6">
+      <p class="title is-1">Listado a Visitar</p>
     </div>
-    <div class="columns">
-        <div class="column is-6">
-            <p class="title is-1">Listado a Visitar</p>
-        </div>
-        <div class="column is-6">
-            <p class="title is-1" x-text="zonatitle"></p>
-        </div>
+    <div class="column is-6">
+      <p class="title is-1" x-text="zonatitle"></p>
     </div>
-    <div class="buttons" id="btnZonas">
-        <template x-for="zona in zonas" :key="zona">
-            <button class="button is-danger is-small" x-text="zona"
-                    @click="getListado(zona);limpiarToggles();$event.target.classList.toggle('is-danger');
-                           $event.target.classList.toggle('is-dark')"></button>
-        </template>
-    </div>
-    <div class="buttons" id="btnYear">
-        <template x-for="year in Object.keys(resumenjs)">
-            <button class="button is-info is-small" x-text="`${year} |${resumenjs[year]}`"
-                @click="seleccionar(year);$event.target.classList.toggle('is-dark');$event.target.classList.toggle('is-info')"></button>
-        </template>
-    </div>
-    <button class="button is-success" @click="limpiarToggles();imprimirListado()">Imprimir</button>
+  </div>
+  <div class="buttons" id="btnZonas">
+    <template x-for="zona in zonas" :key="zona">
+      <button class="button text-big" x-text="zona"
+              @click="getListado(zona);limpiarToggles();$event.target.classList.remove('is-warning');
+                     $event.target.classList.toggle('is-warning');listImprimir=[]"></button>
+    </template>
+  </div>
+  <div class="buttons" id="btnYear">
+    <template x-for="year in Object.keys(resumenjs)">
+      <button class="button text-big" x-text="`${year} |${resumenjs[year]}`"
+              @click="seleccionar(year);$event.target.classList.toggle('is-warning');listaSeleccionados()"></button>
+    </template>
+  </div>
+  <div class="block">
+    <button class="button text-big" @click="limpiarToggles();imprimirListado()" x-text="'Imprimir '+listImprimir.length"></button>
+  </div>
+  <table class="table isnarrow nototal">
+    <thead>
+      <tr>
+        <th>year</th>
+        <th>ultpago</th>
+        <th>dni</th>
+        <th>nombre</th>
+        <th>direccion</th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="row in listado">
+        <tr>
+          <td x-text="row.year"></td>
+          <td x-text="row.ultpago"></td>
+          <td x-text="row.dni"></td>
+          <td x-text="row.nombre"></td>
+          <td x-text="row.direccion"></td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
+  <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}" />
 
-    <table class="table isnarrow nototal">
-        <thead>
-            <tr>
-                <th>year</th>
-                <th>ultpago</th>
-                <th>dni</th>
-                <th>nombre</th>
-                <th>direccion</th>
-            </tr>
-        </thead>
-        <tbody>
-            <template x-for="row in listado">
-                <tr>
-                    <td x-text="row['year']"></td>
-                    <td x-text="row['ultpago']"></td>
-                    <td x-text="row['dni']"></td>
-                    <td x-text="row['nombre']"></td>
-                    <td x-text="row['direccion']"></td>
-                </tr>
-            </template>
-        </tbody>
-    </table>
-    <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}" />
+  <!-- modal Bulma -->
+  <div class="modal" id="listado">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Impresion de Listado</p>
+        <button class="delete" aria-label="close" @click="toggleModal('listado')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <h2 class="title is-3">Tipo de listado a imprimir <span x-text="  tipoListado" style="color:red;"></span></h2>
+        <button class="button" @click="tipoListado='fichas'">Fichas</button>
+        <button class="button" @click="tipoListado='listado'">Listado</button>
+        <h2 class="title is-3">Vendedor a cargo <span x-text="  idVdor" style="color:red;"></span></h2>
+        <template x-for="vdor in listaVdores">
+          <button class="button" x-text="vdor" @click="idVdor=vdor">
+          </button></template>
 
-    <!-- modal Bulma -->
-    <div class="modal" id="listado">
-        <div class="modal-background"></div>
-        <div class="modal-card">
-            <header class="modal-card-head">
-                <p class="modal-card-title">Impresion de Listado</p>
-                <button class="delete" aria-label="close" @click="toggleModal('listado')"></button>
-            </header>
-            <section class="modal-card-body">
-                <!-- Content ... -->
-            <h2 class="title is-3">Tipo de listado a imprimir <span x-text="  tipoListado" style="color:red;"></span></h2>
-            <button class="button" @click="tipoListado='fichas'">Fichas</button>
-            <button class="button" @click="tipoListado='listado'">Listado</button>
-            <h2 class="title is-3">Vendedor a cargo <span x-text="  idVdor" style="color:red;"></span></h2>
-            <template x-for="vdor in listaVdores">
-              <button class="button" x-text="vdor" @click="idVdor=vdor">
-              </button></template>
-
-            </section>
-            <footer class="modal-card-foot">
-                <button class="button is-success" @click="imprimirListado_()">Imprimir</button>
-                <button class="button" @click="toggleModal('listado')">Cancel</button>
-            </footer>
-        </div>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-success" @click="imprimirListado_()">Imprimir</button>
+        <button class="button" @click="toggleModal('listado')">Cancel</button>
+      </footer>
     </div>
+  </div>
 
 </div>
 
@@ -97,119 +94,112 @@
 
 {% block script %}
 <script>
-    function main() {
-        return {
-            zonas: [],
-            listado: [],
-            resumen: [],
-            resumenjs: {},
-            zonatitle: '',
-            listImprimir: [],
-            listaVdores: [],
-            idVdor:'',
-            tipoListado:'',
-            getZonas() {
-                axios.get('/fichas/getzonas')
-                    .then(res => {
-                        this.zonas = res.data.zonas
-                        this.listaVdores = res.data.vdores
-                    })
+ function main() {
+     return {
+         zonas: [],
+         listado: [],
+         resumen: [],
+         resumenjs: {},
+         zonatitle: '',
+         listImprimir: [],
+         listaVdores: [],
+         idVdor:'',
+         tipoListado:'',
+         getZonas() {
+             axios.get('/fichas/getzonas')
+                  .then(res => {
+                      this.zonas = res.data.zonas
+                      this.listaVdores = res.data.vdores
+                  })
 
-            },
-            getListado(zona) {
-                axios.get('/fichas/getlistado/' + zona)
-                    .then(res => {
-                        this.listado = res.data.listado
-                        this.listado.map(row => row['ultpago'] = dayjs.utc(row['ultpago']).format('YYYY-MM-DD'))
-                        this.getResumenJs(res.data.listado)
-                        this.limpiarSelected()
-                        this.zonatitle = zona
-                    })
+         },
+         getListado(zona) {
+             axios.get('/fichas/getlistado/' + zona)
+                  .then(res => {
+                      this.listado = res.data.listado
+                      this.listado.map(row => row['ultpago'] = dayjs.utc(row['ultpago']).format('YYYY-MM-DD'))
+                      this.getResumenJs(res.data.listado)
+                      this.limpiarSelected()
+                      this.zonatitle = zona
+                  })
 
-            },
-            getResumen(zona) {
-                axios.get('/fichas/getresumen/' + zona)
-                    .then(res => {
-                        this.resumen = res.data.resumen
-                    })
-            },
-            getResumenJs(array) {
-                this.resumenjs = {}
-                array.forEach(row => {
-                    let y = row['year']
-                    this.resumenjs[y] = this.resumenjs[y] ? this.resumenjs[y] += 1 : 1
-                })
+         },
+         getResumen(zona) {
+             axios.get('/fichas/getresumen/' + zona)
+                  .then(res => {
+                      this.resumen = res.data.resumen
+                  })
+         },
+         getResumenJs(array) {
+             this.resumenjs = {}
+             array.forEach(row => {
+                 let y = row['year']
+                 this.resumenjs[y] = this.resumenjs[y] ? this.resumenjs[y] += 1 : 1
+             })
 
-            },
-            seleccionar(year) {
-                $tbody = document.querySelector('tbody')
-                arrayRows = Array.from($tbody.children)
-                arrayRows = arrayRows.slice(1, arrayRows.length)
-                arrayRows.forEach(row => {
-                    if (Array.from(row.children)[0].innerHTML === year) {
-                        row.classList.toggle('is-selected')
-                    }
-                })
-            },
-            limpiarSelected() {
-                $tbody = document.querySelector('tbody')
-                arrayRows = Array.from($tbody.children)
-                arrayRows = arrayRows.slice(1, arrayRows.length)
-                arrayRows.forEach(row => row.classList.remove('is-selected'))
-            },
-            limpiarToggles() {
-                $btnYear = document.getElementById('btnYear')
-                $btnZonas = document.getElementById('btnZonas')
-                Array.from($btnYear.children).slice(1).forEach(btn => {
-                    btn.classList.remove('is-dark')
-                    btn.classList.add('is-info')
-                })
-                Array.from($btnZonas.children).slice(1).forEach(btn => {
-                    btn.classList.remove('is-dark')
-                    btn.classList.add('is-danger')
-                })
-            },
-            listaSeleccionados() {
-                this.listImprimir = []
-                $tbody = document.querySelector('tbody')
-                Array.from($tbody.children).slice(1).forEach(row => {
-                    if (row.classList.contains('is-selected')) {
-                        this.listImprimir.push(row.cells[2].innerHTML)
-                    }
-                })
-                console.log(this.listImprimir.length);
-            },
-            imprimirListado(){
-                this.toggleModal('listado')
-            },
-            imprimirListado_() {
-                let formato = this.tipoListado
-                    this.listaSeleccionados()
-                    data = { lista: this.listImprimir, formato: formato }
-                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
-                        axios.post("/fichas/imprimirlistado", data, { responseType: "blob" })
-                            .then((res) => {
-                                let url = window.URL.createObjectURL(res.data);
-                                this.toggleModal('listado')
-                                msgSuccess('Se registro el listado al vendedor')
-                                setTimeout(()=>{
-                                    window.open(url);
-                                },2000)
-                                this.procesarListado()
-                            });
-            },
-            procesarListado(){
-                let datos = {clientes:this.listImprimir,vdor:this.idVdor,zona:this.zonatitle}
-                    axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                axios.post('/fichas/procesarlistado',datos)
-                                                                        .then(res=>{
-                                                                        })
-            },
-            toggleModal(id){
-                let $id = document.getElementById(id)
-                $id.classList.toggle('is-active')
-            },
-        }
-    }
+         },
+         seleccionar(year) {
+             $tbody = document.querySelector('tbody')
+             arrayRows = Array.from($tbody.children)
+             arrayRows = arrayRows.slice(1, arrayRows.length)
+             arrayRows.forEach(row => {
+                 if (Array.from(row.children)[0].innerHTML === year) {
+                     row.classList.toggle('is-selected')
+                 }
+             })
+         },
+         limpiarSelected() {
+             $tbody = document.querySelector('tbody')
+             arrayRows = Array.from($tbody.children)
+             arrayRows = arrayRows.slice(1, arrayRows.length)
+             arrayRows.forEach(row => row.classList.remove('is-selected'))
+         },
+         limpiarToggles() {
+             $btnYear = document.getElementById('btnYear')
+             $btnZonas = document.getElementById('btnZonas')
+             Array.from($btnYear.children).slice(1).forEach(btn => {
+                 btn.classList.remove('is-warning')
+             })
+             Array.from($btnZonas.children).slice(1).forEach(btn => {
+                 btn.classList.remove('is-warning')
+             })
+         },
+         listaSeleccionados() {
+             this.listImprimir = []
+             $tbody = document.querySelector('tbody')
+             Array.from($tbody.children).slice(1).forEach(row => {
+                 if (row.classList.contains('is-selected')) {
+                     this.listImprimir.push(row.cells[2].innerHTML)
+                 }
+             })
+         },
+         imprimirListado(){
+             toggleModal('listado')
+         },
+         imprimirListado_() {
+             let formato = this.tipoListado
+             this.listaSeleccionados()
+             data = { lista: this.listImprimir, formato: formato }
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
+                 axios.post("/fichas/imprimirlistado", data, { responseType: "blob" })
+                      .then((res) => {
+                          let url = window.URL.createObjectURL(res.data);
+                          toggleModal('listado')
+                          msgSuccess('Se registro el listado al vendedor')
+                          setTimeout(()=>{
+                              window.open(url);
+                          },2000)
+                          this.procesarListado()
+                      });
+         },
+         procesarListado(){
+             let datos = {clientes:this.listImprimir,vdor:this.idVdor,zona:this.zonatitle}
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/fichas/procesarlistado',datos)
+                                                                 .then(res=>{
+                                                                 })
+         },
+     }
+ }
 </script>
 {% endblock %}

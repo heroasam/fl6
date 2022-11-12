@@ -1,31 +1,45 @@
 {% extends "base.html" %} {% block title %}Impresos{% endblock %}
 
 {% block content %}
-<div id="app" class="container" v-cloak>
-	<p class="title is-1">Impresos</p>
-    <div class="buttons">
-        <a href="/utilidades/planos" class="button is-primary">Planos</a>
-        <a href="/utilidades/pdfsistema" class="button is-primary">Sistema</a>
-        <a href="/utilidades/contador" class="button is-primary">Contador</a>
+<div class="container" x-data="main()" x-init="getImpresos()">
+  <div class="buttons">
+    <a href="/utilidades/planos" class="button is-primary">Planos</a>
+    <a href="/utilidades/pdfsistema" class="button is-primary">Sistema</a>
+    <a href="/utilidades/documentos" class="button is-primary">Documentos</a>
+    <a href="/utilidades/contador" class="button is-primary">Contador</a>
+    <a href="/utilidades/wapp" class="button is-primary">Whatsapps</a>
+  </div>
+  <p class="title is-1">Impresos</p>
+
+  <div class="columns">
+    <div class="column is-4">
+      <div class="box">
+        <div class="grid-buscar m-6">
+          <input type="text" placeholder="Buscar" x-model="buscar" @keyup.enter="restringirBusqueda(buscar)"
+                 class="input text-big" />
+          <button class="button is-primary text-big" @click="restringirBusqueda(buscar)">Buscar</button>
+        </div>
       </div>
+    </div>
+  </div>
 
-      <table class="table">
-        <thead>
-            <tr>
-                <th>Imp</th>
-                <th>Impreso</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="impreso in impresos">
-                <td><button class="button is-danger is-small" @click="imprimirImpreso(impreso)">Imprimir</button></td>
-                <td>|impreso|</td>
-            </tr>
-        </tbody>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Imp</th>
+        <th>Impreso</th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="impreso in impresos">
+        <tr>
+          <td><i class="fa fa-print fa-2x" aria-hidden="true" @click="imprimirImpreso(impreso)"></td>
+            <td x-text="impreso" style="width:380px;"></td>
+        </tr>
+      </template>
+    </tbody>
 
-      </table>
-
-
+  </table>
 </div>
 
 
@@ -33,33 +47,34 @@
 
 {% endblock %} {% block script %}
 <script>
-const app = new Vue({
-    el: '#app',
-    delimiters: ['|', '|'],
-    data: {
-        impresos:[],
-    },
-    methods: {
-        imprimirImpreso(impreso){
-        		axios({
-          			method: "GET",
-          			url: "/utilidades/imprimirimpreso/"+impreso,
-          			responseType: "blob",
-        			}).then((res) => {
-          			let url = window.URL.createObjectURL(res.data);
-          			window.open(url);
-                    })},
-        getImpresos(){
-            axios.get('/utilidades/getimpresos')
-				.then(res=>{
-					this.impresos=res.data.impresos
-				})
-        },
-    },
-    created: function(){
-			this.getImpresos()
-    },
-})
+ function main(){
+     return{
+         impresos:[],
+         impresos_:[],
+         buscar:'',
+         imprimirImpreso(impreso){
+        	 axios({
+          		 method: "GET",
+          		 url: "/utilidades/imprimirimpreso/"+impreso+".pdf",
+          		 responseType: "blob",
+        	 }).then((res) => {
+          		 let url = window.URL.createObjectURL(res.data);
+          		 window.open(url);
+         })},
+         getImpresos(){
+             axios.get('/utilidades/getimpresos')
+				  .then(res=>{
+					  this.impresos=res.data.impresos
+                      this.impresos=this.impresos.map(row=>row.slice(0,-4))
+                      this.impresos_=this.impresos
+				  })
+         },
+                  restringirBusqueda(buscar){
+                      this.impresos = this.impresos_
+                      this.impresos = this.impresos.filter(row=>row.toLowerCase().includes(buscar.toLowerCase()))
+                  },
 
-    </script>
+     }
+ }
+</script>
 {% endblock %}

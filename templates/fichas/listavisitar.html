@@ -9,24 +9,24 @@
 
 {% block content %}
 <div class="container" x-data="main()" x-init="getListados()">
-    <div class="buttons">
-        <a href="/fichas" class="button is-primary">Volver a Fichas</a>
-        <a href="/fichas/listado" class="button is-primary">Listados</a>
-    </div>
+  <div class="buttons">
+    <a href="/fichas" class="button is-primary">Volver a Fichas</a>
+    <a href="/fichas/listado" class="button is-primary">Listados</a>
+  </div>
 
-    <table class="table">
-      <thead>
-        <tr>
-          <th>op</th>
-          <th>id</th>
-          <th>fecha</th>
-          <th>vdor</th>
-          <th>zona</th>
-          <th>cnt</th>
-        </tr>
-      </thead>
-      <tbody>
-        <template x-for="listado in listaListados">
+  <table class="table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>id</th>
+        <th>fecha</th>
+        <th>vdor</th>
+        <th>zona</th>
+        <th>cnt</th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="listado in listaListados">
         <tr>
           <td><i class="fa fa-times" aria-hidden="true" @click="borrarListado(listado.id)"></td>
             <td x-text="listado.id"></td>
@@ -35,9 +35,9 @@
             <td x-text="listado.zona"></td>
             <td x-text="listado.cntclientes"></td>
         </tr>
-        </template>
-      </tbody>
-    </table>
+      </template>
+    </tbody>
+  </table>
 
 
 </div>
@@ -45,41 +45,36 @@
 
 {% block script %}
 <script>
-    function main() {
-        return {
-            listaListados:[],
-            getListados(){
-                axios.get('/fichas/getlistalistados')
-                     .then(res=>{
-                         this.listaListados=res.data.listalistados
-                         this.listaListados.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
-                     })
-            },
-            borrarListado(id){
-            Swal.fire({
-            title: '¿Esta seguro?',
-            text: `afecta al listado ${id}`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Si, borrarlo!'
-            }).then((result) => {
-            if (result.isConfirmed) {
-                axios.get('/fichas/borrarlistavisitar/'+id)
-                     .then(res=>{
-                         msgSuccess('Borrado!','El registro ha sido borrado')
-                         this.getListados()
-                     })
-                /* .catch(error=>msgError('Error!','No se pudo borrar. Hubo algun error.')) */
-                }})
-            }
-
-
-
-
-  }
-  }
+ function main() {
+     return {
+         listaListados:[],
+         getListados(){
+             axios.get('/fichas/getlistalistados')
+                  .then(res=>{
+                      this.listaListados=res.data.listalistados
+                      this.listaListados.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                  })
+         },
+         borrarListado(id){
+             Swal.fire({
+                 title: '¿Esta seguro?',
+                 text: `afecta al listado ${id}`,
+                 icon: 'warning',
+                 showCancelButton: true,
+                 confirmButtonColor: '#3085d6',
+                 cancelButtonColor: '#d33',
+                 confirmButtonText: 'Si, borrarlo!'
+             }).then((result) => {
+                 if (result.isConfirmed) {
+                     axios.get('/fichas/borrarlistavisitar/'+id)
+                          .then(res=>{
+                              msgSuccess('Borrado!','El registro ha sido borrado')
+                              this.getListados()
+                          })
+             }})
+         }
+     }
+ }
 
 </script>
 {% endblock %}

@@ -1,43 +1,50 @@
 {% extends "base.html" %} {% block title %}Utilidades{% endblock %}
 {% block style %}
 <style>
-.grid-buscar{
-    display: grid;
-    grid-template-columns: 1fr 20%;
-}
 </style>
 {% endblock %}
 
 {% block content %}
-<div id="app" class="container" v-cloak>
-	<p class="title is-1">Planos</p>
-    <div class="buttons">
-      <a href="/utilidades/impresos" class="button is-primary">Impresos</a>
-      <a href="/utilidades/pdfsistema" class="button is-primary">Sistema</a>
-      <a href="/utilidades/contador" class="button is-primary">Contador</a>
+<div class="container" x-data="main()" x-init="getPlanos()">
+  <div class="buttons">
+    <a href="/utilidades/impresos" class="button is-primary">Impresos</a>
+    <a href="/utilidades/pdfsistema" class="button is-primary">Sistema</a>
+    <a href="/utilidades/contador" class="button is-primary">Contador</a>
+    <a href="/utilidades/documentos" class="button is-primary">Documentos</a>
+    <a href="/utilidades/wapp" class="button is-primary">Whatsapps</a>
+  </div>
+
+  <p class="title is-1">Planos</p>
+  <div class="columns">
+    <div class="column is-4">
+      <div class="box">
+        <div class="grid-buscar m-6">
+          <input type="text" placeholder="Buscar" x-model="buscar" @keyup.enter="restringirBusqueda(buscar)" class="input text-big" />
+          <button class="button is-primary text-big" @click="restringirBusqueda(buscar)">Buscar</button>
+        </div>
       </div>
+    </div>
+  </div>
 
-      <div class="grid-buscar mb-6 mr-3 mt-2">
-        <input type="text" placeholder="Buscar" v-model="buscar" @keyup.enter="restringirBusqueda(buscar)"/>
-        <button class="button is-primary" @click="restringirBusqueda(buscar)">Buscar</button>
-      </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Imp</th>
+        <th>Plano</th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="plano in planos">
+        <tr>
+          <td><i class="fa fa-print fa-2x" aria-hidden="true" @click="imprimirPlano(plano)"></td>
+            <!-- <td><button class="button is-danger is-small" @click="imprimirPlano(plano)">Imprimir</button></td> -->
+          <td x-text="plano" style="width:380px;"></td>
+        </tr>
+      </template>
+    </tbody>
 
-      <table class="table">
-        <thead>
-            <tr>
-                <th>Imp</th>
-                <th>Plano</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="plano in planos">
-                <td><button class="button is-danger is-small" @click="imprimirPlano(plano)">Imprimir</button></td>
-                <td>|plano|</td>
-            </tr>
-        </tbody>
-
-      </table>
-      <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
+  </table>
+  <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
 
 
 </div>
@@ -47,42 +54,36 @@
 
 {% endblock %} {% block script %}
 <script>
-const app = new Vue({
-    el: '#app',
-    delimiters: ['|', '|'],
-    data: {
-        planos:[],
-        planos_:[],
-        buscar:'',
-    },
-    methods: {
-        imprimirPlano(plano){
-            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
-        		axios({
-          			method: "GET",
-          			url: "/utilidades/imprimirplanos/"+plano,
-          			responseType: "blob",
-        			}).then((res) => {
-          			let url = window.URL.createObjectURL(res.data);
-          			window.open(url);
+ function main(){
+     return{
+         planos:[],
+         planos_:[],
+         buscar:'',
+         imprimirPlano(plano){
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
+        	 axios({
+          		 method: "GET",
+          		 url: "/utilidades/imprimirplanos/"+plano+'.pdf',
+          		 responseType: "blob",
+        	 }).then((res) => {
+          		 let url = window.URL.createObjectURL(res.data);
+          		 window.open(url);
 
-                    })},
-        getPlanos(){
-            axios.get('/utilidades/getplanos')
-				.then(res=>{
-					this.planos=res.data.planos
-                    this.planos_=this.planos
-				})
-        },
-        restringirBusqueda(buscar){
-            this.planos = this.planos_
-            this.planos = this.planos.filter(row=>row.toLowerCase().includes(buscar.toLowerCase()))
-        },
-    },
-    created: function(){
-			this.getPlanos()
-    },
-})
+         })},
+         getPlanos(){
+             axios.get('/utilidades/getplanos')
+				  .then(res=>{
+					  this.planos=res.data.planos
+                      this.planos = this.planos.map(row=>row.slice(0,-4))
+                      this.planos_=this.planos
+				  })
+         },
+         restringirBusqueda(buscar){
+             this.planos = this.planos_
+             this.planos = this.planos.filter(row=>row.toLowerCase().includes(buscar.toLowerCase()))
+         },
+     }
+ }
 
-    </script>
+</script>
 {% endblock %}

@@ -1,29 +1,18 @@
 {% extends "base.html" %}
 
 {% block title %}Cuentas{% endblock %}
+{% block style %}
+<style>
+</style>
+{% endblock %}
 
 {% block content %}
-
-<div x-data="main()" class="container" x-init="getCuentas()">
+<div class="container" x-data="main()" x-init="getCuentas()">
   <div class="block">
-    <a href="/stock/asientos"  type="button" class="button is-primary">Asientos</a>
-    <a href="/stock/mayor"  type="button" class="button is-primary">Mayor</a>
-    <a href="/stock/pivotcuentas"  type="button" class="button is-primary">Pivot-Cuentas</a>
-    <a href="/stock/retiros"  type="button" class="button is-primary">Retiros</a>
-    <a href="/stock/compras"  type="button" class="button is-primary">Compras</a>
-    <a href="/stock/salidas"  type="button" class="button is-primary">Salidas</a>
-    <a href="/stock/articulos"  type="button" class="button is-primary">Articulos</a>
-    <a href="/stock/verstock"  type="button" class="button is-primary">Stock</a>
-    <a href="/stock/proveedores"  type="button" class="button
-             is-primary">Proveedores</a>
-    <a href="/stock/cuadro"  type="button" class="button is-primary">Cuadro</a>
+    <a href="/conta" class="button">Asientos</a>
+    <a href="/conta/cuadro" class="button">Cuadro</a>
   </div>
-
-  <div class="columns">
-    <div class="column is-7">
-      <h1 style="width:70%;" class="title is-size-1">Cuentas</h1>
-    </div>
-  </div>
+  <h1 class="title is-size-1">Cuentas</h1>
 
   <button class="button mb-3 block"
           @click="Cuenta={};agregarCuenta()">Agregar Cuenta</button>
@@ -65,15 +54,20 @@
         <label for="idcuenta">Cuenta</label>
         <input name="idcuenta" class="input" type="text" x-model="Cuenta.cuenta" />
         <label for="idtipo">Tipo</label>
-        <input name="idtipo" class="input" type="text" x-model="Cuenta.tipo" />
+        <input name="idtipo" class="input" type="text" x-model="Cuenta.tipo" list="listTipos" />
+        <datalist id="listTipos">
+          <option value="ingresos"></option>
+          <option value="egresos"></option>
+        </datalist>
 
       </section>
       <footer class="modal-card-foot">
-        <button class="button is-success" @click="guardarRegistro()">Agregar</button>
+        <button class="button is-success" @click="validarRegistro()">Agregar</button>
         <button class="button" @click="toggleModal('modal-add')">Cancelar</button>
       </footer>
     </div>
   </div>
+
   <!-- modal bulma -->
   <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
   <div class="modal" id="modal-edicion">
@@ -88,28 +82,31 @@
         <label for="idcuenta">Cuenta</label>
         <input name="idcuenta" class="input" type="text" x-model="Cuenta.cuenta" />
         <label for="idtipo">Tipo</label>
-        <input name="idtipo" class="input" type="text" x-model="Cuenta.tipo" />
+        <input name="idtipo" class="input" type="text" x-model="Cuenta.tipo" list="listTipos" />
+        <datalist id="listTipos">
+            <option value="ingresos"></option>
+            <option value="egresos"></option>
+        </datalist>
 
       </section>
       <footer class="modal-card-foot">
-        <button class="button is-success" @click="guardarEdicion()">Editar</button>
+        <button class="button is-success" @click="validarEdicion()">Editar</button>
         <button class="button" @click="toggleModal('modal-edicion')">Cancelar</button>
       </footer>
     </div>
   </div>
 
-
-
 </div>
+
 {% endblock %}
 {% block script %}
 <script>
  function main(){
-     return {
+     return{
          listCuentas:[],
          Cuenta:{},
          getCuentas(){
-             axios.get('/stock/getdictcuentas')
+             axios.get('/conta/getdictcuentas')
                   .then(res=>{
                       this.listCuentas = res.data.cuentas
                   })
@@ -117,13 +114,27 @@
          agregarCuenta(){
              toggleModal('modal-add')
          },
+         validarRegistro(){
+             if(this.Cuenta.cuenta!=''&& ['ingresos','egresos'].includes(this.Cuenta.tipo)){
+                 this.guardarRegistro()
+             }else{
+                 msgError('Complete o corrija los datos ingresados')
+             }
+         },
          editarCuenta(id){
              toggleModal('modal-edicion')
 	         this.Cuenta = this.listCuentas.filter(row=>row.id==id)[0]
 	     },
+         validarEdicion(){
+             if(this.Cuenta.cuenta!=''&&this.Cuenta.tipo in ['ingresos','egresos']){
+                 this.guardarEdicion()
+             }else{
+                 msgError('Complete o corrija los datos ingresados')
+             }
+         },
 	     guardarEdicion(){
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-             axios.post('/stock/editarcuenta',this.Cuenta)
+             axios.post('/conta/editarcuenta',this.Cuenta)
 	                                                             .then(res=>{
 		                                                             msgSuccess('Cuenta', 'Cuenta Editada')
                                                                      toggleModal('modal-edicion')
@@ -133,7 +144,7 @@
          guardarRegistro(){
              this.verModalCuenta=false;
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-             axios.post('/stock/agregarcuenta',this.Cuenta)
+             axios.post('/conta/agregarcuenta',this.Cuenta)
 	                                                             .then(res=>{
 		                                                             msgSuccess('Cuenta', 'Cuenta Guardada')
                                                                      toggleModal('modal-add')
@@ -152,14 +163,14 @@
                  confirmButtonText: 'Si, borrarlo!'
              }).then((result) => {
                  if (result.isConfirmed) {
-                     axios.get('/stock/borrarcuenta/'+id)
+                     axios.get('/conta/borrarcuenta/'+id)
                           .then(res=>msgSuccess('Borrado!','La cuenta ha sido borrada'))
 		                  .catch(error=>msgError('Error!','No se puede borrar porque hay asientos que usan esta cuenta'))
                      this.getCuentas()
              }})
          }
+
      }
  }
-
 </script>
 {% endblock %}

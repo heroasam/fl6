@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Whatsapps{% endblock %}
+
+{% block content %}
+<div class="container">
+<div class="buttons">
+  <a href="/utilidades/planos" class="button is-primary">Planos</a>
+  <a href="/utilidades/impresos" class="button is-primary">Impresos</a>
+  <a href="/utilidades/pdfsistema" class="button is-primary">Sistema</a>
+  <a href="/utilidades/documentos" class="button is-primary">Documentos</a>
+  <a href="/utilidades/contador" class="button is-primary">Contador</a>
+</div>
+<h1 class="title is-3">Whatsapps</h1>
+
+<div class="container mt-6">
+  <table class="table is-narrow" id="table-whatsapp">
+  </table>
+</div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    axios.get('/utilidades/listawapp')
+    .then(res=>{
+        wapps_ = res.data.wapps
+        wapps = []
+        for(let item of wapps_){
+            let obj = {
+            id:item.id,
+            idcliente:item.idcliente,
+            fecha:item.fecha,
+            wapp:item.wapp,
+            response:item.response,
+            user:item.user,
+            msg:item.msg,
+            file:item.file,
+            enviado:item.enviado,
+            timein:item.timein,
+            timeout:item.timeout
+            }
+            wapps.push(obj)
+        }
+
+        let obj = dataWrapper(wapps)
+        const dataTable = new simpleDatatables.DataTable("#table-whatsapp", {
+            searchable: true,
+            data: obj,
+            columns:[
+                {select:2,
+                    render: function(data, cell, row) {
+                return dayjs.utc(data).format('YYYY-MM-DD')
+                    }
+                }
+            ]
+        })
+    })
+
+</script>
+{% endblock %}

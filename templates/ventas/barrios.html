@@ -3,170 +3,172 @@
 {% block title %}Barrios{% endblock %}
 {% block style %}
 <style>
-  </style>
-  {% endblock %}
-  
+</style>
+{% endblock %}
+
 {% block content %}
 
-<div id="app" class="container">
-    <p class="title is-1">Gestion de Barrios</p>
-    <div class="buttons">
-        <a href="/ventas/ventas" class="button is-primary">Pasar Ventas</a>
-        <a href="/ventas/listado" class="button is-primary">Listado</a>
-        <a href="/ventas/clientes" class="button is-primary">Clientes</a>
-        <a href="/ventas/calles" class="button is-primary">Calles</a>
-        <a href="/ventas/zonas" class="button is-primary">Zonas</a>
-        <a href="/ventas/estadisticas" class="button is-primary">Estadisticas</a>
-        <a href="/ventas/morosidad" class="button is-primary">Morosidad</a>
-        <a href="/ventas/pordia" class="button is-primary">Ventas</a>
-        <a href="/ventas/devolucion" class="button is-primary">Devoluciones</a>
-        <a href="/ventas/pivotdevoluciones" class="button is-primary">Pivot-Devol.</a>
-      </div>
+<div class="container" x-data="main()" x-init="getBarrios()">
+  <div class="buttons">
+    <a href="/ventas/ventas" class="button is-primary">Pasar Ventas</a>
+    <a href="/ventas/listado" class="button is-primary">Listado</a>
+    <a href="/ventas/pordia" class="button is-primary">Ventas</a>
+    <a href="/ventas/clientes" class="button is-primary">Clientes</a>
+    <a href="/ventas/calles" class="button is-primary">Calles</a>
+    <a href="/ventas/zonas" class="button is-primary">Zonas</a>
+    <a href="/ventas/cambiazonas" class="button is-primary">Rezonificar</a>
+    <a href="/ventas/estadisticas" class="button is-primary">Estadisticas</a>
+    <a href="/ventas/devolucion" class="button is-primary">Devoluciones</a>
+    <a href="/ventas/pivotdevoluciones" class="button is-primary">Pivot-Devol.</a>
+  </div>
+  <p class="title is-1">Gestion de Barrios</p>
 
-      <form class="block field is-horizontal">
-          <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
-          <input type="text" v-model="barrio" class="input is-narrow" style="width: 400px;">
-          <button type="button" class="button is-danger" @click="guardarBarrioNuevo">Guardar</button>
-      </form>
+  <div class="columns">
+    <div class="column is-4">
+  <div class="grid-buscar  mr-3 mt-2">
+    <input type="search" placeholder="Filtrar:" class="input text-big" x-model="buscar"
+		   @focus="buscar=''" @keyup.enter="filtrarBarrio(buscar)" autofocus>
+    <button type="button" @click="filtrarBarrio(buscar)" class="button is-primary text-big">Buscar</button>
+  </div>
+    </div>
+  </div>
 
-      <table class="table is-narrow nototal">
-          <thead>
-              <tr>
-                  <th>op</th>
-                  <th>op</th>
-                  <th>id</th>
-                  <th>barrio</th>
-              </tr>
-          </thead>
-          <tbody>
-              <tr v-for="barrio in barrios">
-                  <td><button type="button" class="button is-danger is-small" @click="borrarBarrio(barrio['id'])">Borrar</button></td>
-                  <td><button type="button" class="button is-info is-small" @click="editarBarrio(barrio['id'],barrio['barrio'])">Editar</button></td>
-                  <td>|barrio['id']|</td>
-                  <td>|barrio['barrio']|</td>
-              </tr>
-          </tbody>
-      </table>
 
-      <div class="modal" :class="{'is-active':toggleModal}">
+  <button class="button is-primary" @click="toggleModal('modal-add')">Agregar Barrio</button>
+  <table class="table is-narrow nototal" style="width:430px;">
+    <thead>
+      <tr>
+        <th></th>
+        <th></th>
+        <th class="numeric">id</th>
+        <th>barrio</th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="barrio in listaBarrios_">
+        <tr>
+          <td><i class="fa fa-times" aria-hidden="true" @click="borrarBarrio(barrio.id)"></td>
+            <td><i class="fa fa-pencil" aria-hidden="true" @click="editarBarrio(barrio.id)"></td>
+              <td x-text="barrio.id"></td>
+              <td x-text="barrio.barrio"></td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
+
+    <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}" />
+    <!-- modal Bulma -->
+    <div class="modal" id="modal-edicion">
         <div class="modal-background"></div>
-        <div class="modal-content">
-            <div class="modal-card">
-             <section class="modal-card-body">     
-                      <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
-                     
-                        <form >
-                            <div class="field">
-                                <div class="control">
-                                    <label class="label" style="color:black;">Barrio</label>
-                                    <input type="text" v-model="barrio" class="input is-narrow" :class='{"is-danger":!barrio}'  @keyup.enter="$refs.guardared.focus()"  ref="barrio">
-                                    <p v-show="!barrio" class="help is-danger">Requerido</p>
-                                  </div>
-                            </div>
-                            <div class="field">
-                                <div class="control">
-                                    <button type="button" class="button is-primary" @click="guardarEdicion()" ref="guardared" id="guardar">Guardar</button>
-                                </div> 
-                            </div> 
-                        </form>
-                    </section>
-        
-                      
-                      
-          
-        </div>
-        <button class="modal-close is-large" aria-label="close" @click="modal"></button>
-        </div>
-        </div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Edicion de Barrio</p>
+                <button class="delete" aria-label="close" @click="toggleModal('modal-edicion')"></button>
+            </header>
+            <section class="modal-card-body">
+                <!-- Content ... -->
+              <label for="idbarrio">Barrio</label>
+              <input name="idbarrio" class="input" type="text" x-model="barrioEditar.barrio" />
 
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-success" @click="guardarEdicion()">Editar</button>
+                <button class="button" @click="toggleModal('modal-edicion')">Cancelar</button>
+            </footer>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-add">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Agregar Barrio</p>
+                <button class="delete" aria-label="close" @click="toggleModal('modal-add')"></button>
+            </header>
+            <section class="modal-card-body">
+                <!-- Content ... -->
+              <label for="idbarrio">Barrio</label>
+              <input name="idbarrio" class="input" type="text" x-model="Barrio.barrio" />
+
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-success" @click="guardarBarrio()">Agregar</button>
+                <button class="button" @click="toggleModal('modal-add')">Cancelar</button>
+            </footer>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block script %}
 <script>
-  const app = new Vue({
-    el:"#app",
-    delimiters:['|','|'],
-    data:{
-        barrios:[],
-        id:'',
-        barrio:'',
-        toggleModal: false,
-    },
-    methods:{
-        getBarrios(){
-            axios.get('/ventas/getbarriosconid')
-            .then(res=>{
-                this.barrios = res.data.barrios
-            })
-
-        },
-        borrarBarrio(id){
-            const borrar = confirm("¿Esta seguro que quiere borrar permanentemente esta fila?")
-            if(borrar){
+ function main(){
+     return{
+         listaBarrios:[],
+         listaBarrios_:[],
+         barrioEditar:{},
+         Barrio:{},
+         buscar:'',
+         getBarrios(){
+             axios.get('/ventas/getbarriosconid')
+                  .then(res=>{
+                      this.listaBarrios = res.data.barrios
+                      this.listaBarrios_ = this.listaBarrios
+                  })
+         },
+         borrarBarrio(id){
+            Swal.fire({
+            title: '¿Esta seguro?',
+            text: `Se borrara el barrio ${id}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, borrarlo!'
+            }).then((result) => {
+            if (result.isConfirmed) {
                 axios.get('/ventas/borrarbarrio/'+id)
-                .then(res=>{
-                    this.getBarrios()
-                    bulmaToast.toast({message:"Borrado procesado con exito", type:'is-success'})
-                })
-                .catch(error=>{
-                    bulmaToast.toast({message:error.request.response, type:'is-danger'})
-                })
-            }
-        },
-        editarBarrio(id,barrio){
-            this.id = id
-            this.barrio = barrio
-            this.modal()
+                     .then(res=>{
+                         msgSuccess('Borrado!','El registro ha sido borrado')
+                         this.getBarrios()})
+                     .catch(error=>msgError('No se pudo borrar. Posiblemente haya registros con ese barrio.'))
+                }})
+         },
+         editarBarrio(id){
+             this.barrioEditar = this.listaBarrios.filter(row=>row.id==id)[0]
+             toggleModal('modal-edicion')
 
-        },
-        guardarEdicion(){
-            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-          axios({
-              method:'POST',
-              url: '/ventas/guardaredicionbarrio',
-              data:{
-                  id:this.id,
-                  barrio:this.barrio,
-              }
-          })
-          .then(res=>{
-            this.modal()
-            this.getBarrios()
-            bulmaToast.toast({message:"Edicion procesada con exito", type:'is-success'})
-          })
-          .catch(error=>{
-            //console.log('El error es:',error.request.response)
-            bulmaToast.toast({message:error.request.response, type:'is-danger'})
-          })
-        },
-        guardarBarrioNuevo(){
-            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-          axios({
-              method:'POST',
-              url: '/ventas/guardarbarrionueva',
-              data:{
-                  barrio:this.barrio,
-              }
-          })
-          .then(res=>{
-            this.getBarrios()
-            this.barrio=''
-            this.id=''
-            bulmaToast.toast({message:"Barrio agregada con exito", type:'is-success'})
-          })
-          .catch(error=>{
-            //console.log('El error es:',error.request.response)
-            bulmaToast.toast({message:error.request.response, type:'is-danger'})
-          })
-        },
-        modal(){
-          this.toggleModal=!this.toggleModal
-        },
-    },
-    created:function(){
-        this.getBarrios()
-    }
-  })
-  </script>
-  {% endblock %}
+         },
+         guardarEdicion(){
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             toggleModal('modal-edicion')
+             axios.post('/ventas/guardaredicionbarrio',this.barrioEditar)
+                                                                 .then(res=>{
+                                                                     this.getBarrios()
+                                                                     msgSuccess('Edicion procesada con exito')
+                                                                 })
+                                                                 .catch(error=>{
+                                                                     msgError('Edicion no se pudo procesar')
+                                                                 })
+         },
+         guardarBarrio(){
+             toggleModal('modal-add')
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/ventas/guardarbarrionueva',this.Barrio)
+                                                                 .then(res=>{
+                                                                     this.getBarrios()
+                                                                     this.Barrio={}
+                                                                     msgSuccess('Barrio agregado con exito')
+                                                                 })
+                                                                 .catch(error=>{
+                                                                     msgError('No se pudo agregar el barrio')
+                                                                 })
+         },
+                    filtrarBarrio(buscar){
+                        this.listaBarrios_=this.listaBarrios.filter(row=>row.barrio.toLocaleLowerCase().includes(buscar.toLocaleLowerCase()))
+                    },
+
+     }
+ }
+</script>
+{% endblock %}

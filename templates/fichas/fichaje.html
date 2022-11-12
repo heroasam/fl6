@@ -1,473 +1,353 @@
 {% extends "base.html" %} {% block title %}Planillas de Rendicion{%
 endblock %} {% block style %}
 <style>
-  body{
-    margin: auto;
-  }
-  thead th {
-    position: sticky;
-    position: -webkit-sticky;
-    top: 0px;
-    z-index: 10;
-    }
-  .flex{
-    display:flex;
-  }
- .wapp{
-     background-color: seagreen;
- }
 </style>
 {% endblock %} {% block content %}
-<div class="conteiner-fluid">
-<div id="app">
+<div class="container.is-widescreen" x-data="main()" x-init="getCobradores();cargarMsgs();cargarZonas();eventTable()">
   <div class="buttons">
     <a href="/fichas/cobradores" class="button is-primary">Cobradores</a>
     <a href="/fichas/fechador" class="button is-primary">Fechador</a>
     <a href="/fichas/listado" class="button is-primary">Listado</a>
     <a href="/fichas/cancelados" class="button is-primary">Cancelados</a>
-    <a href="/fichas/mudados" class="button is-primary">Mudados</a>
     <a href="/fichas/programar" class="button is-primary">Programar Botones</a>
   </div>
 
-    <div>
-      <button v-for="cobrador in cobradores" class="button is-info ml-1" @click="muestraZonas(cobrador['id'])">|cobrador['id']|</button>
-    </div>
-    <div>
-      <button v-for="zona in zonas" class="button is-success ml-1 mt-1" @click="muestraClientes('normales',zona['zona']);zonaactual=zona['zona']">|zona['zona']|</button>
-    </div>
+  <div id="btnCobradores">
+    <template x-for="cobrador in listaCobradores">
+      <button  class="button  ml-1" @click="muestraZonas(cobrador.id);limpiarToggles('cobr');$event.target.classList.toggle('is-link')"
+               x-text="cobrador.id"></button>
+    </template>
+  </div>
+  <div id="btnZonas">
+    <template x-for="zona in listaZonasCobrador">
+      <button  class="button ml-1 mt-1" @click="muestraClientes('normales',zona.zona);
+                      zonaactual=zona.zona;limpiarToggles('zonas');$event.target.classList.toggle('is-link')" x-text="zona.zona"></button>
+    </template>
+  </div>
 
   <div class="ml-1 mt-1 mb-1">
-    <span class="tag is-small is-black"  v-show="clientes.length">|clientes.length|</span>
+    <span class="tag is-small is-black"  x-show="listaClientes.length" x-text="listaClientes.length"></span>
+    <span class="tag is-small is-warning"  x-show="cntSeleccionados" x-text="cntSeleccionados"></span>
     <label for="desde"></label>
-    <input type="date" name="desde" v-model="desde" class="input" style="width:140px;" />
+    <input type="date" name="desde" x-model="desde" class="input" style="width:140px;" :class="darkTheme?'input-dark':''"/>
     <label for="hasta"></label>
-    <input type="date" name="hasta" v-model="hasta" class="input" style="width:140px;" />
-    <button class="button is-success" @click="seleccionarHasta()">Seleccionar</button>
-    <button class="button is-info" @click="imprimir()">Imprimir</button>
-    <button class="button is-danger" @click="intimar()">Intimar</button>
-    <button class="button is-dark" @click="muestraClientes('cancelados',zonaactual)">Cancelados</button>
-    <button class="button is-warning" @click="muestraClientes('gestion',zonaactual||'%')">Gestion</button>
-    <button class="button is-dark" @click="muestraClientes('antiguos',zonaactual)">Antiguos</button>
-    <button class="button is-info" @click="muestraClientes('nuevomoroso',zonaactual||'%')">Atraso</button>
-    <button class="button is-info" @click="muestraClientes('morosos',zonaactual||'%')">Morosos</button>
-    <button class="button is-info" @click="muestraClientes('vender',zonaactual||'%')">Vender</button>
-    <button class="button is-warning" @click="verZonas==true?verZonas=false:verZonas=true">Cambiar Zonas</button>
-    <input type="text" name="zona" v-model="zona" list="zonalist" autocomplete="off" v-if="verZonas">
-                  <datalist id="zonalist">
-                    <option v-for="zona in listazonas">|zona|</option>
-                </datalist>
-    <button class="button is-danger" @click="cambiarZona(zona)" v-if="verZonas">Guardar</button>
-    <button class="button is-danger" @click="intimarWhatsapp()">INTWhat</button>
-    <button class="button is-danger" @click="intimarPdf()">INTpdf</button>
-    <button class="button is-danger" @click="sendMsgRecordatorio()">RecTrans</button>
+    <input type="date" name="hasta" x-model="hasta" class="input" style="width:140px;" :class="darkTheme?'input-dark':''"/>
+    <button class="button is-small is-primary" @click="seleccionarHasta()">Seleccionar</button>
+    <button class="button is-small is-danger" @click="imprimir()">Imprimir</button>
+    <button class="button is-small is-danger" @click="intimar()">Intimar</button>
+    <button class="button is-small is-dark" @click="muestraClientes('cancelados',zonaactual)">Cancelados</button>
+    <button class="button is-small is-warning" @click="muestraClientes('gestion',zonaactual||'%')">Gestion</button>
+    <button class="button is-small is-dark" @click="muestraClientes('antiguos',zonaactual)">Antiguos</button>
+    <button class="button is-small is-info" @click="muestraClientes('nuevomoroso',zonaactual||'%')">Atraso</button>
+    <button class="button is-small is-info" @click="muestraClientes('morosos',zonaactual||'%')">Morosos</button>
+    <button class="button is-small is-info" @click="muestraClientes('vender',zonaactual||'%')">Vender</button>
+    <button class="button is-small is-warning" @click="verZonas==true?verZonas=false:verZonas=true">Cambiar Zonas</button>
+    <input type="text" name="zona" x-model="zona" list="zonalist" autocomplete="off" x-show="verZonas" class="input" style="width:100px;">
+    <datalist id="zonalist">
+      <template x-for="zona in listaZonas">
+        <option  :value="zona"></option>
+      </template>
+    </datalist>
+    <button class="button is-small is-danger" @click="cambiarZona(zona)" x-show="verZonas">Guardar</button>
+    <button class="button is-small is-danger" @click="intimarWhatsapp()">INTWhat</button>
+    <button class="button is-small is-danger" @click="intimarPdf()">INTpdf</button>
+    <button class="button is-small is-danger" @click="sendMsgRecordatorio()">RecTrans</button>
 
     <div class="dropdown is-hoverable">
-	<div class="dropdown-trigger">
-	    <button class="button is-info" aria-haspopup="true" aria-controls="dropdown-menu">
-		<span>Programados</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
+	  <div class="dropdown-trigger">
+	    <button class="button is-small is-danger" aria-haspopup="true" aria-controls="dropdown-menu">
+		  <span>Programados</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
 	    </button>
-	</div>
-	<div class="dropdown-menu" id="dropdown-menu" role="menu">
+	  </div>
+	  <div class="dropdown-menu" id="dropdown-menu" role="menu">
 	    <div class="dropdown-content">
-		<div v-for="item in listamsgs">
-		    <a href="#" @click="sendMsgProgramado(item['nombre'])" class="dropdown-item">|item['nombre']|</a>
-		</div>
+
+		  <div>
+            <template x-for="item in listamsgs">
+		      <a href="#" @click="sendMsgProgramado(item.nombre)" class="dropdown-item" x-text="item.nombre"></a>
+            </template>
+		  </div>
 	    </div>
-	</div>
+	  </div>
     </div>
 
   </div>
 
-    <table  class="table is-narrow ml-1" id="table">
-      <thead>
-        <tr>
-        <th>op</th>
-          <th>Nombre</th>
-          <th>Calle</th>
-          <th>Num</th>
-          <th>UltPago</th>
-          <th>PmoVto</th>
-          <th class="sumar numeric">Compra</th>
-          <th>Fecha</th>
-          <th class="sumar numeric">Deuda</th>
-          <th>Wapp</th>
-          <th>Zona</th>
-          <th>Barrio</th>
-          <th>Intimado</th>
-          <th>dni</th>
-          <th colspan="5">Estados</th>
-          <th colspan="5">Operaciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="cliente in clientes" :class="dayjs.utc().diff(cliente['fechaultwapp'],'d')==0&&
-                   dayjs.utc().diff(cliente['fechaultwapp'],'d')<11?'wapp':''">
-          <!-- nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni[10],subirseven,comprado,deuda,zona,barrio -->
-        <td><a :href="'/buscador/interno/'+cliente['dni']" target="_blank">Ir</a></td>
-          <td>|cliente['nombre']|</td>
-          <td>|cliente['calle']|</td>
-          <td>|cliente['num']|</td>
-          <td style="min-width: 100px;">|cliente['ultpago']|</td>
-          <td style="min-width: 100px;">|cliente['pmovto']|</td>
-          <td class="pesos">|cliente['comprado']|</td>
-          <td style="min-width: 100px;">|cliente['ultcompra']|</td>
-          <td class="pesos">|cliente['deuda']|</td>
-          <td>|cliente['wapp']|</td>
-          <td>|cliente['zona']|</td>
-          <td>|cliente['barrio']|</td>
-          <td>|cliente['fechaintimacion']|</td>
-          <td>|cliente['dni']|</td>
-          <td><button class="button is-success is-small" v-show="cliente['sev']||cliente['subirseven']">|cliente['sev']==1?'SEVEN':cliente['subirseven']==1?'SUBE':null|</button></td>
-          <td><button class="button is-primary is-small" v-if="cliente['novendermas']">|cliente['novendermas']==1?'NV+':null|</button></td>
-          <td><button class="button is-info is-small" v-if="cliente['gestion']">|cliente['gestion']==1?'GESTION':null|</button></td>
-          <td><button class="button is-warning is-small" v-if="cliente['mudo']">|cliente['mudo']==1?'MUDO':null|</button></td>
-          <td><button class="button is-danger is-small" v-if="cliente['incobrable']">|cliente['incobrable']==1?'INC':''|</button></td>
-          <td><button class="button is-outlined is-primary is-small" @click="toggleSube(cliente['dni'])">SU</button></td>
-          <td><button class="button is-outlined is-primary is-small" @click="toggleLN(cliente['dni'])">NV</button></td>
-          <td><button class="button is-outlined is-primary is-small" @click="toggleGestion(cliente['dni'])">Ge</button></td>
-          <td><button class="button is-outlined is-primary is-small" @click="toggleMudo(cliente['dni'])">Mu</button></td>
-          <td><button class="button is-outlined is-primary is-small" @click="toggleInc(cliente['dni']);">IN</button></td>
 
+  <table  class="table is-narrow ml-1" id="table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Nombre</th>
+        <th>Calle</th>
+        <th>Num</th>
+        <th>UltPago</th>
+        <th>PmoVto</th>
+        <th class="sumar numeric">Compra</th>
+        <th>Fecha</th>
+        <th class="sumar numeric">Deuda</th>
+        <th>Wapp</th>
+        <th>Zona</th>
+        <th>Barrio</th>
+        <th>Intimado</th>
+        <th>dni</th>
+        <th>Sev</th>
+        <th>Sub</th>
+        <th>Mud</th>
+        <th>Inc</th>
+        <th>LN</th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="cliente in listaClientes">
+        <tr  :class="dayjs.utc().diff(cliente.ultpago,'d')<60?'ultpago60':''">
+          <td><a :href="'/buscador/interno/'+cliente.dni" target="_blank" class="button is-small is-outlined is-primary">Ir</a></td>
+          <td x-text="cliente.nombre.substring(0,20)"></td>
+          <td x-text="cliente.calle"></td>
+          <td x-text="cliente.num"></td>
+          <td x-text="cliente.ultpago" :class="dayjs.utc().diff(cliente['ultpago'],'d')<60?'ultpago60campo':''" style="min-width: 100px;"></td>
+          <td x-text="cliente.pmovto" style="min-width: 100px;"></td>
+          <td x-text="cliente.comprado" class="pesos"></td>
+          <td x-text="cliente.ultcompra" style="min-width: 100px;"></td>
+          <td x-text="cliente.deuda" class="pesos"></td>
+          <td x-text="cliente.wapp" :class="dayjs.utc().diff(cliente['fechaultwapp'],'d')<30?'wapp':''"></td>
+          <td x-text="cliente.zona.substring(0,10)"></td>
+          <td x-text="cliente.barrio.substring(0,20)"></td>
+          <td x-text="cliente.fechaintimacion"></td>
+          <td x-text="cliente.dni"></td>
+          <td><span class="tag is-success is-small" x-show="cliente.sev">SEV</span></td>
+          <td><span class="tag is-info is-small" x-show="cliente.subirseven">SUB</span></td>
+          <td><span class="tag is-warning is-small" x-show="cliente.mudo">MUD</span></td>
+          <td><span class="tag is-danger is-small" x-show="cliente.incobrable">INC</span></td>
+          <td><span class="tag is-small" x-show="cliente.novendermas">LN</span></td>
         </tr>
-      </tbody>
-    </table>
-    <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
+      </template>
+    </tbody>
+  </table>
+  <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
 
-</div>
 </div>
 {% endblock %} {% block script %}
 <script>
-  const app = new Vue({
-    el: "#app",
-    delimiters: ["|", "|"],
-    data: {
-      cobradores: [],
-      zonas: [],
-      clientes: [],
-      zonaactual:'',
-      verZonas: false,
-      zona:'',
-      listazonas:[],
-      listamsgs:[],
-      ultimazona:'',
-      ultimotipo:'',
-      hasta:dayjs.utc().format('YYYY-MM-DD'),
-      desde:dayjs.utc().format('YYYY-MM-DD'),
-    },
-    methods: {
-      getCobradores() {
-        axios.get("/fichas/getcobradores").then((res) => {
-          //console.log(res.data.cobradores);
-          this.cobradores = res.data.cobradores;
-        });
-      },
-      muestraZonas(cobr) {
-        axios.get("/fichas/muestrazonas/" + cobr).then((res) => {
-          //console.log(res.data.zonas)
-          this.zonas = res.data.zonas;
-        });
-      },
-      muestraClientes(tipo,zona) {
-       limpiarTabla('table');
-       this.ultimotipo = tipo
-       this.ultimazona = zona
-       axios.get("/fichas/muestraclientes/"+ tipo +'/'+ zona).then((res) => {
-         // console.log(res.data.clientes)
-         /* nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni */
-         arrayClientes = Array.from(res.data.clientes);
-         arrayClientes.forEach((row) => {
-           row['ultpago'] = dayjs.utc(row['ultpago']).format("YYYY-MM-DD");
-           row['pmovto'] = dayjs.utc(row['pmovto']).format("YYYY-MM-DD");
-           row['ultcompra'] = dayjs.utc(row['ultcompra']).format("YYYY-MM-DD");
-           if (row['fechaintimacion']){
-             row['fechaintimacion'] = dayjs.utc(row['fechaintimacion']).format("YYYY-MM-DD");
-           }
 
-         });
-         const $tbody = document.querySelector("tbody");
-         arrayRows = Array.from($tbody.children);
-         arrayRows.forEach((row) => {
-           if (row.classList.contains("is-selected")) {
-             row.classList.remove("is-selected");
-           }
-         });
-         this.clientes = arrayClientes;
-         this.desde = arrayClientes[0]['pmovto']
-       });
-     },
-     seleccionarRows(){
-       let ids = [];
-       let tbody = table.querySelector("tbody");
-       let rowsArray = Array.from(tbody.rows);
-       rowsArray.forEach((row) => {
-         if (row.classList.contains("is-selected")) {
-           ids.push(row.cells[13].innerHTML);
-           //la celda que corresponda a dni OJO
-         }
-       });
-       // console.log(ids)
-       return ids
-     },
-     intimar() {
-       ids = this.seleccionarRows()
-       axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
-       axios({
-         method: "POST",
-         url: "/fichas/intimar",
-         responseType: "blob",
-         data: ids,
-       }).then((res) => {
-         let url = window.URL.createObjectURL(res.data);
-         window.open(url);
-       });
-     },
-     intimarPdf(){
-       ids = this.seleccionarRows()
-       if(ids.length>0) {
-         idle = ids.length * 10000
-         // console.log(idle)
-         axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
-         Swal.fire({
-                                 title: 'WhatsApp!',
-                                 text: 'Espere mientras se envian las intimaciones!',
-                                 icon: 'warning',
-                                 timer: `${idle}`,
-                                 timerProgressBar: true,
-                                 showConfirmButton: false,
-                                 })
-         axios({
-           method: "POST",
-           url: "/fichas/intimarpdf",
-           data: ids,
-         }).then((res) => {
-           Swal.fire({
-                                 title: 'WhatsApp!',
-                                 text: 'Intimaciones Enviadas',
-                                 icon: 'success',
-                                 timer: 3000,
-                                 })
-         });
-       }else{
-         Swal.fire({
-                                 title: 'WhatsApp!',
-                                 text: 'Seleccione algun/os clientes',
-                                 icon: 'error',
-                                 timer: 3000,
-                                 })
-       }
-     },
-     intimarWhatsapp(){
-       ids = this.seleccionarRows()
-       if(ids.length>0) {
-         idle = ids.length * 10000
-         console.log(idle)
-         axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
-         Swal.fire({
-                                 title: 'WhatsApp!',
-                                 text: 'Espere mientras se envian las intimaciones!',
-                                 icon: 'warning',
-                                 timer: `${idle}`,
-                                 timerProgressBar: true,
-                                 showConfirmButton: false,
-                                 })
-         axios({
-           method: "POST",
-           url: "/fichas/intimarwhatsapp",
-           data: ids,
-         }).then((res) => {
-           Swal.fire({
-                                 title: 'WhatsApp!',
-                                 text: 'Intimaciones Enviadas',
-                                 icon: 'success',
-                                 timer: 3000,
-                                 })
-         });
-       }else{
-         Swal.fire({
-                                 title: 'WhatsApp!',
-                                 text: 'Seleccione algun/os clientes',
-                                 icon: 'error',
-                                 timer: 3000,
-                                 })
-       }
-     },
-     imprimir() {
-       let ids = [];
-       let tbody = table.querySelector("tbody");
-       let rowsArray = Array.from(tbody.rows);
-       rowsArray.forEach((row) => {
-         if (row.classList.contains("is-selected")) {
-           ids.push(row.cells[13].innerHTML);
-           //la celda que corresponda a dni OJO
-         }
-       });
-
-       axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
-       axios({
-         method: "POST",
-         url: "/fichas/imprimir",
-         responseType: "blob",
-         data: ids,
-       }).then((res) => {
-         let url = window.URL.createObjectURL(res.data);
-         window.open(url);
-       });
-     },
-     sendMsgRecordatorio(){
-       ids = this.seleccionarRows()
-       if(ids.length>0) {
-       idle = ids.length * 10000
-       }
-       Swal.fire({
-                                 title: 'WhatsApp!',
-                                 text: 'Espere mientras se envian los whatsapp!',
-                                 icon: 'warning',
-                                 timer: `${idle}`,
-                                 timerProgressBar: true,
-                                 showConfirmButton: false,
-                                 })
-       ids = ids.map(id=>parseInt(id))
-       Clientes = this.clientes.filter(row=>ids.includes(row.dni))
-       axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                           axios({
-                               method: "POST",
-                               url: '/fichas/recordatorioswapp',
-                               data: Clientes
-                           })
-                           .then(res=>{
-                                   Swal.fire({
-                                   title: 'WhatsApp!',
-                                   text: 'Recordatorios enviados',
-                                   icon: 'success',
-                                   timer: 3000,
-                                   })
-                           })
-     },
-     sendMsgProgramado(nombre){
-       ids = this.seleccionarRows()
-       if(ids.length>0) {
-       idle = ids.length * 10000
-       msg = this.listamsgs.filter(row=>row.nombre==nombre)[0]['msg']
-       console.log(msg)
-       }
-       Swal.fire({
-                                 title: 'WhatsApp!',
-                                 text: 'Espere mientras se envian los whatsapp!',
-                                 icon: 'warning',
-                                 timer: `${idle}`,
-                                 timerProgressBar: true,
-                                 showConfirmButton: false,
-                                 })
-       ids = ids.map(id=>parseInt(id))
-       Clientes = this.clientes.filter(row=>ids.includes(row.dni))
-       axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-                           axios({
-                               method: "POST",
-                               url: '/fichas/msgprogramado',
-                               data: {listaclientes:Clientes, msg:msg}
-                           })
-                           .then(res=>{
-                                   Swal.fire({
-                                   title: 'WhatsApp!',
-                                   text: 'Mensajes enviados',
-                                   icon: 'success',
-                                   timer: 3000,
-                                   })
-                           })
-     },
-     seleccionarHasta() {
-       const $tbody = document.querySelector("tbody");
-       arrayRows = Array.from($tbody.children);
-       arrayRows.forEach((row) => {
-         let pmovto = dayjs(row.cells[5].innerHTML).format('YYYY-MM-DD');
-         if (pmovto>=this.desde && pmovto <= this.hasta) {
-           row.classList.add("is-selected");
-         }
-       });
-     },
-     toggleInc(dni){
-       axios.get('/buscador/toggleinc/'+dni)
-       .then(res=>{
-         this.muestraClientes(this.ultimotipo,this.ultimazona)
-         if(this.ultimotipo=="normales") bulmaToast.toast({message:"Movido a Gestion",type:"is-warning"})
-       })
-     },
-     toggleSube(dni){
-       axios.get('/buscador/togglesube/'+dni)
-       .then(res=>{
-         //console.log(res);
-         if (res.data=='No se sube pq ya esta en el seven'){
-         bulmaToast.toast({message:res.data,type:"is-danger"})
+ function main(){
+     return{
+         listaCobradores: [],
+         listaZonas: [],
+         listaClientes: [],
+         listaZonasCobrador:[],
+         zonaactual:'',
+         verZonas: false,
+         zona:'',
+         listazonas:[],
+         listamsgs:[],
+         ultimazona:'',
+         cntSeleccionados:'',
+         ultimotipo:'',
+         hasta:dayjs.utc().format('YYYY-MM-DD'),
+         desde:dayjs.utc().format('YYYY-MM-DD'),
+         getCobradores() {
+             axios.get("/fichas/getcobradores").then((res) => {
+                 this.listaCobradores = res.data.cobradores;
+             });
+         },
+         muestraZonas(cobr) {
+             axios.get("/fichas/muestrazonas/" + cobr).then((res) => {
+                 this.listaZonasCobrador = res.data.zonas;
+             });
+         },
+         muestraClientes(tipo,zona) {
+             limpiarTabla('table');
+             this.cntSeleccionados = 0
+             this.ultimotipo = tipo
+             this.ultimazona = zona
+             axios.get("/fichas/muestraclientes/"+ tipo +'/'+ zona).then((res) => {
+                 /* nombre,calle,num,ultpago,pmovto,sev,novendermas,gestion,mudo,incobrable,dni */
+                 this.listaClientes = res.data.clientes;
+                 this.listaClientes.map(row=>{
+                     row.ultpago = dayjs.utc(row.ultpago).format("YYYY-MM-DD");
+                     row.pmovto = dayjs.utc(row.pmovto).format("YYYY-MM-DD");
+                     row.ultcompra = dayjs.utc(row.ultcompra).format("YYYY-MM-DD");
+                     if (row.fechaintimacion){
+                         row.fechaintimacion = dayjs.utc(row.fechaintimacion).format("YYYY-MM-DD");
+                     }
+                     if (row.fechaultwapp){
+                         row.fechaultwapp = dayjs.utc(row.fechaultwapp).format("YYYY-MM-DD");
+                     }
+                 });
+                 const $tbody = document.querySelector("tbody");
+                 arrayRows = Array.from($tbody.children);
+                 arrayRows.forEach((row) => {
+                     if (row.classList.contains("is-selected")) {
+                         row.classList.remove("is-selected");
+                     }
+                 });
+                 if(this.listaClientes.length>0){
+                     this.desde = this.listaClientes[0].pmovto
+                 }else{
+                     this.desde = dayjs.utc().format('YYYY-MM-DD')
+                 }
+             });
+         },
+         seleccionarRows(){
+             let ids = [];
+             let tbody = table.querySelector("tbody");
+             let rowsArray = Array.from(tbody.rows);
+             rowsArray.forEach((row) => {
+                 if (row.classList.contains("is-selected")) {
+                     ids.push(row.cells[13].innerHTML);
+                     //la columna que corresponda al dni OJO
+                 }
+             });
+             return ids
+         },
+         intimar() {
+             ids = this.seleccionarRows()
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
+             axios.post("/fichas/intimar",ids,{responseType: "blob"})
+                  .then((res) => {
+                      let url = window.URL.createObjectURL(res.data);
+                      window.open(url);
+                  });
+         },
+         intimarPdf(){
+             ids = this.seleccionarRows()
+             if(ids.length>0) {
+                 idle = ids.length * 12000
+                 axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
+                 msgWarning('Paciencia...','Espere mientras se envian las intimaciones!',timer=idle)
+                 axios.post("/fichas/intimarpdf",ids)
+                      .then((res) => {
+                          msgSuccess('Exito!','Intimaciones enviadas')
+                      });
              }else{
-               this.muestraClientes(this.ultimotipo,this.ultimazona)
+                 msgError('Error', 'Seleccione algun/os cliente/s')
              }
-       })
+         },
+         intimarWhatsapp(){
+             ids = this.seleccionarRows()
+             if(ids.length>0) {
+                 idle = ids.length * 12000
+                 axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
+                 msgWarning('Paciencia...','Espere mientras se envian las intimaciones!')
 
-     },
-     toggleGestion(dni){
-       axios.get('/buscador/togglegestion/'+dni)
-       .then(res=>{
-         this.muestraClientes(this.ultimotipo,this.ultimazona)
-          if(this.ultimotipo=="normales") bulmaToast.toast({message:"Movido a Gestion",type:"is-warning"})
-        })
-      },
-      toggleMudo(dni){
-        axios.get('/buscador/togglemudo/'+dni)
-        .then(res=>{
-          this.muestraClientes(this.ultimotipo,this.ultimazona)
-          if(this.ultimotipo=="normales") bulmaToast.toast({message:"Movido a Gestion",type:"is-warning"})
-        })
-      },
-      toggleLN(dni){
-        axios.get('/buscador/togglenvm/'+dni)
-        .then(res=>{
-         this.muestraClientes(this.ultimotipo,this.ultimazona)
-        })
-      },
-      cargarZonas(){
-        axios.get('/fichas/getzonas')
-            .then(res=>{
-                this.listazonas=res.data.zonas
-                //console.log(this.listazonas)
-            })
-      },
-      cargarMsgs(){
-        axios.get('/fichas/getmsgs')
-        .then(res=>{
-          this.listamsgs = res.data.msgs
-          console.log(this.listamsgs)
-        })
-      },
-      cambiarZona(zona){
-        let ids = [];
-        let tbody = table.querySelector("tbody");
-        let rowsArray = Array.from(tbody.rows);
-        rowsArray.forEach((row) => {
-          if (row.classList.contains("is-selected")) {
-            ids.push(row.cells[8].innerHTML);
-            //la celda que corresponda a dni OJO
-          }
-        });
-        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-        axios({
-          method:'POST',
-          url:'/fichas/cambiarzona/'+zona,
-          data:ids,
-        })
-        .then(res=>{
-          this.muestraClientes(this.ultimotipo,this.ultimazona)
-          bulmaToast.toast({message:"Zona cambiada",type:"is-success"})
-        })
-        .catch(error=>{
-          bulmaToast.toast({message:error.request.response,type:"is-danger"})
-        })
-      },
-    },
-    created: function () {
-      this.getCobradores();
-      this.cargarZonas();
-      this.cargarMsgs();
-    },
-  });
+
+                 axios.post("/fichas/intimarwhatsapp",ids)
+                      .then((res) => {
+                          msgSuccess('Exito','Intimaciones Enviadas')
+                      });
+             }else{
+                 msgError('Error', 'Seleccione algun/os cliente/s')
+             }
+         },
+         imprimir() {
+             let ids = this.seleccionarRows()
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
+                 axios.post("/fichas/imprimir",ids,{responseType: "blob"})
+                      .then((res) => {
+                          let url = window.URL.createObjectURL(res.data);
+                          window.open(url);
+                      });
+         },
+         sendMsgRecordatorio(){
+             ids = this.seleccionarRows()
+             if(ids.length>0) {
+                 idle = ids.length * 12000
+             }
+             msgWarning('Paciencia...','Espere mientras se envian las intimaciones!',timer=idle)
+             ids = ids.map(id=>parseInt(id))
+             Clientes = this.listaClientes.filter(row=>ids.includes(row.dni))
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/fichas/recordatorioswapp',Clientes)
+                                                                 .then(res=>{
+                                                                     msgSuccess('Exito','Recordatorios enviados')
+                                                                 })
+         },
+         sendMsgProgramado(nombre){
+             ids = this.seleccionarRows()
+             if(ids.length>0) {
+                 idle = ids.length * 12000
+                 msg = this.listamsgs.filter(row=>row.nombre==nombre)[0].msg
+             }
+             msgWarning('Paciencia...','Espere mientras se envian las intimaciones!',timer=idle)
+             ids = ids.map(id=>parseInt(id))
+             Clientes = this.listaClientes.filter(row=>ids.includes(row.dni))
+             data = {listaclientes:Clientes, msg:msg}
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/fichas/msgprogramado',data)
+                                                                 .then(res=>{
+                                                                     msgSuccess('Exito','Mensajes Enviados')
+                                                                 })
+         },
+         seleccionarHasta() {
+             const $tbody = document.querySelector("tbody");
+             arrayRows = Array.from($tbody.children);
+             arrayRows.forEach((row) => {
+                 if(row.nodeName!='TEMPLATE') {
+                     let pmovto = dayjs(row.cells[5].innerHTML).format('YYYY-MM-DD');
+                     // OJO la columna del pmovto
+                     if (pmovto>=this.desde && pmovto <= this.hasta) {
+                         row.classList.add("is-selected");
+                     }
+                 }
+             });
+             this.cntSeleccionados = this.cuentaSeleccionados().length
+         },
+         cargarMsgs(){
+             axios.get('/fichas/getmsgs')
+                  .then(res=>{
+                      this.listamsgs = res.data.msgs
+	              })
+         },
+         cambiarZona(zona){
+             let ids = this.seleccionarRows()
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/fichas/cambiarzona/'+zona,ids)
+                                                                 .then(res=>{
+                                                                     this.muestraClientes(this.ultimotipo,this.ultimazona)
+                                                                     msgSuccess("Zona cambiada")
+                                                                 })
+                                                                 .catch(error=>{
+                                                                     msgError(error.request.response)
+                                                                 })
+         },
+         cuentaSeleccionados(){
+             let arraySeleccionados = []
+			 const $tbody = document.querySelector("tbody");
+        	 arrayRows = Array.from($tbody.children);
+        	 arrayRows.forEach((row) => {
+                 if(row.classList.contains('is-selected')){
+                     arraySeleccionados.push(row.cells[13].innerHTML)
+                     //OJO la celda de los DNI pq lo usa imprimir
+             }})
+             return arraySeleccionados
+         },
+         eventTable(){
+             document.addEventListener('click',()=>{
+                 if(event.target.tagName=='TD'){
+                     setTimeout(()=>{
+                         this.cntSeleccionados=this.cuentaSeleccionados().length
+                     },100)
+             }})
+             document.addEventListener('mouseover',()=>{
+                 setTimeout(()=>{
+                     this.cntSeleccionados=this.cuentaSeleccionados().length
+                 },100)
+             })
+
+         },
+         limpiarToggles(nivel){
+             $btnZonas = document.getElementById('btnZonas')
+             Array.from($btnZonas.children).slice(1).forEach(btn=>{
+                 btn.classList.remove('is-link')
+             });
+             if(nivel=='zonas') return
+             $btnCobradores = document.getElementById('btnCobradores')
+             Array.from($btnCobradores.children).slice(1).forEach(btn=>{
+                 btn.classList.remove('is-link')
+             })
+         },
+ }};
+
 </script>
 {% endblock %}

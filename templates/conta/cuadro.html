@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Cuadro Mensual{% endblock %}
+
+{% block content %}
+
+<div x-data="main()" class="container" x-init="obtenerListaMeses();obtenerDatos(dayjs().format('YYYY-MM'))">
+  <div class="block">
+    <a href="/conta" class="button">Asientos</a>
+    <a href="/conta/cuentas" class="button">Cuentas</a>
+  </div>
+
+  <div class="columns">
+    <div class="column is-7">
+      <h1 style="width:70%;" class="title is-size-1">Cuadro Mensual</h1>
+    </div>
+  </div>
+
+  <div class="columns">
+    <div class="column is-6">
+      <div id="btnMeses">
+        <template x-for="mes in listaMeses">
+          <button class="button is-primary is-small mr-1" x-text="mes" @click="obtenerDatos(mes);
+                         limpiarToggles();$event.target.classList.toggle('is-danger')"></button>
+        </template>
+      </div>
+      <div class="mt-5">
+        <table class="table">
+          <h1 class="title is-3" x-text="'Ingresos $'+ingresos"></h1>
+          <thead><tr><th>cuenta</th><th>importe</th></tr></thead>
+          <tbody>
+            <template x-for="item in listaIngresos">
+              <tr>
+                <td x-text="item.cuenta" style="width:250px;"></td>
+                <td x-text="item.imp" class="sumar pesos"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+        <table class="table">
+          <h1 class="title is-3" x-text="'Egresos $'+egresos"></h1>
+          <thead><tr><th>cuenta</th><th>importe</th></tr></thead>
+          <tbody>
+            <template x-for="item in listaEgresos">
+              <tr>
+                <td x-text="item.cuenta" style="width:250px;" :class="item.cuenta=='compras'||item.cuenta=='depositos sorpresa'?'red':''"></td>
+                <td x-text="item.imp" class="sumar pesos"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="column is-6">
+      <canvas id="grafico-estadistica" width="700" height="600"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+ function main(){
+     return {
+         listaResumen:[],
+         listaIngresos:[],
+         listaEgresos:[],
+         ingresos:'',
+         egresos:'',
+         listaMeses:[],
+         cuentasEgresos:[],
+         chart:'',
+         obtenerDatos(mes){
+             axios.get('/conta/obtenerresumenmensual/'+mes)
+                  .then(res=>{
+                      this.listaResumen = res.data.resumen
+                      this.listaIngresos = this.listaResumen.filter(row=>(row.tipo=="ingresos"));
+                      this.listaEgresos = this.listaResumen.filter(row=>(row.tipo=="egresos"));
+                      this.ingresos = this.sumarLista(this.listaIngresos)
+                      this.egresos = this.sumarLista(this.listaEgresos)
+                      this.calculoEgresos(this.listaEgresos)
+                      this.graficarDatos()
+                  })
+         },
+         calculoEgresos(lista){
+             let gastos = Math.abs(this.egresos)
+             let noUsado = this.ingresos - Math.abs(this.egresos)
+             this.cuentasEgresos=[gastos, noUsado]
+         },
+         obtenerListaMeses(){
+             for(let i=0;i<12;i++){
+                 this.listaMeses.push(dayjs().subtract(i,'M').format('YYYY-MM'))
+             }
+         },
+         sumarLista(lista){
+             let suma = 0
+             for(let item of lista){
+                 suma += Number(item.imp)
+             }
+             return suma
+         },
+         graficarDatos(){
+             if(this.chart!='')this.chart.destroy()
+             const canvas = document.getElementById('grafico-estadistica').getContext('2d');
+             this.chart = new Chart(canvas, {
+                 type: 'doughnut',
+                 data: {
+                     labels: [
+                         'Gastos',
+                         'No Usado'
+                     ],
+                     datasets: [{
+                         label: 'Uso del ingreso',
+                         data: this.cuentasEgresos,
+                         backgroundColor: [
+                             'rgb(255, 99, 132)',
+                             'rgb(66, 135, 245)',
+                         ],
+                         hoverOffset: 4
+                     }]
+                 }
+             })
+         },
+         limpiarToggles() {
+             $btnMeses = document.getElementById('btnMeses')
+             Array.from($btnMeses.children).slice(1).forEach(btn => {
+                 btn.classList.remove('is-danger')
+             })
+         },
+     }
+ }
+
+</script>
+{% endblock %}

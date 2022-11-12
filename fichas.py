@@ -46,10 +46,9 @@ def fichas_muestraclientes(tipo,zona):
     elif tipo=='morosos':
         clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and pmovto<=date_sub(curdate(),interval 60 day) and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  order by pmovto")
     elif tipo=='vender':
-        clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and pmovto>=curdate() and deuda>0 and deuda<=cuota and sev=0 and novendermas=0 and gestion=0 and mudo=0 and incobrable=0  order by zona,calle,num")
+        clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and ultpago>=date_sub(curdate(),interval 40 day) and deuda>0 and deuda<=cuota and sev=0 and novendermas=0 and gestion=0 and mudo=0 and incobrable=0  order by zona,calle,num")
     elif tipo=='cancelados':
         clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and deuda=0  order by ultpago desc")
-    # print(clientes)
     con.close()
     return jsonify(clientes=clientes)
 
@@ -120,7 +119,6 @@ def fichas_intimarwhatsapp():
             send_msg_whatsapp(idcliente, wapp, msg)
             # espero 10 segundos por requerimientos de la  whatsapp api
             #time.sleep(10)
-            #print(dni, wapp, time.time()) # fake send intimation
             # registro la intimacion
             upd = f"update clientes set fechaintimacion=curdate() where dni={dni}"
             cur = con.cursor()
@@ -299,7 +297,11 @@ def fichas_fechador():
 @fichas.route('/fichas/buscacuenta/<int:idvta>')
 def fichas_buscacuenta(idvta):
     con = get_con()
-    cuenta = pgdict(con, f"select nombre, clientes.pmovto as pmovto,asignado from clientes, ventas,zonas where clientes.id=ventas.idcliente and clientes.zona=zonas.zona and ventas.id={idvta}")[0]
+    cuenta = pgdict(con, f"select nombre, clientes.pmovto as pmovto,asignado \
+    from clientes, ventas,zonas where clientes.id=ventas.idcliente and \
+    clientes.zona=zonas.zona and ventas.id={idvta}")
+    if cuenta:
+        cuenta = cuenta[0]
     con.close()
     return jsonify(cuenta=cuenta)
 
@@ -361,7 +363,6 @@ def fichas_getlistado(zona):
 def fichas_getresumen(zona):
     con = get_con()
     resumen = pgdict(con, f"select date_format(ultpago,'%Y') as y, count(*) as cnt from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and ultpago>'2010-01-01' group by y order by y")
-    # print(resumen)
     con.close()
     return jsonify(resumen=resumen)
 
@@ -373,7 +374,6 @@ def fichas_imprimirlistado():
     listadni = d['lista']
     formato = d['formato']
     listado(con, listadni, formato)
-    # print(len(listadni))
     con.close()
     return send_file('/home/hero/listado.pdf')
 
@@ -432,7 +432,6 @@ def fichas_editarasunto():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     upd = f"update asuntos set fecha='{d['fecha']}',tipo='{d['tipo']}',vdor={d['vdor']},asunto='{d['asunto']}' where id={d['id']}"
-    # print(upd)
     cur = con.cursor()
     cur.execute(upd)
     con.commit()

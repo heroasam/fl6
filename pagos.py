@@ -1,24 +1,27 @@
-from flask import Blueprint,render_template,jsonify,make_response, request, send_file,url_for,redirect
-from flask_login import login_required
-from lib import *
-import simplejson as json
-from con import get_con, log
-import pandas as pd
+"""Modulo que responde a todo lo relativo a pagos."""
 import re
-from formularios import *
+from flask import Blueprint, render_template, jsonify, make_response,\
+     request, send_file, url_for, redirect
+from flask_login import login_required
+import pandas as pd
+import simplejson as json
 import mysql.connector
+from lib import *
+from con import get_con, log, engine
+from formularios import *
 
 pagos = Blueprint('pagos',__name__)
 
-    
 @pagos.route('/loterbo')
 @login_required
 def loterbo_():
     return render_template("pagos/loterbo.html" )
 
 
-@pagos.route('/loterbo/guardarlote/<string:fecha>/<string:cobr>', methods = ['POST'])
-def guardarlote(fecha,cobr):
+@pagos.route('/loterbo/guardarlote/<string:fecha>/<string:cobr>',\
+             methods=['POST'])
+def guardarlote(fecha, cobr):
+    """Guarda lote de recibos."""
     con = get_con()
     listarbos = json.loads(request.data.decode("UTF-8"))
     cnt = len(listarbos)
@@ -26,7 +29,7 @@ def guardarlote(fecha,cobr):
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
-    idlote = pgonecolumn(con, f"select max(id) from loterbos")
+    idlote = pgonecolumn(con, "select max(id) from loterbos")
     for rbo in listarbos:
         ins = f"insert into rbos(idloterbos,rbo) values({idlote},{rbo})"
         cur.execute(ins)
@@ -36,7 +39,8 @@ def guardarlote(fecha,cobr):
     return jsonify(idlote=idlote)
 
 
-@pagos.route('/loterbo/imprimir/<string:fecha>/<string:cobr>/<int:idlote>', methods = ['POST'])
+@pagos.route('/loterbo/imprimir/<string:fecha>/<string:cobr>/<int:idlote>',\
+             methods=['POST'])
 def loterbo_imprimir(fecha,cobr,idlote):
     con = get_con()
     listarbo = json.loads(request.data.decode("UTF-8"))
@@ -44,6 +48,8 @@ def loterbo_imprimir(fecha,cobr,idlote):
 
     estimado = pgdict(con, f"select date_format(pmovto,'%Y-%m') as periodo,sum(cuota) as cuotas from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%' and asignado={cobr} group by periodo having periodo=date_format(curdate(),'%Y-%m')")[0]
     cobrado = pgonecolumn(con, f"select sum(imp+rec) from pagos where cobr={cobr} and date_format(fecha,'%Y-%m')=date_format(curdate(),'%Y-%m')")
+    if cobrado is None:
+        cobrado = 0
     loterbo(con, listarbo,fecha,cobr,idlote, estimado['cuotas'], cobrado)
     con.close()
     return send_file('/home/hero/loterbo.pdf')
@@ -52,8 +58,11 @@ def loterbo_imprimir(fecha,cobr,idlote):
 def loterbo_reimprimir(fecha,cobr,idlote):
     con = get_con()
     listarbo = pglflat(con, f"select rbo from rbos where idloterbos={idlote}")
-    print(listarbo)
-    loterbo(con, listarbo, fecha,cobr,idlote)
+    estimado = pgdict(con, f"select date_format(pmovto,'%Y-%m') as periodo,sum(cuota) as cuotas from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%' and asignado={cobr} group by periodo having periodo=date_format(curdate(),'%Y-%m')")[0]
+    cobrado = pgonecolumn(con, f"select sum(imp+rec) from pagos where cobr={cobr} and date_format(fecha,'%Y-%m')=date_format(curdate(),'%Y-%m')")
+    if cobrado is None:
+        cobrado = 0
+    loterbo(con, listarbo, fecha,cobr,idlote,estimado['cuotas'],cobrado)
     con.close()
     return send_file('/home/hero/loterbo.pdf')
 
@@ -61,10 +70,16 @@ def loterbo_reimprimir(fecha,cobr,idlote):
 @pagos.route('/loterbo/ver')
 @login_required
 def loterbo_ver():
+    return render_template("pagos/loterbover.html")
+
+
+@pagos.route('/loterbo/getlistalotesrbo')
+def loterbo_getlistalotesrbo():
     con = get_con()
-    lotesrbo = pgddict(con,f"select id,fecha,cobr,cnt from loterbos order by id desc limit 100")
+    lotesrbo = pgdict(con,f"select id,fecha,cobr,cnt from loterbos order by id desc limit 100")
     con.close()
-    return render_template("pagos/loterbover.html", lotesrbo=lotesrbo )
+    return jsonify(listalotesrbo=lotesrbo)
+
 
 @pagos.route('/loterbo/delete/<string:id>')
 def loterbo_delete(id):
@@ -90,15 +105,13 @@ def pagos_():
     return render_template("pagos/pagos.html")
 
 
-@pagos.route('/pagos/planilla/<string:fechapago>/<int:cobrador>')
-def pagos_planilla(fechapago, cobrador):
+@pagos.route('/pagos/listado/<string:fechapago>/<int:cobrador>')
+def pagos_listado(fechapago, cobrador):
     con = get_con()
-    sql = f"select pagos.id as id, rbo, fecha, idvta,imp as imp, rec as rec, (imp+rec) as total, nombre, concat(calle,' ',num) as direccion, zona,deuda as deuda from pagos, clientes where clientes.id=pagos.idcliente and fecha='{fechapago}' and pagos.cobr={cobrador} order by id desc"
-    cur = con.cursor(dictionary=True)
-    cur.execute(sql)
-    planilla = cur.fetchall()
+    listado = pgdict(con, f"select pagos.id as id, rbo, fecha, idvta,imp as imp, rec as rec, (imp+rec) as total, nombre, concat(calle,' ',num) as direccion, zona,deuda as deuda from pagos, clientes where clientes.id=pagos.idcliente and fecha='{fechapago}' and pagos.cobr={cobrador} order by id desc")
+    planilla = pgdict(con, f"select * from planillas where fecha='{fechapago}' and idcobr={cobrador}")
     con.close()
-    return jsonify(planilla=planilla)
+    return jsonify(listado=listado, planilla=planilla)
 
 
 @pagos.route('/pagos/buscar/<string:cuenta>')
@@ -147,7 +160,6 @@ def pagos_pasarpagos():
     if(d['rec']==''):
         d['rec']=0
     ins = f"insert into pagos(idvta,fecha,imp,rec,rbo,cobr,idcliente) values({d['idvta']},'{d['fecha']}',{d['imp']},{d['rec']},{d['rbo']},{d['cobr']},{d['idcliente']})"
-    print(ins)
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
@@ -253,6 +265,14 @@ def pagos_obtenerrbo(id):
     return jsonify (reg=reg)
 
 
+@pagos.route('/pagos/obtenernuevonombre/<int:idvta>')
+def pagos_obtenernuevonombre(idvta):
+    con = get_con()
+    idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
+    nombre = pgonecolumn(con, f"select nombre from clientes where id={idcliente}")
+    return jsonify(nombre=nombre)
+
+
 @pagos.route('/pagos/obtenerregrbo/<int:buscar>')
 def pagos_obtenerregrbo(buscar):
     con = get_con()
@@ -301,7 +321,7 @@ def pagos_guardaredicionrbo():
 @pagos.route('/pagos/getzonasasignadas')
 def pagos_getzonasasignadas():
     con = get_con()
-    zonas = pgddict(con, f"select zonas.id as id,zonas.zona as zona,asignado,(select nombre from cobr where cobr.id=asignado) as nombre, count(*) as cnt, sum(cuota) as cuota from zonas,clientes where clientes.zona=zonas.zona and pmovto>=date_sub(curdate(),interval 90 day) and zonas.zona not like '-%' group by zonas.id order by asignado")
+    zonas = pgdict(con, f"select zonas.id as id,zonas.zona as zona,asignado as cobr,(select nombre from cobr where cobr.id=asignado) as nombre, count(*) as cnt, sum(cuota) as cuotas from zonas,clientes where clientes.zona=zonas.zona and pmovto>=date_sub(curdate(),interval 90 day) and zonas.zona not like '-%' group by zonas.id order by asignado")
     con.close()
     return jsonify(zonas=zonas)
 
@@ -316,7 +336,7 @@ def pagos_verzona():
 def pagos_editarasignado():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    upd = f"update zonas set asignado={d['asignado']} where id={d['id']}"
+    upd = f"update zonas set asignado={d['cobr']} where id={d['id']}"
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
@@ -329,7 +349,7 @@ def pagos_editarasignado():
 @pagos.route('/pagos/gettotaleszonas')
 def pagos_gettotaleszonas():
     con = get_con()
-    totales = pgddict(con, f"select asignado,(select nombre from cobr where cobr.id=asignado) as nombre, sum(cuota) as cuota from zonas,clientes where clientes.zona=zonas.zona and pmovto>=date_sub(curdate(),interval 90 day) and zonas.zona not like '-%' group by asignado order by asignado")
+    totales = pgdict(con, f"select asignado as cobr,(select nombre from cobr where cobr.id=asignado) as nombre, sum(cuota) as total from zonas,clientes where clientes.zona=zonas.zona and pmovto>=date_sub(curdate(),interval 90 day) and zonas.zona not like '-%' group by asignado order by asignado")
     con.close()
     return jsonify(totales=totales)
 
@@ -337,96 +357,92 @@ def pagos_gettotaleszonas():
 @pagos.route('/pagos/cobrostotales')
 @login_required
 def pagos_cobrostotales():
-    con = get_con()
-    pd.options.display.float_format = '{:.0f}'.format
+    pd.options.display.float_format = '${:.0f}'.format
     sql="select date_format(fecha,'%Y-%m') as fp,imp+rec as cuota,cobr from pagos where fecha >date_sub(curdate(),interval 365 day)"
     sql1="select date_format(fecha,'%Y-%m') as fp,imp+rec as cuota,pagos.cobr as cobr,zona,(select asignado from zonas where zona=clientes.zona) as asignado from pagos,clientes where clientes.id=pagos.idcliente and fecha >date_sub(curdate(),interval 365 day) and zona not like '-%'"
-    dat = pd.read_sql_query(sql, con)
-    dat1= pd.read_sql_query(sql1,con)
+    dat = pd.read_sql_query(sql, engine)
+    dat1= pd.read_sql_query(sql1,engine)
     df = pd.DataFrame(dat)
     df1 = pd.DataFrame(dat1)
-    tbl = pd.pivot_table(df, values=['cuota'],index='cobr',columns='fp',aggfunc='sum').sort_index(1, 'fp',False)
-    tbl1 = pd.pivot_table(df1, values=['cuota'],index=['asignado','zona'],columns='fp',aggfunc='sum').sort_index(1, 'fp',False)
+    tbl = pd.pivot_table(df, values=['cuota'],index='cobr',columns='fp',aggfunc='sum').sort_index(axis=1, level='fp',ascending=False)
+    tbl1 = pd.pivot_table(df1, values=['cuota'],index=['asignado','zona'],columns='fp',aggfunc='sum').sort_index(axis=1, level='fp',ascending=False)
     tbl = tbl.fillna("")
     tbl1 = tbl1.fillna("")
+    index = tbl.columns.tolist()
     tbl = tbl.to_html(table_id="totales",classes="table")
     tbl1 = tbl1.to_html(table_id="totaleszona",classes="table")
-    con.close()
-    return render_template("pagos/totales.html", tbl=tbl, tbl1=tbl1 )
+    return render_template("pagos/totales.html", tbl=tbl, tbl1=tbl1, index=index )
 
 
 @pagos.route('/pagos/estimados')
 @login_required
 def pagos_estimados():
-    con = get_con()
-    pd.options.display.float_format = '{:.0f}'.format
+    pd.options.display.float_format = '${:.0f}'.format
     sql="select date_format(pmovto,'%Y-%m') as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%'"
     sql1="select date_format(pmovto,'%Y-%m') as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%'"
-    dat = pd.read_sql_query(sql, con)
-    dat1= pd.read_sql_query(sql1,con)
+    dat = pd.read_sql_query(sql, engine)
+    dat1= pd.read_sql_query(sql1,engine)
     df = pd.DataFrame(dat)
     df1 = pd.DataFrame(dat1)
-    tbl = pd.pivot_table(df, values=['cuota'],index='asignado',columns='pmovto',aggfunc='sum').sort_index(1, 'pmovto',False)
-    tbl1 = pd.pivot_table(df1, values=['cuota'],index=['asignado','zona'],columns='pmovto',aggfunc='sum').sort_index(1, 'pmovto',False)
+    tbl = pd.pivot_table(df, values=['cuota'],index='asignado',columns='pmovto',aggfunc='sum').sort_index(axis=1, level='pmovto',ascending=False)
+    tbl1 = pd.pivot_table(df1, values=['cuota'],index=['asignado','zona'],columns='pmovto',aggfunc='sum').sort_index(axis=1, level='pmovto',ascending=False)
     tbl = tbl.fillna("")
+    index = tbl.index.tolist()
     tbl1 = tbl1.fillna("")
-    tbl = tbl.to_html(table_id="totales",classes="table")
-    tbl1 = tbl1.to_html(table_id="totaleszona",classes="table")
-    con.close()
-    return render_template("pagos/estimados.html", tbl=tbl, tbl1=tbl1 ) 
+    tbl = tbl.to_html(table_id="estimados",classes="table")
+    tbl1 = tbl1.to_html(table_id="estimadoszona",classes="table")
+    return render_template("pagos/estimados.html", tbl=tbl, tbl1=tbl1, index=index )
 
 
 @pagos.route('/pagos/comisiones')
 @login_required
 def pagos_comisiones():
-    con = get_con()
     pd.options.display.float_format = '${:.0f}'.format
-    sql="select date_format(fecha,'%Y-%m') as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,816) and fecha>'2018-07-31'"
-    dat = pd.read_sql_query(sql, con)
+    sql="select date_format(fecha,'%Y-%m') as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,802) and fecha>date_sub(curdate(), interval 1 year)"
+    dat = pd.read_sql_query(sql, engine)
     df = pd.DataFrame(dat)
-    tbl = pd.pivot_table(df, values=['comision','cobranza'],index='fecha',columns='cobr',aggfunc='sum').sort_index(0, 'fecha',False)
+    tbl = pd.pivot_table(df, values=['comision'],index='fecha',columns='cobr',aggfunc='sum').sort_index(axis=0, level='fecha',ascending=False)
     tbl = tbl.fillna("")
+    c750 = tbl.iloc[:,0][:12].tolist()
+    c796 = tbl.iloc[:,1][:12].tolist()
+    c800 = tbl.iloc[:,2][:12].tolist()
+    c802 = tbl.iloc[:,3][:12].tolist()
+    c815 = tbl.iloc[:,4][:12].tolist()
+    index = tbl.index[:12].tolist()
     tbl = tbl.to_html(table_id="tablecomisiones",classes="table")
-    con.close()
-    return render_template("pagos/comisiones.html", tbl=tbl )
+    return render_template("pagos/comisiones.html", tbl=tbl,c750=c750,c796=c796,c800=c800,c802=c802,c815=c815,index=index )
 
 
 @pagos.route('/pivot/pagos_cobr')
 def pivot_pagos_cobr():
-    con = get_con()
     sql="select date_format(fecha,'%Y-%m') as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,816) and fecha>'2018-07-31'"
-    dat = pd.read_sql_query(sql, con)
+    dat = pd.read_sql_query(sql, engine)
     df = pd.DataFrame(dat)
     tbl = pd.pivot_table(df, values=['comision','cobranza'],index='fecha',columns='cobr',aggfunc='sum')
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="table",classes="table table-sm")
-    con.close()
     return render_template("pivot_cobr.html", tbl=tbl)
 
 
 @pagos.route('/pivot/retiros')
 def pivot_retiros():
-    con = get_con()
-    sql="select date_format(fecha,'%Y-%m') as fecha, cuenta, imp from caja where cuenta like 'retiro%'"
-    dat = pd.read_sql_query(sql, con)
+    sql="select date_format(fecha,'%Y-%m') as fecha, cuenta, imp from caja where cuenta like 'retiro%' and not like '%capital%' order by fecha desc"
+    dat = pd.read_sql_query(sql, engine)
     df = pd.DataFrame(dat)
-    tbl = pd.pivot_table(df, values='imp',index='fecha',columns='cuenta',aggfunc='sum')
+    tbl = pd.pivot_table(df, values='imp',index='fecha',columns='cuenta',aggfunc='sum').sort_index(axis=1, level='fecha',ascending=False)
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="table",classes="table  table-sm")
-    con.close()
     return render_template("pivot_retiros.html", tbl=tbl)
 
 
 @pagos.route('/pivot/retiros/excel')
 def pivot_retiros_excel():
-    con = get_con()
     sql="select date_format(fecha,'%Y-%m') as fecha, cuenta, imp from caja where cuenta like 'retiro%'"
-    dat = pd.read_sql_query(sql, con)
+    dat = pd.read_sql_query(sql, engine)
     df = pd.DataFrame(dat)
     tbl = pd.pivot_table(df, values='imp',index='fecha',columns='cuenta',aggfunc='sum')
     tbl = tbl.fillna("")
     tbl = tbl.to_excel('retiros.xlsx', index=False)
-    con.close()
     return send_file('retiros.xlsx')
 
 

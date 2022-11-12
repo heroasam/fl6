@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, jsonify, make_response, request, send_file
 from flask_login import login_required
-from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, pglflat
+from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
+    pglflat, log_busqueda
 import simplejson as json
 import re
 from formularios import intimacion, libredeuda, ficha, recibotransferencia
@@ -36,9 +37,10 @@ def buscar_interno_buscar(dni):
 
 @buscador.route('/buscador/<string:buscar>')
 def buscar_cuenta(buscar):
+    print('ingresa buscar',buscar)
     con = get_con()
     rcuenta = r'^[0-9]{5}$'
-    rdni = r'^[0-9]{7,8}$'
+    rdni = r'^[0-9]{6,8}$'
     rid = r'^id[0-9]{4,5}$'
     rwapp = r'^[0-9]{10,15}$'
     if buscar == "-":
@@ -63,21 +65,26 @@ def buscar_cuenta(buscar):
         sql = f"select * from clientes where id={buscar[2:]}"
         error_msg = "idcliente no encontrado"
     else:
-        buscar = re.sub(r'^(\D)', '%'+r'\1', buscar)
+        buscar = re.sub(r'^(\w)', '%'+r'\1', buscar)
+        print(buscar)
         buscar = re.sub(r'(\s)(\D)', '%'+r'\2', buscar)
+        print(buscar)
         buscar = re.sub(r'(\s)(\d)', '% '+r'\2', buscar)
+        print(buscar)
         buscar = re.sub(r'\*', '%', buscar)
+        print(buscar)
         buscar = re.sub(r'(\D)$', r'\1'+'%', buscar)
-        print('cadena busqueda', buscar)
+        print(buscar)
         sql = f"select * from clientes where lower(concat(nombre,calle,acla,' ',num)) like lower('{buscar}') order by calle,num"
-        print('sql', sql)
         error_msg = "no hay respuesta para esa busqueda"
     cur = con.cursor(dictionary=True)
+    print(sql)
     cur.execute(sql)
     clientes = cur.fetchall()
     if len(clientes) == 0:
         return make_response(error_msg, 400)
     con.close()
+    log_busqueda(buscar)
     return jsonify(clientes=clientes)
 
 
@@ -86,7 +93,6 @@ def clientesdireccion(calle, num):
     con = get_con()
     cur = con.cursor(dictionary=True)
     sql = f"select * from clientes where calle='{calle}' and num='{num}'"
-    print("sql clientesdireccion", sql)
     cur.execute(sql)
     clientes = cur.fetchall()
     con.close()
@@ -363,34 +369,37 @@ def busca_guardaredicioncliente(idcliente):
 @buscador.route('/buscador/obtenerlistadocalles')
 def buscar_obtenerlistadocalles():
     con = get_con()
-    sql = "select calle from calles order by calle"
-    cur = con.cursor(dictionary=True)
-    cur.execute(sql)
-    calles = cur.fetchall()
+    # sql = "select calle from calles order by calle"
+    # cur = con.cursor(dictionary=True)
+    # cur.execute(sql)
+    # calles = cur.fetchall()
+    calles = pglflat(con, "select calle from calles order by calle")
     con.close()
-    return jsonify(calles=calles)
+    return jsonify(result=calles)
 
 
 @buscador.route('/buscador/obtenerlistabarrios')
 def buscar_obtenerlistabarrios():
     con = get_con()
-    sql = "select barrio from barrios order by barrio"
-    cur = con.cursor(dictionary=True)
-    cur.execute(sql)
-    barrios = cur.fetchall()
+    # sql = "select barrio from barrios order by barrio"
+    # cur = con.cursor(dictionary=True)
+    # cur.execute(sql)
+    # barrios = cur.fetchall()
+    barrios = pglflat(con,"select barrio from barrios order by barrio")
     con.close()
-    return jsonify(barrios=barrios)
+    return jsonify(result=barrios)
 
 
 @buscador.route('/buscador/obtenerlistazonas')
 def buscar_obtenerlistazonas():
     con = get_con()
-    sql = "select zona from zonas order by zona"
-    cur = con.cursor(dictionary=True)
-    cur.execute(sql)
-    zonas = cur.fetchall()
+    # sql = "select zona from zonas order by zona"
+    # cur = con.cursor(dictionary=True)
+    # cur.execute(sql)
+    # zonas = cur.fetchall()
+    zonas = pglflat(con,"select zona from zonas order by zona")
     con.close()
-    return jsonify(zonas=zonas)
+    return jsonify(result=zonas)
 
 
 @buscador.route('/buscador/obtenercobradores')
@@ -459,7 +468,6 @@ def buscador_intimar():
 
 @buscador.route('/buscador/intimar/nowapp/<dni>')
 def buscador_intimar_nowapp(dni):
-    print(dni)
     con = get_con()
     intimacion(con, dni)
     return send_file(f'/home/hero/intimacion{dni}.pdf')
@@ -514,7 +522,7 @@ def buscador_cargarasunto():
 def buscador_obtenerlistacalles():
     con = get_con()
     calles = pglflat(con, 'select calle from calles order by calle')
-    return jsonify(calles=calles)
+    return jsonify(result=calles)
 
 
 @buscador.route('/buscador/mostrarcalle/<string:calle>')

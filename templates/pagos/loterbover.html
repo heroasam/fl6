@@ -4,49 +4,90 @@
 
 {% block content %}
 
-<div class="container">
+<div class="container" x-data="main()" x-init="getListaLotesRbos()">
 
-    <p class="title is-1">Listado de Lote de Rbos</p>
 
-    <div class="buttons">
-        <a href="/pagos" class="button is-primary">Pagos</a>
-        <a href="/pagos/verplanillas" class="button is-primary">Planillas</a>
-        <a href="/loterbo" class="button is-primary">Registrar Lote Rbos</a>
-        <a href="/pagos/editarrbo" class="button is-primary">Editar Rbo</a>
-        <a href="/pagos/verzona" class="button is-primary">Ver Zona</a>
-        <a href="/pagos/cobrostotales" class="button is-primary">Totales</a>
-        <a href="/pagos/estimados" class="button is-primary">Estimados</a>
-        <a href="/pagos/comisiones" class="button is-primary">Comisiones</a>
-        <a href="/pagos/altas" class="button is-primary">Altas</a>
-        <a href="/pagos/bajas" class="button is-primary">Bajas</a>
-      </div>
+  <div class="buttons">
+    <a href="/pagos" class="button is-primary">Pagos</a>
+    <a href="/pagos/verplanillas" class="button is-primary">Planillas</a>
+    <a href="/loterbo" class="button is-primary">Registrar Lote Rbos</a>
+    <a href="/pagos/editarrbo" class="button is-primary">Editar Rbo</a>
+    <a href="/pagos/verzona" class="button is-primary">Ver Zona</a>
+    <a href="/pagos/cobrostotales" class="button is-primary">Totales</a>
+    <a href="/pagos/estimados" class="button is-primary">Estimados</a>
+    <a href="/pagos/comisiones" class="button is-primary">Comisiones</a>
+    <a href="/pagos/altas" class="button is-primary">Altas</a>
+    <a href="/pagos/bajas" class="button is-primary">Bajas</a>
+  </div>
 
-<table class="table table-striped nototal" id="table">
+  <p class="title is-1">Listado de Lote de Rbos</p>
+
+  <table class="table table-striped nototal" id="table">
     <thead>
-        <tr>
-            <th>Id</th>
-            <th>fecha</th>
-            <th>cobr</th>
-            <th>cnt</th>
-            <th>oper.</th>
-            <th>oper.</th>
-        </tr>
+      <tr>
+        <th>Id</th>
+        <th>fecha</th>
+        <th>cobr</th>
+        <th>cnt</th>
+        <th>oper.</th>
+        <th>oper.</th>
+      </tr>
     </thead>
     <tbody>
-        {% if lotesrbo != None %}
-        {% for lr in lotesrbo %}
+      <template x-for="lote in listaLotesRbos">
         <tr>
-        <td>{{ lr[0] }}</td>
-        <td>{{ lr[1] }}</td>
-        <td>{{ lr[2] }}</td>
-        <td>{{ lr[3] }}</td>
-        <td><a href="/loterbo/delete/{{lr[0]}}" class="button is-danger is-small">Borrar</a></td>
-        <td><a href="/loterbo/reimprimir/{{lr[1]}}/{{lr[2]}}/{{lr[0]}}" class="button is-success is-small">Imprimir</a></td>
+          <td x-text="lote.id"></td>
+          <td x-text="lote.fecha"></td>
+          <td x-text="lote.cobr"></td>
+          <td x-text="lote.cnt"></td>
+          <td><i class="fa fa-print" aria-hidden="true" @click="imprimirLoteRbo(lote.id,lote.fecha,lote.cobr)"></td>
+          <td><i class="fa fa-times" aria-hidden="true" @click="borrarLoteRbo(lote.id)"></td>
         </tr>
-        {% endfor %}
-        {% endif %}
+      </template>
     </tbody>
-</table>
+  </table>
 
 </div>
+{% endblock %}
+{% block script %}
+<script>
+ function main(){
+     return{
+         listaLotesRbos:[],
+         getListaLotesRbos(){
+             axios.get('/loterbo/getlistalotesrbo')
+                  .then(res=>{
+                      this.listaLotesRbos = res.data.listalotesrbo
+                      this.listaLotesRbos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      console.log( this.listaLotesRbos)
+                  })
+         },
+         borrarLoteRbo(id){
+            Swal.fire({
+            title: '¿Esta seguro?',
+            text: `Se borrara el Lote ${id}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, borrarlo!'
+            }).then((result) => {
+            if (result.isConfirmed) {
+                axios.get('/loterbo/delete/'+id)
+                     .then(res=>{
+                         msgSuccess('Borrado!','El lote ha sido borrado')
+                         this.getListaLotesRbos()})
+                     .catch(error=>msgError('No se pudo borrar. Hubo un error.'))
+            }})
+         },
+         imprimirLoteRbo(id,fecha,cobr){
+             axios.get('/loterbo/reimprimir/'+fecha+'/'+cobr+'/'+id, {responseType:"blob"})
+                  .then(res=>{
+                      let url = window.URL.createObjectURL(res.data);
+          		      window.open(url);
+                  })
+         },
+     }
+ }
+</script>
 {% endblock %}

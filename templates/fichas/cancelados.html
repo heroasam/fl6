@@ -1,146 +1,122 @@
 {% extends "base.html" %} {% block title %}Cancelados{% endblock %} {%
 block style %}
 <style>
-.micard {
-    padding: 24px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 6px 0px 10px gray ;
-}
-.modal-container{
-        width: 100vw;
-        height: 100vh;
-        position: fixed;
-        left: 0;
-        top: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: rgba(0,0,0,0.3);
-}
-.modal{
-    display:flex;
-    flex-direction: column;
-    position: relative;
-}
-.btn-close{
-    color:purple;
-    background-color: white;
-    border: none;
-    position: absolute;
-    top: 0;
-    right: 0;
-}
-[v-cloak]{
-	display:none;
-}
 </style>
 {% endblock %} {% block content %}
 
-<div id="app" class="container" v-cloak>
-	<p class="title is-1">Cancelados</p>
-    <div class="buttons">
-        <a href="/fichas" class="button is-primary">Fichas</a>
-        <a href="/fichas/fechador" class="button is-primary">Fechador</a>
-        <a href="/fichas/listado" class="button is-primary">Listado</a>
-        <a href="/fichas/cobradores" class="button is-primary">Cobradores</a>
-		<a href="/fichas/mudados" class="button is-primary">Mudados</a>
-      </div>
-	  <label for="desde" class="my-2">Desde</label>
-	  <input type="date" name="desde" v-model="desde" class="input" style="width:150px;" />
-	  <label for="hasta">Hasta</label>
-	  <input type="date" name="hasta" v-model="hasta" class="input" style="width:150px;" />
-	  <button class="button is-success" @click="seleccionar()">Seleccionar</button>
-	  <button class="button is-success" @click="imprimir()">Imprimir</button>
-<div>
-	<table class="table nototal">
-		<thead>
-			<tr>
-				<th>UltPago</th>
-				<th>Nombre</th>
-				<th>Calle</th>
-				<th>Num</th>
-				<th>Zona</th>
-				<th>Tel</th>
-				<th>Wapp</th>
-				<th>DNI</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr v-for= "cancelado in cancelados">
-				<td>|cancelado.ultpago|</td>
-				<td>|cancelado.nombre|</td>
-				<td>|cancelado.calle|</td>
-				<td>|cancelado.num|</td>
-				<td>|cancelado.zona|</td>
-				<td>|cancelado.tel|</td>
-				<td>|cancelado.wapp|</td>
-				<td>|cancelado.dni|</td>
-			</tr>
-			
-			<input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
-		</tbody>
+<div class="container" x-data="main()" x-init="getCancelados()">
+  <div class="buttons">
+    <a href="/fichas" class="button is-primary">Fichas</a>
+    <a href="/fichas/fechador" class="button is-primary">Fechador</a>
+    <a href="/fichas/listado" class="button is-primary">Listado</a>
+    <a href="/fichas/cobradores" class="button is-primary">Cobradores</a>
+  </div>
+  <p class="title is-1">Cancelados</p>
+
+  <div class="block">
+    <span class="tag is-small is-black"  x-show="cntSeleccionados" x-text="cntSeleccionados"></span>
+    <label for="desde" class="text-big">Desde</label>
+    <input type="date" name="desde" x-model="desde" class="input" style="width:150px;"
+           :class="darkTheme?'input-dark':''"/>
+    <label for="hasta" class="text-big">Hasta</label>
+    <input type="date" name="hasta" x-model="hasta" class="input" style="width:150px;"
+           :class="darkTheme?'input-dark':''"/>
+    <button class="button" @click="seleccionar()">Seleccionar</button>
+    <button class="button is-danger" @click="imprimir()">Imprimir</button>
+  </div>
+
+  <div>
+	<table class="table nototal" id="table" x-init="eventTable()">
+	  <thead>
+		<tr>
+		  <th>UltPago</th>
+		  <th>Nombre</th>
+		  <th>Calle</th>
+		  <th>Num</th>
+		  <th>Zona</th>
+		  <th>Tel</th>
+		  <th>Wapp</th>
+		  <th>DNI</th>
+		</tr>
+	  </thead>
+	  <tbody>
+        <template x-for= "cancelado in listaCancelados">
+		  <tr>
+			<td x-text="cancelado.ultpago"></td>
+			<td x-text="cancelado.nombre"></td>
+			<td x-text="cancelado.calle"></td>
+			<td x-text="cancelado.num"></td>
+			<td x-text="cancelado.zona"></td>
+			<td x-text="cancelado.tel"></td>
+			<td x-text="cancelado.wapp"></td>
+			<td x-text="cancelado.dni"></td>
+		  </tr>
+		</template>
+		<input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+	  </tbody>
 	</table>
-</div>	
-</div>	  
+  </div>
+</div>
 {% endblock %} {% block script %}
 <script>
-	const app = new Vue({
-		el: '#app',
-		delimiters: ['|', '|'],
-		data: {
-			cancelados:[],
-			desde:'',
-			hasta:'',
-		},
-		methods: {
-			getCancelados(){
-				axios.get('/fichas/getcancelados')
-				.then(res=>{
-					this.cancelados=res.data.cancelados
-					this.cancelados.map(row=>{row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD')})
-					//console.log(res.data.cancelados)
-					this.hasta=res.data.max_ultpago
-					this.hasta = dayjs.utc(this.hasta).format('YYYY-MM-DD')
-				})
-			},
-			seleccionar(){
-				const $tbody = document.querySelector("tbody");
-        		arrayRows = Array.from($tbody.children);
-        		arrayRows.forEach((row) => {
-          			let ultpago = dayjs(row.cells[0].innerHTML).format('YYYY-MM-DD');
-          		if (ultpago>=this.desde && ultpago <= this.hasta) {
-            		row.classList.add("is-selected");
-          		}
-        		});
-			},
-			imprimir() {
-        		let ids = [];
-        		let tbody = document.querySelector("tbody");
-        		let rowsArray = Array.from(tbody.rows);
-        		rowsArray.forEach((row) => {
-          			if (row.classList.contains("is-selected")) {
-            			ids.push(row.cells[7].innerHTML);
-            			//la celda que corresponda a dni OJO
-          			}
-        		});
- 
-        		axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
-        		axios({
-          			method: "POST",
-          			url: "/fichas/imprimircancelados",
-          			responseType: "blob",
-          			data: ids,
-        			}).then((res) => {
-          			let url = window.URL.createObjectURL(res.data);
-          			window.open(url);
-        	});	
-		},
 
-		},
-		created: function(){
-			this.getCancelados()
-    },
-	});
+ function main(){
+     return{
+		 listaCancelados:[],
+		 desde:'',
+		 hasta:'',
+         cntSeleccionados:'',
+		 getCancelados(){
+			 axios.get('/fichas/getcancelados')
+				  .then(res=>{
+					  this.listaCancelados=res.data.cancelados
+					  this.listaCancelados.map(row=>{row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD')})
+					  this.hasta=res.data.max_ultpago
+					  this.hasta = dayjs.utc(this.hasta).format('YYYY-MM-DD')
+				  })
+		 },
+		 seleccionar(){
+			 const $tbody = document.querySelector("tbody");
+        	 arrayRows = Array.from($tbody.children);
+        	 arrayRows.forEach((row) => {
+                 if(row.tagName=='TR'){
+          			 let ultpago = dayjs(row.cells[0].innerHTML).format('YYYY-MM-DD');
+          		     if (ultpago>=this.desde && ultpago <= this.hasta) {
+            		     row.classList.add("is-selected");
+          		     }
+                 }
+        	 });
+             this.cntSeleccionados = this.cuentaSeleccionados().length
+		 },
+         cuentaSeleccionados(){
+             let arraySeleccionados = []
+			 const $tbody = document.querySelector("tbody");
+        	 arrayRows = Array.from($tbody.children);
+        	 arrayRows.forEach((row) => {
+                 if(row.classList.contains('is-selected')){
+                     arraySeleccionados.push(row.cells[7].innerHTML)
+                     //OJO la celda de los DNI pq lo usa imprimir
+             }})
+             return arraySeleccionados
+         },
+		 imprimir() {
+        	 let ids = this.cuentaSeleccionados();
+        	 axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
+        		 axios.post("/fichas/imprimircancelados",ids,{responseType: "blob"})
+        		      .then((res) => {
+          			      let url = window.URL.createObjectURL(res.data);
+          			      window.open(url);
+        	          });
+		 },
+         eventTable(){
+             const table = document.getElementById('table')
+             table.addEventListener('click',()=>{
+                 if(event.target.tagName=='TD'){
+                     setTimeout(()=>{
+                         this.cntSeleccionados=this.cuentaSeleccionados().length
+                     },100)
+             }})
+         },
+ }};
 </script>
 {% endblock %}

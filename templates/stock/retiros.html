@@ -5,7 +5,6 @@
 {% block content %}
 
 <div class="container">
-    <p class="title is-1">Retiro Socios</p>
 
 <div class="block">
   <a href="/stock/asientos"  type="button" class="button is-primary">Asientos</a>
@@ -17,63 +16,127 @@
     <a href="/stock/articulos"  type="button" class="button is-primary">Articulos</a>
     <a href="/stock/proveedores"  type="button" class="button is-primary">Proveedores</a>
     <a href="/stock/cuentas"  type="button" class="button is-primary">Cuentas</a>
+    <a href="/stock/cuadro"  type="button" class="button is-primary">Cuadro</a>
 </div>
 
-{{tbl|safe}}
-
+<p class="title is-1">Retiro Socios</p>
+<div  x-data="main()" x-init="getGrafico();getGraficoPie()">
+  <div class="columns">
+    <div class="column is-10">
+        {{tbl|safe}}
+    </div>
+  </div>
+  <div class="columns">
+    <div class="column is-6">
+      <div class="box">
+        <canvas id="grafico-estadistica" width="400" height="200"></canvas>
+      </div>
+    </div>
+    <div class="column is-4">
+      <div class="box">
+        <canvas id="grafico-estadistica1" width="200" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
 </div>
 {% endblock %}
 
 {% block script %}
 <script>
- /* const totalizar1 = (tableId)=>{
-  *  let tbody = tableId.querySelector('tbody');
-  *  let rowsArray = Array.from(tbody.rows);
-  *  let rowIndex=[];
-  *  rowsArray.forEach((row)=>{
-  *      if(row.classList.contains('is-selected')) {
-  *          rowIndex.push(row.rowIndex-1)
-  *          //hago factor 1 pq se eliminan las filas sobrantes y se deja 1
-  *          //console.log(row);
-  *      }
-  *  });
-  *  let maxRow = Math.max(...rowIndex)+1;
-  *  let $rowTotal = tbody.insertRow(maxRow);
-  *  let $cell0 = $rowTotal.insertCell(0);
-  *  $cell0.innerHTML = "SubTotal";
-  *  $rowTotal.classList.add('subtotal');
+ const table = document.getElementById('retiros')
+ const thead = table.querySelector('thead')
+ const tr = thead.children
+ const ths = tr[0].children
+ ths[5].innerText = "Bancos"
+ ths[6].innerText = "Efectivo"
+ const tbody = table.querySelector('tbody')
+ const arrayRows = Array.from(tbody.rows)
+ arrayRows.forEach(row=>{
+     if(row.rowIndex>2){
+         row.cells[5].innerText=""
+         row.cells[6].innerText=""
+     }
+ })
+ function main(){
+     return{
+         totfede:'',
+         totpapi:'',
+         totalfede:'',
+         totalpapi:'',
+         retirosocios:'',
+         index:'',
+         getGrafico(){
+             this.totfede = {{totfede|tojson}}
+             this.totpapi = {{totpapi|tojson}}
+             this.index = {{index|tojson}}
+             this.totfede = this.totfede.map(el=>Math.abs(el))
+             this.totpapi = this.totpapi.map(el=>Math.abs(el))
+             this.totalfede = this.totfede.map(a=>Number.isNaN(a)?0:a).reduce((a,b)=>(a+b))
+             this.totalpapi = this.totpapi.map(a=>Number.isNaN(a)?0:a).reduce((a,b)=>(a+b))
+             totalretiros = this.totalfede + this.totalpapi
+             this.retirosocios = [this.totalfede/totalretiros*100, this.totalpapi/totalretiros*100]
 
-  *  const cols = rowsArray[0].children.length // determino la cant columnas
-  *  for(let i=1;i<cols;i++){
-  *  let col = [];
-  *  rowIndex.forEach((ix)=>{
-  *      col.push(nop(tbody.rows[ix].cells[i].innerText))
-  *  });
-  *  let total = col.reduce((a,b)=>Number(a)+Number(b),0);
-  *  let $cell = $rowTotal.insertCell(i);
-  *  if (!(Number.isNaN(total))) $cell.innerHTML = total
-  *  }
+             const canvas = document.getElementById('grafico-estadistica').getContext('2d');
+             const labels = this.index;
+             const data = {
+                 labels: labels,
+                 datasets: [
+                     {
+                         label: 'papi',
+                         data: this.totpapi,
+                         borderColor: '#2596be',
+                     },
+                     {
+                         label: 'fede',
+                         data: this.totfede,
+                         borderColor: '#9925be',
+                     },
+                 ]
+             };
+                          const chart = new Chart(canvas, {
+                     type: 'line',
+                     data: data,
+                     options: {
+                     responsive: true,
+                     plugins: {
+                         legend: {
+                             position: 'top',
+                         },
+                         title: {
+                             display: true,
+                             text: 'Retiros Socios'
+                         }
+                     }
+                     },
+                          });
 
-    };
-    const restaurar1 = (tableId)=>{
-    let tbody = tableId.querySelector('tbody');
-    let rowsArray = Array.from(tbody.rows);
-    let rowtotal=[];
-    rowsArray.forEach((row)=>{
-  *    if(row.classList.contains('is-selected')) {
-  *        row.classList.remove('is-selected');
-  *    }
-    });
-    let $rowSubTotal = document.querySelectorAll('.subtotal');
-    $rowSubTotal.forEach((row)=>{
-  *    row.remove();
-    })
-    };
+         },
+         getGraficoPie(){
+             const canvas = document.getElementById('grafico-estadistica1').getContext('2d');
+             this.chart = new Chart(canvas, {
+                 type: 'doughnut',
+                 data: {
+                     labels: [
+                         '% Papi',
+                         '% Fede',
+                     ],
+                     datasets: [{
+                         label: 'Porcentaje Retiro Socios',
+                         data: this.retirosocios,
+                         backgroundColor: [
+                             'rgb(255, 205, 86)',
+                             'rgb(66, 135, 245)',
+                         ],
+                         hoverOffset: 2
+                     }]
+                 }
+             })
+         },
 
-    const $table = document.getElementById('retiros')
-    document.addEventListener('keyup',(e)=>{
-    if(e.key==='t') totalizar1($table)
-    if(e.key==='r') restaurar1($table)
-    }) */
+ }
+
+
+ }
 </script>
 {% endblock %}

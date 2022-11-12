@@ -3,74 +3,90 @@
 {% block title %}Estimados{% endblock %}
 {% block style %}
 <style>
-  .total{
-    background-color: lightyellow;
-    color: black;
-    font-weight:bold;
-  }
-  td:before { 
-    content:'$'; 
-    }
-  </style>
-  {% endblock %}
+</style>
+{% endblock %}
 
 {% block content %}
 
-<div class="container">
+<div class="container" x-data="main()" x-init="getGrafico()">
 
-    <p class="title is-1">Estimados a Cobrar</p>
+  <div class="buttons">
+    <a href="/pagos" class="button is-primary">Pagos</a>
+    <a href="/pagos/verplanillas" class="button is-primary">Planillas</a>
+    <a href="/loterbo" class="button is-primary">Registrar Lote Rbos</a>
+    <a href="/loterbo/ver" class="button is-primary">Ver Lote Rbos</a>
+    <a href="/pagos/editarrbo" class="button is-primary">Editar Rbo</a>
+    <a href="/pagos/verzona" class="button is-primary">Ver Zona</a>
+    <a href="/pagos/cobrostotales" class="button is-primary">Totales</a>
+    <a href="/pagos/comisiones" class="button is-primary">Comisiones</a>
+    <a href="/pagos/altas" class="button is-primary">Altas</a>
+    <a href="/pagos/bajas" class="button is-primary">Bajas</a>
+  </div>
 
-    <div class="buttons">
-      <a href="/pagos" class="button is-primary">Pagos</a>
-      <a href="/pagos/verplanillas" class="button is-primary">Planillas</a>
-      <a href="/loterbo" class="button is-primary">Registrar Lote Rbos</a>
-      <a href="/loterbo/ver" class="button is-primary">Ver Lote Rbos</a>
-      <a href="/pagos/editarrbo" class="button is-primary">Editar Rbo</a>
-      <a href="/pagos/verzona" class="button is-primary">Ver Zona</a>
-      <a href="/pagos/cobrostotales" class="button is-primary">Totales</a>
-      <a href="/pagos/comisiones" class="button is-primary">Comisiones</a>
-      <a href="/pagos/altas" class="button is-primary">Altas</a>
-      <a href="/pagos/bajas" class="button is-primary">Bajas</a>
+  <p class="title is-1">Estimados a Cobrar</p>
+
+  <div class="columns">
+    <div class="column is-8">
+  {{tbl|safe}}
+  <div class="box">
+    <canvas id="grafico-estadistica" width="300" height="200"></canvas>
+  </div>
+  <p class="title is-1">Estimados por Zona</p>
+  {{tbl1|safe}}
     </div>
+  </div>
 
-    {{tbl|safe}}
-    <p class="subtitle is-3">Totales por Zona</p>
-    {{tbl1|safe}}
 </div>
 {% endblock %}
 
 {% block script %}
 <script>
-   let tableId = document.getElementById('totales')
-   let tbody = tableId.querySelector('tbody');
-        let rowsArray = Array.from(tbody.rows);
-        let rowIndex=[];
-        rowsArray.forEach((row)=>{
-                rowIndex.push(row.rowIndex-1)
-        });
-        let maxRow = Math.max(...rowIndex)+1;
-        let $rowTotal = tbody.insertRow(maxRow);
-        let $cell0 = $rowTotal.insertCell(0);
-        $cell0.innerHTML = "Total";
-        $rowTotal.classList.add('total');
+ function main(){
+     return{
+	     mescobranza:[],
+	     cobranzatotal:[],
+	     getGrafico(){
+             this.mescobranza = {{index|tojson}}
+             this.cobranzatotal = totalizar_tabla('estimados',1)
 
-        const cols = rowsArray[0].children.length // determino la cant columnas
-        for(let i=1;i<cols;i++){
-        let col = [];
-        rowIndex.forEach((ix)=>{
-            col.push(nop(tbody.rows[ix].cells[i].innerText))
-        });
-        let total = col.reduce((a,b)=>Number(a)+Number(b));
-        let $cell = $rowTotal.insertCell(i);
-        if (!(Number.isNaN(total))) $cell.innerHTML = total
-        }
-  const app = new Vue({
-    el:"#app",
-    delimiters:['|','|'],
-    data:{
-    },
-    methods:{
-    },
-  })
-  </script>
-  {% endblock %}
+             const canvas = document.getElementById('grafico-estadistica').getContext('2d');
+             const chart = new Chart(canvas, {
+		         type: 'bar',
+		         data: {
+                     labels: this.mescobranza,
+                     datasets: [{
+			             label: 'Estimados a Cobrar',
+			             data: this.cobranzatotal,
+			             order: 1,
+			             backgroundColor: [
+                             'rgba(255, 99, 132, 0.2)',
+                             'rgba(54, 162, 235, 0.2)',
+                             'rgba(255, 206, 86, 0.2)',
+                             'rgba(75, 192, 192, 0.2)',
+                             'rgba(153, 102, 255, 0.2)',
+                             'rgba(255, 159, 64, 0.2)'
+			             ],
+			             borderColor: [
+                             'rgba(255, 99, 132, 1)',
+                             'rgba(54, 162, 235, 1)',
+                             'rgba(255, 206, 86, 1)',
+                             'rgba(75, 192, 192, 1)',
+                             'rgba(153, 102, 255, 1)',
+                             'rgba(255, 159, 64, 1)'
+			             ],
+			             borderWidth: 1
+                     },
+		             ]
+		         },
+		         options: {
+                     scales: {
+			             y: {
+                             beginAtZero: true
+			             }
+                     }
+		         }
+             });
+	     },
+ }}
+</script>
+{% endblock %}

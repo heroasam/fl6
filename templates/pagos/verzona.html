@@ -3,184 +3,140 @@
 {% block title %}VerZonas{% endblock %}
 {% block style %}
 <style>
-    .cobr750 {
-        background-color: rgb(178, 42, 32);
-        color: black;
-        text-align: center;
-    }
-    .cobr796 {
-        background-color: rgb(178, 127, 32);
-        color: black;
-        text-align: center;
-    }
-    .cobr800 {
-        background-color: rgb(176, 178, 32);
-        color: black;
-        text-align: center;
-    }
-    .cobr815 {
-        background-color: rgb(32, 178, 98);
-        color: black;
-        text-align: center;
-    }
-    </style>
-    {% endblock %}
+</style>
+{% endblock %}
 {% block content %}
 
-<div id="app" class="container">
+<div class="container" x-data="main()" x-init="getZonas();getTotalesZonas()">
 
-    <p class="title is-1">Ver Zonas Asignadas</p>
+  <div class="buttons">
+    <a href="/pagos" class="button is-primary">Pagos</a>
+    <a href="/pagos/verplanillas" class="button is-primary">Planillas</a>
+    <a href="/loterbo" class="button is-primary">Registrar Lote Rbos</a>
+    <a href="/loterbo/ver" class="button is-primary">Ver Lote Rbos</a>
+    <a href="/pagos/editarrbo" class="button is-primary">Editar Rbo</a>
+    <a href="/pagos/cobrostotales" class="button is-primary">Totales</a>
+    <a href="/pagos/estimados" class="button is-primary">Estimados</a>
+    <a href="/pagos/comisiones" class="button is-primary">Comisiones</a>
+    <a href="/pagos/altas" class="button is-primary">Altas</a>
+    <a href="/pagos/bajas" class="button is-primary">Bajas</a>
+  </div>
 
-    <div class="buttons">
-        <a href="/pagos" class="button is-primary">Pagos</a>
-        <a href="/pagos/verplanillas" class="button is-primary">Planillas</a>
-        <a href="/loterbo" class="button is-primary">Registrar Lote Rbos</a>
-        <a href="/loterbo/ver" class="button is-primary">Ver Lote Rbos</a>
-        <a href="/pagos/editarrbo" class="button is-primary">Editar Rbo</a>
-        <a href="/pagos/cobrostotales" class="button is-primary">Totales</a>
-        <a href="/pagos/estimados" class="button is-primary">Estimados</a>
-        <a href="/pagos/comisiones" class="button is-primary">Comisiones</a>
-        <a href="/pagos/altas" class="button is-primary">Altas</a>
-        <a href="/pagos/bajas" class="button is-primary">Bajas</a>
-      </div>
+  <p class="title is-1">Ver Zonas Asignadas</p>
 
+  <div class="box">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>cobr</th>
+          <th>nombre</th>
+          <th class="sumar numeric">total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="total in listaTotales">
+          <tr :class='`cobr${total.cobr}`'>
+            <td x-text="total.cobr"></td>
+            <td x-text="total.nombre"></td>
+            <td x-text="total.total" class="pesos"></td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+  <div class="box">
+    <table class="table" id="table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Id</th>
+          <th>Zona</th>
+          <th>Cobr</th>
+          <th>Nombre</th>
+          <th>Cnt</th>
+          <th class="sumar numeric">Cuotas</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="zona in listaZonas">
+          <tr :class='`cobr${zona.cobr}`'>
+            <td><i class="fa fa-pencil" aria-hidden="true" @click="editarZona(zona.id)"></td>
+              <td x-text="zona.id"></td>
+              <td x-text="zona.zona"></td>
+              <td x-text="zona.cobr"></td>
+              <td x-text="zona.nombre"></td>
+              <td x-text="zona.cnt"></td>
+              <td x-text="zona.cuotas" class="pesos"></td>
+          </tr>
+        </template>
+      </tbody>
 
-    <div class="box">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>cobr</th>
-                    <th>nombre</th>
-                    <th class="sumar numeric">total</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="total in totales" :class='`cobr${total[0]}`'>
-                    <td>|total[0]|</td>
-                    <td>|total[1]|</td>
-                    <td class="pesos">|total[2]|</td>
-                </tr>
-            </tbody>
-        </table>
+    </table>
+  </div>
+
+  <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}" />
+  <!-- modal Bulma -->
+  <div class="modal" id="modal-edicion">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Edicion de Asignamiento de Zona</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="idzona">Zona</label>
+        <input name="idzona" class="input" type="text" x-model="zonaEditar.zona" disabled />
+
+        <label for="idcobr">Cobrador</label>
+        <input name="idcobr" class="input" type="text" x-model="zonaEditar.cobr"/>
+
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-success" @click="guardarEdicion()">Editar</button>
+        <button class="button" @click="toggleModal('modal-edicion')">Cancelar</button>
+      </footer>
     </div>
-    <div class="box">
-        <table class="table" id="table">
-            <thead>
-                <tr>
-                    <th>op</th>
-                    <th>Id</th>
-                    <th>Zona</th>
-                    <th>Cobr</th>
-                    <th>Nombre</th>
-                    <th>Cnt</th>
-                    <th class="sumar numeric">Cuotas</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="zona in zonas" :class='`cobr${zona[2]}`'>
-                    <td><button class="button is-info is-small" @click="editarZona(zona[0],zona[1],zona[2],zona[3])">Editar</button></td>
-                    <td>|zona[0]|</td>
-                    <td>|zona[1]|</td>
-                    <td>|zona[2]|</td>
-                    <td>|zona[3]|</td>
-                    <td>|zona[4]|</td>
-                    <td class="pesos">|zona[5]|</td>
-                </tr>
-            </tbody>
+  </div>
 
-        </table>
-    </div>
-
-
-    <div class="modal" :class="{'is-active':toggleModal}">
-        <div class="modal-background"></div>
-        <div class="modal-content">
-          <div class="block">
-                  <div class="field is-horizontal">
-
-                <input type="hidden" name="csrf_token" ref="token" value="{{ csrf_token() }}"/>
-                      <div class="control">
-                        <input type="text" v-model="zonaed" class="input"  size="25" disabled>
-                      </div>
-                      <div class="control">
-                          <input type="text" v-model="cobred" class="input" size="5" placeholder="Cobr"  :class='{"is-danger":!cobred}'>
-                          <p v-show="!cobred" class="help is-danger">Requerido</p>
-                      </div>
-                      <div class="control">
-                        <input type="text" v-model="nombreed" class="input" size="35" disabled>
-                      </div>
-
-                      <div class="control">
-                          <button type="button" class="button is-primary" @click="guardarEdicion()" id="guardar">Guardar</button>
-                      </div>
-                  </div>
-          </div>
-        </div>
-        <button class="modal-close is-large" aria-label="close" @click="modal"></button>
-        </div>
 
 </div>
 {% endblock %}
 
 {% block script %}
 <script>
-  const app = new Vue({
-    el:"#app",
-    delimiters:['|','|'],
-    data:{
-        zonas:[],
-        totales:[],
-        toggleModal: false,
-        zonaed:'',
-        cobred:'',
-        nombreed:'',
-    },
-    methods:{
-        getZonas(){
-            axios.get('/pagos/getzonasasignadas')
-            .then(res=>{
-                this.zonas=res.data.zonas
-                //console.log(this.zonas)
-            })
-        },
-        getTotalesZonas(){
-            axios.get('/pagos/gettotaleszonas')
-            .then(res=>{
-                this.totales=res.data.totales
-            })
-        },
-        modal(){
-          this.toggleModal=!this.toggleModal
-        },
-        editarZona(id,zona,cobr,nombre){
-            this.id =id
-            this.zonaed=zona
-            this.cobred=cobr
-            this.nombreed=nombre
-            this.modal()
-        },
-        guardarEdicion(){
-            axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
-            axios({
-                method:'POST',
-                url: '/pagos/editarasignado',
-                data:{
-                    id:this.id,
-                    asignado: this.cobred,
-                }
-            })
-            .then(res=>{
-                this.modal()
-                this.getZonas()
-                this.getTotalesZonas()
-            })
-        },
-
-    },
-    created:function(){
-        this.getZonas()
-        this.getTotalesZonas()
-    }
-  })
-  </script>
-  {% endblock %}
+ function main(){
+     return{
+         listaZonas:[],
+         listaTotales:[],
+         zonaEditar:{},
+         getZonas(){
+             axios.get('/pagos/getzonasasignadas')
+                  .then(res=>{
+                      this.listaZonas=res.data.zonas
+                  })
+         },
+         getTotalesZonas(){
+             axios.get('/pagos/gettotaleszonas')
+                  .then(res=>{
+                      this.listaTotales=res.data.totales
+                  })
+         },
+         editarZona(id){
+             toggleModal('modal-edicion')
+             this.zonaEditar = this.listaZonas.filter(row=>row.id==id)[0]
+         },
+         guardarEdicion(){
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
+             axios.post('/pagos/editarasignado',this.zonaEditar)
+                  .then(res=>{
+                      toggleModal('modal-edicion')
+                      this.getZonas()
+                      this.getTotalesZonas()
+                      msgSuccess('Zona asignada con exito')
+                  })
+                  .catch(error=>msgError('No se pudo reasignar la zona'))
+         },
+ }}
+</script>
+{% endblock %}

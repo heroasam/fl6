@@ -1,77 +1,76 @@
 {% extends "base.html" %} {% block title %}PDF-Sistema{% endblock %}
 
 {% block content %}
-<div id="app" class="container" v-cloak>
-	<p class="title is-1">PDF-Sistema</p>
-    <div class="buttons">
-        <a href="/utilidades/planos" class="button is-primary">Planos</a>
-        <a href="/utilidades/impresos" class="button is-primary">Impresos</a>
-        <a href="/utilidades/contador" class="button is-primary">Contador</a>
-      </div>
+<div class="container" x-data="main()" x-init="getPDFSistema()">
+  <div class="buttons">
+    <a href="/utilidades/planos" class="button is-primary">Planos</a>
+    <a href="/utilidades/impresos" class="button is-primary">Impresos</a>
+    <a href="/utilidades/contador" class="button is-primary">Contador</a>
+    <a href="/utilidades/documentos" class="button is-primary">Documentos</a>
+    <a href="/utilidades/wapp" class="button is-primary">Whatsapps</a>
+  </div>
+  <p class="title is-1">PDF-Sistema</p>
+  <div class="columns">
+    <div class="column is-4">
+  <div class="box">
+  <div class="grid-buscar m-6">
+    <input type="text" placeholder="Buscar" x-model="buscar" @keyup.enter="restringirBusqueda(buscar)"
+     class="input text-big" />
+    <button class="button is-primary text-big" @click="restringirBusqueda(buscar)">Buscar</button>
+  </div>
+  </div>
+    </div>
+  </div>
 
-      <div class="grid-buscar mb-6 mr-3 mt-2">
-        <input type="text" placeholder="Buscar" v-model="buscar" @keyup.enter="restringirBusqueda(buscar)"/>
-        <button class="button is-primary" @click="restringirBusqueda(buscar)">Buscar</button>
-      </div>
-
-      <table class="table">
-        <thead>
-            <tr>
-                <th>Imp</th>
-                <th>PDF-Sistema</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="pdf in pdfs">
-                <td><button class="button is-danger is-small" @click="imprimirPdfSistema(pdf)">Imprimir</button></td>
-                <td>|pdf|</td>
-            </tr>
-        </tbody>
-
-      </table>
-
-
+  <table class="table mt-6">
+    <thead>
+      <tr>
+        <th>Imp</th>
+        <th>PDF-Sistema</th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="pdf in pdfs">
+        <tr>
+          <td><i class="fa fa-print fa-2x" aria-hidden="true" @click="imprimirPdfSistema(pdf)"></td>
+            <td x-text="pdf" style="width:380px;"></td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
 </div>
-
-
 
 
 {% endblock %} {% block script %}
 <script>
-const app = new Vue({
-    el: '#app',
-    delimiters: ['|', '|'],
-    data: {
-        pdfs:[],
-	pdfs_:[],
-	buscar:'',
-    },
-    methods: {
-        imprimirPdfSistema(pdf){
-        		axios({
-          			method: "GET",
-          			url: "/utilidades/imprimirpdfsistema/"+pdf,
-          			responseType: "blob",
-        			}).then((res) => {
-          			let url = window.URL.createObjectURL(res.data);
-          			window.open(url);
-                    })},
-        getPDFSistema(){
-            axios.get('/utilidades/getpdfsistema')
-				.then(res=>{
-					this.pdfs=res.data.pdfs
-				    this.pdfs_=this.pdfs
-				})
-        },
-        restringirBusqueda(buscar){
-            this.pdfs = this.pdfs_
-            this.pdfs = this.pdfs.filter(row=>row.toLowerCase().includes(buscar.toLowerCase()))
-        },
-    },
-    created: function(){
-			this.getPDFSistema()
-    },
-})
+ function main(){
+     return{
+         pdfs:[],
+	     pdfs_:[],
+	     buscar:'',
+         imprimirPdfSistema(pdf){
+        	 axios({
+          		 method: "GET",
+          		 url: "/utilidades/imprimirpdfsistema/"+pdf+".pdf",
+          		 responseType: "blob",
+        	 }).then((res) => {
+          		 let url = window.URL.createObjectURL(res.data);
+          		 window.open(url);
+         })},
+         getPDFSistema(){
+             axios.get('/utilidades/getpdfsistema')
+				  .then(res=>{
+					  this.pdfs=res.data.pdfs
+                      this.pdfs=this.pdfs.map(row=>row.slice(0,-4))
+				      this.pdfs_=this.pdfs
+				  })
+         },
+         restringirBusqueda(buscar){
+             this.pdfs = this.pdfs_
+             this.pdfs = this.pdfs.filter(row=>row.toLowerCase().includes(buscar.toLowerCase()))
+         },
+     }
+ }
 
-    </script>
+</script>
 {% endblock %}

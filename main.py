@@ -14,6 +14,7 @@ from pagos import pagos
 from buscador import buscador
 from fichas import fichas
 from utilidades import utilidades
+from conta import conta
 import mysql.connector
 from con import con, log
 
@@ -33,6 +34,7 @@ app.register_blueprint(pagos)
 app.register_blueprint(buscador)
 app.register_blueprint(fichas)
 app.register_blueprint(utilidades)
+app.register_blueprint(conta)
 
 
 class User(UserMixin):
@@ -58,7 +60,6 @@ def load_user(id):
     try:
         log = pgdict(con, f"select id,name,email,password,auth from users where id={id}")[0]
         user = User(log['id'], log['name'], log['email'], log['password'], log['auth'])
-        print('load_user', user.name)
         return user
     except:
         return None
@@ -141,7 +142,7 @@ def signup():
 @app.route('/log1')
 @login_required
 def log1_log():
-    f = open('/tmp/log.txt', "a")
+    f = open('/tmp/log.txt', "w")
     log = open('/var/log/app/1.log', "r")
     log1log = log.read()
     f.write(log1log)
