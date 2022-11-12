@@ -578,55 +578,83 @@
     </div>
   </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <div x-bind:class="verModalRecibo?'xmodal-container':''">
-    <div class="xcard xmodal" x-show="verModalRecibo">
-      <button class="btn-close" @click="verModalRecibo=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-      <h1 class="title is-3" style="color:black;">Recibo</h1>
-      <label for="fecha" class="label">Fecha</label>
-      <input type="date" class="input mb-3" x-model="Recibo.fecha" id="fecha" autocomplete="off">
-      <label for="cuenta" class="label">Cuenta</label>
-      <input list="cuentas" id="cuenta" class="input mb-3" x-model="Recibo.cuenta" autocomplete="off">
-      <datalist id="cuentas">
-        <template x-for="cuenta in listaCuentas">
-          <option :value="cuenta"></option>
-        </template>
-      </datalist>
-      <label for="cuota" class="label">Cuota</label>
-      <input type="text" class="input mb-3" x-model="Recibo.nc" id="cuota" autocomplete="off">
-      <label for="ic" class="label">Importe</label>
-      <input type="text" class="input mb-3" x-model="Recibo.ic" id="ic" autocomplete="off">
-      <label for="cobr" class="label">Cobr</label>
-      <input type="text" class="input mb-3" x-model="Recibo.cobr" id="cobr" autocomplete="off">
-
-      <button class="button is-primary" @click="guardarRecibo">Generar</button>
+  <!-- bulma-modal recibos  -->
+  <div class="modal" id="modal-edicion-recibos">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Emitir Recibo por transferencia</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion-recibos')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="fecha" class="label">Fecha</label>
+        <input type="date" class="input mb-3" x-model="Recibo.fecha" id="fecha" autocomplete="off"
+               :class="darkTheme?'input-dark':''">
+        <label for="cuenta" class="label">Cuenta</label>
+        <input list="cuentas" id="cuenta" class="input mb-3" x-model="Recibo.cuenta" autocomplete="off"
+               :class="darkTheme?'input-dark':''">
+        <datalist id="cuentas">
+          <template x-for="cuenta in listaCuentas">
+            <option :value="cuenta"></option>
+          </template>
+        </datalist>
+        <label for="cuota" class="label">Cuota</label>
+        <input type="text" class="input mb-3" x-model="Recibo.nc" id="cuota" autocomplete="off"
+               :class="darkTheme?'input-dark':''">
+        <label for="ic" class="label">Importe</label>
+        <input type="text" class="input mb-3" x-model="Recibo.ic" id="ic" autocomplete="off"
+               :class="darkTheme?'input-dark':''">
+        <label for="cobr" class="label">Cobr</label>
+        <input type="text" class="input mb-3" x-model="Recibo.cobr" id="cobr" autocomplete="off"
+               :class="darkTheme?'input-dark':''">
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="validarRecibo">Guardar</button>
+        <button class="button" @click="toggleModal('modal-edicion-recibos')">Cancelar</button>
+      </footer>
     </div>
   </div>
-  <div x-bind:class="verModalMsgWhatsapp?'xmodal-container':''">
-    <div class="xcard xmodal" x-show="verModalMsgWhatsapp">
-      <button class="btn-close" @click="verModalMsgWhatsapp=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-      <h1 class="title is-3" style="color:black;">WhatsApp</h1>
-      <label for="nombre" class="label">Nombre</label>
-      <input type="text" class="input mb-3" x-model="Cliente.nombre" id="nombre" autocomplete="off" readonly>
-      <label for="whatsapp" class="label">WhatsApp</label>
-      <input type="text" class="input mb-3" x-model="Cliente.wapp" id="whatsapp" autocomplete="off" readonly>
+
+ <!-- bulma-modal msg-wapp  -->
+  <div class="modal" id="modal-edicion-msg-wapp">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Enviar Whatsapp</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion-msg-wapp')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="nombre" class="label">Nombre</label>
+        <input type="text" class="input mb-3" x-model="Cliente.nombre" id="nombre" autocomplete="off"
+               readonly :class="darkTheme?'input-dark':''">
+        <label for="whatsapp" class="label">WhatsApp</label>
+        <input type="text" class="input mb-3" x-model="Cliente.wapp" id="whatsapp" autocomplete="off" readonly
+               :class="darkTheme?'input-dark':''">
       <label for="msg" class="label">Mensaje</label>
-      <textarea x-model="msgWhatsapp" id="msg" autocomplete="off" rows="10" cols="30"></textarea>
-      <button class="button is-primary" @click="enviarWhatsapp">Enviar</button>
+      <textarea x-model="msgWhatsapp" id="msg" autocomplete="off" rows="10" :cols="!isMobileDevice?'62':'32'"
+                :class="darkTheme?'input-dark':''"></textarea>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="enviarWhatsapp">Enviar</button>
+        <button class="button" @click="toggleModal('modal-edicion-msg-wapp')">Cancelar</button>
+      </footer>
     </div>
   </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
   <div x-bind:class="verModalImprimirFicha?'xmodal-container':''">
     <div class="xcard xmodal" x-show="verModalImprimirFicha">
       <button class="btn-close" @click="verModalImprimirFicha=false"><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
@@ -728,9 +756,7 @@
          Comentario:{fechahora:dayjs.utc().format('YYYY-MM-DD')},
          Asunto:{fecha:dayjs.utc().format('YYYY-MM-DD'),tipo:'',vdor:'',asunto:''},
          Recibo:{fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:''},
-         verModalRecibo:false,
          verModalAsunto:false,
-         verModalMsgWhatsapp:false,
          verModalImprimirFicha:false,
 	     verCuotasPagadas:true,
          mostrarFichaPorPantalla:false,
@@ -1145,16 +1171,22 @@
 	     },
          emitirRbo(){
 	         if(this.Cliente.deuda==0){msgError('Error!','El cliente no tiene deuda');return}
-             this.verModalRecibo = true;
+             toggleModal('modal-edicion-recibos')
              this.Recibo.cuenta = ''
              this.Recibo.nc = ''
              this.Recibo.ic = ''
              this.Recibo.cobr = ''
          },
+         validarRecibo(){
+             if(!this.listaCuentas.includes(this.Recibo.cuenta)){
+                 msgError('El Nº de cuenta no corresponde al cliente')
+                 return}
+             this.guardarRecibo()
+         },
          guardarRecibo(){
              this.Recibo.idcliente = this.Cliente.id
              this.Recibo.wapp = this.Cliente.wapp
-             this.verModalRecibo = false
+             toggleModal('modal-edicion-recibos')
              if (!this.listaCuentas.includes(parseInt(this.Recibo.cuenta))) {msgError('Error!','Numero de cuenta NO existe');return}
 	         msgDelay('Espere mientras se envia el Recibo')
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
@@ -1180,7 +1212,7 @@
 										                                              }
 										                                          }
 										                                          this.Recibo = {fecha:dayjs.utc().format('YYYY-MM-DD')}
-										                                          this.buscarCliente(this.Cliente.dni)
+										                                          this.refreshCliente(this.Cliente.dni)
 									                                          })
 									                                          .catch(error=>msgError('Error!','no se pudo enviar el Recibo'))
 								                                     }else{
@@ -1281,14 +1313,14 @@
 								                                 })
          },
          sendMsgGeneral(){
-             this.verModalMsgWhatsapp = true
+             toggleModal('modal-edicion-msg-wapp')
          },
          enviarWhatsapp(){
 	         data= {idcliente:this.Cliente.id,
 		            wapp:this.Cliente.wapp,
 		            msg:this.msgWhatsapp,
 	         }
-             this.verModalMsgWhatsapp = false
+             toggleModal('modal-edicion-msg-wapp')
 	         msgDelay('Espere mientras se envia el mensaje')
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 	         axios.post('/buscador/wapp',data)
