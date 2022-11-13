@@ -1,9 +1,11 @@
-from flask import Blueprint, render_template, jsonify, make_response, request, send_file
+"""Modulo que dirige todo lo relativo a la busqueda de clientes."""
+import re
+from flask import Blueprint, render_template, jsonify, make_response, request,\
+    send_file
 from flask_login import login_required
+import simplejson as json
 from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
     pglflat, log_busqueda
-import simplejson as json
-import re
 from formularios import intimacion, libredeuda, ficha, recibotransferencia
 from con import get_con, log
 
@@ -15,6 +17,7 @@ buscador = Blueprint('buscador', __name__)
 @buscador.route('/buscador', methods=['GET', 'POST'])
 @login_required
 def buscador_():
+    """Muestra pagina buscador."""
     return render_template("buscador/buscar.html")
 
 
@@ -27,17 +30,20 @@ def buscador_pdf(pdf):
 @buscador.route('/log')
 @login_required
 def buscador_log():
+    """Muestra pagina log."""
     return render_template('buscador/log.html')
 
 
 @buscador.route('/buscador/interno/<dni>')
 def buscar_interno_buscar(dni):
+    """Anexo buscador para ver-cuenta desde otra pagina."""
     return render_template('/buscador/buscar.html', dnilistado=dni)
 
 
 @buscador.route('/buscador/<string:buscar>')
 def buscar_cuenta(buscar):
-    print('ingresa buscar',buscar)
+    """Funcion principal de buscar cuenta."""
+    print('ingresa buscar', buscar)
     con = get_con()
     rcuenta = r'^[0-9]{5}$'
     rdni = r'^[0-9]{6,8}$'
@@ -46,7 +52,7 @@ def buscar_cuenta(buscar):
     if buscar == "-":
         sql = "select * from clientes where id=0"
         error_msg = "ingrese algo para buscar"
-    elif (re.match(rcuenta, buscar)):
+    elif re.match(rcuenta, buscar):
         cur = con.cursor()
         try:
             cur.execute(f'select idcliente from ventas where id={buscar}')
@@ -55,30 +61,25 @@ def buscar_cuenta(buscar):
         except:
             sql = "select * from clientes where id=0"
             error_msg = "Cuenta no encontrada"
-    elif (re.match(rdni, buscar)):
+    elif re.match(rdni, buscar):
         sql = f"select * from clientes where dni='{buscar}'"
         error_msg = "DNI no encontrado"
-    elif (re.match(rwapp, buscar)):
+    elif re.match(rwapp, buscar):
         sql = f"select * from clientes where wapp='{buscar}'"
         error_msg = "Whatsapp no encontrado"
-    elif (re.match(rid, buscar)):
+    elif re.match(rid, buscar):
         sql = f"select * from clientes where id={buscar[2:]}"
         error_msg = "idcliente no encontrado"
     else:
         buscar = re.sub(r'^(\w)', '%'+r'\1', buscar)
-        print(buscar)
         buscar = re.sub(r'(\s)(\D)', '%'+r'\2', buscar)
-        print(buscar)
         buscar = re.sub(r'(\s)(\d)', '% '+r'\2', buscar)
-        print(buscar)
         buscar = re.sub(r'\*', '%', buscar)
-        print(buscar)
         buscar = re.sub(r'(\D)$', r'\1'+'%', buscar)
-        print(buscar)
-        sql = f"select * from clientes where lower(concat(nombre,calle,acla,' ',num)) like lower('{buscar}') order by calle,num"
+        sql = f"select * from clientes where lower(concat(nombre,calle,acla,\
+        ' ' ,num)) like lower('{buscar}') order by calle,num"
         error_msg = "no hay respuesta para esa busqueda"
     cur = con.cursor(dictionary=True)
-    print(sql)
     cur.execute(sql)
     clientes = cur.fetchall()
     if len(clientes) == 0:
@@ -90,6 +91,7 @@ def buscar_cuenta(buscar):
 
 @buscador.route('/buscador/clientesdireccion/<string:calle>/<string:num>')
 def clientesdireccion(calle, num):
+    """Entrega lista de clientes en la direccion."""
     con = get_con()
     cur = con.cursor(dictionary=True)
     sql = f"select * from clientes where calle='{calle}' and num='{num}'"
@@ -101,6 +103,7 @@ def clientesdireccion(calle, num):
 
 @buscador.route('/buscador/pedirpagadasporidcliente/<int:idcliente>')
 def buscar_pedirpagadasporidcliente(idcliente):
+    """Entrega lista de cuotas pagadas por idcliente."""
     sql = f"select * from pagos where idcliente={idcliente} order by id desc"
     con = get_con()
     cur = con.cursor(dictionary=True)
@@ -112,6 +115,7 @@ def buscar_pedirpagadasporidcliente(idcliente):
 
 @buscador.route('/buscador/obtenerventasporidcliente/<int:idcliente>')
 def buscar_obtenerventasporidcliente(idcliente):
+    """Entrega lista de ventas por idcliente."""
     sql = f"select * from ventas where idcliente={idcliente} and saldo>0 order by id desc"
     con = get_con()
     cur = con.cursor(dictionary=True)
@@ -123,6 +127,7 @@ def buscar_obtenerventasporidcliente(idcliente):
 
 @buscador.route('/buscador/pedircomentarios/<int:idcliente>')
 def buscar_pedircomentarios(idcliente):
+    """Entrega lista de comentarios por idcliente."""
     sql = f"select fechahora,comentario from comentarios where idcliente={idcliente}"
     con = get_con()
     cur = con.cursor(dictionary=True)
@@ -134,6 +139,7 @@ def buscar_pedircomentarios(idcliente):
 
 @buscador.route('/buscador/guardarcomentario/<int:idcliente>', methods=['POST'])
 def buscar_guardarcomentario(idcliente):
+    """Guarda comentario ingresado."""
     d = json.loads(request.data.decode("UTF-8"))
     ins = f"insert into comentarios(idcliente,fechahora,comentario) values({idcliente},'{d['fechahora']}','{d['comentario']}')"
     con = get_con()
@@ -147,6 +153,7 @@ def buscar_guardarcomentario(idcliente):
 
 @buscador.route('/buscador/pedirlogcambiodireccion/<int:idcliente>')
 def buscar_logcambiodireccion(idcliente):
+    """Entrega lista de logcambiodireccion."""
     sql = f"select fecha,calle,num,wapp,acla from logcambiodireccion where idcliente={idcliente}"
     con = get_con()
     cur = con.cursor(dictionary=True)
@@ -158,6 +165,7 @@ def buscar_logcambiodireccion(idcliente):
 
 @buscador.route('/buscador/obtenerventascanceladasporidcliente/<int:idcliente>')
 def buscar_obtenerventascanceladasporidcliente(idcliente):
+    """Entrega lista de ventas canceladas por idcliente."""
     sql = f"select * from ventas where idcliente={idcliente} and saldo=0 order by id desc"
     con = get_con()
     cur = con.cursor(dictionary=True)
@@ -169,6 +177,7 @@ def buscar_obtenerventascanceladasporidcliente(idcliente):
 
 @buscador.route('/buscador/guardarpmovto/<int:idcliente>/<string:pmovto>')
 def buscar_guardarpmovto(idcliente, pmovto):
+    """Guarda el pmovto editado del cliente."""
     con = get_con()
     sql = f"update clientes set pmovto='{pmovto}' where id={idcliente}"
     cur = con.cursor()
@@ -181,6 +190,7 @@ def buscar_guardarpmovto(idcliente, pmovto):
 
 @buscador.route('/buscador/imprimirficha', methods=['POST'])
 def buscar_imprimirficha():
+    """Funcion para imprimir ficha de cliente."""
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     dni = d['dni']
@@ -198,6 +208,7 @@ def buscar_imprimirficha():
 
 @buscador.route('/buscador/togglesube/<string:dni>')
 def buscar_togglesube(dni):
+    """Funcion para marcar subir al seven."""
     con = get_con()
     selsube = f"select subirseven from clientes where dni='{dni}'"
     selsev = f"select sev from clientes where dni='{dni}'"
@@ -224,6 +235,7 @@ def buscar_togglesube(dni):
 
 @buscador.route('/buscador/togglegestion/<string:dni>')
 def buscar_togglegestion(dni):
+    """Funcion para marcar subir a gestion."""
     con = get_con()
     sel = f"select gestion from clientes where dni='{dni}'"
     sube = pgonecolumn(con, sel)
@@ -244,6 +256,7 @@ def buscar_togglegestion(dni):
 
 @buscador.route('/buscador/togglemudo/<string:dni>')
 def buscar_togglemudado(dni):
+    """Funcion para marcar mudado."""
     con = get_con()
     sel = f"select mudo from clientes where dni='{dni}'"
     sube = pgonecolumn(con, sel)
@@ -268,6 +281,7 @@ def buscar_togglemudado(dni):
 
 @buscador.route('/buscador/toggleinc/<string:dni>')
 def buscar_toggleinc(dni):
+    """Funcion para marcar incobrable."""
     con = get_con()
     sel = f"select incobrable from clientes where dni='{dni}'"
     sube = pgonecolumn(con, sel)
@@ -288,6 +302,7 @@ def buscar_toggleinc(dni):
 
 @buscador.route('/buscador/togglenvm/<string:dni>')
 def buscar_togglenvm(dni):
+    """Funcion para marcar lista negra."""
     con = get_con()
     sel = f"select novendermas from clientes where dni='{dni}'"
     sube = pgonecolumn(con, sel)
@@ -308,6 +323,7 @@ def buscar_togglenvm(dni):
 
 @buscador.route('/buscador/togglellamar/<string:dni>')
 def buscar_togglellamar(dni):
+    """Funcion para marcar cliente a llamar."""
     con = get_con()
     sel = f"select llamar from clientes where dni='{dni}'"
     sube = pgonecolumn(con, sel)
@@ -328,6 +344,7 @@ def buscar_togglellamar(dni):
 
 @buscador.route('/buscador/toggleseguir/<string:dni>')
 def buscar_toggleseguir(dni):
+    """Funcion para marcar cliente a seguir."""
     con = get_con()
     sel = f"select seguir from clientes where dni='{dni}'"
     sube = pgonecolumn(con, sel)
@@ -348,6 +365,7 @@ def buscar_toggleseguir(dni):
 
 @buscador.route('/buscador/guardaredicioncliente/<int:idcliente>', methods=['POST'])
 def busca_guardaredicioncliente(idcliente):
+    """Funcion para guardar edicion cliente."""
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     cliente_viejo = pgdict(
