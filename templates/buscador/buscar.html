@@ -3,7 +3,7 @@
 {% block title %}Clientes{% endblock %}
 {% block content %}
 <div x-data="main()"  class="container" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores();
-             getInflacion();autoLoad()">
+             getInflacion();autoLoad();cargarMsgs()">
 
   <div>
 	<div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
@@ -106,17 +106,17 @@
 
   <div class="box mt-6"  x-show="verCard">
 	<div>
-      <div :class="!isMobileDevice?'flex-baseline':''">
+      <div :class="!isMobileDevice?'flex-baseline-space':''">
       <p class="title is-2" x-text="Cliente.nombre+'  '+Cliente.dni"></p>
       <span class="tag is-warning is-small" x-show="verAvisoDniCopiado">DNI copiado al portapapeles</span>
       </div>
       <p class="subtitle is-4" x-text="Cliente.calle+' '+Cliente.num+' '+Cliente.barrio+' '+Cliente.zona"></p>
       <p class="subtitle is-4"x-text="'tel:'+Cliente.tel+' wapp:'+Cliente.wapp"></p>
 
-      <p class="" x-show="Cliente.acla" x-text="Cliente.acla"></p>
-      <p class="" x-show="Cliente.mjecobr" x-text="Cliente.mjecobr"></p>
-      <p class="" x-show="Cliente.horario" x-text="Cliente.horario"></p>
-      <p class="" x-show="Cliente.infoseven" x-text="Cliente.infoseven"></p>
+      <p  x-show="Cliente.acla" x-text="Cliente.acla"></p>
+      <p  x-show="Cliente.mjecobr" x-text="Cliente.mjecobr"></p>
+      <p  x-show="Cliente.horario" x-text="Cliente.horario"></p>
+      <p  x-show="Cliente.infoseven" x-text="Cliente.infoseven"></p>
 	</div>
     <div class="flex-left">
       <span class="tag is-danger is-small" x-show="Cliente.baja">Ex-SEVEN</span>
@@ -128,7 +128,7 @@
       <span class="tag is-danger is-small" x-show="Cliente.incobrable">INC</span>
       <span class="tag is-info is-small" x-show="Cliente.seguir">SEGUIR</span>
     </div>
-    <div :class="!isMobileDevice?'flex-baseline':'flex-column'">
+    <div :class="!isMobileDevice?'flex-baseline-space':'flex-column'">
       <h2 x-text="Cliente.deuda?'$'+Cliente.deuda:'SIN DEUDA'" class="title is-2"></h2>
       <h2 x-text="Cliente.pmovto=='Invalid Date'?'':Cliente.pmovto" class="title is-2 pointer" x-show="Cliente.deuda"
 	      @click="fecharPmovto(Cliente.id)"></h2>
@@ -186,6 +186,7 @@
     <button class="button is-primary is-small" @click="dialogoImprimirFicha()">IMPRIMIR</button>
     <button class="button is-success is-small" @click="clipDatos(Cliente.id)">DATOS</button>
 
+    <!-- dropdown Acciones -->
 	<div class="dropdown is-hoverable">
 	  <div class="dropdown-trigger">
 		<button class="button is-primary is-small" aria-haspopup="true" aria-controls="dropdown-menu">
@@ -202,6 +203,7 @@
 		</div>
 	  </div>
 	</div>
+    <!-- dropdown WhatsApp -->
 	<div class="dropdown is-hoverable">
 	  <div class="dropdown-trigger">
 		<button class="button is-danger is-small" aria-haspopup="true" aria-controls="dropdown-menu">
@@ -218,6 +220,7 @@
 		</div>
 	  </div>
 	</div>
+    <!-- dropdown Emitir pdf  -->
 	<div class="dropdown is-hoverable">
 	  <div class="dropdown-trigger">
 		<button class="button is-info is-small" aria-haspopup="true" aria-controls="dropdown-menu">
@@ -232,7 +235,24 @@
 		</div>
 	  </div>
 	</div>
+    <!-- dropdown programados -->
+     <div class="dropdown is-hoverable">
+	  <div class="dropdown-trigger">
+	    <button class="button is-small is-link" aria-haspopup="true" aria-controls="dropdown-menu">
+		  <span>Programados</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
+	    </button>
+	  </div>
+	  <div class="dropdown-menu" id="dropdown-menu" role="menu">
+	    <div class="dropdown-content">
 
+		  <div>
+            <template x-for="item in listamsgs">
+		      <a href="#" @click="sendMsgProgramado(item.nombre)" class="dropdown-item" x-text="item.nombre"></a>
+            </template>
+		  </div>
+	    </div>
+	  </div>
+     </div>
 
     <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
   </div>
@@ -269,11 +289,11 @@
   </table>
 
 
-  <div class="columns m-2">
+  <div class="columns">
 	<!-- tablecuotas -->
     <div class="column is-3">
 	  <div class="flex-center" x-show="verCard">
-        <h4 class="title is-4 text-center m-2">Cuotas a pagar</h4>
+        <span class="tag is-large">Cuotas a Pagar</span>
         <!-- <span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"></i></span> -->
 	  </div>
       <table class="table is-narrow is-striped" x-show="verCard && listaCuotas.length" id="table-cuotas">
@@ -301,8 +321,8 @@
 
 	<!-- tablepagadas -->
     <div class="column is-5" x-show="verCard && listaPagadas.length">
-	  <div class="flex-center">
-		<h4 class="title is-4 text-center m-2">Cuotas pagadas</h4>
+	  <div class="flex-baseline">
+        <span class="tag is-large">Cuotas Pagadas</span>
 		<span class="tag is-small is-dark" x-text="listaPagadas.length" x-show="listaPagadas.length>5"></span>
 		<span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
 		                               @click="verCuotasPagadas=!verCuotasPagadas" x-show="listaPagadas.length>5"></i></span>
@@ -332,12 +352,13 @@
         </tbody>
       </table>
     </div>
-
-	<!-- tableventascanceladas -->
   </div>
-  <div class="m-2" id="ventas-canceladas">
-    <h4 class="title is-4 m-2" x-show="verCard && listaVentasCanceladas.length">Ventas Canceladas</h4>
-    <table class="table is-narrow is-striped" x-show="verCard && listaVentasCanceladas.length">
+	<!-- tableventascanceladas -->
+  <div class="columns">
+  <div class="column is-10">
+      <div  id="ventas-canceladas">
+      <span class="tag is-large" x-show="verCard && listaVentasCanceladas.length">Ventas Canceladas</span>
+      <table class="table is-narrow is-striped" x-show="verCard && listaVentasCanceladas.length">
       <thead>
 		<tr>
           <th>id</th>
@@ -378,10 +399,12 @@
       </tbody>
     </table>
   </div>
-
+  </div>
+  </div>
   <!-- tablecomentarios -->
-  <div class="m-2">
-    <h4 class="title is-4 m-2" x-show="verCard && listaComentarios.length">Comentarios</h4>
+  <div class="columns">
+    <div class="column is-8">
+    <span class="tag is-large" x-show="verCard && listaComentarios.length">Comentarios</span>
     <table class="table noselect is-narrow is-striped" x-show="verCard && listaComentarios.length" id="table-comentarios">
       <thead>
         <tr>
@@ -398,11 +421,12 @@
 		</template>
       </tbody>
     </table>
+    </div>
   </div>
-
   <!-- tablelogcambiodireccion -->
-  <div class="m-2">
-    <h4 class="title is-4 m-2" x-show="verCard && listaLogCambioDireccion.length">LogCambioDireccion</h4>
+  <div class="columns">
+    <div class="column is-10">
+    <span class="tag is-large" x-show="verCard && listaLogCambioDireccion.length">Cambios de Direccion</span>
     <table class="table noselect is-narrow is-striped" x-show="verCard && listaLogCambioDireccion.length">
       <thead>
         <tr>
@@ -425,8 +449,8 @@
 		</template>
       </tbody>
     </table>
+    </div>
   </div>
-
 
   <!-- MODALES -->
   <!-- bulma-modal edicion-pmo-vto -->
@@ -717,6 +741,7 @@
          listaCuentas:[],
          listaInflacion:{},
          listaBusquedasRecientes:[],
+         listamsgs:[],
          Vtos:{},
          buscar:'',
 	     buscar1:'',
@@ -1406,6 +1431,25 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
                   .then(res=>{
                       this.listaInflacion = res.data.inflacion
          })},
+          sendMsgProgramado(nombre){
+              msg = this.listamsgs.filter(row=>row.nombre==nombre)[0].msg
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+              data={
+                  idcliente:this.Cliente.id,
+                  wapp:this.Cliente.wapp,
+                  msg:msg,
+              }
+             axios.post('/buscador/wapp',data)
+                                                                 .then(res=>{
+                                                                     msgSuccess('Exito','Mensaje Enviado')
+                                                                 })
+          },
+         cargarMsgs(){
+             axios.get('/fichas/getmsgs')
+                  .then(res=>{
+                      this.listamsgs = res.data.msgs
+	              })
+         },
          autoLoad(){
              {% if dnilistado %}
              if(this.buscar=='') this.buscar = {{dnilistado|tojson}}

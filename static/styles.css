@@ -306,10 +306,14 @@ thead th {
     display:flex;
     align-items:flex-start;
 }
-.flex-baseline{
+.flex-baseline-space{
     display: flex;
     align-items: baseline;
     justify-content: space-between;
+}
+.flex-baseline{
+    display: flex;
+    align-items: baseline;
 }
 .table5 tr:nth-child(n+7){
     display:none;
@@ -479,4 +483,7 @@ thead th {
 .bold{
     font-weight: bold !important;
     font-size: 1.1em !important;
+}
+.subtitle:not(:last-child), .title:not(:last-child) {
+	margin-bottom: 0rem !important;
 }
