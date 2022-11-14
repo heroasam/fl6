@@ -3,7 +3,7 @@ endblock %} {% block style %}
 <style>
 </style>
 {% endblock %} {% block content %}
-<div class="container.is-widescreen" x-data="main()" x-init="getCobradores();cargarMsgs();cargarZonas();eventTable()">
+<div class="container.is-widescreen" x-data="main()" x-init="getCobradores();cargarMsgs();eventTable()">
   <div class="buttons">
     <a href="/fichas/cobradores" class="button is-primary">Cobradores</a>
     <a href="/fichas/fechador" class="button is-primary">Fechador</a>
@@ -189,6 +189,9 @@ endblock %} {% block style %}
                  }
              });
          },
+         refresh(){
+             this.muestraClientes(this.ultimotipo, this.ultimazona)
+         },
          seleccionarRows(){
              let ids = [];
              let tbody = table.querySelector("tbody");
@@ -254,7 +257,7 @@ endblock %} {% block style %}
              if(ids.length>0) {
                  idle = ids.length * 12000
              }
-             msgWarning('Paciencia...','Espere mientras se envian las intimaciones!',timer=idle)
+             msgWarning('Paciencia...','Espere mientras se envian los mensajes!',timer=idle)
              ids = ids.map(id=>parseInt(id))
              Clientes = this.listaClientes.filter(row=>ids.includes(row.dni))
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
@@ -269,7 +272,7 @@ endblock %} {% block style %}
                  idle = ids.length * 12000
                  msg = this.listamsgs.filter(row=>row.nombre==nombre)[0].msg
              }
-             msgWarning('Paciencia...','Espere mientras se envian las intimaciones!',timer=idle)
+             msgWarning('Paciencia...','Espere mientras se envian los mensajes!',timer=idle)
              ids = ids.map(id=>parseInt(id))
              Clientes = this.listaClientes.filter(row=>ids.includes(row.dni))
              data = {listaclientes:Clientes, msg:msg}
@@ -277,6 +280,7 @@ endblock %} {% block style %}
              axios.post('/fichas/msgprogramado',data)
                                                                  .then(res=>{
                                                                      msgSuccess('Exito','Mensajes Enviados')
+                                                                     this.refresh()
                                                                  })
          },
          seleccionarHasta() {

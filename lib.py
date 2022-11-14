@@ -327,9 +327,10 @@ def send_msg_whatsapp(idcliente, wapp, msg):
         updinv = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' \
                 where id={idcliente}"
         logging.warning(updinv)
+        logging.warning(f"Para resolver bug-invalido. Valor de <con> aqui:{con} y de cur:{cur}")
         con = get_con()
-        cur.execute(updinv)
         cur = con.cursor()
+        cur.execute(updinv)
         log(updinv)
         upd = f"update logwhatsapp set response='invalid', enviado=\
                 {int(time.time())} where id = {id}"
