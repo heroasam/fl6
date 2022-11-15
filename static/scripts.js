@@ -523,6 +523,11 @@ function toggleTheme(themeName) {
     var theme = document.getElementById('bulma');
     theme.setAttribute('href', themeName);
     localStorage.setItem("cdn-theme", themeName);
+    if (lightThemes.includes(themeName)){
+        logoRomitex = 'logoromitex.svg'
+    }else{
+        logoRomitex = 'logoromitexwhite.svg'
+    }
 
 }
 document.addEventListener("DOMContentLoaded", () => {

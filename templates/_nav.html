@@ -28,7 +28,8 @@
   <!-- espacio de marca y burger para mobile -->
   <div class="navbar-brand">
     <a class="navbar-item" href="#">
-      <img src="/home/hero/imagenes/romitex.png" alt="Romitex logo" width="112" height="28">
+      <img alt="logoromitex" src="{{url_for('static', filename='logoromitex.svg' )}}" width="112" height="28" x-show="!darkTheme" />
+      <img alt="logoromitex" src="{{url_for('static', filename='logoromitexwhite.svg' )}}" width="112" height="28" x-show="darkTheme" />
     </a>
     <a role="button" class="navbar-burger" data-target="navMenu" aria-label="menu" aria-expanded="false">
       <span aria-hidden="true"></span>
