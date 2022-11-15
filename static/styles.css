@@ -484,6 +484,15 @@ thead th {
     font-weight: bold !important;
     font-size: 1.1em !important;
 }
-.subtitle:not(:last-child), .title:not(:last-child) {
+.subtitle-table:not(:last-child), .title-table:not(:last-child) {
 	margin-bottom: 0rem !important;
+	margin-top: 0rem !important;
+}
+.navbar-link{
+    font-size: 1.3em;
+    font-weight: bold;
+    min-width: 100px;
+}
+.navbar-item{
+    font-size: 1.21em;
 }

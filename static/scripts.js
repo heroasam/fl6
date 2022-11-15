@@ -452,39 +452,78 @@ let regexp = /android|iphone|kindle|ipad/i;
 it returns boolean value*/
 let isMobileDevice = regexp.test(details);
 
+
+// themes dark
+const darkly = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/darkly/bulmaswatch.min.css"
+const cyborg = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/cyborg/bulmaswatch.min.css"
+const nuclear = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/nuclear/bulmaswatch.min.css"
+const slate = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/slate/bulmaswatch.min.css"
+const solar = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/solar/bulmaswatch.min.css"
+const superhero  = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/superhero/bulmaswatch.min.css"
+let darkThemes =['darkly','cyborg','nuclear','slate','solar','superhero']
+// themes light
+const defaultbulma = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/default/bulmaswatch.min.css"
+const cerulean = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/cerulean/bulmaswatch.min.css"
+const cosmo = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/cosmo/bulmaswatch.min.css"
+const journal = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/journal/bulmaswatch.min.css"
+const flatly = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/flatly/bulmaswatch.min.css"
+const litera = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/litera/bulmaswatch.min.css"
+const lumen = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/lumen/bulmaswatch.min.css"
+const lux = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/lux/bulmaswatch.min.css"
+const materia = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/materia/bulmaswatch.min.css"
+const minty = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/minty/bulmaswatch.min.css"
+const pulse = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/pulse/bulmaswatch.min.css"
+const sandstone = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/sandstone/bulmaswatch.min.css"
+const simplex = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/simplex/bulmaswatch.min.css"
+const spacelab = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/spacelab/bulmaswatch.min.css"
+const united = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/united/bulmaswatch.min.css"
+const yeti = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/yeti/bulmaswatch.min.css"
+let lightThemes = ['defaultbulma', 'cerulean', 'cosmo', 'journal','flatly','litera','lumen','lux','materia','minty','pulse','sandstone','simplex','spacelab','united','yeti']
+
+
 // bulma change theme dark-light
 let darkTheme;
 let cdnTheme = localStorage.getItem('cdn-theme');
-if(cdnTheme.includes('flatly')){
+let pattern = /0.8.1\/(\w+)\//g
+const match=  cdnTheme.matchAll(pattern)
+let nameTheme;
+for (let group of match) {
+    nameTheme = group[1]
+}
+
+
+
+if(lightThemes.includes(nameTheme)){
     darkTheme = false;
 }else{
     darkTheme = true;
 }
 
-const btnMenu = document.getElementById("btnMenu");
-const menu = document.getElementById("menu");
-btnMenu.addEventListener('click', () => {
-    menu.classList.toggle('mostrar');
-});
+// const btnMenu = document.getElementById("btnMenu");
+// const menu = document.getElementById("menu");
+// btnMenu.addEventListener('click', () => {
+//     menu.classList.toggle('mostrar');
+// });
 
-function toggleTheme() {
-    // const dark = "https://unpkg.com/bulmaswatch/darkly/bulmaswatch.min.css">
-    // const light = "https://unpkg.com/bulmaswatch/flatly/bulmaswatch.min.css">
-    const dark = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/darkly/bulmaswatch.min.css"
-    const light = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/flatly/bulmaswatch.min.css"
+function toggleTheme(themeName) {
 
-    var theme = document.getElementById('bulma');
+
     // Change the value of href attribute
     // to change the css sheet.
-    if (theme.getAttribute('href') == light) {
-        darkTheme = true;
-        theme.setAttribute('href', dark);
-        localStorage.setItem("cdn-theme", dark);
-    } else {
-        darkTheme = false;
-        theme.setAttribute('href', light);
-        localStorage.setItem("cdn-theme", light);
-    }
+    // if (lightThemes.includes(theme.getAttribute('href'))) {
+    //     darkTheme = true;
+    //     let themeName = localStorage.getItem('cdn-theme')
+    //     theme.setAttribute('href', themeName);
+    //     localStorage.setItem("cdn-theme", dark);
+    // } else {
+    //     darkTheme = false;
+    //     theme.setAttribute('href', light);
+    //     localStorage.setItem("cdn-theme", light);
+    // }
+    var theme = document.getElementById('bulma');
+    theme.setAttribute('href', themeName);
+    localStorage.setItem("cdn-theme", themeName);
+
 }
 document.addEventListener("DOMContentLoaded", () => {
     const theme = document.getElementById('bulma');
@@ -550,3 +589,25 @@ function autoComplete(url, inputId, suggestionId) {
  function clearClipboard(){
      navigator.clipboard.writeText('');
  }
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  // Get all "navbar-burger" elements
+  const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+
+  // Add a click event on each of them
+  $navbarBurgers.forEach( el => {
+    el.addEventListener('click', () => {
+
+      // Get the target from the "data-target" attribute
+      const target = el.dataset.target;
+      const $target = document.getElementById(target);
+
+      // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+      el.classList.toggle('is-active');
+      $target.classList.toggle('is-active');
+
+    });
+  });
+
+});

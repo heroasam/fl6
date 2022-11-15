@@ -107,11 +107,11 @@
   <div class="box mt-6"  x-show="verCard">
 	<div>
       <div :class="!isMobileDevice?'flex-baseline-space':''">
-      <p class="title is-2" x-text="Cliente.nombre+'  '+Cliente.dni"></p>
+      <p class="title title-table is-2" x-text="Cliente.nombre+'  '+Cliente.dni"></p>
       <span class="tag is-warning is-small" x-show="verAvisoDniCopiado">DNI copiado al portapapeles</span>
       </div>
-      <p class="subtitle is-4" x-text="Cliente.calle+' '+Cliente.num+' '+Cliente.barrio+' '+Cliente.zona"></p>
-      <p class="subtitle is-4"x-text="'tel:'+Cliente.tel+' wapp:'+Cliente.wapp"></p>
+      <p class="subtitle subtitle-table is-4" x-text="Cliente.calle+' '+Cliente.num+' '+Cliente.barrio+' '+Cliente.zona"></p>
+      <p class="subtitle subtitle-table is-4"x-text="'tel:'+Cliente.tel+' wapp:'+Cliente.wapp"></p>
 
       <p  x-show="Cliente.acla" x-text="Cliente.acla"></p>
       <p  x-show="Cliente.mjecobr" x-text="Cliente.mjecobr"></p>

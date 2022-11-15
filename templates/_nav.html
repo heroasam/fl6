@@ -1,26 +1,177 @@
 
-<span class="nav-bar" id="btnMenu"><span class="icon-menu"><i class="fa fa-bars" aria-hidden="true"></i></span></span>
-<nav class="main-nav">
-  <div class="menu" id="menu">
-    {% if current_user.email %}
-    {% if current_user.email in ("sergiofedericosalvay@gmail.com","yooiiyoo@gmail.com") %}
-    <a href="/conta" class="menu__link">Conta</a>
-    {% endif %}
-    {% endif %}
-    <a href="/buscador" class="menu__link">Clientes</a>
-    <a href="/ventas/listado" class="menu__link">Ventas</a>
-    <a href="/pagos" class="menu__link">Pagos</a>
-    <a href="/fichas" class="menu__link">Fichas</a>
-    <a href="/stock/asientos" class="menu__link">Stock</a>
-    <a href="/utilidades/planos" class="menu__link">Utilidades</a>
-    <a href="#" class="menu__link" role="button" onclick="toggleTheme()">Theme</a>
-    {% if not current_user.email %}
-    <a href="signup" class="menu__link">Registrarse</a>
-    <a href="/login" class="menu__link">Login</a>
-    {% endif %}
-    {% if current_user.email %}
-    <label class="email__link">{{current_user.email}}</label>
-    <a href="/logout" class="menu__link">LogOut</a>
-    {% endif %}
+<!-- <span class="nav-bar" id="btnMenu"><span class="icon-menu"><i class="fa fa-bars" aria-hidden="true"></i></span></span>
+     <nav class="main-nav">
+     <div class="menu" id="menu">
+     {% if current_user.email %}
+     {% if current_user.email in ("sergiofedericosalvay@gmail.com","yooiiyoo@gmail.com") %}
+     <a href="/conta" class="menu__link">Conta</a>
+     {% endif %}
+     {% endif %}
+     <a href="/buscador" class="menu__link">Clientes</a>
+     <a href="/ventas/listado" class="menu__link">Ventas</a>
+     <a href="/pagos" class="menu__link">Pagos</a>
+     <a href="/fichas" class="menu__link">Fichas</a>
+     <a href="/stock/asientos" class="menu__link">Stock</a>
+     <a href="/utilidades/planos" class="menu__link">Utilidades</a>
+     <a href="#" class="menu__link" role="button" onclick="toggleTheme()">Theme</a>
+     {% if not current_user.email %}
+     <a href="signup" class="menu__link">Registrarse</a>
+     <a href="/login" class="menu__link">Login</a>
+     {% endif %}
+     {% if current_user.email %}
+     <label class="email__link">{{current_user.email}}</label>
+     <a href="/logout" class="menu__link">LogOut</a>
+     {% endif %}
+     </div>
+     </nav> -->
+<nav class="navbar" role="navigation" aria-label="main navigation" x-data="{verDropdownVentas:false, verDropdownPagos:false, verDropdownStock:false, verDropdownUtil:false, verDropdownThemes:false, verDropdownFichas:false}">
+  <!-- espacio de marca y burger para mobile -->
+  <div class="navbar-brand">
+    <a class="navbar-item" href="#">
+      <img src="/home/hero/imagenes/romitex.png" alt="Romitex logo" width="112" height="28">
+    </a>
+    <a role="button" class="navbar-burger" data-target="navMenu" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <!-- menu-bar -->
+  <div class="navbar-menu" id="navMenu">
+    <!-- nav-start izquierda -->
+    <div class="navbar-start">
+     {% if current_user.email %}
+     {% if current_user.email in ("sergiofedericosalvay@gmail.com","yooiiyoo@gmail.com") %}
+      <a href="/conta" class="navbar-link">Conta</a>
+      {% endif %}
+      {% endif %}
+      <a href="/buscador" class="navbar-link is-arrowless">Clientes</a>
+      <!-- dropdown-ventas -->
+      <div class="navbar-item has-dropdown" :class="verDropdownVentas?'is-active':''">
+  <a class="navbar-link is-arrowless" @click="verDropdownVentas=!verDropdownVentas">
+    Ventas
+  </a>
+  <div class="navbar-dropdown" x-show="verDropdownVentas">
+    <a class="navbar-item" href="/ventas/ventas"> Pasar Ventas </a>
+    <a class="navbar-item" href="/ventas/listado"> Listado </a>
+    <a class="navbar-item" href="/ventas/pordia"> Ventas por dia </a>
+    <a class="navbar-item" href="/ventas/clientes"> Clientes </a>
+    <a class="navbar-item" href="/ventas/barrios"> Barrios </a>
+    <a class="navbar-item" href="/ventas/zonas"> Zonas </a>
+    <a class="navbar-item" href="/ventas/cambiazonas"> Rezonificar </a>
+    <a class="navbar-item" href="/ventas/estadisticas"> Estadisticas </a>
+    <a class="navbar-item" href="/ventas/devolucion"> Devoluciones </a>
+    <a class="navbar-item" href="/ventas/pivotdevoluciones"> Pivot-Devoluciones </a>
+  </div>
+      </div>
+      <!-- dropdown-pagos -->
+            <div class="navbar-item has-dropdown" :class="verDropdownPagos?'is-active':''">
+  <a class="navbar-link is-arrowless" @click="verDropdownPagos=!verDropdownPagos">
+    Pagos
+  </a>
+  <div class="navbar-dropdown" x-show="verDropdownPagos">
+    <a class="navbar-item" href="/pagos"> Pasar Pagos </a>
+    <a class="navbar-item" href="/pagos/verplanillas"> Planillas </a>
+    <a class="navbar-item" href="/loterbo"> Registrar Lote Recibos </a>
+    <a class="navbar-item" href="/loterbo/ver"> Ver Lotes Recibos  </a>
+    <a class="navbar-item" href="/pagos/editarrbo"> Editar Recibo </a>
+    <a class="navbar-item" href="/pagos/verzona"> Ver Zona </a>
+    <a class="navbar-item" href="/pagos/cobrostotales"> Totales Cobrados </a>
+    <a class="navbar-item" href="/pagos/estimados"> Estimados a Cobrar </a>
+    <a class="navbar-item" href="/pagos/comisiones"> Comisiones </a>
+    <a class="navbar-item" href="/pagos/altas"> Altas Seven </a>
+    <a class="navbar-item" href="/pagos/bajas"> Bajas Seven </a>
+  </div>
+            </div>
+                  <!-- dropdown-fichas -->
+            <div class="navbar-item has-dropdown" :class="verDropdownFichas?'is-active':''">
+  <a class="navbar-link is-arrowless" @click="verDropdownFichas=!verDropdownFichas">
+    Fichas
+  </a>
+  <div class="navbar-dropdown" x-show="verDropdownFichas">
+    <a class="navbar-item" href="/fichas"> Fichas </a>
+    <a class="navbar-item" href="/fichas/cobradores"> Cobradores </a>
+    <a class="navbar-item" href="/fichas/fechador"> Fechador </a>
+    <a class="navbar-item" href="/fichas/listado"> Listado a Visitar  </a>
+    <a class="navbar-item" href="/fichas/cancelados"> Cancelados  </a>
+    <a class="navbar-item" href="/fichas/programar">Botones Programables </a>
+  </div>
+            </div>
+                              <!-- dropdown-stock -->
+            <div class="navbar-item has-dropdown" :class="verDropdownStock?'is-active':''">
+  <a class="navbar-link is-arrowless" @click="verDropdownStock=!verDropdownStock">
+    Stock
+  </a>
+  <div class="navbar-dropdown" x-show="verDropdownStock">
+    <a class="navbar-item" href="/stock/asientos"> Asientos </a>
+    <a class="navbar-item" href="/stock/mayor"> Mayor de Cuentas </a>
+    <a class="navbar-item" href="/stock/pivotcuentas"> Pivot-Cuentas </a>
+    <a class="navbar-item" href="/stock/retiros"> Retiros Socios  </a>
+    <a class="navbar-item" href="/stock/compras"> Compras  </a>
+    <a class="navbar-item" href="/stock/verstock">Stock </a>
+    <a class="navbar-item" href="/stock/salidas">Salidas </a>
+    <a class="navbar-item" href="/stock/articulos">Articulos </a>
+    <a class="navbar-item" href="/stock/proveedores">Proveedores </a>
+    <a class="navbar-item" href="/stock/cuentas">Cuentas </a>
+    <a class="navbar-item" href="/stock/cuadro">Cuadro Resultados </a>
+  </div>
+            </div>
+            <!-- dropdown-utilidades -->
+            <div class="navbar-item has-dropdown" :class="verDropdownUtil?'is-active':''">
+  <a class="navbar-link is-arrowless" @click="verDropdownUtil=!verDropdownUtil">
+    Utilidades
+  </a>
+  <div class="navbar-dropdown" x-show="verDropdownUtil">
+    <a class="navbar-item" href="/utilidades/planos"> Planos </a>
+    <a class="navbar-item" href="/utilidades/impresos"> Impresos </a>
+    <a class="navbar-item" href="/utilidades/pdfsistema"> PDF Sistema </a>
+    <a class="navbar-item" href="/utilidades/contador"> Contador </a>
+    <a class="navbar-item" href="/utilidades/documentos"> Documentos  </a>
+    <a class="navbar-item" href="/utilidades/wapp"> Whatsapps  </a>
+  </div>
+            </div>
+    </div>
+
+  <!-- nav-end derecha -->
+    <div class="navbar-end">
+      <div class="navbar-item has-dropdown" :class="verDropdownThemes?'is-active':''">
+        <a class="navbar-link is-arrowless" @click="verDropdownThemes=!verDropdownThemes">
+    Themes
+  </a>
+  <div class="navbar-dropdown" x-show="verDropdownThemes">
+    <a class="navbar-item" href="#" onclick="toggleTheme(darkly)">Darkly </a>
+    <a class="navbar-item" href="#" onclick="toggleTheme(cyborg)">Cyborg </a>
+    <a class="navbar-item" href="#" onclick="toggleTheme(nuclear)">Nuclear </a>
+    <a class="navbar-item" href="#" onclick="toggleTheme(slate)">Slate </a>
+    <a class="navbar-item" href="#" onclick="toggleTheme(solar)"> Solar  </a>
+    <a class="navbar-item" href="#" onclick="toggleTheme(superhero)"> SuperHero  </a>
+    <hr class="navbar-divider">
+    <a class="navbar-item" href="#" onclick="toggleTheme(defaultbulma)">Default </a>
+    <a class="navbar-item" href="#" onclick="toggleTheme(cerulean)">Cerulean </a>
+    <a class="navbar-item" href="#" onclick="toggleTheme(cosmo)">Cosmo </a>
+    <a class="navbar-item" href="#" onclick="toggleTheme(journal)">Journal </a>
+    <a class="navbar-item" href="#" onclick="toggleTheme(flatly)"> Flatly  </a>
+    <a class="navbar-item" href="#" onclick="toggleTheme(lumen)"> Lumen  </a>
+    <a class="navbar-item" href="#" onclick="toggleTheme(lux)"> Lux  </a>
+    <a class="navbar-item" href="#" onclick="toggleTheme(materia)"> Materia  </a>
+    <a class="navbar-item" href="#" onclick="toggleTheme(minty)"> Minty  </a>
+    <a class="navbar-item" href="#" onclick="toggleTheme(pulse)"> Pulse  </a>
+    <a class="navbar-item" href="#" onclick="toggleTheme(sandstone)"> Sandstone  </a>
+    <a class="navbar-item" href="#" onclick="toggleTheme(simplex)"> Simplex  </a>
+    <a class="navbar-item" href="#" onclick="toggleTheme(spacelab)"> Spacelab  </a>
+    <a class="navbar-item" href="#" onclick="toggleTheme(united)"> United  </a>
+    <a class="navbar-item" href="#" onclick="toggleTheme(yeti)"> Yeti  </a>
+  </div>
+    </div>
+
+     {% if not current_user.email %}
+     <a href="signup" class="navbar-link is-arrowless">Registrarse</a>
+     <a href="/login" class="navbar-link is-arrowless">Login</a>
+     {% endif %}
+     {% if current_user.email %}
+     <label class="navbar-link is-arrowless">{{current_user.email}}</label>
+     <a href="/logout" class="navbar-link is-arrowless">LogOut</a>
+     {% endif %}
+  </div>
   </div>
 </nav>

@@ -328,6 +328,10 @@ def send_msg_whatsapp(idcliente, wapp, msg):
                 where id={idcliente}"
         logging.warning(updinv)
         logging.warning(f"Para resolver bug-invalido. Valor de <con> aqui:{con} y de cur:{cur}")
+        # mientras resuelvo el bug con mas informacion recogida con el logging.warning de arriba
+        # dejo las dos lineas de abajo que redefinen redundantemente con y cur, siendo que en
+        # pruebas de oficina funcionan bien sin esas re-definiciones.
+        # En si se buscaria que alguna vez apareciera que con y cur fuesen nulos.
         con = get_con()
         cur = con.cursor()
         cur.execute(updinv)
