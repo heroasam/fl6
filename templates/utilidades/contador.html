@@ -65,15 +65,15 @@
 </div>
 <div class="flex-baseline">
   <label for="tienequehaber" class="text-big">Planilla</label>
-  <input name="tienequehaber" type="text" x-model="Arqueo.tienequehaber" class="input is-large"
+  <input name="tienequehaber" type="text" x-model="Arqueo.tienequehaber" class="input "
          @keyup.enter="recalculaHay()"
          :class="darkTheme?'input-dark':''"/ style="width:100px;">
   <label for="hay" class="text-big">Hay</label>
-  <input name="hay" type="text" x-model="Arqueo.hay"  class="input is-large"
+  <input name="hay" type="text" x-model="Arqueo.hay"  class="input "
          :class="darkTheme?'input-dark':''"/ style="width:100px;">
   <div class="flex-baseline" x-show="Arqueo.saldo">
   <label for="saldo" class="text-big" :class="Arqueo.saldo<0?'red':'orange'" x-text="Arqueo.saldo<0?'Falta':'Sobra'"></label>
-    <input name="saldo" type="text" x-model="Arqueo.saldo"  class="input is-large"
+    <input name="saldo" type="text" x-model="Arqueo.saldo"  class="input "
            :class="Arqueo.saldo<0?(darkTheme?'input-arqueo-negativo input-dark':'input-arqueo-negativo'):(darkTheme?'input-dark input-arqueo-positivo':'input-arqueo-positivo')"
            style="width:100px;"/>
   </div>
