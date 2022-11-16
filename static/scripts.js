@@ -482,6 +482,7 @@ let lightThemes = ['defaultbulma', 'cerulean', 'cosmo', 'journal','flatly','lite
 
 
 // bulma change theme dark-light
+let logoRomitex;
 let darkTheme;
 let cdnTheme = localStorage.getItem('cdn-theme');
 let pattern = /0.8.1\/(\w+)\//g
@@ -490,36 +491,18 @@ let nameTheme;
 for (let group of match) {
     nameTheme = group[1]
 }
-
+if(nameTheme=='default') nameTheme='defaultbulma'
 
 
 if(lightThemes.includes(nameTheme)){
     darkTheme = false;
+    logoRomitex = 'logoRomitex.svg'
 }else{
     darkTheme = true;
+    logoRomitex = 'logoromitexwhite.svg'
 }
 
-// const btnMenu = document.getElementById("btnMenu");
-// const menu = document.getElementById("menu");
-// btnMenu.addEventListener('click', () => {
-//     menu.classList.toggle('mostrar');
-// });
-
 function toggleTheme(themeName) {
-
-
-    // Change the value of href attribute
-    // to change the css sheet.
-    // if (lightThemes.includes(theme.getAttribute('href'))) {
-    //     darkTheme = true;
-    //     let themeName = localStorage.getItem('cdn-theme')
-    //     theme.setAttribute('href', themeName);
-    //     localStorage.setItem("cdn-theme", dark);
-    // } else {
-    //     darkTheme = false;
-    //     theme.setAttribute('href', light);
-    //     localStorage.setItem("cdn-theme", light);
-    // }
     var theme = document.getElementById('bulma');
     theme.setAttribute('href', themeName);
     localStorage.setItem("cdn-theme", themeName);
@@ -528,7 +511,6 @@ function toggleTheme(themeName) {
     }else{
         logoRomitex = 'logoromitexwhite.svg'
     }
-
 }
 document.addEventListener("DOMContentLoaded", () => {
     const theme = document.getElementById('bulma');

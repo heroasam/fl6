@@ -162,8 +162,10 @@ thead th {
         border-radius: 5px;
 }
 .input-dark{
-    background-color:#282f2f !important;
+    /* background-color:#282f2f !important; */
+    background-color:transparent !important;
     color:white !important;
+    font-size:1.1em !important;
 }
 .input-dark::placeholder{
     font-weight: bold !important;
