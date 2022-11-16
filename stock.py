@@ -155,7 +155,6 @@ def stock_retiros():
     pd.options.display.float_format = '${:20.0f}'.format
     dat = pd.read_sql_query(sql, engine)
     dframe = pd.DataFrame(dat)
-    print(dframe)
     tbl = pd.pivot_table(dframe, values=['imp'],index='fecha',columns='cuenta'\
         ,aggfunc='sum').sort_index(axis=0,level='fecha',ascending=False)
     col0 = tbl.iloc[:,0]

@@ -43,7 +43,6 @@ def buscar_interno_buscar(dni):
 @buscador.route('/buscador/<string:buscar>')
 def buscar_cuenta(buscar):
     """Funcion principal de buscar cuenta."""
-    print('ingresa buscar', buscar)
     con = get_con()
     rcuenta = r'^[0-9]{5}$'
     rdni = r'^[0-9]{6,8}$'

@@ -325,8 +325,8 @@ thead th {
 }
 .input-billete{
     width: 350px;
-    font-size: 3em;
-    font-weight: bold;
+    font-size: 3em !important;
+    font-weight: bold !important;
     text-align: center;
 }
 .div-billete{
@@ -344,6 +344,10 @@ thead th {
 .input-arqueo-negativo{
     font-weight: bold;
     color:red !important;
+}
+.input-arqueo-positivo{
+    font-weight: bold;
+    color:orange !important;
 }
 .pesos{
     text-align: right !important;

@@ -58,7 +58,6 @@ def fichas_imprimir():
     con = get_con()
     listadni = json.loads(request.data.decode("UTF-8"))
     # aca se el ast.literal entrega la lista enviada por el axios-post directamente
-    print(listadni)
 
     ficha(con, listadni)
     con.close()
