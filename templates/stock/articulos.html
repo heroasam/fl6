@@ -22,15 +22,19 @@
   <button class="button is-primary mb-5" @click="generarLista()">Generar Lista de Precios</button>
   <div class="block">
     <div class="field is-horizontal">
-      <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+      <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"
+             :class="darkTheme?'input-dark':''"/>
       <div class="control">
-        <input type="text" x-model="newArticulo.art" class="input" placeholder="Articulo" size="25">
+        <input type="text" x-model="newArticulo.art" class="input" placeholder="Articulo"
+               size="25" :class="darkTheme?'input-dark':''">
       </div>
       <div class="control">
-        <input type="text" x-model="newArticulo.codigo" class="input" placeholder="Codigo" size="5">
+        <input type="text" x-model="newArticulo.codigo" class="input" placeholder="Codigo"
+               size="5" :class="darkTheme?'input-dark':''">
       </div>
       <div class="control">
-        <input list="grupos" id="grupo" class="input mb-3" x-model="newArticulo.grupo" placeholder="grupo" autocomplete="off">
+        <input list="grupos" id="grupo" class="input mb-3" x-model="newArticulo.grupo"
+               placeholder="grupo" autocomplete="off" :class="darkTheme?'input-dark':''">
         <datalist id="grupos">
           <template x-for="grupo in listaGrupos">
             <option :value="grupo">
@@ -38,13 +42,16 @@
         </datalist>
       </div>
       <div class="control">
-        <input type="text" x-model="newArticulo.costo" class="input" size="5" placeholder="Costo">
+        <input type="text" x-model="newArticulo.costo" class="input" size="5"
+               placeholder="Costo" :class="darkTheme?'input-dark':''">
       </div>
       <div class="control">
-        <input type="text" x-model="newArticulo.cuota" class="input" size="5" placeholder="Cuota">
+        <input type="text" x-model="newArticulo.cuota" class="input" size="5"
+               placeholder="Cuota" :class="darkTheme?'input-dark':''">
       </div>
       <div class="control">
-        <input type="text" x-model="newArticulo.activo" class="input" size="5" placeholder="Activo">
+        <input type="text" x-model="newArticulo.activo" class="input" size="5"
+               placeholder="Activo" :class="darkTheme?'input-dark':''">
       </div>
       <div class="control">
         <button type="button" class="button is-primary" @click="validarArticulo">Guardar</button>

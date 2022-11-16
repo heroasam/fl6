@@ -23,7 +23,8 @@
        </div> -->
   <p class="title is-1">Editar Recibos</p>
 
-  <input type="text" x-model="buscar" class="block inputrbo input" placeholder="Recibo a editar" @keyup.enter="obtenerRegRbo(buscar)">
+  <input type="text" x-model="buscar" class="block inputrbo input" placeholder="Recibo a editar"
+         @keyup.enter="obtenerRegRbo(buscar)" :class="darkTheme?'input-dark':''">
 
   <div class="box block">
     <table class="table">
@@ -63,26 +64,27 @@
   </div>
 
   <form @submit.prevent class="box field is-horizontal">
-    <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+    <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"
+           :class="darkTheme?'input-dark':''"/>
     <div class="field">
       <label class="label">Fecha</label>
       <input type="date" x-model="Rbo.fecha" style="width: 150px;" class="input is-narrow"
-             @blur="nuevaFecha=true">
+             @blur="nuevaFecha=true" :class="darkTheme?'input-dark':''">
     </div>
     <div class="field">
       <label class="label">IdVta</label>
       <input type="text" x-model="Rbo.idvta" style="width: 100px" class="input is-narrow"
-             @blur="obtenerNuevoNombre(Rbo.idvta)">
+             @blur="obtenerNuevoNombre(Rbo.idvta)" :class="darkTheme?'input-dark':''">
     </div>
     <div class="field">
       <label class="label">Imp</label>
       <input type="text" x-model="Rbo.imp" style="width: 70px;" class="input is-narrow"
-             @blur="nuevoImp=true">
+             @blur="nuevoImp=true" :class="darkTheme?'input-dark':''">
     </div>
     <div class="field">
       <label class="label">Rec</label>
       <input type="text" x-model="Rbo.rec" style="width: 70px;" class="input is-narrow"
-             @blur="nuevoRec=true">
+             @blur="nuevoRec=true" :class="darkTheme?'input-dark':''">
 
     </div>
     <div class="field">
@@ -92,7 +94,7 @@
     <div class="field">
       <label class="label">Cobr</label>
       <input type="text" x-model="Rbo.cobr" style="width: 70px;" class="input is-narrow"
-             @blur="nuevoCobr=true">
+             @blur="nuevoCobr=true" :class="darkTheme?'input-dark':''">
     </div>
   </form>
 

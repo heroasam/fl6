@@ -34,12 +34,14 @@
 
   <div class="block">
     <div class="field is-horizontal">
-      <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+      <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"
+             :class="darkTheme?'input-dark':''"/>
       <div class="control">
-        <input type="date" x-model="Asiento.fecha" class="input">
+        <input type="date" x-model="Asiento.fecha" class="input" :class="darkTheme?'input-dark':''">
       </div>
       <div class="control">
-        <input type="text" list="listacuentas" class="input mb-1" x-model="Asiento.cuenta"  placeholder="Cuenta" />
+        <input type="text" list="listacuentas" class="input mb-1" x-model="Asiento.cuenta"  placeholder="Cuenta"
+               :class="darkTheme?'input-dark':''"/>
         <datalist id="listacuentas">
           <template x-for="item in cuentas">
             <option :value="item"></option>
@@ -48,10 +50,11 @@
       </div>
       <div class="control">
         <input type="text" x-model="Asiento.imp" class="input" size="5" placeholder="Imp" x-ref="imp"
-		       @keyup.enter="$refs.comentario.focus()">
+		       @keyup.enter="$refs.comentario.focus()" :class="darkTheme?'input-dark':''">
       </div>
       <div class="control">
-        <input type="text" x-model="Asiento.comentario" class="input" size="50" placeholder="Comentario" x-ref="comentario">
+        <input type="text" x-model="Asiento.comentario" class="input" size="50" placeholder="Comentario"
+               x-ref="comentario" :class="darkTheme?'input-dark':''">
       </div>
       <div class="control">
         <button type="button" class="button is-primary" @click="validarAsiento" id="guardar">Guardar</button>

@@ -29,18 +29,23 @@
 
   <div class="block">
     <div class="flex" @keydown.enter="$focus.next()">
-      <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
-      <input type="date" x-model="Salida.fecha" class="input" style="max-width:200px;">
-      <input type="text" x-model="Salida.cnt" class="input" placeholder="Cantidad" style="max-width:100px;">
+      <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"
+             :class="darkTheme?'input-dark':''"/>
+      <input type="date" x-model="Salida.fecha" class="input" style="max-width:200px;"
+             :class="darkTheme?'input-dark':''">
+      <input type="text" x-model="Salida.cnt" class="input" placeholder="Cantidad"
+             style="max-width:100px;" :class="darkTheme?'input-dark':''">
       <input type="text" list="listaarticulos" class="input mb-1" x-model="Salida.art" placeholder="Articulo"
-             style="width:250px" />
+             style="width:250px" :class="darkTheme?'input-dark':''"/>
       <datalist id="listaarticulos">
         <template x-for="item in articulos">
           <option :value="item"></option>
         </template>
       </datalist>
-      <input type="text" x-model="Salida.costo" class="input" size="5" placeholder="Costo" style="max-width:100px;">
-      <input type="text" x-model="Salida.comentario" class="input" size="15" placeholder="Comentario" style="max-width:200px;">
+      <input type="text" x-model="Salida.costo" class="input" size="5" placeholder="Costo"
+             style="max-width:100px;" :class="darkTheme?'input-dark':''">
+      <input type="text" x-model="Salida.comentario" class="input" size="15" placeholder="Comentario"
+             style="max-width:200px;" :class="darkTheme?'input-dark':''">
       <button type="button" class="button is-primary" @click="validarSalida">Guardar</button>
     </div>
   </div>

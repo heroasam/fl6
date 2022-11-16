@@ -14,9 +14,11 @@
     <div class="column is-5">
       <div class="flex" @keydown.enter="$focus.next()">
         <label for="desde" class="labelinput mr-2">Desde</label>
-        <input type="text" name="desde" x-model="desde"  class="input mr-2" />
+        <input type="text" name="desde" x-model="desde"  class="input mr-2"
+               :class="darkTheme?'input-dark':''"/>
         <label for="hasta" class="labelinput mr-2">Hasta</label>
-        <input type="text" name="hasta" x-model="hasta"  class="input mr-2" />
+        <input type="text" name="hasta" x-model="hasta"  class="input mr-2"
+               :class="darkTheme?'input-dark':''"/>
         <button class="button is-primary ml-2" @click="buscaDocumentos()">Buscar</button>
         <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
 

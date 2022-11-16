@@ -32,15 +32,17 @@
 
   <div class="block">
     <div class="field is-horizontal">
-      <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+      <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"
+             :class="darkTheme?'input-dark':''"/>
       <div class="control">
-        <input type="date" x-model="Compra.fecha" class="input">
+        <input type="date" x-model="Compra.fecha" class="input" :class="darkTheme?'input-dark':''">
       </div>
       <div class="control">
-        <input type="text" x-model="Compra.cnt" class="input" placeholder="Cantidad" size="5" x-ref="cnt">
+        <input type="text" x-model="Compra.cnt" class="input" placeholder="Cantidad"
+               size="5" x-ref="cnt" :class="darkTheme?'input-dark':''">
       </div>
       <input type="text" list="listaarticulos" class="input mb-1" x-model="Compra.art"  placeholder="Articulo"
-             style="width:200px;" />
+             style="width:200px;" :class="darkTheme?'input-dark':''"/>
       <datalist id="listaarticulos">
         <template x-for="item in articulos">
           <option :value="item"></option>
@@ -49,13 +51,16 @@
 
       <div class="control">
         <input type="text" x-model="Compra.costo" class="input" size="5" placeholder="Costo"
-               @blur="Compra.total=parseInt(Compra.cnt)*parseInt(Compra.costo)">
+               @blur="Compra.total=parseInt(Compra.cnt)*parseInt(Compra.costo)"
+               :class="darkTheme?'input-dark':''">
       </div>
       <div class="control">
-        <input type="text" x-model="Compra.total" class="input disabled" size="5" placeholder="Total">
+        <input type="text" x-model="Compra.total" class="input disabled" size="5"
+               placeholder="Total" :class="darkTheme?'input-dark':''">
       </div>
       <div class="control">
-        <input list="proveedores" id="proveedor" class="input mb-3" x-model="Compra.proveedor"  autocomplete="off">
+        <input list="proveedores" id="proveedor" class="input mb-3" x-model="Compra.proveedor"
+               autocomplete="off" :class="darkTheme?'input-dark':''">
         <datalist id="proveedores">
           <template x-for="proveedor in listaProveedores">
             <option :value="proveedor">

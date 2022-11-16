@@ -24,19 +24,19 @@
   </div>
   <div class="buttons" id="btnZonas">
     <template x-for="zona in zonas" :key="zona">
-      <button class="button text-big" x-text="zona"
+      <button class="button " x-text="zona"
               @click="getListado(zona);limpiarToggles();$event.target.classList.remove('is-warning');
                      $event.target.classList.toggle('is-warning');listImprimir=[]"></button>
     </template>
   </div>
   <div class="buttons" id="btnYear">
     <template x-for="year in Object.keys(resumenjs)">
-      <button class="button text-big" x-text="`${year} |${resumenjs[year]}`"
+      <button class="button " x-text="`${year} |${resumenjs[year]}`"
               @click="seleccionar(year);$event.target.classList.toggle('is-warning');listaSeleccionados()"></button>
     </template>
   </div>
   <div class="block">
-    <button class="button text-big" @click="limpiarToggles();imprimirListado()" x-text="'Imprimir '+listImprimir.length"></button>
+    <button class="button " @click="limpiarToggles();imprimirListado()" x-text="'Imprimir '+listImprimir.length"></button>
   </div>
   <table class="table isnarrow nototal">
     <thead>

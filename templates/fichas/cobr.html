@@ -19,9 +19,9 @@
 
   <div class="columns"><div class="column is-6">
 	<div class="grid-buscar  mr-3 mt-2">
-      <input type="search" placeholder="Busca: nombre/direccion/dni/tel" class="input text-big" x-model="buscar"
-		     @focus="buscar=''" @keyup.enter="filtrarCobr(buscar)" autofocus>
-      <button type="button" @click="filtrarCobr(buscar)" class="button is-primary text-big">Buscar</button>
+      <input type="search" placeholder="Busca: nombre/direccion/dni/tel" class="input " x-model="buscar"
+		     @focus="buscar=''" @keyup.enter="filtrarCobr(buscar)" autofocus :class="darkTheme?'input-dark':''">
+      <button type="button" @click="filtrarCobr(buscar)" class="button is-primary ">Buscar</button>
 	</div>
   </div></div>
   <button type="button" class="button is-primary" @click="agregarCobr">Agregar Nuevo</button>

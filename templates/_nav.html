@@ -57,6 +57,7 @@
     <a class="navbar-item" href="/ventas/listado"> Listado </a>
     <a class="navbar-item" href="/ventas/pordia"> Ventas por dia </a>
     <a class="navbar-item" href="/ventas/clientes"> Clientes </a>
+    <a class="navbar-item" href="/ventas/calles"> Calles </a>
     <a class="navbar-item" href="/ventas/barrios"> Barrios </a>
     <a class="navbar-item" href="/ventas/zonas"> Zonas </a>
     <a class="navbar-item" href="/ventas/cambiazonas"> Rezonificar </a>
@@ -140,28 +141,28 @@
     Themes
   </a>
   <div class="navbar-dropdown" x-show="verDropdownThemes">
-    <a class="navbar-item" href="#" onclick="toggleTheme(darkly)">Darkly </a>
-    <a class="navbar-item" href="#" onclick="toggleTheme(cyborg)">Cyborg </a>
-    <a class="navbar-item" href="#" onclick="toggleTheme(nuclear)">Nuclear </a>
-    <a class="navbar-item" href="#" onclick="toggleTheme(slate)">Slate </a>
-    <a class="navbar-item" href="#" onclick="toggleTheme(solar)"> Solar  </a>
-    <a class="navbar-item" href="#" onclick="toggleTheme(superhero)"> SuperHero  </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(darkly);location.reload()">Darkly </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(cyborg);location.reload()">Cyborg </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(nuclear);location.reload()">Nuclear </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(slate);location.reload()">Slate </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(solar);location.reload()"> Solar  </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(superhero);location.reload()"> SuperHero  </a>
     <hr class="navbar-divider">
-    <a class="navbar-item" href="#" onclick="toggleTheme(defaultbulma)">Default </a>
-    <a class="navbar-item" href="#" onclick="toggleTheme(cerulean)">Cerulean </a>
-    <a class="navbar-item" href="#" onclick="toggleTheme(cosmo)">Cosmo </a>
-    <a class="navbar-item" href="#" onclick="toggleTheme(journal)">Journal </a>
-    <a class="navbar-item" href="#" onclick="toggleTheme(flatly)"> Flatly  </a>
-    <a class="navbar-item" href="#" onclick="toggleTheme(lumen)"> Lumen  </a>
-    <a class="navbar-item" href="#" onclick="toggleTheme(lux)"> Lux  </a>
-    <a class="navbar-item" href="#" onclick="toggleTheme(materia)"> Materia  </a>
-    <a class="navbar-item" href="#" onclick="toggleTheme(minty)"> Minty  </a>
-    <a class="navbar-item" href="#" onclick="toggleTheme(pulse)"> Pulse  </a>
-    <a class="navbar-item" href="#" onclick="toggleTheme(sandstone)"> Sandstone  </a>
-    <a class="navbar-item" href="#" onclick="toggleTheme(simplex)"> Simplex  </a>
-    <a class="navbar-item" href="#" onclick="toggleTheme(spacelab)"> Spacelab  </a>
-    <a class="navbar-item" href="#" onclick="toggleTheme(united)"> United  </a>
-    <a class="navbar-item" href="#" onclick="toggleTheme(yeti)"> Yeti  </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(defaultbulma);location.reload()">Default </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(cerulean);location.reload()">Cerulean </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(cosmo);location.reload()">Cosmo </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(journal);location.reload()">Journal </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(flatly);location.reload()"> Flatly  </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(lumen);location.reload()"> Lumen  </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(lux);location.reload()"> Lux  </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(materia);location.reload()"> Materia  </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(minty);location.reload()"> Minty  </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(pulse);location.reload()"> Pulse  </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(sandstone);location.reload()"> Sandstone  </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(simplex);location.reload()"> Simplex  </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(spacelab);location.reload()"> Spacelab  </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(united);location.reload()"> United  </a>
+    <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(yeti);location.reload()"> Yeti  </a>
   </div>
     </div>
 

@@ -19,8 +19,9 @@
     <div class="column is-4">
       <div class="box">
         <div class="grid-buscar m-6">
-          <input type="text" placeholder="Buscar" x-model="buscar" @keyup.enter="restringirBusqueda(buscar)" class="input text-big" />
-          <button class="button is-primary text-big" @click="restringirBusqueda(buscar)">Buscar</button>
+          <input type="text" placeholder="Buscar" x-model="buscar" @keyup.enter="restringirBusqueda(buscar)"
+                 class="input " :class="darkTheme?'input-dark':''"/>
+          <button class="button is-primary " @click="restringirBusqueda(buscar)">Buscar</button>
         </div>
       </div>
     </div>

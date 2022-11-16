@@ -15,10 +15,10 @@ block style %}
 
   <div class="block">
     <span class="tag is-small is-black"  x-show="cntSeleccionados" x-text="cntSeleccionados"></span>
-    <label for="desde" class="text-big">Desde</label>
+    <label for="desde" class="">Desde</label>
     <input type="date" name="desde" x-model="desde" class="input" style="width:150px;"
            :class="darkTheme?'input-dark':''"/>
-    <label for="hasta" class="text-big">Hasta</label>
+    <label for="hasta" class="">Hasta</label>
     <input type="date" name="hasta" x-model="hasta" class="input" style="width:150px;"
            :class="darkTheme?'input-dark':''"/>
     <button class="button" @click="seleccionar()">Seleccionar</button>

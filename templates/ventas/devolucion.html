@@ -26,7 +26,8 @@
     <div class="box">
       <div class="columns">
         <div class="column is-2">
-          <input class="input text-big" type="text" placeholder="N° Cuenta" autofocus x-model="idvta" @keyup.enter="buscarCliente()">
+          <input class="input " type="text" placeholder="N° Cuenta" autofocus x-model="idvta"
+                 @keyup.enter="buscarCliente()" :class="darkTheme?'input-dark':''">
         </div>
         <div class="column is-10">
           <h1 x-text="nombre" class="title is-1"></h1>
@@ -38,19 +39,22 @@
       <div class="field">
         <label for="fecha">Fecha Devolucion</label>
         <div class="control">
-	      <input type="date" class="input" x-model="fechadev" style="width:150px;" name="fecha" />
+	      <input type="date" class="input" x-model="fechadev" style="width:150px;" name="fecha"
+                 :class="darkTheme?'input-dark':''"/>
         </div>
       </div>
       <div class="field">
         <label for="cobr">Retiro</label>
         <div class="control">
-          <input type="text" class="input" x-model="cobr" placeholder="cobrador" style="width:100px;" name="cobr" />
+          <input type="text" class="input" x-model="cobr" placeholder="cobrador"
+                 style="width:100px;" name="cobr" :class="darkTheme?'input-dark':''"/>
         </div>
       </div>
       <div class="field">
         <label for="comprobante">Comprobante dejado</label>
         <div class="control">
-          <input list="compr"  class="input" x-model="comprdejado" autocomplete="off" style="width:150;" placeholder="comprobante"
+          <input list="compr"  class="input" x-model="comprdejado" autocomplete="off" style="width:150;"
+                 placeholder="comprobante" :class="darkTheme?'input-dark':''"
                  name="comprobante" />
           <datalist id="compr">
             <option value="Recibo"></option>
@@ -62,7 +66,8 @@
       <div class="field">
         <label for="rbo">Rbo Nº</label>
         <div class="control">
-          <input type="text" class="input" x-model="rbon" placeholder="rbo N°" style="width:80px;" name="rbo" />
+          <input type="text" class="input" x-model="rbon" placeholder="rbo N°" style="width:80px;"
+                 name="rbo" :class="darkTheme?'input-dark':''"/>
         </div>
       </div>
 
@@ -70,7 +75,7 @@
         <label for="totpar">Total/parcial</label>
         <div class="control">
           <input list="tot"  class="input" x-model="totparcial" autocomplete="off" style="width:100px;"
-                 placeholder="total/parcial" name="totpar" />
+                 placeholder="total/parcial" name="totpar" :class="darkTheme?'input-dark':''"/>
           <datalist id="tot">
             <option value="Total"></option>
             <option value="Parcial"></option>
@@ -118,13 +123,15 @@
         <div class="field">
           <label for="cc">Cuotas</label>
           <div class="control">
-            <input type="text" class="input" x-model="cc" placeholder="Cant Cuotas" style="width:100px;" id="cc"/>
+            <input type="text" class="input" x-model="cc" placeholder="Cant Cuotas"
+                   style="width:100px;" id="cc" :class="darkTheme?'input-dark':''"/>
           </div>
         </div>
         <div class="field">
           <label for="ic">Importe</label>
           <div class="control">
-            <input type="text" class="input" x-model="imp" placeholder="Imp Cuota" style="width:150;" id="ic"/>
+            <input type="text" class="input" x-model="imp" placeholder="Imp Cuota"
+                   style="width:150;" id="ic" :class="darkTheme?'input-dark':''"/>
           </div>
         </div>
       </div>
@@ -142,9 +149,11 @@
         <section class="modal-card-body">
           <!-- Content ... -->
           <label for="cnt">Cantidad</label>
-          <input name="cnt" class="input" type="text" x-model="Articulo.cnt" />
+          <input name="cnt" class="input" type="text" x-model="Articulo.cnt"
+                 :class="darkTheme?'input-dark':''"/>
           <label for="art">Articulo</label>
-          <input type="text" list="listaarticulos" class="input mb-1" x-model="Articulo.art" id="art"/>
+          <input type="text" list="listaarticulos" class="input mb-1" x-model="Articulo.art"
+                 id="art" :class="darkTheme?'input-dark':''"/>
           <datalist id="listaarticulos">
             <template x-for="item in Arts">
               <option :value="item"></option>
@@ -152,7 +161,8 @@
           </datalist>
 
           <label for="imp">Imp Cuota</label>
-          <input name="imp" class="input" type="text" x-model="Articulo.ic" />
+          <input name="imp" class="input" type="text" x-model="Articulo.ic"
+                 :class="darkTheme?'input-dark':''"/>
 
         </section>
         <footer class="modal-card-foot">

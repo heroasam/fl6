@@ -26,32 +26,32 @@
   <div class="columns">
     <div class="column is-4">
       <div class="grid-buscar  mr-3 mt-2">
-        <input type="search" placeholder="Filtrar por zona:" class="input text-big" x-model="buscar"
-		       @focus="buscar=''"  autofocus list="zonas">
+        <input type="search" placeholder="Filtrar por zona:" class="input " x-model="buscar"
+		       @focus="buscar=''"  autofocus list="zonas" :class="darkTheme?'input-dark':''">
         <datalist id="zonas">
           <template x-for="item in listazonas">
             <option :value="item"></option>
           </template>
         </datalist>
 
-        <button type="button" @click="filtrarZona(buscar)" class="button is-primary text-big">Buscar</button>
+        <button type="button" @click="filtrarZona(buscar)" class="button is-primary ">Buscar</button>
       </div>
     </div>
     <div class="column is-4">
       <div class="grid-buscar  mr-3 mt-2">
-        <input type="search" placeholder="Cambiar por zona:" class="input text-big" x-model="cambiar"
-		       @focus="cambiar=''"  autofocus list="zonas">
+        <input type="search" placeholder="Cambiar por zona:" class="input " x-model="cambiar"
+		       @focus="cambiar=''"  autofocus list="zonas" :class="darkTheme?'input-dark':''">
         <datalist id="zonas">
           <template x-for="item in listazonas">
             <option :value="item"></option>
           </template>
         </datalist>
 
-        <button type="button" @click="cambiarZona(cambiar)" class="button is-danger text-big">Cambiar</button>
+        <button type="button" @click="cambiarZona(cambiar)" class="button is-danger ">Cambiar</button>
       </div>
     </div>
     <div class="column is-2">
-      <button class="button is-danger text-big" @click="borrarZona(buscar)">Borrar zona</button>
+      <button class="button is-danger " @click="borrarZona(buscar)">Borrar zona</button>
     </div>
   </div>
 

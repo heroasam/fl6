@@ -25,10 +25,11 @@
 
   <div class="columns">
     <div class="column is-4">
-  <div class="grid-buscar  mr-3 mt-2">
-    <input type="search" placeholder="Filtrar:" class="input text-big" x-model="buscar"
-		   @focus="buscar=''" @keyup.enter="filtrarBarrio(buscar)" autofocus>
-    <button type="button" @click="filtrarBarrio(buscar)" class="button is-primary text-big">Buscar</button>
+      <div class="grid-buscar  mr-3 mt-2">
+        <input type="search" placeholder="Filtrar:" class="input" x-model="buscar"
+		       @focus="buscar=''" @keyup.enter="filtrarBarrio(buscar)" autofocus
+               :class="darkTheme?'input-dark':''">
+    <button type="button" @click="filtrarBarrio(buscar)" class="button is-primary">Buscar</button>
   </div>
     </div>
   </div>

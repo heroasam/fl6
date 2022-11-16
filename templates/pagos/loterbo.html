@@ -28,20 +28,26 @@ block style %}
   </div>
 
   <div class="fields is-horizontal block">
-    <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
-    <input type="date" x-model="fecha" class="input" style="width: 200px;">
+    <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"
+           :class="darkTheme?'input-dark':''"/>
+    <input type="date" x-model="fecha" class="input" style="width: 200px;"
+           :class="darkTheme?'input-dark':''">
     <input type="text" x-model="cobr" class="input" style="width: 100px;" placeholder="Cobrador"
-           @blur="buscarCobrador(cobr)" @keyup.enter="buscarCobrador(cobr)">
-    <input type="text" x-model="cnt" class="input" style="width: 100px;" placeholder="Cnt Rbos" disabled>
+           @blur="buscarCobrador(cobr)" @keyup.enter="buscarCobrador(cobr)"
+           :class="darkTheme?'input-dark':''">
+    <input type="text" x-model="cnt" class="input" style="width: 100px;"
+           placeholder="Cnt Rbos" disabled :class="darkTheme?'input-dark':''">
     <button type="button" class="button is-danger" @click="validarLote()">Guardar e Imprimir</button>
     <button type="button" class="button is-warning" @click="limpiar">Limpiar</button>
   </div>
   <div class="fields is-horizontal block">
     <input type="text" x-model="desde" class="input" style="width: 100px;" placeholder="Desde"
-           @keyup="hasta=desde" @keyup.enter="$refs.hasta.focus()" @focus="desde=''">
+           @keyup="hasta=desde" @keyup.enter="$refs.hasta.focus()" @focus="desde=''"
+           :class="darkTheme?'input-dark':''">
     <button type="button" class="button is-info  is-rounded" @click="hasta=Number(desde)+49">50</button>
     <input type="text" x-model="hasta" class="input" style="width: 100px;" placeholder="Hasta"
-           x-ref="hasta" @keydown="cambiarNum(event)" @focusin="mostrarAyuda=true">
+           x-ref="hasta" @keydown="cambiarNum(event)" @focusin="mostrarAyuda=true"
+           :class="darkTheme?'input-dark':''">
     <button type="button" class="button is-danger" @click="agregarRbos(desde,hasta)">Agregar</button>
     <button type="button" class="button is-warning" @click="quitarRbos(desde,hasta)">Quitar</button>
   </div>

@@ -31,7 +31,8 @@
   <div class="block">
 	<div class="grid-buscar  mr-3 mt-2 center">
       <input type="text" list="listacuentas" class="input mb-1" x-model="buscar"  placeholder="Busca por: Cuenta"
-             @focus="buscar=''" @keyup.enter="getAsientos(buscar)" autofocus id="searchCuenta"/>
+             @focus="buscar=''" @keyup.enter="getAsientos(buscar)" autofocus id="searchCuenta"
+             :class="darkTheme?'input-dark':''"/>
       <datalist id="listacuentas">
         <template x-for="item in cuentas">
           <option :value="item"></option>

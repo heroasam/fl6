@@ -24,9 +24,10 @@ block style %}
 
     <div class="columns"><div class="column is-4">
 	  <div class="grid-buscar  mr-3 mt-2">
-        <input type="search" placeholder="Filtrar:" class="input text-big" x-model="buscar"
-		       @focus="buscar=''" @keyup.enter="filtrarCalle(buscar)" autofocus>
-        <button type="button" @click="filtrarCalle(buscar)" class="button is-primary text-big">Buscar</button>
+        <input type="search" placeholder="Filtrar:" class="input" x-model="buscar"
+		       @focus="buscar=''" @keyup.enter="filtrarCalle(buscar)" autofocus
+               :class="darkTheme?'input-dark':''">
+        <button type="button" @click="filtrarCalle(buscar)" class="button is-primary">Buscar</button>
 	  </div>
     </div></div>
     <button class="button is-primary" @click="toggleModal('modal-add')">Agregar Calle</button>

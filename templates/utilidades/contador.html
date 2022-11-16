@@ -20,53 +20,61 @@
         <div class="div-billete div-billete-total" x-text="sumObj(Billete)"></div>
       </div>
     </div>
-<div @keydown.enter="$focus.next()">
-<div class="flex gap-1">
+    <div @keydown.enter="$focus.next()">
+      <div class="flex gap-1">
         <img alt="" src="/static/billetes/1000.png" width="200" height="100" />
         <input name="" type="text" x-model="Billete.valor1000"
-        @blur="Billete.total1000=Billete.valor1000*1000" class="input-billete" />
+               @blur="Billete.total1000=Billete.valor1000*1000" class="input-billete"
+               :class="darkTheme?'input-dark':''"/>
         <div x-show="Billete.valor1000" x-text="Billete.valor1000*1000||''" class="div-billete"></div>
-</div>
-<div class="flex gap-1">
+      </div>
+      <div class="flex gap-1">
         <img alt="" src="/static/billetes/500.png" width="200" height="100" />
         <input name="" type="text" x-model="Billete.valor500"
-               @blur="Billete.total500=Billete.valor500*500" class="input-billete" />
+               @blur="Billete.total500=Billete.valor500*500" class="input-billete"
+               :class="darkTheme?'input-dark':''"/>
         <div x-show="Billete.valor500" x-text="Billete.valor500*500||''" class="div-billete"></div>
-</div>
-<div class="flex gap-1">
+      </div>
+      <div class="flex gap-1">
         <img alt="" src="/static/billetes/200.png" width="200" height="100" />
         <input name="" type="text" x-model="Billete.valor200"
-        @blur="Billete.total200=Billete.valor200*200" class="input-billete" />
+               @blur="Billete.total200=Billete.valor200*200" class="input-billete"
+               :class="darkTheme?'input-dark':''"/>
         <div x-show="Billete.valor200" x-text="Billete.valor200*200||''" class="div-billete"></div>
-</div>
-<div class="flex gap-1">
+      </div>
+      <div class="flex gap-1">
         <img alt="" src="/static/billetes/100.png" width="200" height="100" />
         <input name="" type="text" x-model="Billete.valor100"
-        @blur="Billete.total100=Billete.valor100*100" class="input-billete" />
+               @blur="Billete.total100=Billete.valor100*100" class="input-billete"
+               :class="darkTheme?'input-dark':''"/>
         <div x-show="Billete.valor100" x-text="Billete.valor100*100||''" class="div-billete"></div>
-</div>
-<div class="flex gap-1">
+      </div>
+      <div class="flex gap-1">
         <img alt="" src="/static/billetes/50.png" width="200" height="100" />
         <input name="" type="text" x-model="Billete.valor50"
-        @blur="Billete.total50=Billete.valor50*50" class="input-billete" />
+               @blur="Billete.total50=Billete.valor50*50" class="input-billete"
+               :class="darkTheme?'input-dark':''"/>
         <div x-show="Billete.valor50" x-text="Billete.valor50*50||''" class="div-billete"></div>
-</div>
-<div class="flex gap-1">
+      </div>
+      <div class="flex gap-1">
         <img alt="" src="/static/billetes/20.png" width="200" height="100" />
         <input name="" type="text" x-model="Billete.valor20"
-        @blur="Billete.total20=Billete.valor20*20" class="input-billete" />
+               @blur="Billete.total20=Billete.valor20*20" class="input-billete"
+               :class="darkTheme?'input-dark':''"/>
         <div x-show="Billete.valor20" x-text="Billete.valor20*20||''" class="div-billete"></div>
 </div>
 </div>
 <div class="flex mt-6" x-show="mostrarArqueo">
   <label for="tienequehaber">Tiene que haber</label>
   <input name="tienequehaber" type="text" x-model="Arqueo.tienequehaber" class="input is-large"
-         @keyup.enter="Arqueo.hay=sumObj(Billete);Arqueo.saldo=Arqueo.hay-Arqueo.tienequehaber"/>
+         @keyup.enter="Arqueo.hay=sumObj(Billete);Arqueo.saldo=Arqueo.hay-Arqueo.tienequehaber"
+         :class="darkTheme?'input-dark':''"/>
   <label for="hay">Hay</label>
-  <input name="hay" type="text" x-model="Arqueo.hay"  class="input is-large"/>
+  <input name="hay" type="text" x-model="Arqueo.hay"  class="input is-large"
+         :class="darkTheme?'input-dark':''"/>
   <label for="saldo">Sobra/Falta</label>
   <input name="saldo" type="text" x-model="Arqueo.saldo"  class="input is-large"
-  :class="Arqueo.saldo<0?'input-arqueo-negativo':''" />
+         :class="Arqueo.saldo<0?'input-arqueo-negativo':''" :class="darkTheme?'input-dark':''"/>
 </div>
 </div>
 
