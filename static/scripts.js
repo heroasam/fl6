@@ -515,6 +515,7 @@ function toggleTheme(themeName) {
 document.addEventListener("DOMContentLoaded", () => {
     const theme = document.getElementById('bulma');
     theme.setAttribute('href', cdnTheme);
+    axios.get('/utilidades/logthemes/'+nameTheme+'/'+isMobileDevice)
 });
 
 function toggleModal(id) {

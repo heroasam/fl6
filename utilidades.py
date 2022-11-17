@@ -7,6 +7,7 @@ import simplejson as json
 import mysql.connector
 import os
 import glob
+from urllib.parse import urlparse
 from formularios import listadocumentos
 
 
@@ -109,3 +110,24 @@ def utilidades_listawapp():
 def utilidades_wapp():
     """Muestro pagina wapp."""
     return render_template('/utilidades/wapp.html')
+
+
+@utilidades.route('/utilidades/logthemes/<theme>/<ismobile>')
+def utilidades_logtheme(theme, ismobile):
+    """Hago el log del theme usado por el usuario."""
+    ruta = urlparse(request.referrer).path
+    if "@" in str(current_user):
+        email = current_user.email
+    else:
+        email = ""
+    if ismobile =='true':
+        ismobile = 'mobile'
+    else:
+        ismobile = 'desktop'
+    with open("/home/hero/log/themes.log", "a", encoding="utf-8") as log_file:
+        log_file.write('\n')
+        log_file.write(time.strftime('%Y-%m-%d',time.localtime())+', '+\
+                      time.strftime('%H:%M:%S',time.localtime())+', '+\
+                       theme+', '+email+', '+ismobile+', '+ruta)
+        log_file.close()
+    return 'ok'
