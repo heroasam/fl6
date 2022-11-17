@@ -1158,7 +1158,7 @@
              this.Recibo.cobr = ''
          },
          validarRecibo(){
-             if(!this.listaCuentas.includes(this.Recibo.cuenta)){
+             if(!this.listaCuentas.includes(Number(this.Recibo.cuenta))){
                  msgError('El Nº de cuenta no corresponde al cliente')
                  return}
              this.guardarRecibo()
