@@ -86,13 +86,14 @@ def stock_guardarasiento():
     return 'OK'
 
 
-@stock.route('/stock/editarcomentarioasiento', methods=['POST'])
-def stock_editarcomentarioasiento():
-    """Editar comentarios en asientos."""
+@stock.route('/stock/editarasiento', methods=['POST'])
+def stock_editarasiento():
+    """Editar asientos."""
     con = get_con()
     d_data = json.loads(request.data.decode("UTF-8"))
-    upd = f"update caja set comentario='{d_data['comentario']}' where id=\
-            {d_data['id']}"
+    upd = f"update caja set comentario='{d_data['comentario']}', \
+    fecha='{d_data['fecha']}', imp={d_data['imp']}, \
+    cuenta='{d_data['cuenta']}' where id= {d_data['id']}"
     cur = con.cursor()
     cur.execute(upd)
     log(upd)

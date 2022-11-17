@@ -82,7 +82,7 @@
             <td :class="asiento.cuenta.slice(0,6)=='bancos'?'bancos':''" x-text="asiento.cuenta" style="min-width:250px;"></td>
             <td :class="asiento.imp<0?'negativo':''" x-text="asiento.imp" style="min-width:100px;" class="pesos"></td>
             <td x-text="asiento.comentario"></td>
-            <td><i class="fa fa-pencil" aria-hidden="true" @click="editarComentarioAsiento(asiento.id)"></td>
+            <td><i class="fa fa-pencil" aria-hidden="true" @click="editarAsiento(asiento.id)"></td>
         </tr>
       </template>
     </tbody>
@@ -93,17 +93,31 @@
     <div class="modal-background"></div>
     <div class="modal-card">
       <header class="modal-card-head">
-        <p class="modal-card-title">Editar Comentario</p>
+        <p class="modal-card-title" x-text="'Asiento Nº '+AsientoEdicion.id"></p>
         <button class="delete" aria-label="close" @click="toggleModal('modal-edicion')"></button>
       </header>
       <section class="modal-card-body">
         <!-- Content ... -->
-        <label for="idasiento" x-text="'Asiento Nº '+AsientoEdicion.id"></label>
-        <textarea class="textarea mb-3" rows="4" x-model="AsientoEdicion.comentario" id="idasiento"></textarea>
+        <label for="idfecha">Fecha</label>
+        <input name="idfecha" type="date" x-model="AsientoEdicion.fecha" class="input mb-1"
+               :class="darkTheme?'input-dark':''"/>
+        <input type="text" list="listacuentas" class="input mb-1" x-model="AsientoEdicion.cuenta"
+               :class="darkTheme?'input-dark':''"/>
+        <datalist id="listacuentas">
+          <template x-for="item in cuentas">
+            <option :value="item"></option>
+          </template>
+        </datalist>
+        <label for="idimporte">Importe</label>
+        <input name="idimporte" type="text" x-model="AsientoEdicion.imp"  class="input mb-1"
+               :class="darkTheme?'input-dark':''"/>
+        <label for="idcomentario">Comentario</label>
+        <textarea class="textarea mb-3" rows="4" x-model="AsientoEdicion.comentario" id="idcomentario"
+                  :class="darkTheme?'input-dark':''"></textarea>
 
       </section>
       <footer class="modal-card-foot">
-        <button class="button is-success" @click="guardarComentarioAsiento()">Editar</button>
+        <button class="button is-success" @click="guardarEdicionAsiento()">Editar</button>
         <button class="button" @click="toggleModal('modal-edicion')">Cancelar</button>
       </footer>
     </div>
@@ -172,14 +186,14 @@
                                                                      msgSuccess('Exito!','Asiento guardado con exito')
                                                                  })
          },
-         editarComentarioAsiento(id){
+         editarAsiento(id){
              this.AsientoEdicion = this.listAsientos.filter(row=>row.id==id)[0];
              toggleModal('modal-edicion')
          },
 
-         guardarComentarioAsiento(){
+         guardarEdicionAsiento(){
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-             axios.post('/stock/editarcomentarioasiento',this.AsientoEdicion)
+             axios.post('/stock/editarasiento',this.AsientoEdicion)
                                                                  .then(res=>{
                                                                      msgSuccess('Edicion Exitosa')
                                                                      this.getAsientos()
