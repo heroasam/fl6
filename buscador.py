@@ -8,6 +8,8 @@ from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
     pglflat, log_busqueda
 from formularios import intimacion, libredeuda, ficha, recibotransferencia
 from con import get_con, log
+import mysql.connector
+import logging
 
 
 buscador = Blueprint('buscador', __name__)
@@ -444,21 +446,33 @@ def buscar_pedirwappcobrador(cobr):
     return jsonify(wapp=wapp)
 
 
-@buscador.route('/buscador/generarplandepagos/<int:idcliente>', methods=['POST'])
+@buscador.route('/buscador/generarplandepagos/<int:idcliente>',
+                methods=['POST'])
 def buscar_generarplandepagos(idcliente):
     d = json.loads(request.data.decode("UTF-8"))
-    upd = f"update ventas set saldo=0, pcondo=1 where idcliente={idcliente} and saldo>0"
+    upd = f"update ventas set saldo=0, pcondo=1 where idcliente={idcliente} \
+    and saldo>0"
+    ins = f"insert into ventas(fecha,cc,ic,p,primera,pp,idvdor,idcliente)\
+    values('{d['fecha']}',{d['cc']},{d['ic']},{d['p']},'{d['primera']}' \
+    ,1,10,{idcliente})"
     con = get_con()
     cur = con.cursor()
-    cur.execute(upd)
-    con.commit()
-    log(upd)
-    ins = f"insert into ventas(fecha,cc,ic,p,primera,pp,idvdor,idcliente) values('{d['fecha']}',{d['cc']},{d['ic']},{d['p']},'{d['primera']}',1,10,{idcliente})"
-    cur.execute(ins)
-    con.commit()
-    log(ins)
-    con.close()
-    return 'ok'
+    try:
+        cur.execute(upd)
+        cur.execute(ins)
+    except mysql.connector.Error as _error:
+        logging.warning(ins)
+        logging.warning(upd)
+        con.rollback()
+        error = _error.msg
+        logging.warning(error)
+        return make_response(error, 400)
+    else:
+        con.commit()
+        log(upd)
+        log(ins)
+        con.close()
+        return 'ok'
 
 
 @buscador.route('/buscador/intimar', methods=["POST"])

@@ -5,6 +5,8 @@ import os
 import logging
 import requests
 from flask_login import current_user
+from flask import make_response
+import mysql.connector
 from con import get_con, log
 
 
@@ -339,10 +341,17 @@ def send_msg_whatsapp(idcliente, wapp, msg):
         upd = f"update logwhatsapp set response='invalid', enviado=\
                 {int(time.time())} where id = {id}"
         logging.warning(upd)
-        cur.execute(upd)
-        con.commit()
-        con.close()
-        return "invalid"
+        try:
+            cur.execute(upd)
+        except mysql.connector.Error as _error:
+            con.rollback()
+            error = _error.msg
+            logging.warning(error)
+            return make_response(error, 400)
+        else:
+            con.commit()
+            con.close()
+            return "invalid"
     elif "Failed" in response.text:
         upd = f"update logwhatsapp set response='failed', enviado=\
                 {int(time.time())} where id = {id}"

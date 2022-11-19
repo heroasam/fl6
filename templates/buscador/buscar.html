@@ -599,7 +599,7 @@
 
       </section>
       <footer class="modal-card-foot">
-        <button class="button is-primary" @click="guardarPlanPagos">Generar</button>
+        <button class="button is-primary" @click="validarPlanPagos">Generar</button>
         <button class="button" @click="toggleModal('modal-edicion-plan-pagos')">Cancelar</button>
       </footer>
     </div>
@@ -1102,6 +1102,13 @@
          agregarPlanPago(){
              toggleModal('modal-edicion-plan-pagos')
          },
+         validarPlanPagos(){
+             if(this.validarListVar([this.Venta.primera,this.Venta.fecha,this.Venta.cc,this.Venta.ic,this.Venta.p])){
+                 this.guardarPlanPagos()
+             }else{
+                 msgError('Complete los datos faltantes')
+           }
+         },
          guardarPlanPagos(){
              this.Venta.p = this.Venta.p=="Mensual"?1:this.Venta.p=="Quincenal"?2:3
              toggleModal('modal-edicion-plan-pagos')
@@ -1112,7 +1119,7 @@
 								                                     this.refreshCliente(this.Cliente.dni)
 								                                 })
 								                                 .catch(error=>{
-								                                     msgError('Error',error.request.response)
+								                                     msgError('Hubo un error y el plan de pagos no se genero')
 								                                 })
 
          },
@@ -1455,6 +1462,13 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
              if(this.buscar=='') this.buscar = {{dnilistado|tojson}}
              this.buscarCliente()
              {% endif %}
+         },
+         validarListVar(list){
+             for(item of list){
+                 if(typeof item === "undefined") return false;
+                 if(item=='') return false;
+             }
+             return true;
          },
      }
  }
