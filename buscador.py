@@ -1,5 +1,7 @@
 """Modulo que dirige todo lo relativo a la busqueda de clientes."""
 import re
+import logging
+import mysql.connector
 from flask import Blueprint, render_template, jsonify, make_response, request,\
     send_file
 from flask_login import login_required
@@ -8,8 +10,6 @@ from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
     pglflat, log_busqueda
 from formularios import intimacion, libredeuda, ficha, recibotransferencia
 from con import get_con, log
-import mysql.connector
-import logging
 
 
 buscador = Blueprint('buscador', __name__)

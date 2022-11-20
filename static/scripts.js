@@ -517,7 +517,19 @@ document.addEventListener("DOMContentLoaded", () => {
     theme.setAttribute('href', cdnTheme);
     axios.get('/utilidades/logthemes/'+nameTheme+'/'+isMobileDevice)
 });
+// if(document.readyState === 'loading') {
+//     document.addEventListener('DOMContentLoaded',afterDOMLoaded);
+// } else {
+//     afterDOMLoaded();
+// }
 
+// function afterDOMLoaded(){
+//     //Everything that needs to happen after the DOM has initially loaded.
+//     const theme = document.getElementById('bulma');
+//     theme.setAttribute('href', cdnTheme);
+//     axios.get('/utilidades/logthemes/'+nameTheme+'/'+isMobileDevice)
+
+// }
 function toggleModal(id) {
     let $id = document.getElementById(id);
     $id.classList.toggle('is-active'); //
@@ -578,24 +590,10 @@ function autoComplete(url, inputId, suggestionId) {
      navigator.clipboard.writeText('');
  }
 
-document.addEventListener('DOMContentLoaded', () => {
 
-  // Get all "navbar-burger" elements
-  const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
-
-  // Add a click event on each of them
-  $navbarBurgers.forEach( el => {
-    el.addEventListener('click', () => {
-
-      // Get the target from the "data-target" attribute
-      const target = el.dataset.target;
-      const $target = document.getElementById(target);
-
-      // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
-      el.classList.toggle('is-active');
-      $target.classList.toggle('is-active');
-
-    });
-  });
-
-});
+function toggleActive(){
+    const $navburger = document.getElementById('navburger');
+    const target = $navburger.dataset.target;
+    const $target = document.getElementById(target);
+    $target.classList.toggle('is-active')
+}
