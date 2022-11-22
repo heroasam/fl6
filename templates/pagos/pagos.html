@@ -297,9 +297,12 @@
          procesarCorreccionCobrador(){
              toggleModal('modal-edicion-corregir-cobrador')
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
+             msgDelay('Espere que se procesen los datos')
              axios.post('/pagos/corregirplanillacobrador',this.Procesar)
                   .then(res=>{
                       msgSuccess('Cobrador cambiado con exito')
+                      this.Pagos.cobr=this.Procesar.cobr2
+                      this.cargarListado()
                   })
                   .catch(error=>msgError(error.request.response))
          },

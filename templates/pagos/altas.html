@@ -43,6 +43,7 @@ block style %}
       <table class="table" id="table">
         <thead>
           <tr>
+            <th></th>
             <th>id</th>
             <th>nombre</th>
             <th>dni</th>
@@ -57,6 +58,7 @@ block style %}
         <tbody>
           <template x-for="item in listAltas">
             <tr>
+              <td><a :href="'/buscador/interno/'+item.dni" target="_blank" class="button is-small is-outlined is-primary">Ir</a></td>
               <td x-text="item.id"></td>
               <td x-text="item.nombre"></td>
               <td x-text="item.dni"></td>
