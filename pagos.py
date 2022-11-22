@@ -200,6 +200,29 @@ def pagos_pasarplanilla():
     return 'ok'
 
 
+@pagos.route('/pagos/corregirplanillacobrador', methods = ['POST'])
+def pagos_corregirplanillascobradores():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    upd = f"update pagos set cobr={d['cobr2']} where fecha='{d['fecha']}' and cobr={d['cobr']}"
+    stm = f"delete from planillas where fecha='{d['fecha']}' and idcobr={d['cobr']}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+        cur.execute(stm)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        log(upd)
+        log(stm)
+        con.close()
+        return 'ok'
+
+
+
 @pagos.route('/pagos/verplanillas')
 def pagos_verplanillas():
     return render_template("pagos/planillas.html" )
