@@ -446,21 +446,51 @@ def buscar_pedirwappcobrador(cobr):
     return jsonify(wapp=wapp)
 
 
-@buscador.route('/buscador/generarplandepagos/<int:idcliente>',
-                methods=['POST'])
-def buscar_generarplandepagos(idcliente):
-    d = json.loads(request.data.decode("UTF-8"))
-    upd = f"update ventas set saldo=0, pcondo=1 where idcliente={idcliente} \
-    and saldo>0"
-    ins = f"insert into ventas(fecha,cc,ic,p,primera,pp,idvdor,idcliente)\
-    values('{d['fecha']}',{d['cc']},{d['ic']},{d['p']},'{d['primera']}' \
-    ,1,10,{idcliente})"
+def buscar_buscarplandepagos_muerto(idcliente):
+    """Funcion que busca planes de pago muertos del cliente.
+
+    En el caso que tenga mas de un idvta con pp=1 por error del ultimo tiempo
+    pedimos el ultimo con max(id), en caso que exista buscamos si tiene pagos
+    asociados. Si no tiene pagos asociados se puede borrar tranquilamente y
+    devuelvo True o sea el plan de pagos esta muerto, y en otro caso ya sea que
+    no exista una idvta con pp=1 o si existe tenga pagos hechos devuelvo False
+    o sea el plan de pagos no esta muerto.
+    """
     con = get_con()
+    # pongo max(id) pq hay casos no muchos que tienen planes superpuestos
+    idplan = pgonecolumn(con, f"select max(id) from ventas where pp=1 and idcliente={idcliente}")
+    # ahora averiguo de ese idvta hizo pagos
+    if idplan is not None:
+        pagos = pglflat(con, f"select id from pagos where idvta={idplan}")
+        if len(pagos)==0:
+            return True
+    return False
+
+
+@buscador.route('/buscador/generarplandepagos',
+                methods=['POST'])
+def buscar_generarplandepagos():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    idcliente = d['idcliente']
+    stm = None
+    if buscar_buscarplandepagos_muerto(idcliente):
+        idplanmuerto = pgonecolumn(con, f"select max(id) from ventas where pp=1 and idcliente={idcliente}")
+        stm = f"delete from ventas where id={idplanmuerto}"
+    upd = f"update ventas set saldo=0, pcondo=1, pp=0 where idcliente={idcliente} \
+    and saldo>0"
+    ins = f"insert into ventas(fecha,cc,ic,p,primera,pp,idvdor,idcliente,cnt,art)\
+    values('{d['fecha']}',{d['cc']},{d['ic']},{d['p']},'{d['primera']}' \
+    ,1,10,{idcliente},1,'Plan de Pagos')"
     cur = con.cursor()
     try:
+        if stm is not None:
+            cur.execute(stm)
         cur.execute(upd)
         cur.execute(ins)
     except mysql.connector.Error as _error:
+        if stm is not None:
+            logging.warning(stm)
         logging.warning(ins)
         logging.warning(upd)
         con.rollback()
@@ -471,6 +501,8 @@ def buscar_generarplandepagos(idcliente):
         con.commit()
         log(upd)
         log(ins)
+        if stm is not None:
+            log(stm)
         con.close()
         return 'ok'
 

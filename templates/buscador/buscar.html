@@ -577,16 +577,16 @@
       <section class="modal-card-body">
         <!-- Content ... -->
         <label for="idfecha">Fecha</label>
-        <input type="date" class="input mb-3" x-model="Venta.fecha" id="idfecha"
+        <input type="date" class="input mb-3" x-model="PlanPagos.fecha" id="idfecha"
                :class="darkTheme?'input-dark':''" >
         <label for="cc" class="label">Cuotas</label>
-        <input type="text" class="input mb-3" x-model="Venta.cc" id="cc" autocomplete="off"
+        <input type="text" class="input mb-3" x-model="PlanPagos.cc" id="cc" autocomplete="off"
                :class="darkTheme?'input-dark':''" >
         <label for="ic" class="label">Importe</label>
-        <input type="text" class="input mb-3" x-model="Venta.ic" id="ic" autocomplete="off"
+        <input type="text" class="input mb-3" x-model="PlanPagos.ic" id="ic" autocomplete="off"
                :class="darkTheme?'input-dark':''" >
         <label for="p" class="label">Periodicidad</label>
-        <input list="per" id="p" class="input mb-3" x-model="Venta.p" autocomplete="off"
+        <input list="per" id="p" class="input mb-3" x-model="PlanPagos.p" autocomplete="off"
                :class="darkTheme?'input-dark':''" >
         <datalist id="per">
           <option value="Mensual"></option>
@@ -594,7 +594,7 @@
           <option value="Semanal"></option>
         </datalist>
         <label for="fechaprimer" class="label">Fecha Primer Cuota</label>
-        <input type="date" class="input mb-3" x-model="Venta.primera" id="fechaprimer"
+        <input type="date" class="input mb-3" x-model="PlanPagos.primera" id="fechaprimer"
                :class="darkTheme?'input-dark':''" >
 
       </section>
@@ -750,7 +750,7 @@
          msgWhatsapp:'',
          ventaWapp:'',
          Cliente:{},
-         Venta:{fecha:dayjs.utc().format('YYYY-MM-DD'),p:'Mensual'},
+         PlanPagos:{fecha:dayjs.utc().format('YYYY-MM-DD'),p:'Mensual'},
          Comentario:{fechahora:dayjs.utc().format('YYYY-MM-DD')},
          Asunto:{fecha:dayjs.utc().format('YYYY-MM-DD'),tipo:'',vdor:'',asunto:''},
          Recibo:{fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:''},
@@ -1103,20 +1103,22 @@
              toggleModal('modal-edicion-plan-pagos')
          },
          validarPlanPagos(){
-             if(this.validarListVar([this.Venta.primera,this.Venta.fecha,this.Venta.cc,this.Venta.ic,this.Venta.p])){
+             if(this.validarListVar([this.PlanPagos.primera,this.PlanPagos.fecha,this.PlanPagos.cc,this.PlanPagos.ic,this.PlanPagos.p])){
                  this.guardarPlanPagos()
              }else{
                  msgError('Complete los datos faltantes')
            }
          },
          guardarPlanPagos(){
-             this.Venta.p = this.Venta.p=="Mensual"?1:this.Venta.p=="Quincenal"?2:3
+             this.PlanPagos.p = this.PlanPagos.p=="Mensual"?1:this.PlanPagos.p=="Quincenal"?2:3
+             this.PlanPagos.idcliente = this.Cliente.id
              toggleModal('modal-edicion-plan-pagos')
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-             axios.post('/buscador/generarplandepagos/'+this.Cliente.id,this.Venta)
+             axios.post('/buscador/generarplandepagos',this.PlanPagos)
 								                                 .then(res=>{
 								                                     msgSuccess('Exito','Plan de pagos generado')
 								                                     this.refreshCliente(this.Cliente.dni)
+                                                                     this.PlanPagos={fecha:dayjs.utc().format('YYYY-MM-DD'),p:'Mensual'}
 								                                 })
 								                                 .catch(error=>{
 								                                     msgError('Hubo un error y el plan de pagos no se genero')
@@ -1185,7 +1187,7 @@
 									                                          .then(res=>{
 										                                          switch(res.data.response){
 										                                              case 'success': {
-											                                              msgSuccess('Exito!','Mensaje Enviado')
+											                                              msgSuccess('Exito!','Recibo Enviado')
 											                                              break
 										                                              }
 										                                              case 'invalid': {
@@ -1194,7 +1196,7 @@
 											                                              break
 										                                              }
 										                                              case 'failed': {
-											                                              msgError('Error!','Mensaje no enviado - Failed')
+											                                              msgError('Error!','Recibo no enviado - Failed')
 											                                              break
 										                                              }
 										                                          }

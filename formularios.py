@@ -245,7 +245,7 @@ def libredeuda(con,dni):
 def recibotransferencia(con,fecha,cuenta,nc,ic,cobr,rbo,idcliente):
     today = datetime.today().strftime('%Y-%m-%d')
     cliente = pgdict0(con, f"select nombre, calle,num,barrio,sev from clientes where id='{idcliente}'")
-    texto = f"""RECIBIMOS de {cliente[0]} con domicilio en {cliente[1]} {cliente[2]} {cliente[3]} la suma de pesos {letras(ic)} en concepto de pago de la cuota {nc} de la cuenta {cuenta}, por medio de una transferencia al CBU 0720556988000035614454."""
+    texto = f"""RECIBIMOS de {cliente[0]} con domicilio en {cliente[1]} {cliente[2]} {cliente[3]} la suma de pesos {letras(ic)} en concepto de pago de la cuota {nc} de la cuenta {cuenta}, por medio de una transferencia al CBU 0170084840000048757878."""
     advertencia = """Este recibo solo es valido si se adjunta con el comprobante de la transferencia que lo origino"""
     pdf=FPDF()
     pdf.set_margins(30,30)
