@@ -140,7 +140,9 @@
         <input type="text" class="input mb-3" x-model="Procesar.cobr2" id="idcobr2">
       </section>
       <footer class="modal-card-foot">
-        <button class="button is-primary" @click="procesarCorreccionCobrador">Procesar</button>
+        <button class="button is-primary" @click="procesarCorreccionCobrador">Corregir Todos</button>
+        <button class="button is-primary" @click="procesarCorreccionCobradorSeleccionados" x-show="cntSeleccionados"
+        >Corregir Solo los Seleccionados</button>
         <button class="button" @click="toggleModal('modal-edicion-corregir-cobrador')">Cancelar</button>
       </footer>
     </div>
@@ -163,6 +165,7 @@
          Planilla:{},
          Pagos:{fecha:dayjs.utc().format('YYYY-MM-DD'),cobr:'',rec:''},
          Procesar:{},
+         cntSeleccionados:'',
          buscaCobrador(cobr){
              axios.get('/loterbo/buscanombrecobr/'+cobr)
                   .then(res=>{
@@ -170,6 +173,7 @@
                   })
          },
          cargarListado(){
+             limpiarTabla('table')
              axios.get('/pagos/listado/'+this.Pagos.fecha+'/'+this.Pagos.cobr)
                   .then(res=>{
                       this.listado = res.data.listado
@@ -290,12 +294,38 @@
                  e.target.classList.remove('is-danger')
              }
          },
+         cuentaSeleccionados(){
+             let arraySeleccionados = []
+			 const $tbody = document.querySelector("tbody");
+        	 arrayRows = Array.from($tbody.children);
+        	 arrayRows.forEach((row) => {
+                 if(row.classList.contains('is-selected')){
+                     arraySeleccionados.push(row.cells[1].innerHTML)
+                     //OJO la celda de los idpagos
+             }})
+             return arraySeleccionados
+         },
          corregirCobrador(){
              toggleModal('modal-edicion-corregir-cobrador')
              this.Procesar.fecha = this.Pagos.fecha
              this.Procesar.cobr = this.Pagos.cobr
+             this.cntSeleccionados = this.cuentaSeleccionados().length
+             console.log( this.cuentaSeleccionados())
          },
          procesarCorreccionCobrador(){
+             toggleModal('modal-edicion-corregir-cobrador')
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
+             msgDelay('Espere que se procesen los datos')
+             axios.post('/pagos/corregirplanillacobrador',this.Procesar)
+                  .then(res=>{
+                      msgSuccess('Cobrador cambiado con exito')
+                      this.Pagos.cobr=this.Procesar.cobr2
+                      this.cargarListado()
+                  })
+                  .catch(error=>msgError(error.request.response))
+         },
+         procesarCorreccionCobradorSeleccionados(){
+             this.Procesar.ids = this.cuentaSeleccionados()
              toggleModal('modal-edicion-corregir-cobrador')
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
              msgDelay('Espere que se procesen los datos')
