@@ -43,7 +43,8 @@
 
     <div class="buttons">
       <template x-for="cliente in Clientes">
-        <button class="button is-primary" x-text="cliente.nombre" @click="Clientes=[];Clientes[0]=cliente;pedirVentas(cliente.dni)"></button>
+        <button class="button is-primary" x-text="cliente.nombre" @click="Clientes=[];Clientes[0]=cliente;pedirVentas(cliente.dni)"
+                @contextmenu="open('/buscador/interno/'+cliente.dni,'_blank')"></button>
       </template>
       <div id="btnVentas">
         <template x-for="venta in Ventas">
