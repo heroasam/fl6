@@ -5,7 +5,7 @@ block style %}
 
 {% block content %}
 
-<div class="container"  x-data="main()">
+<div class="container"  x-data="main()" x-init="getIdCobradores()">
   <!-- <div class="buttons">
        <a href="/pagos" class="button is-primary">Pagos</a>
        <a href="/pagos/verplanillas" class="button is-primary">Planillas</a>
@@ -72,6 +72,7 @@ block style %}
          cobr:'',
          cnt:'',
          listaRbos:[],
+         idCobradores:[],
          desde:'',
          hasta:'',
          idloterbo:'',
@@ -103,10 +104,10 @@ block style %}
              if(e.key==='/') this.hasta=Number(this.hasta)-10
          },
          validarLote(){
-             if(this.fecha!=''&&this.cobr!=''&&this.cnt!=''){
+             if(this.fecha!=''&&this.cobr!=''&&this.cnt!=''&&this.idCobradores.includes(this.cobr)){
                  this.guardarLote()
              }else{
-                 msgError('Complete los campos faltantes')
+                 msgError('Complete o corrija los datos.')
              }
          },
          guardarLote(){
@@ -136,7 +137,14 @@ block style %}
                   .then(res=>{
                       this.nombreCobrador=res.data.nombrecobr
                   })
+                  .catch(error=>msgError('El cobrador ingresado no existe o no esta activo.'))
          },
+         getIdCobradores(){
+             axios.get('/loterbo/getidcobradores')
+                  .then(res=>{
+                      this.idCobradores = res.data.idcobradores
+             })
+         }
 
      }
  }

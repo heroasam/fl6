@@ -94,9 +94,19 @@ def loterbo_delete(id):
 @pagos.route('/loterbo/buscanombrecobr/<int:cobr>')
 def loterbo_buscanombrecobr(cobr):
     con = get_con()
-    nombrecobr = pgonecolumn(con, f"select nombre from cobr where id={cobr}")
+    nombrecobr = pgonecolumn(con, f"select nombre from cobr where id={cobr} and activo=1 and prom=0")
     con.close()
-    return jsonify(nombrecobr=nombrecobr)
+    if len(nombrecobr)>0:
+        return jsonify(nombrecobr=nombrecobr)
+    else:
+        return make_response("error", 404)
+
+
+@pagos.route('/loterbo/getidcobradores')
+def loterbo_getidcobradores():
+    con = get_con()
+    idcobradores = pglflat(con, "select id from cobr where activo=1 and prom=0 and id>500")
+    return jsonify(idcobradores=idcobradores)
 
 
 @pagos.route('/pagos')
