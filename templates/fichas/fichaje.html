@@ -38,6 +38,7 @@ endblock %} {% block style %}
     <button class="button is-small is-dark" @click="muestraClientes('cancelados',zonaactual)">Cancelados</button>
     <button class="button is-small is-warning" @click="muestraClientes('gestion',zonaactual||'%')">Gestion</button>
     <button class="button is-small is-dark" @click="muestraClientes('antiguos',zonaactual)">Antiguos</button>
+    <button class="button is-small is-warning" @click="muestraClientes('ppagos',zonaactual||'%')">Planes</button>
     <button class="button is-small is-info" @click="muestraClientes('nuevomoroso',zonaactual||'%')">Atraso</button>
     <button class="button is-small is-info" @click="muestraClientes('morosos',zonaactual||'%')">Morosos</button>
     <button class="button is-small is-info" @click="muestraClientes('vender',zonaactual||'%')">Vender</button>
