@@ -167,7 +167,7 @@ def buscar_logcambiodireccion(idcliente):
 @buscador.route('/buscador/obtenerventascanceladasporidcliente/<int:idcliente>')
 def buscar_obtenerventascanceladasporidcliente(idcliente):
     """Entrega lista de ventas canceladas por idcliente."""
-    sql = f"select * from ventas where idcliente={idcliente} and saldo=0 order by id desc"
+    sql = f"select * from ventas where idcliente={idcliente} and saldo<=0 order by id desc"
     con = get_con()
     cur = con.cursor(dictionary=True)
     cur.execute(sql)

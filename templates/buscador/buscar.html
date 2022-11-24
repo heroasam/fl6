@@ -129,7 +129,7 @@
       <span class="tag is-info is-small" x-show="Cliente.seguir">SEGUIR</span>
     </div>
     <div :class="!isMobileDevice?'flex-baseline-space':'flex-column'">
-      <h2 x-text="Cliente.deuda?'$'+Cliente.deuda:'SIN DEUDA'" class="title is-2"></h2>
+      <h2 x-text="Cliente.deuda>0?'$'+Cliente.deuda:'SIN DEUDA'" class="title is-2"></h2>
       <h2 x-text="Cliente.pmovto=='Invalid Date'?'':Cliente.pmovto" class="title is-2 pointer" x-show="Cliente.deuda"
 	      @click="fecharPmovto(Cliente.id)"></h2>
       <a href="#table-comentarios"
