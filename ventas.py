@@ -240,7 +240,13 @@ def ventas_datosventa(id):
 def ventas_guardaredicionvta():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    upd = f"update ventas set fecha='{d['fecha']}',cc={d['cc']},ic={d['ic']},p={d['p']},pmovto='{d['pmovto']}',idvdor={d['idvdor']},primera='{d['primera']}' where id={d['id']}"
+    if d['dnigarante']!='':
+        garantizado = 1
+        dnigarante = d['dnigarante']
+    else:
+        garantizado = 0
+        dnigarante = 0
+    upd = f"update ventas set fecha='{d['fecha']}',cc={d['cc']},ic={d['ic']},p={d['p']},pmovto='{d['pmovto']}',idvdor={d['idvdor']},primera='{d['primera']}',garantizado={garantizado},dnigarante={dnigarante} where id={d['id']}"
     cur = con.cursor()
     try:
         cur.execute(upd)

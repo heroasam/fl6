@@ -9,18 +9,7 @@
 {% block content %}
 
 <div class="container" x-data="main()" x-init="getListado()">
-  <!-- <div class="buttons">
-       <a href="/ventas/ventas" class="button is-primary">Pasar Ventas</a>
-       <a href="/ventas/pordia" class="button is-primary">Ventas</a>
-       <a href="/ventas/clientes" class="button is-primary">Clientes</a>
-       <a href="/ventas/calles" class="button is-primary">Calles</a>
-       <a href="/ventas/barrios" class="button is-primary">Barrios</a>
-       <a href="/ventas/zonas" class="button is-primary">Zonas</a>
-       <a href="/ventas/cambiazonas" class="button is-primary">Rezonificar</a>
-       <a href="/ventas/estadisticas" class="button is-primary">Estadisticas</a>
-       <a href="/ventas/devolucion" class="button is-primary">Devoluciones</a>
-       <a href="/ventas/pivotdevoluciones" class="button is-primary">Pivot-Devol.</a>
-       </div> -->
+
   <p class="title is-1">Listado de Ventas</p>
   <div class="columns">
     <div class="column is-4">
@@ -99,6 +88,11 @@
         <input name="pmovto" class="input" type="date" x-model="Venta.pmovto" />
         <label for="idvdor">Vendedor</label>
         <input name="idvdor" class="input" type="text" x-model="Venta.idvdor" />
+        <label for="iddnigarante">DNI Garante</label>
+        <input name="iddnigarante" class="input" type="text" x-model="Venta.dnigarante"
+        @keyup.enter="validarDniGarante()" />
+        <span class="tag is-warning is-large" x-text="nombregarante" x-show="nombregarante"></span>
+        <span class="tag is-warning is-large" x-text="direcciongarante" x-show="direcciongarante"></span>
       </section>
       <footer class="modal-card-foot">
         <button class="button is-success" @click="validarEdicion()">Editar</button>
@@ -118,8 +112,10 @@
      return{
          listadoVentas:[],
          listadoVentas_:[],
-         Venta:{},
+         Venta:{dnigarante:''},
          buscar:'',
+         nombregarante:'',
+         direcciongarante:'',
          getListado(){
              axios.get('/ventas/getlistado')
                   .then(res=>{
@@ -192,6 +188,16 @@
                       })
                   })
          },
+         validarDniGarante(){
+             if(this.Venta.dnigarante!=''){
+                 axios.get('/ventas/obtenerdatosgarante/'+this.Venta.dnigarante)
+                      .then(res=>{
+                          this.nombregarante = res.data.garante[0].nombre
+                          this.direcciongarante = res.data.garante[0].direccion
+                      })
+                      .catch(error=>msgError('El DNI no existe'))
+             }
+         }
      }
  }
 </script>
