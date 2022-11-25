@@ -9,18 +9,6 @@
 {% block content %}
 
 <div class="container" x-data="main()" x-init="getZonas()">
-  <!-- <div class="buttons">
-       <a href="/ventas/ventas" class="button is-primary">Pasar Ventas</a>
-       <a href="/ventas/listado" class="button is-primary">Listado</a>
-       <a href="/ventas/pordia" class="button is-primary">Ventas</a>
-       <a href="/ventas/clientes" class="button is-primary">Clientes</a>
-       <a href="/ventas/calles" class="button is-primary">Calles</a>
-       <a href="/ventas/barrios" class="button is-primary">Barrios</a>
-       <a href="/ventas/zonas" class="button is-primary">Zonas</a>
-       <a href="/ventas/estadisticas" class="button is-primary">Estadisticas</a>
-       <a href="/ventas/devolucion" class="button is-primary">Devoluciones</a>
-       <a href="/ventas/pivotdevoluciones" class="button is-primary">Pivot-Devol.</a>
-       </div> -->
   <p class="title is-1">Rezonificar</p>
 
   <div class="columns">
@@ -58,23 +46,35 @@
   <table class="table" id="table">
     <thead>
       <tr>
+        <th></th>
         <th>id</th>
         <th>nombre</th>
         <th>calle</th>
         <th>num</th>
         <th>barrio</th>
         <th>zona</th>
+        <th>deuda</th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
       <template x-for="cliente in listaClientes">
         <tr>
+          <td><a :href="'/buscador/interno/'+cliente.dni" target="_blank">Ir</a></td>
           <td x-text="cliente.id"></td>
           <td x-text="cliente.nombre"></td>
           <td x-text="cliente.calle"></td>
           <td x-text="cliente.num"></td>
           <td x-text="cliente.barrio"></td>
           <td x-text="cliente.zona"></td>
+          <td x-text="cliente.deuda"></td>
+          <td><span class="tag is-small"  x-show="cliente.incobrable">INC</span></td>
+          <td><span class="tag is-small"  x-show="cliente.novendermas">LN</span></td>
+          <td><span class="tag is-small"  x-show="cliente.mudo">MUDO</span></td>
+          <td><span class="tag is-small"  x-show="cliente.gestion">GESTION</span></td>
         </tr>
       </template>
     </tbody>
