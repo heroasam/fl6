@@ -107,11 +107,22 @@
       </div>
     </div>
     <div class="columns">
+      <div class="column is-7">
+        <div class="flex-left">
+        <input type="text" x-model="venta.dnigarante" placeholder="DNI Garante" style="width:150px;"
+               class="input" :class="darkTheme?'input-dark':''" @keyup.enter="mostrarGarante()"
+               @blur="mostrarGarante()">
+        <span class="tag is-warning is-large" x-text="nombregarante" x-show="nombregarante"></span>
+        <span class="tag is-warning is-large" x-text="direcciongarante" x-show="direcciongarante"></span>
+        </div>
+      </div>
       <div class="column is-5" >
-        <button type="button" class="button is-danger" @click="validarCliente">Guardar</button>
+        <div class="flex-right">
         <button type="button" class="button is-warning" x-show="cliente.incobrable">INC</button>
         <button type="button" class="button is-warning" x-show="cliente.gestion">GESTION</button>
         <button type="button" class="button is-warning" x-show="cliente.mudo">MUDO</button>
+        <button type="button" class="button is-danger" @click="validarCliente">Guardar</button>
+        </div>
       </div>
     </div>
   </form>
@@ -243,7 +254,7 @@
          barrios:[],
          zonas:[],
          cliente:{id:'',sex:'',dni:'',calle:'', barrio:'', zona:'',acla:'', tel:'',wapp:'',mjecobr:'',horario:'',infoseven:''},
-         venta:{p:'', id:'', ant:'', fecha:dayjs.utc().format('YYYY-MM-DD'), idvdor:'', cc:'', ic:'',primera:dayjs.utc().format('YYYY-MM-DD')},
+         venta:{p:'', id:'', ant:'', fecha:dayjs.utc().format('YYYY-MM-DD'), idvdor:'', cc:'', ic:'',primera:dayjs.utc().format('YYYY-MM-DD'),dnigarante:''},
          detallevta:{art:'', cnt:'', ic:''},
          selected: null,
          periodicidad:['mensual','quincenal','semanal'],
@@ -254,6 +265,8 @@
          verVtaTerminada:false,
          verIdVta:false,
          idvta:'',
+         nombregarante:'',
+         direcciongarante:'',
          buscarDni(){
              axios.get('/ventas/buscarcliente/'+this.buscar)
                   .then(res=>{
@@ -393,6 +406,17 @@
              }else{
                  return true
              }
+         },
+         mostrarGarante(){
+             if(this.venta.dnigarante!=''){
+                 axios.get('/ventas/obtenerdatosgarante/'+this.venta.dnigarante)
+                      .then(res=>{
+                          this.nombregarante = res.data.garante[0].nombre
+                          this.direcciongarante = res.data.garante[0].direccion
+                          this.cliente.mjecobr = `Cuenta garantizada por: ${this.nombregarante} ${this.direcciongarante}`
+                      })
+                      .catch(error=>msgError('El DNI no existe'))
+           }
          },
  }}
 </script>

@@ -127,6 +127,8 @@
       <span class="tag is-warning is-small" x-show="Cliente.gestion">GESTION</span>
       <span class="tag is-danger is-small" x-show="Cliente.incobrable">INC</span>
       <span class="tag is-info is-small" x-show="Cliente.seguir">SEGUIR</span>
+      <span class="tag is-small is-danger pointer"  x-show="Cliente.garantizado"
+            @click="open('/buscador/interno/'+Cliente.dnigarante,'_blank')">GARANTE</span>
     </div>
     <div :class="!isMobileDevice?'flex-baseline-space':'flex-column'">
       <h2 x-text="Cliente.deuda>0?'$'+Cliente.deuda:'SIN DEUDA'" class="title is-2"></h2>

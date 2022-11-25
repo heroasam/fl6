@@ -111,7 +111,13 @@ def ventas_guardarventa():
         p=3
     else:
         p=2
-    ins = f"insert into ventas(fecha,idvdor,ant,cc,ic,p,primera,idcliente) values('{d['fecha']}',{d['idvdor']},{ant},{d['cc']},{d['ic']},{p},'{d['primera']}',{d['idcliente']})"
+    if d['dnigarante']!='':
+        garantizado = 1
+        dnigarante = d['dnigarante']
+    else:
+        garantizado = 0
+        dnigarante = 0
+    ins = f"insert into ventas(fecha,idvdor,ant,cc,ic,p,primera,idcliente,garantizado,dnigarante) values('{d['fecha']}',{d['idvdor']},{ant},{d['cc']},{d['ic']},{p},'{d['primera']}',{d['idcliente']},{garantizado},{dnigarante})"
     cur = con.cursor()
     try:
         cur.execute(ins)
@@ -811,3 +817,13 @@ def ventas_cambiarzona(zona):
         cur.close()
         con.close()
         return 'OK'
+
+
+@ventas.route('/ventas/obtenerdatosgarante/<dni>')
+def ventas_obtenerdatosgarante(dni):
+    con = get_con()
+    garante = pgdict(con, f"select nombre, concat(calle, ' ', num) as direccion from clientes where dni={dni}")
+    if len(garante)>0:
+        return jsonify(garante=garante)
+    else:
+        return make_response('dni no existe', 404)

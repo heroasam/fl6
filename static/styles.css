@@ -308,6 +308,10 @@ thead th {
     display:flex;
     align-items:flex-start;
 }
+.flex-right{
+    display:flex;
+    justify-content:end;
+}
 .flex-baseline-space{
     display: flex;
     align-items: baseline;
