@@ -24,7 +24,7 @@
      {% endif %}
      </div>
      </nav> -->
-<nav class="navbar" role="navigation" aria-label="main navigation" x-data="{verDropdownVentas:false, verDropdownPagos:false, verDropdownStock:false, verDropdownUtil:false, verDropdownThemes:false, verDropdownFichas:false, isClicked:false}">
+<nav class="navbar" role="navigation" aria-label="main navigation" x-data="{verDropdownVentas:false, verDropdownPagos:false, verDropdownStock:false, verDropdownUtil:false, verDropdownThemes:false, verDropdownFichas:false, verDropdownAuditoria:false, isClicked:false}">
   <!-- espacio de marca y burger para mobile -->
   <div class="navbar-brand">
     <a class="navbar-item" href="#">
@@ -132,6 +132,21 @@
     <a class="navbar-item" href="/utilidades/wapp"> Whatsapps  </a>
   </div>
             </div>
+
+            {% if current_user.email %}
+            {% if current_user.email in ("hfj024@gmail.com","hfj050@gmail.com") %}
+              <!-- dropdown-auditoria -->
+            <div class="navbar-item has-dropdown" :class="verDropdownAuditoria?'is-active':''">
+              <a class="navbar-link is-arrowless" @click="verDropdownAuditoria=!verDropdownAuditoria">
+                Auditoria
+              </a>
+              <div class="navbar-dropdown" x-show="verDropdownAuditoria">
+              <a class="navbar-item" href="/log">tabla Log</a>
+              <a class="navbar-item" href="/log1">nginx Log</a>
+              </div>
+            </div>
+            {% endif %}
+            {% endif %}
     </div>
 
   <!-- nav-end derecha -->
@@ -164,7 +179,8 @@
     <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(united);location.reload()"> United  </a>
     <a class="navbar-item" href="#" @click="verDropdownThemes=false;toggleTheme(yeti);location.reload()"> Yeti  </a>
   </div>
-    </div>
+
+      </div>
 
      {% if not current_user.email %}
      <a href="signup" class="navbar-link is-arrowless">Registrarse</a>

@@ -143,8 +143,8 @@
              let rowsArray = Array.from(tbody.rows);
              rowsArray.forEach((row) => {
                  if (row.classList.contains("is-selected")) {
-                     ids.push(row.cells[0].innerHTML);
-                     //la columna que corresponda al dni OJO
+                     ids.push(row.cells[1].innerHTML);
+                     //la columna que corresponda al id OJO
                  }
              });
              return ids
