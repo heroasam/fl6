@@ -90,7 +90,7 @@
         <input name="idvdor" class="input" type="text" x-model="Venta.idvdor" />
         <label for="iddnigarante">DNI Garante</label>
         <input name="iddnigarante" class="input" type="text" x-model="Venta.dnigarante"
-        @keyup.enter="validarDniGarante()" />
+               @keyup.enter="validarDniGarante()" autocomplete="off" />
         <span class="tag is-warning is-large" x-text="nombregarante" x-show="nombregarante"></span>
         <span class="tag is-warning is-large" x-text="direcciongarante" x-show="direcciongarante"></span>
       </section>
@@ -164,6 +164,8 @@
          guardarEdicion(){
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              toggleModal('modal-edicion')
+             this.nombregarante = ''
+             this.direcciongarante = ''
              axios.post('/ventas/guardaredicionventa',this.Venta)
                                                                  .then(res=>{
                                                                      this.getListado()
