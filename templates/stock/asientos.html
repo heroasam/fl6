@@ -166,10 +166,10 @@
              }})
          },
          validarAsiento(){
-             if(this.Asiento.fecha!=''&&this.Asiento.cuenta!=''&&this.Asiento.imp!=''){
+             if(this.Asiento.fecha!=''&&this.Asiento.cuenta!=''&&this.Asiento.imp!=''&&this.cuentas.includes(this.Asiento.cuenta)){
                  this.guardarAsiento()
              }else{
-                 msgError('Error!','Complete los datos faltantes')
+                 msgError('Error!','Complete los datos faltantes, o verifique el nombre de la cuenta')
              }
          },
          guardarAsiento(){

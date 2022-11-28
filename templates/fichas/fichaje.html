@@ -210,25 +210,29 @@ endblock %} {% block style %}
          },
          intimar() {
              ids = this.seleccionarRows()
+             if(ids.length>1){
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
              axios.post("/fichas/intimar",ids,{responseType: "blob"})
                   .then((res) => {
                       let url = window.URL.createObjectURL(res.data);
                       window.open(url);
                   });
+             }else{
+                 msgError('Debe seleccionar minimo 2 clientes.')
+             }
          },
          intimarPdf(){
              ids = this.seleccionarRows()
              if(ids.length>0) {
                  idle = ids.length * 12000
                  axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
-                 msgWarning('Paciencia...','Espere mientras se envian las intimaciones!',timer=idle)
+                 msgWarning('Espere mientras se envian las intimaciones!','',idle)
                  axios.post("/fichas/intimarpdf",ids)
                       .then((res) => {
-                          msgSuccess('Exito!','Intimaciones enviadas')
+                          msgSuccess('Intimaciones enviadas')
                       });
              }else{
-                 msgError('Error', 'Seleccione algun/os cliente/s')
+                 msgError('Seleccione algun/os cliente/s')
              }
          },
          intimarWhatsapp(){
@@ -236,12 +240,12 @@ endblock %} {% block style %}
              if(ids.length>0) {
                  idle = ids.length * 12000
                  axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
-                 msgWarning('Paciencia...','Espere mientras se envian las intimaciones!')
+                 msgWarning('Espere mientras se envian las intimaciones!')
 
 
                  axios.post("/fichas/intimarwhatsapp",ids)
                       .then((res) => {
-                          msgSuccess('Exito','Intimaciones Enviadas')
+                          msgSuccess('Intimaciones Enviadas')
                       });
              }else{
                  msgError('Error', 'Seleccione algun/os cliente/s')
@@ -249,25 +253,29 @@ endblock %} {% block style %}
          },
          imprimir() {
              let ids = this.seleccionarRows()
+             if(ids.length>0){
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
                  axios.post("/fichas/imprimir",ids,{responseType: "blob"})
                       .then((res) => {
                           let url = window.URL.createObjectURL(res.data);
                           window.open(url);
                       });
+             }else{
+                 msgError('Debe seleccionar algo para imprimir')
+             }
          },
          sendMsgRecordatorio(){
              ids = this.seleccionarRows()
              if(ids.length>0) {
                  idle = ids.length * 12000
              }
-             msgWarning('Paciencia...','Espere mientras se envian los mensajes!',timer=idle)
+             msgWarning('Espere mientras se envian los mensajes!','',idle)
              ids = ids.map(id=>parseInt(id))
              Clientes = this.listaClientes.filter(row=>ids.includes(row.dni))
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/fichas/recordatorioswapp',Clientes)
                                                                  .then(res=>{
-                                                                     msgSuccess('Exito','Recordatorios enviados')
+                                                                     msgSuccess('Recordatorios enviados')
                                                                  })
          },
          sendMsgProgramado(nombre){
@@ -276,14 +284,14 @@ endblock %} {% block style %}
                  idle = ids.length * 12000
                  msg = this.listamsgs.filter(row=>row.nombre==nombre)[0].msg
              }
-             msgWarning('Paciencia...','Espere mientras se envian los mensajes!',timer=idle)
+             msgWarning('Espere mientras se envian los mensajes!','',idle)
              ids = ids.map(id=>parseInt(id))
              Clientes = this.listaClientes.filter(row=>ids.includes(row.dni))
              data = {listaclientes:Clientes, msg:msg}
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/fichas/msgprogramado',data)
                                                                  .then(res=>{
-                                                                     msgSuccess('Exito','Mensajes Enviados')
+                                                                     msgSuccess('Mensajes Enviados')
                                                                      this.refresh()
                                                                  })
          },
