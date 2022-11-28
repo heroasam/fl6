@@ -697,3 +697,11 @@ def buscador_tablainflacion():
     for row in inflacion:
         dict_inflacion[str(row['year'])+str(row['month'])] = ultimo_valor/row['indice']
     return jsonify(inflacion=dict_inflacion)
+
+
+@buscador.route('/buscador/pedirlistagarantizados/<int:id>')
+def buscador_pedirlistagarantizados(id):
+    con = get_con()
+    dni = pgonecolumn(con, f"select dni from clientes where id={id}")
+    listagarantizados = pgdict(con, f"select * from clientes where dnigarante={dni} and garantizado=1")
+    return jsonify(listagarantizados=listagarantizados)

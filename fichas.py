@@ -51,6 +51,8 @@ def fichas_muestraclientes(tipo,zona):
         clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and deuda=0  order by ultpago desc")
     elif tipo=='ppagos':
         clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and deuda>0 and planvigente=1  order by ultpago desc")
+    elif tipo=='garantizado':
+        clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and deuda>0 and garantizado=1  order by ultpago desc")
     con.close()
     return jsonify(clientes=clientes)
 

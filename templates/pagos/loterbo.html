@@ -104,7 +104,7 @@ block style %}
              if(e.key==='/') this.hasta=Number(this.hasta)-10
          },
          validarLote(){
-             if(this.fecha!=''&&this.cobr!=''&&this.cnt!=''&&this.idCobradores.includes(this.cobr)){
+             if(this.fecha!=''&&this.cobr!=''&&this.cnt!=''&&this.idCobradores.includes(Number(this.cobr))){
                  this.guardarLote()
              }else{
                  msgError('Complete o corrija los datos.')

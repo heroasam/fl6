@@ -131,3 +131,13 @@ def utilidades_logtheme(theme, ismobile):
                        theme+', '+email+', '+ismobile+', '+ruta)
         log_file.close()
     return 'ok'
+
+def update_dni_garantes():
+    con = get_con()
+    cur = con.cursor()
+    listadni = pglflat(con, "select dnigarante from ventas where garantizado=1 and saldo>0")
+    for dni in listadni:
+        upd = f"update clientes set esgarante=1 where dni={dni}"
+        cur.execute(upd)
+    con.commit()
+    con.close()
