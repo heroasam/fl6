@@ -7,7 +7,7 @@ import simplejson as json
 import pandas as pd
 import mysql.connector
 from lib import pgdict, pgonecolumn, pglflat
-from con import get_con, log, engine
+from con import get_con, log, engine, check_roles
 from formularios import listaprecios, imprimir_stock
 
 stock = Blueprint('stock',__name__)
@@ -15,6 +15,7 @@ stock = Blueprint('stock',__name__)
 
 @stock.route('/stock/asientos')
 @login_required
+@check_roles(['dev','gerente'])
 def stock_asientos():
     """Inicializo la pagina asientos."""
     return render_template('stock/asientos.html')
@@ -22,12 +23,15 @@ def stock_asientos():
 
 @stock.route('/stock/proveedores')
 @login_required
+@check_roles(['dev','gerente','admin'])
 def stock_proveedores():
     """Inicializo la pagina proveedores."""
     return render_template('stock/proveedores.html')
 
 
 @stock.route('/stock/getasientos')
+@login_required
+@check_roles(['dev','gerente'])
 def stock_getasientos():
     """Proveo lista de asientos."""
     con = get_con()
@@ -42,6 +46,8 @@ def stock_getasientos():
 
 
 @stock.route('/stock/deleteasiento/<int:id_asiento>')
+@login_required
+@check_roles(['dev','gerente'])
 def stock_deleteasiento(id_asiento):
     """Borrado de asiento."""
     con = get_con()
@@ -56,6 +62,8 @@ def stock_deleteasiento(id_asiento):
 
 
 @stock.route('/stock/getcuentas')
+@login_required
+@check_roles(['dev','gerente'])
 def stock_getcuentas():
     """Proveo lista de cuentas."""
     con = get_con()
@@ -65,6 +73,8 @@ def stock_getcuentas():
 
 
 @stock.route('/stock/guardarasiento' , methods = ['POST'])
+@login_required
+@check_roles(['dev','gerente'])
 def stock_guardarasiento():
     """Guardar Asiento."""
     con = get_con()
@@ -87,6 +97,8 @@ def stock_guardarasiento():
 
 
 @stock.route('/stock/editarasiento', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente'])
 def stock_editarasiento():
     """Editar asientos."""
     con = get_con()
@@ -103,12 +115,16 @@ def stock_editarasiento():
 
 
 @stock.route('/stock/mayor')
+@login_required
+@check_roles(['dev','gerente'])
 def stock_mayor():
     """Muestro pagina Mayor."""
     return render_template('stock/mayor.html')
 
 
 @stock.route('/stock/getmayor/<string:cuenta>')
+@login_required
+@check_roles(['dev','gerente'])
 def stock_getmayor(cuenta):
     """Obtengo asientos por cuenta (mayorizo)."""
     con = get_con()
@@ -119,6 +135,8 @@ def stock_getmayor(cuenta):
 
 
 @stock.route('/stock/pivotcuentas')
+@login_required
+@check_roles(['dev','gerente'])
 def stock_pivotcuentas():
     """Pivot Cuentas."""
     pd.options.display.float_format = '{:20.0f}'.format
@@ -148,6 +166,8 @@ def stock_pivotcuentas():
 
 
 @stock.route('/stock/retiros')
+@login_required
+@check_roles(['dev','gerente'])
 def stock_retiros():
     """Pandas de retiro socios."""
     sql="select date_format(fecha,'%Y-%m') as fecha,cuenta,imp from caja \
@@ -175,6 +195,8 @@ def stock_retiros():
 
 
 @stock.route('/stock/getcompras')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_getcompras():
     """Obtengo lista compras."""
     con = get_con()
@@ -186,6 +208,8 @@ def stock_getcompras():
 
 
 @stock.route('/stock/getarticulos')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_getarticulos():
     """Obtengo lista de articulos."""
     con = get_con()
@@ -195,12 +219,16 @@ def stock_getarticulos():
 
 
 @stock.route('/stock/compras')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_compras():
     """Muestro pagina de compras."""
     return render_template('stock/compras.html')
 
 
 @stock.route('/stock/deletecompra/<int:id_compra>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_deletecompra(id_compra):
     """Borrar compra."""
     con = get_con()
@@ -215,6 +243,8 @@ def stock_deletecompra(id_compra):
 
 
 @stock.route('/stock/guardarcompra' , methods = ['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_guardarcompra():
     """Guardar compra."""
     con = get_con()
@@ -233,6 +263,8 @@ def stock_guardarcompra():
 
 
 @stock.route('/stock/saldosorpresa')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_saldosorpresa():
     """Obtengo saldo cuenta corriente Sorpresa."""
     con = get_con()
@@ -246,6 +278,8 @@ def stock_saldosorpresa():
 
 
 @stock.route('/stock/getdepositos')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_getdepositos():
     """Obtengo lista depositos."""
     con = get_con()
@@ -256,6 +290,8 @@ def stock_getdepositos():
 
 
 @stock.route('/stock/generarstock')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_generarstock():
     """Genero stock."""
     con = get_con()
@@ -280,18 +316,24 @@ def stock_generarstock():
 
 
 @stock.route('/stock/verstock')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_verstock():
     """Muestro pagina verstock."""
     return render_template('stock/verstock.html')
 
 
 @stock.route('/stock/salidas')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_salidas():
     """Muestro pagina salidas."""
     return render_template('stock/salidas.html')
 
 
 @stock.route('/stock/getsalidas')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_getsalidas():
     """Obtengo lista de salidas."""
     con = get_con()
@@ -302,6 +344,8 @@ def stock_getsalidas():
 
 
 @stock.route('/stock/deletesalida/<int:id_salida>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_deletesalida(id_salida):
     """Borro salida."""
     con = get_con()
@@ -316,6 +360,8 @@ def stock_deletesalida(id_salida):
 
 
 @stock.route('/stock/guardarsalida' , methods = ['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_guardarsalida():
     """Guardo salida."""
     con = get_con()
@@ -333,6 +379,8 @@ def stock_guardarsalida():
 
 
 @stock.route('/stock/getlistaarticulos')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_getlistaarticulos():
     """Obtengo lista de articulos."""
     con = get_con()
@@ -344,12 +392,16 @@ def stock_getlistaarticulos():
 
 
 @stock.route('/stock/articulos')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_articulos():
     """Muestro pagina de articulos."""
     return render_template('stock/articulos.html')
 
 
 @stock.route('/stock/guardararticulo' , methods = ['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_guardararticulo():
     """Guardo articulo."""
     con = get_con()
@@ -373,6 +425,8 @@ def stock_guardararticulo():
 
 
 @stock.route('/stock/deletearticulo/<int:id_articulo>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_deletearticulo(id_articulo):
     """Borrar articulo."""
     con = get_con()
@@ -387,6 +441,8 @@ def stock_deletearticulo(id_articulo):
 
 
 @stock.route('/stock/articulotoggleactivo/<int:id_articulo>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_articulotoggleactivo(id_articulo):
     """Toggle activo para articulos."""
     con = get_con()
@@ -406,6 +462,8 @@ def stock_articulotoggleactivo(id_articulo):
 
 
 @stock.route('/stock/guardaredicionarticulo' , methods = ['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_guardaredicionarticulo():
     """Guardar edicion de articulo."""
     con = get_con()
@@ -437,6 +495,8 @@ def stock_guardaredicionarticulo():
 
 
 @stock.route('/stock/getproveedores')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_getproveedores():
     """Obtengo proveedores."""
     con = get_con()
@@ -445,6 +505,8 @@ def stock_getproveedores():
 
 
 @stock.route('/stock/agregarproveedor', methods=["POST"])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_agregarproveedor():
     """Agrego proveedores."""
     con = get_con()
@@ -463,6 +525,8 @@ def stock_agregarproveedor():
 
 
 @stock.route('/stock/editarproveedor', methods=["POST"])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_editarproveedor():
     """Edito proveedor."""
     con = get_con()
@@ -481,6 +545,8 @@ def stock_editarproveedor():
 
 
 @stock.route('/stock/borrarproveedor/<int:id_proveedor>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_borrarproveedor(id_proveedor):
     """Borrar proveedor."""
     con = get_con()
@@ -496,6 +562,8 @@ def stock_borrarproveedor(id_proveedor):
 
 
 @stock.route('/stock/generarlistaprecios')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_generarlistaprecios():
     """Genero lista de precios."""
     con = get_con()
@@ -507,12 +575,16 @@ def stock_generarlistaprecios():
     return 'ok'
 
 @stock.route('/stock/cuentas')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_cuentas():
     """Muestro pagina cuentas."""
     return render_template('stock/cuentas.html')
 
 
 @stock.route('/stock/getdictcuentas')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_getdictcuentas():
     """Obtengo lista cuentas."""
     con = get_con()
@@ -521,6 +593,8 @@ def stock_getdictcuentas():
 
 
 @stock.route('/stock/editarcuenta', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_editarcuenta():
     """Editar Cuentas."""
     con = get_con()
@@ -536,6 +610,8 @@ def stock_editarcuenta():
 
 
 @stock.route('/stock/agregarcuenta', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_agregarcuenta():
     """Agregar cuenta."""
     con = get_con()
@@ -551,6 +627,8 @@ def stock_agregarcuenta():
 
 
 @stock.route('/stock/borrarcuenta/<int:id_cuenta>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_borrarcuenta(id_cuenta):
     """Borrar cuenta."""
     con = get_con()
@@ -570,12 +648,16 @@ def stock_borrarcuenta(id_cuenta):
 
 
 @stock.route('/stock/cuadro')
+@login_required
+@check_roles(['dev','gerente'])
 def stock_cuadro():
     """Muestro pagina cuadro."""
     return render_template('/stock/cuadro.html')
 
 
 @stock.route('/stock/obtenerresumenmensual/<mes>')
+@login_required
+@check_roles(['dev','gerente'])
 def stock_obtenerresumenmensual(mes):
     """Obtengo resumen mensual."""
     con = get_con()
@@ -586,6 +668,8 @@ def stock_obtenerresumenmensual(mes):
 
 
 @stock.route('/stock/imprimirstock', methods = ['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def stock_imprimirstock():
     """Imprimo stock."""
     con = get_con()

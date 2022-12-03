@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, jsonify, request, make_response
 from flask_login import login_required
 import simplejson as json
 import mysql.connector
-from con import get_con
+from con import get_con, check_roles
 from lib import pgdict, pglflat, pgonecolumn
 
 conta = Blueprint('conta',__name__)
@@ -42,17 +42,21 @@ CREATE TABLE IF NOT EXISTS `ctas1` (
 
 @conta.route('/conta')
 @login_required
+@check_roles(['gerente'])
 def conta_():
     return render_template("conta/principal.html")
 
 
 @conta.route('/conta/cuentas')
 @login_required
+@check_roles(['gerente'])
 def conta_cuentas():
     return render_template("conta/cuentas.html")
 
 
 @conta.route('/conta/getdictcuentas')
+@login_required
+@check_roles(['gerente'])
 def conta_getdictcuentas():
     """Obtengo lista cuentas."""
     create_tables()
@@ -62,6 +66,8 @@ def conta_getdictcuentas():
 
 
 @conta.route('/conta/editarcuenta', methods=['POST'])
+@login_required
+@check_roles(['gerente'])
 def conta_editarcuenta():
     """Editar Cuentas."""
     con = get_con()
@@ -76,6 +82,8 @@ def conta_editarcuenta():
 
 
 @conta.route('/conta/agregarcuenta', methods=['POST'])
+@login_required
+@check_roles(['gerente'])
 def conta_agregarcuenta():
     """Agregar cuenta."""
     con = get_con()
@@ -96,6 +104,8 @@ def conta_agregarcuenta():
 
 
 @conta.route('/conta/borrarcuenta/<int:id_cuenta>')
+@login_required
+@check_roles(['gerente'])
 def conta_borrarcuenta(id_cuenta):
     """Borrar cuenta."""
     con = get_con()
@@ -114,6 +124,8 @@ def conta_borrarcuenta(id_cuenta):
 
 
 @conta.route('/conta/guardarasiento' , methods = ['POST'])
+@login_required
+@check_roles(['gerente'])
 def conta_guardarasiento():
     """Guardar Asiento."""
     con = get_con()
@@ -134,6 +146,8 @@ def conta_guardarasiento():
 
 
 @conta.route('/conta/getasientos')
+@login_required
+@check_roles(['gerente'])
 def conta_getasientos():
     """Proveo lista de asientos."""
     con = get_con()
@@ -147,6 +161,8 @@ def conta_getasientos():
 
 
 @conta.route('/conta/borrarasiento/<int:id_asiento>')
+@login_required
+@check_roles(['gerente'])
 def conta_borrarasiento(id_asiento):
     """Borrado de asiento."""
     con = get_con()
@@ -166,6 +182,8 @@ def conta_borrarasiento(id_asiento):
 
 
 @conta.route('/conta/obtenerresumenmensual/<mes>')
+@login_required
+@check_roles(['gerente'])
 def conta_obtenerresumenmensual(mes):
     """Obtengo resumen mensual."""
     con = get_con()
@@ -176,5 +194,7 @@ def conta_obtenerresumenmensual(mes):
 
 
 @conta.route('/conta/cuadro')
+@login_required
+@check_roles(['gerente'])
 def conta_cuadro():
     return render_template("conta/cuadro.html")

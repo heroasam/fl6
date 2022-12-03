@@ -5,18 +5,21 @@ import pandas as pd
 import simplejson as json
 import mysql.connector
 import logging
-from con import get_con, log, engine
+from con import get_con, log, engine, check_roles
 from lib import *
 
 ventas = Blueprint('ventas',__name__)
 
 @ventas.route('/ventas/ventas')
 @login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_pasarventas():
     return render_template('ventas/ventas.html')
 
 
 @ventas.route('/ventas/getcalles')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_getcalles():
     con = get_con()
     calles = pglflat(con, f"select calle from calles order by calle")
@@ -25,6 +28,8 @@ def ventas_getcalles():
 
 
 @ventas.route('/ventas/getbarrios')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_getbarrios():
     con = get_con()
     barrios = pglflat(con, f"select barrio from barrios order by barrio")
@@ -33,6 +38,8 @@ def ventas_getbarrios():
 
 
 @ventas.route('/ventas/getzonas')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_getzonas():
     con = get_con()
     zonas = pglflat(con, f"select zona from zonas order by zona")
@@ -41,12 +48,16 @@ def ventas_getzonas():
 
 
 @ventas.route('/ventas/getperiodicidad')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_getperiodicidad():
     periodicidad=['mensual','quincenal','semanal']
     return jsonify(result=periodicidad)
 
 
 @ventas.route('/ventas/getcuentapordni/<string:dni>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_getcuentaspordni(dni):
     con = get_con()
     try:
@@ -63,6 +74,8 @@ def ventas_getcuentaspordni(dni):
 
 
 @ventas.route('/ventas/guardarcliente', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_guardarcliente():
     con = get_con()
     cur = con.cursor()
@@ -99,6 +112,8 @@ def ventas_guardarcliente():
 
 
 @ventas.route('/ventas/guardarventa', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_guardarventa():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -133,7 +148,10 @@ def ventas_guardarventa():
         con.close()
         return jsonify(idvta=idvta)
 
+
 @ventas.route('/ventas/guardardetvta', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_guardardetvta():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -157,6 +175,8 @@ def ventas_guardardetvta():
 
 
 @ventas.route('/ventas/borrardetvta/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_borrardetvta(id):
     con = get_con()
     idvta= pgonecolumn(con,f"select idvta from detvta where id={id}")
@@ -182,6 +202,8 @@ def ventas_borrardetvta(id):
 
 
 @ventas.route('/ventas/getarticulos')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_getarticulos():
     con = get_con()
     articulos = pglflat(con, f"select concat(codigo,'-',art) as art from articulos where activo=1 and codigo is not null")
@@ -190,6 +212,8 @@ def ventas_getarticulos():
 
 
 @ventas.route('/ventas/getlistado')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_getlistado():
     con = get_con()
     listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count from ventas where pp=0 order by id desc limit 100")
@@ -198,6 +222,8 @@ def ventas_getlistado():
 
 
 @ventas.route('/ventas/getlistadocuenta/<int:cuenta>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_getlistadocuenta(cuenta):
     con = get_con()
     listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count from ventas where id={cuenta}")
@@ -206,11 +232,15 @@ def ventas_getlistadocuenta(cuenta):
 
 
 @ventas.route('/ventas/listado')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_listado():
     return render_template("ventas/listado.html")
 
 
 @ventas.route('/ventas/borrarventa/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_borrarventa(id):
     con = get_con()
     stm = f"delete from ventas where id={id}"
@@ -229,6 +259,8 @@ def ventas_borrarventa(id):
         return 'OK'
 
 @ventas.route('/ventas/datosventa/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_datosventa(id):
     con = get_con()
     venta = pgdict(con, f"select fecha,cc,ic,p,pmovto,idvdor,primera from ventas where id={id}")[0]
@@ -237,6 +269,8 @@ def ventas_datosventa(id):
 
 
 @ventas.route('/ventas/guardaredicionventa', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_guardaredicionvta():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -262,11 +296,15 @@ def ventas_guardaredicionvta():
         return 'OK'
 
 @ventas.route('/ventas/clientes')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_clientes():
     return render_template('ventas/clientes.html')
 
 
 @ventas.route('/ventas/getclientes/<tipo>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_getclientes(tipo):
     """Entrego lista de cliente segun tipo pedido."""
     con = get_con()
@@ -283,21 +321,29 @@ def ventas_getclientes(tipo):
 
 
 @ventas.route('/ventas/calles')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_calles():
     return render_template('ventas/calles.html')
 
 
 @ventas.route('/ventas/barrios')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def barrios_calles():
     return render_template('ventas/barrios.html')
 
 
 @ventas.route('/ventas/zonas')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def zonas_calles():
     return render_template('ventas/zonas.html')
 
 
 @ventas.route('/ventas/getcallesconid')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_getcallesconid():
     con = get_con()
     calles = pgdict(con, f"select id,calle from calles order by calle")
@@ -306,6 +352,8 @@ def ventas_getcallesconid():
 
 
 @ventas.route('/ventas/getbarriosconid')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_getbarriosconid():
     con = get_con()
     barrios = pgdict(con, f"select id,barrio from barrios order by barrio")
@@ -314,6 +362,8 @@ def ventas_getbarriosconid():
 
 
 @ventas.route('/ventas/getzonasconid')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_getzonasconid():
     con = get_con()
     zonas = pgdict(con, f"select id,zona from zonas order by zona")
@@ -322,6 +372,8 @@ def ventas_getzonasconid():
 
 
 @ventas.route('/ventas/guardaredicioncalle', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_guardaredicioncalle():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -349,6 +401,8 @@ def ventas_guardaredicioncalle():
 
 
 @ventas.route('/ventas/guardaredicionbarrio', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_guardaredicionbarrio():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -369,6 +423,8 @@ def ventas_guardaredicionbarrio():
 
 
 @ventas.route('/ventas/guardaredicionzona', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_guardaredicionzona():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -389,6 +445,8 @@ def ventas_guardaredicionzona():
 
 
 @ventas.route('/ventas/borrarcalle/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_borrarcalle(id):
     con = get_con()
     stm = f"delete from calles where id={id}"
@@ -409,6 +467,8 @@ def ventas_borrarcalle(id):
 
 
 @ventas.route('/ventas/borrarbarrio/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_borrarbarrio(id):
     con = get_con()
     stm = f"delete from barrios where id={id}"
@@ -428,6 +488,8 @@ def ventas_borrarbarrio(id):
 
 
 @ventas.route('/ventas/borrarzona/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_borrarzona(id):
     con = get_con()
     stm = f"delete from zonas where id={id}"
@@ -447,6 +509,8 @@ def ventas_borrarzona(id):
 
 
 @ventas.route('/ventas/borrarzonapornombre/<zona>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_borrarzonapornombre(zona):
     con = get_con()
     stm = f"delete from zonas where zona='{zona}'"
@@ -467,6 +531,8 @@ def ventas_borrarzonapornombre(zona):
 
 
 @ventas.route('/ventas/borrarcliente/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_borrarcliente(id):
     con = get_con()
     stm = f"delete from clientes where id={id}"
@@ -486,6 +552,8 @@ def ventas_borrarcliente(id):
 
 
 @ventas.route('/ventas/guardarcallenueva', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_guardarcallenueva():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -507,6 +575,8 @@ def ventas_guardarcallenueva():
 
 
 @ventas.route('/ventas/guardarbarrionueva', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_guardarbarrionueva():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -527,6 +597,8 @@ def ventas_guardarbarrionueva():
 
 
 @ventas.route('/ventas/guardarzonanueva', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_guardarzonanueva():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -548,12 +620,14 @@ def ventas_guardarzonanueva():
 
 @ventas.route('/ventas/estadisticas')
 @login_required
+@check_roles(['dev','gerente'])
 def ventas_estadisticas():
     return render_template('ventas/estadisticas.html')
 
 
 @ventas.route('/ventas/estadisticasanuales')
 @login_required
+@check_roles(['dev','gerente'])
 def ventas_estadisticasanuales():
     con = get_con()
     est_anuales = pgdict(con,f"select date_format(fecha,'%Y') as y, sum(comprado) as comprado, sum(saldo) as saldo, sum(saldo)/sum(comprado) as inc,sum(cnt) as cnt from ventas where devuelta=0 and pp=0 group by y order by y desc")
@@ -563,6 +637,7 @@ def ventas_estadisticasanuales():
 
 @ventas.route('/ventas/estadisticasmensuales/<string:year>')
 @login_required
+@check_roles(['dev','gerente'])
 def ventas_estadisticasmensuales(year):
     con = get_con()
     est_mensuales = pgdict(con,f"select date_format(fecha,'%Y-%m') as ym, sum(comprado) as comprado, sum(saldo) as saldo, sum(saldo)/sum(comprado) as inc,sum(cnt) as cnt from ventas where devuelta=0 and pp=0 and date_format(fecha,'%Y')='{year}' group by ym order by ym")
@@ -571,6 +646,8 @@ def ventas_estadisticasmensuales(year):
 
 
 @ventas.route('/ventas/filtracalles/<string:buscar>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_filtracalles(buscar):
     con = get_con()
     buscar = '%'+buscar.replace(' ','%')+'%'
@@ -578,6 +655,8 @@ def ventas_filtracalles(buscar):
     return jsonify(listacalles=listacalles)
 
 @ventas.route('/ventas/getmorosidadprimercuota')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_getmorosidadprimercuota():
     con = get_con()
     upd = "update ventas set vencido=(truncate(datediff(now(),primera)/30,0)+1)*ic where primera < now() and id>79999"
@@ -592,15 +671,22 @@ def ventas_getmorosidadprimercuota():
 
 
 @ventas.route('/ventas/morosidad')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_morosidad():
     return render_template('ventas/morosidad.html')
 
 
 @ventas.route('/ventas/devolucion')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_devoluciones():
     return render_template('ventas/devolucion.html')
 
+
 @ventas.route('/ventas/devolucion/buscarcliente/<int:idvta>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_devolucion_buscarcliente(idvta):
     con = get_con()
     venta = pgdict(con, f"select * from ventas where id={idvta}")[0]
@@ -608,11 +694,12 @@ def ventas_devolucion_buscarcliente(idvta):
     arts = pgdict(con, f"select * from detvta where idvta={idvta}")
     ic = venta['ic']
     cc = venta['cc']
-
     return jsonify(nombre=nombre, arts=arts, ic=ic, cc=cc)
 
 
 @ventas.route('/ventas/devolucion/borrararticulo/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_devolucion_borrararticulo(id):
     con = get_con()
     stm = f"delete from detvta where id={id}"
@@ -625,6 +712,8 @@ def ventas_devolucion_borrararticulo(id):
 
 
 @ventas.route('/ventas/devolucion/obtenerlistaarticulos')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_devolucion_obtenerlistaarticulos():
     con = get_con()
     arts = pglflat(con, f"select art from articulos where activo=1")
@@ -633,6 +722,8 @@ def ventas_devolucion_obtenerlistaarticulos():
 
 
 @ventas.route('/ventas/devolucion/procesar', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_devolucion_procesar():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -695,6 +786,8 @@ def ventas_devolucion_procesar():
 
 
 @ventas.route('/ventas/devolucion/agregararticulo', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_agregararticulo():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -707,9 +800,9 @@ def ventas_agregararticulo():
     return 'ok'
 
 
-
-
 @ventas.route('/ventas/condonar/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_condonar(id):
     con = get_con()
     condonada = pgonecolumn(con, f"select condonada from ventas where id={id}")
@@ -725,6 +818,7 @@ def ventas_condonar(id):
 
 @ventas.route('/ventas/pordia')
 @login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_pordia():
     """Pivot-table de ventas por dia para controlar entradas."""
     pd.options.display.float_format = '{:.0f}'.format
@@ -740,6 +834,7 @@ def ventas_pordia():
 
 @ventas.route('/ventas/pivotdevoluciones')
 @login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_pivotdevoluciones():
     pd.options.display.float_format = '${:.0f}'.format
     sql = "select montodev,vdor,mesvta from devoluciones where \
@@ -753,6 +848,8 @@ def ventas_pivotdevoluciones():
 
 
 @ventas.route('/ventas/obtenerwappcliente/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_obtenerwappcliente(id):
     con = get_con()
     wapp = pgonecolumn(con, f"select wapp from clientes where id={id}")
@@ -760,6 +857,8 @@ def ventas_obtenerwappcliente(id):
 
 
 @ventas.route('/ventas/obtenerventasultyear')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_obtenerventasultyear():
     """Entrega lista de ventas ultimo ano."""
     con = get_con()
@@ -773,6 +872,8 @@ def ventas_obtenerventasultyear():
 
 
 @ventas.route('/ventas/buscarcliente/<string:buscar>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_buscarcliente(buscar):
     con = get_con()
     rdni = r'^[0-9]{7,8}$'
@@ -790,11 +891,15 @@ def ventas_buscarcliente(buscar):
 
 
 @ventas.route('/ventas/cambiazonas')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_cambiazonas():
     return render_template('ventas/rezonificar.html')
 
 
 @ventas.route('/ventas/getclienteszona/<zona>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_getclienteszona(zona):
     con = get_con()
     clientes = pgdict(con, f"select * from clientes where zona='{zona}' order by barrio")
@@ -802,6 +907,8 @@ def ventas_getclienteszona(zona):
 
 
 @ventas.route('/ventas/cambiarzona/<string:zona>',methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_cambiarzona(zona):
     con = get_con()
     listaid = json.loads(request.data.decode("UTF-8"))
@@ -826,6 +933,8 @@ def ventas_cambiarzona(zona):
 
 
 @ventas.route('/ventas/obtenerdatosgarante/<dni>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def ventas_obtenerdatosgarante(dni):
     con = get_con()
     garante = pgdict(con, f"select nombre, concat(calle, ' ', num) as direccion from clientes where dni={dni}")

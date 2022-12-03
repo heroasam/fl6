@@ -1,8 +1,10 @@
 import os
 import mysql.connector
+from flask import session, redirect
 from flask_login import current_user
 #import pymysql
 from sqlalchemy import create_engine
+from functools import wraps
 
 
 engine = create_engine('mysql+mysqlconnector://hero:ataH2132**/@localhost/hero')
@@ -27,3 +29,14 @@ def log(stmt):
     cur.execute(ins)
     con.commit()
     con.close()
+
+
+def check_roles(roles):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            if session["roles"] in roles:
+                return func(*args, **kwargs)
+            return redirect('login')
+        return wrapper
+    return decorator

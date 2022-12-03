@@ -7,19 +7,22 @@ import pandas as pd
 import simplejson as json
 import mysql.connector
 from lib import *
-from con import get_con, log, engine
+from con import get_con, log, engine, check_roles
 from formularios import *
 
 pagos = Blueprint('pagos',__name__)
 
 @pagos.route('/loterbo')
 @login_required
+@check_roles(['dev','gerente','admin','cobrador'])
 def loterbo_():
     return render_template("pagos/loterbo.html" )
 
 
 @pagos.route('/loterbo/guardarlote/<string:fecha>/<string:cobr>',\
              methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def guardarlote(fecha, cobr):
     """Guarda lote de recibos."""
     con = get_con()
@@ -41,6 +44,8 @@ def guardarlote(fecha, cobr):
 
 @pagos.route('/loterbo/imprimir/<string:fecha>/<string:cobr>/<int:idlote>',\
              methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def loterbo_imprimir(fecha,cobr,idlote):
     con = get_con()
     listarbo = json.loads(request.data.decode("UTF-8"))
@@ -55,6 +60,8 @@ def loterbo_imprimir(fecha,cobr,idlote):
     return send_file('/home/hero/loterbo.pdf')
 
 @pagos.route('/loterbo/reimprimir/<string:fecha>/<string:cobr>/<int:idlote>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def loterbo_reimprimir(fecha,cobr,idlote):
     con = get_con()
     listarbo = pglflat(con, f"select rbo from rbos where idloterbos={idlote}")
@@ -69,11 +76,14 @@ def loterbo_reimprimir(fecha,cobr,idlote):
 
 @pagos.route('/loterbo/ver')
 @login_required
+@check_roles(['dev','gerente','admin'])
 def loterbo_ver():
     return render_template("pagos/loterbover.html")
 
 
 @pagos.route('/loterbo/getlistalotesrbo')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def loterbo_getlistalotesrbo():
     con = get_con()
     lotesrbo = pgdict(con,f"select id,fecha,cobr,cnt from loterbos order by id desc limit 100")
@@ -82,6 +92,8 @@ def loterbo_getlistalotesrbo():
 
 
 @pagos.route('/loterbo/delete/<string:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def loterbo_delete(id):
     con = get_con()
     cur = con.cursor()
@@ -92,6 +104,8 @@ def loterbo_delete(id):
     return redirect(url_for('pagos.loterbo_ver'))
 
 @pagos.route('/loterbo/buscanombrecobr/<int:cobr>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def loterbo_buscanombrecobr(cobr):
     con = get_con()
     nombrecobr = pgonecolumn(con, f"select nombre from cobr where id={cobr} and activo=1 and prom=0")
@@ -103,6 +117,8 @@ def loterbo_buscanombrecobr(cobr):
 
 
 @pagos.route('/loterbo/getidcobradores')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def loterbo_getidcobradores():
     con = get_con()
     idcobradores = pglflat(con, "select id from cobr where activo=1 and prom=0 and id>500")
@@ -111,11 +127,14 @@ def loterbo_getidcobradores():
 
 @pagos.route('/pagos')
 @login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_():
     return render_template("pagos/pagos.html")
 
 
 @pagos.route('/pagos/listado/<string:fechapago>/<int:cobrador>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_listado(fechapago, cobrador):
     con = get_con()
     listado = pgdict(con, f"select pagos.id as id, rbo, fecha, idvta,imp as imp, rec as rec, (imp+rec) as total, nombre, concat(calle,' ',num) as direccion, zona,deuda as deuda from pagos, clientes where clientes.id=pagos.idcliente and fecha='{fechapago}' and pagos.cobr={cobrador} order by id desc")
@@ -125,6 +144,8 @@ def pagos_listado(fechapago, cobrador):
 
 
 @pagos.route('/pagos/buscar/<string:cuenta>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_buscar(cuenta):
     con = get_con()
     rcuenta = r'^[0-9]{5}$'
@@ -144,6 +165,8 @@ def pagos_buscar(cuenta):
 
 
 @pagos.route('/pagos/idvtas/<string:dni>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_idvtas(dni):
     con = get_con()
     sel = f"select ventas.id as id,concat(calle,' ',num) from ventas,clientes where clientes.id=ventas.idcliente and dni='{dni}' and saldo>0"
@@ -153,6 +176,8 @@ def pagos_idvtas(dni):
 
 
 @pagos.route('/pagos/traerficha/<int:idvta>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_traerficha(idvta):
     con = get_con()
     sql = f"select id,case when saldo<ic then saldo else ic end as imp,ic,saldo,idcliente from ventas where id={idvta}"
@@ -164,6 +189,8 @@ def pagos_traerficha(idvta):
 
 
 @pagos.route('/pagos/pasarpagos' , methods = ['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_pasarpagos():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -179,6 +206,8 @@ def pagos_pasarpagos():
 
 
 @pagos.route('/pagos/borrarpago/<int:idpago>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_borrarpago(idpago):
     con = get_con()
     stm = f"delete from pagos where id={idpago}"
@@ -190,6 +219,8 @@ def pagos_borrarpago(idpago):
     return 'ok'
 
 @pagos.route('/pagos/pasarplanilla', methods = ['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_pasarplanilla():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -211,6 +242,8 @@ def pagos_pasarplanilla():
 
 
 @pagos.route('/pagos/corregirplanillacobrador', methods = ['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_corregirplanillascobradores():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -241,10 +274,14 @@ def pagos_corregirplanillascobradores():
 
 
 @pagos.route('/pagos/verplanillas')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_verplanillas():
     return render_template("pagos/planillas.html" )
 
 @pagos.route('/pagos/getplanillas')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_getplanillas():
     con = get_con()
     planillas = pgdict(con,f"select planillas.fecha as fecha,sum(cobrado) as cobrado,sum(comision) as comision,sum(viatico) as viatico,sum(cntrbos) as cntrbos,(select imp from caja where comentario='global' and cuenta='cobranza' and fecha=planillas.fecha) as cobradocaja, (-1)*(select imp from caja where comentario='via' and cuenta='cobranza' and fecha=planillas.fecha) as viaticocaja from planillas  where planillas.fecha>date_sub(curdate(), interval 60 day) group by planillas.fecha order by planillas.fecha desc")
@@ -253,6 +290,8 @@ def pagos_getplanillas():
 
 
 @pagos.route('/pagos/getplanillas/<string:fecha>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_getplanillashoy(fecha):
     con = get_con()
     planillas = pgdict(con,f"select fecha,idcobr,cobrado,comision,viatico,cntrbos,idlote from planillas where fecha='{fecha}'")
@@ -261,6 +300,8 @@ def pagos_getplanillashoy(fecha):
 
 
 @pagos.route('/pagos/getplanillascobr')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_getplanillascobr():
     con = get_con()
     planillascobr = pgdict(con, f"select fecha,idcobr,cobrado,comision,viatico,cntrbos from planillas order by fecha desc limit 100")
@@ -269,6 +310,8 @@ def pagos_getplanillascobr():
 
 
 @pagos.route('/pagos/procesarplanilla', methods = ['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_procesarplanilla():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -293,11 +336,14 @@ def pagos_procesarplanilla():
 
 @pagos.route('/pagos/editarrbo')
 @login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_editarrbo():
     return render_template('pagos/editarrbo.html' )
 
 
 @pagos.route('/pagos/obtenerrbo/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_obtenerrbo(id):
     con = get_con()
     reg = pgdict(con, f"select fecha, idvta, imp, rec, rbo, cobr, id, (select nombre from clientes where clientes.id=pagos.idcliente) as nombre from pagos where id={id}")
@@ -306,6 +352,8 @@ def pagos_obtenerrbo(id):
 
 
 @pagos.route('/pagos/obtenernuevonombre/<int:idvta>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_obtenernuevonombre(idvta):
     con = get_con()
     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
@@ -314,6 +362,8 @@ def pagos_obtenernuevonombre(idvta):
 
 
 @pagos.route('/pagos/obtenerregrbo/<int:buscar>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_obtenerregrbo(buscar):
     con = get_con()
     try:
@@ -330,6 +380,8 @@ def pagos_obtenerregrbo(buscar):
 
 
 @pagos.route('/pagos/borrarrbo/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_borrarrbo(id):
     con = get_con()
     stm = f"delete from pagos where id={id}"
@@ -343,6 +395,8 @@ def pagos_borrarrbo(id):
     return 'ok'
 
 @pagos.route('/pagos/guardaredicionrbo' , methods = ['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_guardaredicionrbo():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -359,6 +413,8 @@ def pagos_guardaredicionrbo():
 
 
 @pagos.route('/pagos/getzonasasignadas')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_getzonasasignadas():
     con = get_con()
     zonas = pgdict(con, f"select zonas.id as id,zonas.zona as zona,asignado as cobr,(select nombre from cobr where cobr.id=asignado) as nombre, count(*) as cnt, sum(cuota) as cuotas from zonas,clientes where clientes.zona=zonas.zona and pmovto>=date_sub(curdate(),interval 90 day) and zonas.zona not like '-%' group by zonas.id order by asignado")
@@ -368,11 +424,14 @@ def pagos_getzonasasignadas():
 
 @pagos.route('/pagos/verzona')
 @login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_verzona():
     return render_template('pagos/verzona.html' )
 
 
 @pagos.route('/pagos/editarasignado', methods = ['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_editarasignado():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -387,6 +446,8 @@ def pagos_editarasignado():
 
 
 @pagos.route('/pagos/gettotaleszonas')
+@login_required
+@check_roles(['dev','gerente'])
 def pagos_gettotaleszonas():
     con = get_con()
     totales = pgdict(con, f"select asignado as cobr,(select nombre from cobr where cobr.id=asignado) as nombre, sum(cuota) as total from zonas,clientes where clientes.zona=zonas.zona and pmovto>=date_sub(curdate(),interval 90 day) and zonas.zona not like '-%' group by asignado order by asignado")
@@ -396,6 +457,7 @@ def pagos_gettotaleszonas():
 
 @pagos.route('/pagos/cobrostotales')
 @login_required
+@check_roles(['dev','gerente'])
 def pagos_cobrostotales():
     pd.options.display.float_format = '${:.0f}'.format
     sql="select date_format(fecha,'%Y-%m') as fp,imp+rec as cuota,cobr from pagos where fecha >date_sub(curdate(),interval 365 day)"
@@ -416,6 +478,7 @@ def pagos_cobrostotales():
 
 @pagos.route('/pagos/estimados')
 @login_required
+@check_roles(['dev','gerente'])
 def pagos_estimados():
     pd.options.display.float_format = '${:.0f}'.format
     sql="select date_format(pmovto,'%Y-%m') as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%'"
@@ -437,6 +500,7 @@ def pagos_estimados():
 
 @pagos.route('/pagos/comisiones')
 @login_required
+@check_roles(['dev','gerente'])
 def pagos_comisiones():
     pd.options.display.float_format = '${:.0f}'.format
     sql="select date_format(fecha,'%Y-%m') as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,802) and fecha>date_sub(curdate(), interval 1 year)"
@@ -455,6 +519,8 @@ def pagos_comisiones():
 
 
 @pagos.route('/pivot/pagos_cobr')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pivot_pagos_cobr():
     sql="select date_format(fecha,'%Y-%m') as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,816) and fecha>'2018-07-31'"
     dat = pd.read_sql_query(sql, engine)
@@ -466,6 +532,8 @@ def pivot_pagos_cobr():
 
 
 @pagos.route('/pivot/retiros')
+@login_required
+@check_roles(['dev','gerente'])
 def pivot_retiros():
     sql="select date_format(fecha,'%Y-%m') as fecha, cuenta, imp from caja where cuenta like 'retiro%' and not like '%capital%' order by fecha desc"
     dat = pd.read_sql_query(sql, engine)
@@ -477,6 +545,8 @@ def pivot_retiros():
 
 
 @pagos.route('/pivot/retiros/excel')
+@login_required
+@check_roles(['dev','gerente'])
 def pivot_retiros_excel():
     sql="select date_format(fecha,'%Y-%m') as fecha, cuenta, imp from caja where cuenta like 'retiro%'"
     dat = pd.read_sql_query(sql, engine)
@@ -488,10 +558,14 @@ def pivot_retiros_excel():
 
 
 @pagos.route('/pagos/altas')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_altas():
     return render_template('pagos/altas.html')
 
 @pagos.route('/pagos/loadaltas')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_loadaltas():
     con = get_con()
     listaltas = pgdict(con, f"select id,nombre,dni,sex, calle,num,deuda,ultpago,subirseven from clientes where subirseven=1 and alta is null order by deuda")
@@ -500,6 +574,8 @@ def pagos_loadaltas():
 
 
 @pagos.route('/pagos/togglesube/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_togglesube(id):
     con = get_con()
     subir = pgonecolumn(con, f"select subirseven from clientes where id={id}")
@@ -517,6 +593,8 @@ def pagos_togglesube(id):
 
 
 @pagos.route('/pagos/sevenaltas')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_sevenaltas():
     con = get_con()
     sevenaltas = pglist(con, f"select 2210,dni,dni,3,sex,'','',nombre,concat(calle,' ',num),5000,barrio,'Cordoba','Cordoba','M', date_format(current_date(),'%Y-%m-%d'),0,'01','',wapp from clientes where subirseven=1 and alta is null")
@@ -525,6 +603,8 @@ def pagos_sevenaltas():
 
 
 @pagos.route('/pagos/marcarsubidos', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_marcarsubidos():
     con = get_con()
     listadni = json.loads(request.data.decode("UTF-8"))
@@ -554,6 +634,8 @@ def pagos_marcarsubidos():
 
 
 @pagos.route('/pagos/loadbajas')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_loadbajas():
     con = get_con()
     listbajas = pgdict(con, f"select dni,nombre,dni, 'Cancelado' as canc, ultpago from clientes where sev=1 and deuda=0")
@@ -562,6 +644,8 @@ def pagos_loadbajas():
 
 
 @pagos.route('/pagos/sevenbajas')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_sevenbajas():
     con = get_con()
     sevenbajas = pglist(con, f"select dni,nombre,dni,'Cancelado' as canc,ultpago from clientes where sev=1 and deuda=0")
@@ -569,11 +653,15 @@ def pagos_sevenbajas():
 
 
 @pagos.route('/pagos/bajas')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_bajas():
     return render_template('pagos/bajas.html')
 
 
 @pagos.route('/pagos/marcarbajados', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def pagos_marcarbajados():
     con = get_con()
     listadni = json.loads(request.data.decode("UTF-8"))

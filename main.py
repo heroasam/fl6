@@ -65,7 +65,7 @@ def load_user(id):
     except:
         return None
 
-
+@app.route('/')
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -89,11 +89,13 @@ def login():
         if user is not None and user.check_password(password) and user.auth:
             login_user(user, remember=True)
             session['roles'] = user.roles
-            print(session['roles'])
             log(sel)
             next_page = request.args.get('next')
             if not next_page or url_parse(next_page).netloc != '':
-                next_page = url_for('buscador.buscador_')
+                if session['roles']=='cobrador':
+                    next_page = url_for('pagos.loterbo_')
+                else:
+                    next_page = url_for('buscador.buscador_')
             return redirect(next_page)
     return render_template('login_form.html')
 

@@ -38,8 +38,8 @@
     <a class="navbar-item" href="/ventas/calles"> Calles </a>
     <a class="navbar-item" href="/ventas/barrios"> Barrios </a>
     <a class="navbar-item" href="/ventas/zonas"> Zonas </a>
-    <a class="navbar-item" href="/ventas/cambiazonas"> Rezonificar </a>
-    <a class="navbar-item" href="/ventas/estadisticas"> Estadisticas </a>
+    <a class="navbar-item" href="/ventas/cambiazonas" x-show="['dev'].includes(rol)"> Rezonificar </a>
+    <a class="navbar-item" href="/ventas/estadisticas" x-show="['dev','gerente'].includes(rol)"> Estadisticas </a>
     <a class="navbar-item" href="/ventas/devolucion"> Devoluciones </a>
     <a class="navbar-item" href="/ventas/pivotdevoluciones"> Pivot-Devoluciones </a>
   </div>
@@ -56,9 +56,9 @@
     <a class="navbar-item" href="/loterbo/ver"> Ver Lotes Recibos  </a>
     <a class="navbar-item" href="/pagos/editarrbo"> Editar Recibo </a>
     <a class="navbar-item" href="/pagos/verzona"> Ver Zona </a>
-    <a class="navbar-item" href="/pagos/cobrostotales"> Totales Cobrados </a>
-    <a class="navbar-item" href="/pagos/estimados"> Estimados a Cobrar </a>
-    <a class="navbar-item" href="/pagos/comisiones"> Comisiones </a>
+    <a class="navbar-item" href="/pagos/cobrostotales" x-show="['dev','gerente'].includes(rol)"> Totales Cobrados </a>
+    <a class="navbar-item" href="/pagos/estimados" x-show="['dev','gerente'].includes(rol)"> Estimados a Cobrar </a>
+    <a class="navbar-item" href="/pagos/comisiones" x-show="['dev','gerente'].includes(rol)"> Comisiones </a>
     <a class="navbar-item" href="/pagos/altas"> Altas Seven </a>
     <a class="navbar-item" href="/pagos/bajas"> Bajas Seven </a>
   </div>
@@ -83,17 +83,17 @@
     Stock
   </a>
   <div class="navbar-dropdown" x-show="verDropdownStock">
-    <a class="navbar-item" href="/stock/asientos" x-show="rol=='gerente'"> Asientos </a>
-    <a class="navbar-item" href="/stock/mayor"  x-show="rol=='gerente'"> Mayor de Cuentas </a>
-    <a class="navbar-item" href="/stock/pivotcuentas"  x-show="rol=='gerente'"> Pivot-Cuentas </a>
-    <a class="navbar-item" href="/stock/retiros"  x-show="rol=='gerente'"> Retiros Socios  </a>
+    <a class="navbar-item" href="/stock/asientos" x-show="['dev','gerente'].includes(rol)"> Asientos </a>
+    <a class="navbar-item" href="/stock/mayor"  x-show="['dev','gerente'].includes(rol)"> Mayor de Cuentas </a>
+    <a class="navbar-item" href="/stock/pivotcuentas"  x-show="['dev','gerente'].includes(rol)"> Pivot-Cuentas </a>
+    <a class="navbar-item" href="/stock/retiros"  x-show="['dev','gerente'].includes(rol)"> Retiros Socios  </a>
     <a class="navbar-item" href="/stock/compras"> Compras  </a>
     <a class="navbar-item" href="/stock/verstock">Stock </a>
     <a class="navbar-item" href="/stock/salidas">Salidas </a>
     <a class="navbar-item" href="/stock/articulos">Articulos </a>
     <a class="navbar-item" href="/stock/proveedores">Proveedores </a>
-    <a class="navbar-item" href="/stock/cuentas"  x-show="rol=='gerente'">Cuentas </a>
-    <a class="navbar-item" href="/stock/cuadro"  x-show="rol=='gerente'">Cuadro Resultados </a>
+    <a class="navbar-item" href="/stock/cuentas"  x-show="['dev','gerente'].includes(rol)">Cuentas </a>
+    <a class="navbar-item" href="/stock/cuadro"  x-show="['dev','gerente'].includes(rol)">Cuadro Resultados </a>
   </div>
             </div>
             <!-- dropdown-utilidades -->
