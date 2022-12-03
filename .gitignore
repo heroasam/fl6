@@ -16,3 +16,4 @@ __pychache__/
 /templates/ventas/TAGS
 *.gz
 /cookie.txt
+/instance/
