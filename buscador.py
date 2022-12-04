@@ -9,15 +9,15 @@ import simplejson as json
 from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
     pglflat, log_busqueda
 from formularios import intimacion, libredeuda, ficha, recibotransferencia
-from con import get_con, log
+from con import get_con, log, check_roles
 
 
 buscador = Blueprint('buscador', __name__)
 
 
-@buscador.route('/')
 @buscador.route('/buscador', methods=['GET', 'POST'])
 @login_required
+@check_roles(['dev','gerente','admin'])
 def buscador_():
     """Muestra pagina buscador."""
     return render_template("buscador/buscar.html")
@@ -31,6 +31,7 @@ def buscador_pdf(pdf):
 
 @buscador.route('/log')
 @login_required
+@check_roles(['dev','gerente','admin'])
 def buscador_log():
     """Muestra pagina log."""
     return render_template('buscador/log.html')
@@ -697,3 +698,11 @@ def buscador_tablainflacion():
     for row in inflacion:
         dict_inflacion[str(row['year'])+str(row['month'])] = ultimo_valor/row['indice']
     return jsonify(inflacion=dict_inflacion)
+
+
+@buscador.route('/buscador/pedirlistagarantizados/<int:id>')
+def buscador_pedirlistagarantizados(id):
+    con = get_con()
+    dni = pgonecolumn(con, f"select dni from clientes where id={id}")
+    listagarantizados = pgdict(con, f"select * from clientes where dnigarante={dni} and garantizado=1")
+    return jsonify(listagarantizados=listagarantizados)

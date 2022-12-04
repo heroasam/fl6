@@ -2,7 +2,7 @@ from flask import Blueprint,render_template,jsonify,make_response, request, send
 from flask_login import login_required, current_user
 from lib import *
 import simplejson as json
-from con import get_con, log
+from con import get_con, log, check_roles
 from formularios import *
 import mysql.connector
 import time
@@ -12,11 +12,14 @@ fichas = Blueprint('fichas',__name__)
 
 @fichas.route('/fichas')
 @login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_():
     return render_template("fichas/fichaje.html")
 
 
 @fichas.route('/fichas/getcobradores')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_getcobradores():
     con = get_con()
     cobradores = pgdict(con,"select id from cobr where activo=1 and prom=0 and id>15")
@@ -25,6 +28,8 @@ def fichas_getcobradores():
 
 
 @fichas.route('/fichas/muestrazonas/<int:cobr>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_muestrazona(cobr):
     con = get_con()
     zonas = pgdict(con,f"select zona from zonas where asignado={cobr}")
@@ -33,6 +38,8 @@ def fichas_muestrazona(cobr):
 
 
 @fichas.route('/fichas/muestraclientes/<string:tipo>/<string:zona>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_muestraclientes(tipo,zona):
     con = get_con()
     if tipo=='normales':
@@ -51,11 +58,15 @@ def fichas_muestraclientes(tipo,zona):
         clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and deuda=0  order by ultpago desc")
     elif tipo=='ppagos':
         clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and deuda>0 and planvigente=1  order by ultpago desc")
+    elif tipo=='garantizado':
+        clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and deuda>0 and garantizado=1  order by ultpago desc")
     con.close()
     return jsonify(clientes=clientes)
 
 
 @fichas.route('/fichas/imprimir', methods = ['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_imprimir():
     con = get_con()
     listadni = json.loads(request.data.decode("UTF-8"))
@@ -67,6 +78,8 @@ def fichas_imprimir():
 
 
 @fichas.route('/fichas/intimar', methods = ['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_intimar():
     con = get_con()
     listadni = json.loads(request.data.decode("UTF-8"))
@@ -77,6 +90,8 @@ def fichas_intimar():
 
 
 @fichas.route('/fichas/intimarpdf', methods=["POST"])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_intimarpdf():
     con = get_con()
     listadni = json.loads(request.data.decode("UTF-8"))
@@ -110,6 +125,8 @@ def msg_intimacion(dni):
 
 
 @fichas.route('/fichas/intimarwhatsapp', methods=["POST"])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_intimarwhatsapp():
     con = get_con()
     listadni = json.loads(request.data.decode("UTF-8"))
@@ -130,6 +147,8 @@ def fichas_intimarwhatsapp():
 
 
 @fichas.route('/fichas/recordatorioswapp', methods=["POST"])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_recordatorioswapp():
     clientes = json.loads(request.data.decode("UTF-8"))
     for cliente in clientes:
@@ -141,6 +160,8 @@ def fichas_recordatorioswapp():
 
 
 @fichas.route('/fichas/msgprogramado', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_msgprogramado():
     d = json.loads(request.data.decode("UTF-8"))
     clientes = d['listaclientes']
@@ -153,6 +174,8 @@ def fichas_msgprogramado():
 
 
 @fichas.route('/fichas/cambiarzona/<string:zona>',methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_cambiarzona(zona):
     con = get_con()
     listadni = json.loads(request.data.decode("UTF-8"))
@@ -177,16 +200,22 @@ def fichas_cambiarzona(zona):
 
 
 @fichas.route('/fichas/cobradores')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_cobradores():
     return render_template('fichas/cobr.html')
 
 
 @fichas.route('/fichas/programar')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_programar():
     return render_template('fichas/programar.html')
 
 
 @fichas.route('/fichas/getfullcobradores')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_getfullcobradores():
     con = get_con()
     cobradores = pgdict(con,f"select id,dni,nombre,direccion,telefono,fechanac,desde,activo,prom from cobr order by id desc")
@@ -195,6 +224,8 @@ def fichas_getfullcobradores():
 
 
 @fichas.route('/fichas/toggleactivo/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_toggleactivo(id):
     con = get_con()
     activo = pgonecolumn(con, f"select activo from cobr where id={id}")
@@ -218,6 +249,8 @@ def fichas_toggleactivo(id):
 
 
 @fichas.route('/fichas/toggleprom/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_toggleprom(id):
     con = get_con()
     prom = pgonecolumn(con, f"select prom from cobr where id={id}")
@@ -241,6 +274,8 @@ def fichas_toggleprom(id):
 
 
 @fichas.route('/fichas/borrarcobrador/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_borrarcobrador(id):
     con = get_con()
     stm = f"delete from cobr where id={id}"
@@ -260,6 +295,8 @@ def fichas_borrarcobrador(id):
 
 
 @fichas.route('/fichas/getcobradorbyid/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_getcobradorbyid(id):
     con = get_con()
     cobrador = pgdict(con, f"select id,dni,nombre,direccion,telefono,fechanac, desde, activo,prom from cobr where id={id}")[0]
@@ -268,6 +305,8 @@ def fichas_getcobradorbyid(id):
 
 
 @fichas.route('/fichas/guardarcobrador' , methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_guardarcobrador():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -291,11 +330,15 @@ def fichas_guardarcobrador():
 
 
 @fichas.route('/fichas/fechador')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_fechador():
     return render_template('fichas/fechador.html')
 
 
 @fichas.route('/fichas/buscacuenta/<int:idvta>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_buscacuenta(idvta):
     con = get_con()
     cuenta = pgdict(con, f"select nombre, clientes.pmovto as pmovto,asignado \
@@ -308,6 +351,8 @@ def fichas_buscacuenta(idvta):
 
 
 @fichas.route('/fichas/guardarfechado/<int:idvta>/<string:pmovto>/<int:cobr>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_guardarfechado(idvta,pmovto,cobr):
     con = get_con()
     idcliente = pgonecolumn(con, f"select idcliente from ventas where id={idvta}")
@@ -331,11 +376,15 @@ def fichas_guardarfechado(idvta,pmovto,cobr):
 
 
 @fichas.route('/fichas/listado')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_listado():
     return render_template('fichas/listado.html')
 
 
 @fichas.route('/fichas/getzonas')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_getzonas():
     con = get_con()
     zonas = pglflat(con,f"select zona from zonas where asignado>700 and asignado !=820 order by zona")
@@ -345,6 +394,8 @@ def fichas_getzonas():
 
 
 @fichas.route('/fichas/getmsgs')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_getmsgs():
     con = get_con()
     msgs = pgdict(con, f"select id, nombre, msg from msgs")
@@ -353,6 +404,8 @@ def fichas_getmsgs():
 
 
 @fichas.route('/fichas/getlistado/<string:zona>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_getlistado(zona):
     con = get_con()
     listado = pgdict(con, f"select date_format(ultpago,'%Y') as year, ultpago, dni,nombre, concat(calle,' ',num) as direccion from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and comprado>0 and ultpago>'2010-01-01' and concat(calle,num) not in (select concat(calle,num) from clientes where deuda>300) order by ultpago desc")
@@ -361,6 +414,8 @@ def fichas_getlistado(zona):
 
 
 @fichas.route('/fichas/getresumen/<string:zona>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_getresumen(zona):
     con = get_con()
     resumen = pgdict(con, f"select date_format(ultpago,'%Y') as y, count(*) as cnt from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and ultpago>'2010-01-01' group by y order by y")
@@ -369,6 +424,8 @@ def fichas_getresumen(zona):
 
 
 @fichas.route('/fichas/imprimirlistado', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_imprimirlistado():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -380,6 +437,8 @@ def fichas_imprimirlistado():
 
 
 @fichas.route('/fichas/obtenerlistadofechados')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_obtenerlistadofechados():
     con = get_con()
     listado = pgdict(con, f"select fechados.id as id,nombre,expmovto,fechados.pmovto as pmovto,cobr from fechados,clientes where clientes.id=fechados.idcliente and fecha=current_date() order by fechados.id desc")
@@ -388,6 +447,8 @@ def fichas_obtenerlistadofechados():
 
 
 @fichas.route('/fichas/borrarfechado/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_borrarfechado(id):
     con = get_con()
     fechado = pgdict(con, f"select * from fechados where id={id}")[0]
@@ -404,11 +465,15 @@ def fichas_borrarfechado(id):
 
 
 @fichas.route('/fichas/asuntos')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_asuntos():
     return render_template("/fichas/asuntos.html")
 
 
 @fichas.route('/fichas/getasuntos')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_getasuntos():
     con = get_con()
     asuntos = pgdict(con, f"select asuntos.id as id, idcliente, tipo, fecha, vdor, asunto,nombre,completado from asuntos,clientes where clientes.id=asuntos.idcliente")
@@ -417,6 +482,8 @@ def fichas_getasuntos():
 
 
 @fichas.route('/fichas/deleteasunto/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_deleteasunto(id):
     con = get_con()
     stm = f"delete from asuntos where id={id}"
@@ -429,6 +496,8 @@ def fichas_deleteasunto(id):
 
 
 @fichas.route('/fichas/editarasunto', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_editarasunto():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -442,6 +511,8 @@ def fichas_editarasunto():
 
 
 @fichas.route('/fichas/toggleasuntocompletado/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_toggleasuntocompletado(id):
     con = get_con()
     estado = pgonecolumn(con, f"select completado from asuntos where id={id}")
@@ -458,6 +529,8 @@ def fichas_toggleasuntocompletado(id):
 
 
 @fichas.route('/fichas/imprimirasunto' , methods = ['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_imprimirasunto():
     con = get_con()
     ids = json.loads(request.data.decode("UTF-8"))
@@ -469,11 +542,15 @@ def fichas_imprimirasunto():
 
 
 @fichas.route('/fichas/cancelados')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_cancelado():
     return render_template("fichas/cancelados.html")
 
 
 @fichas.route('/fichas/getcancelados')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_getcancelados():
     con = get_con()
     cancelados = pgdict(con, f"select ultpago, nombre, calle, num, zona, tel, wapp, dni from clientes where deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and ultpago>date_sub(curdate(),interval 30 day) order by ultpago desc")
@@ -482,11 +559,15 @@ def fichas_getcancelados():
 
 
 @fichas.route('/fichas/mudados')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_mudados():
     return render_template("fichas/mudados.html")
 
 
 @fichas.route('/fichas/getmudados')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_getmudados():
     con = get_con()
     mudados = pgdict(con, f"select nombre, calle, num, zona, tel, wapp, dni from clientes where deuda=0 and  mudo=1 and mudado_llamado=0 and novendermas=0 and ultpago>date_sub(curdate(), interval 4 year) order by ultpago desc")
@@ -494,6 +575,8 @@ def fichas_getmudados():
 
 
 @fichas.route('/fichas/imprimircancelados', methods = ['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_imprimircancelados():
     con = get_con()
     listadni = json.loads(request.data.decode("UTF-8"))
@@ -505,6 +588,8 @@ def fichas_imprimircancelados():
 
 
 @fichas.route('/fichas/toggleMudadoLlamado/<string:dni>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_togglemudadollamado(dni):
     con = get_con()
     upd = f"update clientes set mudado_llamado=1 where dni={dni}"
@@ -517,6 +602,8 @@ def fichas_togglemudadollamado(dni):
 
 
 @fichas.route('/fichas/programarboton', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_programarboton():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -533,6 +620,8 @@ def fichas_programarboton():
 
 
 @fichas.route('/fichas/procesarlistado', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_procesarlistado():
     """Proceso la planilla de clientes a visitar."""
     con = get_con()
@@ -565,11 +654,15 @@ def fichas_procesarlistado():
     return 'ok'
 
 @fichas.route('/fichas/listavisitar')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_listavisitar():
     return render_template('/fichas/listavisitar.html')
 
 
 @fichas.route('/fichas/getlistalistados')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_getlistalistados():
     con = get_con()
     listalistados = pgdict(con, "select * from listavisitar order by id desc")
@@ -577,6 +670,8 @@ def fichas_getlistalistados():
 
 
 @fichas.route('/fichas/borrarlistavisitar/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def fichas_borrarlistavisitar(id):
     con = get_con()
     stm = f"delete from listavisitar where id={id}"

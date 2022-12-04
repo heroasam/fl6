@@ -9,18 +9,7 @@
 {% block content %}
 
 <div class="container" x-data="main()" x-init="getCompras();obtenerArt();getSaldo();getDepositos()">
-  <!-- <div class="block">
-       <a href="/stock/asientos"  type="button" class="button is-primary">Asientos</a>
-       <a href="/stock/mayor"  type="button" class="button is-primary">Mayor</a>
-       <a href="/stock/pivotcuentas"  type="button" class="button is-primary">Pivot-Cuentas</a>
-       <a href="/stock/retiros"  type="button" class="button is-primary">Retiros</a>
-       <a href="/stock/verstock"  type="button" class="button is-primary">Stock</a>
-       <a href="/stock/salidas"  type="button" class="button is-primary">Salidas</a>
-       <a href="/stock/articulos"  type="button" class="button is-primary">Articulos</a>
-       <a href="/stock/proveedores"  type="button" class="button is-primary">Proveedores</a>
-       <a href="/stock/cuentas"  type="button" class="button is-primary">Cuentas</a>
-       <a href="/stock/cuadro"  type="button" class="button is-primary">Cuadro</a>
-       </div> -->
+
   <div class="columns">
     <div class="column is-8">
       <div class="flex-space-between">
@@ -42,9 +31,9 @@
                size="5" x-ref="cnt" :class="darkTheme?'input-dark':''">
       </div>
       <input type="text" list="listaarticulos" class="input mb-1" x-model="Compra.art"  placeholder="Articulo"
-             style="width:200px;" :class="darkTheme?'input-dark':''"/>
+             style="width:200px;" :class="darkTheme?'input-dark':''" @blur="buscaCosto(Compra.art)" />
       <datalist id="listaarticulos">
-        <template x-for="item in articulos">
+        <template x-for="item in listaArticulos">
           <option :value="item"></option>
         </template>
       </datalist>
@@ -134,8 +123,8 @@
      return{
          listaCompras:[],
          listaProveedores:[],
-         Compra:{},
-         articulos:[],
+         Compra:{fecha:dayjs.utc().format('YYYY-MM-DD'), cnt:'', art:'', costo:''},
+         listaArticulos:[],
          saldosorpresa:'',
          listaDepositos: [],
          selected: null,
@@ -184,13 +173,14 @@
              }})
          },
          validarCompra(){
-             if(this.Compra.fecha!=''&&this.Compra.cnt!=''&&this.Compra.art!=''&&this.Compra.costo!=''&&this.Compra.proveedor!=''){
+             if(this.Compra.fecha!=''&&this.Compra.cnt!=''&&this.Compra.art!=''&&this.Compra.costo!=''&&this.Compra.proveedor!=''&&this.listaArticulos.includes(this.Compra.art)){
                  this.guardarCompra()
              }else{
                  msgError('Complete los datos faltantes')
              }
          },
          guardarCompra(){
+             this.Compra.art = this.Compra.art.substring(3)
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/stock/guardarcompra',this.Compra)
                                                                  .then(res=>{
@@ -204,10 +194,18 @@
                                                                  })
          },
          obtenerArt(){
-             axios.get('/stock/getarticulos')
+             axios.get('/ventas/getarticulos')
                   .then(res=>{
-                      this.articulos = res.data.result
+                      this.listaArticulos = res.data.result
                   })
+         },
+         buscaCosto(art){
+             articulo = {art}
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/stock/buscacosto',articulo)
+                                                                 .then(res=>{
+                      this.Compra.costo = res.data.costo
+             })
          },
      }
  }

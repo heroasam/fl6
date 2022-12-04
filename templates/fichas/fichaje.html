@@ -3,7 +3,7 @@ endblock %} {% block style %}
 <style>
 </style>
 {% endblock %} {% block content %}
-<div class="container.is-widescreen" x-data="main()" x-init="getCobradores();cargarMsgs();eventTable()">
+<div class="container.is-widescreen" x-data="main()" x-init="getCobradores();cargarMsgs();eventTable();getListaZonas()">
   <!-- <div class="buttons">
        <a href="/fichas/cobradores" class="button is-primary">Cobradores</a>
        <a href="/fichas/fechador" class="button is-primary">Fechador</a>
@@ -17,11 +17,12 @@ endblock %} {% block style %}
       <button  class="button  ml-1" @click="muestraZonas(cobrador.id);limpiarToggles('cobr');$event.target.classList.toggle('is-link')"
                x-text="cobrador.id"></button>
     </template>
+    <span class="tag is-warning" x-text="filter" x-show="filter"></span>
   </div>
   <div id="btnZonas">
     <template x-for="zona in listaZonasCobrador">
       <button  class="button ml-1 mt-1" @click="muestraClientes('normales',zona.zona);
-                      zonaactual=zona.zona;limpiarToggles('zonas');$event.target.classList.toggle('is-link')" x-text="zona.zona"></button>
+                      zonaactual=zona.zona;limpiarToggles('zonas');$event.target.classList.toggle('is-link');filter='Vista Normal'" x-text="zona.zona"></button>
     </template>
   </div>
 
@@ -35,13 +36,14 @@ endblock %} {% block style %}
     <button class="button is-small is-primary" @click="seleccionarHasta()">Seleccionar</button>
     <button class="button is-small is-danger" @click="imprimir()">Imprimir</button>
     <button class="button is-small is-danger" @click="intimar()">Intimar</button>
-    <button class="button is-small is-dark" @click="muestraClientes('cancelados',zonaactual)">Cancelados</button>
-    <button class="button is-small is-warning" @click="muestraClientes('gestion',zonaactual||'%')">Gestion</button>
-    <button class="button is-small is-dark" @click="muestraClientes('antiguos',zonaactual)">Antiguos</button>
-    <button class="button is-small is-warning" @click="muestraClientes('ppagos',zonaactual||'%')">Planes</button>
-    <button class="button is-small is-info" @click="muestraClientes('nuevomoroso',zonaactual||'%')">Atraso</button>
-    <button class="button is-small is-info" @click="muestraClientes('morosos',zonaactual||'%')">Morosos</button>
-    <button class="button is-small is-info" @click="muestraClientes('vender',zonaactual||'%')">Vender</button>
+    <button class="button is-small is-dark" @click="muestraClientes('cancelados',zonaactual);filter='Cancelados'">Cancelados</button>
+    <button class="button is-small is-warning" @click="muestraClientes('gestion',zonaactual||'%');filter='Gestion'">Gestion</button>
+    <button class="button is-small is-dark" @click="muestraClientes('antiguos',zonaactual);filter='Antiguos'">Antiguos</button>
+    <button class="button is-small is-warning" @click="muestraClientes('ppagos',zonaactual||'%');filter='Planes de Pago'">Planes</button>
+    <button class="button is-small is-warning" @click="muestraClientes('garantizado',zonaactual||'%');filter='Garantizados'">Garantes</button>
+    <button class="button is-small is-info" @click="muestraClientes('nuevomoroso',zonaactual||'%');filter='Nuevo Moroso'">Atraso</button>
+    <button class="button is-small is-info" @click="muestraClientes('morosos',zonaactual||'%');filter='Morosos'">Morosos</button>
+    <button class="button is-small is-info" @click="muestraClientes('vender',zonaactual||'%');filter='Vender Ultima Cuota'">Vender</button>
     <button class="button is-small is-warning" @click="verZonas==true?verZonas=false:verZonas=true">Cambiar Zonas</button>
     <input type="text" name="zona" x-model="zona" list="zonalist" autocomplete="off" x-show="verZonas" class="input" style="width:100px;">
     <datalist id="zonalist">
@@ -147,10 +149,16 @@ endblock %} {% block style %}
          ultimotipo:'',
          hasta:dayjs.utc().format('YYYY-MM-DD'),
          desde:dayjs.utc().format('YYYY-MM-DD'),
+         filter:'',
          getCobradores() {
              axios.get("/fichas/getcobradores").then((res) => {
                  this.listaCobradores = res.data.cobradores;
              });
+         },
+         getListaZonas() {
+             axios.get("/fichas/getzonas").then((res)=>{
+                 this.listaZonas = res.data.zonas
+            });
          },
          muestraZonas(cobr) {
              axios.get("/fichas/muestrazonas/" + cobr).then((res) => {
@@ -207,25 +215,29 @@ endblock %} {% block style %}
          },
          intimar() {
              ids = this.seleccionarRows()
+             if(ids.length>1){
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
              axios.post("/fichas/intimar",ids,{responseType: "blob"})
                   .then((res) => {
                       let url = window.URL.createObjectURL(res.data);
                       window.open(url);
                   });
+             }else{
+                 msgError('Debe seleccionar minimo 2 clientes.')
+             }
          },
          intimarPdf(){
              ids = this.seleccionarRows()
              if(ids.length>0) {
                  idle = ids.length * 12000
                  axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
-                 msgWarning('Paciencia...','Espere mientras se envian las intimaciones!',timer=idle)
+                 msgWarning('Espere mientras se envian las intimaciones!','',idle)
                  axios.post("/fichas/intimarpdf",ids)
                       .then((res) => {
-                          msgSuccess('Exito!','Intimaciones enviadas')
+                          msgSuccess('Intimaciones enviadas')
                       });
              }else{
-                 msgError('Error', 'Seleccione algun/os cliente/s')
+                 msgError('Seleccione algun/os cliente/s')
              }
          },
          intimarWhatsapp(){
@@ -233,12 +245,12 @@ endblock %} {% block style %}
              if(ids.length>0) {
                  idle = ids.length * 12000
                  axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
-                 msgWarning('Paciencia...','Espere mientras se envian las intimaciones!')
+                 msgWarning('Espere mientras se envian las intimaciones!')
 
 
                  axios.post("/fichas/intimarwhatsapp",ids)
                       .then((res) => {
-                          msgSuccess('Exito','Intimaciones Enviadas')
+                          msgSuccess('Intimaciones Enviadas')
                       });
              }else{
                  msgError('Error', 'Seleccione algun/os cliente/s')
@@ -246,25 +258,29 @@ endblock %} {% block style %}
          },
          imprimir() {
              let ids = this.seleccionarRows()
+             if(ids.length>0){
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
                  axios.post("/fichas/imprimir",ids,{responseType: "blob"})
                       .then((res) => {
                           let url = window.URL.createObjectURL(res.data);
                           window.open(url);
                       });
+             }else{
+                 msgError('Debe seleccionar algo para imprimir')
+             }
          },
          sendMsgRecordatorio(){
              ids = this.seleccionarRows()
              if(ids.length>0) {
                  idle = ids.length * 12000
              }
-             msgWarning('Paciencia...','Espere mientras se envian los mensajes!',timer=idle)
+             msgWarning('Espere mientras se envian los mensajes!','',idle)
              ids = ids.map(id=>parseInt(id))
              Clientes = this.listaClientes.filter(row=>ids.includes(row.dni))
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/fichas/recordatorioswapp',Clientes)
                                                                  .then(res=>{
-                                                                     msgSuccess('Exito','Recordatorios enviados')
+                                                                     msgSuccess('Recordatorios enviados')
                                                                  })
          },
          sendMsgProgramado(nombre){
@@ -273,14 +289,14 @@ endblock %} {% block style %}
                  idle = ids.length * 12000
                  msg = this.listamsgs.filter(row=>row.nombre==nombre)[0].msg
              }
-             msgWarning('Paciencia...','Espere mientras se envian los mensajes!',timer=idle)
+             msgWarning('Espere mientras se envian los mensajes!','',idle)
              ids = ids.map(id=>parseInt(id))
              Clientes = this.listaClientes.filter(row=>ids.includes(row.dni))
              data = {listaclientes:Clientes, msg:msg}
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/fichas/msgprogramado',data)
                                                                  .then(res=>{
-                                                                     msgSuccess('Exito','Mensajes Enviados')
+                                                                     msgSuccess('Mensajes Enviados')
                                                                      this.refresh()
                                                                  })
          },

@@ -1,29 +1,10 @@
 
-<!-- <span class="nav-bar" id="btnMenu"><span class="icon-menu"><i class="fa fa-bars" aria-hidden="true"></i></span></span>
-     <nav class="main-nav">
-     <div class="menu" id="menu">
-     {% if current_user.email %}
-     {% if current_user.email in ("sergiofedericosalvay@gmail.com","yooiiyoo@gmail.com") %}
-     <a href="/conta" class="menu__link">Conta</a>
-     {% endif %}
-     {% endif %}
-     <a href="/buscador" class="menu__link">Clientes</a>
-     <a href="/ventas/listado" class="menu__link">Ventas</a>
-     <a href="/pagos" class="menu__link">Pagos</a>
-     <a href="/fichas" class="menu__link">Fichas</a>
-     <a href="/stock/asientos" class="menu__link">Stock</a>
-     <a href="/utilidades/planos" class="menu__link">Utilidades</a>
-     <a href="#" class="menu__link" role="button" onclick="toggleTheme()">Theme</a>
-     {% if not current_user.email %}
-     <a href="signup" class="menu__link">Registrarse</a>
-     <a href="/login" class="menu__link">Login</a>
-     {% endif %}
-     {% if current_user.email %}
-     <label class="email__link">{{current_user.email}}</label>
-     <a href="/logout" class="menu__link">LogOut</a>
-     {% endif %}
-     </div>
-     </nav> -->
+<script>
+ /* {% if "roles" in session %} */
+ rol={{session["roles"]|tojson}}
+ /* {% endif %} */
+</script>
+
 <nav class="navbar" role="navigation" aria-label="main navigation" x-data="{verDropdownVentas:false, verDropdownPagos:false, verDropdownStock:false, verDropdownUtil:false, verDropdownThemes:false, verDropdownFichas:false, verDropdownAuditoria:false, isClicked:false}">
   <!-- espacio de marca y burger para mobile -->
   <div class="navbar-brand">
@@ -41,14 +22,11 @@
   <div class="navbar-menu" id="navMenu">
     <!-- nav-start izquierda -->
     <div class="navbar-start">
-     {% if current_user.email %}
-     {% if current_user.email in ("sergiofedericosalvay@gmail.com","yooiiyoo@gmail.com") %}
-      <a href="/conta" class="navbar-link">Conta</a>
-      {% endif %}
-      {% endif %}
-      <a href="/buscador" class="navbar-link is-arrowless">Clientes</a>
+
+      <a href="/conta" class="navbar-link" x-show="rol=='gerente'">Conta</a>
+      <a href="/buscador" class="navbar-link is-arrowless" x-show="['dev','gerente','admin'].includes(rol)">Clientes</a>
       <!-- dropdown-ventas -->
-      <div class="navbar-item has-dropdown" :class="verDropdownVentas?'is-active':''">
+      <div class="navbar-item has-dropdown" :class="verDropdownVentas?'is-active':''" x-show="['dev','gerente','admin'].includes(rol)">
   <a class="navbar-link is-arrowless" @click="verDropdownVentas=!verDropdownVentas">
     Ventas
   </a>
@@ -60,14 +38,14 @@
     <a class="navbar-item" href="/ventas/calles"> Calles </a>
     <a class="navbar-item" href="/ventas/barrios"> Barrios </a>
     <a class="navbar-item" href="/ventas/zonas"> Zonas </a>
-    <a class="navbar-item" href="/ventas/cambiazonas"> Rezonificar </a>
-    <a class="navbar-item" href="/ventas/estadisticas"> Estadisticas </a>
+    <a class="navbar-item" href="/ventas/cambiazonas" x-show="['dev'].includes(rol)"> Rezonificar </a>
+    <a class="navbar-item" href="/ventas/estadisticas" x-show="['dev','gerente'].includes(rol)"> Estadisticas </a>
     <a class="navbar-item" href="/ventas/devolucion"> Devoluciones </a>
     <a class="navbar-item" href="/ventas/pivotdevoluciones"> Pivot-Devoluciones </a>
   </div>
       </div>
       <!-- dropdown-pagos -->
-            <div class="navbar-item has-dropdown" :class="verDropdownPagos?'is-active':''">
+      <div class="navbar-item has-dropdown" :class="verDropdownPagos?'is-active':''" x-show="['dev','gerente','admin'].includes(rol)">
   <a class="navbar-link is-arrowless" @click="verDropdownPagos=!verDropdownPagos">
     Pagos
   </a>
@@ -78,15 +56,15 @@
     <a class="navbar-item" href="/loterbo/ver"> Ver Lotes Recibos  </a>
     <a class="navbar-item" href="/pagos/editarrbo"> Editar Recibo </a>
     <a class="navbar-item" href="/pagos/verzona"> Ver Zona </a>
-    <a class="navbar-item" href="/pagos/cobrostotales"> Totales Cobrados </a>
-    <a class="navbar-item" href="/pagos/estimados"> Estimados a Cobrar </a>
-    <a class="navbar-item" href="/pagos/comisiones"> Comisiones </a>
+    <a class="navbar-item" href="/pagos/cobrostotales" x-show="['dev','gerente'].includes(rol)"> Totales Cobrados </a>
+    <a class="navbar-item" href="/pagos/estimados" x-show="['dev','gerente'].includes(rol)"> Estimados a Cobrar </a>
+    <a class="navbar-item" href="/pagos/comisiones" x-show="['dev','gerente'].includes(rol)"> Comisiones </a>
     <a class="navbar-item" href="/pagos/altas"> Altas Seven </a>
     <a class="navbar-item" href="/pagos/bajas"> Bajas Seven </a>
   </div>
             </div>
                   <!-- dropdown-fichas -->
-            <div class="navbar-item has-dropdown" :class="verDropdownFichas?'is-active':''">
+            <div class="navbar-item has-dropdown" :class="verDropdownFichas?'is-active':''" x-show="['dev','gerente','admin'].includes(rol)">
   <a class="navbar-link is-arrowless" @click="verDropdownFichas=!verDropdownFichas">
     Fichas
   </a>
@@ -100,26 +78,26 @@
   </div>
             </div>
                               <!-- dropdown-stock -->
-            <div class="navbar-item has-dropdown" :class="verDropdownStock?'is-active':''">
+            <div class="navbar-item has-dropdown" :class="verDropdownStock?'is-active':''" x-show="['dev','gerente','admin'].includes(rol)">
   <a class="navbar-link is-arrowless" @click="verDropdownStock=!verDropdownStock">
     Stock
   </a>
   <div class="navbar-dropdown" x-show="verDropdownStock">
-    <a class="navbar-item" href="/stock/asientos"> Asientos </a>
-    <a class="navbar-item" href="/stock/mayor"> Mayor de Cuentas </a>
-    <a class="navbar-item" href="/stock/pivotcuentas"> Pivot-Cuentas </a>
-    <a class="navbar-item" href="/stock/retiros"> Retiros Socios  </a>
+    <a class="navbar-item" href="/stock/asientos" x-show="['dev','gerente'].includes(rol)"> Asientos </a>
+    <a class="navbar-item" href="/stock/mayor"  x-show="['dev','gerente'].includes(rol)"> Mayor de Cuentas </a>
+    <a class="navbar-item" href="/stock/pivotcuentas"  x-show="['dev','gerente'].includes(rol)"> Pivot-Cuentas </a>
+    <a class="navbar-item" href="/stock/retiros"  x-show="['dev','gerente'].includes(rol)"> Retiros Socios  </a>
     <a class="navbar-item" href="/stock/compras"> Compras  </a>
     <a class="navbar-item" href="/stock/verstock">Stock </a>
     <a class="navbar-item" href="/stock/salidas">Salidas </a>
     <a class="navbar-item" href="/stock/articulos">Articulos </a>
     <a class="navbar-item" href="/stock/proveedores">Proveedores </a>
-    <a class="navbar-item" href="/stock/cuentas">Cuentas </a>
-    <a class="navbar-item" href="/stock/cuadro">Cuadro Resultados </a>
+    <a class="navbar-item" href="/stock/cuentas"  x-show="['dev','gerente'].includes(rol)">Cuentas </a>
+    <a class="navbar-item" href="/stock/cuadro"  x-show="['dev','gerente'].includes(rol)">Cuadro Resultados </a>
   </div>
             </div>
             <!-- dropdown-utilidades -->
-            <div class="navbar-item has-dropdown" :class="verDropdownUtil?'is-active':''">
+            <div class="navbar-item has-dropdown" :class="verDropdownUtil?'is-active':''" x-show="['dev','gerente','admin'].includes(rol)">
   <a class="navbar-link is-arrowless" @click="verDropdownUtil=!verDropdownUtil">
     Utilidades
   </a>
@@ -133,10 +111,9 @@
   </div>
             </div>
 
-            {% if current_user.email %}
-            {% if current_user.email in ("hfj024@gmail.com","hfj050@gmail.com") %}
+
               <!-- dropdown-auditoria -->
-            <div class="navbar-item has-dropdown" :class="verDropdownAuditoria?'is-active':''">
+            <div class="navbar-item has-dropdown" :class="verDropdownAuditoria?'is-active':''" x-show="rol=='dev'">
               <a class="navbar-link is-arrowless" @click="verDropdownAuditoria=!verDropdownAuditoria">
                 Auditoria
               </a>
@@ -145,8 +122,7 @@
               <a class="navbar-item" href="/log1">nginx Log</a>
               </div>
             </div>
-            {% endif %}
-            {% endif %}
+
     </div>
 
   <!-- nav-end derecha -->
@@ -190,6 +166,6 @@
      <label class="navbar-link is-arrowless">{{current_user.email}}</label>
      <a href="/logout" class="navbar-link is-arrowless">LogOut</a>
      {% endif %}
-  </div>
+    </div>
   </div>
 </nav>

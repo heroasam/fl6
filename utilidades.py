@@ -1,7 +1,7 @@
 from flask import Blueprint,render_template,jsonify,make_response, request, send_file
 from flask_login import login_required, current_user
 from lib import *
-from con import get_con, log
+from con import get_con, log, check_roles
 import pandas as pd
 import simplejson as json
 import mysql.connector
@@ -15,22 +15,27 @@ utilidades = Blueprint('utilidades',__name__)
 
 @utilidades.route('/utilidades/planos')
 @login_required
+@check_roles(['dev','gerente','admin'])
 def utilidades_planos():
     return render_template('/utilidades/planos.html')
 
 @utilidades.route('/utilidades/impresos')
 @login_required
+@check_roles(['dev','gerente','admin'])
 def utilidades_impresos():
     return render_template('/utilidades/impresos.html')
 
 
 @utilidades.route('/utilidades/pdfsistema')
 @login_required
+@check_roles(['dev','gerente','admin'])
 def utilidades_pdfimpresos():
     return render_template('/utilidades/pdfsistema.html')
 
 
 @utilidades.route('/utilidades/getplanos')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def utilidades_getplanos():
     listaplanos = os.listdir('/home/hero/documentos/planos')
     listaplanos.sort()
@@ -38,11 +43,15 @@ def utilidades_getplanos():
 
 
 @utilidades.route('/utilidades/imprimirplanos/<string:plano>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def utilidades_imprimirplano(plano):
     return send_file(os.path.join('/home/hero/documentos/planos',plano))
 
 
 @utilidades.route('/utilidades/getimpresos')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def utilidades_getimpresos():
     listaimpresos = os.listdir('/home/hero/documentos/impresos')
     listaimpresos.sort()
@@ -50,11 +59,15 @@ def utilidades_getimpresos():
 
 
 @utilidades.route('/utilidades/imprimirimpreso/<string:impreso>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def utilidades_imprimirimpreso(impreso):
     return send_file(os.path.join('/home/hero/documentos/impresos',impreso))
 
 
 @utilidades.route('/utilidades/getpdfsistema')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def utilidades_pdfsistema():
     listapdfs = os.listdir('/home/hero')
     pdfs = [os.path.split(pdf)[1] for pdf in listapdfs if pdf[-3:]=='pdf']
@@ -63,23 +76,29 @@ def utilidades_pdfsistema():
 
 
 @utilidades.route('/utilidades/imprimirpdfsistema/<pdf>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def utilidades_imprimirpdfsistema(pdf):
     return send_file(os.path.join('/home/hero',pdf))
 
 
 @utilidades.route('/utilidades/contador')
 @login_required
+@check_roles(['dev','gerente','admin'])
 def utilidades_contador():
     return render_template('/utilidades/contador.html')
 
 
 @utilidades.route('/utilidades/documentos')
 @login_required
+@check_roles(['dev','gerente','admin'])
 def utilidades_documentos():
     return render_template('/utilidades/documentos.html')
 
 
 @utilidades.route('/utilidades/getdocumentos/<int:desde>/<int:hasta>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def utilidades_getdocumentos(desde,hasta):
     con = get_con()
     documentos = pgdict(con, f"select ventas.id as id,nombre,concat\
@@ -90,6 +109,8 @@ def utilidades_getdocumentos(desde,hasta):
 
 
 @utilidades.route('/utilidades/imprimirlistadocumentos',   methods=["POST"])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def utilidades_imprimirlistadocumentos():
     con = get_con()
     lista_documentos = json.loads(request.data.decode("UTF-8"))
@@ -98,6 +119,8 @@ def utilidades_imprimirlistadocumentos():
 
 
 @utilidades.route('/utilidades/listawapp')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def utilidades_listawapp():
     """Lista whatsapps."""
     con = get_con()
@@ -107,12 +130,15 @@ def utilidades_listawapp():
 
 
 @utilidades.route('/utilidades/wapp')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def utilidades_wapp():
     """Muestro pagina wapp."""
     return render_template('/utilidades/wapp.html')
 
 
 @utilidades.route('/utilidades/logthemes/<theme>/<ismobile>')
+@login_required
 def utilidades_logtheme(theme, ismobile):
     """Hago el log del theme usado por el usuario."""
     ruta = urlparse(request.referrer).path
@@ -131,3 +157,13 @@ def utilidades_logtheme(theme, ismobile):
                        theme+', '+email+', '+ismobile+', '+ruta)
         log_file.close()
     return 'ok'
+
+def update_dni_garantes():
+    con = get_con()
+    cur = con.cursor()
+    listadni = pglflat(con, "select dnigarante from ventas where garantizado=1 and saldo>0")
+    for dni in listadni:
+        upd = f"update clientes set esgarante=1 where dni={dni}"
+        cur.execute(upd)
+    con.commit()
+    con.close()

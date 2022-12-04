@@ -10,6 +10,10 @@ import mysql.connector
 from con import get_con, log
 
 
+FORMAT = '%(asctime)s  %(message)s'
+logging.basicConfig(format=FORMAT)
+
+
 def pgdict0(con, sel):
     """Funcion que entrega una lista de valores en formato lista plana.
 

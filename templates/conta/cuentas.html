@@ -126,7 +126,7 @@
 	         this.Cuenta = this.listCuentas.filter(row=>row.id==id)[0]
 	     },
          validarEdicion(){
-             if(this.Cuenta.cuenta!=''&&this.Cuenta.tipo in ['ingresos','egresos']){
+             if(this.Cuenta.cuenta!=''&& ['ingresos','egresos'].includes(this.Cuenta.tipo)){
                  this.guardarEdicion()
              }else{
                  msgError('Complete o corrija los datos ingresados')

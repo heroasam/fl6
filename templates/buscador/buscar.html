@@ -129,6 +129,8 @@
       <span class="tag is-info is-small" x-show="Cliente.seguir">SEGUIR</span>
       <span class="tag is-small is-danger pointer"  x-show="Cliente.garantizado"
             @click="open('/buscador/interno/'+Cliente.dnigarante,'_blank')">GARANTE</span>
+      <span class="tag is-small is-info pointer"  x-show="Cliente.esgarante"
+            @click="document.getElementById('table-garantizados').scrollIntoView({behavior: 'smooth'});">ES GARANTE</span>
     </div>
     <div :class="!isMobileDevice?'flex-baseline-space':'flex-column'">
       <h2 x-text="Cliente.deuda>0?'$'+Cliente.deuda:'SIN DEUDA'" class="title is-2"></h2>
@@ -453,7 +455,34 @@
     </table>
     </div>
   </div>
-
+  <!-- tablegarantizados -->
+  <div class="columns">
+    <div class="column is-10">
+      <span class="tag is-large" x-show="verCard && listaGarantizados.length">Garantizados</span>
+      <table class="table noselect is-narrow is-striped" x-show="verCard && listaGarantizados.length" id="table-garantizados">
+        <thead>
+          <tr>
+            <th></th>
+            <th>dni</th>
+            <th>nombre</th>
+            <th>deuda</th>
+            <th>ultpago</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="gar in listaGarantizados">
+          <tr>
+            <td><a :href="'/buscador/interno/'+gar.dni">Ver</a></td>
+            <td x-text="gar.dni"></td>
+            <td x-text="gar.nombre"></td>
+            <td x-text="gar.deuda"></td>
+            <td x-text="gar.ultpago"></td>
+          </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+  </div>
   <!-- MODALES -->
   <!-- bulma-modal edicion-pmo-vto -->
   <div class="modal" id="modal-edicion-pmovto">
@@ -743,6 +772,7 @@
          listaCuentas:[],
          listaInflacion:{},
          listaBusquedasRecientes:[],
+         listaGarantizados:[],
          listamsgs:[],
          Vtos:{},
          buscar:'',
@@ -880,6 +910,7 @@
                       this.obtenerVentasCanceladas(idcliente)
                       this.pedirComentarios(idcliente)
                       this.pedirLogCambioDireccion(idcliente)
+                      this.pedirListaGarantizados(idcliente)
                   })
          },
          obtenerVentasCanceladas(idcliente){
@@ -912,6 +943,13 @@
                       this.listaLogCambioDireccion = res.data.logcambiodireccion
                       this.listaLogCambioDireccion.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                   })
+         },
+         pedirListaGarantizados(id){
+             axios.get('/buscador/pedirlistagarantizados/'+id)
+                  .then(res=>{
+                      this.listaGarantizados = res.data.listagarantizados
+                      this.listaGarantizados.map(row=>row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD'))
+             })
          },
          hacerCuotas(){
              /* id,fecha,cc2,ic3,p4,idvdor,saldo6,comprado,pp8,devuelta,condonada,cnt,art,pagado13,primera14, */

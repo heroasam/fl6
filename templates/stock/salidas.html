@@ -9,18 +9,7 @@
 {% block content %}
 
 <div class="container" x-data="main()", x-init="getSalidas();obtenerArt()">
-  <!-- <div class="block">
-       <a href="/stock/asientos"  type="button" class="button is-primary">Asientos</a>
-       <a href="/stock/mayor"  type="button" class="button is-primary">Mayor</a>
-       <a href="/stock/pivotcuentas"  type="button" class="button is-primary">Pivot-Cuentas</a>
-       <a href="/stock/retiros"  type="button" class="button is-primary">Retiros</a>
-       <a href="/stock/compras"  type="button" class="button is-primary">Compras</a>
-       <a href="/stock/verstock"  type="button" class="button is-primary">Stock</a>
-       <a href="/stock/articulos"  type="button" class="button is-primary">Articulos</a>
-       <a href="/stock/proveedores"  type="button" class="button is-primary">Proveedores</a>
-       <a href="/stock/cuentas"  type="button" class="button is-primary">Cuentas</a>
-       <a href="/stock/cuadro"  type="button" class="button is-primary">Cuadro</a>
-       </div> -->
+
   <div class="columns">
     <div class="column is-7">
       <p class="title is-1">Salida Mercaderia</p>
@@ -36,9 +25,9 @@
       <input type="text" x-model="Salida.cnt" class="input" placeholder="Cantidad"
              style="max-width:100px;" :class="darkTheme?'input-dark':''">
       <input type="text" list="listaarticulos" class="input mb-1" x-model="Salida.art" placeholder="Articulo"
-             style="width:250px" :class="darkTheme?'input-dark':''"/>
+             style="width:250px" :class="darkTheme?'input-dark':''" @blur="buscaCosto(Salida.art)" />
       <datalist id="listaarticulos">
-        <template x-for="item in articulos">
+        <template x-for="item in listaArticulos">
           <option :value="item"></option>
         </template>
       </datalist>
@@ -91,7 +80,7 @@
 <script>
  function main(){
      return{
-         articulos:[],
+         listaArticulos:[],
          listaSalidas:[],
          Salida:{fecha:dayjs.utc().format('YYYY-MM-DD'), cnt:'', art:'', costo:''},
          selected: null,
@@ -122,7 +111,7 @@
              }})
          },
          validarSalida(){
-             if(this.Salida.fecha!=''&&this.Salida.cnt!=''&&this.Salida.art!=''&&this.Salida.costo!=''){
+             if(this.Salida.fecha!=''&&this.Salida.cnt!=''&&this.Salida.art!=''&&this.Salida.costo!='' && this.listaArticulos.includes(this.Salida.art)){
                  this.guardarSalida()
              }else{
                  msgError('Complete los datos faltantes')
@@ -141,9 +130,17 @@
          obtenerArt(){
              axios.get('/ventas/getarticulos')
                   .then(res=>{
-                      this.articulos = res.data.result
+                      this.listaArticulos = res.data.result
                   })
          },
+          buscaCosto(art){
+             articulo = {art}
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/stock/buscacosto',articulo)
+                                                                 .then(res=>{
+                                                                     this.Salida.costo = res.data.costo
+                                                                 })
+          },
      }
  }
 

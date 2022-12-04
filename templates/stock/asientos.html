@@ -161,15 +161,17 @@
              }).then((result) => {
                  if (result.isConfirmed) {
                      axios.get('/stock/deleteasiento/'+id)
-                          .then(res=>msgSuccess('Borrado!','El registro ha sido borrado'))
-                     this.getAsientos()
+                          .then(res=>{
+                          msgSuccess('Borrado!','El registro ha sido borrado')
+                          this.getAsientos()
+                          })
              }})
          },
          validarAsiento(){
-             if(this.Asiento.fecha!=''&&this.Asiento.cuenta!=''&&this.Asiento.imp!=''){
+             if(this.Asiento.fecha!=''&&this.Asiento.cuenta!=''&&this.Asiento.imp!=''&&this.cuentas.includes(this.Asiento.cuenta)){
                  this.guardarAsiento()
              }else{
-                 msgError('Error!','Complete los datos faltantes')
+                 msgError('Error!','Complete los datos faltantes, o verifique el nombre de la cuenta')
              }
          },
          guardarAsiento(){
