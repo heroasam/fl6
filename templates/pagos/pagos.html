@@ -310,7 +310,6 @@
              this.Procesar.fecha = this.Pagos.fecha
              this.Procesar.cobr = this.Pagos.cobr
              this.cntSeleccionados = this.cuentaSeleccionados().length
-             console.log( this.cuentaSeleccionados())
          },
          procesarCorreccionCobrador(){
              toggleModal('modal-edicion-corregir-cobrador')
@@ -329,7 +328,7 @@
              toggleModal('modal-edicion-corregir-cobrador')
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
              msgDelay('Espere que se procesen los datos')
-             axios.post('/pagos/corregirplanillacobrador',this.Procesar)
+             axios.post('/pagos/corregirplanillacobradorseleccionados',this.Procesar)
                   .then(res=>{
                       msgSuccess('Cobrador cambiado con exito')
                       this.Pagos.cobr=this.Procesar.cobr2

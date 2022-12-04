@@ -161,8 +161,10 @@
              }).then((result) => {
                  if (result.isConfirmed) {
                      axios.get('/stock/deleteasiento/'+id)
-                          .then(res=>msgSuccess('Borrado!','El registro ha sido borrado'))
-                     this.getAsientos()
+                          .then(res=>{
+                          msgSuccess('Borrado!','El registro ha sido borrado')
+                          this.getAsientos()
+                          })
              }})
          },
          validarAsiento(){

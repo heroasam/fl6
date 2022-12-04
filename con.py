@@ -35,7 +35,7 @@ def check_roles(roles):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            if session["roles"] in roles:
+            if "roles" in session and session["roles"] in roles:
                 return func(*args, **kwargs)
             return redirect('login')
         return wrapper

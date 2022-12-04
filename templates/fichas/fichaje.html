@@ -3,7 +3,7 @@ endblock %} {% block style %}
 <style>
 </style>
 {% endblock %} {% block content %}
-<div class="container.is-widescreen" x-data="main()" x-init="getCobradores();cargarMsgs();eventTable()">
+<div class="container.is-widescreen" x-data="main()" x-init="getCobradores();cargarMsgs();eventTable();getListaZonas()">
   <!-- <div class="buttons">
        <a href="/fichas/cobradores" class="button is-primary">Cobradores</a>
        <a href="/fichas/fechador" class="button is-primary">Fechador</a>
@@ -154,6 +154,11 @@ endblock %} {% block style %}
              axios.get("/fichas/getcobradores").then((res) => {
                  this.listaCobradores = res.data.cobradores;
              });
+         },
+         getListaZonas() {
+             axios.get("/fichas/getzonas").then((res)=>{
+                 this.listaZonas = res.data.zonas
+            });
          },
          muestraZonas(cobr) {
              axios.get("/fichas/muestrazonas/" + cobr).then((res) => {

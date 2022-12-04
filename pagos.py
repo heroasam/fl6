@@ -247,14 +247,7 @@ def pagos_pasarplanilla():
 def pagos_corregirplanillascobradores():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    if d['ids'] is not None:
-        lpg ='('
-        for idpago in d['ids']:
-            lpg+=str(idpago)+','
-        lpg = lpg[0:-1]+')'
-        upd = f"update pagos set cobr={d['cobr2']} where id in {lpg}"
-    else:
-        upd = f"update pagos set cobr={d['cobr2']} where fecha='{d['fecha']}' and cobr={d['cobr']}"
+    upd = f"update pagos set cobr={d['cobr2']} where fecha='{d['fecha']}' and cobr={d['cobr']}"
     stm = f"delete from planillas where fecha='{d['fecha']}' and idcobr={d['cobr']}"
     cur = con.cursor()
     try:
@@ -271,6 +264,33 @@ def pagos_corregirplanillascobradores():
         con.close()
         return 'ok'
 
+
+@pagos.route('/pagos/corregirplanillacobradorseleccionados', methods = ['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
+def pagos_corregirplanillascobradoresseleccionados():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    lpg ='('
+    for idpago in d['ids']:
+        lpg+=str(idpago)+','
+        lpg = lpg[0:-1]+')'
+    upd = f"update pagos set cobr={d['cobr2']} where id in {lpg}"
+    stm = f"delete from planillas where fecha='{d['fecha']}' and idcobr={d['cobr']}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+        cur.execute(stm)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        log(upd)
+        log(stm)
+        con.close()
+        return 'ok'
 
 
 @pagos.route('/pagos/verplanillas')

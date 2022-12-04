@@ -16,7 +16,7 @@ from fichas import fichas
 from utilidades import utilidades
 from conta import conta
 import mysql.connector
-from con import con, log
+from con import get_con, log
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
@@ -58,6 +58,7 @@ class User(UserMixin):
 
 @login.user_loader
 def load_user(id):
+    con = get_con()
     try:
         log = pgdict(con, f"select id,name,email,password,roles,auth from users where id={id}")[0]
         user = User(log['id'], log['name'], log['email'], log['password'], log['roles'], log['auth'])
@@ -65,9 +66,10 @@ def load_user(id):
     except:
         return None
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    con = get_con()
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
@@ -109,6 +111,7 @@ def logout():
 @app.route('/signup', methods=['GET', 'POST'])
 @login_required
 def signup():
+    con = get_con()
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']

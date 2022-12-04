@@ -104,10 +104,10 @@ def ventas_guardarcliente():
             cur = con.cursor()
             if cliente_viejo['calle']!=d['calle'] or cliente_viejo['num']!=d['num'] or cliente_viejo['acla']!=d['acla'] or cliente_viejo['wapp']!=d['wapp']:
                 cur.execute(ins)
-            con.commit()
-            log(ins)
-            cur.close()
-        con.close()
+                con.commit()
+                log(ins)
+                cur.close()
+                con.close()
         return jsonify(id=id)
 
 
@@ -132,8 +132,8 @@ def ventas_guardarventa():
     else:
         garantizado = 0
         dnigarante = 0
-    ins = f"insert into ventas(fecha,idvdor,ant,cc,ic,p,primera,idcliente,garantizado,dnigarante) values('{d['fecha']}',{d['idvdor']},{ant},{d['cc']},{d['ic']},{p},'{d['primera']}',{d['idcliente']},{garantizado},{dnigarante})"
-    cur = con.cursor()
+        ins = f"insert into ventas(fecha,idvdor,ant,cc,ic,p,primera,idcliente,garantizado,dnigarante) values('{d['fecha']}',{d['idvdor']},{ant},{d['cc']},{d['ic']},{p},'{d['primera']}',{d['idcliente']},{garantizado},{dnigarante})"
+        cur = con.cursor()
     try:
         cur.execute(ins)
     except mysql.connector.Error as e:
@@ -196,7 +196,7 @@ def ventas_borrardetvta(id):
         sumic = pgonecolumn(con,f"select sum(ic) from detvta where idvta={idvta}")
         if sumic is None:
             sumic=0
-        con.close()
+            con.close()
         return jsonify(detvta=detvta,sumic=sumic)
 
 

@@ -213,9 +213,20 @@ def stock_getcompras():
 def stock_getarticulos():
     """Obtengo lista de articulos."""
     con = get_con()
-    articulos=pglflat(con, "select art from articulos")
+    articulos=pglflat(con, "select art from articulos where codigo is not null")
     con.close()
-    return jsonify(result=articulos)
+    return jsonify(articulos=articulos)
+
+
+@stock.route('/stock/buscacosto', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
+def stock_buscacosto():
+    d_data = json.loads(request.data.decode("UTF-8"))
+    con = get_con()
+    art = d_data['art'][3:]
+    costo = pgonecolumn(con, f"select costo from articulos where art='{art}'")
+    return jsonify(costo=costo)
 
 
 @stock.route('/stock/compras')
