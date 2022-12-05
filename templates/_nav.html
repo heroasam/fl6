@@ -5,10 +5,10 @@
  /* {% endif %} */
 </script>
 
-<nav class="navbar" role="navigation" aria-label="main navigation" x-data="{verDropdownVentas:false, verDropdownPagos:false, verDropdownStock:false, verDropdownUtil:false, verDropdownThemes:false, verDropdownFichas:false, verDropdownAuditoria:false, isClicked:false}">
+<nav class="navbar" role="navigation" aria-label="main navigation" x-data="{verDropdownVentas:false, verDropdownPagos:false, verDropdownStock:false, verDropdownUtil:false, verDropdownThemes:false, verDropdownFichas:false, verDropdownAuditoria:false, verDropdownClientes:false, isClicked:false}">
   <!-- espacio de marca y burger para mobile -->
   <div class="navbar-brand">
-    <a class="navbar-item" href="#">
+    <a class="navbar-item" href="/buscador">
       <img alt="logoromitex" src="{{url_for('static', filename='logoromitex.svg' )}}" width="112" height="28" x-show="!darkTheme" />
       <img alt="logoromitex" src="{{url_for('static', filename='logoromitexwhite.svg' )}}" width="112" height="28" x-show="darkTheme" />
     </a>
@@ -24,8 +24,19 @@
     <div class="navbar-start">
 
       <a href="/conta" class="navbar-link" x-show="rol=='gerente'">Conta</a>
-      <a href="/buscador" class="navbar-link is-arrowless" x-show="['dev','gerente','admin'].includes(rol)">Clientes</a>
-      <!-- dropdown-ventas -->
+      <!-- dropdown-clientes -->
+      <div class="navbar-item has-dropdown" :class="verDropdownClientes?'is-active':''" x-show="['dev','gerente','admin'].includes(rol)">
+        <a class="navbar-link is-arrowless" @click="verDropdownClientes=!verDropdownClientes">
+          Clientes
+        </a>
+        <div class="navbar-dropdown" x-show="verDropdownClientes">
+          <a href="/buscador" class="navbar-link is-arrowless" x-show="['dev','gerente','admin'].includes(rol)">Buscador</a>
+          <a href="/buscador/clientenuevo" class="navbar-link is-arrowless" x-show="['dev','gerente','admin'].includes(rol)">Cliente Nuevo</a>
+          <a href="/buscador/verdatos" class="navbar-link is-arrowless" x-show="['dev','gerente','admin'].includes(rol)">Ver Datos</a>
+        </div>
+      </div>
+
+    <!-- dropdown-ventas -->
       <div class="navbar-item has-dropdown" :class="verDropdownVentas?'is-active':''" x-show="['dev','gerente','admin'].includes(rol)">
   <a class="navbar-link is-arrowless" @click="verDropdownVentas=!verDropdownVentas">
     Ventas
@@ -73,6 +84,7 @@
     <a class="navbar-item" href="/fichas/cobradores"> Cobradores </a>
     <a class="navbar-item" href="/fichas/fechador"> Fechador </a>
     <a class="navbar-item" href="/fichas/listado"> Listado a Visitar  </a>
+    <a class="navbar-item" href="/fichas/listavisitar"> Listados Emitidos  </a>
     <a class="navbar-item" href="/fichas/cancelados"> Cancelados  </a>
     <a class="navbar-item" href="/fichas/programar">Botones Programables </a>
   </div>

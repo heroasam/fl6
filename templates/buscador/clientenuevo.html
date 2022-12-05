@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Cliente Nuevo{% endblock %}
+{% block style %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container" x-data="main()" x-init="obtenerCalles();obtenerBarrios();obtenerZonas()">
+  <div class="columns">
+    <div class="column is-8">
+  <p class="title is-1">Cargar Cliente Nuevo</p>
+    </div>
+  </div>
+
+  <div class="field is-horizontal box">
+    <input type="search" placeholder="Buscar en Romitex"  class="input" x-model="buscar" @keyup.enter="buscarDni" x-ref="buscar"
+           :class="darkTheme?'input-dark':''">
+    <button type="button" @click="buscarDni" class="button is-primary">Buscar</button>
+    <button type="button" @click="nuevoCliente" class="button is-danger">Nuevo</button>
+  </div>
+
+
+  <form class="box" @keydown.enter="$focus.next()">
+    <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+    <div class="columns">
+      <div class="column is-1">
+        <input type="text" x-model="cliente.sex" placeholder="Sexo" size="1" x-ref="sex" class="input"
+	           required pattern="^[M|F]$" :class="darkTheme?'input-dark':''">
+      </div>
+      <div class="column is-2">
+        <input type="text" x-model="cliente.dni" placeholder="DNI" size="6" class="input" required
+	           pattern="^(\d){7,8}$" :class="darkTheme?'input-dark':''">
+      </div>
+      <div class="column is-5">
+        <input type="text" x-model="cliente.nombre" placeholder="Nombre" size="60" class="input"
+               required :class="darkTheme?'input-dark':''">
+      </div>
+      <div class="column is-2">
+        <input type="text" x-model="cliente.tel" placeholder="Telefono" size="20" class="input"
+               :class="darkTheme?'input-dark':''">
+      </div>
+      <div class="column is-2">
+        <input type="text" x-model="cliente.wapp" placeholder="WhatApp" size="20" class="input"
+	           pattern="(\d){10}$" :class="darkTheme?'input-dark':''">
+      </div>
+    </div>
+    <div class="columns">
+      <div class="column is-4">
+        <input type="text" list="listacalles" class="input mb-1" x-model="cliente.calle" required placeholder="Calle"
+               :class="darkTheme?'input-dark':''"/>
+        <datalist id="listacalles">
+          <template x-for="item in calles">
+            <option :value="item"></option>
+          </template>
+        </datalist>
+      </div>
+      <div class="column is-1">
+        <input type="text" x-model="cliente.num" placeholder="Num" size="10" class="input" required
+               pattern="(\d){2,4}$" :class="darkTheme?'input-dark':''">
+      </div>
+      <div class="column is-4">
+	    <div class="grid col-1 gap-0">
+          <input type="text" list="listabarrios" class="input mb-1" x-model="cliente.barrio" required
+                 placeholder="Barrio" :class="darkTheme?'input-dark':''"/>
+          <datalist id="listabarrios">
+            <template x-for="item in barrios">
+              <option :value="item"></option>
+            </template>
+          </datalist>
+	    </div>
+      </div>
+      <div class="column is-3">
+        <input type="text" list="listazonas" class="input mb-1" x-model="cliente.zona" required
+               placeholder="Zonas" :class="darkTheme?'input-dark':''"/>
+        <datalist id="listazonas">
+          <template x-for="item in zonas">
+            <option :value="item"></option>
+          </template>
+        </datalist>
+      </div>
+    </div>
+    <div class="columns">
+      <div class="column is-3">
+        <input type="text" x-model="cliente.acla" placeholder="Aclaracion" size="30" class="input"
+               :class="darkTheme?'input-dark':''">
+      </div>
+      <div class="column is-3">
+        <input type="text" x-model="cliente.horario" placeholder="Horario" size="30" class="input"
+               :class="darkTheme?'input-dark':''">
+      </div>
+      <div class="column is-3">
+        <input type="text" x-model="cliente.mjecobr" placeholder="Mje Cobrador" size="30" class="input"
+               :class="darkTheme?'input-dark':''">
+      </div>
+      <div class="column is-3">
+        <input type="text" x-model="cliente.infoseven" placeholder="InfoSeven" size="30" class="input"
+               :class="darkTheme?'input-dark':''">
+      </div>
+    </div>
+    <div class="columns">
+      <div class="column is-7">
+        <div class="flex-left">
+
+        </div>
+      </div>
+      <div class="column is-5" >
+        <div class="flex-right buttons">
+        <button type="button" class="button is-warning" x-show="cliente.incobrable">INC</button>
+        <button type="button" class="button is-warning" x-show="cliente.gestion">GESTION</button>
+        <button type="button" class="button is-warning" x-show="cliente.mudo">MUDO</button>
+        <button type="button" class="button is-danger" @click="validarCliente">Guardar</button>
+        <button type="button" class="button is-danger" @click="crearDato">Crear Dato</button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+ <!-- bulma-modal crear-dato  -->
+  <div class="modal" id="modal-crear-dato">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Crear Dato</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-crear-dato')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="idfecha">Fecha</label>
+        <input type="date" class="input mb-3" x-model="Datos.fecha" id="idfecha"
+               :class="darkTheme?'input-dark':''" >
+        <label for="idfechavisitar">Fecha a Visitar (opcional)</label>
+        <input type="date" class="input mb-3" x-model="Datos.fecha_visitar" id="idfechavisitar"
+               :class="darkTheme?'input-dark':''" >
+        <label for="art" class="label">Articulo (opcional)</label>
+        <input type="text" class="input mb-3" x-model="Datos.art" id="art" autocomplete="off"
+               :class="darkTheme?'input-dark':''" >
+        <label for="horarios" class="label">Horarios (opcional)</label>
+        <input type="text" class="input mb-3" x-model="Datos.horarios" id="horarios" autocomplete="off"
+               :class="darkTheme?'input-dark':''" >
+        <label for="comentarios" class="label">Comentarios (opcional)</label>
+        <input type="text" class="input mb-3" x-model="Datos.comentarios" id="comentarios" autocomplete="off"
+               :class="darkTheme?'input-dark':''" >
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="guardarDato">Generar</button>
+        <button class="button" @click="toggleModal('modal-crear-dato')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+
+
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+ user = {{current_user.email|tojson}}
+ function main(){
+     return{
+         buscar:'',
+         clientes:[],
+         calles:[],
+         barrios:[],
+         zonas:[],
+         cliente:{id:'',sex:'',dni:'',calle:'', barrio:'', zona:'',acla:'', tel:'',wapp:'',mjecobr:'',horario:'',infoseven:''},
+         selected: null,
+         periodicidad:['mensual','quincenal','semanal'],
+         articulos:[],
+         nombregarante:'',
+         direcciongarante:'',
+         Datos:{fecha:dayjs.utc().format('YYYY-MM-DD'),fecha_visitar:dayjs.utc().format('YYYY-MM-DD'), art:'', horarios:'', comentarios:''},
+         buscarDni(){
+             axios.get('/ventas/buscarcliente/'+this.buscar)
+                  .then(res=>{
+                      msgSuccess('Cliente encontrado')
+                      this.cliente = res.data.clientes[0]
+                  })
+                  .catch(error=>{
+                      msgError(error.request.response)
+                      this.cliente.dni = this.buscar
+                  })
+             this.$refs.sex.focus()
+         },
+         obtenerCalles(){
+	         axios.get('/ventas/getcalles')
+		          .then(res=>{this.calles=res.data.result})
+         },
+         obtenerBarrios(){
+	         axios.get('/ventas/getbarrios')
+		          .then(res=>{this.barrios=res.data.result})
+         },
+         obtenerZonas(){
+             axios.get('/ventas/getzonas')
+		          .then(res=>{this.zonas=res.data.result
+                      this.zonas = this.zonas.filter(row=>!row.includes('-'))
+                  })
+         },
+         obtenerArt(){
+             axios.get('/ventas/getarticulos')
+		          .then(res=>this.articulos=res.data.result)
+	     },
+         nuevoCliente(){
+             this.buscar=''
+             this.cliente={id:'', sex:'',dni:'',calle:'', barrio:'', zona:'',acla:'', tel:'',wapp:'',mjecobr:'',horario:'',infoseven:''}
+             this.$refs.buscar.focus()
+         },
+         validarCliente(){
+             if(this.cliente.sex=='') {msgError('Complete los datos:','Falta poner sexo');return}
+             if(this.cliente.sex!='F'&& this.cliente.sex!='M') {msgError('Corrija los datos:','Sexo solo admite M o F');return}
+             if(this.cliente.dni=='') {msgError('Complete los datos:','Falta poner dni');return}
+             if(this.cliente.nombre=='') {msgError('Complete los datos:','Falta poner nombre');return}
+             if(this.cliente.calle=='') {msgError('Complete los datos:','Falta poner calle');return}
+             if(!this.calles.includes(this.cliente.calle)) {msgError('Corrija los datos:','La calle no se encuentra en la base de datos');return}
+             if(this.cliente.num=='') {msgError('Complete los datos:','Falta poner num');return}
+             if(this.cliente.barrio=='') {msgError('Complete los datos:','Falta poner barrio');return}
+             if(!this.barrios.includes(this.cliente.barrio)) {msgError('Corrija los datos:','El barrio no se encuentra en la base de datos');return}
+             if(this.cliente.zona=='') {msgError('Complete los datos:','Falta poner zona');return}
+             if(!this.zonas.includes(this.cliente.zona)) {msgError('Corrija los datos:','La zona no se encuentra en la base de datos');return}
+             this.guardarCliente()
+         },
+         guardarCliente(){
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/ventas/guardarcliente',this.cliente)
+                                                                 .then(res=>{
+                                                                     msgSuccess('Cliente creado/editado con exito')
+                                                                     if (this.cliente.id=='') this.cliente.id=res.data.id
+                                                                 })
+                                                                 .catch(error=>{
+                                                                     msgError('No se pudo crear/editar el cliente')
+                                                                 })
+         },
+
+         validaFecha(fecha){
+             if(fecha<dayjs.utc(this.venta.fecha).format('YYYY-MM-DD')||fecha>dayjs.utc().add(3,'month').format('YYYY-MM-DD')){
+                 msgError('Fecha Invalida')
+                 return false
+             }else{
+                 return true
+             }
+         },
+         mostrarGarante(){
+             if(this.venta.dnigarante!=''){
+                 axios.get('/ventas/obtenerdatosgarante/'+this.venta.dnigarante)
+                      .then(res=>{
+                          this.nombregarante = res.data.garante[0].nombre
+                          this.direcciongarante = res.data.garante[0].direccion
+                          this.cliente.mjecobr = `Cuenta garantizada por: ${this.nombregarante} ${this.direcciongarante}`
+                      })
+                      .catch(error=>msgError('El DNI no existe'))
+             }
+         },
+         crearDato(){
+             toggleModal("modal-crear-dato")
+         },
+         guardarDato(){
+             toggleModal("modal-crear-dato")
+             this.Datos.user = user
+             this.Datos.idcliente = this.cliente.id
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/buscador/guardardato',this.Datos)
+                                                                 .then(res=>{
+                                                                     msgSuccess('El dato ha sido registrado con exito')
+                                                                 })
+                                                                 .catch(error=>{
+                                                                     msgError('Hubo un error el dato no se registro')
+             })
+
+         },
+     }}
+</script>
+{% endblock %}

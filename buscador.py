@@ -23,6 +23,104 @@ def buscador_():
     return render_template("buscador/buscar.html")
 
 
+
+@buscador.route('/buscador/clientenuevo')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_clientenuevo():
+    """Pantalla generar cliente nuevo."""
+    return render_template("buscador/clientenuevo.html")
+
+
+@buscador.route('/buscador/verdatos')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_verdatos():
+    """Pantalla generar cliente nuevo."""
+    return render_template("buscador/verdatos.html")
+
+
+@buscador.route('/buscador/guardardato', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_guardardato():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, art,\
+    horarios, comentarios) values ('{d['fecha']}', '{d['user']}', \
+    {d['idcliente']}, '{d['fecha_visitar']}','{d['art']}',\
+    '{d['horarios']}', '{d['comentarios']}')"
+    cur = con.cursor()
+    try:
+        cur.execute(ins)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        con.close()
+        log(ins)
+        return 'ok'
+
+
+@buscador.route('/buscador/getlistadodatos')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_getlistadodatos():
+    con = get_con()
+    listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
+    art, horarios, comentarios,  dni, nombre, resultado,monto_vendido from \
+    datos, clientes where clientes.id = datos.idcliente order by id desc \
+    limit 300")
+    return jsonify(listadodatos=listadodatos)
+
+
+@buscador.route('/buscador/borrardato/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_borrardato(id):
+    con = get_con()
+    stm = f"delete from datos where id={id}"
+    cur = con.cursor()
+    try:
+        cur.execute(stm)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        logging.warning(error)
+        return make_response(error, 400)
+    else:
+        con.commit()
+        con.close()
+        log(stm)
+    return 'ok'
+
+
+@buscador.route('/buscador/editardato', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_editardato():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    upd = f"update datos set fecha='{d['fecha']}', user='{d['user']}',\
+    fecha_visitar='{d['fecha_visitar']}', horarios='{d['horarios']}',\
+    art='{d['art']}', comentarios='{d['comentarios']}' where id={d['id']}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        logging.warning(error)
+        return make_response(error, 400)
+    else:
+        con.commit()
+        con.close()
+        log(upd)
+    return 'ok'
+
+
 @buscador.route('/pdf/<pdf>')
 def buscador_pdf(pdf):
     """Reenvia un pdf por una ruta."""

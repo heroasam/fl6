@@ -218,7 +218,7 @@ def fichas_programar():
 @check_roles(['dev','gerente','admin'])
 def fichas_getfullcobradores():
     con = get_con()
-    cobradores = pgdict(con,f"select id,dni,nombre,direccion,telefono,fechanac,desde,activo,prom from cobr order by id desc")
+    cobradores = pgdict(con,f"select * from cobr order by id desc")
     con.close()
     return jsonify(cobradores=cobradores)
 
@@ -258,6 +258,31 @@ def fichas_toggleprom(id):
         upd = f"update cobr set prom=0 where id={id}"
     else:
         upd = f"update cobr set prom=1 where id={id}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as e:
+        con.rollback()
+        error = e.msg
+        return make_response(error,400)
+    else:
+        con.commit()
+        log(upd)
+        cur.close()
+        con.close()
+        return 'OK'
+
+
+@fichas.route('/fichas/togglevdor/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def fichas_togglevdor(id):
+    con = get_con()
+    vdor = pgonecolumn(con, f"select vdor from cobr where id={id}")
+    if vdor:
+        upd = f"update cobr set vdor=0 where id={id}"
+    else:
+        upd = f"update cobr set vdor=1 where id={id}"
     cur = con.cursor()
     try:
         cur.execute(upd)
