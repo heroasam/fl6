@@ -36,8 +36,17 @@ def buscador_clientenuevo():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def buscador_verdatos():
-    """Pantalla generar cliente nuevo."""
+    """Pantalla generar vista de datos."""
     return render_template("buscador/verdatos.html")
+
+
+@buscador.route('/buscador/autorizardatos')
+@login_required
+@check_roles(['dev','gerente'])
+def buscador_autorizardatos():
+    """Pantalla generar vista de autorizar datos."""
+    return render_template("buscador/autorizardatos.html")
+
 
 
 @buscador.route('/buscador/guardardato', methods=['POST'])
@@ -47,9 +56,9 @@ def buscador_guardardato():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, art,\
-    horarios, comentarios) values ('{d['fecha']}', '{d['user']}', \
+    horarios, comentarios, cuota_maxima) values ('{d['fecha']}', '{d['user']}',\
     {d['idcliente']}, '{d['fecha_visitar']}','{d['art']}',\
-    '{d['horarios']}', '{d['comentarios']}')"
+    '{d['horarios']}', '{d['comentarios']}', {d['cuota_maxima']})"
     cur = con.cursor()
     try:
         cur.execute(ins)
@@ -70,10 +79,20 @@ def buscador_guardardato():
 def buscador_getlistadodatos():
     con = get_con()
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
-    art, horarios, comentarios,  dni, nombre, resultado,monto_vendido from \
-    datos, clientes where clientes.id = datos.idcliente order by id desc \
-    limit 300")
-    return jsonify(listadodatos=listadodatos)
+    art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
+    cuota_maxima from datos, clientes where clientes.id = datos.idcliente \
+    order by id desc limit 300")
+    cuotabasica = pgonecolumn(con, "select value from variables where var='cuota_basica'")
+    return jsonify(listadodatos=listadodatos, cuotabasica=cuotabasica)
+
+
+@buscador.route('/buscador/getcuotabasica')
+@login_required
+@check_roles(['dev','gerente'])
+def buscador_getcuotabasica():
+    con = get_con()
+    cuotabasica = pgonecolumn(con, "select value from variables where var='cuota_basica'")
+    return jsonify(cuotabasica=cuotabasica)
 
 
 @buscador.route('/buscador/borrardato/<int:id>')
@@ -105,7 +124,8 @@ def buscador_editardato():
     d = json.loads(request.data.decode("UTF-8"))
     upd = f"update datos set fecha='{d['fecha']}', user='{d['user']}',\
     fecha_visitar='{d['fecha_visitar']}', horarios='{d['horarios']}',\
-    art='{d['art']}', comentarios='{d['comentarios']}' where id={d['id']}"
+    art='{d['art']}', comentarios='{d['comentarios']}', cuota_maxima=\
+    {d['cuota_maxima']} where id={d['id']}"
     cur = con.cursor()
     try:
         cur.execute(upd)
@@ -120,6 +140,18 @@ def buscador_editardato():
         log(upd)
     return 'ok'
 
+
+@buscador.route('/buscador/verificarqueyaesdato/<int:idcliente>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_verificarqueyaesdato(idcliente):
+    con = get_con()
+    dato = pgonecolumn(con, f"select idcliente from datos where idcliente={idcliente} and resultado is null")
+    print('dato',dato)
+    if dato:
+        return make_response("error", 400)
+    else:
+        return make_response("ok", 200)
 
 @buscador.route('/pdf/<pdf>')
 def buscador_pdf(pdf):

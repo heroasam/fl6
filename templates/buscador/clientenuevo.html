@@ -145,7 +145,7 @@
                :class="darkTheme?'input-dark':''" >
       </section>
       <footer class="modal-card-foot">
-        <button class="button is-primary" @click="guardarDato">Generar</button>
+        <button class="button is-primary" @click="validarDato(cliente.id)">Generar</button>
         <button class="button" @click="toggleModal('modal-crear-dato')">Cancelar</button>
       </footer>
     </div>
@@ -167,12 +167,9 @@
          barrios:[],
          zonas:[],
          cliente:{id:'',sex:'',dni:'',calle:'', barrio:'', zona:'',acla:'', tel:'',wapp:'',mjecobr:'',horario:'',infoseven:''},
-         selected: null,
          periodicidad:['mensual','quincenal','semanal'],
-         articulos:[],
-         nombregarante:'',
-         direcciongarante:'',
          Datos:{fecha:dayjs.utc().format('YYYY-MM-DD'),fecha_visitar:dayjs.utc().format('YYYY-MM-DD'), art:'', horarios:'', comentarios:''},
+         cuota_maxima:'',
          buscarDni(){
              axios.get('/ventas/buscarcliente/'+this.buscar)
                   .then(res=>{
@@ -199,10 +196,6 @@
                       this.zonas = this.zonas.filter(row=>!row.includes('-'))
                   })
          },
-         obtenerArt(){
-             axios.get('/ventas/getarticulos')
-		          .then(res=>this.articulos=res.data.result)
-	     },
          nuevoCliente(){
              this.buscar=''
              this.cliente={id:'', sex:'',dni:'',calle:'', barrio:'', zona:'',acla:'', tel:'',wapp:'',mjecobr:'',horario:'',infoseven:''}
@@ -256,9 +249,26 @@
          crearDato(){
              toggleModal("modal-crear-dato")
          },
+         validarDato(idcliente){
+             if(this.cuota_maxima==''){
+                 axios.get('/buscador/getcuotabasica')
+                      .then(res=>{
+                          this.cuota_maxima=res.data.cuotabasica
+                      })
+             }
+             axios.get('/buscador/verificarqueyaesdato/'+idcliente)
+                  .then(res=>{
+                      this.guardarDato()
+                  })
+                  .catch(error=>{
+                      msgError('Este cliente ya tiene un dato vigente')
+                      toggleModal("modal-crear-dato")
+                  })
+         },
          guardarDato(){
              toggleModal("modal-crear-dato")
              this.Datos.user = user
+             this.Datos.cuota_maxima = this.cuota_maxima
              this.Datos.idcliente = this.cliente.id
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/buscador/guardardato',this.Datos)
