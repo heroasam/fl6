@@ -7,12 +7,44 @@ from flask import Blueprint, render_template, jsonify, make_response, request,\
 from flask_login import login_required
 import simplejson as json
 from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
-    pglflat, log_busqueda
+    pglflat, log_busqueda, listsql
 from formularios import intimacion, libredeuda, ficha, recibotransferencia
 from con import get_con, log, check_roles
 
 
 buscador = Blueprint('buscador', __name__)
+
+def calculo_cuota_maxima(idcliente):
+    """Funcion que calcula la cuota maxima vendible del cliente.
+
+    Busca la cuota maxima de los ultimos tres años y la actualiza por inflacion
+    le disminuye 5% por cada mes de atraso que haya tenido
+    le aumenta 5% por cada compra que haya tenido en los ultimos tres años."""
+    con = get_con()
+    cuotas = pgdict(con, f"select max(ic) as ic, max(date_format(fecha,'%Y%c')) as \
+    fecha from ventas where idcliente={idcliente} and fecha>date_sub(curdate(),\
+    interval 3 year) and saldo=0")[0]
+    if cuotas['ic'] and cuotas['fecha']:
+        cuota = cuotas['ic']
+        fecha = cuotas['fecha']
+        indice = pgonecolumn(con, f"select indice from inflacion \
+        where concat(year,month)='{fecha}'")
+        ultimo_valor = pgonecolumn(con, "select indice from inflacion order \
+        by id desc limit 1")
+        cuota_actualizada = ultimo_valor/indice * cuota
+        cnt_compras = pgonecolumn(con, f"select count(*) from ventas where \
+        idcliente={idcliente} and saldo=0 and fecha>date_sub(curdate(), \
+        interval 3 year)")
+        if cnt_compras>1:
+            cuota_actualizada = cuota_actualizada * (1+cnt_compras*0.05)
+        atraso = pgonecolumn(con, f"select atraso from clientes where id={idcliente}")
+        if atraso>0:
+            cuota_actualizada = cuota_actualizada * (1-(atraso/30)*0.05)
+            if cuota_actualizada < 0:
+                cuota_actualizada = 0
+        return cuota_actualizada
+    else:
+        return 0
 
 
 @buscador.route('/buscador', methods=['GET', 'POST'])
@@ -48,6 +80,13 @@ def buscador_autorizardatos():
     return render_template("buscador/autorizardatos.html")
 
 
+@buscador.route('/buscador/revisardatos')
+@login_required
+@check_roles(['dev','gerente'])
+def buscador_revisardatos():
+    """Pantalla generar vista de revision de datos enviados."""
+    return render_template("buscador/revisardatos.html")
+
 
 @buscador.route('/buscador/guardardato', methods=['POST'])
 @login_required
@@ -55,10 +94,19 @@ def buscador_autorizardatos():
 def buscador_guardardato():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
+    cuota_maxima = calculo_cuota_maxima(d['idcliente'])
+    if cuota_maxima==0 or cuota_maxima<float(d['cuota_maxima']):
+        cuota_maxima = d['cuota_maxima']
+    direccion_cliente = pgonecolumn(con, f"select concat(calle,num) from \
+    clientes where id={d['idcliente']}")
+    deuda_en_la_casa = pgonecolumn(con, f"select sum(deuda) from clientes \
+    where concat(calle,num)='{direccion_cliente}' and id!={d['idcliente']} \
+    and ultpago<date_sub(curdate(), interval 120 day)")
     ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, art,\
-    horarios, comentarios, cuota_maxima) values ('{d['fecha']}', '{d['user']}',\
-    {d['idcliente']}, '{d['fecha_visitar']}','{d['art']}',\
-    '{d['horarios']}', '{d['comentarios']}', {d['cuota_maxima']})"
+    horarios, comentarios, cuota_maxima,deuda_en_la_casa) values \
+    ('{d['fecha']}', '{d['user']}',{d['idcliente']},'{d['fecha_visitar']}',\
+    '{d['art']}','{d['horarios']}', '{d['comentarios']}', {cuota_maxima}, \
+    {deuda_en_la_casa})"
     cur = con.cursor()
     try:
         cur.execute(ins)
@@ -72,6 +120,32 @@ def buscador_guardardato():
         log(ins)
         return 'ok'
 
+@buscador.route('/buscador/togglerechazardato/<int:id>')
+@login_required
+@check_roles(['dev','gerente'])
+def buscador_togglerechazardato(id):
+    con = get_con()
+    resultado = pgonecolumn(con, f"select resultado from datos where id={id}")
+    if resultado == 2: # o sea ya esta rechazado
+        upd = f"update datos set resultado=NULL where id={id}"
+    elif resultado is None: # o sea se puede rechazar
+        upd = f"update datos set resultado=2 where id={id}"
+    else:
+        return make_response("error", 400)
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        con.close()
+        log(upd)
+        return 'ok'
+
+
 
 @buscador.route('/buscador/getlistadodatos')
 @login_required
@@ -80,10 +154,58 @@ def buscador_getlistadodatos():
     con = get_con()
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
-    cuota_maxima from datos, clientes where clientes.id = datos.idcliente \
-    order by id desc limit 300")
-    cuotabasica = pgonecolumn(con, "select value from variables where var='cuota_basica'")
-    return jsonify(listadodatos=listadodatos, cuotabasica=cuotabasica)
+    cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa \
+    from datos, clientes where clientes.id = datos.idcliente and vendedor \
+    is null order by id desc limit 300")
+    # vendedor is null filtra los datos no asignados
+    cuotabasica = pgonecolumn(con, "select value from variables where \
+    var='cuota_basica'")
+    vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
+    print(vdores)
+    return jsonify(listadodatos=listadodatos, cuotabasica=cuotabasica, \
+                   vdores=vdores)
+
+
+@buscador.route('/buscador/getlistadodatosenviados')
+@login_required
+@check_roles(['dev','gerente'])
+def buscador_getlistadodatosenviados():
+    con = get_con()
+    listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
+    art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
+    cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
+    vendedor from datos, clientes where clientes.id = datos.idcliente and \
+    vendedor is not null order by id desc")
+    # vendedor is null filtra los datos no asignados
+    cuotabasica = pgonecolumn(con, "select value from variables where \
+    var='cuota_basica'")
+    vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
+    print(vdores)
+    return jsonify(listadodatos=listadodatos, cuotabasica=cuotabasica, \
+                   vdores=vdores)
+
+
+@buscador.route('/buscador/asignardatosvendedor', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente'])
+def buscador_asignardatosvendedor():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    ids = listsql(d['ids'])
+    upd = f"update datos set vendedor = {d['vendedor']} where id in {ids}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        con.close()
+        return 'ok'
+
+
 
 
 @buscador.route('/buscador/getcuotabasica')
@@ -91,7 +213,8 @@ def buscador_getlistadodatos():
 @check_roles(['dev','gerente'])
 def buscador_getcuotabasica():
     con = get_con()
-    cuotabasica = pgonecolumn(con, "select value from variables where var='cuota_basica'")
+    cuotabasica = pgonecolumn(con, "select value from variables where \
+    var='cuota_basica'")
     return jsonify(cuotabasica=cuotabasica)
 
 
@@ -152,6 +275,27 @@ def buscador_verificarqueyaesdato(idcliente):
         return make_response("error", 400)
     else:
         return make_response("ok", 200)
+
+
+@buscador.route('/buscador/guardarcuotabasica/<int:cuota>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_guardarcuotabasica(cuota):
+    con = get_con()
+    upd = f"update variables set value={cuota} where var='cuota_basica'"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        con.close()
+        log(upd)
+        return 'ok'
+
 
 @buscador.route('/pdf/<pdf>')
 def buscador_pdf(pdf):

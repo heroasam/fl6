@@ -817,7 +817,7 @@
          ventaWapp:'',
          Cliente:{},
          Datos:{fecha:dayjs.utc().format('YYYY-MM-DD'),fecha_visitar:dayjs.utc().format('YYYY-MM-DD'), art:'', horarios:'', comentarios:''},
-         cuota_maxima:'',
+         cuota_basica:'',
          PlanPagos:{fecha:dayjs.utc().format('YYYY-MM-DD'),p:'Mensual'},
          Comentario:{fechahora:dayjs.utc().format('YYYY-MM-DD')},
          Asunto:{fecha:dayjs.utc().format('YYYY-MM-DD'),tipo:'',vdor:'',asunto:''},
@@ -1553,10 +1553,10 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
              toggleModal("modal-crear-dato")
          },
          validarDato(idcliente){
-             if(this.cuota_maxima==''){
+             if(this.cuota_basica==''){
                  axios.get('/buscador/getcuotabasica')
                       .then(res=>{
-                          this.cuota_maxima=res.data.cuotabasica
+                          this.cuota_basica=res.data.cuotabasica
                  })
              }
              axios.get('/buscador/verificarqueyaesdato/'+idcliente)
@@ -1571,7 +1571,7 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
          guardarDato(){
              toggleModal("modal-crear-dato")
              this.Datos.user = user
-             this.Datos.cuota_maxima = this.cuota_maxima
+             this.Datos.cuota_maxima = this.cuota_basica
              this.Datos.idcliente = this.Cliente.id
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/buscador/guardardato',this.Datos)

@@ -6,24 +6,32 @@
 
 <div class="container" x-data="main()" x-init="getListadoDatos()">
 
-
+  <div class="columns">
+    <div class="column is-6">
   <p class="title is-1">Autorizar Datos</p>
-  <div class="flex-right">
+    </div>
+    <div class="column is-6">
+       <div class="flex-right">
+    <button class="button is-primary" @click="cambiarCuotaBasica">Cambiar</button>
     <div class="xtags has-addons m-0">
 		  <span class="tag is-warning is-large m-0">Cuota Basica</span>
-		  <span class="tag is-light is-large m-0" x-text="'$'+cuota_maxima"></span>
+		  <span class="tag is-light is-large m-0" x-text="'$'+cuota_basica"></span>
 	</div>
+       </div>
+    </div>
   </div>
+
    <div class="buttons">
-     <button class="button is-info" @click="filtraDatosPorUser('isabelheredie@gmail.com')">Isabel</button>
-     <button class="button is-info" @click="filtraDatosPorUser('n.dryon@gmail.com')">Naty</button>
-     <button class="button is-primary" @click="filtraDatosPorStatus('vendidos')">Vendidos</button>
-     <button class="button is-danger" @click="filtraDatosPorStatus('anulados')">Anulados</button>
-     <button class="button is-info" @click="filtraDatosPorStatus('pendientes')">Pendientes</button>
-     <button class="button is-warning" @click="filtraDatosPorStatus('todos')">Todos</button>
-      <button class="button is-black" @click="filtraDatosPorUserParcial('isabelheredie@gmail.com')">Isabel</button>
-      <button class="button is-black" @click="filtraDatosPorUserParcial('n.dryon@gmail.com')">Naty</button>
-      <button class="button is-primary" @click="seleccionarTodo">Seleccionar Todo</button>
+     <button class="button is-small is-info" @click="filtraDatosPorUser('isabelheredie@gmail.com')">Isabel</button>
+     <button class="button is-small is-info" @click="filtraDatosPorUser('n.dryon@gmail.com')">Naty</button>
+     <button class="button is-small is-primary" @click="filtraDatosPorStatus('vendidos')">Vendidos</button>
+     <button class="button is-small is-danger" @click="filtraDatosPorStatus('anulados')">Anulados</button>
+     <button class="button is-small is-info" @click="filtraDatosPorStatus('pendientes')">Pendientes</button>
+     <button class="button is-small is-warning" @click="filtraDatosPorStatus('todos')">Todos</button>
+      <button class="button is-small is-black" @click="filtraDatosPorUserParcial('isabelheredie@gmail.com')">Isabel</button>
+      <button class="button is-small is-black" @click="filtraDatosPorUserParcial('n.dryon@gmail.com')">Naty</button>
+      <button class="button is-small is-primary" @click="seleccionarTodo">Seleccionar Todo</button>
+      <button class="button is-small is-link" @click="enviarDatosSeleccionados">Enviar a Vendedor</button>
    </div>
   <table class="table table-striped " id="table">
     <thead>
@@ -36,11 +44,11 @@
         <th>user</th>
         <th>nombre</th>
         <th>status</th>
-        <th class="sumar">vendido</th>
-        <th>horarios</th>
         <th>articulos</th>
-        <th>comentarios</th>
         <th>cuota</th>
+        <th></th>
+        <th>direccion</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -53,13 +61,20 @@
           <td x-text="dato.fecha"></td>
           <td x-text="dato.user"></td>
           <td x-text="dato.nombre"></td>
-          <td><span class="tag is-small" x-text="dato.resultado==1?'Vendido':(dato.resultado==0?'Anulado':'Pendiente')"
-                    :class="dato.resultado==1?'is-success':(dato.resultado==0?'is-danger':'is-info')"></span></td>
-          <td x-text="dato.monto_vendido" class="pesos"></td>
-          <td x-text="dato.horarios"></td>
+          <td><span class="tag is-small" x-text="dato.resultado==1?'Vendido':(dato.resultado==0?'Anulado':(dato.resultado==2?'Rechazado':'Pendiente'))"
+                    :class="dato.resultado==1?'is-success':(dato.resultado==0?'is-danger':(dato.resultado==2?'is-warning':'is-info' ))"></span></td>
           <td x-text="dato.art"></td>
-          <td x-text="dato.comentarios"></td>
           <td x-text="dato.cuota_maxima"></td>
+          <td><i class="fa fa-trash" aria-hidden="true" @click="rechazarDato(dato.id)"></td>
+            <td><div class="xtags has-addons m-0" x-show="dato.deuda_en_la_casa">
+		      <span class="tag is-warning  m-0">Casa</span>
+		      <span class="tag is-light  m-0" x-text="'$'+dato.deuda_en_la_casa"></span>
+	        </div></td>
+            <td><span class="tag is-small is-danger" x-show="dato.novendermas">LN</span>
+            <span class="tag is-small is-danger" x-show="dato.incobrable">INC</span>
+            <span class="tag is-small is-success" x-show="dato.sev">SEVEN</span>
+            <span class="tag is-small is-success" x-show="dato.baja">ex-SEVEN</span></td>
+
         </tr>
       </template>
     </tbody>
@@ -101,7 +116,48 @@
       </footer>
     </div>
   </div>
-
+   <!-- bulma-modal edicion-cuotabasica -->
+  <div class="modal" id="modal-edicion-cuotabasica">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Fechar Cuotabasica</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion-cuotabasica')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="idcuotabasica">Cuota Basica</label>
+        <input type="text" class="input mb-3" x-model="cuota_basica" id="idcuotabasica">
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="guardarCuotabasica">Guardar</button>
+        <button class="button" @click="toggleModal('modal-edicion-cuotabasica')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+   <!-- bulma-modal edicion-vendedor-asignado -->
+  <div class="modal" id="modal-vendedor-asignado">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Enviar Datos a Vendedor</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-vendedor-asignado')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <p class="title is-5" x-text="'Esta por enviar '+cntSeleccionados+' datos'"></p>
+            <template x-for="vdor in listaVdores">
+            <button class="button" x-text="vdor" @click="vendedorAsignado=vdor">
+            </button>
+            </template>
+          <p class="title is-5" x-text="'Ud ha elegido el vendedor '+vendedorAsignado" x-show="vendedorAsignado"></p>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="enviarDatosaVendedor">Enviar</button>
+        <button class="button" @click="toggleModal('modal-vendedor-asignado')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
 </div>
 {% endblock %}
 {% block script %}
@@ -111,7 +167,10 @@
          listadoDatos:[],
          listadoDatos_:[],
          Datos:{},
-         cuota_maxima:'',
+         cuota_basica:'',
+         cntSeleccionados:'',
+         vendedorAsignado:'',
+         listaVdores:[],
          getListadoDatos(){
              axios.get('/buscador/getlistadodatos')
                   .then(res=>{
@@ -119,7 +178,9 @@
                       this.listadoDatos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                       this.listadoDatos.map(row=>row.fecha_visitar=dayjs.utc(row.fecha_visitar).format('YYYY-MM-DD'))
                       this.listadoDatos_ = this.listadoDatos
-                      this.cuota_maxima = res.data.cuotabasica
+                      this.cuota_basica = res.data.cuotabasica
+                      this.listaVdores = res.data.vdores
+                      console.log( this.listaVdores)
                   })
          },
          borrarDato(id){
@@ -187,6 +248,59 @@
                  }
              });
 
+         },
+         cambiarCuotaBasica(){
+             toggleModal("modal-edicion-cuotabasica")
+         },
+         guardarCuotabasica(){
+           toggleModal("modal-edicion-cuotabasica")
+           axios.get('/buscador/guardarcuotabasica/'+this.cuota_basica)
+                .then(res=>{
+                    msgSuccess('Cuota Basica editada')
+                })
+                .catch(error=>{
+                    msgError('Error. No se pudo editar')
+             })
+         },
+         rechazarDato(id){
+             axios.get('/buscador/togglerechazardato/'+id)
+                  .then(res=>{
+                      msgSuccess('toggle RECHAZADO')
+                      this.getListadoDatos()
+                  })
+                  .catch(error=>{
+                      msgerror('Error. No se pudo hacer el cambio.')
+             })
+         },
+         enviarDatosSeleccionados(){
+             this.cntSeleccionados = this.cuentaSeleccionados().length
+             toggleModal("modal-vendedor-asignado")
+         },
+         enviarDatosaVendedor(){
+             toggleModal("modal-vendedor-asignado")
+             ids = this.cuentaSeleccionados()
+             datos = {ids, vendedor:this.vendedorAsignado}
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/buscador/asignardatosvendedor',datos)
+                                                                 .then(res=>{
+                      msgSuccess('Datos asignados con exito')
+                      this.getListadoDatos()
+                  })
+                  .catch(error=>{
+                      msgError('Hubo un error, no se pudo asignar los datos')
+                  })
+         },
+         cuentaSeleccionados(){
+             let arraySeleccionados = []
+			 const $tbody = document.querySelector("tbody");
+        	 arrayRows = Array.from($tbody.children);
+        	 arrayRows.forEach((row) => {
+                 if(row.classList.contains('is-selected')){
+                     arraySeleccionados.push(row.cells[3].innerHTML)
+                     //OJO la celda de los iddato
+             }})
+             console.log( arraySeleccionados)
+             return arraySeleccionados
          },
 
      }

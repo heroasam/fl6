@@ -1,28 +1,37 @@
 {% extends "base.html" %}
 
-{% block title %}Listado de Datos{% endblock %}
+{% block title %}Revisar Datos{% endblock %}
 
 {% block content %}
 
 <div class="container" x-data="main()" x-init="getListadoDatos()">
 
+  <div class="columns">
+    <div class="column is-6">
+  <p class="title is-1">Revisar Datos</p>
+    </div>
+    <div class="column is-6">
+       <div class="flex-right">
+    <button class="button is-primary" @click="cambiarCuotaBasica">Cambiar</button>
+    <div class="xtags has-addons m-0">
+		  <span class="tag is-warning is-large m-0">Cuota Basica</span>
+		  <span class="tag is-light is-large m-0" x-text="'$'+cuota_basica"></span>
+	</div>
+       </div>
+    </div>
+  </div>
 
-   <p class="title is-1">Listado de Datos</p>
    <div class="buttons">
-     <button class="button is-small is-info" @click="filtraDatosPorUser('isabelheredie@gmail.com')">Isabel</button>
-     <button class="button is-small is-info" @click="filtraDatosPorUser('n.dryon@gmail.com')">Naty</button>
      <button class="button is-small is-primary" @click="filtraDatosPorStatus('vendidos')">Vendidos</button>
      <button class="button is-small is-danger" @click="filtraDatosPorStatus('anulados')">Anulados</button>
      <button class="button is-small is-info" @click="filtraDatosPorStatus('pendientes')">Pendientes</button>
-     <button class="button is-small is-danger" @click="filtraDatosPorStatus('rechazados')">Rechazados</button>
      <button class="button is-small is-warning" @click="filtraDatosPorStatus('todos')">Todos</button>
-      <button class="button is-small is-black" @click="filtraDatosPorUserParcial('isabelheredie@gmail.com')">Isabel</button>
-      <button class="button is-small is-black" @click="filtraDatosPorUserParcial('n.dryon@gmail.com')">Naty</button>
+      <button class="button is-small is-black" @click="filtraDatosPorVendedor(816)">816</button>
+      <button class="button is-small is-black" @click="filtraDatosPorVendedor(835)">835</button>
    </div>
   <table class="table table-striped " id="table">
     <thead>
       <tr>
-        <th></th>
         <th></th>
         <th></th>
         <th>Id</th>
@@ -30,17 +39,18 @@
         <th>user</th>
         <th>nombre</th>
         <th>status</th>
-        <th class="sumar">vendido</th>
-        <th>horarios</th>
         <th>articulos</th>
-        <th>comentarios</th>
+        <th>cuota</th>
+        <th>vdor</th>
+        <th></th>
+        <th>direccion</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
       <template x-for="dato in listadoDatos_">
         <tr>
           <td><a :href="'/buscador/interno/'+dato.dni">Ver</a></td>
-          <td><i class="fa fa-times" aria-hidden="true" @click="borrarDato(dato.id)"></td>
           <td><i class="fa fa-pencil" aria-hidden="true" @click="editarDato(dato.id)"></td>
           <td x-text="dato.id"></td>
           <td x-text="dato.fecha"></td>
@@ -48,10 +58,19 @@
           <td x-text="dato.nombre"></td>
           <td><span class="tag is-small" x-text="dato.resultado==1?'Vendido':(dato.resultado==0?'Anulado':(dato.resultado==2?'Rechazado':'Pendiente'))"
                     :class="dato.resultado==1?'is-success':(dato.resultado==0?'is-danger':(dato.resultado==2?'is-warning':'is-info' ))"></span></td>
-          <td x-text="dato.monto_vendido" class="pesos"></td>
-          <td x-text="dato.horarios"></td>
           <td x-text="dato.art"></td>
-          <td x-text="dato.comentarios"></td>
+          <td x-text="dato.cuota_maxima"></td>
+          <td x-text="dato.vendedor"></td>
+          <td><i class="fa fa-trash" aria-hidden="true" @click="rechazarDato(dato.id)"></td>
+            <td><div class="xtags has-addons m-0" x-show="dato.deuda_en_la_casa">
+		      <span class="tag is-warning  m-0">Casa</span>
+		      <span class="tag is-light  m-0" x-text="'$'+dato.deuda_en_la_casa"></span>
+	        </div></td>
+            <td><span class="tag is-small is-danger" x-show="dato.novendermas">LN</span>
+            <span class="tag is-small is-danger" x-show="dato.incobrable">INC</span>
+            <span class="tag is-small is-success" x-show="dato.sev">SEVEN</span>
+            <span class="tag is-small is-success" x-show="dato.baja">ex-SEVEN</span></td>
+
         </tr>
       </template>
     </tbody>
@@ -83,10 +102,32 @@
         <label for="comentarios" class="label">Comentarios (opcional)</label>
         <input type="text" class="input mb-3" x-model="Datos.comentarios" id="comentarios" autocomplete="off"
                :class="darkTheme?'input-dark':''" >
+        <label for="cuota" class="label">Cuota Maxima</label>
+        <input type="text" class="input mb-3" x-model="Datos.cuota_maxima" id="cuota" autocomplete="off"
+               :class="darkTheme?'input-dark':''" >
       </section>
       <footer class="modal-card-foot">
         <button class="button is-primary" @click="guardarDato">Editar</button>
         <button class="button" @click="toggleModal('modal-editar-dato')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+   <!-- bulma-modal edicion-cuotabasica -->
+  <div class="modal" id="modal-edicion-cuotabasica">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Fechar Cuotabasica</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion-cuotabasica')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="idcuotabasica">Cuota Basica</label>
+        <input type="text" class="input mb-3" x-model="cuota_basica" id="idcuotabasica">
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="guardarCuotabasica">Guardar</button>
+        <button class="button" @click="toggleModal('modal-edicion-cuotabasica')">Cancelar</button>
       </footer>
     </div>
   </div>
@@ -100,32 +141,21 @@
          listadoDatos:[],
          listadoDatos_:[],
          Datos:{},
+         cuota_basica:'',
+         cntSeleccionados:'',
+         vendedorAsignado:'',
+         listaVdores:[],
          getListadoDatos(){
-             axios.get('/buscador/getlistadodatos')
+             axios.get('/buscador/getlistadodatosenviados')
                   .then(res=>{
                       this.listadoDatos = res.data.listadodatos
                       this.listadoDatos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                       this.listadoDatos.map(row=>row.fecha_visitar=dayjs.utc(row.fecha_visitar).format('YYYY-MM-DD'))
                       this.listadoDatos_ = this.listadoDatos
+                      this.cuota_basica = res.data.cuotabasica
+                      this.listaVdores = res.data.vdores
+                      console.log( this.listaVdores)
                   })
-         },
-         borrarDato(id){
-            Swal.fire({
-            title: '¿Esta seguro?',
-            text: `Se borrara el Dato ${id}`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Si, borrarlo!'
-            }).then((result) => {
-            if (result.isConfirmed) {
-                axios.get('/buscador/borrardato/'+id)
-                     .then(res=>{
-                         msgSuccess('Borrado!','El dato ha sido borrado')
-                         this.getListadoDatos()})
-                     .catch(error=>msgError('No se pudo borrar el dato. Hubo un error.'))
-            }})
          },
          editarDato(id){
              this.Datos = this.listadoDatos.filter(row=>row.id==id)[0]
@@ -143,8 +173,8 @@
                                                                      msgError('Hubo un error. El dato no se edito.')
              })
          },
-         filtraDatosPorUser(user){
-             this.listadoDatos_ = this.listadoDatos.filter(row=>row.user==user)
+         filtraDatosPorVendedor(vdor){
+             this.listadoDatos_ = this.listadoDatos.filter(row=>row.vendedor==vdor)
          },
          filtraDatosPorStatus(status){
              switch(status){
@@ -157,18 +187,24 @@
                  case 'pendientes':
                      this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==null)
                      break
-                 case 'rechazados':
-                     this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==2)
-                     break
                  case 'todos':
                      this.listadoDatos_ = this.listadoDatos
                      break
              }
          },
-         filtraDatosPorUserParcial(user){
-             this.listadoDatos_ = this.listadoDatos_.filter(row=>row.user==user)
+         cambiarCuotaBasica(){
+             toggleModal("modal-edicion-cuotabasica")
          },
-
+         guardarCuotabasica(){
+           toggleModal("modal-edicion-cuotabasica")
+           axios.get('/buscador/guardarcuotabasica/'+this.cuota_basica)
+                .then(res=>{
+                    msgSuccess('Cuota Basica editada')
+                })
+                .catch(error=>{
+                    msgError('Error. No se pudo editar')
+             })
+         },
      }
  }
 </script>

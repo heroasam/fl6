@@ -15,6 +15,7 @@ from buscador import buscador
 from fichas import fichas
 from utilidades import utilidades
 from conta import conta
+from vendedor import vendedor
 import mysql.connector
 from con import get_con, log
 
@@ -35,6 +36,7 @@ app.register_blueprint(buscador)
 app.register_blueprint(fichas)
 app.register_blueprint(utilidades)
 app.register_blueprint(conta)
+app.register_blueprint(vendedor)
 
 
 class User(UserMixin):
@@ -94,8 +96,8 @@ def login():
             log(sel)
             next_page = request.args.get('next')
             if not next_page or url_parse(next_page).netloc != '':
-                if session['roles']=='cobrador':
-                    next_page = url_for('pagos.loterbo_')
+                if session['roles']=='vendedor':
+                    next_page = url_for('vendedor.vendedor_listadatos')
                 else:
                     next_page = url_for('buscador.buscador_')
             return redirect(next_page)
@@ -109,7 +111,7 @@ def logout():
 
 
 @app.route('/signup', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def signup():
     con = get_con()
     if request.method == 'POST':

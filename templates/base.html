@@ -19,11 +19,15 @@
   <body>
 
 	<header>
-      {% if session["roles"]=='cobrador' %}
-	  {% include "_nav_cobr.html" %}
-      {% endif %}
-      {% if session["roles"]!='cobrador' %}
-	  {% include "_nav.html" %}
+      {% if session["roles"] %}
+          {% if session["roles"]=='vendedor' %}
+             {% include "_nav_vdor.html" %}
+          {% endif %}
+          {% if session["roles"]!='vendedor' %}
+             {% include "_nav.html" %}
+          {% endif %}
+      {% else %}
+          {% include "_nav_login.html" %}
       {% endif %}
 	</header>
 
