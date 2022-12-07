@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getListadoDatosVendedor()">
+<div class="container" x-data="main()" x-init="getListadoDatosVendedor();getListadoArt()">
 
 
   <p class="title is-1">Lista Datos</p>
@@ -82,6 +82,39 @@
         <label for="idcnt" class="label">Cantidad</label>
         <input type="text" class="input mb-3" x-model="Venta.cnt" id="idcnt" autocomplete="off"
                :class="darkTheme?'input-dark':''">
+        <input type="text" list="listaart" class="input mb-1" x-model="Venta.art"
+               :class="darkTheme?'input-dark':''"/>
+        <button class="button is-primary" @click="agregarArticulo(Venta.cnt,Venta.art)">Agregar Articulo</button>
+        <table class="no-total table">
+          <thead>
+            <tr>
+            <th></th>
+            <th>cnt</th>
+            <th>art</th>
+            <th>cc</th>
+            <th>cuota</th>
+            <th>total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="item in listaArtComprados">
+              <tr>
+                <td><i class="fa fa-times" aria-hidden="true" @click="borrarItem(item.id)"></td>
+                  <td x-text="item.cnt"></td>
+                  <td x-text="item.art"></td>
+                  <td x-text="item.cc"></td>
+                  <td x-text="item.cuota"></td>
+                  <td x-text="item.total"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      <datalist id="listaart">
+        <template x-for="item in listaArticulos">
+          <option :value="item"></option>
+        </template>
+      </datalist>
+      <p class="title is-3" x-text="'6 cuotas de $'+sumaCuota" x-show="sumaCuota"></p>
       </section>
       <footer class="modal-card-foot">
         <button class="button is-primary" @click="guardarDato">Editar</button>
@@ -138,12 +171,16 @@
          listadoDatos:[],
          listadoDatos_:[],
          listaZonasDatos:[],
+         listaArticulos:[],
+         listaArtComprados:[],
+         Articulos:[],
          Dato:{},
          Datos:{},
          cuota_basica:'',
          verCard:false,
          Venta:{},
          dnivalidado:false,
+         sumaCuota:'',
          getListadoDatosVendedor(){
              axios.get('/vendedor/getlistadodatosvendedor')
                   .then(res=>{
@@ -169,6 +206,14 @@
              for (let item in zonaDatos){
                  this.listaZonasDatos.push(`${item}-${zonaDatos[item]}`)
              }
+         },
+         getListadoArt(){
+             axios.get('/vendedor/getlistadoarticulos')
+                  .then(res=>{
+                      this.Articulos = res.data.articulos
+                      this.listaArticulos = this.Articulos.map(row=>row.art)
+                      console.log( this.listaArticulos)
+                  })
          },
          editarDato(id){
              this.Datos = this.listadoDatos.filter(row=>row.id==id)[0]
@@ -268,6 +313,22 @@
                                                                    this.dnivalidado = false
                                                                    msgError('el DNI ingresado no corresponde al cliente')
              })
+         },
+         agregarArticulo(cnt,art){
+             let cuota = this.Articulos.filter(row=>row.art==art)[0].cuota
+             let cc = 6
+             let total = cnt * cuota * cc
+             let id = this.listaArtComprados.length
+             this.listaArtComprados.push({id,cnt,art,cc,cuota,total})
+             this.Venta.cnt = ''
+             this.Venta.art = ''
+             this.sumaCuota = this.listaArtComprados.map(row=>row.total).reduce((a,b)=>a+b,0)/6
+         },
+         borrarItem(iditem){
+             let arrayId = this.listaArtComprados.map(row=>row.id)
+             idBorrar = arrayId.indexOf(iditem)
+             this.listaArtComprados.splice(idBorrar, 1)
+             this.sumaCuota = this.listaArtComprados.map(row=>row.total).reduce((a,b)=>a+b,0)/6
          },
 
      }

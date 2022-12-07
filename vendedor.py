@@ -33,6 +33,15 @@ def vendedor_getlistadodatosvendedor():
     return jsonify(listadodatos=listadodatos)
 
 
+@vendedor.route('/vendedor/getlistadoarticulos')
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_getlistadoarticulos():
+    con = get_con()
+    articulos = pgdict(con, "select art,cuota from articulos where activo=1 ")
+    return jsonify(articulos=articulos)
+
+
 @vendedor.route('/vendedor/editarwapp' , methods=['POST'])
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
