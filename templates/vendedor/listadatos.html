@@ -9,8 +9,12 @@
 
   <p class="title is-1">Lista Datos</p>
 
-
-  <table class="table table-striped " id="table">
+  <div>
+    <template x-for="zona in listaZonasDatos">
+      <button class="button is-small is-primary" x-text="zona" @click="filtraPorZona(zona)"></button>
+    </template>
+  </div>
+  <table class="table table-striped " id="table" x-show="verCard==false">
     <thead>
       <tr>
         <th>fecha</th>
@@ -36,6 +40,21 @@
       </template>
     </tbody>
   </table>
+
+  <!-- verCard Dato -->
+  <div class="card box" x-show="verCard==true">
+    <h1 class="title is-4" x-text="Dato.nombre"></h1>
+    <h2 class="title is-5" x-text="Dato.calle+' '+Dato.num"></h2>
+    <h4 class="subtitle is-6" x-text="Dato.acla" x-show="Dato.acla"></h4>
+    <div class="flex-between">
+      <h2 class="title is-5 no-mb" x-text="Dato.wapp?Dato.wapp:Dato.tel"></h2>
+      <span class="tag is-small is-success pointer ml-5" @click="editarWapp">Editar</span>
+    </div>
+    <h4 class="subtitle is-6" x-text="Dato.barrio"></h4>
+    <hr/>
+    <h2 class="title is-4" x-text="'Cuota Maxima $'+Dato.cuota_maxima"></h2>
+
+  </div>
 
    <!-- bulma-modal editar-dato  -->
   <div class="modal" id="modal-editar-dato">
@@ -73,22 +92,22 @@
       </footer>
     </div>
   </div>
-   <!-- bulma-modal edicion-cuotabasica -->
-  <div class="modal" id="modal-edicion-cuotabasica">
+   <!-- bulma-modal edicion-wapp -->
+  <div class="modal" id="modal-edicion-wapp">
     <div class="modal-background"></div>
     <div class="modal-card">
       <header class="modal-card-head">
-        <p class="modal-card-title">Fechar Cuotabasica</p>
-        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion-cuotabasica')"></button>
+        <p class="modal-card-title">Editar WhatsApp</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion-wapp')"></button>
       </header>
       <section class="modal-card-body">
         <!-- Content ... -->
-        <label for="idcuotabasica">Cuota Basica</label>
-        <input type="text" class="input mb-3" x-model="cuota_basica" id="idcuotabasica">
+        <label for="idwapp">WhatsApp</label>
+        <input type="text" class="input mb-3" x-model="Dato.wapp" id="idwapp">
       </section>
       <footer class="modal-card-foot">
-        <button class="button is-primary" @click="guardarCuotabasica">Guardar</button>
-        <button class="button" @click="toggleModal('modal-edicion-cuotabasica')">Cancelar</button>
+        <button class="button is-primary" @click="guardarWapp">Guardar</button>
+        <button class="button" @click="toggleModal('modal-edicion-wapp')">Cancelar</button>
       </footer>
     </div>
   </div>
@@ -101,11 +120,11 @@
      return{
          listadoDatos:[],
          listadoDatos_:[],
+         listaZonasDatos:[],
+         Dato:{},
          Datos:{},
          cuota_basica:'',
-         cntSeleccionados:'',
-         vendedorAsignado:'',
-         listaVdores:[],
+         verCard:false,
          getListadoDatosVendedor(){
              axios.get('/vendedor/getlistadodatosvendedor')
                   .then(res=>{
@@ -113,7 +132,23 @@
                       this.listadoDatos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                       this.listadoDatos.map(row=>row.fecha_visitar=dayjs.utc(row.fecha_visitar).format('MM-DD'))
                       this.listadoDatos_ = this.listadoDatos
+                      this.getListaZonas()
                   })
+         },
+         getListaZonas(){
+             let arrayZonas = this.listadoDatos.map(row=>row.zona)
+             let zonaDatos = {}
+             arrayZonas.forEach(item=>{
+                 if (item in zonaDatos){
+                     zonaDatos[item] += 1
+                 }else{
+                     zonaDatos[item] = 1
+
+                 }
+             })
+             for (let item in zonaDatos){
+                 this.listaZonasDatos.push(`${item}-${zonaDatos[item]}`)
+             }
          },
          editarDato(id){
              this.Datos = this.listadoDatos.filter(row=>row.id==id)[0]
@@ -150,19 +185,32 @@
                      break
              }
          },
-         cambiarCuotaBasica(){
-             toggleModal("modal-edicion-cuotabasica")
+         filtraPorZona(zona){
+             // la zona me viene en formato jid1-5 por eso tengo que limpiar
+             pattern = /[^-]*/gi
+             zona = pattern.exec(zona)
+             this.listadoDatos_ = this.listadoDatos.filter(row=>row.zona==zona)
+             this.verCard = false
          },
-         guardarCuotabasica(){
-           toggleModal("modal-edicion-cuotabasica")
-           axios.get('/buscador/guardarcuotabasica/'+this.cuota_basica)
-                .then(res=>{
-                    msgSuccess('Cuota Basica editada')
-                })
-                .catch(error=>{
-                    msgError('Error. No se pudo editar')
+         abrirCliente(id){
+             this.Dato = this.listadoDatos.filter(row=>row.idcliente==id)[0]
+             this.verCard = true
+         },
+         editarWapp(){
+             toggleModal("modal-edicion-wapp")
+         },
+         guardarWapp(){
+             toggleModal("modal-edicion-wapp")
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/vendedor/editarwapp',this.Dato)
+                                                                 .then(res=>{
+                      msgSuccess('WhatsApp editado correctamente')
+             })
+                  .catch(error=>{
+                      msgerror('Error. No se hizo la edicion')
              })
          },
+
      }
  }
 </script>

@@ -91,7 +91,7 @@ def login():
         if not user.auth:
             return render_template('login_form.html', errorauth=errorauth)
         if user is not None and user.check_password(password) and user.auth:
-            login_user(user, remember=True)
+            login_user(user, remember=False)
             session['roles'] = user.roles
             log(sel)
             next_page = request.args.get('next')

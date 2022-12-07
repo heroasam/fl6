@@ -27,6 +27,36 @@ def vendedor_getlistadodatosvendedor():
         vdor = 0
     listadodatos = pgdict(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
-    cuota_maxima from datos, clientes where clientes.id = datos.idcliente and \
-    vendedor={vdor} and resultado is null order by id desc")
+    zona, cuota_maxima,idcliente from datos, clientes where clientes.id = \
+    datos.idcliente and vendedor={vdor} and resultado is null order by id desc")
     return jsonify(listadodatos=listadodatos)
+
+
+@vendedor.route('/vendedor/editarwapp' , methods=['POST'])
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_editarwapp():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    wapp_viejo = pgonecolumn(con, f"select wapp from clientes where id= \
+    {d['idcliente']}")
+    upd = f"update clientes set wapp='{d['wapp']}' where id={d['idcliente']}"
+    if wapp_viejo and wapp_viejo != 'INVALIDO':
+        inslogcambio = f"insert into logcambiodireccion(idcliente,wapp,fecha) \
+        values ({d['idcliente']},'{wapp_viejo}', current_date())"
+    else:
+        inslogcambio = None
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+        if inslogcambio is not None:
+            cur.execute(inslogcambio)
+    except mysql.connector.Error as _error:
+       con.rollback()
+       error = _error.msg
+       return make_response(error,400)
+    else:
+       con.commit()
+       con.close()
+       log(upd)
+       return 'ok'

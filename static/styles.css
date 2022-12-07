@@ -321,6 +321,10 @@ thead th {
     display: flex;
     align-items: baseline;
 }
+.flex-between{
+    display: flex;
+    justify-content:space-between;
+}
 .table5 tr:nth-child(n+7){
     display:none;
 }
@@ -505,4 +509,7 @@ thead th {
 }
 .navbar-item{
     font-size: 1.21em;
+}
+.no-mb{
+    margin-bottom: 0rem !important;
 }
