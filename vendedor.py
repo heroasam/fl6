@@ -28,7 +28,8 @@ def vendedor_getlistadodatosvendedor():
     listadodatos = pgdict(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
     zona, cuota_maxima,idcliente from datos, clientes where clientes.id = \
-    datos.idcliente and vendedor={vdor} and resultado is null order by id desc")
+    datos.idcliente and vendedor={vdor} and resultado is null  and \
+    fecha_visitar <=curdate() order by id desc")
     return jsonify(listadodatos=listadodatos)
 
 
@@ -51,6 +52,49 @@ def vendedor_editarwapp():
         cur.execute(upd)
         if inslogcambio is not None:
             cur.execute(inslogcambio)
+    except mysql.connector.Error as _error:
+       con.rollback()
+       error = _error.msg
+       return make_response(error,400)
+    else:
+       con.commit()
+       con.close()
+       log(upd)
+       return 'ok'
+
+
+@vendedor.route('/vendedor/guardardatofechado' , methods=['POST'])
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_guardardatofechado():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    upd = f"update datos set fecha_visitar='{d['fecha_visitar']}' where id = \
+    {d['id']}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as _error:
+       con.rollback()
+       error = _error.msg
+       return make_response(error,400)
+    else:
+       con.commit()
+       con.close()
+       log(upd)
+       return 'ok'
+
+
+@vendedor.route('/vendedor/anulardato/<int:iddato>')
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_anulardato(iddato):
+    con = get_con()
+    upd = f"update datos set resultado=0, fecha_definido=current_timestamp()\
+    where id = {iddato}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
     except mysql.connector.Error as _error:
        con.rollback()
        error = _error.msg

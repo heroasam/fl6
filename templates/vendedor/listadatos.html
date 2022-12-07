@@ -52,7 +52,16 @@
     </div>
     <h4 class="subtitle is-6" x-text="Dato.barrio"></h4>
     <hr/>
+    <h4 class="title is-6 no-mb" x-text="Dato.fecha_visitar"></h4>
+    <h4 class="title is-6 no-mb" x-text="Dato.horarios" x-show="Dato.horarios"></h4>
+    <h4 class="title is-6 no-mb" x-text="Dato.art" x-show="Dato.art"></h4>
+    <h4 class="title is-6 no-mb" x-text="Dato.comentarios" x-show="Dato.comentarios"></h4>
     <h2 class="title is-4" x-text="'Cuota Maxima $'+Dato.cuota_maxima"></h2>
+    <div class="buttons">
+      <button class="button is-small is-primary" @click="venderDato(Dato.id)">Vender</button>
+      <button class="button is-small is-danger" @click="anularDato(Dato.id)">Anular</button>
+      <button class="button is-small is-info" @click="fecharDato(Dato.id)">Fechar</button>
+    </div>
 
   </div>
 
@@ -112,6 +121,26 @@
     </div>
   </div>
 
+   <!-- bulma-modal fechar-dato -->
+  <div class="modal" id="modal-fechar-dato">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Fechar Dato</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-fechar-dato')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="idfecha">Nueva Fecha a Visitar</label>
+        <input type="date" class="input mb-3" x-model="Dato.fecha_visitar" id="idfecha">
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="guardarDatoFechado">Guardar</button>
+        <button class="button" @click="toggleModal('modal-fechar-dato')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+
 </div>
 {% endblock %}
 {% block script %}
@@ -130,7 +159,7 @@
                   .then(res=>{
                       this.listadoDatos = res.data.listadodatos
                       this.listadoDatos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
-                      this.listadoDatos.map(row=>row.fecha_visitar=dayjs.utc(row.fecha_visitar).format('MM-DD'))
+                      this.listadoDatos.map(row=>row.fecha_visitar=dayjs.utc(row.fecha_visitar).format('YYYY-MM-DD'))
                       this.listadoDatos_ = this.listadoDatos
                       this.getListaZonas()
                   })
@@ -138,6 +167,7 @@
          getListaZonas(){
              let arrayZonas = this.listadoDatos.map(row=>row.zona)
              let zonaDatos = {}
+             this.listaZonasDatos = []
              arrayZonas.forEach(item=>{
                  if (item in zonaDatos){
                      zonaDatos[item] += 1
@@ -209,6 +239,33 @@
                   .catch(error=>{
                       msgerror('Error. No se hizo la edicion')
              })
+         },
+         venderDato(iddato){
+
+         },
+         anularDato(iddato){
+             axios.get('/vendedor/anulardato/'+iddato)
+                  .then(res=>{
+                      msgSuccess('Dato anulado correctamente')
+                      this.getListadoDatosVendedor()
+                  })
+                  .catch(error=>{
+                      msgError('Hubo un error. El dato no se pudo anular')
+             })
+         },
+         fecharDato(iddato){
+             toggleModal("modal-fechar-dato")
+         },
+         guardarDatoFechado(){
+             toggleModal("modal-fechar-dato")
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/vendedor/guardardatofechado',this.Dato)
+                                                                 .then(res=>{
+                                                                     msgSuccess('Dato fechado con exito')
+                                                                 })
+                                                                 .catch(error=>{
+                                                                     msgError('Hubo un error. El dato no se fecho')
+                                                                 })
          },
 
      }
