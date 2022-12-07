@@ -104,3 +104,16 @@ def vendedor_anulardato(iddato):
        con.close()
        log(upd)
        return 'ok'
+
+
+@vendedor.route('/vendedor/validardni' , methods=['POST'])
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_validardni():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    dni = pgonecolumn(con, f"select dni from clientes where id={d['id']}")
+    if dni==int(d['dni']):
+        return make_response('aprobado', 200)
+    else:
+        return make_response('error', 400)
