@@ -34,12 +34,14 @@
         <th>horarios</th>
         <th>articulos</th>
         <th>comentarios</th>
+        <th>max</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
       <template x-for="dato in listadoDatos_">
         <tr>
-          <td><a :href="'/buscador/interno/'+dato.dni">Ver</a></td>
+          <td><a :href="'/vendedor/interno/'+dato.dni">Ver</a></td>
           <td><i class="fa fa-times" aria-hidden="true" @click="borrarDato(dato.id)"></td>
           <td><i class="fa fa-pencil" aria-hidden="true" @click="editarDato(dato.id)"></td>
           <td x-text="dato.id"></td>
@@ -52,6 +54,8 @@
           <td x-text="dato.horarios"></td>
           <td x-text="dato.art"></td>
           <td x-text="dato.comentarios"></td>
+          <td x-text="dato.cuota_maxima"></td>
+          <td><span class="tag is-small is-danger" x-show="dato.sin_extension">Venta Basica</span></td>
         </tr>
       </template>
     </tbody>
@@ -101,7 +105,7 @@
          listadoDatos_:[],
          Datos:{},
          getListadoDatos(){
-             axios.get('/buscador/getlistadodatos')
+             axios.get('/vendedor/getlistadodatos')
                   .then(res=>{
                       this.listadoDatos = res.data.listadodatos
                       this.listadoDatos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
@@ -120,7 +124,7 @@
             confirmButtonText: 'Si, borrarlo!'
             }).then((result) => {
             if (result.isConfirmed) {
-                axios.get('/buscador/borrardato/'+id)
+                axios.get('/vendedor/borrardato/'+id)
                      .then(res=>{
                          msgSuccess('Borrado!','El dato ha sido borrado')
                          this.getListadoDatos()})
@@ -134,7 +138,7 @@
          guardarDato(){
              toggleModal("modal-editar-dato")
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-             axios.post('/buscador/editardato',this.Datos)
+             axios.post('/vendedor/editardato',this.Datos)
                                                                  .then(res=>{
                                                                      msgSuccess('Dato editado con exito.')
                                                                      this.getListadoDatos()

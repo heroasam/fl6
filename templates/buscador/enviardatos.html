@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Autorizar Datos{% endblock %}
+{% block title %}Enviar Datos a Vendedores{% endblock %}
 
 {% block content %}
 
@@ -8,7 +8,7 @@
 
   <div class="columns">
     <div class="column is-6">
-  <p class="title is-1">Autorizar Datos</p>
+  <p class="title is-1">Enviar Datos a Vendedores</p>
     </div>
     <div class="column is-6">
        <div class="flex-right">
@@ -47,6 +47,8 @@
         <th>articulos</th>
         <th>cuota</th>
         <th></th>
+        <th></th>
+        <th></th>
         <th>direccion</th>
         <th></th>
       </tr>
@@ -54,7 +56,7 @@
     <tbody>
       <template x-for="dato in listadoDatos_">
         <tr>
-          <td><a :href="'/buscador/interno/'+dato.dni">Ver</a></td>
+          <td><a :href="'/vendedor/interno/'+dato.dni">Ver</a></td>
           <td><i class="fa fa-times" aria-hidden="true" @click="borrarDato(dato.id)"></td>
           <td><i class="fa fa-pencil" aria-hidden="true" @click="editarDato(dato.id)"></td>
           <td x-text="dato.id"></td>
@@ -65,6 +67,8 @@
                     :class="dato.resultado==1?'is-success':(dato.resultado==0?'is-danger':(dato.resultado==2?'is-warning':'is-info' ))"></span></td>
           <td x-text="dato.art"></td>
           <td x-text="dato.cuota_maxima"></td>
+          <td><span class="tag is-small is-danger" x-show="dato.autorizado">Autorizado</span></td>
+          <td><span class="tag is-small is-danger" x-show="dato.sin_extension">Venta Basica</span></td>
           <td><i class="fa fa-trash" aria-hidden="true" @click="rechazarDato(dato.id)"></td>
             <td><div class="xtags has-addons m-0" x-show="dato.deuda_en_la_casa">
 		      <span class="tag is-warning  m-0">Casa</span>
@@ -172,7 +176,7 @@
          vendedorAsignado:'',
          listaVdores:[],
          getListadoDatos(){
-             axios.get('/buscador/getlistadodatos')
+             axios.get('/vendedor/getlistadodatosenviar')
                   .then(res=>{
                       this.listadoDatos = res.data.listadodatos
                       this.listadoDatos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
@@ -194,7 +198,7 @@
             confirmButtonText: 'Si, borrarlo!'
             }).then((result) => {
             if (result.isConfirmed) {
-                axios.get('/buscador/borrardato/'+id)
+                axios.get('/vendedor/borrardato/'+id)
                      .then(res=>{
                          msgSuccess('Borrado!','El dato ha sido borrado')
                          this.getListadoDatos()})
@@ -208,7 +212,7 @@
          guardarDato(){
              toggleModal("modal-editar-dato")
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-             axios.post('/buscador/editardato',this.Datos)
+             axios.post('/vendedor/editardato',this.Datos)
                                                                  .then(res=>{
                                                                      msgSuccess('Dato editado con exito.')
                                                                      this.getListadoDatos()
@@ -254,7 +258,7 @@
          },
          guardarCuotabasica(){
            toggleModal("modal-edicion-cuotabasica")
-           axios.get('/buscador/guardarcuotabasica/'+this.cuota_basica)
+           axios.get('/vendedor/guardarcuotabasica/'+this.cuota_basica)
                 .then(res=>{
                     msgSuccess('Cuota Basica editada')
                 })
@@ -263,7 +267,7 @@
              })
          },
          rechazarDato(id){
-             axios.get('/buscador/togglerechazardato/'+id)
+             axios.get('/vendedor/togglerechazardato/'+id)
                   .then(res=>{
                       msgSuccess('toggle RECHAZADO')
                       this.getListadoDatos()
@@ -281,7 +285,7 @@
              ids = this.cuentaSeleccionados()
              datos = {ids, vendedor:this.vendedorAsignado}
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-             axios.post('/buscador/asignardatosvendedor',datos)
+             axios.post('/vendedor/asignardatosvendedor',datos)
                                                                  .then(res=>{
                       msgSuccess('Datos asignados con exito')
                       this.getListadoDatos()

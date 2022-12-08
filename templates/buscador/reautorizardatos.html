@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}Revisar Datos en poder de los Vendedores{% endblock %}
+{% block title %}Autorizar Datos{% endblock %}
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getListadoDatos()">
+<div class="container" x-data="main()" x-init="getListadoAutorizados()">
 
   <div class="columns">
     <div class="column is-6">
-  <p class="title is-1">Revisar Datos</p>
+  <p class="title is-1">Autorizar Datos</p>
     </div>
     <div class="column is-6">
        <div class="flex-right">
@@ -21,14 +21,7 @@
     </div>
   </div>
 
-   <div class="buttons">
-     <button class="button is-small is-primary" @click="filtraDatosPorStatus('vendidos')">Vendidos</button>
-     <button class="button is-small is-danger" @click="filtraDatosPorStatus('anulados')">Anulados</button>
-     <button class="button is-small is-info" @click="filtraDatosPorStatus('pendientes')">Pendientes</button>
-     <button class="button is-small is-warning" @click="filtraDatosPorStatus('todos')">Todos</button>
-      <button class="button is-small is-black" @click="filtraDatosPorVendedor(816)">816</button>
-      <button class="button is-small is-black" @click="filtraDatosPorVendedor(835)">835</button>
-   </div>
+
   <table class="table table-striped " id="table">
     <thead>
       <tr>
@@ -40,16 +33,19 @@
         <th>nombre</th>
         <th>status</th>
         <th>articulos</th>
-        <th>cuota</th>
+        <th>basica</th>
+        <th>requerida</th>
+        <th>autorizar</th>
+        <th>arts</th>
+        <th>hora</th>
         <th></th>
-        <th>vdor</th>
         <th></th>
         <th>direccion</th>
         <th></th>
       </tr>
     </thead>
     <tbody>
-      <template x-for="dato in listadoDatos_">
+      <template x-for="dato in listadoAutorizados">
         <tr>
           <td><a :href="'/vendedor/interno/'+dato.dni">Ver</a></td>
           <td><i class="fa fa-pencil" aria-hidden="true" @click="editarDato(dato.id)"></td>
@@ -61,8 +57,11 @@
                     :class="dato.resultado==1?'is-success':(dato.resultado==0?'is-danger':(dato.resultado==2?'is-warning':'is-info' ))"></span></td>
           <td x-text="dato.art"></td>
           <td x-text="dato.cuota_maxima"></td>
-          <td><span class="tag is-small is-danger" x-show="dato.autorizado">Autorizado</span></td>
-          <td x-text="dato.vendedor"></td>
+          <td x-text="dato.cuota_requerida"></td>
+          <td><span class="tag is-small is-danger" @click="autorizarDato(dato.id)">Autorizar</span></td>
+          <td x-text="dato.arts"></td>
+            <td x-text="dato.fechahora"></td>
+          <td><span class="tag is-small is-danger" x-show="dato.sin_extension">Venta Basica</span></td>
           <td><i class="fa fa-trash" aria-hidden="true" @click="rechazarDato(dato.id)"></td>
             <td><div class="xtags has-addons m-0" x-show="dato.deuda_en_la_casa">
 		      <span class="tag is-warning  m-0">Casa</span>
@@ -72,7 +71,6 @@
             <span class="tag is-small is-danger" x-show="dato.incobrable">INC</span>
             <span class="tag is-small is-success" x-show="dato.sev">SEVEN</span>
             <span class="tag is-small is-success" x-show="dato.baja">ex-SEVEN</span></td>
-
         </tr>
       </template>
     </tbody>
@@ -133,34 +131,53 @@
       </footer>
     </div>
   </div>
-
+   <!-- bulma-modal edicion-vendedor-asignado -->
+  <div class="modal" id="modal-vendedor-asignado">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Enviar Datos a Vendedor</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-vendedor-asignado')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <p class="title is-5" x-text="'Esta por enviar '+cntSeleccionados+' datos'"></p>
+            <template x-for="vdor in listaVdores">
+            <button class="button" x-text="vdor" @click="vendedorAsignado=vdor">
+            </button>
+            </template>
+          <p class="title is-5" x-text="'Ud ha elegido el vendedor '+vendedorAsignado" x-show="vendedorAsignado"></p>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="enviarDatosaVendedor">Enviar</button>
+        <button class="button" @click="toggleModal('modal-vendedor-asignado')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
 </div>
 {% endblock %}
 {% block script %}
 <script>
  function main(){
      return{
-         listadoDatos:[],
-         listadoDatos_:[],
+         listadoAutorizados:[],
          Datos:{},
          cuota_basica:'',
          cntSeleccionados:'',
          vendedorAsignado:'',
          listaVdores:[],
-         getListadoDatos(){
-             axios.get('/vendedor/getlistadodatosenviados')
+         getListadoAutorizados(){
+             axios.get('/vendedor/getlistadoautorizados')
                   .then(res=>{
-                      this.listadoDatos = res.data.listadodatos
-                      this.listadoDatos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
-                      this.listadoDatos.map(row=>row.fecha_visitar=dayjs.utc(row.fecha_visitar).format('YYYY-MM-DD'))
-                      this.listadoDatos_ = this.listadoDatos
+                      this.listadoAutorizados = res.data.listadoautorizados
+                      this.listadoAutorizados.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      this.listadoAutorizados.map(row=>row.fecha_visitar=dayjs.utc(row.fecha_visitar).format('YYYY-MM-DD'))
+                      this.listadoAutorizados.map(row=>row.fechahora=dayjs.utc(row.fechahora).format('HH:mm'))
                       this.cuota_basica = res.data.cuotabasica
-                      this.listaVdores = res.data.vdores
-                      console.log( this.listaVdores)
                   })
          },
          editarDato(id){
-             this.Datos = this.listadoDatos.filter(row=>row.id==id)[0]
+             this.Datos = this.listadoAutorizados.filter(row=>row.id==id)[0]
              toggleModal("modal-editar-dato")
          },
          guardarDato(){
@@ -169,30 +186,11 @@
              axios.post('/vendedor/editardato',this.Datos)
                                                                  .then(res=>{
                                                                      msgSuccess('Dato editado con exito.')
-                                                                     this.getListadoDatos()
+                                                                     this.getListadoAutorizados()
                                                                  })
                                                                  .catch(error=>{
                                                                      msgError('Hubo un error. El dato no se edito.')
              })
-         },
-         filtraDatosPorVendedor(vdor){
-             this.listadoDatos_ = this.listadoDatos.filter(row=>row.vendedor==vdor)
-         },
-         filtraDatosPorStatus(status){
-             switch(status){
-                 case 'vendidos':
-                     this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==1)
-                     break
-                 case 'anulados':
-                     this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==0)
-                     break
-                 case 'pendientes':
-                     this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==null)
-                     break
-                 case 'todos':
-                     this.listadoDatos_ = this.listadoDatos
-                     break
-             }
          },
          cambiarCuotaBasica(){
              toggleModal("modal-edicion-cuotabasica")
@@ -207,7 +205,34 @@
                     msgError('Error. No se pudo editar')
              })
          },
-     }
- }
+         rechazarDato(id){
+             axios.get('/vendedor/togglerechazardato/'+id)
+                  .then(res=>{
+                      msgSuccess('toggle RECHAZADO')
+                      this.getListadoDatos()
+                  })
+                  .catch(error=>{
+                      msgerror('Error. No se pudo hacer el cambio.')
+             })
+         },
+         autorizarDato(id){
+             axios.get('/vendedor/autorizardato/'+id)
+                  .then(res=>{
+                      msgSuccess('Dato autorizado')
+                       //enviar un whatsapp al vendedor informando de la autorizacion.
+             let msg = `Autorizacion para ${this.dato.nombre}
+con una compra de ${this.dato.arts}
+y una cuota de $${this.dato.cuota_requerida}.
+Cargue de nuevo la operacion y procese la venta. Gracias.`
+             let wapp = '3512411963'
+             let idcliente = 31446
+             let data = {msg,wapp,idcliente}
+                      axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+	                  axios.post('/buscador/wapp',data)
+                      this.getListadoAutorizados()
+                  })
+         },
+     }}
+
 </script>
 {% endblock %}

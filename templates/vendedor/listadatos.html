@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getListadoDatosVendedor();getListadoArt()">
+<div class="container" x-data="main()" x-init="getListadoDatosVendedor();setInterval(()=>{getListadoDatosVendedor()},600000);getListadoArt()">
 
 
   <p class="title is-1">Lista Datos</p>
@@ -76,9 +76,12 @@
       </header>
       <section class="modal-card-body">
         <!-- Content ... -->
+        <span class="tag is-small is-info" x-text="'Cuota Maxima $'+Dato.cuota_maxima"></span>
+        <span class="tag is-small is-danger" x-show="Dato.sin_extension">Venta Basica</span>
         <label for="iddni" class="label">Ingrese DNI del cliente</label>
         <input type="text" class="input mb-3" x-model="Venta.dni" id="iddni" autocomplete="off"
                :class="darkTheme?'input-dark':''" @blur="validarDni(Venta.dni)">
+        <span class="tag is-small is-danger" x-show="!dnivalidado && Venta.dni">DNI no coincide con el cliente</span>
         <label for="idcnt" class="label">Cantidad</label>
         <input type="text" class="input mb-3" x-model="Venta.cnt" id="idcnt" autocomplete="off"
                :class="darkTheme?'input-dark':''">
@@ -114,7 +117,14 @@
           <option :value="item"></option>
         </template>
       </datalist>
-      <p class="title is-3" x-text="'6 cuotas de $'+sumaCuota" x-show="sumaCuota"></p>
+      <p class="title is-3" x-text="'6 cuotas de $'+sumaCuota" x-show="sumaCuota"
+         :class="sumaCuota>Dato.cuota_maxima?'red':''"></p>
+      <span class="tag is-small is-danger" x-show="sumaCuota>Dato.cuota_maxima">Cuota supera Cuota-Maxima</span>
+      <button class="button is-primary" x-show="Dato.sin_extension==0&&sumaCuota>Dato.cuota_maxima"
+              @click="pedirAutorizacion">Pedir Autorizacion</button>
+      <div class="notification is-warning" x-show="verNotificacionAutorizacion">
+        <p>Notificacion pedida. Cancele la operacion. Espere el whatsapp de confirmacion y vuelva a cargar la operacion.</p>
+      </div>
       </section>
       <footer class="modal-card-foot">
         <button class="button is-primary" @click="guardarDato">Editar</button>
@@ -178,9 +188,10 @@
          Datos:{},
          cuota_basica:'',
          verCard:false,
-         Venta:{},
+         Venta:{cnt:'', art:''},
          dnivalidado:false,
          sumaCuota:'',
+         verNotificacionAutorizacion:false,
          getListadoDatosVendedor(){
              axios.get('/vendedor/getlistadodatosvendedor')
                   .then(res=>{
@@ -212,7 +223,6 @@
                   .then(res=>{
                       this.Articulos = res.data.articulos
                       this.listaArticulos = this.Articulos.map(row=>row.art)
-                      console.log( this.listaArticulos)
                   })
          },
          editarDato(id){
@@ -276,7 +286,18 @@
              })
          },
          venderDato(iddato){
-             toggleModal("modal-pasar-venta")
+             //recargamos el Dato desde el servidor para asegurarnos ultimos valores
+             axios.get('/vendedor/getdato/'+iddato)
+                  .then(res=>{
+                      this.Dato=res.data.dato
+                      this.Dato.fecha=dayjs.utc(this.Dato.fecha).format('YYYY-MM-DD')
+                      this.Dato.fecha_visitar=dayjs.utc(this.Dato.fecha_visitar).format('YYYY-MM-DD')
+                      this.listaArtComprados = []
+                      this.Venta = {cnt:'', art:''}
+                      this.sumaCuota = ''
+                      this.verNotificacionAutorizacion = false
+                      toggleModal("modal-pasar-venta")
+                  })
          },
          anularDato(iddato){
              axios.get('/vendedor/anulardato/'+iddato)
@@ -315,20 +336,45 @@
              })
          },
          agregarArticulo(cnt,art){
-             let cuota = this.Articulos.filter(row=>row.art==art)[0].cuota
-             let cc = 6
-             let total = cnt * cuota * cc
-             let id = this.listaArtComprados.length
-             this.listaArtComprados.push({id,cnt,art,cc,cuota,total})
-             this.Venta.cnt = ''
-             this.Venta.art = ''
-             this.sumaCuota = this.listaArtComprados.map(row=>row.total).reduce((a,b)=>a+b,0)/6
+             console.log( cnt,art, typeof cnt, typeof art)
+             if(cnt!=''&&art!=''){
+                 let cuota = this.Articulos.filter(row=>row.art==art)[0].cuota
+                 let cc = 6
+                 let total = cnt * cuota * cc
+                 let id = this.listaArtComprados.length
+                 this.listaArtComprados.push({id,cnt,art,cc,cuota,total})
+                 this.Venta.cnt = ''
+                 this.Venta.art = ''
+                 this.sumaCuota = this.listaArtComprados.map(row=>row.total).reduce((a,b)=>a+b,0)/6
+             }
          },
          borrarItem(iditem){
              let arrayId = this.listaArtComprados.map(row=>row.id)
              idBorrar = arrayId.indexOf(iditem)
              this.listaArtComprados.splice(idBorrar, 1)
              this.sumaCuota = this.listaArtComprados.map(row=>row.total).reduce((a,b)=>a+b,0)/6
+         },
+         pedirAutorizacion(){
+             this.verNotificacionAutorizacion = true
+             //registrar pedido autorizacion en tabla autorizacion
+             this.Dato.cuota_requerida = this.sumaCuota
+             let arrayArts = []
+             this.listaArtComprados.map(row=>{
+                 arrayArts.push(row.cnt+' '+row.art)
+             })
+             this.Dato.arts = arrayArts.toString()
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/vendedor/registrarautorizacion',this.Dato)
+             //enviar un whatsapp al Fede informando del pedido de autorizacion
+             let msg = `Solicito autorizacion para ${this.Dato.nombre}
+con una compra de ${this.Dato.arts}
+y una cuota de $${this.sumaCuota}.
+Quedo a la espera. Gracias.`
+             let wapp = '3512411963'
+             let idcliente = 31446
+             let data = {msg,wapp,idcliente}
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+	         axios.post('/buscador/wapp',data)
          },
 
      }

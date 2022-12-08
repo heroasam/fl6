@@ -1551,15 +1551,16 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
          },
          crearDato(){
              toggleModal("modal-crear-dato")
+             Datos = {fecha:dayjs.utc().format('YYYY-MM-DD'),fecha_visitar:dayjs.utc().format('YYYY-MM-DD'), art:'', horarios:'', comentarios:''}
          },
          validarDato(idcliente){
              if(this.cuota_basica==''){
-                 axios.get('/buscador/getcuotabasica')
+                 axios.get('/vendedor/getcuotabasica')
                       .then(res=>{
                           this.cuota_basica=res.data.cuotabasica
                  })
              }
-             axios.get('/buscador/verificarqueyaesdato/'+idcliente)
+             axios.get('/vendedor/verificarqueyaesdato/'+idcliente)
                   .then(res=>{
                       this.guardarDato()
                   })
@@ -1574,7 +1575,7 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
              this.Datos.cuota_maxima = this.cuota_basica
              this.Datos.idcliente = this.Cliente.id
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-             axios.post('/buscador/guardardato',this.Datos)
+             axios.post('/vendedor/guardardato',this.Datos)
                                                                  .then(res=>{
                                                                      msgSuccess('El dato ha sido registrado con exito')
                                                                  })
