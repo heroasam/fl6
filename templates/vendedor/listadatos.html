@@ -23,6 +23,7 @@
         <th>num</th>
         <th></th>
         <th></th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -35,7 +36,7 @@
           <td><button class="button is-small is-danger" @click="abrirCliente(dato.idcliente)">Ir</button></td>
           <td><span class="tag is-small" x-text="dato.resultado==1?'Vendido':(dato.resultado==0?'Anulado':(dato.resultado==2?'Rechazado':'Pendiente'))"
                     :class="dato.resultado==1?'is-success':(dato.resultado==0?'is-danger':(dato.resultado==2?'is-warning':'is-info' ))"></span></td>
-
+          <td><span class="tag is-small is-success" x-text="dato.idvta" x-show="dato.idvta"></span></td>
         </tr>
       </template>
     </tbody>
@@ -52,15 +53,17 @@
     </div>
     <h4 class="subtitle is-6" x-text="Dato.barrio"></h4>
     <hr/>
+    <h2 class="title is-2 red" x-text="Dato.idvta" x-show="Dato.idvta"></h2>
     <h4 class="title is-6 no-mb" x-text="Dato.fecha_visitar"></h4>
     <h4 class="title is-6 no-mb" x-text="Dato.horarios" x-show="Dato.horarios"></h4>
     <h4 class="title is-6 no-mb" x-text="Dato.art" x-show="Dato.art"></h4>
     <h4 class="title is-6 no-mb" x-text="Dato.comentarios" x-show="Dato.comentarios"></h4>
     <h2 class="title is-4" x-text="'Cuota Maxima $'+Dato.cuota_maxima"></h2>
-    <div class="buttons">
+    <div class="buttons" x-show="!Dato.idvta">
       <button class="button is-small is-primary" @click="venderDato(Dato.id)">Vender</button>
       <button class="button is-small is-danger" @click="anularDato(Dato.id)">Anular</button>
       <button class="button is-small is-info" @click="fecharDato(Dato.id)">Fechar</button>
+      <button class="button is-small is-warning" @click="noEstabaDato(Dato.id)">No Estaba</button>
     </div>
 
   </div>
@@ -117,6 +120,9 @@
           <option :value="item"></option>
         </template>
       </datalist>
+      <label for="idprimera" class="label">Fecha primer cuota</label>
+      <input type="date" class="input mb-3" x-model="Venta.primera" id="idprimera" autocomplete="off"
+             :class="darkTheme?'input-dark':''">
       <p class="title is-3" x-text="'6 cuotas de $'+sumaCuota" x-show="sumaCuota"
          :class="sumaCuota>Dato.cuota_maxima?'red':''"></p>
       <span class="tag is-small is-danger" x-show="sumaCuota>Dato.cuota_maxima">Cuota supera Cuota-Maxima</span>
@@ -127,7 +133,7 @@
       </div>
       </section>
       <footer class="modal-card-foot">
-        <button class="button is-primary" @click="guardarDato">Editar</button>
+        <button class="button is-primary" @click="pasarVenta">Pasar Venta</button>
         <button class="button" @click="toggleModal('modal-pasar-venta')">Cancelar</button>
       </footer>
     </div>
@@ -200,6 +206,7 @@
                       this.listadoDatos.map(row=>row.fecha_visitar=dayjs.utc(row.fecha_visitar).format('YYYY-MM-DD'))
                       this.listadoDatos_ = this.listadoDatos
                       this.getListaZonas()
+                      this.Dato = this.listadoDatos.filter(row=>row.id==this.Dato.id)[0]
                   })
          },
          getListaZonas(){
@@ -293,7 +300,7 @@
                       this.Dato.fecha=dayjs.utc(this.Dato.fecha).format('YYYY-MM-DD')
                       this.Dato.fecha_visitar=dayjs.utc(this.Dato.fecha_visitar).format('YYYY-MM-DD')
                       this.listaArtComprados = []
-                      this.Venta = {cnt:'', art:''}
+                      this.Venta = {cnt:'', art:'',primera:dayjs.utc().format('YYYY-MM-DD')}
                       this.sumaCuota = ''
                       this.verNotificacionAutorizacion = false
                       toggleModal("modal-pasar-venta")
@@ -322,6 +329,9 @@
                                                                  .catch(error=>{
                                                                      msgError('Hubo un error. El dato no se fecho')
                                                                  })
+         },
+         noEstabaDato(iddato){
+           axios.post('/vendedor/noestabadato/'+iddato)
          },
          validarDni(dni){
            datos = {dni, id: this.Dato.idcliente}
@@ -375,6 +385,38 @@ Quedo a la espera. Gracias.`
              let data = {msg,wapp,idcliente}
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 	         axios.post('/buscador/wapp',data)
+         },
+         pasarVenta(){
+             if(this.dnivalidado==false){
+                 msgError('El DNI del cliente debe coincidir con nuestros registros')
+                 return
+             }
+             if(this.listaArtComprados.length==0){
+                 msgError('Debe agregar articulos comprados')
+                 return
+             }
+             if(!dayjs(this.Venta.primera).isAfter(dayjs.utc())){
+                 msgError('La fecha de primer cuota debe ser posterior a hoy')
+                 return
+             }
+             if(this.sumaCuota>this.Dato.cuota_maxima){
+                 msgError('La venta excede la cuota maxima aprobada')
+                 return
+             }
+                 this.Dato.arts = this.listaArtComprados
+             this.Dato.primera = this.Venta.primera
+             this.Dato.cuota = this.sumaCuota
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/vendedor/pasarventa',this.Dato)
+                                                                 .then(res=>{
+                                                                     toggleModal("modal-pasar-venta")
+                                                                     msgSuccess('Venta pasada con exito')
+                                                                     this.getListadoDatosVendedor()
+                                                                 })
+                                                                 .catch(error=>{
+                                                                     msgError('Hubo un error y la venta no se proceso.')
+             })
+
          },
 
      }

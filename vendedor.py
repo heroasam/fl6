@@ -322,9 +322,10 @@ def vendedor_getlistadodatosvendedor():
         vdor = 835
     listadodatos = pgdict(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
-    zona, cuota_maxima,idcliente, sin_extension from datos, clientes where \
-    clientes.id = datos.idcliente and vendedor={vdor} and resultado is null \
-    and fecha_visitar <=curdate() order by id desc")
+    zona, cuota_maxima,idcliente, sin_extension,idvta,resultado from datos,\
+    clientes where clientes.id = datos.idcliente and vendedor={vdor} and \
+    (resultado is null or resultado=1) and fecha_visitar <=curdate() order \
+    by id desc")
     return jsonify(listadodatos=listadodatos)
 
 
@@ -384,13 +385,20 @@ def vendedor_editarwapp():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_guardardatofechado():
+    if current_user.email == var_sistema['816']:
+        vdor = 816
+    elif current_user.email == var_sistema['835']:
+        vdor = 835
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     upd = f"update datos set fecha_visitar='{d['fecha_visitar']}' where id = \
     {d['id']}"
+    ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
+    values(curdate(),curtime(),{vdor},{d['id']},4,0)"
     cur = con.cursor()
     try:
         cur.execute(upd)
+        cur.execute(ins)
     except mysql.connector.Error as _error:
        con.rollback()
        error = _error.msg
@@ -406,12 +414,19 @@ def vendedor_guardardatofechado():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_anulardato(iddato):
+    if current_user.email == var_sistema['816']:
+        vdor = 816
+    elif current_user.email == var_sistema['835']:
+        vdor = 835
     con = get_con()
     upd = f"update datos set resultado=0, fecha_definido=current_timestamp()\
     where id = {iddato}"
+    ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
+    values(curdate(),curtime(),{vdor},{iddato},2,0)"
     cur = con.cursor()
     try:
         cur.execute(upd)
+        cur.execute(ins)
     except mysql.connector.Error as _error:
        con.rollback()
        error = _error.msg
@@ -508,4 +523,81 @@ def vendedor_autorizardato(id):
        con.close()
        log(upd_dat)
        log(upd_aut)
+       return 'ok'
+
+
+@vendedor.route('/vendedor/pasarventa' , methods=['POST'])
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_pasarventa():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    if current_user.email == var_sistema['816']:
+        vdor = 816
+    elif current_user.email == var_sistema['835']:
+        vdor = 835
+    ant = 0
+    cc = 6
+    ic = d['cuota']
+    p = 1
+    gar = pgdict1(con, f"select garantizado,dnigarante from clientes where \
+    id={d['idcliente']}")
+    garantizado = gar['garantizado']
+    dnigarante = gar['dnigarante']
+    ins = f"insert into ventas(fecha,idvdor,ant,cc,ic,p,primera,idcliente,\
+    garantizado,dnigarante) values(curdate(),{vdor},{ant},{cc},{ic},{p},\
+    '{d['primera']}',{d['idcliente']},{garantizado},{dnigarante})"
+    insvis = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
+    values(curdate(),curtime(),{vdor},{d['id']},1,{ic*cc})"
+    cur = con.cursor()
+    try:
+        cur.execute(insvis)
+        cur.execute(ins)
+    except mysql.connector.Error as _error:
+       con.rollback()
+       error = _error.msg
+       return make_response(error,400)
+    else:
+       idvta = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
+       upd = f"update datos set resultado=1, monto_vendido={ic*6}, fecha_definido=\
+       current_timestamp(), idvta={idvta} where id={d['id']}"
+       cur.execute(upd)
+       for item in d['arts']:
+           cnt = item['cnt']
+           art = item['art']
+           ic = item['cuota']
+           costo = pgonecolumn(con, f"select costo from articulos where \
+           art='{art}'")
+           ins = f"insert into detvta(idvta,cnt,art,cc,ic,costo,devuelta) \
+           values({idvta},{cnt},'{art}',6,{ic},{costo},0)"
+           cur.execute(ins)
+           log(ins)
+       con.commit()
+       con.close()
+       log(upd)
+       log(ins)
+       return 'ok'
+
+
+@vendedor.route('/vendedor/noestabadato/<int:iddato>')
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_noestabadato(iddato):
+    con = get_con()
+    if current_user.email == var_sistema['816']:
+        vdor = 816
+    elif current_user.email == var_sistema['835']:
+        vdor = 835
+    ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
+    values(curdate(),curtime(),{vdor},{iddato},3,0)"
+    cur = con.cursor()
+    try:
+        cur.execute(ins)
+    except mysql.connector.Error as _error:
+       con.rollback()
+       error = _error.msg
+       return make_response(error,400)
+    else:
+       con.commit()
+       con.close()
        return 'ok'

@@ -56,7 +56,7 @@
     <tbody>
       <template x-for="dato in listadoDatos_">
         <tr>
-          <td><a :href="'/vendedor/interno/'+dato.dni">Ver</a></td>
+          <td><a :href="'/buscador/interno/'+dato.dni">Ver</a></td>
           <td><i class="fa fa-times" aria-hidden="true" @click="borrarDato(dato.id)"></td>
           <td><i class="fa fa-pencil" aria-hidden="true" @click="editarDato(dato.id)"></td>
           <td x-text="dato.id"></td>
