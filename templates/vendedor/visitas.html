@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Visitas{% endblock %}
+{% block style %}
+<style>
+  </style>
+  {% endblock %}
+
+{% block content %}
+
+  <div class="container" x-data="main()" x-init="getVisitasVendedor()">
+
+    <p class="title is-1">Visitas Diarias por Vendedor</p>
+    <div class="columns">
+        <div class="column is-6">
+            <table class="table is-narrow" id="table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>fecha</th>
+                        <th>hora</th>
+                        <th>result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  <template x-for="fecha in listaFechas">
+                    <tr :id="fecha">
+                        <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true" @click="expandChildren(fecha)"></td>
+                          <td x-text="fecha"></td>
+
+                    </tr>
+                  </template>
+
+                  <template x-for="item in listaVisitasVendedor_">
+                    <tr class="children">
+                        <td x-text="item.hora"></td>
+                        <td><span class="tag is-small" x-text="item.result==1?'venta':(item.result==2?'anulado':(item.result==3?'no estaba':'fechado'))"
+                                  :class="item.result==1?'is-success':(item.result==2?'is-danger':(item.result==3?'is-warning':'is-info'))"></span></td>
+                        <td x-text="item.nombre"></td>
+                        <td x-text="item.calle+' '+item.num"></td>
+                    </tr>
+                    </template>
+                 </tbody>
+            </table>
+
+    </div>
+
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+ function main(){
+     return{
+         listaVisitasVendedor:[],
+         listaVisitasVendedor_:[],
+         listaFechas:[],
+         getVisitasVendedor(){
+             axios.get('/vendedor/getvisitasvendedor')
+                  .then(res=>{
+                      this.listaVisitasVendedor = res.data.visitasvendedor
+                      this.listaVisitasVendedor.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      let setFechas  = new Set(this.listaVisitasVendedor.map(row=>row.fecha))
+                      this.listaFechas = Array.from(setFechas)
+                      console.log( this.listaFechas)
+             })
+         },
+         expandChildren(fecha){
+             this.listaVisitasVendedor_=this.listaVisitasVendedor.filter(row=>row.fecha==fecha)
+         }
+
+    }
+  }
+  </script>
+  {% endblock %}
