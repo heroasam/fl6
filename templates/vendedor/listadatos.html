@@ -17,7 +17,6 @@
   <table class="table table-striped " id="table" x-show="verCard==false">
     <thead>
       <tr>
-        <th>fecha</th>
         <th>nombre</th>
         <th>calle</th>
         <th>num</th>
@@ -29,7 +28,6 @@
     <tbody>
       <template x-for="dato in listadoDatos_">
         <tr>
-          <td x-text="dato.fecha_visitar"></td>
           <td x-text="dato.nombre"></td>
           <td x-text="dato.calle"></td>
           <td x-text="dato.num"></td>
@@ -206,7 +204,6 @@
                       this.listadoDatos.map(row=>row.fecha_visitar=dayjs.utc(row.fecha_visitar).format('YYYY-MM-DD'))
                       this.listadoDatos_ = this.listadoDatos
                       this.getListaZonas()
-                      this.Dato = this.listadoDatos.filter(row=>row.id==this.Dato.id)[0]
                   })
          },
          getListaZonas(){
@@ -311,6 +308,7 @@
                   .then(res=>{
                       msgSuccess('Dato anulado correctamente')
                       this.getListadoDatosVendedor()
+                      this.verCard = false
                   })
                   .catch(error=>{
                       msgError('Hubo un error. El dato no se pudo anular')
@@ -318,6 +316,7 @@
          },
          fecharDato(iddato){
              toggleModal("modal-fechar-dato")
+             this.verCard = false
          },
          guardarDatoFechado(){
              toggleModal("modal-fechar-dato")
@@ -331,7 +330,8 @@
                                                                  })
          },
          noEstabaDato(iddato){
-           axios.post('/vendedor/noestabadato/'+iddato)
+             axios.get('/vendedor/noestabadato/'+iddato)
+             this.verCard = false
          },
          validarDni(dni){
            datos = {dni, id: this.Dato.idcliente}
@@ -412,6 +412,9 @@ Quedo a la espera. Gracias.`
                                                                      toggleModal("modal-pasar-venta")
                                                                      msgSuccess('Venta pasada con exito')
                                                                      this.getListadoDatosVendedor()
+                                                                     setTimeout(()=>{
+                                                                         this.Dato=this.getListadoDatosVendedor.filter(row=>row.id==this.Dato.id)[0]
+                                                                     })
                                                                  })
                                                                  .catch(error=>{
                                                                      msgError('Hubo un error y la venta no se proceso.')

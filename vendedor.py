@@ -311,6 +311,13 @@ def vendedor_listadatos():
     return render_template('/vendedor/listadatos.html')
 
 
+@vendedor.route('/vendedor/visitas')
+@login_required
+@check_roles(['dev', 'gerente'])
+def vendedor_visitas():
+    return render_template('/vendedor/visitas.html')
+
+
 @vendedor.route('/vendedor/getlistadodatosvendedor')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -324,7 +331,7 @@ def vendedor_getlistadodatosvendedor():
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
     zona, cuota_maxima,idcliente, sin_extension,idvta,resultado from datos,\
     clientes where clientes.id = datos.idcliente and vendedor={vdor} and \
-    (resultado is null or resultado=1) and fecha_visitar <=curdate() order \
+    (resultado is null or (resultado=1 and fecha=curdate())) and fecha_visitar <=curdate() order \
     by id desc")
     return jsonify(listadodatos=listadodatos)
 

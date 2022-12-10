@@ -1551,7 +1551,7 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
          },
          crearDato(){
              toggleModal("modal-crear-dato")
-             Datos = {fecha:dayjs.utc().format('YYYY-MM-DD'),fecha_visitar:dayjs.utc().format('YYYY-MM-DD'), art:'', horarios:'', comentarios:''}
+             this.Datos = {fecha:dayjs.utc().format('YYYY-MM-DD'),fecha_visitar:dayjs.utc().format('YYYY-MM-DD'), art:'', horarios:'', comentarios:''}
          },
          validarDato(idcliente){
              if(this.cuota_basica==''){
