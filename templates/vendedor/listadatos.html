@@ -413,8 +413,8 @@ Quedo a la espera. Gracias.`
                                                                      msgSuccess('Venta pasada con exito')
                                                                      this.getListadoDatosVendedor()
                                                                      setTimeout(()=>{
-                                                                         this.Dato=this.getListadoDatosVendedor.filter(row=>row.id==this.Dato.id)[0]
-                                                                     })
+                                                                         this.Dato=this.listadoDatos.filter(row=>row.id==this.Dato.id)[0]
+                                                                     },10)
                                                                  })
                                                                  .catch(error=>{
                                                                      msgError('Hubo un error y la venta no se proceso.')

@@ -325,7 +325,7 @@ def vendedor_getlistadodatosvendedor():
     con = get_con()
     if current_user.email == var_sistema['816']:
         vdor = 816
-    elif current_user.email == var_sistema['835']:
+    if current_user.email == var_sistema['835']:
         vdor = 835
     listadodatos = pgdict(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \

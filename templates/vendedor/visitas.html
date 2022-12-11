@@ -13,7 +13,12 @@
     <p class="title is-1">Visitas Diarias por Vendedor</p>
     <div class="columns">
       <div class="column is-6">
-
+        <div class="buttons" id="btnVdor">
+          <template x-for="vdor in listaVendedores">
+            <button class="button is-info" @click="filtrarVdor(vdor);limpiarToggles();
+                           $event.target.classList.toggle('is-warning')" x-text="vdor"></button>
+          </template>
+        </div>
             <table class="table is-narrow" id="table">
                 <thead>
                     <tr>
@@ -67,6 +72,8 @@
          listaFechas:[],
          listaFechas_:[],
          fecha:'',
+         vdor:'',
+         listaVendedores:[],
          getVisitasVendedor(){
              axios.get('/vendedor/getvisitasvendedor')
                   .then(res=>{
@@ -75,6 +82,8 @@
                       this.listaFechas = res.data.fechasvisitas
                       this.listaFechas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                       this.listaFechas_ = this.listaFechas
+                      let vdores = new Set(this.listaFechas.map(row=>row.vdor))
+                      this.listaVendedores = Array.from(vdores)
              })
          },
          expandChildren(fecha){
@@ -82,6 +91,7 @@
                   this.listaVisitasVendedor_ = []
                   return
               }
+             this.listaVisitasVendedor_ = this.listaVisitasVendedor.filter(row=>row.vdor==this.vdor)
              this.listaVisitasVendedor_=this.listaVisitasVendedor.filter(row=>row.fecha==fecha)
              this.fecha = fecha
              setTimeout(()=>{
@@ -93,9 +103,18 @@
              for(el of children){
                  $tbody.insertBefore(el,$trfecha.nextSibling)
                }},10)
-         }
-
+         },
+         filtrarVdor(vdor){
+             this.vdor=vdor
+             this.listaFechas_ = this.listaFechas.filter(row=>row.vdor==vdor)
+         },
+          limpiarToggles() {
+             $btnVdor = document.getElementById('btnVdor')
+             Array.from($btnVdor.children).slice(1).forEach(btn => {
+                 btn.classList.remove('is-warning')
+             })
+          },
      }
-  }
+ }
   </script>
   {% endblock %}
