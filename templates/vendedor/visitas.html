@@ -12,22 +12,29 @@
 
     <p class="title is-1">Visitas Diarias por Vendedor</p>
     <div class="columns">
-        <div class="column is-6">
+      <div class="column is-6">
+
             <table class="table is-narrow" id="table">
                 <thead>
                     <tr>
-                        <th></th>
-                        <th>fecha</th>
                         <th>hora</th>
-                        <th>result</th>
+                        <th>resultado</th>
+                        <th>nombre</th>
+                        <th>direccion</th>
+                        <th>zona</th>
+                        <th class="sumar">vendido</th>
                     </tr>
                 </thead>
                 <tbody>
-                  <template x-for="fecha in listaFechas">
-                    <tr :id="fecha">
-                        <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true" @click="expandChildren(fecha)"></td>
-                          <td x-text="fecha"></td>
-
+                  <template x-for="item in listaFechas_">
+                    <tr :id="item.fecha">
+                      <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
+                                                         @click="expandChildren(item.fecha)"></td>
+                          <td x-text="item.fecha"></td>
+                          <td x-text="item.cnt"></td>
+                          <td></td>
+                          <td></td>
+                          <td x-text="item.monto_vendido" class="pesos"></td>
                     </tr>
                   </template>
 
@@ -38,6 +45,8 @@
                                   :class="item.result==1?'is-success':(item.result==2?'is-danger':(item.result==3?'is-warning':'is-info'))"></span></td>
                         <td x-text="item.nombre"></td>
                         <td x-text="item.calle+' '+item.num"></td>
+                        <td x-text="item.zona"></td>
+                        <td x-text="item.monto_vendido" class="pesos"></td>
                     </tr>
                     </template>
                  </tbody>
@@ -56,21 +65,37 @@
          listaVisitasVendedor:[],
          listaVisitasVendedor_:[],
          listaFechas:[],
+         listaFechas_:[],
+         fecha:'',
          getVisitasVendedor(){
              axios.get('/vendedor/getvisitasvendedor')
                   .then(res=>{
                       this.listaVisitasVendedor = res.data.visitasvendedor
                       this.listaVisitasVendedor.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
-                      let setFechas  = new Set(this.listaVisitasVendedor.map(row=>row.fecha))
-                      this.listaFechas = Array.from(setFechas)
-                      console.log( this.listaFechas)
+                      this.listaFechas = res.data.fechasvisitas
+                      this.listaFechas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      this.listaFechas_ = this.listaFechas
              })
          },
          expandChildren(fecha){
+              if(this.fecha==fecha && this.listaVisitasVendedor_.length>0){
+                  this.listaVisitasVendedor_ = []
+                  return
+              }
              this.listaVisitasVendedor_=this.listaVisitasVendedor.filter(row=>row.fecha==fecha)
+             this.fecha = fecha
+             setTimeout(()=>{
+             $tbody = document.querySelector('tbody')
+             $trfecha = document.getElementById(fecha)
+             let arrayrows = Array.from($tbody.children)
+             let children = arrayrows.filter(row=>row.classList.contains('children'))
+             children = children.reverse()
+             for(el of children){
+                 $tbody.insertBefore(el,$trfecha.nextSibling)
+               }},10)
          }
 
-    }
+     }
   }
   </script>
   {% endblock %}

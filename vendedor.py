@@ -617,12 +617,12 @@ def vendedor_getvisitasvendedor():
     con = get_con()
     visitasvendedor = pgdict(con, "select visitas.fecha as fecha,\
     cast(hora as char) as hora, visitas.vdor as vdor, result, \
-    visitas.monto_vendido as monto_vendido, idcliente,nombre,calle,num \
+    visitas.monto_vendido as monto_vendido, idcliente,nombre,calle,num,zona \
     from visitas,datos,clientes where visitas.iddato=datos.id and \
     clientes.id=datos.idcliente order by visitas.fecha desc,hora")
 
-    # fechasvisitas = pgdict(con, "select visitas.fecha as fecha, visitas.vdor \
-    # as vdor, count(*) as cnt, sum(visitas.monto_vendido) as monto_vendido \
-    # from visitas,datos where visitas.iddato=datos.id group by visitas.fecha,\
-    # visitas.vdor order by visitas.fecha,visitas.vdor desc")
-    return jsonify(visitasvendedor=visitasvendedor)
+    fechasvisitas = pgdict(con, "select visitas.fecha as fecha, visitas.vdor \
+    as vdor, count(*) as cnt, sum(visitas.monto_vendido) as monto_vendido \
+    from visitas,datos where visitas.iddato=datos.id group by visitas.fecha,\
+    visitas.vdor order by visitas.fecha,visitas.vdor desc")
+    return jsonify(visitasvendedor=visitasvendedor, fechasvisitas=fechasvisitas)
