@@ -68,7 +68,12 @@ def load_user(id):
     except:
         return None
 
-@app.route('/', methods=['GET', 'POST'])
+
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     con = get_con()
@@ -93,6 +98,7 @@ def login():
         if user is not None and user.check_password(password) and user.auth:
             login_user(user, remember=False)
             session['roles'] = user.roles
+            session['user'] = user.email
             log(sel)
             next_page = request.args.get('next')
             if not next_page or url_parse(next_page).netloc != '':
@@ -107,6 +113,7 @@ def login():
 @app.route('/logout')
 def logout():
     logout_user()
+    session['user'] = ''
     return redirect(url_for('login'))
 
 
