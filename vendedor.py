@@ -318,6 +318,13 @@ def vendedor_visitas():
     return render_template('/vendedor/visitas.html')
 
 
+@vendedor.route('/vendedor/listavisitasvdor')
+@login_required
+@check_roles(['dev', 'gerente','vendedor'])
+def vendedor_visitasvdor():
+    return render_template('/vendedor/listavisitasvdor.html')
+
+
 @vendedor.route('/vendedor/getlistadodatosvendedor')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -625,4 +632,28 @@ def vendedor_getvisitasvendedor():
     as vdor, count(*) as cnt, sum(visitas.monto_vendido) as monto_vendido \
     from visitas,datos where visitas.iddato=datos.id group by visitas.fecha,\
     visitas.vdor order by visitas.fecha,visitas.vdor desc")
+    return jsonify(visitasvendedor=visitasvendedor, fechasvisitas=fechasvisitas)
+
+
+@vendedor.route('/vendedor/getvisitasvdor')
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_getvisitasvdor():
+    con = get_con()
+    if current_user.email == var_sistema['816']:
+        vdor = 816
+    elif current_user.email == var_sistema['835']:
+        vdor = 835
+    visitasvendedor = pgdict(con, f"select visitas.fecha as fecha,\
+    cast(hora as char) as hora, visitas.vdor as vdor, result, \
+    visitas.monto_vendido as monto_vendido, idcliente,nombre,calle,num,zona \
+    from visitas,datos,clientes where visitas.iddato=datos.id and \
+    clientes.id=datos.idcliente and visitas.vdor={vdor} order by \
+    visitas.fecha desc,hora")
+
+    fechasvisitas = pgdict(con,f"select visitas.fecha as fecha, visitas.vdor \
+    as vdor, count(*) as cnt, sum(visitas.monto_vendido) as monto_vendido \
+    from visitas,datos where visitas.iddato=datos.id and visitas.vdor={vdor} \
+    group by visitas.fecha,visitas.vdor order by visitas.fecha,visitas.vdor \
+    desc")
     return jsonify(visitasvendedor=visitasvendedor, fechasvisitas=fechasvisitas)
