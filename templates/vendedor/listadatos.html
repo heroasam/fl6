@@ -31,7 +31,7 @@
           <td x-text="dato.nombre"></td>
           <td x-text="dato.calle"></td>
           <td x-text="dato.num"></td>
-          <td><button class="button is-small is-danger" @click="abrirCliente(dato.idcliente)">Ir</button></td>
+          <td><span class="tag is-small is-danger" @click="abrirCliente(dato.idcliente)">Ir</span></td>
           <td><span class="tag is-small" x-text="dato.resultado==1?'Vendido':(dato.resultado==0?'Anulado':(dato.resultado==2?'Rechazado':'Pendiente'))"
                     :class="dato.resultado==1?'is-success':(dato.resultado==0?'is-danger':(dato.resultado==2?'is-warning':'is-info' ))"></span></td>
           <td><span class="tag is-small is-success" x-text="dato.idvta" x-show="dato.idvta"></span></td>
@@ -47,7 +47,10 @@
     <h4 class="subtitle is-6" x-text="Dato.acla" x-show="Dato.acla"></h4>
     <div class="flex-between">
       <h2 class="title is-5 no-mb" x-text="Dato.wapp?Dato.wapp:Dato.tel"></h2>
-      <span class="tag is-small is-success pointer ml-5" @click="editarWapp">Editar</span>
+            <a x-bind:href=`https://wa.me/549${Dato.wapp}?text=''` class="tag is-success is-small"
+               target="blank" style="text-decoration: none;">Whats</a>
+            <tag class="tag is-small is-info" @click="hacerLlamada(Dato.wapp?Dato.wapp:Dato.tel)">Llamar</tag>
+            <span class="tag is-small is-primary pointer ml-5" @click="editarWapp">Editar</span>
     </div>
     <h4 class="subtitle is-6" x-text="Dato.barrio"></h4>
     <hr/>
@@ -66,7 +69,7 @@
 
   </div>
 
-   <!-- bulma-modal pasar-venta  -->
+  <!-- bulma-modal pasar-venta  -->
   <div class="modal" id="modal-pasar-venta">
     <div class="modal-background"></div>
     <div class="modal-card">
@@ -92,12 +95,12 @@
         <table class="no-total table">
           <thead>
             <tr>
-            <th></th>
-            <th>cnt</th>
-            <th>art</th>
-            <th>cc</th>
-            <th>cuota</th>
-            <th>total</th>
+              <th></th>
+              <th>cnt</th>
+              <th>art</th>
+              <th>cc</th>
+              <th>cuota</th>
+              <th>total</th>
             </tr>
           </thead>
           <tbody>
@@ -113,22 +116,22 @@
             </template>
           </tbody>
         </table>
-      <datalist id="listaart">
-        <template x-for="item in listaArticulos">
-          <option :value="item"></option>
-        </template>
-      </datalist>
-      <label for="idprimera" class="label">Fecha primer cuota</label>
-      <input type="date" class="input mb-3" x-model="Venta.primera" id="idprimera" autocomplete="off"
-             :class="darkTheme?'input-dark':''">
-      <p class="title is-3" x-text="'6 cuotas de $'+sumaCuota" x-show="sumaCuota"
-         :class="sumaCuota>Dato.cuota_maxima?'red':''"></p>
-      <span class="tag is-small is-danger" x-show="sumaCuota>Dato.cuota_maxima">Cuota supera Cuota-Maxima</span>
-      <button class="button is-primary" x-show="Dato.sin_extension==0&&sumaCuota>Dato.cuota_maxima"
-              @click="pedirAutorizacion">Pedir Autorizacion</button>
-      <div class="notification is-warning" x-show="verNotificacionAutorizacion">
-        <p>Notificacion pedida. Cancele la operacion. Espere el whatsapp de confirmacion y vuelva a cargar la operacion.</p>
-      </div>
+        <datalist id="listaart">
+          <template x-for="item in listaArticulos">
+            <option :value="item"></option>
+          </template>
+        </datalist>
+        <label for="idprimera" class="label">Fecha primer cuota</label>
+        <input type="date" class="input mb-3" x-model="Venta.primera" id="idprimera" autocomplete="off"
+               :class="darkTheme?'input-dark':''">
+        <p class="title is-3" x-text="'6 cuotas de $'+sumaCuota" x-show="sumaCuota"
+           :class="sumaCuota>Dato.cuota_maxima?'red':''"></p>
+        <span class="tag is-small is-danger" x-show="sumaCuota>Dato.cuota_maxima">Cuota supera Cuota-Maxima</span>
+        <button class="button is-primary" x-show="Dato.sin_extension==0&&sumaCuota>Dato.cuota_maxima"
+                @click="pedirAutorizacion">Pedir Autorizacion</button>
+        <div class="notification is-warning" x-show="verNotificacionAutorizacion">
+          <p>Notificacion pedida. Cancele la operacion. Espere el whatsapp de confirmacion y vuelva a cargar la operacion.</p>
+        </div>
       </section>
       <footer class="modal-card-foot">
         <button class="button is-primary" @click="pasarVenta">Pasar Venta</button>
@@ -136,7 +139,7 @@
       </footer>
     </div>
   </div>
-   <!-- bulma-modal edicion-wapp -->
+  <!-- bulma-modal edicion-wapp -->
   <div class="modal" id="modal-edicion-wapp">
     <div class="modal-background"></div>
     <div class="modal-card">
@@ -156,7 +159,7 @@
     </div>
   </div>
 
-   <!-- bulma-modal fechar-dato -->
+  <!-- bulma-modal fechar-dato -->
   <div class="modal" id="modal-fechar-dato">
     <div class="modal-background"></div>
     <div class="modal-card">
@@ -243,7 +246,7 @@
                                                                  })
                                                                  .catch(error=>{
                                                                      msgError('Hubo un error. El dato no se edito.')
-             })
+                                                                 })
          },
          filtraDatosPorVendedor(vdor){
              this.listadoDatos_ = this.listadoDatos.filter(row=>row.vendedor==vdor)
@@ -283,11 +286,11 @@
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/vendedor/editarwapp',this.Dato)
                                                                  .then(res=>{
-                      msgSuccess('WhatsApp editado correctamente')
-             })
-                  .catch(error=>{
-                      msgerror('Error. No se hizo la edicion')
-             })
+                                                                     msgSuccess('WhatsApp editado correctamente')
+                                                                 })
+                                                                 .catch(error=>{
+                                                                     msgerror('Error. No se hizo la edicion')
+                                                                 })
          },
          venderDato(iddato){
              //recargamos el Dato desde el servidor para asegurarnos ultimos valores
@@ -312,7 +315,7 @@
                   })
                   .catch(error=>{
                       msgError('Hubo un error. El dato no se pudo anular')
-             })
+                  })
          },
          fecharDato(iddato){
              toggleModal("modal-fechar-dato")
@@ -334,16 +337,16 @@
              this.verCard = false
          },
          validarDni(dni){
-           datos = {dni, id: this.Dato.idcliente}
-           axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             datos = {dni, id: this.Dato.idcliente}
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/vendedor/validardni',datos)
-                                                               .then(res=>{
-                                                                   this.dnivalidado = true
-                                                               })
-                                                               .catch(error=>{
-                                                                   this.dnivalidado = false
-                                                                   msgError('el DNI ingresado no corresponde al cliente')
-             })
+                                                                 .then(res=>{
+                                                                     this.dnivalidado = true
+                                                                 })
+                                                                 .catch(error=>{
+                                                                     this.dnivalidado = false
+                                                                     msgError('el DNI ingresado no corresponde al cliente')
+                                                                 })
          },
          agregarArticulo(cnt,art){
              console.log( cnt,art, typeof cnt, typeof art)
@@ -403,7 +406,7 @@ Quedo a la espera. Gracias.`
                  msgError('La venta excede la cuota maxima aprobada')
                  return
              }
-                 this.Dato.arts = this.listaArtComprados
+             this.Dato.arts = this.listaArtComprados
              this.Dato.primera = this.Venta.primera
              this.Dato.cuota = this.sumaCuota
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
@@ -418,8 +421,13 @@ Quedo a la espera. Gracias.`
                                                                  })
                                                                  .catch(error=>{
                                                                      msgError('Hubo un error y la venta no se proceso.')
-             })
+                                                                 })
 
+         },
+         hacerLlamada(tel){
+                re = /[0-9]*/
+                tel = re.exec(tel)[0]
+                window.location.href = 'tel:' + tel;
          },
 
      }
