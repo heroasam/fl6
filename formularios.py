@@ -383,7 +383,7 @@ def listado(con, ldni, formato):
     listcallenum = pglflat(con, f"select  distinct concat(calle, ' ' ,num) from clientes where dni in {listsql(listdni)} order by calle,num")
 
     for direccion in listcallenum:
-        clientes = pgdict(con, f"select nombre,calle,num,acla,dni,year(ultcompra) as year,wapp,deuda,comprado from clientes where concat(calle,' ',num)='{direccion}'")
+        clientes = pgdict(con, f"select nombre,calle,num,acla,dni,year(ultcompra) as year,wapp,deuda,comprado from clientes where concat(calle,' ',num)='{direccion}' and dni in {listsql(ldni)}")
         if clientes[0]['acla']:
             pdf.set_font("Helvetica","B",14)
             pdf.cell(80,10,direccion,0,0,'center')
