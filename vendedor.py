@@ -153,7 +153,6 @@ def vendedor_getlistadodatos():
     # vendedor is null filtra los datos no asignados
     cuotabasica = var_sistema['cuota_basica']
     vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
-    print(vdores)
     return jsonify(listadodatos=listadodatos, cuotabasica=cuotabasica, \
                    vdores=vdores)
 

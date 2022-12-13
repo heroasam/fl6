@@ -817,7 +817,7 @@
          ventaWapp:'',
          Cliente:{},
          Datos:{fecha:dayjs.utc().format('YYYY-MM-DD'),fecha_visitar:dayjs.utc().format('YYYY-MM-DD'), art:'', horarios:'', comentarios:''},
-         cuota_basica:'',
+         cuota_basica:0,
          PlanPagos:{fecha:dayjs.utc().format('YYYY-MM-DD'),p:'Mensual'},
          Comentario:{fechahora:dayjs.utc().format('YYYY-MM-DD')},
          Asunto:{fecha:dayjs.utc().format('YYYY-MM-DD'),tipo:'',vdor:'',asunto:''},
@@ -1554,7 +1554,7 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
              this.Datos = {fecha:dayjs.utc().format('YYYY-MM-DD'),fecha_visitar:dayjs.utc().format('YYYY-MM-DD'), art:'', horarios:'', comentarios:''}
          },
          validarDato(idcliente){
-             if(this.cuota_basica==''){
+             if(this.cuota_basica==0){
                  axios.get('/vendedor/getcuotabasica')
                       .then(res=>{
                           this.cuota_basica=res.data.cuotabasica

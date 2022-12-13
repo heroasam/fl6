@@ -27,7 +27,7 @@
              {% include "_nav.html" %}
           {% endif %}
       {% endif %}
-      {% if session["user"]==''  %}
+      {% if not session["user"]  %}
       {% include "_nav_login.html" %}
       {% endif %}
 	</header>
