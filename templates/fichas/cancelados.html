@@ -19,6 +19,8 @@ block style %}
     <button class="button" @click="seleccionar()">Seleccionar</button>
     <button class="button is-success" @click="enviarDatosSeleccionados()">Enviar a Vendedor</button>
     <button class="button is-danger" @click="imprimir()">Imprimir</button>
+    <button class="button is-info" @click="verExceptuados()">Ver Exceptuados</button>
+    <button class="button is-primary" @click="verNoExceptuados()">Ver No Exceptuados pero con deuda</button>
   </div>
 
   <div>
@@ -33,10 +35,11 @@ block style %}
 		  <th>Tel</th>
 		  <th>Wapp</th>
 		  <th>DNI</th>
+          <th></th>
 		</tr>
 	  </thead>
 	  <tbody>
-        <template x-for= "cancelado in listaCancelados">
+        <template x-for= "cancelado in listaCancelados_">
 		  <tr>
 			<td x-text="cancelado.ultpago"></td>
 			<td x-text="cancelado.nombre"></td>
@@ -46,6 +49,7 @@ block style %}
 			<td x-text="cancelado.tel"></td>
 			<td x-text="cancelado.wapp"></td>
 			<td x-text="cancelado.dni"></td>
+            <td><a :href="'/buscador/interno/'+cancelado.dni">Ver</a></td>
 		  </tr>
 		</template>
 		<input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
@@ -83,6 +87,7 @@ block style %}
  function main(){
      return{
 		 listaCancelados:[],
+		 listaCancelados_:[],
 		 desde:'',
 		 hasta:'',
          cntSeleccionados:'',
@@ -93,9 +98,14 @@ block style %}
 				  .then(res=>{
 					  this.listaCancelados=res.data.cancelados
 					  this.listaCancelados.map(row=>{row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD')})
+                      this.listaCancelados_ = this.listaCancelados
 					  this.hasta=res.data.max_ultpago
 					  this.hasta = dayjs.utc(this.hasta).format('YYYY-MM-DD')
                       this.listaVdores = res.data.vdores
+                      this.listaExceptuados = res.data.exceptuados
+                      this.listaExceptuados.map(row=>{row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD')})
+                      this.listaNoExceptuados = res.data.noexceptuados
+                      this.listaNoExceptuados.map(row=>{row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD')})
 				  })
 		 },
 		 seleccionar(){
@@ -170,6 +180,12 @@ block style %}
                                                                      msgError('Hubo un error, no se pudo asignar los datos')
                                                                  })
          },
+         verExceptuados(){
+             this.listaCancelados_=this.listaExceptuados
+         },
+         verNoExceptuados(){
+             this.listaCancelados_=this.listaNoExceptuados
+         }
  }};
 </script>
 {% endblock %}
