@@ -214,6 +214,51 @@ def vendedor_asignardatosvendedor():
         return 'ok'
 
 
+@vendedor.route('/vendedor/ingresardatoyasignardatosvendedor', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente'])
+def vendedor_ingresardatoyasignardatosvendedor():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    ids = d['ids']
+    cur = con.cursor()
+    try:
+        for dni in ids:
+            idcliente = pgonecolumn(con, f"select id from clientes where dni=\
+            {dni}")
+            cuota_maxima = calculo_cuota_maxima(idcliente)
+            sin_extension = calculo_sin_extension(idcliente)
+            cuotabasica = var_sistema['cuota_basica']
+            if cuota_maxima==0 or int(cuota_maxima)<int(cuotabasica):
+                cuota_maxima = cuotabasica
+            direccion_cliente = pgonecolumn(con, f"select concat(calle,num) \
+            from clientes where id={idcliente}")
+            deuda_en_la_casa = pgonecolumn(con, f"select sum(deuda) from \
+            clientes where concat(calle,num)='{direccion_cliente}' \
+            and id!={idcliente} and ultpago<date_sub(curdate(), \
+            interval 120 day)")
+            if deuda_en_la_casa is None:
+                deuda_en_la_casa = 0
+            ins = f"insert into datos(fecha, user, idcliente, fecha_visitar,\
+            art,horarios, comentarios, cuota_maxima,deuda_en_la_casa,\
+            sin_extension,vendedor,listado) values (curdate(), \
+            '{current_user.email}',{idcliente},curdate(),'','','', \
+            {cuota_maxima},'{deuda_en_la_casa}',{sin_extension},\
+            {d['vendedor']},1)"
+            upd = f"update clientes set fechadato=curdate() where \
+            id={idcliente}"
+            cur.execute(ins)
+            cur.execute(upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        con.close()
+        return 'ok'
+
+
 @vendedor.route('/vendedor/getcuotabasica')
 @login_required
 @check_roles(['dev','gerente'])

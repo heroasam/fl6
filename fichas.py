@@ -578,9 +578,10 @@ def fichas_cancelado():
 @check_roles(['dev','gerente','admin'])
 def fichas_getcancelados():
     con = get_con()
-    cancelados = pgdict(con, f"select ultpago, nombre, calle, num, zona, tel, wapp, dni from clientes where deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and ultpago>date_sub(curdate(),interval 30 day) order by ultpago desc")
+    cancelados = pgdict(con, f"select ultpago, nombre, calle, num, zona, tel, wapp, dni from clientes where deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and ultpago>date_sub(curdate(),interval 30 day) and (fechadato is null or fechadato<ultcompra) order by ultpago desc")
     max_ultpago = pgonecolumn(con, f"select max(ultpago) from clientes where deuda=0  and ultpago>date_sub(curdate(),interval 30 day)")
-    return jsonify(cancelados=cancelados, max_ultpago=max_ultpago)
+    vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
+    return jsonify(cancelados=cancelados, max_ultpago=max_ultpago,vdores=vdores)
 
 
 @fichas.route('/fichas/mudados')

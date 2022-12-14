@@ -17,6 +17,7 @@ block style %}
     <input type="date" name="hasta" x-model="hasta" class="input" style="width:150px;"
            :class="darkTheme?'input-dark':''"/>
     <button class="button" @click="seleccionar()">Seleccionar</button>
+    <button class="button is-success" @click="enviarDatosSeleccionados()">Enviar a Vendedor</button>
     <button class="button is-danger" @click="imprimir()">Imprimir</button>
   </div>
 
@@ -51,6 +52,30 @@ block style %}
 	  </tbody>
 	</table>
   </div>
+
+   <!-- bulma-modal vendedor-asignado -->
+  <div class="modal" id="modal-vendedor-asignado">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Enviar Datos a Vendedor</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-vendedor-asignado')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <p class="title is-5" x-text="'Esta por enviar '+cntSeleccionados+' datos'"></p>
+            <template x-for="vdor in listaVdores">
+            <button class="button" x-text="vdor" @click="vendedorAsignado=vdor">
+            </button>
+            </template>
+          <p class="title is-5" x-text="'Ud ha elegido el vendedor '+vendedorAsignado" x-show="vendedorAsignado"></p>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="enviarDatosaVendedor">Enviar</button>
+        <button class="button" @click="toggleModal('modal-vendedor-asignado')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
 </div>
 {% endblock %} {% block script %}
 <script>
@@ -61,6 +86,8 @@ block style %}
 		 desde:'',
 		 hasta:'',
          cntSeleccionados:'',
+         listaVdores:[],
+         vendedorAsignado:'',
 		 getCancelados(){
 			 axios.get('/fichas/getcancelados')
 				  .then(res=>{
@@ -68,6 +95,7 @@ block style %}
 					  this.listaCancelados.map(row=>{row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD')})
 					  this.hasta=res.data.max_ultpago
 					  this.hasta = dayjs.utc(this.hasta).format('YYYY-MM-DD')
+                      this.listaVdores = res.data.vdores
 				  })
 		 },
 		 seleccionar(){
@@ -111,6 +139,36 @@ block style %}
                          this.cntSeleccionados=this.cuentaSeleccionados().length
                      },100)
              }})
+         },
+         cuentaSeleccionados(){
+             let arraySeleccionados = []
+			 const $tbody = document.querySelector("tbody");
+        	 arrayRows = Array.from($tbody.children);
+        	 arrayRows.forEach((row) => {
+                 if(row.classList.contains('is-selected')){
+                     arraySeleccionados.push(row.cells[7].innerHTML)
+                     //OJO la celda de los dni
+             }})
+             console.log( arraySeleccionados)
+             return arraySeleccionados
+         },
+         enviarDatosSeleccionados(){
+             this.cntSeleccionados = this.cuentaSeleccionados().length
+             toggleModal("modal-vendedor-asignado")
+         },
+         enviarDatosaVendedor(){
+             toggleModal("modal-vendedor-asignado")
+             ids = this.cuentaSeleccionados()
+             datos = {ids, vendedor:this.vendedorAsignado}
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/vendedor/ingresardatoyasignardatosvendedor',datos)
+                                                                 .then(res=>{
+                                                                     msgSuccess('Datos asignados con exito')
+                                                                     this.getCancelados()
+                                                                 })
+                                                                 .catch(error=>{
+                                                                     msgError('Hubo un error, no se pudo asignar los datos')
+                                                                 })
          },
  }};
 </script>
