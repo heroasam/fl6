@@ -211,7 +211,8 @@
                      this.listAsientos = this.listAsientos_.filter(row=>!row.cuenta.includes('bancos'))
                      break
                  case 'noasignados':
-                     this.listAsientos = this.listAsientos_.filter(row=>row.cuenta.includes('bancos')&&row.comentario=='')
+                     this.listAsientos = this.listAsientos_.filter(row=>row.cuenta.includes('bancos')&&row.comentario==''
+                                                                    &&!row.cuenta.includes('retiro'))
                      break
                  default:
                      this.listAsientos = this.listAsientos_

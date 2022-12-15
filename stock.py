@@ -29,6 +29,13 @@ def stock_proveedores():
     return render_template('stock/proveedores.html')
 
 
+@stock.route('/stock/arqueo')
+@login_required
+@check_roles(['dev','gerente'])
+def stock_arqueo():
+    return render_template('stock/arqueo.html')
+
+
 @stock.route('/stock/getasientos')
 @login_required
 @check_roles(['dev','gerente'])
@@ -36,7 +43,7 @@ def stock_getasientos():
     """Proveo lista de asientos."""
     con = get_con()
     asientos=pgdict(con, "select id,fecha, cuenta, imp, comentario from caja \
-            order by id desc limit 100")
+            order by id desc limit 300")
     saldo = pgonecolumn(con, "select sum(imp) from caja,ctas where \
             caja.cuenta=ctas.cuenta and tipo in (0,1)")
     saldobancos = pgonecolumn(con, "select sum(imp) from caja,ctas where \
@@ -687,3 +694,23 @@ def stock_imprimirstock():
     listastock = json.loads(request.data.decode("UTF-8"))
     imprimir_stock(con,listastock)
     return send_file('/home/hero/stock.pdf')
+
+
+@stock.route('/stock/getdatosarqueo')
+@login_required
+@check_roles(['dev','gerente'])
+def stock_getdatosarqueo():
+    con = get_con()
+    bancocuotas = pgdict(con, "select * from caja where cuenta=\
+    'bancos ingreso clientes' and fecha>'2022-09-30' order by id desc")
+    bancocobr =  pgdict(con, "select * from caja where cuenta=\
+    'bancos ingreso cobradores'")
+    listacuotas = pgdict(con, "select fecha,imp+rec as imp, nombre from \
+    pagos,clientes where clientes.id = pagos.idcliente and  cobr in \
+    (13,15) and fecha>'2022-09-30' order by pagos.id desc")
+    listatrancobr= pgdict(con, "select * from caja where cuenta=\
+    'transferencia de cobradores'")
+    listacuentas = pglflat(con, "select cuenta from ctas")
+    return jsonify(bancocuotas=bancocuotas, bancocobr=bancocobr, \
+                   listacuotas=listacuotas, listatrancobr=listatrancobr,\
+                   listacuentas=listacuentas)
