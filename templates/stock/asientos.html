@@ -27,7 +27,8 @@
       <div class="flex-space-between">
         <h1 class="title is-size-1 pointer" @click="aplicarFiltro('todo')">Asientos</h1>
         <h2 class="title is-size-1 pointer" x-text="'Caja $'+saldo" @click="aplicarFiltro('caja')"></h2>
-        <h2 class="title is-size-1 pointer" style="color:red;" x-text="'Bancos $'+saldobancos" @click="aplicarFiltro('bancos')"></h2>
+        <h2 class="title is-size-1 pointer" style="color:red;" x-text="'Bancos $'+saldobancos"
+            @click="aplicarFiltro('bancos')" @dblclick="aplicarFiltro('noasignados')"></h2>
       </div>
     </div>
   </div>
@@ -208,6 +209,9 @@
                      break
                  case 'caja':
                      this.listAsientos = this.listAsientos_.filter(row=>!row.cuenta.includes('bancos'))
+                     break
+                 case 'noasignados':
+                     this.listAsientos = this.listAsientos_.filter(row=>row.cuenta.includes('bancos')&&row.comentario=='')
                      break
                  default:
                      this.listAsientos = this.listAsientos_
