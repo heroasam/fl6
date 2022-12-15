@@ -33,7 +33,9 @@
     </template>
   </div>
   <div class="block">
-    <button class="button " @click="limpiarToggles();imprimirListado()" x-text="'Imprimir '+listImprimir.length"></button>
+    <button class="button " @click="limpiarToggles();imprimirListado()" x-text="'Procesar '+listImprimir.length"></button>
+    <button class="button is-info" @click="verExceptuados()">Ver Exceptuados</button>
+    <button class="button is-primary" @click="verNoExceptuados()">Ver No Exceptuados pero con deuda</button>
   </div>
   <table class="table isnarrow nototal">
     <thead>
@@ -43,16 +45,18 @@
         <th>dni</th>
         <th>nombre</th>
         <th>direccion</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
-      <template x-for="row in listado">
+      <template x-for="row in listado_">
         <tr>
           <td x-text="row.year"></td>
           <td x-text="row.ultpago"></td>
           <td x-text="row.dni"></td>
           <td x-text="row.nombre"></td>
           <td x-text="row.direccion"></td>
+          <td><a :href="'/buscador/interno/'+row.dni">Ver</a></td>
         </tr>
       </template>
     </tbody>
@@ -96,6 +100,7 @@
      return {
          zonas: [],
          listado: [],
+         listado_: [],
          resumen: [],
          resumenjs: {},
          zonatitle: '',
@@ -116,9 +121,14 @@
                   .then(res => {
                       this.listado = res.data.listado
                       this.listado.map(row => row['ultpago'] = dayjs.utc(row['ultpago']).format('YYYY-MM-DD'))
+                      this.listado_ = this.listado
                       this.getResumenJs(res.data.listado)
                       this.limpiarSelected()
                       this.zonatitle = zona
+                      this.listaExceptuados = res.data.exceptuados
+                      this.listaExceptuados.map(row=>{row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD')})
+                      this.listaNoExceptuados = res.data.noexceptuados
+                      this.listaNoExceptuados.map(row=>{row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD')})
                   })
 
          },
@@ -208,6 +218,12 @@
                                                                  .then(res=>{
                                                                  })
          },
+         verExceptuados(){
+             this.listado_=this.listaExceptuados
+         },
+         verNoExceptuados(){
+             this.listado_=this.listaNoExceptuados
+         }
      }
  }
 </script>

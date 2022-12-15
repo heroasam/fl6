@@ -433,9 +433,32 @@ def fichas_getmsgs():
 @check_roles(['dev','gerente','admin'])
 def fichas_getlistado(zona):
     con = get_con()
-    listado = pgdict(con, f"select date_format(ultpago,'%Y') as year, ultpago, dni,nombre, concat(calle,' ',num) as direccion from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and comprado>0 and ultpago>'2010-01-01' and concat(calle,num) not in (select concat(calle,num) from clientes where deuda>300) order by ultpago desc")
+    direcciones_deudoras = listsql(pglflat(con, "select concat(calle,num) from \
+    clientes where deuda>2000 and pmovto<date_sub(curdate(),interval 90 day) \
+                                           and incobrable=0"))
+    dire_deudoras_con_inc = listsql(pglflat(con, "select concat(calle,num) \
+    from clientes where deuda>2000 and pmovto<date_sub(curdate(),interval 90 \
+    day) and incobrable=1"))
+    listado = pgdict(con, f"select date_format(ultpago,'%Y') as year, ultpago, \
+    dni,nombre, concat(calle,' ',num) as direccion from clientes where zona=\
+    '{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and \
+    novendermas=0 and comprado>0 and ultpago>'2010-01-01' and \
+    concat(calle,num) not in {direcciones_deudoras} and  \
+    (fechadato is null or fechadato<ultcompra or datediff(now(),fechadato)>45) order by ultpago desc")
+    noexceptuados =  pgdict(con, f"select date_format(ultpago,'%Y') as year, ultpago, \
+    dni,nombre, concat(calle,' ',num) as direccion from clientes where zona=\
+    '{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and \
+    novendermas=0 and comprado>0 and ultpago>'2010-01-01' and \
+    concat(calle,num) in {dire_deudoras_con_inc} and  \
+    (fechadato is null or fechadato<ultcompra or datediff(now(),fechadato)>45) order by ultpago desc")
+    exceptuados =  pgdict(con, f"select date_format(ultpago,'%Y') as year, ultpago, \
+    dni,nombre, concat(calle,' ',num) as direccion from clientes where zona=\
+    '{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and \
+    novendermas=0 and comprado>0 and ultpago>'2010-01-01' and \
+    concat(calle,num) in {direcciones_deudoras} and  \
+    (fechadato is null or fechadato<ultcompra or datediff(now(),fechadato)>45) order by ultpago desc")
     con.close()
-    return jsonify(listado=listado)
+    return jsonify(listado=listado, exceptuados=exceptuados, noexceptuados=noexceptuados)
 
 
 @fichas.route('/fichas/getresumen/<string:zona>')
@@ -587,17 +610,17 @@ def fichas_getcancelados():
     cancelados = pgdict(con, f"select ultpago, nombre, calle, num, zona, tel, \
     wapp, dni from clientes where deuda=0 and incobrable=0 and mudo=0 and \
     gestion=0 and novendermas=0 and ultpago>date_sub(curdate(),interval 30 \
-    day) and (fechadato is null or fechadato<ultcompra) and concat(calle,num) \
+    day) and (fechadato is null or fechadato<ultcompra or datediff(now(),fechadato)>45) and concat(calle,num) \
     not in {direcciones_deudoras}  order by ultpago desc")
     noexceptuados = pgdict(con, f"select ultpago,nombre,calle,num,zona,tel, \
     wapp, dni from clientes where deuda=0 and incobrable=0 and mudo=0 and \
     gestion=0 and novendermas=0 and ultpago>date_sub(curdate(),interval 30 \
-    day) and (fechadato is null or fechadato<ultcompra) and concat(calle,num) \
+    day) and (fechadato is null or fechadato<ultcompra or datediff(now(),fechadato)>45) and concat(calle,num) \
     in {dire_deudoras_con_inc}  order by ultpago desc")
     exceptuados = pgdict(con, f"select ultpago,nombre,calle,num,zona,tel, \
     wapp, dni from clientes where deuda=0 and incobrable=0 and mudo=0 and \
     gestion=0 and novendermas=0 and ultpago>date_sub(curdate(),interval 30 \
-    day) and (fechadato is null or fechadato<ultcompra) and concat(calle,num) \
+    day) and (fechadato is null or fechadato<ultcompra or datediff(now(),fechadato)>45) and concat(calle,num) \
     in {direcciones_deudoras}  order by ultpago desc")
     max_ultpago = pgonecolumn(con, f"select max(ultpago) from clientes where \
     deuda=0  and ultpago>date_sub(curdate(),interval 30 day)")
