@@ -218,7 +218,7 @@ def fichas_programar():
 @check_roles(['dev','gerente','admin'])
 def fichas_getfullcobradores():
     con = get_con()
-    cobradores = pgdict(con,f"select id,dni,nombre,direccion,telefono,fechanac,desde,activo,prom from cobr order by id desc")
+    cobradores = pgdict(con,f"select * from cobr order by id desc")
     con.close()
     return jsonify(cobradores=cobradores)
 
@@ -258,6 +258,31 @@ def fichas_toggleprom(id):
         upd = f"update cobr set prom=0 where id={id}"
     else:
         upd = f"update cobr set prom=1 where id={id}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as e:
+        con.rollback()
+        error = e.msg
+        return make_response(error,400)
+    else:
+        con.commit()
+        log(upd)
+        cur.close()
+        con.close()
+        return 'OK'
+
+
+@fichas.route('/fichas/togglevdor/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def fichas_togglevdor(id):
+    con = get_con()
+    vdor = pgonecolumn(con, f"select vdor from cobr where id={id}")
+    if vdor:
+        upd = f"update cobr set vdor=0 where id={id}"
+    else:
+        upd = f"update cobr set vdor=1 where id={id}"
     cur = con.cursor()
     try:
         cur.execute(upd)
@@ -408,9 +433,32 @@ def fichas_getmsgs():
 @check_roles(['dev','gerente','admin'])
 def fichas_getlistado(zona):
     con = get_con()
-    listado = pgdict(con, f"select date_format(ultpago,'%Y') as year, ultpago, dni,nombre, concat(calle,' ',num) as direccion from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and comprado>0 and ultpago>'2010-01-01' and concat(calle,num) not in (select concat(calle,num) from clientes where deuda>300) order by ultpago desc")
+    direcciones_deudoras = listsql(pglflat(con, "select concat(calle,num) from \
+    clientes where deuda>2000 and pmovto<date_sub(curdate(),interval 90 day) \
+                                           and incobrable=0"))
+    dire_deudoras_con_inc = listsql(pglflat(con, "select concat(calle,num) \
+    from clientes where deuda>2000 and pmovto<date_sub(curdate(),interval 90 \
+    day) and incobrable=1"))
+    listado = pgdict(con, f"select date_format(ultpago,'%Y') as year, ultpago, \
+    dni,nombre, concat(calle,' ',num) as direccion from clientes where zona=\
+    '{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and \
+    novendermas=0 and comprado>0 and ultpago>'2010-01-01' and \
+    concat(calle,num) not in {direcciones_deudoras} and  \
+    (fechadato is null or fechadato<ultcompra or datediff(now(),fechadato)>45) order by ultpago desc")
+    noexceptuados =  pgdict(con, f"select date_format(ultpago,'%Y') as year, ultpago, \
+    dni,nombre, concat(calle,' ',num) as direccion from clientes where zona=\
+    '{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and \
+    novendermas=0 and comprado>0 and ultpago>'2010-01-01' and \
+    concat(calle,num) in {dire_deudoras_con_inc} and  \
+    (fechadato is null or fechadato<ultcompra or datediff(now(),fechadato)>45) order by ultpago desc")
+    exceptuados =  pgdict(con, f"select date_format(ultpago,'%Y') as year, ultpago, \
+    dni,nombre, concat(calle,' ',num) as direccion from clientes where zona=\
+    '{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and \
+    novendermas=0 and comprado>0 and ultpago>'2010-01-01' and \
+    concat(calle,num) in {direcciones_deudoras} and  \
+    (fechadato is null or fechadato<ultcompra or datediff(now(),fechadato)>45) order by ultpago desc")
     con.close()
-    return jsonify(listado=listado)
+    return jsonify(listado=listado, exceptuados=exceptuados, noexceptuados=noexceptuados)
 
 
 @fichas.route('/fichas/getresumen/<string:zona>')
@@ -553,9 +601,33 @@ def fichas_cancelado():
 @check_roles(['dev','gerente','admin'])
 def fichas_getcancelados():
     con = get_con()
-    cancelados = pgdict(con, f"select ultpago, nombre, calle, num, zona, tel, wapp, dni from clientes where deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and ultpago>date_sub(curdate(),interval 30 day) order by ultpago desc")
-    max_ultpago = pgonecolumn(con, f"select max(ultpago) from clientes where deuda=0  and ultpago>date_sub(curdate(),interval 30 day)")
-    return jsonify(cancelados=cancelados, max_ultpago=max_ultpago)
+    direcciones_deudoras = listsql(pglflat(con, "select concat(calle,num) from \
+    clientes where deuda>2000 and pmovto<date_sub(curdate(),interval 90 day) \
+                                           and incobrable=0"))
+    dire_deudoras_con_inc = listsql(pglflat(con, "select concat(calle,num) from \
+    clientes where deuda>2000 and pmovto<date_sub(curdate(),interval 90 day) \
+    and incobrable=1"))
+    cancelados = pgdict(con, f"select ultpago, nombre, calle, num, zona, tel, \
+    wapp, dni from clientes where deuda=0 and incobrable=0 and mudo=0 and \
+    gestion=0 and novendermas=0 and ultpago>date_sub(curdate(),interval 30 \
+    day) and (fechadato is null or fechadato<ultcompra or datediff(now(),fechadato)>45) and concat(calle,num) \
+    not in {direcciones_deudoras}  order by ultpago desc")
+    noexceptuados = pgdict(con, f"select ultpago,nombre,calle,num,zona,tel, \
+    wapp, dni from clientes where deuda=0 and incobrable=0 and mudo=0 and \
+    gestion=0 and novendermas=0 and ultpago>date_sub(curdate(),interval 30 \
+    day) and (fechadato is null or fechadato<ultcompra or datediff(now(),fechadato)>45) and concat(calle,num) \
+    in {dire_deudoras_con_inc}  order by ultpago desc")
+    exceptuados = pgdict(con, f"select ultpago,nombre,calle,num,zona,tel, \
+    wapp, dni from clientes where deuda=0 and incobrable=0 and mudo=0 and \
+    gestion=0 and novendermas=0 and ultpago>date_sub(curdate(),interval 30 \
+    day) and (fechadato is null or fechadato<ultcompra or datediff(now(),fechadato)>45) and concat(calle,num) \
+    in {direcciones_deudoras}  order by ultpago desc")
+    max_ultpago = pgonecolumn(con, f"select max(ultpago) from clientes where \
+    deuda=0  and ultpago>date_sub(curdate(),interval 30 day)")
+    vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
+    return jsonify(cancelados=cancelados, max_ultpago=max_ultpago,vdores=\
+                   vdores,exceptuados=exceptuados,noexceptuados=\
+                   noexceptuados)
 
 
 @fichas.route('/fichas/mudados')

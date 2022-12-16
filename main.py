@@ -15,6 +15,7 @@ from buscador import buscador
 from fichas import fichas
 from utilidades import utilidades
 from conta import conta
+from vendedor import vendedor
 import mysql.connector
 from con import get_con, log
 
@@ -35,6 +36,7 @@ app.register_blueprint(buscador)
 app.register_blueprint(fichas)
 app.register_blueprint(utilidades)
 app.register_blueprint(conta)
+app.register_blueprint(vendedor)
 
 
 class User(UserMixin):
@@ -66,7 +68,12 @@ def load_user(id):
     except:
         return None
 
-@app.route('/', methods=['GET', 'POST'])
+
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     con = get_con()
@@ -89,13 +96,14 @@ def login():
         if not user.auth:
             return render_template('login_form.html', errorauth=errorauth)
         if user is not None and user.check_password(password) and user.auth:
-            login_user(user, remember=True)
+            login_user(user, remember=False)
             session['roles'] = user.roles
+            session['user'] = user.email
             log(sel)
             next_page = request.args.get('next')
             if not next_page or url_parse(next_page).netloc != '':
-                if session['roles']=='cobrador':
-                    next_page = url_for('pagos.loterbo_')
+                if session['roles']=='vendedor':
+                    next_page = url_for('vendedor.vendedor_listadatos')
                 else:
                     next_page = url_for('buscador.buscador_')
             return redirect(next_page)
@@ -105,11 +113,12 @@ def login():
 @app.route('/logout')
 def logout():
     logout_user()
+    session['user'] = ''
     return redirect(url_for('login'))
 
 
 @app.route('/signup', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def signup():
     con = get_con()
     if request.method == 'POST':

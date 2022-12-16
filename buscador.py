@@ -7,12 +7,13 @@ from flask import Blueprint, render_template, jsonify, make_response, request,\
 from flask_login import login_required
 import simplejson as json
 from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
-    pglflat, log_busqueda
+    pglflat, log_busqueda, listsql
 from formularios import intimacion, libredeuda, ficha, recibotransferencia
 from con import get_con, log, check_roles
 
 
 buscador = Blueprint('buscador', __name__)
+
 
 
 @buscador.route('/buscador', methods=['GET', 'POST'])
@@ -21,6 +22,45 @@ buscador = Blueprint('buscador', __name__)
 def buscador_():
     """Muestra pagina buscador."""
     return render_template("buscador/buscar.html")
+
+
+@buscador.route('/buscador/clientenuevo')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_clientenuevo():
+    """Pantalla generar cliente nuevo."""
+    return render_template("buscador/clientenuevo.html")
+
+
+@buscador.route('/buscador/verdatos')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_verdatos():
+    """Pantalla generar vista de datos."""
+    return render_template("buscador/verdatos.html")
+
+
+@buscador.route('/buscador/enviardatos')
+@login_required
+@check_roles(['dev','gerente'])
+def buscador_autorizardatos():
+    """Pantalla generar vista de enviar datos."""
+    return render_template("buscador/enviardatos.html")
+
+
+@buscador.route('/buscador/reautorizardatos')
+@login_required
+@check_roles(['dev','gerente'])
+def buscador_reautorizardatos():
+    """Pantalla generar vista de reautorizar datos."""
+    return render_template("buscador/reautorizardatos.html")
+
+@buscador.route('/buscador/revisardatos')
+@login_required
+@check_roles(['dev','gerente'])
+def buscador_revisardatos():
+    """Pantalla generar vista de revision de datos enviados."""
+    return render_template("buscador/revisardatos.html")
 
 
 @buscador.route('/pdf/<pdf>')

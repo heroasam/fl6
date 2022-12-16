@@ -10,10 +10,7 @@
 
 
 <div x-data="main()" x-init="getZonas()" class="container">
-  <div class="buttons">
-    <a href="/fichas" class="button is-primary">Volver a Fichas</a>
-    <a href="/fichas/listavisitar" class="button is-primary">Registro de Listados</a>
-  </div>
+
   <div class="columns">
     <div class="column is-6">
       <p class="title is-1">Listado a Visitar</p>
@@ -36,7 +33,9 @@
     </template>
   </div>
   <div class="block">
-    <button class="button " @click="limpiarToggles();imprimirListado()" x-text="'Imprimir '+listImprimir.length"></button>
+    <button class="button " @click="limpiarToggles();imprimirListado()" x-text="'Procesar '+listImprimir.length"></button>
+    <button class="button is-info" @click="verExceptuados()">Ver Exceptuados</button>
+    <button class="button is-primary" @click="verNoExceptuados()">Ver No Exceptuados pero con deuda</button>
   </div>
   <table class="table isnarrow nototal">
     <thead>
@@ -46,16 +45,18 @@
         <th>dni</th>
         <th>nombre</th>
         <th>direccion</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
-      <template x-for="row in listado">
+      <template x-for="row in listado_">
         <tr>
           <td x-text="row.year"></td>
           <td x-text="row.ultpago"></td>
           <td x-text="row.dni"></td>
           <td x-text="row.nombre"></td>
           <td x-text="row.direccion"></td>
+          <td><a :href="'/buscador/interno/'+row.dni">Ver</a></td>
         </tr>
       </template>
     </tbody>
@@ -75,6 +76,7 @@
         <h2 class="title is-3">Tipo de listado a imprimir <span x-text="  tipoListado" style="color:red;"></span></h2>
         <button class="button" @click="tipoListado='fichas'">Fichas</button>
         <button class="button" @click="tipoListado='listado'">Listado</button>
+        <button class="button" @click="tipoListado='enviar'">Enviar Datos</button>
         <h2 class="title is-3">Vendedor a cargo <span x-text="  idVdor" style="color:red;"></span></h2>
         <template x-for="vdor in listaVdores">
           <button class="button" x-text="vdor" @click="idVdor=vdor">
@@ -82,7 +84,7 @@
 
       </section>
       <footer class="modal-card-foot">
-        <button class="button is-success" @click="imprimirListado_()">Imprimir</button>
+        <button class="button is-success" @click="imprimirListado_()">Procesar</button>
         <button class="button" @click="toggleModal('listado')">Cancel</button>
       </footer>
     </div>
@@ -98,6 +100,7 @@
      return {
          zonas: [],
          listado: [],
+         listado_: [],
          resumen: [],
          resumenjs: {},
          zonatitle: '',
@@ -118,9 +121,14 @@
                   .then(res => {
                       this.listado = res.data.listado
                       this.listado.map(row => row['ultpago'] = dayjs.utc(row['ultpago']).format('YYYY-MM-DD'))
+                      this.listado_ = this.listado
                       this.getResumenJs(res.data.listado)
                       this.limpiarSelected()
                       this.zonatitle = zona
+                      this.listaExceptuados = res.data.exceptuados
+                      this.listaExceptuados.map(row=>{row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD')})
+                      this.listaNoExceptuados = res.data.noexceptuados
+                      this.listaNoExceptuados.map(row=>{row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD')})
                   })
 
          },
@@ -180,7 +188,18 @@
              let formato = this.tipoListado
              this.listaSeleccionados()
              data = { lista: this.listImprimir, formato: formato }
-             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value,
+             datos = {ids:this.listImprimir, vendedor:this.idVdor}
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             if(formato=='enviar'){
+                 axios.post("/vendedor/ingresardatoyasignardatosvendedor", datos)
+                      .then(res=>{
+                          let datos = {clientes:this.listImprimir,vdor:this.idVdor,zona:this.zonatitle}
+                          axios.post('/fichas/procesarlistado',datos)
+                          toggleModal('listado')
+                          msgSuccess('Se enviaron los datos al vendedor')
+                      })
+                          return
+             }
                  axios.post("/fichas/imprimirlistado", data, { responseType: "blob" })
                       .then((res) => {
                           let url = window.URL.createObjectURL(res.data);
@@ -199,6 +218,12 @@
                                                                  .then(res=>{
                                                                  })
          },
+         verExceptuados(){
+             this.listado_=this.listaExceptuados
+         },
+         verNoExceptuados(){
+             this.listado_=this.listaNoExceptuados
+         }
      }
  }
 </script>

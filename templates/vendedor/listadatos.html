@@ -1,0 +1,436 @@
+{% extends "base.html" %}
+
+{% block title %}Lista Datos{% endblock %}
+
+{% block content %}
+
+<div class="container" x-data="main()" x-init="getListadoDatosVendedor();setInterval(()=>{getListadoDatosVendedor()},600000);getListadoArt()">
+
+
+  <p class="title is-1">Lista Datos</p>
+
+  <div>
+    <template x-for="zona in listaZonasDatos">
+      <button class="button is-small is-primary" x-text="zona" @click="filtraPorZona(zona)"></button>
+    </template>
+  </div>
+  <table class="table table-striped " id="table" x-show="verCard==false">
+    <thead>
+      <tr>
+        <th>nombre</th>
+        <th>calle</th>
+        <th>num</th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="dato in listadoDatos_">
+        <tr>
+          <td x-text="dato.nombre"></td>
+          <td x-text="dato.calle"></td>
+          <td x-text="dato.num"></td>
+          <td><span class="tag is-small is-danger" @click="abrirCliente(dato.idcliente)">Ir</span></td>
+          <td><span class="tag is-small" x-text="dato.resultado==1?'Vendido':(dato.resultado==0?'Anulado':(dato.resultado==2?'Rechazado':'Pendiente'))"
+                    :class="dato.resultado==1?'is-success':(dato.resultado==0?'is-danger':(dato.resultado==2?'is-warning':'is-info' ))"></span></td>
+          <td><span class="tag is-small is-success" x-text="dato.idvta" x-show="dato.idvta"></span></td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
+
+  <!-- verCard Dato -->
+  <div class="card box" x-show="verCard==true">
+    <h1 class="title is-4" x-text="Dato.nombre"></h1>
+    <h2 class="title is-5" x-text="Dato.calle+' '+Dato.num"></h2>
+    <h4 class="subtitle is-6" x-text="Dato.acla" x-show="Dato.acla"></h4>
+    <div class="flex-between">
+      <h2 class="title is-5 no-mb" x-text="Dato.wapp?Dato.wapp:Dato.tel"></h2>
+            <a x-bind:href=`https://wa.me/549${Dato.wapp}?text=''` class="tag is-success is-small"
+               target="blank" style="text-decoration: none;">Whats</a>
+            <tag class="tag is-small is-info" @click="hacerLlamada(Dato.wapp?Dato.wapp:Dato.tel)">Llamar</tag>
+            <span class="tag is-small is-primary pointer ml-5" @click="editarWapp">Editar</span>
+    </div>
+    <h4 class="subtitle is-6" x-text="Dato.barrio"></h4>
+    <hr/>
+    <h2 class="title is-2 red" x-text="Dato.idvta" x-show="Dato.idvta"></h2>
+    <h4 class="title is-6 no-mb" x-text="Dato.fecha_visitar"></h4>
+    <h4 class="title is-6 no-mb" x-text="Dato.horarios" x-show="Dato.horarios"></h4>
+    <h4 class="title is-6 no-mb" x-text="Dato.art" x-show="Dato.art"></h4>
+    <h4 class="title is-6 no-mb" x-text="Dato.comentarios" x-show="Dato.comentarios"></h4>
+    <h2 class="title is-4" x-text="'Cuota Maxima $'+Dato.cuota_maxima"></h2>
+    <div class="buttons" x-show="!Dato.idvta">
+      <button class="button is-small is-primary" @click="venderDato(Dato.id)">Vender</button>
+      <button class="button is-small is-danger" @click="anularDato(Dato.id)">Anular</button>
+      <button class="button is-small is-info" @click="fecharDato(Dato.id)">Fechar</button>
+      <button class="button is-small is-warning" @click="noEstabaDato(Dato.id)">No Estaba</button>
+    </div>
+
+  </div>
+
+  <!-- bulma-modal pasar-venta  -->
+  <div class="modal" id="modal-pasar-venta">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Pasar Venta</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-pasar-venta')"></button>
+        <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <span class="tag is-small is-info" x-text="'Cuota Maxima $'+Dato.cuota_maxima"></span>
+        <span class="tag is-small is-danger" x-show="Dato.sin_extension">Venta Basica</span>
+        <label for="iddni" class="label">Ingrese DNI del cliente</label>
+        <input type="text" class="input mb-3" x-model="Venta.dni" id="iddni" autocomplete="off"
+               :class="darkTheme?'input-dark':''" @blur="validarDni(Venta.dni)">
+        <span class="tag is-small is-danger" x-show="!dnivalidado && Venta.dni">DNI no coincide con el cliente</span>
+        <label for="idcnt" class="label">Cantidad</label>
+        <input type="text" class="input mb-3" x-model="Venta.cnt" id="idcnt" autocomplete="off"
+               :class="darkTheme?'input-dark':''">
+        <input type="text" list="listaart" class="input mb-1" x-model="Venta.art"
+               :class="darkTheme?'input-dark':''"/>
+        <button class="button is-primary" @click="agregarArticulo(Venta.cnt,Venta.art)">Agregar Articulo</button>
+        <table class="no-total table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>cnt</th>
+              <th>art</th>
+              <th>cc</th>
+              <th>cuota</th>
+              <th>total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="item in listaArtComprados">
+              <tr>
+                <td><i class="fa fa-times" aria-hidden="true" @click="borrarItem(item.id)"></td>
+                  <td x-text="item.cnt"></td>
+                  <td x-text="item.art"></td>
+                  <td x-text="item.cc"></td>
+                  <td x-text="item.cuota"></td>
+                  <td x-text="item.total"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+        <datalist id="listaart">
+          <template x-for="item in listaArticulos">
+            <option :value="item"></option>
+          </template>
+        </datalist>
+        <label for="idprimera" class="label">Fecha primer cuota</label>
+        <input type="date" class="input mb-3" x-model="Venta.primera" id="idprimera" autocomplete="off"
+               :class="darkTheme?'input-dark':''">
+        <p class="title is-3" x-text="'6 cuotas de $'+sumaCuota" x-show="sumaCuota"
+           :class="sumaCuota>Dato.cuota_maxima?'red':''"></p>
+        <span class="tag is-small is-danger" x-show="sumaCuota>Dato.cuota_maxima">Cuota supera Cuota-Maxima</span>
+        <button class="button is-primary" x-show="Dato.sin_extension==0&&sumaCuota>Dato.cuota_maxima"
+                @click="pedirAutorizacion">Pedir Autorizacion</button>
+        <div class="notification is-warning" x-show="verNotificacionAutorizacion">
+          <p>Notificacion pedida. Cancele la operacion. Espere el whatsapp de confirmacion y vuelva a cargar la operacion.</p>
+        </div>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="pasarVenta">Pasar Venta</button>
+        <button class="button" @click="toggleModal('modal-pasar-venta')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+  <!-- bulma-modal edicion-wapp -->
+  <div class="modal" id="modal-edicion-wapp">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Editar WhatsApp</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion-wapp')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="idwapp">WhatsApp</label>
+        <input type="text" class="input mb-3" x-model="Dato.wapp" id="idwapp">
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="guardarWapp">Guardar</button>
+        <button class="button" @click="toggleModal('modal-edicion-wapp')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- bulma-modal fechar-dato -->
+  <div class="modal" id="modal-fechar-dato">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Fechar Dato</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-fechar-dato')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="idfecha">Nueva Fecha a Visitar</label>
+        <input type="date" class="input mb-3" x-model="Dato.fecha_visitar" id="idfecha">
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="guardarDatoFechado">Guardar</button>
+        <button class="button" @click="toggleModal('modal-fechar-dato')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+{% block script %}
+<script>
+ function main(){
+     return{
+         listadoDatos:[],
+         listadoDatos_:[],
+         listaZonasDatos:[],
+         listaArticulos:[],
+         listaArtComprados:[],
+         Articulos:[],
+         Dato:{},
+         Datos:{},
+         cuota_basica:'',
+         verCard:false,
+         Venta:{cnt:'', art:''},
+         dnivalidado:false,
+         sumaCuota:'',
+         verNotificacionAutorizacion:false,
+         getListadoDatosVendedor(){
+             axios.get('/vendedor/getlistadodatosvendedor')
+                  .then(res=>{
+                      this.listadoDatos = res.data.listadodatos
+                      this.listadoDatos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      this.listadoDatos.map(row=>row.fecha_visitar=dayjs.utc(row.fecha_visitar).format('YYYY-MM-DD'))
+                      this.listadoDatos_ = this.listadoDatos
+                      this.getListaZonas()
+                  })
+         },
+         getListaZonas(){
+             let arrayZonas = this.listadoDatos.map(row=>row.zona)
+             let zonaDatos = {}
+             this.listaZonasDatos = []
+             arrayZonas.forEach(item=>{
+                 if (item in zonaDatos){
+                     zonaDatos[item] += 1
+                 }else{
+                     zonaDatos[item] = 1
+
+                 }
+             })
+             for (let item in zonaDatos){
+                 this.listaZonasDatos.push(`${item}-${zonaDatos[item]}`)
+             }
+         },
+         getListadoArt(){
+             axios.get('/vendedor/getlistadoarticulos')
+                  .then(res=>{
+                      this.Articulos = res.data.articulos
+                      this.listaArticulos = this.Articulos.map(row=>row.art)
+                  })
+         },
+         editarDato(id){
+             this.Datos = this.listadoDatos.filter(row=>row.id==id)[0]
+             toggleModal("modal-editar-dato")
+         },
+         guardarDato(){
+             toggleModal("modal-editar-dato")
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/buscador/editardato',this.Datos)
+                                                                 .then(res=>{
+                                                                     msgSuccess('Dato editado con exito.')
+                                                                     this.getListadoDatos()
+                                                                 })
+                                                                 .catch(error=>{
+                                                                     msgError('Hubo un error. El dato no se edito.')
+                                                                 })
+         },
+         filtraDatosPorVendedor(vdor){
+             this.listadoDatos_ = this.listadoDatos.filter(row=>row.vendedor==vdor)
+         },
+         filtraDatosPorStatus(status){
+             switch(status){
+                 case 'vendidos':
+                     this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==1)
+                     break
+                 case 'anulados':
+                     this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==0)
+                     break
+                 case 'pendientes':
+                     this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==null)
+                     break
+                 case 'todos':
+                     this.listadoDatos_ = this.listadoDatos
+                     break
+             }
+         },
+         filtraPorZona(zona){
+             // la zona me viene en formato jid1-5 por eso tengo que limpiar
+             pattern = /[^-]*/gi
+             zona = pattern.exec(zona)
+             this.listadoDatos_ = this.listadoDatos.filter(row=>row.zona==zona)
+             this.verCard = false
+         },
+         abrirCliente(id){
+             this.Dato = this.listadoDatos.filter(row=>row.idcliente==id)[0]
+             this.verCard = true
+         },
+         editarWapp(){
+             toggleModal("modal-edicion-wapp")
+         },
+         guardarWapp(){
+             toggleModal("modal-edicion-wapp")
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/vendedor/editarwapp',this.Dato)
+                                                                 .then(res=>{
+                                                                     msgSuccess('WhatsApp editado correctamente')
+                                                                 })
+                                                                 .catch(error=>{
+                                                                     msgerror('Error. No se hizo la edicion')
+                                                                 })
+         },
+         venderDato(iddato){
+             //recargamos el Dato desde el servidor para asegurarnos ultimos valores
+             axios.get('/vendedor/getdato/'+iddato)
+                  .then(res=>{
+                      this.Dato=res.data.dato
+                      this.Dato.fecha=dayjs.utc(this.Dato.fecha).format('YYYY-MM-DD')
+                      this.Dato.fecha_visitar=dayjs.utc(this.Dato.fecha_visitar).format('YYYY-MM-DD')
+                      this.listaArtComprados = []
+                      this.Venta = {cnt:'', art:'',primera:dayjs.utc().format('YYYY-MM-DD')}
+                      this.sumaCuota = ''
+                      this.verNotificacionAutorizacion = false
+                      toggleModal("modal-pasar-venta")
+                  })
+         },
+         anularDato(iddato){
+             axios.get('/vendedor/anulardato/'+iddato)
+                  .then(res=>{
+                      msgSuccess('Dato anulado correctamente')
+                      this.getListadoDatosVendedor()
+                      this.verCard = false
+                  })
+                  .catch(error=>{
+                      msgError('Hubo un error. El dato no se pudo anular')
+                  })
+         },
+         fecharDato(iddato){
+             toggleModal("modal-fechar-dato")
+             this.verCard = false
+         },
+         guardarDatoFechado(){
+             toggleModal("modal-fechar-dato")
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/vendedor/guardardatofechado',this.Dato)
+                                                                 .then(res=>{
+                                                                     msgSuccess('Dato fechado con exito')
+                                                                 })
+                                                                 .catch(error=>{
+                                                                     msgError('Hubo un error. El dato no se fecho')
+                                                                 })
+         },
+         noEstabaDato(iddato){
+             axios.get('/vendedor/noestabadato/'+iddato)
+             this.verCard = false
+         },
+         validarDni(dni){
+             datos = {dni, id: this.Dato.idcliente}
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/vendedor/validardni',datos)
+                                                                 .then(res=>{
+                                                                     this.dnivalidado = true
+                                                                 })
+                                                                 .catch(error=>{
+                                                                     this.dnivalidado = false
+                                                                     msgError('el DNI ingresado no corresponde al cliente')
+                                                                 })
+         },
+         agregarArticulo(cnt,art){
+             console.log( cnt,art, typeof cnt, typeof art)
+             if(cnt!=''&&art!=''){
+                 let cuota = this.Articulos.filter(row=>row.art==art)[0].cuota
+                 let cc = 6
+                 let total = cnt * cuota * cc
+                 let id = this.listaArtComprados.length
+                 this.listaArtComprados.push({id,cnt,art,cc,cuota,total})
+                 this.Venta.cnt = ''
+                 this.Venta.art = ''
+                 this.sumaCuota = this.listaArtComprados.map(row=>row.total).reduce((a,b)=>a+b,0)/6
+             }
+         },
+         borrarItem(iditem){
+             let arrayId = this.listaArtComprados.map(row=>row.id)
+             idBorrar = arrayId.indexOf(iditem)
+             this.listaArtComprados.splice(idBorrar, 1)
+             this.sumaCuota = this.listaArtComprados.map(row=>row.total).reduce((a,b)=>a+b,0)/6
+         },
+         pedirAutorizacion(){
+             this.verNotificacionAutorizacion = true
+             //registrar pedido autorizacion en tabla autorizacion
+             this.Dato.cuota_requerida = this.sumaCuota
+             let arrayArts = []
+             this.listaArtComprados.map(row=>{
+                 arrayArts.push(row.cnt+' '+row.art)
+             })
+             this.Dato.arts = arrayArts.toString()
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/vendedor/registrarautorizacion',this.Dato)
+             //enviar un whatsapp al Fede informando del pedido de autorizacion
+             let msg = `Solicito autorizacion para ${this.Dato.nombre}
+con una compra de ${this.Dato.arts}
+y una cuota de $${this.sumaCuota}.
+Quedo a la espera. Gracias.`
+             let wapp = '3512411963'
+             let idcliente = 31446
+             let data = {msg,wapp,idcliente}
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+	         axios.post('/buscador/wapp',data)
+         },
+         pasarVenta(){
+             if(this.dnivalidado==false){
+                 msgError('El DNI del cliente debe coincidir con nuestros registros')
+                 return
+             }
+             if(this.listaArtComprados.length==0){
+                 msgError('Debe agregar articulos comprados')
+                 return
+             }
+             if(!dayjs(this.Venta.primera).isAfter(dayjs.utc())){
+                 msgError('La fecha de primer cuota debe ser posterior a hoy')
+                 return
+             }
+             if(this.sumaCuota>this.Dato.cuota_maxima){
+                 msgError('La venta excede la cuota maxima aprobada')
+                 return
+             }
+             this.Dato.arts = this.listaArtComprados
+             this.Dato.primera = this.Venta.primera
+             this.Dato.cuota = this.sumaCuota
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/vendedor/pasarventa',this.Dato)
+                                                                 .then(res=>{
+                                                                     toggleModal("modal-pasar-venta")
+                                                                     msgSuccess('Venta pasada con exito')
+                                                                     this.getListadoDatosVendedor()
+                                                                     setTimeout(()=>{
+                                                                         this.Dato=this.listadoDatos.filter(row=>row.id==this.Dato.id)[0]
+                                                                     },10)
+                                                                 })
+                                                                 .catch(error=>{
+                                                                     msgError('Hubo un error y la venta no se proceso.')
+                                                                 })
+
+         },
+         hacerLlamada(tel){
+                re = /[0-9]*/
+                tel = re.exec(tel)[0]
+                window.location.href = 'tel:' + tel;
+         },
+
+     }
+ }
+</script>
+{% endblock %}

@@ -34,7 +34,19 @@ def pgdict(con, sel):
     cur = con.cursor(dictionary=True)
     cur.execute(sel)
     rec = cur.fetchall()
-    cur.close()
+    # cur.close()
+    return rec
+
+
+def pgdict1(con, sel):
+    """Funcion que entrega una lista de valores en formato list of list.
+
+    entregado por el fetchall sobre un cursor. Pero entrega una fila.
+    """
+    cur = con.cursor(dictionary=True)
+    cur.execute(sel)
+    rec = cur.fetchall()[0]
+    # cur.close()
     return rec
 
 
@@ -65,7 +77,7 @@ def pgonecolumn(con, sel):
         return ""
     else:
         return res[0]
-    cur.close()
+    # cur.close()
     return res
 
 

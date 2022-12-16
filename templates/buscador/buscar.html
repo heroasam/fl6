@@ -199,6 +199,7 @@
 	  </div>
 	  <div class="dropdown-menu" id="dropdown-menu" role="menu">
 		<div class="dropdown-content">
+		  <a href="#" @click="crearDato()" class="dropdown-item">Sacar Dato</a>
 		  <a href="#" @click="editarCliente(Cliente.id)" class="dropdown-item">Editar</a>
 		  <a href="#" @click="fecharPmovto(Cliente.id)"  class="dropdown-item">Fechar</a>
 		  <a href="#" @click="agregarComentario()"  class="dropdown-item">Comentario</a>
@@ -726,6 +727,39 @@
     </div>
   </div>
 
+  <!-- bulma-modal crear-dato  -->
+  <div class="modal" id="modal-crear-dato">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Crear Dato</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-crear-dato')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="idfecha">Fecha</label>
+        <input type="date" class="input mb-3" x-model="Datos.fecha" id="idfecha"
+               :class="darkTheme?'input-dark':''" >
+        <label for="idfechavisitar">Fecha a Visitar (opcional)</label>
+        <input type="date" class="input mb-3" x-model="Datos.fecha_visitar" id="idfechavisitar"
+               :class="darkTheme?'input-dark':''" >
+        <label for="art" class="label">Articulo (opcional)</label>
+        <input type="text" class="input mb-3" x-model="Datos.art" id="art" autocomplete="off"
+               :class="darkTheme?'input-dark':''" >
+        <label for="horarios" class="label">Horarios (opcional)</label>
+        <input type="text" class="input mb-3" x-model="Datos.horarios" id="horarios" autocomplete="off"
+               :class="darkTheme?'input-dark':''" >
+        <label for="comentarios" class="label">Comentarios (opcional)</label>
+        <input type="text" class="input mb-3" x-model="Datos.comentarios" id="comentarios" autocomplete="off"
+               :class="darkTheme?'input-dark':''" >
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="validarDato(Cliente.id)">Generar</button>
+        <button class="button" @click="toggleModal('modal-crear-dato')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+
 
   <!-- tabledatos -->
   <table class="table noselect is-narrow is-striped" x-show="!verCard && DatosCalle.length">
@@ -753,7 +787,7 @@
 
 {% block script %}
 <script>
-
+ user = {{current_user.email|tojson}}
  function main(){
      return{
          calle:'',
@@ -782,6 +816,8 @@
          msgWhatsapp:'',
          ventaWapp:'',
          Cliente:{},
+         Datos:{fecha:dayjs.utc().format('YYYY-MM-DD'),fecha_visitar:dayjs.utc().format('YYYY-MM-DD'), art:'', horarios:'', comentarios:''},
+         cuota_basica:0,
          PlanPagos:{fecha:dayjs.utc().format('YYYY-MM-DD'),p:'Mensual'},
          Comentario:{fechahora:dayjs.utc().format('YYYY-MM-DD')},
          Asunto:{fecha:dayjs.utc().format('YYYY-MM-DD'),tipo:'',vdor:'',asunto:''},
@@ -1099,6 +1135,7 @@
 								                                 .then(res=>{
 								                                     msgSuccess('Exito','Comentario agregado')
 								                                     this.pedirComentarios(this.Cliente.id)
+                                                                     this.Comentario={fechahora:dayjs.utc().format('YYYY-MM-DD')}
 								                                 })
          },
          editarCliente(idcliente){
@@ -1511,6 +1548,41 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
                  if(item=='') return false;
              }
              return true;
+         },
+         crearDato(){
+             toggleModal("modal-crear-dato")
+             this.Datos = {fecha:dayjs.utc().format('YYYY-MM-DD'),fecha_visitar:dayjs.utc().format('YYYY-MM-DD'), art:'', horarios:'', comentarios:''}
+         },
+         validarDato(idcliente){
+             if(this.cuota_basica==0){
+                 axios.get('/vendedor/getcuotabasica')
+                      .then(res=>{
+                          this.cuota_basica=res.data.cuotabasica
+                 })
+             }
+             axios.get('/vendedor/verificarqueyaesdato/'+idcliente)
+                  .then(res=>{
+                      this.guardarDato()
+                  })
+                  .catch(error=>{
+                      msgError('Este cliente ya tiene un dato vigente')
+                      toggleModal("modal-crear-dato")
+             })
+         },
+         guardarDato(){
+             toggleModal("modal-crear-dato")
+             this.Datos.user = user
+             this.Datos.cuota_maxima = this.cuota_basica
+             this.Datos.idcliente = this.Cliente.id
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/vendedor/guardardato',this.Datos)
+                                                                 .then(res=>{
+                                                                     msgSuccess('El dato ha sido registrado con exito')
+                                                                 })
+                                                                 .catch(error=>{
+                                                                     msgError('Hubo un error el dato no se registro')
+                                                                 })
+
          },
      }
  }
