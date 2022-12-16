@@ -15,6 +15,10 @@
     <div class="column is-7">
       <h1 style="width:70%;" class="title is-size-1">Arqueo Banco</h1>
     </div>
+    <div class="column is-5">
+      <button class="button is-primary" @click="verTodos()">Ver Todos</button>
+      <button class="button is-primary" @click="verNoConciliados()">Ver No Conciliados</button>
+    </div>
   </div>
 
 
@@ -33,7 +37,7 @@
         </tr>
       </thead>
       <tbody>
-        <template x-for="asiento in bancoIngresoCuotas">
+        <template x-for="asiento in bancoIngresoCuotas_">
           <tr>
               <td x-text="asiento.id"></td>
               <td :class="dia(asiento.fecha)" x-text="asiento.fecha"></td>
@@ -54,17 +58,77 @@
             <th>fecha</th>
             <th>imp</th>
             <th>nombre</th>
+            <th></th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          <template x-for="pago in listaCuotas">
+          <template x-for="pago in listaCuotas_">
             <tr>
               <td x-text="pago.fecha"></td>
               <td x-text="pago.imp"></td>
               <td x-text="pago.nombre"></td>
+              <td><span class="tag is-small is-info" x-show="pago.conciliado">Conciliada</span></td>
+              <td><span class="tag is-small pointer is-primary" @click="conciliarPago(pago.id)">Conciliar</span></td>
             </tr>
           </template>
         </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="columns">
+    <div class="column is-6">
+      <p class="title is-3" x-text="'Total Banco ingreso cobradores $'+sumBancoCobradores"></p>
+      <table class="table">
+         <thead>
+        <tr>
+          <th>id</th>
+          <th>fecha</th>
+          <th>cuenta</th>
+          <th class="sumar importe">imp</th>
+          <th>comentario</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="asiento in bancoIngresoCobradores">
+          <tr>
+              <td x-text="asiento.id"></td>
+              <td :class="dia(asiento.fecha)" x-text="asiento.fecha"></td>
+              <td x-text="asiento.cuenta" style="min-width:200px;"></td>
+              <td x-text="asiento.imp" class="pesos" style="min-width:100px;"></td>
+              <td x-text="asiento.comentario"></td>
+              <td><i class="fa fa-pencil" aria-hidden="true" @click="editarAsientocobr(asiento.id)"></td>
+          </tr>
+        </template>
+      </tbody>
+      </table>
+    </div>
+    <div class="column is-6">
+      <p class="title is-3" x-text="'Total Transferencias cobradores $'+sumTransferenciasCobradores"></p>
+      <table class="table">
+         <thead>
+        <tr>
+          <th>id</th>
+          <th>fecha</th>
+          <th>cuenta</th>
+          <th class="sumar importe">imp</th>
+          <th>comentario</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="asiento in listaTransferencias">
+          <tr>
+              <td x-text="asiento.id"></td>
+              <td :class="dia(asiento.fecha)" x-text="asiento.fecha"></td>
+              <td x-text="asiento.cuenta" style="min-width:200px;"></td>
+              <td x-text="asiento.imp" class="pesos" style="min-width:100px;"></td>
+              <td x-text="asiento.comentario"></td>
+              <td><i class="fa fa-pencil" aria-hidden="true" @click="editarAsientotrans(asiento.id)"></td>
+          </tr>
+        </template>
+      </tbody>
       </table>
     </div>
   </div>
@@ -109,26 +173,43 @@
 <script>
  function main(){
      return{
-         bancoIngresoCuotas:[],
+         bancoIngresoCuotas_:[],
          bancoIngresoCobradores:[],
-         listaCuotas:[],
+         listaCuotas_:[],
          listaTransferencias:[],
          AsientoEdicion:{},
          cuentas:[],
+         sumTransferenciasCobradores:'',
+         sumBancoCobradores:'',
          getDatos(cuenta){
              axios.get('/stock/getdatosarqueo')
                   .then(res=>{
                       this.bancoIngresoCuotas = res.data.bancocuotas
                       this.bancoIngresoCuotas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                       this.bancoIngresoCobradores = res.data.bancocobr
+                      this.bancoIngresoCobradores.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      this.bancoIngresoCuotas_ = this.bancoIngresoCuotas.filter(row=>row.comentario=='')
                       this.listaCuotas = res.data.listacuotas
                       this.listaCuotas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      this.listaCuotas_ = this.listaCuotas.filter(row=>row.conciliado==0)
                       this.listaTransferencias = res.data.listatrancobr
+                      this.listaTransferencias.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                       this.cuentas = res.data.listacuentas
+                      this.sumBancoCobradores = this.bancoIngresoCobradores.map(row=>row.imp).reduce((a,b)=>a+b,0)
+                      let a = this.listaTransferencias.map(row=>row.imp)
+                      this.sumTransferenciasCobradores = this.listaTransferencias.map(row=>row.imp).reduce((a,b)=>a+b,0)
                   })
          },
          editarAsiento(id){
              this.AsientoEdicion = this.bancoIngresoCuotas.filter(row=>row.id==id)[0];
+             toggleModal('modal-edicion')
+         },
+         editarAsientocobr(id){
+             this.AsientoEdicion = this.bancoIngresoCobradores.filter(row=>row.id==id)[0];
+             toggleModal('modal-edicion')
+         },
+         editarAsientotrans(id){
+             this.AsientoEdicion = this.listaTransferencias.filter(row=>row.id==id)[0];
              toggleModal('modal-edicion')
          },
 
@@ -140,6 +221,20 @@
                                                                      toggleModal('modal-edicion')
                                                                      this.getDatos()
          })},
+         conciliarPago(id){
+             axios.get('/stock/conciliarpago/'+id)
+                  .then(res=>{
+                      this.getDatos()
+             })
+         },
+         verTodos(){
+             this.bancoIngresoCuotas_=this.bancoIngresoCuotas
+             this.listaCuotas_=this.listaCuotas
+         },
+         verNoConciliados(){
+             this.bancoIngresoCuotas_ = this.bancoIngresoCuotas.filter(row=>row.comentario=='')
+             this.listaCuotas_ = this.listaCuotas.filter(row=>row.conciliado==0)
+         }
 
      }
  }

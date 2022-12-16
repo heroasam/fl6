@@ -704,13 +704,32 @@ def stock_getdatosarqueo():
     bancocuotas = pgdict(con, "select * from caja where cuenta=\
     'bancos ingreso clientes' and fecha>'2022-09-30' order by id desc")
     bancocobr =  pgdict(con, "select * from caja where cuenta=\
-    'bancos ingreso cobradores'")
-    listacuotas = pgdict(con, "select fecha,imp+rec as imp, nombre from \
-    pagos,clientes where clientes.id = pagos.idcliente and  cobr in \
-    (13,15) and fecha>'2022-09-30' order by pagos.id desc")
+    'bancos ingreso cobradores' order by id desc")
+    listacuotas = pgdict(con, "select fecha,imp+rec as imp, nombre,pagos.id \
+    as id,conciliado from pagos,clientes where clientes.id = pagos.idcliente \
+    and  cobr in (13,15) and fecha>'2022-09-30' order by pagos.id desc")
     listatrancobr= pgdict(con, "select * from caja where cuenta=\
-    'transferencia de cobradores'")
+    'transferencia de cobradores' order by id desc")
     listacuentas = pglflat(con, "select cuenta from ctas")
     return jsonify(bancocuotas=bancocuotas, bancocobr=bancocobr, \
                    listacuotas=listacuotas, listatrancobr=listatrancobr,\
                    listacuentas=listacuentas)
+
+
+@stock.route('/stock/conciliarpago/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def stock_conciliarpago(id):
+    con = get_con()
+    upd = f"update pagos set conciliado=1 where id={id}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        con.close()
+        return 'ok',200
