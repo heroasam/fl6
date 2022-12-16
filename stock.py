@@ -709,7 +709,8 @@ def stock_getdatosarqueo():
     as id,conciliado from pagos,clientes where clientes.id = pagos.idcliente \
     and  cobr in (13,15) and fecha>'2022-09-30' order by pagos.id desc")
     listatrancobr= pgdict(con, "select * from caja where cuenta=\
-    'transferencia de cobradores' order by id desc")
+    'transferencia de cobradores' and id not in (15451,15424,15423) \
+    order by id desc")
     listacuentas = pglflat(con, "select cuenta from ctas")
     return jsonify(bancocuotas=bancocuotas, bancocobr=bancocobr, \
                    listacuotas=listacuotas, listatrancobr=listatrancobr,\

@@ -188,10 +188,10 @@
                       this.bancoIngresoCuotas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                       this.bancoIngresoCobradores = res.data.bancocobr
                       this.bancoIngresoCobradores.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
-                      this.bancoIngresoCuotas_ = this.bancoIngresoCuotas.filter(row=>row.comentario=='')
+                      this.bancoIngresoCuotas_ = this.bancoIngresoCuotas
                       this.listaCuotas = res.data.listacuotas
                       this.listaCuotas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
-                      this.listaCuotas_ = this.listaCuotas.filter(row=>row.conciliado==0)
+                      this.listaCuotas_ = this.listaCuotas
                       this.listaTransferencias = res.data.listatrancobr
                       this.listaTransferencias.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                       this.cuentas = res.data.listacuentas
