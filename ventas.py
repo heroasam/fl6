@@ -258,6 +258,7 @@ def ventas_borrarventa(id):
         con.close()
         return 'OK'
 
+
 @ventas.route('/ventas/datosventa/<int:id>')
 @login_required
 @check_roles(['dev','gerente','admin'])
@@ -832,6 +833,25 @@ def ventas_pordia():
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="tableventas",classes="table")
     return render_template("ventas/pordia.html", tbl=tbl)
+
+
+@ventas.route('/ventas/artyear')
+@login_required
+@check_roles(['dev','gerente'])
+def ventas_artyear():
+    """Pivot-table de venta articulos por año."""
+    pd.options.display.float_format = '{:.0f}'.format
+    sql = "select year(fecha) as año,detvta.cnt as cnt,detvta.art as art \
+    from ventas,detvta where ventas.devuelta=0 and fecha>'2017-12-31' \
+    and ventas.id=detvta.idvta order by ventas.id desc"
+    dat = pd.read_sql_query(sql, engine)
+    df = pd.DataFrame(dat)
+    tbl = pd.pivot_table(df, values=['cnt'],index='art',columns='año',\
+                         aggfunc='sum').sort_index(axis=0, level='art',\
+                                                   ascending=False)
+    tbl = tbl.fillna("")
+    tbl = tbl.to_html(table_id="tableartyear",classes="table")
+    return render_template("ventas/artyear.html", tbl=tbl)
 
 
 @ventas.route('/ventas/pivotdevoluciones')
