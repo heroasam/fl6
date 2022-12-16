@@ -516,7 +516,7 @@ def vendedor_registrarautorizacion():
     d = json.loads(request.data.decode("UTF-8"))
     if current_user.email == var_sistema['816']:
         vdor = 816
-    elif current_user.email == var_sistema['835']:
+    if current_user.email == var_sistema['835']:
         vdor = 835
     ins = f"insert into autorizacion(fecha,vdor,iddato,idcliente,\
     cuota_requerida,cuota_maxima,arts) values(current_timestamp(),\
@@ -601,7 +601,7 @@ def vendedor_pasarventa():
     id={d['idcliente']}")
     garantizado = gar['garantizado']
     dnigarante = gar['dnigarante']
-    ins = f"insert into ventas(fecha,idvdor,ant,cc,ic,p,primera,idcliente,\
+    insvta = f"insert into ventas(fecha,idvdor,ant,cc,ic,p,primera,idcliente,\
     garantizado,dnigarante) values(curdate(),{vdor},{ant},{cc},{ic},{p},\
     '{d['primera']}',{d['idcliente']},{garantizado},{dnigarante})"
     insvis = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
@@ -609,7 +609,7 @@ def vendedor_pasarventa():
     cur = con.cursor()
     try:
         cur.execute(insvis)
-        cur.execute(ins)
+        cur.execute(insvta)
     except mysql.connector.Error as _error:
        con.rollback()
        error = _error.msg
@@ -632,7 +632,7 @@ def vendedor_pasarventa():
        con.commit()
        con.close()
        log(upd)
-       log(ins)
+       log(insvta)
        return 'ok'
 
 
