@@ -91,8 +91,7 @@ def vendedor_guardardato():
     direccion_cliente = pgonecolumn(con, f"select concat(calle,num) from \
     clientes where id={d['idcliente']}")
     deuda_en_la_casa = pgonecolumn(con, f"select sum(deuda) from clientes \
-    where concat(calle,num)='{direccion_cliente}' and id!={d['idcliente']} \
-    and ultpago<date_sub(curdate(), interval 120 day)")
+    where concat(calle,num)='{direccion_cliente}' and id!={d['idcliente']}")
     if deuda_en_la_casa is None:
         deuda_en_la_casa = 0
     ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, art,\

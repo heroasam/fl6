@@ -126,14 +126,14 @@ def ventas_guardarventa():
         p=3
     else:
         p=2
-    if d['dnigarante']!='':
+    if d['dnigarante']:
         garantizado = 1
         dnigarante = d['dnigarante']
     else:
         garantizado = 0
         dnigarante = 0
-        ins = f"insert into ventas(fecha,idvdor,ant,cc,ic,p,primera,idcliente,garantizado,dnigarante) values('{d['fecha']}',{d['idvdor']},{ant},{d['cc']},{d['ic']},{p},'{d['primera']}',{d['idcliente']},{garantizado},{dnigarante})"
-        cur = con.cursor()
+    ins = f"insert into ventas(fecha,idvdor,ant,cc,ic,p,primera,idcliente,garantizado,dnigarante) values('{d['fecha']}',{d['idvdor']},{ant},{d['cc']},{d['ic']},{p},'{d['primera']}',{d['idcliente']},{garantizado},{dnigarante})"
+    cur = con.cursor()
     try:
         cur.execute(ins)
     except mysql.connector.Error as e:
@@ -216,7 +216,7 @@ def ventas_getarticulos():
 @check_roles(['dev','gerente','admin'])
 def ventas_getlistado():
     con = get_con()
-    listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count from ventas where pp=0 order by id desc limit 100")
+    listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count, dnigarante from ventas where pp=0 order by id desc limit 100")
     con.close()
     return jsonify(listado=listado)
 
@@ -274,7 +274,7 @@ def ventas_datosventa(id):
 def ventas_guardaredicionvta():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    if d['dnigarante']!='':
+    if d['dnigarante']:
         garantizado = 1
         dnigarante = d['dnigarante']
     else:

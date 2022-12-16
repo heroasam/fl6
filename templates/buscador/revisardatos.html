@@ -207,6 +207,16 @@
                     msgError('Error. No se pudo editar')
              })
          },
+         rechazarDato(id){
+             axios.get('/vendedor/togglerechazardato/'+id)
+                  .then(res=>{
+                      msgSuccess('toggle RECHAZADO')
+                      this.getListadoDatos()
+                  })
+                  .catch(error=>{
+                      msgerror('Error. No se pudo hacer el cambio.')
+                  })
+         },
      }
  }
 </script>
