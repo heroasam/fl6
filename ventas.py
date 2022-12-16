@@ -827,9 +827,11 @@ def ventas_pordia():
     dat = pd.read_sql_query(sql, engine)
     df = pd.DataFrame(dat)
     tbl = pd.pivot_table(df, values=['comprado'],index='fecha',columns='idvdor',aggfunc='sum').sort_index(axis=0, level='fecha',ascending=False)
+    tot = tbl.iloc[:,0].add(tbl.iloc[:,1],axis=0,fill_value=0).tolist()
+    tbl.insert(2,'total',tot)
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="tableventas",classes="table")
-    return render_template("ventas/pordia.html", tbl=tbl )
+    return render_template("ventas/pordia.html", tbl=tbl)
 
 
 @ventas.route('/ventas/pivotdevoluciones')
