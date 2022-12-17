@@ -51,8 +51,10 @@
           <td x-text="dato.id"></td>
           <td x-text="dato.fecha"></td>
           <td x-text="dato.nombre"></td>
-          <td><span class="tag is-small" x-text="dato.resultado==1?'Vendido':(dato.resultado==0?'Anulado':(dato.resultado==2?'Rechazado':'Pendiente'))"
-                    :class="dato.resultado==1?'is-success':(dato.resultado==0?'is-danger':(dato.resultado==2?'is-warning':'is-info' ))"></span></td>
+          <td><span class="tag is-small" x-text="dato.resultado==1?'Vendido':(dato.resultado==0?'Anulado':
+                           (dato.resultado==2?'Rechazado':(dato.resultado==5?'Mudo':(dato.resultado==6?'Fallecio':'Pendiente'))))"
+                    :class="dato.resultado==1?'is-success':(dato.resultado==0?'is-danger':(dato.resultado==2?'is-warning':
+                           (dato.resultado==5?'is-primary':(dato.resultado==6?'is-black':'is-info'))))"></span></td>
           <td x-text="dato.art"></td>
           <td x-text="dato.cuota_maxima"></td>
           <td x-text="dato.cuota_requerida"></td>

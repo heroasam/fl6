@@ -505,6 +505,62 @@ def vendedor_anulardato(iddato):
        return 'ok'
 
 
+@vendedor.route('/vendedor/mudodato/<int:iddato>')
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_mudodato(iddato):
+    if current_user.email == var_sistema['816']:
+        vdor = 816
+    elif current_user.email == var_sistema['835']:
+        vdor = 835
+    con = get_con()
+    upd = f"update datos set resultado=5, fecha_definido=current_timestamp()\
+    where id = {iddato}"
+    ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
+    values(curdate(),curtime(),{vdor},{iddato},5,0)"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+        cur.execute(ins)
+    except mysql.connector.Error as _error:
+       con.rollback()
+       error = _error.msg
+       return make_response(error,400)
+    else:
+       con.commit()
+       con.close()
+       log(upd)
+       return 'ok'
+
+
+@vendedor.route('/vendedor/falleciodato/<int:iddato>')
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_falleciodato(iddato):
+    if current_user.email == var_sistema['816']:
+        vdor = 816
+    elif current_user.email == var_sistema['835']:
+        vdor = 835
+    con = get_con()
+    upd = f"update datos set resultado=6, fecha_definido=current_timestamp()\
+    where id = {iddato}"
+    ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
+    values(curdate(),curtime(),{vdor},{iddato},6,0)"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+        cur.execute(ins)
+    except mysql.connector.Error as _error:
+       con.rollback()
+       error = _error.msg
+       return make_response(error,400)
+    else:
+       con.commit()
+       con.close()
+       log(upd)
+       return 'ok'
+
+
 @vendedor.route('/vendedor/validardni' , methods=['POST'])
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])

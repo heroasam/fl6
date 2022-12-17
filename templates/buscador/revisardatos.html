@@ -22,9 +22,11 @@
   </div>
 
    <div class="buttons">
-     <button class="button is-small is-primary" @click="filtraDatosPorStatus('vendidos')">Vendidos</button>
+     <button class="button is-small is-success" @click="filtraDatosPorStatus('vendidos')">Vendidos</button>
      <button class="button is-small is-danger" @click="filtraDatosPorStatus('anulados')">Anulados</button>
      <button class="button is-small is-info" @click="filtraDatosPorStatus('pendientes')">Pendientes</button>
+     <button class="button is-small is-primary" @click="filtraDatosPorStatus('mudados')">Mudados</button>
+     <button class="button is-small is-black" @click="filtraDatosPorStatus('fallecidos')">Fallecidos</button>
      <button class="button is-small is-warning" @click="filtraDatosPorStatus('todos')">Todos</button>
       <button class="button is-small is-black" @click="filtraDatosPorVendedor(816)">816</button>
       <button class="button is-small is-black" @click="filtraDatosPorVendedor(835)">835</button>
@@ -57,8 +59,10 @@
           <td x-text="dato.fecha"></td>
           <td x-text="dato.user"></td>
           <td x-text="dato.nombre"></td>
-          <td><span class="tag is-small" x-text="dato.resultado==1?'Vendido':(dato.resultado==0?'Anulado':(dato.resultado==2?'Rechazado':'Pendiente'))"
-                    :class="dato.resultado==1?'is-success':(dato.resultado==0?'is-danger':(dato.resultado==2?'is-warning':'is-info' ))"></span></td>
+          <td><span class="tag is-small" x-text="dato.resultado==1?'Vendido':(dato.resultado==0?'Anulado':
+                           (dato.resultado==2?'Rechazado':(dato.resultado==5?'Mudo':(dato.resultado==6?'Fallecio':'Pendiente'))))"
+                    :class="dato.resultado==1?'is-success':(dato.resultado==0?'is-danger':(dato.resultado==2?'is-warning':
+                           (dato.resultado==5?'is-primary':(dato.resultado==6?'is-black':'is-info'))))"></span></td>
           <td x-text="dato.art"></td>
           <td x-text="dato.cuota_maxima"></td>
           <td><span class="tag is-small is-danger" x-show="dato.autorizado">Autorizado</span></td>
@@ -189,6 +193,12 @@
                      break
                  case 'pendientes':
                      this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==null)
+                     break
+                 case 'mudados':
+                     this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==5)
+                     break
+                 case 'fallecidos':
+                     this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==6)
                      break
                  case 'todos':
                      this.listadoDatos_ = this.listadoDatos

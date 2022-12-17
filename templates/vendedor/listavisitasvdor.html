@@ -41,8 +41,10 @@
           <template x-for="item in listaVisitasVendedor_">
             <tr class="children">
               <td x-text="item.hora"></td>
-              <td><span class="tag is-small" x-text="item.result==1?'venta':(item.result==2?'anulado':(item.result==3?'no estaba':'fechado'))"
-                        :class="item.result==1?'is-success':(item.result==2?'is-danger':(item.result==3?'is-warning':'is-info'))"></span></td>
+              <td><span class="tag is-small" x-text="item.result==1?'venta':(item.result==2?'anulado':
+                               (item.result==3?'no estaba':(item.result==5?'mudo':(item.result==6?'fallecio':'fechado'))))"
+                        :class="item.result==1?'is-success':(item.result==2?'is-danger':(item.result==3?'is-warning':
+                               (item.result==5?'is-primary':(item.result==6?'if-black':'is-info'))))"></span></td>
               <td x-text="item.nombre"></td>
               <td x-text="item.calle+' '+item.num"></td>
               <td x-text="item.zona"></td>
