@@ -48,7 +48,7 @@
     <div class="flex-between">
       <h2 class="title is-5 no-mb" x-text="Dato.wapp?Dato.wapp:Dato.tel"></h2>
             <a x-bind:href=`https://wa.me/549${Dato.wapp}?text=''` class="tag is-success is-small"
-               target="blank" style="text-decoration: none;">Whats</a>
+               target="blank" style="text-decoration: none;" x-show="Dato.wapp">Whats</a>
             <tag class="tag is-small is-info" @click="hacerLlamada(Dato.wapp?Dato.wapp:Dato.tel)">Llamar</tag>
             <span class="tag is-small is-primary pointer ml-5" @click="editarWapp">Editar</span>
     </div>
@@ -61,7 +61,7 @@
     <h4 class="title is-6 no-mb" x-text="Dato.comentarios" x-show="Dato.comentarios"></h4>
     <h2 class="title is-4" x-text="'Cuota Maxima $'+Dato.cuota_maxima"></h2>
     <div class="buttons" x-show="!Dato.idvta">
-      <button class="button is-small is-primary" @click="venderDato(Dato.id)">Vender</button>
+      <button class="button is-small is-success" @click="venderDato(Dato.id)">Vender</button>
       <button class="button is-small is-danger" @click="anularDato(Dato.id)">Anular</button>
       <button class="button is-small is-info" @click="fecharDato(Dato.id)">Fechar</button>
       <button class="button is-small is-warning" @click="noEstabaDato(Dato.id)">No Estaba</button>
