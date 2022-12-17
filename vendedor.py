@@ -549,7 +549,8 @@ def vendedor_getlistadoautorizados():
     fechahora, autorizacion.cuota_requerida as cuota_requerida, \
     autorizacion.arts as arts,horarios,comentarios from datos,autorizacion,\
     clientes  where datos.idcliente=clientes.id and autorizacion.iddato=\
-    datos.id and autorizacion.autorizado=0 and resultado is null")
+    datos.id and autorizacion.autorizado=0 and resultado is null and \
+    rechazado=0")
     cuotabasica = var_sistema['cuota_basica']
     return jsonify(listadoautorizados=listadoautorizados, cuotabasica=cuotabasica)
 
@@ -567,7 +568,6 @@ def vendedor_autorizardato(id):
     autorizado=1 where id={id}"
     con = get_con()
     cur = con.cursor()
-    print('cursor',cur)
     try:
         cur.execute(upd_aut)
         cur.execute(upd_dat)
@@ -579,6 +579,31 @@ def vendedor_autorizardato(id):
        con.commit()
        con.close()
        log(upd_dat)
+       log(upd_aut)
+       return 'ok'
+
+
+
+@vendedor.route('/vendedor/noautorizardato/<int:id>')
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_noautorizardato(id):
+    con = get_con()
+    cuota_requerida = pgonecolumn(con, f"select cuota_requerida from \
+    autorizacion where iddato={id}")
+    upd_aut = f"update autorizacion set autorizado=0, user = \
+    '{current_user.email}',rechazado=1 where iddato={id}"
+    con = get_con()
+    cur = con.cursor()
+    try:
+        cur.execute(upd_aut)
+    except mysql.connector.Error as _error:
+       con.rollback()
+       error = _error.msg
+       return make_response(error,400)
+    else:
+       con.commit()
+       con.close()
        log(upd_aut)
        return 'ok'
 
