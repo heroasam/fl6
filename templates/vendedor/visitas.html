@@ -72,7 +72,7 @@
          listaFechas:[],
          listaFechas_:[],
          fecha:'',
-         vdor:'',
+         vendedor:'',
          listaVendedores:[],
          getVisitasVendedor(){
              axios.get('/vendedor/getvisitasvendedor')
@@ -91,8 +91,8 @@
                   this.listaVisitasVendedor_ = []
                   return
               }
-             this.listaVisitasVendedor_ = this.listaVisitasVendedor.filter(row=>row.vdor==this.vdor)
-             this.listaVisitasVendedor_=this.listaVisitasVendedor.filter(row=>row.fecha==fecha)
+             this.listaVisitasVendedor_ = this.listaVisitasVendedor.filter(row=>row.vdor==this.vendedor)
+             this.listaVisitasVendedor_ = this.listaVisitasVendedor_.filter(row=>row.fecha==fecha)
              this.fecha = fecha
              setTimeout(()=>{
              $tbody = document.querySelector('tbody')
@@ -105,8 +105,8 @@
                }},10)
          },
          filtrarVdor(vdor){
-             this.vdor=vdor
-             this.listaFechas_ = this.listaFechas.filter(row=>row.vdor==vdor)
+             this.vendedor=vdor
+             this.listaFechas_ = this.listaFechas.filter(row=>row.vdor==this.vendedor)
          },
           limpiarToggles() {
              $btnVdor = document.getElementById('btnVdor')

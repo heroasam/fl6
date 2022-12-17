@@ -92,13 +92,23 @@ def vendedor_guardardato():
     clientes where id={d['idcliente']}")
     deuda_en_la_casa = pgonecolumn(con, f"select sum(deuda) from clientes \
     where concat(calle,num)='{direccion_cliente}' and id!={d['idcliente']}")
+    es_garante = pgonecolumn(con, f"select esgarante from clientes where id=\
+    {d['idcliente']}")
+    if es_garante:
+        dni = pgonecolumn(con, f"select dni from clientes where id=\
+        {d['idcliente']}")
+        monto_garantizado = pgonecolumn(con, f"select sum(saldo) from ventas \
+        where garantizado=1 and dnigarante={dni}")
+    else:
+        monto_garantizado = 0
     if deuda_en_la_casa is None:
         deuda_en_la_casa = 0
     ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, art,\
-    horarios, comentarios, cuota_maxima,deuda_en_la_casa,sin_extension) values \
-    ('{d['fecha']}', '{d['user']}',{d['idcliente']},'{d['fecha_visitar']}',\
-    '{d['art']}','{d['horarios']}', '{d['comentarios']}', {cuota_maxima}, \
-    '{deuda_en_la_casa}',{sin_extension})"
+    horarios, comentarios, cuota_maxima,deuda_en_la_casa,sin_extension,\
+    monto_garantizado) values ('{d['fecha']}', '{d['user']}',\
+    {d['idcliente']},'{d['fecha_visitar']}','{d['art']}','{d['horarios']}',\
+    '{d['comentarios']}', {cuota_maxima}, '{deuda_en_la_casa}',{sin_extension},\
+    {monto_garantizado})"
     cur = con.cursor()
     try:
         cur.execute(ins)
@@ -164,12 +174,12 @@ def vendedor_getlistadodatosenviar():
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
-    sin_extension, autorizado from datos, clientes where clientes.id = \
-    datos.idcliente and vendedor is null order by id desc limit 300")
+    sin_extension, autorizado, monto_garantizado from datos, clientes where \
+    clientes.id = datos.idcliente and vendedor is null and resultado is null \
+    order by id desc limit 300")
     # vendedor is null filtra los datos no asignados
     cuotabasica = var_sistema['cuota_basica']
     vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
-    print(vdores)
     return jsonify(listadodatos=listadodatos, cuotabasica=cuotabasica, \
                    vdores=vdores)
 

@@ -22,21 +22,12 @@
   </div>
 
    <div class="buttons">
-     <button class="button is-small is-info" @click="filtraDatosPorUser('isabelheredie@gmail.com')">Isabel</button>
-     <button class="button is-small is-info" @click="filtraDatosPorUser('n.dryon@gmail.com')">Naty</button>
-     <button class="button is-small is-primary" @click="filtraDatosPorStatus('vendidos')">Vendidos</button>
-     <button class="button is-small is-danger" @click="filtraDatosPorStatus('anulados')">Anulados</button>
-     <button class="button is-small is-info" @click="filtraDatosPorStatus('pendientes')">Pendientes</button>
-     <button class="button is-small is-warning" @click="filtraDatosPorStatus('todos')">Todos</button>
-      <button class="button is-small is-black" @click="filtraDatosPorUserParcial('isabelheredie@gmail.com')">Isabel</button>
-      <button class="button is-small is-black" @click="filtraDatosPorUserParcial('n.dryon@gmail.com')">Naty</button>
       <button class="button is-small is-primary" @click="seleccionarTodo">Seleccionar Todo</button>
       <button class="button is-small is-link" @click="enviarDatosSeleccionados">Enviar a Vendedor</button>
    </div>
   <table class="table table-striped " id="table">
     <thead>
       <tr>
-        <th></th>
         <th></th>
         <th></th>
         <th>Id</th>
@@ -48,8 +39,8 @@
         <th>cuota</th>
         <th></th>
         <th></th>
-        <th></th>
         <th>direccion</th>
+        <th></th>
         <th></th>
       </tr>
     </thead>
@@ -57,7 +48,6 @@
       <template x-for="dato in listadoDatos_">
         <tr>
           <td><a :href="'/buscador/interno/'+dato.dni">Ver</a></td>
-          <td><i class="fa fa-times" aria-hidden="true" @click="borrarDato(dato.id)"></td>
           <td><i class="fa fa-pencil" aria-hidden="true" @click="editarDato(dato.id)"></td>
           <td x-text="dato.id"></td>
           <td x-text="dato.fecha"></td>
@@ -67,18 +57,23 @@
                     :class="dato.resultado==1?'is-success':(dato.resultado==0?'is-danger':(dato.resultado==2?'is-warning':'is-info' ))"></span></td>
           <td x-text="dato.art"></td>
           <td x-text="dato.cuota_maxima"></td>
-          <td><span class="tag is-small is-danger" x-show="dato.autorizado">Autorizado</span></td>
-          <td><span class="tag is-small is-danger" x-show="dato.sin_extension">Venta Basica</span></td>
-          <td><i class="fa fa-trash" aria-hidden="true" @click="rechazarDato(dato.id)"></td>
+          <td><span class="tag is-small is-link" x-show="dato.autorizado">Autorizado</span></td>
+          <td><span class="tag is-small is-info" x-show="dato.sin_extension">Venta Basica</span></td>
             <td><div class="xtags has-addons m-0" x-show="dato.deuda_en_la_casa">
 		      <span class="tag is-warning  m-0">Casa</span>
 		      <span class="tag  m-0" :class="dato.deuda_en_la_casa>29999?'is-danger':'is-light'"
                     x-text="'$'+dato.deuda_en_la_casa"></span>
-	        </div></td>
-            <td><span class="tag is-small is-danger" x-show="dato.novendermas">LN</span>
+	        </div>
+             <div class="xtags has-addons m-0" x-show="dato.monto_garantizado">
+		      <span class="tag is-warning  m-0">Garante</span>
+		      <span class="tag  m-0" :class="dato.monto_garantizado>19999?'is-danger':'is-light'"
+                    x-text="'$'+dato.monto_garantizado"></span>
+	         </div>
+            <span class="tag is-small is-danger" x-show="dato.novendermas">LN</span>
             <span class="tag is-small is-danger" x-show="dato.incobrable">INC</span>
             <span class="tag is-small is-success" x-show="dato.sev">SEVEN</span>
             <span class="tag is-small is-success" x-show="dato.baja">ex-SEVEN</span></td>
+          <td><i class="fa fa-times" aria-hidden="true" @click="rechazarDato(dato.id)"></td>
 
         </tr>
       </template>
@@ -188,22 +183,22 @@
                       console.log( this.listaVdores)
                   })
          },
-         borrarDato(id){
+         rechazarDato(id){
             Swal.fire({
             title: '¿Esta seguro?',
-            text: `Se borrara el Dato ${id}`,
+            text: `Se rechazara el Dato ${id}`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Si, borrarlo!'
+            confirmButtonText: 'Si, rechazarlo!'
             }).then((result) => {
             if (result.isConfirmed) {
-                axios.get('/vendedor/borrardato/'+id)
+                axios.get('/vendedor/togglerechazardato/'+id)
                      .then(res=>{
-                         msgSuccess('Borrado!','El dato ha sido borrado')
+                         msgSuccess('Rechazado!','El dato ha sido rechazado')
                          this.getListadoDatos()})
-                     .catch(error=>msgError('No se pudo borrar el dato. Hubo un error.'))
+                     .catch(error=>msgError('No se pudo rechazar el dato. Hubo un error.'))
             }})
          },
          editarDato(id){
@@ -267,16 +262,6 @@
                     msgError('Error. No se pudo editar')
              })
          },
-         rechazarDato(id){
-             axios.get('/vendedor/togglerechazardato/'+id)
-                  .then(res=>{
-                      msgSuccess('toggle RECHAZADO')
-                      this.getListadoDatos()
-                  })
-                  .catch(error=>{
-                      msgerror('Error. No se pudo hacer el cambio.')
-             })
-         },
          enviarDatosSeleccionados(){
              this.cntSeleccionados = this.cuentaSeleccionados().length
              toggleModal("modal-vendedor-asignado")
@@ -301,7 +286,7 @@
         	 arrayRows = Array.from($tbody.children);
         	 arrayRows.forEach((row) => {
                  if(row.classList.contains('is-selected')){
-                     arraySeleccionados.push(row.cells[3].innerHTML)
+                     arraySeleccionados.push(row.cells[2].innerHTML)
                      //OJO la celda de los iddato
              }})
              console.log( arraySeleccionados)
