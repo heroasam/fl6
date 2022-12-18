@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Librerias generales."""
 import time
+from datetime import datetime
 import os
 import logging
 import requests
@@ -491,4 +492,22 @@ def log_busqueda(busqueda):
         log_file.write(time.strftime('%Y-%m-%d',time.localtime())+', '+\
                       time.strftime('%H:%M:%S',time.localtime())+', '+\
                       busqueda+', '+email)
+        log_file.close()
+
+
+def logcaja(asiento_id,cuenta,imp,comentario):
+    """Funcion que hace un log en txt de los movimientos de caja."""
+    now = datetime.now()
+    date_time = now.strftime("%Y-%m-%d, %H:%M:%S")
+    if "@" in str(current_user):
+        email = current_user.email
+    else:
+        email = ""
+    con = get_con()
+    saldo = pgonecolumn(con, "select sum(imp) from caja")
+    con.close()
+    with open("/home/hero/log/caja.log", "a", encoding="utf-8") as log_file:
+        log_file.write('\n')
+        log_file.write('$'+str(saldo)+' '+str(asiento_id)+' '+str(date_time)\
+          +' '+(cuenta)+' '+'$'+str(imp)+' '+str(comentario)+' '+str(email))
         log_file.close()

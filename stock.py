@@ -6,7 +6,7 @@ import simplejson as json
 
 import pandas as pd
 import mysql.connector
-from lib import pgdict, pgonecolumn, pglflat
+from lib import pgdict, pgonecolumn, pglflat, logcaja
 from con import get_con, log, engine, check_roles
 from formularios import listaprecios, imprimir_stock
 
@@ -63,6 +63,7 @@ def stock_deleteasiento(id_asiento):
     cur.execute(stm)
     con.commit()
     log(stm)
+    logcaja(id_asiento,'','','[asiento borrado]')
     cur.close()
     con.close()
     return 'OK'
@@ -97,7 +98,9 @@ def stock_guardarasiento():
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
+    asiento_num = pgonecolumn(con, "select LAST_INSERT_ID()")
     log(ins)
+    logcaja(asiento_num,d_dato['cuenta'],importe,d_dato['comentario'])
     cur.close()
     con.close()
     return 'OK'
@@ -116,6 +119,7 @@ def stock_editarasiento():
     cur = con.cursor()
     cur.execute(upd)
     log(upd)
+    logcaja(d_data['id'],d_data['cuenta'],d_data['imp'],d_data['comentario']+' [asiento editado]')
     con.commit()
     con.close()
     return 'ok'
