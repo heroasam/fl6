@@ -406,10 +406,24 @@ def vendedor_envioclientenuevo():
             deuda_en_la_casa = 0
         ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, art,\
         horarios, comentarios, cuota_maxima,deuda_en_la_casa,sin_extension,\
-        monto_garantizado,vendedor) values (curdate(), '{current_user.email}',\
-        {d['id']},curdate(),'','',\
-        'cliente enviado por vendedor', {cuota_maxima}, '{deuda_en_la_casa}',{sin_extension},\
-        {monto_garantizado},{vdor})"
+        monto_garantizado,vendedor,dnigarante) values (curdate(), \
+        '{current_user.email}',{d['id']},curdate(),'','',\
+        'cliente enviado por vendedor', {cuota_maxima}, '{deuda_en_la_casa}',\
+        {sin_extension}, {monto_garantizado},{vdor},{d['dnigarante']})"
+        # Testeo si hay cambios en los datos del cliente que envia el vendedor
+        upd = None
+        inslog = None
+        if cliente['calle']!=d['calle'] or cliente['num']!=d['num'] or \
+           cliente['barrio']!=d['barrio'] or cliente['wapp']!=d['wapp'] \
+               or cliente['tel']!=d['tel']:
+            upd = f"update clientes set calle='{d['calle']}', num={d['num']},\
+            barrio='{d['barrio']}',wapp='{d['wapp']}',tel='{d['tel']}' \
+            where id={d['id']}"
+            inslog = f"insert into logcambiodireccion(idcliente,calle,\
+            num,barrio,tel,acla,fecha,nombre,dni,wapp) values({cliente['id']},\
+            '{cliente['calle']}','{cliente['num']}','{cliente['barrio']}',\
+            '{cliente['tel']}','{cliente['acla']}',curdate(),\
+            '{cliente['nombre']}','{cliente['dni']}','{cliente['wapp']}')"
         cur = con.cursor()
         try:
             cur.execute(ins)
@@ -419,6 +433,10 @@ def vendedor_envioclientenuevo():
             {vdor},{iddato},{d['id']},{d['cuota_requerida']},\
             {cuota_maxima},'{d['arts']}')"
             cur.execute(insaut)
+            if upd:
+                cur.execute(upd)
+            if inslog:
+                cur.execute(inslog)
         except mysql.connector.Error as _error:
             con.rollback()
             error = _error.msg
@@ -428,6 +446,10 @@ def vendedor_envioclientenuevo():
             con.close()
             log(ins)
             log(insaut)
+            if upd:
+                log(upd)
+            if inslog:
+                log(inslog)
             return 'ok'
 
 
@@ -460,10 +482,10 @@ def vendedor_getlistadodatosvendedor():
         vdor = 835
     listadodatos = pgdict(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
-    zona, cuota_maxima,idcliente, sin_extension,idvta,resultado from datos,\
-    clientes where clientes.id = datos.idcliente and vendedor={vdor} and \
-    (resultado is null or (resultado=1 and fecha=curdate())) and fecha_visitar <=curdate() order \
-    by id desc")
+    zona, cuota_maxima,idcliente, sin_extension,idvta,resultado,\
+    datos.dnigarante as dnigarante from datos, clientes where clientes.id = \
+    datos.idcliente and vendedor={vdor} and (resultado is null or (resultado=\
+    1 and fecha=curdate())) and fecha_visitar <=curdate() order by id desc")
     return jsonify(listadodatos=listadodatos)
 
 
@@ -474,8 +496,9 @@ def vendedor_getdato(iddato):
     con = get_con()
     dato = pgdict1(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
-    zona, cuota_maxima,idcliente, sin_extension from datos, clientes where \
-    clientes.id = datos.idcliente and datos.id={iddato}")
+    zona, cuota_maxima,idcliente, sin_extension, datos.dnigarante as \
+    dnigarante from datos, clientes where clientes.id = datos.idcliente \
+    and datos.id={iddato}")
     return jsonify(dato=dato)
 
 
@@ -759,13 +782,17 @@ def vendedor_pasarventa():
     cc = 6
     ic = d['cuota']
     p = 1
-    gar = pgdict1(con, f"select garantizado,dnigarante from clientes where \
-    id={d['idcliente']}")
-    garantizado = gar['garantizado']
-    dnigarante = gar['dnigarante']
+    # gar = pgdict1(con, f"select garantizado,dnigarante from clientes where \
+    # id={d['idcliente']}")
+    # garantizado = gar['garantizado']
+    # dnigarante = gar['dnigarante']
+    if d['dnigarante']:
+        garantizado = 1
+    else:
+        garantizado = 0
     insvta = f"insert into ventas(fecha,idvdor,ant,cc,ic,p,primera,idcliente,\
     garantizado,dnigarante) values(curdate(),{vdor},{ant},{cc},{ic},{p},\
-    '{d['primera']}',{d['idcliente']},{garantizado},{dnigarante})"
+    '{d['primera']}',{d['idcliente']},{garantizado},{d['dnigarante']})"
     insvis = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
     values(curdate(),curtime(),{vdor},{d['id']},1,{ic*cc})"
     cur = con.cursor()

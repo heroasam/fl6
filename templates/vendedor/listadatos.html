@@ -87,7 +87,12 @@
         <label for="iddni" class="label">Ingrese DNI del cliente</label>
         <input type="text" class="input mb-3" x-model="Venta.dni" id="iddni" autocomplete="off"
                :class="darkTheme?'input-dark':''" @blur="validarDni(Venta.dni)">
+        <label for="iddnigarante" class="label">DNI del garante</label>
         <span class="tag is-small is-danger" x-show="!dnivalidado && Venta.dni">DNI no coincide con el cliente</span>
+        <input type="text" class="input mb-3" x-model="Venta.dnigarante" id="iddnigarante" autocomplete="off"
+               :class="darkTheme?'input-dark':''" @blur="buscaGarante(Venta.dnigarante)">
+        <span class="tag is-small" x-text="nombregarante" x-show="nombregarante"></span>
+        <span class="tag is-small" x-text="direcciongarante" x-show="direcciongarante"></span>
         <label for="idcnt" class="label">Cantidad</label>
         <input type="text" class="input mb-3" x-model="Venta.cnt" id="idcnt" autocomplete="off"
                :class="darkTheme?'input-dark':''">
@@ -201,6 +206,8 @@
          dnivalidado:false,
          sumaCuota:'',
          verNotificacionAutorizacion:false,
+         nombregarante:'',
+         direcciongarante:'',
          getListadoDatosVendedor(){
              axios.get('/vendedor/getlistadodatosvendedor')
                   .then(res=>{
@@ -302,7 +309,8 @@
                       this.Dato.fecha=dayjs.utc(this.Dato.fecha).format('YYYY-MM-DD')
                       this.Dato.fecha_visitar=dayjs.utc(this.Dato.fecha_visitar).format('YYYY-MM-DD')
                       this.listaArtComprados = []
-                      this.Venta = {cnt:'', art:'',primera:dayjs.utc().format('YYYY-MM-DD')}
+                      this.Venta = {cnt:'', art:'',primera:dayjs.utc().format('YYYY-MM-DD'),dnigarante:this.Dato.dnigarante}
+                      console.log( this.Venta, this.Dato.dnigarante)
                       this.sumaCuota = ''
                       this.verNotificacionAutorizacion = false
                       toggleModal("modal-pasar-venta")
@@ -452,6 +460,16 @@ Quedo a la espera. Gracias.`
                 re = /[0-9]*/
                 tel = re.exec(tel)[0]
                 window.location.href = 'tel:' + tel;
+         },
+         buscaGarante(dni){
+                if(this.Venta.dnigarante!=''){
+                 axios.get('/ventas/obtenerdatosgarante/'+this.Venta.dnigarante)
+                      .then(res=>{
+                          this.nombregarante = res.data.garante[0].nombre
+                          this.direcciongarante = res.data.garante[0].direccion
+                      })
+                      .catch(error=>msgError('El DNI no existe'))
+                }
          },
 
      }
