@@ -371,6 +371,70 @@ def vendedor_agregarcliente():
     return render_template('/vendedor/agregarcliente.html')
 
 
+@vendedor.route('/vendedor/envioclientenuevo', methods=['POST'])
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_envioclientenuevo():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    if current_user.email == var_sistema['816']:
+        vdor = 816
+    elif current_user.email == var_sistema['835']:
+        vdor = 835
+    dni = d['dni']
+    cliente = pgdict1(con, f"select * from clientes where dni={dni}")
+    if cliente: # o sea esta en la base de Romitex
+        sin_extension = calculo_sin_extension(d['id'])
+        cuota_maxima = calculo_cuota_maxima(d['id'])
+        cuota_basica = var_sistema['cuota_basica']
+        if cuota_maxima==0 or cuota_maxima<float(cuota_basica):
+            cuota_maxima = cuota_basica
+        direccion_cliente = pgonecolumn(con, f"select concat(calle,num) from \
+        clientes where id={d['id']}")
+        deuda_en_la_casa = pgonecolumn(con, f"select sum(deuda) from clientes \
+        where concat(calle,num)='{direccion_cliente}' and id!={d['id']}")
+        es_garante = pgonecolumn(con, f"select esgarante from clientes where id=\
+        {d['id']}")
+        if es_garante:
+            dni = pgonecolumn(con, f"select dni from clientes where id=\
+            {d['id']}")
+            monto_garantizado = pgonecolumn(con, f"select sum(saldo) from ventas \
+            where garantizado=1 and dnigarante={dni}")
+        else:
+            monto_garantizado = 0
+        if deuda_en_la_casa is None:
+            deuda_en_la_casa = 0
+        ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, art,\
+        horarios, comentarios, cuota_maxima,deuda_en_la_casa,sin_extension,\
+        monto_garantizado,vendedor) values (curdate(), '{current_user.email}',\
+        {d['id']},curdate(),'','',\
+        'cliente enviado por vendedor', {cuota_maxima}, '{deuda_en_la_casa}',{sin_extension},\
+        {monto_garantizado},{vdor})"
+        cur = con.cursor()
+        try:
+            cur.execute(ins)
+            iddato = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
+            insaut = f"insert into autorizacion(fecha,vdor,iddato,idcliente,\
+            cuota_requerida,cuota_maxima,arts) values(current_timestamp(),\
+            {vdor},{iddato},{d['id']},{d['cuota_requerida']},\
+            {cuota_maxima},'{d['arts']}')"
+            cur.execute(insaut)
+        except mysql.connector.Error as _error:
+            con.rollback()
+            error = _error.msg
+            return make_response(error, 400)
+        else:
+            con.commit()
+            con.close()
+            log(ins)
+            log(insaut)
+            return 'ok'
+
+
+
+
+
+
 @vendedor.route('/vendedor/visitas')
 @login_required
 @check_roles(['dev', 'gerente'])
