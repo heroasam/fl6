@@ -19,7 +19,7 @@ def ventas_pasarventas():
 
 @ventas.route('/ventas/getcalles')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev','gerente','admin','vendedor'])
 def ventas_getcalles():
     con = get_con()
     calles = pglflat(con, f"select calle from calles order by calle")
@@ -29,7 +29,7 @@ def ventas_getcalles():
 
 @ventas.route('/ventas/getbarrios')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev','gerente','admin','vendedor'])
 def ventas_getbarrios():
     con = get_con()
     barrios = pglflat(con, f"select barrio from barrios order by barrio")
@@ -956,7 +956,7 @@ def ventas_cambiarzona(zona):
 
 @ventas.route('/ventas/obtenerdatosgarante/<dni>')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev','gerente','admin','vendedor'])
 def ventas_obtenerdatosgarante(dni):
     con = get_con()
     garante = pgdict(con, f"select nombre, concat(calle, ' ', num) as direccion from clientes where dni={dni}")

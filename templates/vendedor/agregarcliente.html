@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Cliente Nuevo{% endblock %}
+{% block style %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container" x-data="main()" x-init="obtenerCalles();obtenerBarrios()">
+
+  <p class="title is-1">Cliente Nuevo</p>
+
+
+        <input type="number" x-model="cliente.dni" placeholder="DNI" size="6" class="input" required
+	           pattern="^(\d){7,8}$" :class="darkTheme?'input-dark':''" @blur="buscarDni(cliente.dni)">
+
+
+        <input type="text" x-model="cliente.nombre" placeholder="Nombre" size="60" class="input"
+               required :class="darkTheme?'input-dark':''">
+
+
+        <input type="text" x-model="cliente.tel" placeholder="Telefono" size="20" class="input"
+               :class="darkTheme?'input-dark':''">
+
+
+        <input type="text" x-model="cliente.wapp" placeholder="WhatApp" size="20" class="input"
+	           pattern="(\d){10}$" :class="darkTheme?'input-dark':''">
+
+        <input type="text" list="listacalles" class="input mb-1" x-model="cliente.calle" required placeholder="Calle"
+               :class="darkTheme?'input-dark':''"/>
+        <datalist id="listacalles">
+          <template x-for="item in calles">
+            <option :value="item"></option>
+          </template>
+        </datalist>
+
+        <input type="text" x-model="cliente.num" placeholder="Num" size="10" class="input" required
+               pattern="(\d){2,4}$" :class="darkTheme?'input-dark':''">
+
+          <input type="text" list="listabarrios" class="input mb-1" x-model="cliente.barrio" required
+                 placeholder="Barrio" :class="darkTheme?'input-dark':''"/>
+          <datalist id="listabarrios">
+            <template x-for="item in barrios">
+              <option :value="item"></option>
+            </template>
+          </datalist>
+          <input type="number" x-model="cliente.dnigarante" placeholder="DNI Garante" size="6" class="input"
+	             pattern="^(\d){7,8}$" :class="darkTheme?'input-dark':''" @blur="buscaGarante(cliente.dnigarante)">
+          <span class="tag is-small is-black"  x-show="cliente.dnigarante && !nombregarante"
+                @click="buscaGarante(cliente.dnigarante)">Verif.</span>
+          <span class="tag is-small" x-text="nombregarante" x-show="nombregarante"></span>
+          <span class="tag is-small" x-text="direcciongarante" x-show="direcciongarante"></span>
+
+
+  </div>
+  {% endblock %}
+
+  {% block script %}
+  <script>
+   function main(){
+       return{
+           cliente:{},
+           calles:[],
+           barrios:[],
+           nombregarante:'',
+           direcciongarante:'',
+           obtenerCalles(){
+	         axios.get('/ventas/getcalles')
+		          .then(res=>{this.calles=res.data.result})
+         },
+         obtenerBarrios(){
+	         axios.get('/ventas/getbarrios')
+		          .then(res=>{this.barrios=res.data.result})
+         },
+           buscarDni(dni){
+               axios.get('/buscador/'+dni)
+                    .then(res=>{
+                        this.cliente = res.data.clientes[0]
+                        msgSuccess('Cliente existente')
+               })
+           },
+           buscaGarante(dni){
+                if(this.cliente.dnigarante!=''){
+                 axios.get('/ventas/obtenerdatosgarante/'+this.cliente.dnigarante)
+                      .then(res=>{
+                          this.nombregarante = res.data.garante[0].nombre
+                          this.direcciongarante = res.data.garante[0].direccion
+                      })
+                      .catch(error=>msgError('El DNI no existe'))
+                }
+           },
+
+
+       }
+   }
+  </script>
+  {% endblock %}

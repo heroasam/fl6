@@ -364,6 +364,13 @@ def vendedor_listadatos():
     return render_template('/vendedor/listadatos.html')
 
 
+@vendedor.route('/vendedor/agregarcliente')
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_agregarcliente():
+    return render_template('/vendedor/agregarcliente.html')
+
+
 @vendedor.route('/vendedor/visitas')
 @login_required
 @check_roles(['dev', 'gerente'])
