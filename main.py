@@ -88,18 +88,22 @@ def login():
         errorpassword = "Ha ingresado una contraseña incorrecta"
         errorauth = "Ese email no esta autorizado a ingresar"
         if not logs:
+            log_login(email,'error-email')
             return render_template('login_form.html', errormail=errormail)
         user = User(logs['id'], logs['name'],
                     logs['email'], logs['password'],logs['roles'],logs['auth'])
         if not user.check_password(password):
+            log_login(user.email, 'error-password')
             return render_template('login_form.html', errorpassword=errorpassword)
         if not user.auth:
+            log_login(user.email, 'error-auth')
             return render_template('login_form.html', errorauth=errorauth)
         if user is not None and user.check_password(password) and user.auth:
             login_user(user, remember=False)
             session['roles'] = user.roles
             session['user'] = user.email
             log(sel)
+            log_login(user.email,'login')
             next_page = request.args.get('next')
             if not next_page or url_parse(next_page).netloc != '':
                 if session['roles']=='vendedor':
@@ -113,6 +117,7 @@ def login():
 @app.route('/logout')
 def logout():
     logout_user()
+    log_login(session['user'],'logout')
     session['user'] = ''
     return redirect(url_for('login'))
 
