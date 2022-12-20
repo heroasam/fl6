@@ -8,7 +8,7 @@
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getClientesIngresadosPorVdor()">
+<div class="container" x-data="main()" x-init="getClientesIngresadosPorVdor();obtenerCalles();obtenerBarrios();obtenerZonas()">
 
   <p class="title is-1">Revision Clientes Ingresados por Vendedor</p>
 
@@ -51,6 +51,9 @@
       <section class="modal-card-body">
         <!-- Content ... -->
         <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+        <label for="idsexo">SEXO</label>
+        <input type="text" class="input mb-1" x-model="Cliente.sex" id="idsexo"
+               :class="darkTheme?'input-dark':''" required>
         <label for="iddni">DNI</label>
         <input type="text" class="input mb-1" x-model="Cliente.dni" id="iddni"
                :class="darkTheme?'input-dark':''" required>
@@ -120,6 +123,9 @@
  function main(){
      return{
          listaClientes:[],
+         calles:[],
+         barrios:[],
+         zonas:[],
          Cliente:{},
          getClientesIngresadosPorVdor(){
              axios.get('/vendedor/getclientesingresadosporvdor')
@@ -141,6 +147,24 @@
 								                                 .catch(error=>{
 								                                     msgError('Error',error.request.response)
 								                                 })
+         },
+         obtenerCalles(){
+             axios.get('/buscador/obtenerlistacalles')
+                  .then(res=>{
+                      this.calles = res.data.result
+                  })
+         },
+         obtenerBarrios(){
+             axios.get('/buscador/obtenerlistabarrios')
+                  .then(res=>{
+                      this.barrios = res.data.result
+                  })
+         },
+         obtenerZonas(){
+             axios.get('/buscador/obtenerlistazonas')
+                  .then(res=>{
+                      this.zonas = res.data.result
+                  })
          },
 
  }}
