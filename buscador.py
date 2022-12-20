@@ -32,6 +32,14 @@ def buscador_clientenuevo():
     return render_template("buscador/clientenuevo.html")
 
 
+@buscador.route('/buscador/clientenuevovdor')
+@login_required
+@check_roles(['dev','gerente'])
+def buscador_clientenuevovdor():
+    """Pantalla ver los clientes ingresados por los vendedores."""
+    return render_template("buscador/clientenuevovdor.html")
+
+
 @buscador.route('/buscador/verdatos')
 @login_required
 @check_roles(['dev','gerente','admin'])

@@ -417,8 +417,8 @@ def vendedor_envioclientenuevo():
            cliente['barrio']!=d['barrio'] or cliente['wapp']!=d['wapp'] \
                or cliente['tel']!=d['tel']:
             upd = f"update clientes set calle='{d['calle']}', num={d['num']},\
-            barrio='{d['barrio']}',wapp='{d['wapp']}',tel='{d['tel']}' \
-            where id={d['id']}"
+            barrio='{d['barrio']}',wapp='{d['wapp']}',tel='{d['tel']}', \
+            modif_vdor=1 where id={d['id']}"
             inslog = f"insert into logcambiodireccion(idcliente,calle,\
             num,barrio,tel,acla,fecha,nombre,dni,wapp) values({cliente['id']},\
             '{cliente['calle']}','{cliente['num']}','{cliente['barrio']}',\
@@ -889,3 +889,12 @@ def vendedor_getvisitasvdor():
     group by visitas.fecha,visitas.vdor order by visitas.fecha,visitas.vdor \
     desc")
     return jsonify(visitasvendedor=visitasvendedor, fechasvisitas=fechasvisitas)
+
+
+@vendedor.route('/vendedor/getclientesingresadosporvdor')
+@login_required
+@check_roles(['dev','gerente'])
+def vendedor_getclientesingresadosporvdor():
+    con = get_con()
+    clientes = pgdict(con, "select * from clientes where modif_vdor=1")
+    return jsonify(clientes=clientes)
