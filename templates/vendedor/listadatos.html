@@ -85,14 +85,14 @@
         <span class="tag is-small is-info" x-text="'Cuota Maxima $'+Dato.cuota_maxima"></span>
         <span class="tag is-small is-danger" x-show="Dato.sin_extension">Venta Basica</span>
         <label for="iddni" class="label">Ingrese DNI del cliente</label>
+        <span class="tag is-small is-danger" x-show="!dnivalidado && Venta.dni">DNI no coincide con el cliente</span>
         <input type="text" class="input mb-3" x-model="Venta.dni" id="iddni" autocomplete="off"
                :class="darkTheme?'input-dark':''" @blur="validarDni(Venta.dni)">
         <label for="iddnigarante" class="label">DNI del garante</label>
-        <span class="tag is-small is-danger" x-show="!dnivalidado && Venta.dni">DNI no coincide con el cliente</span>
+        <span class="tag is-small is-danger" x-show="!dnigarantevalidado && Venta.dnigarante">DNI garante no valido</span>
         <input type="text" class="input mb-3" x-model="Venta.dnigarante" id="iddnigarante" autocomplete="off"
                :class="darkTheme?'input-dark':''" @blur="buscaGarante(Venta.dnigarante)">
         <span class="tag is-small" x-text="nombregarante" x-show="nombregarante"></span>
-        <span class="tag is-small" x-text="direcciongarante" x-show="direcciongarante"></span>
         <label for="idcnt" class="label">Cantidad</label>
         <input type="text" class="input mb-3" x-model="Venta.cnt" id="idcnt" autocomplete="off"
                :class="darkTheme?'input-dark':''">
@@ -204,6 +204,7 @@
          verCard:false,
          Venta:{cnt:'', art:''},
          dnivalidado:false,
+         dnigarantevalidado:false,
          sumaCuota:'',
          verNotificacionAutorizacion:false,
          nombregarante:'',
@@ -462,13 +463,18 @@ Quedo a la espera. Gracias.`
                 window.location.href = 'tel:' + tel;
          },
          buscaGarante(dni){
-                if(this.Venta.dnigarante!=''){
+                if(this.Venta.dnigarante!=0 && this.Venta.dnigarante!=''){
                  axios.get('/ventas/obtenerdatosgarante/'+this.Venta.dnigarante)
                       .then(res=>{
                           this.nombregarante = res.data.garante[0].nombre
-                          this.direcciongarante = res.data.garante[0].direccion
+                          this.dnigarantevalidado = true
                       })
-                      .catch(error=>msgError('El DNI no existe'))
+                      .catch(error=>{
+                          msgError('El DNI no existe')
+                          this.dnigarantevalidado = false
+                      })
+                }else{
+                    this.nombregarante = ''
                 }
          },
 

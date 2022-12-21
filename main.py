@@ -38,6 +38,27 @@ app.register_blueprint(utilidades)
 app.register_blueprint(conta)
 app.register_blueprint(vendedor)
 
+def verifica_login(email):
+    con = get_con()
+    ins = f"insert into falsologin(email,time) values('{email}',{int(time.time())})"
+    cur = con.cursor()
+    try:
+        cur.execute(ins)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        log(ins)
+        cnt = pgonecolumn(con, f"select count(*) from falsologin where email=\
+        '{email}' and time>{int(time.time())-3600}")
+        if cnt>4:
+            upd = f"update users set auth=0 where email='{email}'"
+            cur.execute(upd)
+            con.commit()
+            log(upd)
+        con.close()
 
 class User(UserMixin):
     def __init__(self, id, name, email, password,roles, auth=0):
@@ -94,6 +115,7 @@ def login():
                     logs['email'], logs['password'],logs['roles'],logs['auth'])
         if not user.check_password(password):
             log_login(user.email, 'error-password')
+            verifica_login(user.email)
             return render_template('login_form.html', errorpassword=errorpassword)
         if not user.auth:
             log_login(user.email, 'error-auth')

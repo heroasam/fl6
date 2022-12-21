@@ -772,3 +772,23 @@ def buscador_pedirlistagarantizados(id):
     dni = pgonecolumn(con, f"select dni from clientes where id={id}")
     listagarantizados = pgdict(con, f"select * from clientes where dnigarante={dni} and garantizado=1")
     return jsonify(listagarantizados=listagarantizados)
+
+
+@buscador.route('/buscador/toggleeditado/<int:id>')
+@login_required
+@check_roles(['dev','gerente','vendedor'])
+def buscador_toggleeditado(id):
+    con = get_con()
+    upd = f"update clientes set modif_vdor=0 where id={id}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as _error:
+       con.rollback()
+       error = _error.msg
+       return make_response(error,400)
+    else:
+        log(upd)
+        con.commit()
+        con.close()
+        return 'ok'

@@ -41,10 +41,11 @@
         <th></th>
         <th></th>
         <th>direccion</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
-      <template x-for="dato in listadoAutorizados">
+      <template x-for="dato in listadoAutorizados_">
         <tr>
           <td><a :href="'/buscador/interno/'+dato.dni">Ver</a></td>
           <td><i class="fa fa-pencil" aria-hidden="true" @click="editarDato(dato.id)"></td>
@@ -71,6 +72,8 @@
             <span class="tag is-small is-danger" x-show="dato.incobrable">INC</span>
             <span class="tag is-small is-success" x-show="dato.sev">SEVEN</span>
             <span class="tag is-small is-success" x-show="dato.baja">ex-SEVEN</span></td>
+            <td><span class="tag is-small is-danger" x-show="dato.cnt>1" @click="mostrarAutorizados(dato.idcliente)"
+                >Mostrar otras autorizaciones</span></td>
         </tr>
       </template>
     </tbody>
@@ -161,6 +164,8 @@
  function main(){
      return{
          listadoAutorizados:[],
+         listadoAutorizados_:[],
+         listadoAutorizadosporid:[],
          Datos:{},
          cuota_basica:'',
          cntSeleccionados:'',
@@ -174,7 +179,22 @@
                       this.listadoAutorizados.map(row=>row.fecha_visitar=dayjs.utc(row.fecha_visitar).format('YYYY-MM-DD'))
                       this.listadoAutorizados.map(row=>row.fechahora=dayjs.utc(row.fechahora).format('HH:mm'))
                       this.cuota_basica = res.data.cuotabasica
+                      this.listadoAutorizados_ = this.listadoAutorizados
                   })
+         },
+         mostrarAutorizados(idcliente){
+             if(this.listadoAutorizadosporid.length==0){
+             axios.get('/vendedor/getlistadoautorizadosporid/'+idcliente)
+             .then(res=>{
+                 this.listadoAutorizadosporid = res.data.listadoautorizadosporid
+                 this.listadoAutorizadosporid.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                 this.listadoAutorizadosporid.map(row=>row.fecha_visitar=dayjs.utc(row.fecha_visitar).format('YYYY-MM-DD'))
+                 this.listadoAutorizadosporid.map(row=>row.fechahora=dayjs.utc(row.fechahora).format('HH:mm'))
+                 this.listadoAutorizados_ = this.listadoAutorizadosporid
+             })}else{
+                 this.listadoAutorizadosporid = []
+                 this.listadoAutorizados_ = this.listadoAutorizados
+             }
          },
          editarDato(id){
              this.Datos = this.listadoAutorizados.filter(row=>row.id==id)[0]

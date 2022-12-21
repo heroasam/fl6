@@ -33,6 +33,13 @@ def utilidades_pdfimpresos():
     return render_template('/utilidades/pdfsistema.html')
 
 
+@utilidades.route('/utilidades/users')
+@login_required
+@check_roles(['dev'])
+def utilidades_users():
+    return render_template('/utilidades/users.html')
+
+
 @utilidades.route('/utilidades/getplanos')
 @login_required
 @check_roles(['dev','gerente','admin'])
@@ -167,3 +174,54 @@ def update_dni_garantes():
         cur.execute(upd)
     con.commit()
     con.close()
+
+
+@utilidades.route('/utilidades/getusers')
+@login_required
+@check_roles(['dev'])
+def utilidades_getusers():
+    con = get_con()
+    users = pgdict(con, "select id,email,name,roles,auth from users")
+    return jsonify(users=users)
+
+
+@utilidades.route('/utilidades/editaruser', methods=['POST'])
+@login_required
+@check_roles(['dev'])
+def utilidades_editaruser():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    upd = f"update users set roles='{d['roles']}',auth={d['auth']} where id=\
+    {d['id']}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        con.close()
+        log(upd)
+        return 'ok'
+
+
+@utilidades.route('/utilidades/borraruser/<int:id>')
+@login_required
+@check_roles(['dev'])
+def utilidades_borraruser(id):
+    con = get_con()
+    stm = f"delete from users where id={id}"
+    cur = con.cursor()
+    try:
+        cur.execute(stm)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        con.close()
+        log(stm)
+        return 'ok'

@@ -1,7 +1,7 @@
 from flask_login import login_required, current_user
 import mysql.connector
 from flask import Blueprint, render_template, jsonify, make_response, request,\
-    send_file
+    send_file, redirect, url_for
 import simplejson as json
 from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
     pglflat, log_busqueda, listsql, pgdict1
@@ -406,34 +406,46 @@ def vendedor_envioclientenuevo():
             monto_garantizado = 0
         if deuda_en_la_casa is None:
             deuda_en_la_casa = 0
-        ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, art,\
-        horarios, comentarios, cuota_maxima,deuda_en_la_casa,sin_extension,\
-        monto_garantizado,vendedor,dnigarante) values (curdate(), \
-        '{current_user.email}',{d['id']},curdate(),'','',\
-        'cliente enviado por vendedor', {cuota_maxima}, '{deuda_en_la_casa}',\
-        {sin_extension}, {monto_garantizado},{vdor},{d['dnigarante']})"
+        iddato = pgonecolumn(con, f"select id from datos where idcliente =\
+        {d['id']} and resultado is null")
+        if iddato: # o sea hay ya un dato sin definir de ese cliente
+            ins = None
+        else:
+            ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, \
+            art,horarios, comentarios, cuota_maxima,deuda_en_la_casa,\
+            sin_extension,monto_garantizado,vendedor,dnigarante) values \
+            (curdate(),'{current_user.email}',{d['id']},curdate(),'','',\
+            'cliente enviado por vendedor', {cuota_maxima}, \
+            '{deuda_en_la_casa}', {sin_extension}, {monto_garantizado},\
+            {vdor},{d['dnigarante']})"
         # Testeo si hay cambios en los datos del cliente que envia el vendedor
         upd = None
         inslog = None
         if cliente['calle']!=d['calle'] or cliente['num']!=d['num'] or \
            cliente['barrio']!=d['barrio'] or cliente['wapp']!=d['wapp'] \
-               or cliente['tel']!=d['tel']:
+               or cliente['tel']!=d['tel'] or cliente['acla']!=d['acla']:
             upd = f"update clientes set calle='{d['calle']}', num={d['num']},\
             barrio='{d['barrio']}',wapp='{d['wapp']}',tel='{d['tel']}', \
-            modif_vdor=1 where id={d['id']}"
+            modif_vdor=1,acla='{d['acla']}' where id={d['id']}"
             inslog = f"insert into logcambiodireccion(idcliente,calle,\
             num,barrio,tel,acla,fecha,nombre,dni,wapp) values({cliente['id']},\
             '{cliente['calle']}','{cliente['num']}','{cliente['barrio']}',\
             '{cliente['tel']}','{cliente['acla']}',curdate(),\
             '{cliente['nombre']}','{cliente['dni']}','{cliente['wapp']}')"
         try:
-            cur.execute(ins)
-            iddato = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
-            insaut = f"insert into autorizacion(fecha,vdor,iddato,idcliente,\
-            cuota_requerida,cuota_maxima,arts) values(current_timestamp(),\
-            {vdor},{iddato},{d['id']},{d['cuota_requerida']},\
-            {cuota_maxima},'{d['arts']}')"
-            cur.execute(insaut)
+            if ins:
+                cur.execute(ins)
+                iddato = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
+                insaut = f"insert into autorizacion(fecha,vdor,iddato,idcliente,\
+                cuota_requerida,cuota_maxima,arts) values(current_timestamp(),\
+                {vdor},{iddato},{d['id']},{d['cuota_requerida']},\
+                {cuota_maxima},'{d['arts']}')"
+                cur.execute(insaut)
+            else: # dato repetido update autorizacion en cuota_requerida y arts
+                updaut = f"update autorizacion set cuota_requerida=\
+                {d['cuota_requerida']},arts='{d['arts']}' where iddato={iddato}"
+                cur.execute(updaut)
+
             if upd:
                 cur.execute(upd)
             if inslog:
@@ -446,7 +458,8 @@ def vendedor_envioclientenuevo():
             con.commit()
             con.close()
             log(ins)
-            log(insaut)
+            if ins:
+                log(insaut)
             if upd:
                 log(upd)
             if inslog:
@@ -463,9 +476,9 @@ def vendedor_envioclientenuevo():
         if deuda_en_la_casa is None:
             deuda_en_la_casa = 0
         inscliente = f"insert into clientes(sex,dni, nombre,calle,num,barrio,\
-        tel,wapp,zona,modif_vdor) values('F',{d['dni']},'{d['nombre']}',\
-        '{d['calle']}',{d['num']},'{d['barrio']}','{d['tel']}','{d['wapp']}',\
-        '-CAMBIAR',1)"
+        tel,wapp,zona,modif_vdor,acla,horario,mjecobr,infoseven) values('F',\
+        {d['dni']},'{d['nombre']}','{d['calle']}',{d['num']},'{d['barrio']}',\
+        '{d['tel']}','{d['wapp']}','-CAMBIAR',1,'{d['acla']}','','','')"
 
         try:
             cur.execute(inscliente)
@@ -492,7 +505,7 @@ def vendedor_envioclientenuevo():
             con.close()
             log(ins)
             log(insaut)
-            return 'ok'
+            return redirect(url_for('vendedor_listadatos'))
 
 
 @vendedor.route('/vendedor/visitas')
@@ -674,14 +687,19 @@ def vendedor_falleciodato(iddato):
     elif current_user.email == var_sistema['835']:
         vdor = 835
     con = get_con()
+    idcliente = pgonecolumn(con, f"select idcliente from datos where id=\
+    {iddato}")
     upd = f"update datos set resultado=6, fecha_definido=current_timestamp()\
     where id = {iddato}"
     ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
     values(curdate(),curtime(),{vdor},{iddato},6,0)"
+    updcli = f"update clientes set zona='-FALLECIDOS', modif_vdor=1 where id=\
+    {idcliente}"
     cur = con.cursor()
     try:
         cur.execute(upd)
         cur.execute(ins)
+        cur.execute(updcli)
     except mysql.connector.Error as _error:
        con.rollback()
        error = _error.msg
@@ -690,6 +708,7 @@ def vendedor_falleciodato(iddato):
        con.commit()
        con.close()
        log(upd)
+       log(updcli)
        return 'ok'
 
 
@@ -745,13 +764,32 @@ def vendedor_getlistadoautorizados():
     clientes.novendermas as novendermas, clientes.incobrable as incobrable,\
     clientes.sev as sev, clientes.baja as baja, autorizacion.fecha as \
     fechahora, autorizacion.cuota_requerida as cuota_requerida, \
-    autorizacion.arts as arts,horarios,comentarios from datos,autorizacion,\
-    clientes  where datos.idcliente=clientes.id and autorizacion.iddato=\
-    datos.id and autorizacion.autorizado=0 and resultado is null and \
-    rechazado=0")
+    autorizacion.arts as arts,horarios,comentarios,(select count(*) from \
+    autorizacion where autorizacion.idcliente=clientes.id) as cnt, \
+    autorizacion.idcliente from datos, autorizacion,clientes  where \
+    datos.idcliente=clientes.id and autorizacion.iddato=datos.id and \
+    autorizacion.autorizado=0 and resultado is null and rechazado=0")
     cuotabasica = var_sistema['cuota_basica']
     return jsonify(listadoautorizados=listadoautorizados, cuotabasica=cuotabasica)
 
+
+@vendedor.route('/vendedor/getlistadoautorizadosporid/<int:idcliente>')
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_getlistadoautorizadosporid(idcliente):
+    con = get_con()
+    listadoautorizadosporid = pgdict(con, f"select datos.id as id,datos.fecha \
+    as fecha, datos.user as user, nombre, datos.resultado as resultado, \
+    datos.art as art, datos.cuota_maxima as cuota_maxima, datos.sin_extension \
+    as sin_extension, datos.deuda_en_la_casa as deuda_en_la_casa, \
+    clientes.novendermas as novendermas, clientes.incobrable as incobrable,\
+    clientes.sev as sev, clientes.baja as baja, autorizacion.fecha as \
+    fechahora, autorizacion.cuota_requerida as cuota_requerida, \
+    autorizacion.arts as arts,horarios,comentarios,(select count(*) from \
+    autorizacion where autorizacion.idcliente=clientes.id) as cnt from datos,\
+    autorizacion,clientes  where datos.idcliente=clientes.id and \
+    autorizacion.iddato=datos.id and autorizacion.idcliente={idcliente}")
+    return jsonify(listadoautorizadosporid=listadoautorizadosporid)
 
 @vendedor.route('/vendedor/autorizardato/<int:id>')
 @login_required
@@ -779,7 +817,6 @@ def vendedor_autorizardato(id):
        log(upd_dat)
        log(upd_aut)
        return 'ok'
-
 
 
 @vendedor.route('/vendedor/noautorizardato/<int:id>')

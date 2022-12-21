@@ -39,6 +39,9 @@
         <input type="text" x-model="cliente.num" placeholder="Num" size="10" class="input" required
                pattern="(\d){2,4}$" :class="darkTheme?'input-dark':''">
 
+        <input type="text" x-model="cliente.acla" placeholder="Aclaracion" size="60" class="input"
+               required :class="darkTheme?'input-dark':''">
+
           <input type="text" list="listabarrios" class="input mb-1" x-model="cliente.barrio" required
                  placeholder="Barrio" :class="darkTheme?'input-dark':''"/>
           <datalist id="listabarrios">
@@ -56,7 +59,7 @@
                  pattern="(\d){4,8}$" :class="darkTheme?'input-dark':''">
           <input type="text" x-model="cliente.arts" placeholder="Articulos que va a comprar" size="60" class="input"
                  required :class="darkTheme?'input-dark':''">
-          <button class="button is-info" @click="pedirAutorizacion(cliente.dni)">Pedir Autorizacion</button>
+          <button class="button is-info" @click="validarClienteNuevo()">Pedir Autorizacion</button>
           <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
 
 
@@ -67,7 +70,7 @@
   <script>
    function main(){
        return{
-           cliente:{tel:'',wapp:'',dnigarante:0},
+           cliente:{dni:'',nombre:'',calle:'',num:'',acla:'',barrio:'',tel:'',wapp:'',dnigarante:'',cuota_requerida:'',arts:''},
            calles:[],
            barrios:[],
            nombregarante:'',
@@ -97,7 +100,39 @@
                       .catch(error=>msgError('El DNI no existe'))
                 }
            },
-           pedirAutorizacion(dni){
+           validarClienteNuevo(){
+               console.log( this.cliente)
+               if(this.cliente.dni==''){
+                   msgError("Debe ingresar el DNI")
+                   return
+               }
+               if(this.cliente.nombre==''){
+                   msgError("Debe ingresar el Nombre")
+                   return
+               }
+               if(this.cliente.calle==''||!this.calles.includes(this.cliente.calle)){
+                   msgError("Verifique que ingreso una calle correcta")
+                   return
+               }
+               if(this.cliente.num==''){
+                   msgError("Debe ingresar el numero de la casa")
+                   return
+               }
+               if(this.cliente.barrio==''||!this.barrios.includes(this.cliente.barrio)){
+                   msgError("Verifique que ingreso un barrio correcto")
+                   return
+               }
+                if(this.cliente.cuota_requerida==''){
+                    msgError("Debe ingresar la cuota que va a vender")
+                    return
+                }
+                if(this.cliente.arts==''){
+                   msgError("Debe ingresar los articulos que va a vender")
+                   return
+                }
+               this.pedirAutorizacion()
+           },
+           pedirAutorizacion(){
                axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
                axios.post('/vendedor/envioclientenuevo',this.cliente)
                                                                    .then(res=>{
@@ -111,6 +146,8 @@ Quedo a la espera. Gracias.`
              let data = {msg,wapp,idcliente}
                                                                        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 	                                                                   axios.post('/buscador/wapp',data)
+                                                                       window.location = "/vendedor/listadatos"
+                                                                       msgSuccess('Datos enviados. Espere la respuesta.')
                                                                    })
            },
 
