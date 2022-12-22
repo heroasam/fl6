@@ -56,11 +56,13 @@
                       this.listaVentasHoy.map(row=>row.fecha_definido=dayjs.utc(row.fecha_definido).format("HH:mm:ss"))
                       let largo = this.listaVentasHoy.length
                       let ultimarow = this.listaVentasHoy[largo-1]
-                      let ultimotime = ultimarow.fecha_definido
-                      if (dayjs.utc().diff(ultimotime,'s')<200){
-                          var audio = new Audio("{{ url_for('static', filename='bell.mp3') }}");
-                          audio.play();
-                      }
+                      /* let ultimotime = datetime.datetime.strptime(ultimarow.fecha_definido,'%H:%M:%S')
+                       * let now = datetime.datetime.now()
+                       * let delta = now-ultimotime
+                       * if (delta.seconds<200){
+                       *     var audio = new Audio("{{ url_for('static', filename='bell.mp3') }}");
+                       *     audio.play();
+                       * } */
 
                   })
          },

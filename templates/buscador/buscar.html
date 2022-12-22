@@ -936,7 +936,9 @@
                       let arrayVentas=res.data.ventas
                       arrayVentas.map(row=>{
                           row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD')
-                          row.p=1?'MEN':3?'SEM':'QUI'
+                          if(row.p==1) row.p='MEN'
+                          if(row.p==2) row.p='QUI'
+                          if(row.p==3) row.p='SEM'
                           this.Vtos[row.id]=row.vto;
                       })
                       this.listaVentas = arrayVentas

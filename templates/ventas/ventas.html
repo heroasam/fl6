@@ -339,7 +339,7 @@
              if(this.venta.fecha==''){msgError('Complete datos faltantes:','Falta fecha');return}
              if(this.venta.idvdor==''){msgError('Complete datos faltantes:','Falta cod Vendedor');return}
              if(this.venta.cc==''){msgError('Complete datos faltantes:','Falta Cant de cuotas');return}
-             if(Number(this.venta.cc)>12){msgError('Corrija datos:','La cantidad de cuotas no puede ser mayor a 12');return}
+             if(Number(this.venta.cc)>24){msgError('Corrija datos:','La cantidad de cuotas no puede ser mayor a 12');return}
              if(this.venta.ic==''){msgError('Complete datos faltantes:','Falta Importe de cuota');return}
              if(!(this.venta.p=='mensual'||this.venta.p=='quincenal'||this.venta.p=='semanal')){msgError('Corrija datos:',
                                                                                                          'La periodicidad puede ser mensual,quincenal o semanal');return}
