@@ -973,3 +973,22 @@ def vendedor_getclientesingresadosporvdor():
     con = get_con()
     clientes = pgdict(con, "select * from clientes where modif_vdor=1")
     return jsonify(clientes=clientes)
+
+
+@vendedor.route('/vendedor/getventashoy')
+@login_required
+@check_roles(['dev','gerente'])
+def vendedor_getventashoy():
+    con = get_con()
+    ventashoy = pgdict(con, "select fecha_definido,\
+    nombre,concat(calle,num) as direccion, zona, monto_vendido, vendedor,dni \
+    from datos,clientes where datos.idcliente = clientes.id and \
+    date(fecha_definido)=curdate() and resultado=1")
+    return jsonify(ventashoy=ventashoy)
+
+
+@vendedor.route('/vendedor/ingresoventas')
+@login_required
+@check_roles(['dev','gerente'])
+def vendedor_ingresoventas():
+    return render_template("/vendedor/ingresoventas.html")

@@ -37,12 +37,14 @@
  const ths = tr[0].children
  ths[5].innerText = "Bancos"
  ths[6].innerText = "Efectivo"
+ ths[7].innerText = "Total"
  const tbody = table.querySelector('tbody')
  const arrayRows = Array.from(tbody.rows)
  arrayRows.forEach(row=>{
      if(row.rowIndex>3){
          row.cells[5].innerText=""
          row.cells[6].innerText=""
+         row.cells[7].innerText=""
      }
  })
  function main(){

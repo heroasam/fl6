@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Ventas{% endblock %}
+{% block style %}
+<style>
+  </style>
+  {% endblock %}
+
+{% block content %}
+
+  <div class="container" x-data="main()" x-init="getVentaHoy();setInterval(()=>{getVentaHoy()},60000)">
+
+    <p class="title is-1">Ventas ingresadas hoy</p>
+    <div class="columns">
+            <table class="table is-narrow" id="table">
+                <thead>
+                  <tr>
+                    <th></th>
+                        <th>hora</th>
+                        <th>resultado</th>
+                        <th>nombre</th>
+                        <th>direccion</th>
+                        <th>zona</th>
+                        <th>vendedor</th>
+                        <th class="sumar">vendido</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  <template x-for="item in listaVentasHoy">
+                    <tr>
+                      <td><a :href="'/buscador/interno/'+item.dni">Ver</a></td>
+                      <td x-text="item.fecha_definido"></td>
+                      <td><span class="tag is-small is-success">Vendido</span></td>
+                          <td x-text="item.nombre"></td>
+                          <td x-text="item.direccion"></td>
+                          <td x-text="item.zona"></td>
+                          <td x-text="item.vendedor"></td>
+                          <td x-text="item.monto_vendido" class="pesos"></td>
+                    </tr>
+                  </template>
+                 </tbody>
+            </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+ function main(){
+     return{
+         listaVentasHoy:[],
+         getVentaHoy(){
+             axios.get('/vendedor/getventashoy')
+                  .then(res=>{
+                      this.listaVentasHoy = res.data.ventashoy
+                      this.listaVentasHoy.map(row=>row.fecha_definido=dayjs.utc(row.fecha_definido).format("HH:mm:ss"))
+                      let largo = this.listaVentasHoy.length
+                      let ultimarow = this.listaVentasHoy[largo-1]
+                      let ultimotime = ultimarow.fecha_definido
+                      if (dayjs.utc().diff(ultimotime,'s')<200){
+                          var audio = new Audio("{{ url_for('static', filename='bell.mp3') }}");
+                          audio.play();
+                      }
+
+                  })
+         },
+     }
+ }
+  </script>
+  {% endblock %}

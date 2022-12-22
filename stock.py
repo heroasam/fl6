@@ -197,6 +197,8 @@ def stock_retiros():
     diff2 = col2.sub(col3,axis=0,fill_value=0)
     tbl.insert(4,'diff1', diff1)
     tbl.insert(5,'diff2', diff2)
+    diff3 = diff1.add(diff2,axis=0,fill_value=0)
+    tbl.insert(6,'diff3', diff3)
     totfede = tbl.iloc[:,0].add(tbl.iloc[:,2],axis=0,fill_value=0).tolist()
     totpapi = tbl.iloc[:,1].add(tbl.iloc[:,3],axis=0,fill_value=0).tolist()
     index = tbl.index.tolist()

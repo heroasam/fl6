@@ -59,8 +59,10 @@
           <td x-text="dato.art"></td>
           <td x-text="dato.cuota_maxima"></td>
           <td x-text="dato.cuota_requerida"></td>
-          <td><span class="tag is-small is-success" @click="autorizarDato(dato.id)">Autorizar</span></td>
-          <td><span class="tag is-small is-danger" @click="noAutorizarDato(dato.id)">Rechazar</span></td>
+          <td><span class="tag is-small is-success" @click="autorizarDato(dato.id)"
+              x-show="![0,1,2,5,6].includes(dato.resultado)">Autorizar</span></td>
+          <td><span class="tag is-small is-danger" @click="noAutorizarDato(dato.id)"
+              x-show="![0,1,2,5,6].includes(dato.resultado)">Rechazar</span></td>
             <td x-text="dato.arts"></td>
             <td x-text="dato.fechahora"></td>
           <td><span class="tag is-small is-danger" x-show="dato.sin_extension">Venta Basica</span></td>
