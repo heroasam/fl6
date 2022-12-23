@@ -49,21 +49,21 @@
  function main(){
      return{
          listaVentasHoy:[],
+         audio:new Audio("{{ url_for('static', filename='bell.mp3') }}"),
          getVentaHoy(){
              axios.get('/vendedor/getventashoy')
                   .then(res=>{
                       this.listaVentasHoy = res.data.ventashoy
-                      this.listaVentasHoy.map(row=>row.fecha_definido=dayjs.utc(row.fecha_definido).format("HH:mm:ss"))
                       let largo = this.listaVentasHoy.length
-                      let ultimarow = this.listaVentasHoy[largo-1]
-                      /* let ultimotime = datetime.datetime.strptime(ultimarow.fecha_definido,'%H:%M:%S')
-                       * let now = datetime.datetime.now()
-                       * let delta = now-ultimotime
-                       * if (delta.seconds<200){
-                       *     var audio = new Audio("{{ url_for('static', filename='bell.mp3') }}");
-                       *     audio.play();
-                       * } */
-
+                      if(largo>0){
+                          let ultimarow = this.listaVentasHoy[largo-1]
+                          let ultimotime = ultimarow.fecha_definido
+                          let delta = dayjs().diff(dayjs(ultimotime),'s')-10800 //pq ultimotime esta en GMT 3hs de diferencia
+                          if (delta<60){
+                              this.audio.play();
+                          }
+                      }
+                      this.listaVentasHoy.map(row=>row.fecha_definido=dayjs.utc(row.fecha_definido).format("HH:mm:ss"))
                   })
          },
      }
