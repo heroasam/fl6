@@ -119,9 +119,12 @@
              }).then((result) => {
                  if (result.isConfirmed) {
                      axios.get('/utilidades/borraruser/'+id)
-                          .then(res=>msgSuccess('Borrado!','el User ha sido borrado'))
+                          .then(res=>{
+                              msgSuccess('Borrado!','el User ha sido borrado')
+                              this.getUsers()
+                          })
 		                  .catch(error=>msgError('Error!','No se pudo borrar. Hubo un error.'))
-                     this.getUsers()
+
              }})
          }
      }

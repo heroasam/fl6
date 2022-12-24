@@ -17,7 +17,7 @@ from utilidades import utilidades
 from conta import conta
 from vendedor import vendedor
 import mysql.connector
-from con import get_con, log
+from con import get_con, log, check_roles
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
@@ -137,6 +137,7 @@ def login():
 
 
 @app.route('/logout')
+@login_required
 def logout():
     logout_user()
     log_login(session['user'],'logout')
@@ -185,6 +186,7 @@ def signup():
 
 @app.route('/log1')
 @login_required
+@check_roles(['dev'])
 def log1_log():
     f = open('/tmp/log.txt', "w")
     log = open('/var/log/app/1.log', "r")

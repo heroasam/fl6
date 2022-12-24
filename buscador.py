@@ -72,6 +72,8 @@ def buscador_revisardatos():
 
 
 @buscador.route('/pdf/<pdf>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscador_pdf(pdf):
     """Reenvia un pdf por una ruta."""
     return send_file('/home/hero/'+pdf)
@@ -86,12 +88,16 @@ def buscador_log():
 
 
 @buscador.route('/buscador/interno/<dni>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_interno_buscar(dni):
     """Anexo buscador para ver-cuenta desde otra pagina."""
     return render_template('/buscador/buscar.html', dnilistado=dni)
 
 
 @buscador.route('/buscador/<string:buscar>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_cuenta(buscar):
     """Funcion principal de buscar cuenta."""
     con = get_con()
@@ -140,6 +146,8 @@ def buscar_cuenta(buscar):
 
 
 @buscador.route('/buscador/clientesdireccion/<string:calle>/<string:num>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def clientesdireccion(calle, num):
     """Entrega lista de clientes en la direccion."""
     con = get_con()
@@ -152,6 +160,8 @@ def clientesdireccion(calle, num):
 
 
 @buscador.route('/buscador/pedirpagadasporidcliente/<int:idcliente>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_pedirpagadasporidcliente(idcliente):
     """Entrega lista de cuotas pagadas por idcliente."""
     sql = f"select * from pagos where idcliente={idcliente} order by id desc"
@@ -164,6 +174,8 @@ def buscar_pedirpagadasporidcliente(idcliente):
 
 
 @buscador.route('/buscador/obtenerventasporidcliente/<int:idcliente>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_obtenerventasporidcliente(idcliente):
     """Entrega lista de ventas por idcliente."""
     sql = f"select * from ventas where idcliente={idcliente} and saldo>0 order by id desc"
@@ -176,9 +188,11 @@ def buscar_obtenerventasporidcliente(idcliente):
 
 
 @buscador.route('/buscador/pedircomentarios/<int:idcliente>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_pedircomentarios(idcliente):
     """Entrega lista de comentarios por idcliente."""
-    sql = f"select fechahora,comentario from comentarios where idcliente={idcliente}"
+    sql = f"select * from comentarios where idcliente={idcliente}"
     con = get_con()
     cur = con.cursor(dictionary=True)
     cur.execute(sql)
@@ -188,10 +202,13 @@ def buscar_pedircomentarios(idcliente):
 
 
 @buscador.route('/buscador/guardarcomentario/<int:idcliente>', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_guardarcomentario(idcliente):
     """Guarda comentario ingresado."""
     d = json.loads(request.data.decode("UTF-8"))
-    ins = f"insert into comentarios(idcliente,fechahora,comentario) values({idcliente},'{d['fechahora']}','{d['comentario']}')"
+    ins = f"insert into comentarios(idcliente,fechahora,comentario,ingreso) \
+    values({idcliente},'{d['fechahora']}','{d['comentario']}','{d['ingreso']}')"
     con = get_con()
     cur = con.cursor()
     cur.execute(ins)
@@ -201,7 +218,31 @@ def buscar_guardarcomentario(idcliente):
     return 'ok'
 
 
+@buscador.route('/buscador/deletecomentario/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_deletecomentario(id):
+    con = get_con()
+    stm = f"delete from comentarios where id={id}"
+    cur = con.cursor()
+    try:
+        cur.execute(stm)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error,400)
+    else:
+        con.commit()
+        con.close()
+        log(stm)
+        return 'ok'
+
+
+
+
 @buscador.route('/buscador/pedirlogcambiodireccion/<int:idcliente>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_logcambiodireccion(idcliente):
     """Entrega lista de logcambiodireccion."""
     sql = f"select fecha,calle,num,wapp,acla from logcambiodireccion where idcliente={idcliente}"
@@ -214,6 +255,8 @@ def buscar_logcambiodireccion(idcliente):
 
 
 @buscador.route('/buscador/obtenerventascanceladasporidcliente/<int:idcliente>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_obtenerventascanceladasporidcliente(idcliente):
     """Entrega lista de ventas canceladas por idcliente."""
     sql = f"select * from ventas where idcliente={idcliente} and saldo<=0 order by id desc"
@@ -226,6 +269,8 @@ def buscar_obtenerventascanceladasporidcliente(idcliente):
 
 
 @buscador.route('/buscador/guardarpmovto/<int:idcliente>/<string:pmovto>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_guardarpmovto(idcliente, pmovto):
     """Guarda el pmovto editado del cliente."""
     con = get_con()
@@ -239,6 +284,8 @@ def buscar_guardarpmovto(idcliente, pmovto):
 
 
 @buscador.route('/buscador/imprimirficha', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_imprimirficha():
     """Funcion para imprimir ficha de cliente."""
     con = get_con()
@@ -257,6 +304,8 @@ def buscar_imprimirficha():
 
 
 @buscador.route('/buscador/togglesube/<string:dni>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_togglesube(dni):
     """Funcion para marcar subir al seven."""
     con = get_con()
@@ -284,6 +333,8 @@ def buscar_togglesube(dni):
 
 
 @buscador.route('/buscador/togglegestion/<string:dni>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_togglegestion(dni):
     """Funcion para marcar subir a gestion."""
     con = get_con()
@@ -305,6 +356,8 @@ def buscar_togglegestion(dni):
 
 
 @buscador.route('/buscador/togglemudo/<string:dni>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_togglemudado(dni):
     """Funcion para marcar mudado."""
     con = get_con()
@@ -330,6 +383,8 @@ def buscar_togglemudado(dni):
 
 
 @buscador.route('/buscador/toggleinc/<string:dni>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_toggleinc(dni):
     """Funcion para marcar incobrable."""
     con = get_con()
@@ -351,6 +406,8 @@ def buscar_toggleinc(dni):
 
 
 @buscador.route('/buscador/togglenvm/<string:dni>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_togglenvm(dni):
     """Funcion para marcar lista negra."""
     con = get_con()
@@ -372,6 +429,8 @@ def buscar_togglenvm(dni):
 
 
 @buscador.route('/buscador/togglellamar/<string:dni>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_togglellamar(dni):
     """Funcion para marcar cliente a llamar."""
     con = get_con()
@@ -393,6 +452,8 @@ def buscar_togglellamar(dni):
 
 
 @buscador.route('/buscador/toggleseguir/<string:dni>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_toggleseguir(dni):
     """Funcion para marcar cliente a seguir."""
     con = get_con()
@@ -415,6 +476,8 @@ def buscar_toggleseguir(dni):
 
 @buscador.route('/buscador/guardaredicioncliente/<int:idcliente>',\
                 methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def busca_guardaredicioncliente(idcliente):
     """Funcion para guardar edicion cliente."""
     con = get_con()
@@ -453,6 +516,8 @@ def busca_guardaredicioncliente(idcliente):
 
 
 @buscador.route('/buscador/obtenerlistadocalles')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_obtenerlistadocalles():
     con = get_con()
     # sql = "select calle from calles order by calle"
@@ -465,6 +530,8 @@ def buscar_obtenerlistadocalles():
 
 
 @buscador.route('/buscador/obtenerlistabarrios')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_obtenerlistabarrios():
     con = get_con()
     # sql = "select barrio from barrios order by barrio"
@@ -477,6 +544,8 @@ def buscar_obtenerlistabarrios():
 
 
 @buscador.route('/buscador/obtenerlistazonas')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_obtenerlistazonas():
     con = get_con()
     # sql = "select zona from zonas order by zona"
@@ -489,6 +558,8 @@ def buscar_obtenerlistazonas():
 
 
 @buscador.route('/buscador/obtenercobradores')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_obtenercobradores():
     con = get_con()
     sql = "select id from cobr where activo=1 and prom=0 and id>100 and id!=820 order by id"
@@ -503,6 +574,8 @@ def buscar_obtenercobradores():
 
 
 @buscador.route('/buscador/pedirwappcobrador/<cobr>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_pedirwappcobrador(cobr):
     con = get_con()
     sql = f"select telefono from cobr where id={cobr}"
@@ -536,6 +609,8 @@ def buscar_buscarplandepagos_muerto(idcliente):
 
 @buscador.route('/buscador/generarplandepagos',
                 methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscar_generarplandepagos():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -575,6 +650,8 @@ def buscar_generarplandepagos():
 
 
 @buscador.route('/buscador/intimar', methods=["POST"])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscador_intimar():
     d = json.loads(request.data.decode("UTF-8"))
     dni = d['dni']
@@ -597,6 +674,8 @@ def buscador_intimar():
 
 
 @buscador.route('/buscador/intimar/nowapp/<dni>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscador_intimar_nowapp(dni):
     con = get_con()
     intimacion(con, dni)
@@ -604,6 +683,8 @@ def buscador_intimar_nowapp(dni):
 
 
 @buscador.route('/buscador/libredeuda', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscador_libredeuda():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -619,6 +700,8 @@ def buscador_libredeuda():
 
 
 @buscador.route('/buscador/libredeuda/nowapp', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscador_libredeuda_nowapp():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -628,6 +711,8 @@ def buscador_libredeuda_nowapp():
 
 
 @buscador.route('/buscador/obtenerlogs')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscador_obtenerlogs():
     con = get_con()
     logs = pgdict(con, "select * from log order by id desc limit 1000")
@@ -636,6 +721,8 @@ def buscador_obtenerlogs():
 
 
 @buscador.route('/buscador/cargarasunto', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscador_cargarasunto():
     d = json.loads(request.data.decode("UTF-8"))
     con = get_con()
@@ -649,6 +736,8 @@ def buscador_cargarasunto():
 
 
 @buscador.route('/buscador/obtenerlistacalles')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscador_obtenerlistacalles():
     con = get_con()
     calles = pglflat(con, 'select calle from calles order by calle')
@@ -656,6 +745,8 @@ def buscador_obtenerlistacalles():
 
 
 @buscador.route('/buscador/mostrarcalle/<string:calle>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscador_mostrarcalle(calle):
     con = get_con()
     calle = pgdict(
@@ -664,6 +755,8 @@ def buscador_mostrarcalle(calle):
 
 
 @buscador.route('/buscador/generarrbotransferencia', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscador_generarrbotransferencia():
     d = json.loads(request.data.decode("UTF-8"))
     con = get_con()
@@ -687,6 +780,8 @@ def buscador_generarrbotransferencia():
 
 
 @buscador.route('/buscador/enviarrbotransferencia', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscador_enviarrbotransferencia():
     d = json.loads(request.data.decode("UTF-8"))
     con = get_con()
@@ -703,6 +798,8 @@ def buscador_enviarrbotransferencia():
 
 
 @buscador.route('/buscador/enviarrbotransferencia/nowapp', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscador_enviarrbotransferencia_nowapp():
     d = json.loads(request.data.decode("UTF-8"))
     con = get_con()
@@ -714,6 +811,8 @@ def buscador_enviarrbotransferencia_nowapp():
 
 
 @buscador.route('/buscador/wapp', methods=["POST"])
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscador_wapp():
     d = json.loads(request.data.decode("UTF-8"))
     idcliente = d['idcliente']
@@ -736,6 +835,8 @@ def buscador_wapp():
 
 
 @buscador.route('/buscador/callesprueba')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscador_callesprueba():
     con = get_con()
     result = pgdict(con, "select id, calle as text from calles order by id")
@@ -743,6 +844,8 @@ def buscador_callesprueba():
 
 
 @buscador.route('/buscador/bajaindividualseven/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscador_bajaindividualseven(id):
     upd = f"update clientes set sev=0, baja=current_date() where id={id}"
     con = get_con()
@@ -756,6 +859,8 @@ def buscador_bajaindividualseven(id):
 
 
 @buscador.route('/buscador/tablainflacion')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscador_tablainflacion():
     con = get_con()
     inflacion = pgdict(con, "select year,month,indice from inflacion")
@@ -767,6 +872,8 @@ def buscador_tablainflacion():
 
 
 @buscador.route('/buscador/pedirlistagarantizados/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
 def buscador_pedirlistagarantizados(id):
     con = get_con()
     dni = pgonecolumn(con, f"select dni from clientes where id={id}")
