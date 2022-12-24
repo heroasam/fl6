@@ -49,7 +49,7 @@
  function main(){
      return{
          listaVentasHoy:[],
-         audio:new Audio("{{ url_for('static', filename='bell.mp3') }}"),
+         audio:new Audio("{{ url_for('static', filename='bell.ogg') }}"),
          getVentaHoy(){
              axios.get('/vendedor/getventashoy')
                   .then(res=>{
