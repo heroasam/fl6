@@ -72,8 +72,8 @@ def buscador_revisardatos():
 
 
 @buscador.route('/pdf/<pdf>')
-@login_required
-@check_roles(['dev','gerente','admin'])
+#@login_required
+#@check_roles(['dev','gerente','admin'])
 def buscador_pdf(pdf):
     """Reenvia un pdf por una ruta."""
     return send_file('/home/hero/'+pdf)
