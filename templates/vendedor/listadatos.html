@@ -86,11 +86,11 @@
         <span class="tag is-small is-danger" x-show="Dato.sin_extension">Venta Basica</span>
         <label for="iddni" class="label">Ingrese DNI del cliente</label>
         <span class="tag is-small is-danger" x-show="!dnivalidado && Venta.dni">DNI no coincide con el cliente</span>
-        <input type="text" class="input mb-3" x-model="Venta.dni" id="iddni" autocomplete="off"
+        <input type="number" class="input mb-3" x-model="Venta.dni" id="iddni" autocomplete="off"
                :class="darkTheme?'input-dark':''" @blur="validarDni(Venta.dni)">
         <label for="iddnigarante" class="label">DNI del garante</label>
         <span class="tag is-small is-danger" x-show="!dnigarantevalidado && Venta.dnigarante">DNI garante no valido</span>
-        <input type="text" class="input mb-3" x-model="Venta.dnigarante" id="iddnigarante" autocomplete="off"
+        <input type="number" class="input mb-3" x-model="Venta.dnigarante" id="iddnigarante" autocomplete="off"
                :class="darkTheme?'input-dark':''" @blur="buscaGarante(Venta.dnigarante)">
         <span class="tag is-small" x-text="nombregarante" x-show="nombregarante"></span>
         <label for="idcnt" class="label">Cantidad</label>
@@ -311,7 +311,6 @@
                       this.Dato.fecha_visitar=dayjs.utc(this.Dato.fecha_visitar).format('YYYY-MM-DD')
                       this.listaArtComprados = []
                       this.Venta = {cnt:'', art:'',primera:dayjs.utc().format('YYYY-MM-DD'),dnigarante:this.Dato.dnigarante}
-                      console.log( this.Venta, this.Dato.dnigarante)
                       this.sumaCuota = ''
                       this.verNotificacionAutorizacion = false
                       toggleModal("modal-pasar-venta")
@@ -382,7 +381,6 @@
                                                                  })
          },
          agregarArticulo(cnt,art){
-             console.log( cnt,art, typeof cnt, typeof art)
              if(cnt!=''&&art!=''){
                  let cuota = this.Articulos.filter(row=>row.art==art)[0].cuota
                  let cc = 6
@@ -445,12 +443,17 @@ Quedo a la espera. Gracias.`
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/vendedor/pasarventa',this.Dato)
                                                                  .then(res=>{
-                                                                     toggleModal("modal-pasar-venta")
-                                                                     msgSuccess('Venta pasada con exito')
                                                                      this.getListadoDatosVendedor()
-                                                                     setTimeout(()=>{
-                                                                         this.Dato=this.listadoDatos.filter(row=>row.id==this.Dato.id)[0]
-                                                                     },10)
+                                                                     msgSuccess('Venta pasada con exito')
+                                                                     toggleModal("modal-pasar-venta")
+                                                                     /* this.verCard = false */
+                                                                     axios.get('/vendedor/getdato/'+this.Dato.id)
+                                                                         .then(res=>{
+                                                                             this.Dato=res.data.dato
+                                                                             this.Dato.fecha=dayjs.utc(this.Dato.fecha).format('YYYY-MM-DD')
+                                                                             this.Dato.fecha_visitar=dayjs.utc(this.Dato.fecha_visitar).format('YYYY-MM-DD')
+                                                                             this.enviarWappCliente(this.Dato)
+                                                                         })
                                                                  })
                                                                  .catch(error=>{
                                                                      msgError('Hubo un error y la venta no se proceso.')
@@ -477,7 +480,14 @@ Quedo a la espera. Gracias.`
                     this.nombregarante = ''
                 }
          },
-
+         enviarWappCliente(datos){
+             let msg = `mensaje al cliente.`
+             let wapp = datos.wapp
+             let idcliente = datos.idcliente
+             let data = {msg,wapp,idcliente}
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+	         axios.post('/buscador/wapp',data)
+         },
      }
  }
 </script>

@@ -32,7 +32,9 @@ def calculo_cuota_maxima(idcliente):
 
     Busca la cuota maxima de los ultimos tres años y la actualiza por inflacion
     le disminuye 5% por cada mes de atraso que haya tenido
-    le aumenta 5% por cada compra que haya tenido en los ultimos tres años."""
+    le aumenta 5% por cada compra que haya tenido en los ultimos tres años.
+    Esto ultimo se suspende pq aumenta mucho la cuota por la gran inflacion que
+    hay."""
     con = get_con()
     cuotas = pgdict(con, f"select max(ic) as ic, max(date_format(fecha,'%Y%c')) as \
     fecha from ventas where idcliente={idcliente} and fecha>date_sub(curdate(),\
@@ -45,11 +47,11 @@ def calculo_cuota_maxima(idcliente):
         ultimo_valor = pgonecolumn(con, "select indice from inflacion order \
         by id desc limit 1")
         cuota_actualizada = ultimo_valor/indice * cuota
-        cnt_compras = pgonecolumn(con, f"select count(*) from ventas where \
-        idcliente={idcliente} and saldo=0 and fecha>date_sub(curdate(), \
-        interval 3 year)")
-        if cnt_compras>1:
-            cuota_actualizada = cuota_actualizada * (1+cnt_compras*0.05)
+        # cnt_compras = pgonecolumn(con, f"select count(*) from ventas where \
+        # idcliente={idcliente} and saldo=0 and fecha>date_sub(curdate(), \
+        # interval 3 year)")
+        # if cnt_compras>1:
+        #     cuota_actualizada = cuota_actualizada * (1+cnt_compras*0.05)
         atraso = pgonecolumn(con, f"select atraso from clientes where id={idcliente}")
         if atraso>0:
             cuota_actualizada = cuota_actualizada * (1-(atraso/30)*0.05)
@@ -536,7 +538,8 @@ def vendedor_getlistadodatosvendedor():
     zona, cuota_maxima,idcliente, sin_extension,idvta,resultado,\
     datos.dnigarante as dnigarante from datos, clientes where clientes.id = \
     datos.idcliente and vendedor={vdor} and (resultado is null or (resultado=\
-    1 and fecha=curdate())) and fecha_visitar <=curdate() order by id desc")
+    1 and date(fecha_definido)=curdate())) and fecha_visitar <=curdate() order \
+    by id desc")
     return jsonify(listadodatos=listadodatos)
 
 
@@ -548,8 +551,8 @@ def vendedor_getdato(iddato):
     dato = pgdict1(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
     zona, cuota_maxima,idcliente, sin_extension, datos.dnigarante as \
-    dnigarante from datos, clientes where clientes.id = datos.idcliente \
-    and datos.id={iddato}")
+    dnigarante,idvta,monto_vendido from datos, clientes where clientes.id = \
+    datos.idcliente and datos.id={iddato}")
     return jsonify(dato=dato)
 
 
