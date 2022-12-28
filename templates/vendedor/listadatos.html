@@ -481,12 +481,21 @@ Quedo a la espera. Gracias.`
                 }
          },
          enviarWappCliente(datos){
-             let msg = `mensaje al cliente.`
+             let arts = ''
+             for (let item of this.listaArtComprados){
+                 arts += ` ${item.cnt} ${item.art} `
+             }
+             let msg = `Estimado cliente: ${datos.nombre}, agradecemos su compra de ${arts}.
+Le recordamos que el plan de pagos elegido es de 6 cuotas mensuales de $${datos.monto_vendido/6} y la primer cuota vence el dia ${this.Venta.primera} para cualquier consulta no dude en contactarnos, estamos a su disposición!.`
              let wapp = datos.wapp
              let idcliente = datos.idcliente
-             let data = {msg,wapp,idcliente}
+             let file = 'documentos/informacion-importante'
+             let data = {msg,wapp,idcliente,file}
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 	         axios.post('/buscador/wapp',data)
+                                                                 .then(res=>{
+                                                                     axios.post('/buscador/filewapp',data)
+             })
          },
      }
  }

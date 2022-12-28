@@ -812,7 +812,7 @@ def buscador_enviarrbotransferencia_nowapp():
 
 @buscador.route('/buscador/wapp', methods=["POST"])
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev','gerente','admin','vendedor'])
 def buscador_wapp():
     d = json.loads(request.data.decode("UTF-8"))
     idcliente = d['idcliente']
@@ -832,6 +832,20 @@ def buscador_wapp():
         return response
     else:
         return 'error', 400
+
+
+@buscador.route('/buscador/filewapp', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin','vendedor'])
+def buscador_filewapp():
+    d = json.loads(request.data.decode("UTF-8"))
+    wapp = d['wapp']
+    idcliente = d['idcliente']
+    file = d['file']
+    if wapp:
+        response = send_file_whatsapp(
+            idcliente,f"https://www.fedesal.lol/pdf/{file}.pdf", wapp)
+        return jsonify(response=response)
 
 
 @buscador.route('/buscador/callesprueba')
