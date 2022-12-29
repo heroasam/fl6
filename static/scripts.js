@@ -1,4 +1,3 @@
-
 let listaheads = document.querySelectorAll('thead');
 $theads = Array.from(listaheads);
 $theads.forEach($thead => {
@@ -68,7 +67,7 @@ const totalizar_tabla = (tableId, nivel=2) => {
             $thtotal.push(n);
         }
     }
-    let listaTotales = []
+    let listaTotales = [];
     for (let index in $thtotal) {
         let i = parseInt($thtotal[index]);
         let col = [];
@@ -77,25 +76,25 @@ const totalizar_tabla = (tableId, nivel=2) => {
         });
         col = col.map(item=>{
             if(isNumber(item)==false) {
-                return 0
+                return 0;
             }else{
-                return item
+                return item;
             }
         })
         let total = col.reduce((a, b) => Number(a) + Number(b), 0);
         let $cell = $rowTotal.cells[i];
         if (!(Number.isNaN(total))) {
             $cell.innerHTML = total;
-            listaTotales.push(total)
+            listaTotales.push(total);
         }
         if ($thclass.length) $cell.classList.add(...$thclass[index]);
     }
     if(nivel==2){
-        let $rowTotalclone = $rowTotal.cloneNode(true)
-        tbody.appendChild($rowTotalclone)
-        tbody.insertBefore($rowTotalclone, tbody.firstChild)
+        let $rowTotalclone = $rowTotal.cloneNode(true);
+        tbody.appendChild($rowTotalclone);
+        tbody.insertBefore($rowTotalclone, tbody.firstChild);
     }
-    return listaTotales
+    return listaTotales;
 
 }
 const totalizar = (tableId) => {
@@ -336,15 +335,15 @@ const getTableId = (element) => {
     let table;
     switch (element.tagName) {
         case 'TD':
-            table = element.parentElement.parentElement.parentElement
+        table = element.parentElement.parentElement.parentElement;
             return table;
             break;
         case 'TH':
-            table = element.parentElement.parentElement.parentElement
+        table = element.parentElement.parentElement.parentElement;
             return table;
             break;
         case 'TR':
-            table = element.parentElement.parentElement
+        table = element.parentElement.parentElement;
             return table;
             break;
     }
@@ -454,31 +453,31 @@ let isMobileDevice = regexp.test(details);
 
 
 // themes dark
-const darkly = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/darkly/bulmaswatch.min.css"
-const cyborg = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/cyborg/bulmaswatch.min.css"
-const nuclear = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/nuclear/bulmaswatch.min.css"
-const slate = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/slate/bulmaswatch.min.css"
-const solar = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/solar/bulmaswatch.min.css"
-const superhero  = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/superhero/bulmaswatch.min.css"
-let darkThemes =['darkly','cyborg','nuclear','slate','solar','superhero']
-// themes light
-const defaultbulma = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/default/bulmaswatch.min.css"
-const cerulean = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/cerulean/bulmaswatch.min.css"
-const cosmo = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/cosmo/bulmaswatch.min.css"
-const journal = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/journal/bulmaswatch.min.css"
-const flatly = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/flatly/bulmaswatch.min.css"
-const litera = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/litera/bulmaswatch.min.css"
-const lumen = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/lumen/bulmaswatch.min.css"
-const lux = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/lux/bulmaswatch.min.css"
-const materia = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/materia/bulmaswatch.min.css"
-const minty = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/minty/bulmaswatch.min.css"
-const pulse = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/pulse/bulmaswatch.min.css"
-const sandstone = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/sandstone/bulmaswatch.min.css"
-const simplex = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/simplex/bulmaswatch.min.css"
-const spacelab = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/spacelab/bulmaswatch.min.css"
-const united = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/united/bulmaswatch.min.css"
-const yeti = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/yeti/bulmaswatch.min.css"
-let lightThemes = ['defaultbulma', 'cerulean', 'cosmo', 'journal','flatly','litera','lumen','lux','materia','minty','pulse','sandstone','simplex','spacelab','united','yeti']
+const darkly = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/darkly/bulmaswatch.min.css";
+const cyborg = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/cyborg/bulmaswatch.min.css";
+const nuclear = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/nuclear/bulmaswatch.min.css";
+const slate = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/slate/bulmaswatch.min.css";
+const solar = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/solar/bulmaswatch.min.css";
+const superhero  = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/superhero/bulmaswatch.min.css";
+let darkThemes =['darkly','cyborg','nuclear','slate','solar','superhero'];
+// themes light;
+const defaultbulma = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/default/bulmaswatch.min.css";
+const cerulean = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/cerulean/bulmaswatch.min.css";
+const cosmo = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/cosmo/bulmaswatch.min.css";
+const journal = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/journal/bulmaswatch.min.css";
+const flatly = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/flatly/bulmaswatch.min.css";
+const litera = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/litera/bulmaswatch.min.css";
+const lumen = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/lumen/bulmaswatch.min.css";
+const lux = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/lux/bulmaswatch.min.css";
+const materia = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/materia/bulmaswatch.min.css";
+const minty = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/minty/bulmaswatch.min.css";
+const pulse = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/pulse/bulmaswatch.min.css";
+const sandstone = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/sandstone/bulmaswatch.min.css";
+const simplex = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/simplex/bulmaswatch.min.css";
+const spacelab = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/spacelab/bulmaswatch.min.css";
+const united = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/united/bulmaswatch.min.css";
+const yeti = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/yeti/bulmaswatch.min.css";
+let lightThemes = ['defaultbulma', 'cerulean', 'cosmo', 'journal','flatly','litera','lumen','lux','materia','minty','pulse','sandstone','simplex','spacelab','united','yeti'];
 
 
 // bulma change theme dark-light
@@ -575,7 +574,7 @@ function autoComplete(url, inputId, suggestionId) {
 
 
  function textToClipboard(text) {
-     navigator.clipboard.writeText(text)
+     navigator.clipboard.writeText(text);
  }
  function copyToClipboard(input) {
      var copyText = document.getElementById(input);
@@ -595,5 +594,5 @@ function toggleActive(){
     const $navburger = document.getElementById('navburger');
     const target = $navburger.dataset.target;
     const $target = document.getElementById(target);
-    $target.classList.toggle('is-active')
+    $target.classList.toggle('is-active');
 }

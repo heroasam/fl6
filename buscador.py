@@ -848,6 +848,23 @@ def buscador_filewapp():
         return jsonify(response=response)
 
 
+
+@buscador.route('/buscador/wappaut', methods=["POST"])
+@login_required
+@check_roles(['dev','gerente','admin','vendedor'])
+def buscador_wappaut():
+    d = json.loads(request.data.decode("UTF-8"))
+    msg = d['msg']
+    tipo = d['tipo'] # a discriminar en el futuro
+    idcliente = var_sistema['idcliente_auth']
+    wapp = var_sistema['wapp_auth']
+    if wapp:
+        response = send_msg_whatsapp(idcliente, wapp, msg)
+        return response
+    else:
+        return 'error', 400
+
+
 @buscador.route('/buscador/callesprueba')
 @login_required
 @check_roles(['dev','gerente','admin'])

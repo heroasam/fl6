@@ -10,7 +10,26 @@
 
   <div class="container" x-data="main()" x-init="getVentaHoy();setInterval(()=>{getVentaHoy()},60000)">
 
-    <p class="title is-1">Ventas ingresadas hoy</p>
+    <div class="columns flex-baseline">
+      <div class="column is-6">
+        <p class="title is-1">Ventas ingresadas hoy</p>
+      </div>
+      <div class="column is-6">
+         <div class="xtags has-addons m-0" x-show="totalVendido">
+		  <span class="tag is-large is-black m-0">Total Vendido</span>
+		  <span class="tag is-large is-light m-0" x-text="'$'+totalVendido"></span>
+	     </div>
+      </div>
+    </div>
+
+    <div class="block" x-show="totalVendido">
+      <template x-for="[id,value]  in Object.entries(listaVtaVdores)">
+         <div class="xtags has-addons m-0">
+		  <span class="tag is-large is-info m-0" x-text="id"></span>
+		  <span class="tag is-large is-light m-0" x-text="'$'+value"></span>
+	     </div>
+      </template>
+    </div>
     <div class="columns">
             <table class="table is-narrow" id="table">
                 <thead>
@@ -50,6 +69,8 @@
      return{
          listaVentasHoy:[],
          audio:new Audio("{{ url_for('static', filename='bell.ogg') }}"),
+         listaVtaVdores:{},
+         totalVendido:'',
          getVentaHoy(){
              axios.get('/vendedor/getventashoy')
                   .then(res=>{
@@ -64,6 +85,12 @@
                           }
                       }
                       this.listaVentasHoy.map(row=>row.fecha_definido=dayjs.utc(row.fecha_definido).format("HH:mm:ss"))
+                      let listaVendedores = Array.from(new Set(this.listaVentasHoy.map(row=>row.vendedor)))
+                      for(let vdor of listaVendedores){
+                          this.listaVtaVdores[vdor] = this.listaVentasHoy.filter(row=>row.vendedor==vdor).map(row=>row.monto_vendido).reduce((a,b)=>a+b,0)
+                      }
+                      this.totalVendido = this.listaVentasHoy.map(row=>row.monto_vendido).reduce((a,b)=>a+b,0)
+                      console.log( this.listaVtaVdores)
                   })
          },
      }

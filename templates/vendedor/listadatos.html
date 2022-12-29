@@ -414,11 +414,10 @@
 con una compra de ${this.Dato.arts}
 y una cuota de $${this.sumaCuota}.
 Quedo a la espera. Gracias.`
-             let wapp = '3512411963'
-             let idcliente = 31446
-             let data = {msg,wapp,idcliente}
+             let tipo = "autorizacion venta"
+             let data = {msg,tipo}
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-	         axios.post('/buscador/wapp',data)
+	         axios.post('/buscador/wappaut',data)
          },
          pasarVenta(){
              if(this.dnivalidado==false){
@@ -482,14 +481,16 @@ Quedo a la espera. Gracias.`
          },
          enviarWappCliente(datos){
              let arts = ''
+             let cuotas
              for (let item of this.listaArtComprados){
                  arts += ` ${item.cnt} ${item.art} `
+                 cuotas = item.cc
              }
              let msg = `Estimado cliente: ${datos.nombre}, agradecemos su compra de ${arts}.
-Le recordamos que el plan de pagos elegido es de 6 cuotas mensuales de $${datos.monto_vendido/6} y la primer cuota vence el dia ${this.Venta.primera} para cualquier consulta no dude en contactarnos, estamos a su disposición!.`
+Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $${datos.monto_vendido/cuotas} y la primer cuota vence el dia ${this.Venta.primera} para cualquier consulta no dude en contactarnos, estamos a su disposición!.`
              let wapp = datos.wapp
              let idcliente = datos.idcliente
-             let file = 'documentos/informacion-importante'
+             let file = 'informacion-importante'
              let data = {msg,wapp,idcliente,file}
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 	         axios.post('/buscador/wapp',data)
