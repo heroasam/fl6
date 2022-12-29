@@ -812,7 +812,7 @@ def buscador_enviarrbotransferencia_nowapp():
 
 @buscador.route('/buscador/wapp', methods=["POST"])
 @login_required
-@check_roles(['dev','gerente','admin','vendedor'])
+@check_roles(['dev','gerente','admin'])
 def buscador_wapp():
     d = json.loads(request.data.decode("UTF-8"))
     idcliente = d['idcliente']
@@ -834,35 +834,11 @@ def buscador_wapp():
         return 'error', 400
 
 
-@buscador.route('/buscador/filewapp', methods=['POST'])
-@login_required
-@check_roles(['dev','gerente','admin','vendedor'])
-def buscador_filewapp():
-    d = json.loads(request.data.decode("UTF-8"))
-    wapp = d['wapp']
-    idcliente = d['idcliente']
-    file = d['file']
-    if wapp:
-        response = send_file_whatsapp(
-            idcliente,f"https://www.fedesal.lol/pdf/{file}.pdf", wapp)
-        return jsonify(response=response)
 
 
 
-@buscador.route('/buscador/wappaut', methods=["POST"])
-@login_required
-@check_roles(['dev','gerente','admin','vendedor'])
-def buscador_wappaut():
-    d = json.loads(request.data.decode("UTF-8"))
-    msg = d['msg']
-    tipo = d['tipo'] # a discriminar en el futuro
-    idcliente = var_sistema['idcliente_auth']
-    wapp = var_sistema['wapp_auth']
-    if wapp:
-        response = send_msg_whatsapp(idcliente, wapp, msg)
-        return response
-    else:
-        return 'error', 400
+
+
 
 
 @buscador.route('/buscador/callesprueba')

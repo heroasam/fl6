@@ -524,6 +524,7 @@ def vendedor_visitasvdor():
     return render_template('/vendedor/listavisitasvdor.html')
 
 
+@vendedor.route('/VGIdj7tUnI1hWCX3N7W7WAXgU')
 @vendedor.route('/vendedor/getlistadodatosvendedor')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -543,6 +544,7 @@ def vendedor_getlistadodatosvendedor():
     return jsonify(listadodatos=listadodatos)
 
 
+@vendedor.route('/pnZWxv9Nicwt6TQ6zxohzvats/<int:iddato>')
 @vendedor.route('/vendedor/getdato/<int:iddato>')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -556,6 +558,7 @@ def vendedor_getdato(iddato):
     return jsonify(dato=dato)
 
 
+@vendedor.route('/kHEhacFNmI2vflFHBbaT1AQ1Z')
 @vendedor.route('/vendedor/getlistadoarticulos')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -566,6 +569,7 @@ def vendedor_getlistadoarticulos():
     return jsonify(articulos=articulos)
 
 
+@vendedor.route('/uQ3gisetQ8v0n6tw81ORnpL1s' , methods=['POST'])
 @vendedor.route('/vendedor/editarwapp' , methods=['POST'])
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -596,6 +600,7 @@ def vendedor_editarwapp():
        return 'ok'
 
 
+@vendedor.route('/HvjJNtFgF71pRYafzcTC74nUt' , methods=['POST'])
 @vendedor.route('/vendedor/guardardatofechado' , methods=['POST'])
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -625,6 +630,7 @@ def vendedor_guardardatofechado():
        return 'ok'
 
 
+@vendedor.route('/UtVc3f6y5hfxu2dPmcrV9Y7mc/<int:iddato>')
 @vendedor.route('/vendedor/anulardato/<int:iddato>')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -653,6 +659,7 @@ def vendedor_anulardato(iddato):
        return 'ok'
 
 
+@vendedor.route('/gJUmonE8slTFGZqSKXSVwqPJ1/<int:iddato>')
 @vendedor.route('/vendedor/mudodato/<int:iddato>')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -681,6 +688,7 @@ def vendedor_mudodato(iddato):
        return 'ok'
 
 
+@vendedor.route('/sLTFCMArYAdVsrEgwsz7utyRi/<int:iddato>')
 @vendedor.route('/vendedor/falleciodato/<int:iddato>')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -715,6 +723,7 @@ def vendedor_falleciodato(iddato):
        return 'ok'
 
 
+@vendedor.route('/fc3vpQG6SzEH95Ya7kTJPZ48M' , methods=['POST'])
 @vendedor.route('/vendedor/validardni' , methods=['POST'])
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -728,6 +737,7 @@ def vendedor_validardni():
         return make_response('error', 400)
 
 
+@vendedor.route('/vaHQ2gFYLW2pIWSr5I0ogCL0k', methods=['POST'])
 @vendedor.route('/vendedor/registrarautorizacion', methods=['POST'])
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -846,6 +856,7 @@ def vendedor_noautorizardato(id):
        return 'ok'
 
 
+@vendedor.route('/xuNzBi4bvtSugd5KbxSQzD0Ey' , methods=['POST'])
 @vendedor.route('/vendedor/pasarventa' , methods=['POST'])
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -903,6 +914,7 @@ def vendedor_pasarventa():
        return 'ok'
 
 
+@vendedor.route('/G9S85pbqWVEX17nNQuOOnpxvn/<int:iddato>')
 @vendedor.route('/vendedor/noestabadato/<int:iddato>')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -995,3 +1007,54 @@ def vendedor_getventashoy():
 @check_roles(['dev','gerente'])
 def vendedor_ingresoventas():
     return render_template("/vendedor/ingresoventas.html")
+
+
+@vendedor.route('/3ZbXanrRQalY6JL5eOBi49Nyc', methods=["POST"])
+@vendedor.route('/vendedor/wappaut', methods=["POST"])
+@login_required
+@check_roles(['dev','gerente','admin','vendedor'])
+def vendedor_wappaut():
+    d = json.loads(request.data.decode("UTF-8"))
+    msg = d['msg']
+    tipo = d['tipo'] # a discriminar en el futuro
+    idcliente = var_sistema['idcliente_auth']
+    wapp = var_sistema['wapp_auth']
+    if wapp:
+        response = send_msg_whatsapp(idcliente, wapp, msg)
+        return response
+    else:
+        return 'error', 400
+
+
+@vendedor.route('/hX53695XAOpaLY9itLgmghkhH', methods=["POST"])
+@vendedor.route('/vendedor/wapp', methods=["POST"])
+@login_required
+@check_roles(['dev','gerente','admin','vendedor'])
+def vendedor_wapp():
+    d = json.loads(request.data.decode("UTF-8"))
+    idcliente = d['idcliente']
+    wapp = d['wapp']
+    msg = d['msg']
+    if wapp:
+        response = send_msg_whatsapp(idcliente, wapp, msg)
+        if response is None:
+            response = 'Rejected'
+        return response
+    else:
+        return 'error', 400
+
+
+
+@vendedor.route('/4qUK6eNZnCYjIiGTt3HSj2YDp', methods=['POST'])
+@vendedor.route('/vendedor/filewapp', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin','vendedor'])
+def vendedor_filewapp():
+    d = json.loads(request.data.decode("UTF-8"))
+    wapp = d['wapp']
+    idcliente = d['idcliente']
+    file = d['file']
+    if wapp:
+        response = send_file_whatsapp(
+            idcliente,f"https://www.fedesal.lol/pdf/{file}.pdf", wapp)
+        return jsonify(response=response)

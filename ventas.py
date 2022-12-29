@@ -954,6 +954,7 @@ def ventas_cambiarzona(zona):
         return 'OK'
 
 
+@ventas.route('/3ibzPLLq53RuFgIqkq6G3bSzO/<dni>')
 @ventas.route('/ventas/obtenerdatosgarante/<dni>')
 @login_required
 @check_roles(['dev','gerente','admin','vendedor'])

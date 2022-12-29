@@ -210,7 +210,9 @@
          nombregarante:'',
          direcciongarante:'',
          getListadoDatosVendedor(){
-             axios.get('/vendedor/getlistadodatosvendedor')
+             // nueva ruta: /VGIdj7tUnI1hWCX3N7W7WAXgU
+             // para /vendedor/getlistadodatosvendedor
+             axios.get('/VGIdj7tUnI1hWCX3N7W7WAXgU')
                   .then(res=>{
                       this.listadoDatos = res.data.listadodatos
                       this.listadoDatos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
@@ -236,27 +238,13 @@
              }
          },
          getListadoArt(){
-             axios.get('/vendedor/getlistadoarticulos')
+             // nueva ruta /kHEhacFNmI2vflFHBbaT1AQ1Z
+             // para /vendedor/getlistadoarticulos
+             axios.get('/kHEhacFNmI2vflFHBbaT1AQ1Z')
                   .then(res=>{
                       this.Articulos = res.data.articulos
                       this.listaArticulos = this.Articulos.map(row=>row.art)
                   })
-         },
-         editarDato(id){
-             this.Datos = this.listadoDatos.filter(row=>row.id==id)[0]
-             toggleModal("modal-editar-dato")
-         },
-         guardarDato(){
-             toggleModal("modal-editar-dato")
-             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-             axios.post('/buscador/editardato',this.Datos)
-                                                                 .then(res=>{
-                                                                     msgSuccess('Dato editado con exito.')
-                                                                     this.getListadoDatos()
-                                                                 })
-                                                                 .catch(error=>{
-                                                                     msgError('Hubo un error. El dato no se edito.')
-                                                                 })
          },
          filtraDatosPorVendedor(vdor){
              this.listadoDatos_ = this.listadoDatos.filter(row=>row.vendedor==vdor)
@@ -292,9 +280,11 @@
              toggleModal("modal-edicion-wapp")
          },
          guardarWapp(){
+             // nueva ruta para /vendedor/editarwapp
+             // /uQ3gisetQ8v0n6tw81ORnpL1s
              toggleModal("modal-edicion-wapp")
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-             axios.post('/vendedor/editarwapp',this.Dato)
+             axios.post('/uQ3gisetQ8v0n6tw81ORnpL1s',this.Dato)
                                                                  .then(res=>{
                                                                      msgSuccess('WhatsApp editado correctamente')
                                                                  })
@@ -304,7 +294,9 @@
          },
          venderDato(iddato){
              //recargamos el Dato desde el servidor para asegurarnos ultimos valores
-             axios.get('/vendedor/getdato/'+iddato)
+             // nueva ruta para /vendedor/getdato
+             // pnZWxv9Nicwt6TQ6zxohzvats
+             axios.get('/pnZWxv9Nicwt6TQ6zxohzvats/'+iddato)
                   .then(res=>{
                       this.Dato=res.data.dato
                       this.Dato.fecha=dayjs.utc(this.Dato.fecha).format('YYYY-MM-DD')
@@ -317,7 +309,9 @@
                   })
          },
          anularDato(iddato){
-             axios.get('/vendedor/anulardato/'+iddato)
+             // nueva ruta para /vendedor/anulardato
+             // /UtVc3f6y5hfxu2dPmcrV9Y7mc
+             axios.get('/UtVc3f6y5hfxu2dPmcrV9Y7mc/'+iddato)
                   .then(res=>{
                       msgSuccess('Dato anulado correctamente')
                       this.getListadoDatosVendedor()
@@ -328,7 +322,9 @@
                   })
          },
          mudoDato(iddato){
-             axios.get('/vendedor/mudodato/'+iddato)
+             // nueva ruta para /vendedor/mudodato
+             // /gJUmonE8slTFGZqSKXSVwqPJ1
+             axios.get('/gJUmonE8slTFGZqSKXSVwqPJ1/'+iddato)
                   .then(res=>{
                       msgSuccess('Dato informado correctamente')
                       this.getListadoDatosVendedor()
@@ -339,7 +335,9 @@
                   })
          },
          fallecioDato(iddato){
-             axios.get('/vendedor/falleciodato/'+iddato)
+             //nueva ruta para /vendedor/falleciodato
+             // /sLTFCMArYAdVsrEgwsz7utyRi
+             axios.get('/sLTFCMArYAdVsrEgwsz7utyRi/'+iddato)
                   .then(res=>{
                       msgSuccess('Dato informado correctamente')
                       this.getListadoDatosVendedor()
@@ -354,9 +352,11 @@
              this.verCard = false
          },
          guardarDatoFechado(){
+             //nueva ruta para /vendedor/guardardatofechado
+             // /HvjJNtFgF71pRYafzcTC74nUt
              toggleModal("modal-fechar-dato")
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-             axios.post('/vendedor/guardardatofechado',this.Dato)
+             axios.post('/HvjJNtFgF71pRYafzcTC74nUt',this.Dato)
                                                                  .then(res=>{
                                                                      msgSuccess('Dato fechado con exito')
                                                                  })
@@ -365,13 +365,17 @@
                                                                  })
          },
          noEstabaDato(iddato){
-             axios.get('/vendedor/noestabadato/'+iddato)
+             // nueva ruta para /vendedor/noestabadato
+             // /G9S85pbqWVEX17nNQuOOnpxvn
+             axios.get('/G9S85pbqWVEX17nNQuOOnpxvn/'+iddato)
              this.verCard = false
          },
          validarDni(dni){
+             //nueva ruta para /vendedor/validardni
+             // /fc3vpQG6SzEH95Ya7kTJPZ48M
              datos = {dni, id: this.Dato.idcliente}
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-             axios.post('/vendedor/validardni',datos)
+             axios.post('/fc3vpQG6SzEH95Ya7kTJPZ48M',datos)
                                                                  .then(res=>{
                                                                      this.dnivalidado = true
                                                                  })
@@ -407,8 +411,10 @@
                  arrayArts.push(row.cnt+' '+row.art)
              })
              this.Dato.arts = arrayArts.toString()
+             // nueva ruta para /vendedor/registrarautorizacion
+             // /vaHQ2gFYLW2pIWSr5I0ogCL0k
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-             axios.post('/vendedor/registrarautorizacion',this.Dato)
+             axios.post('/vaHQ2gFYLW2pIWSr5I0ogCL0k',this.Dato)
              //enviar un whatsapp al Fede informando del pedido de autorizacion
              let msg = `Solicito autorizacion para ${this.Dato.nombre}
 con una compra de ${this.Dato.arts}
@@ -416,8 +422,10 @@ y una cuota de $${this.sumaCuota}.
 Quedo a la espera. Gracias.`
              let tipo = "autorizacion venta"
              let data = {msg,tipo}
+             // nueva ruta para /vendedor/wappaut
+             // /3ZbXanrRQalY6JL5eOBi49Nyc
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-	         axios.post('/buscador/wappaut',data)
+	         axios.post('/3ZbXanrRQalY6JL5eOBi49Nyc',data)
          },
          pasarVenta(){
              if(this.dnivalidado==false){
@@ -440,13 +448,14 @@ Quedo a la espera. Gracias.`
              this.Dato.primera = this.Venta.primera
              this.Dato.cuota = this.sumaCuota
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-             axios.post('/vendedor/pasarventa',this.Dato)
+             // nueva ruta para /vendedor/pasarventa
+             // /xuNzBi4bvtSugd5KbxSQzD0Ey
+             axios.post('/xuNzBi4bvtSugd5KbxSQzD0Ey',this.Dato)
                                                                  .then(res=>{
                                                                      this.getListadoDatosVendedor()
                                                                      msgSuccess('Venta pasada con exito')
                                                                      toggleModal("modal-pasar-venta")
-                                                                     /* this.verCard = false */
-                                                                     axios.get('/vendedor/getdato/'+this.Dato.id)
+                                                                     axios.get('/pnZWxv9Nicwt6TQ6zxohzvats/'+this.Dato.id)
                                                                          .then(res=>{
                                                                              this.Dato=res.data.dato
                                                                              this.Dato.fecha=dayjs.utc(this.Dato.fecha).format('YYYY-MM-DD')
@@ -465,8 +474,10 @@ Quedo a la espera. Gracias.`
                 window.location.href = 'tel:' + tel;
          },
          buscaGarante(dni){
-                if(this.Venta.dnigarante!=0 && this.Venta.dnigarante!=''){
-                 axios.get('/ventas/obtenerdatosgarante/'+this.Venta.dnigarante)
+             if(this.Venta.dnigarante!=0 && this.Venta.dnigarante!=''){
+                 // nueva ruta para /ventas/obtenerdatosgarante
+                 // /3ibzPLLq53RuFgIqkq6G3bSzO
+                 axios.get('/3ibzPLLq53RuFgIqkq6G3bSzO/'+this.Venta.dnigarante)
                       .then(res=>{
                           this.nombregarante = res.data.garante[0].nombre
                           this.dnigarantevalidado = true
@@ -493,10 +504,14 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
              let file = 'informacion-importante'
              let data = {msg,wapp,idcliente,file}
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-	         axios.post('/buscador/wapp',data)
+             // nueva ruta para /vendedor/wapp
+             // /hX53695XAOpaLY9itLgmghkhH
+	         axios.post('/hX53695XAOpaLY9itLgmghkhH',data)
                                                                  .then(res=>{
-                                                                     axios.post('/buscador/filewapp',data)
-             })
+                                                                     //nueva ruta para /vendedor/filewapp
+                                                                     // /4qUK6eNZnCYjIiGTt3HSj2YDp
+                                                                     axios.post('/4qUK6eNZnCYjIiGTt3HSj2YDp',data)
+                                                                 })
          },
      }
  }
