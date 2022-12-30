@@ -17,6 +17,7 @@ def ventas_pasarventas():
     return render_template('ventas/ventas.html')
 
 
+@ventas.route('/CZI6X7BC6wNtseAN22HiXsmqc')
 @ventas.route('/ventas/getcalles')
 @login_required
 @check_roles(['dev','gerente','admin','vendedor'])
@@ -27,6 +28,7 @@ def ventas_getcalles():
     return jsonify(result=calles)
 
 
+@ventas.route('/w98LuAaWBax9c6rENQ2TjO3PR')
 @ventas.route('/ventas/getbarrios')
 @login_required
 @check_roles(['dev','gerente','admin','vendedor'])
@@ -965,3 +967,18 @@ def ventas_obtenerdatosgarante(dni):
         return jsonify(garante=garante)
     else:
         return make_response('dni no existe', 404)
+
+
+
+@ventas.route('/ventas/ingresoventas')
+@login_required
+@check_roles(['dev','gerente'])
+def ventas_ingresoventas():
+    return render_template("/ventas/ingresoventas.html")
+
+
+@ventas.route('/ventas/visitas')
+@login_required
+@check_roles(['dev', 'gerente'])
+def ventas_visitas():
+    return render_template('/ventas/visitas.html')

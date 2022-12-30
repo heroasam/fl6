@@ -359,13 +359,15 @@ def vendedor_guardarcuotabasica(cuota):
         return 'ok'
 
 
-@vendedor.route('/vendedor/listadatos')
+@vendedor.route('/2xxXix5cnz7IKcYegqs6qf0R6')
+# @vendedor.route('/vendedor/listadatos')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_listadatos():
     return render_template('/vendedor/listadatos.html')
 
 
+@vendedor.route('/Hb0IQfDEnbLV4eyWZeg5kbcff')
 @vendedor.route('/vendedor/agregarcliente')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -373,6 +375,7 @@ def vendedor_agregarcliente():
     return render_template('/vendedor/agregarcliente.html')
 
 
+@vendedor.route('/pEmPj7NAUn0Odsru4aL2BhlOu', methods=['POST'])
 @vendedor.route('/vendedor/envioclientenuevo', methods=['POST'])
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -477,11 +480,15 @@ def vendedor_envioclientenuevo():
         monto_garantizado = 0
         if deuda_en_la_casa is None:
             deuda_en_la_casa = 0
+        if d['dnigarante']=='':
+            dnigarante = 0
+        else:
+            dnigarante = d['dnigarante']
         inscliente = f"insert into clientes(sex,dni, nombre,calle,num,barrio,\
         tel,wapp,zona,modif_vdor,acla,horario,mjecobr,infoseven) values('F',\
         {d['dni']},'{d['nombre']}','{d['calle']}',{d['num']},'{d['barrio']}',\
         '{d['tel']}','{d['wapp']}','-CAMBIAR',1,'{d['acla']}','','','')"
-
+        print(inscliente)
         try:
             cur.execute(inscliente)
             idcliente = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
@@ -490,14 +497,16 @@ def vendedor_envioclientenuevo():
             monto_garantizado,vendedor,dnigarante) values (curdate(), \
             '{current_user.email}',{idcliente},curdate(),'','',\
             'cliente enviado por vendedor', {cuota_maxima}, '{deuda_en_la_casa}',\
-            {sin_extension}, {monto_garantizado},{vdor},{d['dnigarante']})"
+            {sin_extension}, {monto_garantizado},{vdor},{dnigarante})"
             cur.execute(ins)
+            print(ins)
             iddato = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
             insaut = f"insert into autorizacion(fecha,vdor,iddato,idcliente,\
             cuota_requerida,cuota_maxima,arts) values(current_timestamp(),\
             {vdor},{iddato},{idcliente},{d['cuota_requerida']},\
             {cuota_maxima},'{d['arts']}')"
             cur.execute(insaut)
+            print(insaut)
         except mysql.connector.Error as _error:
             con.rollback()
             error = _error.msg
@@ -507,16 +516,13 @@ def vendedor_envioclientenuevo():
             con.close()
             log(ins)
             log(insaut)
-            return redirect(url_for('vendedor_listadatos'))
+            return 'ok'
 
 
-@vendedor.route('/vendedor/visitas')
-@login_required
-@check_roles(['dev', 'gerente'])
-def vendedor_visitas():
-    return render_template('/vendedor/visitas.html')
 
 
+
+@vendedor.route('/4mY6khlmZKUzDRZDJkakr75iH')
 @vendedor.route('/vendedor/listavisitasvdor')
 @login_required
 @check_roles(['dev', 'gerente','vendedor'])
@@ -939,6 +945,7 @@ def vendedor_noestabadato(iddato):
        return 'ok'
 
 
+
 @vendedor.route('/vendedor/getvisitasvendedor')
 @login_required
 @check_roles(['dev', 'gerente'])
@@ -957,6 +964,7 @@ def vendedor_getvisitasvendedor():
     return jsonify(visitasvendedor=visitasvendedor, fechasvisitas=fechasvisitas)
 
 
+@vendedor.route('/F8cq9GzHJIG9hENBo0Xq7hdH7')
 @vendedor.route('/vendedor/getvisitasvdor')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -1002,11 +1010,7 @@ def vendedor_getventashoy():
     return jsonify(ventashoy=ventashoy)
 
 
-@vendedor.route('/vendedor/ingresoventas')
-@login_required
-@check_roles(['dev','gerente'])
-def vendedor_ingresoventas():
-    return render_template("/vendedor/ingresoventas.html")
+
 
 
 @vendedor.route('/3ZbXanrRQalY6JL5eOBi49Nyc', methods=["POST"])
@@ -1058,3 +1062,16 @@ def vendedor_filewapp():
         response = send_file_whatsapp(
             idcliente,f"https://www.fedesal.lol/pdf/{file}.pdf", wapp)
         return jsonify(response=response)
+
+
+@vendedor.route('/MeHzAqFYsbb78KAVFAGTlZRW9/<dni>')
+@vendedor.route('/vendedor/buscaclientepordni/<dni>')
+@login_required
+@check_roles(['dev','gerente','admin','vendedor'])
+def vendedor_buscaclientepordni(dni):
+    con = get_con()
+    cliente = pgdict1(con, f"select * from clientes where dni={dni}")
+    if cliente:
+        return jsonify(cliente=cliente)
+    else:
+        return make_response("error", 401)

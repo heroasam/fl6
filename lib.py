@@ -46,9 +46,11 @@ def pgdict1(con, sel):
     """
     cur = con.cursor(dictionary=True)
     cur.execute(sel)
-    rec = cur.fetchall()[0]
-    # cur.close()
-    return rec
+    rec = cur.fetchall()
+    if rec:
+        return rec[0]
+    else:
+        return None
 
 
 def pglist(con, sel):

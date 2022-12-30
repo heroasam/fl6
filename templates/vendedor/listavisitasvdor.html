@@ -8,7 +8,7 @@
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getVisitasVendedor()">
+<div class="container" x-data="DRpCmN0kdtSCE2mWXi5CiVycj()" x-init="getVisitasVendedor()">
 
   <p class="title is-1">Visitas Diarias</p>
   <div class="columns">
@@ -58,54 +58,4 @@
 
 
   </div>
-  {% endblock %}
-
-  {% block script %}
-  <script>
-   function main(){
-       return{
-           listaVisitasVendedor:[],
-           listaVisitasVendedor_:[],
-           listaFechas:[],
-           listaFechas_:[],
-           fecha:'',
-           vdor:'',
-           listaVendedores:[],
-           getVisitasVendedor(){
-               axios.get('/vendedor/getvisitasvdor')
-                    .then(res=>{
-                        this.listaVisitasVendedor = res.data.visitasvendedor
-                        this.listaVisitasVendedor.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
-                        this.listaFechas = res.data.fechasvisitas
-                        this.listaFechas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
-                        this.listaFechas_ = this.listaFechas
-
-                    })
-           },
-           expandChildren(fecha){
-               if(this.fecha==fecha && this.listaVisitasVendedor_.length>0){
-                   this.listaVisitasVendedor_ = []
-                   return
-               }
-               this.listaVisitasVendedor_ = this.listaVisitasVendedor.filter(row=>row.vdor==this.vdor)
-               this.listaVisitasVendedor_=this.listaVisitasVendedor.filter(row=>row.fecha==fecha)
-               this.fecha = fecha
-               setTimeout(()=>{
-                   $tbody = document.querySelector('tbody')
-                   $trfecha = document.getElementById(fecha)
-                   let arrayrows = Array.from($tbody.children)
-                   let children = arrayrows.filter(row=>row.classList.contains('children'))
-                   children = children.reverse()
-                   for(el of children){
-                       $tbody.insertBefore(el,$trfecha.nextSibling)
-               }},10)
-           },
-           filtrarVdor(vdor){
-               this.vdor=vdor
-               this.listaFechas_ = this.listaFechas.filter(row=>row.vdor==vdor)
-           },
-
-       }
-   }
-  </script>
   {% endblock %}
