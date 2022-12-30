@@ -197,6 +197,77 @@ def log1_log():
     return send_file('/tmp/log.txt')
 
 
+@app.route('/log2')
+@login_required
+@check_roles(['dev'])
+def log2_log():
+    """Muestra log de login."""
+    f = open('/tmp/login.txt', "w")
+    log = open('/home/hero/log/login.log', "r")
+    log2log = log.read()
+    f.write(log2log)
+    f.close()
+    log.close()
+    return send_file('/tmp/login.txt')
+
+
+@app.route('/log3')
+@login_required
+@check_roles(['dev'])
+def log3_log():
+    """Muestra log de wapp."""
+    f = open('/tmp/wapp.txt', "w")
+    log = open('/home/hero/log/wapp.log', "r")
+    log3log = log.read()
+    f.write(log3log)
+    f.close()
+    log.close()
+    return send_file('/tmp/wapp.txt')
+
+
+@app.route('/log4')
+@login_required
+@check_roles(['dev'])
+def log4_log():
+    """Muestra log de busquedas."""
+    f = open('/tmp/busquedas.txt', "w")
+    log = open('/home/hero/log/busquedas.log', "r")
+    log4log = log.read()
+    f.write(log4log)
+    f.close()
+    log.close()
+    return send_file('/tmp/busquedas.txt')
+
+
+@app.route('/log5')
+@login_required
+@check_roles(['dev'])
+def log5_log():
+    """Muestra log de themes."""
+    f = open('/tmp/themes.txt', "w")
+    log = open('/home/hero/log/themes.log', "r")
+    log5log = log.read()
+    f.write(log5log)
+    f.close()
+    log.close()
+    return send_file('/tmp/themes.txt')
+
+
+@app.route('/log6')
+@login_required
+@check_roles(['dev'])
+def log6_log():
+    """Muestra log de caja."""
+    f = open('/tmp/caja.txt', "w")
+    log = open('/home/hero/log/caja.log', "r")
+    log6log = log.read()
+    f.write(log6log)
+    f.close()
+    log.close()
+    return send_file('/tmp/caja.txt')
+
+
+
 @app.template_filter()
 def cur(monto):
     if monto == None:
