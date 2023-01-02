@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Visitas{% endblock %}
+{% block style %}
+<style>
+  </style>
+  {% endblock %}
+
+{% block content %}
+
+  <div class="container" x-data="main()" x-init="getVendedores()">
+
+    <p class="title is-1">Cargar Articulos</p>
+    <div class="columns">
+      <div class="column is-6">
+        <div class="buttons" id="btnVdor">
+          <template x-for="vdor in listaVendedores">
+            <button class="button is-info" @click="getArtVendedor(vdor);limpiarToggles();
+                           $event.target.classList.toggle('is-warning')" x-text="vdor"></button>
+          </template>
+        </div>
+            <table class="table is-narrow" id="table">
+              <thead>
+                <tr>
+                  <th>cnt</th>
+                  <th class="sumar">art</th>
+                </tr>
+                </thead>
+                <tbody>
+                  <template x-for="item in listaArtVendedor">
+                    <tr>
+                      <td x-text="item.cnt"></td>
+                      <td x-text="item.art"></td>
+                    </tr>
+                    </template>
+                 </tbody>
+            </table>
+
+      <button class="button is-danger" @click="validarCargado(vendedor)">Cargado</button>
+      </div>
+
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+ function main(){
+     return{
+         listaArtVendedor:[],
+         fecha:'',
+         vendedor:'',
+         listaVendedores:[],
+         getVendedores(){
+             axios.get('/vendedor/getvendedores')
+                  .then(res=>{
+                      this.listaVendedores=res.data.vendedores
+             })
+         },
+         getArtVendedor(vdor){
+             this.vendedor = vdor
+             axios.get('/vendedor/getartvendedor/'+vdor)
+                  .then(res=>{
+                      this.listaArtVendedor = res.data.artvendedor
+             })
+         },
+          limpiarToggles() {
+             $btnVdor = document.getElementById('btnVdor')
+             Array.from($btnVdor.children).slice(1).forEach(btn => {
+                 btn.classList.remove('is-warning')
+             })
+          },
+         validarCargado(vdor){
+            Swal.fire({
+            title: '¿Esta seguro?',
+            text: `Se marcara como cargados los articulos del Vendedor ${vdor}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, Marcarlos!'
+            }).then((result) => {
+            if (result.isConfirmed) {
+                axios.get('/vendedor/marcarcargado/'+vdor)
+                     .then(res=>{
+                         msgSuccess('Marcado!','El vendedor ha cargado lo que tenia hasta el momento')
+                         this.getArtVendedor(vdor)})
+                     .catch(error=>msgError('No se pudo procesar. Hubo un error.'))
+            }})
+         },
+     }
+ }
+  </script>
+  {% endblock %}

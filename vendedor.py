@@ -1075,3 +1075,44 @@ def vendedor_buscaclientepordni(dni):
         return jsonify(cliente=cliente)
     else:
         return make_response("error", 401)
+
+
+@vendedor.route('/vendedor/getartvendedor/<int:vdor>')
+@login_required
+@check_roles(['dev','gerente'])
+def vendedor_getartvendedor(vdor):
+    con = get_con()
+    artvendedor = pgdict(con, f"select sum(detvta.cnt) as cnt,\
+    detvta.art as art from detvta,ventas where detvta.idvta=ventas.id and \
+    cargado=0 and idvdor={vdor} group by detvta.art")
+    return jsonify(artvendedor=artvendedor)
+
+
+@vendedor.route('/vendedor/getvendedores')
+@login_required
+@check_roles(['dev','gerente'])
+def vendedor_getvendedores():
+    con = get_con()
+    vendedores = pglflat(con, "select id from cobr where activo=1 and vdor=1")
+    return jsonify(vendedores=vendedores)
+
+
+@vendedor.route('/vendedor/marcarcargado/<int:vdor>')
+@login_required
+@check_roles(['dev','gerente'])
+def vendedor_marcarcargado(vdor):
+    con = get_con()
+    upd = f"update detvta set cargado=1 where idvta in (select id from ventas \
+    where idvdor={vdor})"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        con.close()
+        log(upd)
+        return 'ok'

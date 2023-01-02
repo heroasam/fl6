@@ -982,3 +982,10 @@ def ventas_ingresoventas():
 @check_roles(['dev', 'gerente'])
 def ventas_visitas():
     return render_template('/ventas/visitas.html')
+
+
+@ventas.route('/ventas/cargarartvdor')
+@login_required
+@check_roles(['dev', 'gerente'])
+def ventas_cargarartvdores():
+    return render_template('/ventas/cargarartvdor.html')
