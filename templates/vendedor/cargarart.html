@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Cargar{% endblock %}
+{% block style %}
+<style>
+  </style>
+  {% endblock %}
+
+{% block content %}
+
+  <div class="container" x-data="main()" x-init="getArtVendedor()">
+
+    <p class="title is-1">Cargar Articulos</p>
+    <div class="columns">
+
+            <table class="table is-narrow" id="table">
+              <thead>
+                <tr>
+                  <th>cnt</th>
+                  <th class="sumar">art</th>
+                </tr>
+                </thead>
+                <tbody>
+                  <template x-for="item in listaArtVendedor">
+                    <tr>
+                      <td x-text="item.cnt"></td>
+                      <td x-text="item.art"></td>
+                    </tr>
+                    </template>
+                 </tbody>
+            </table>
+
+      </div>
+
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+ function main(){
+     return{
+         listaArtVendedor:[],
+         getArtVendedor(){
+             //nueva ruta para /vendedor/getcargavendedor k8E5hsVs4be3jsJJaob6OQmAX
+             axios.get('/k8E5hsVs4be3jsJJaob6OQmAX')
+                  .then(res=>{
+                      this.listaArtVendedor = res.data.artvendedor
+             })
+         },
+
+     }
+ }
+  </script>
+  {% endblock %}

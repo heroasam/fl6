@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Comisiones{% endblock %}
+{% block style %}
+<style>
+  </style>
+  {% endblock %}
+
+{% block content %}
+
+  <div class="container" x-data="main()" x-init="getVentasVendedor()">
+
+    <p class="title is-1">Comisiones por Vendedor</p>
+    <div class="columns">
+      <div class="column is-6">
+        <div class="buttons" id="btnVdor">
+          <template x-for="vdor in listaVendedores">
+            <button class="button is-info" @click="filtrarVdor(vdor);limpiarToggles();
+                           $event.target.classList.toggle('is-warning')" x-text="vdor"></button>
+          </template>
+        </div>
+            <table class="table is-narrow" id="table">
+                <thead>
+                    <tr>
+                        <th>hora</th>
+                        <th>resultado</th>
+                        <th>nombre</th>
+                        <th>direccion</th>
+                        <th>zona</th>
+                        <th class="sumar">vendido</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  <template x-for="item in listaFechas_">
+                    <tr :id="item.fecha">
+                      <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
+                                                         @click="expandChildren(item.fecha)"></td>
+                          <td x-text="item.fecha"></td>
+                          <td x-text="item.cnt"></td>
+                          <td></td>
+                          <td></td>
+                          <td x-text="item.monto_vendido" class="pesos"></td>
+                    </tr>
+                  </template>
+
+                  <template x-for="item in listaVisitasVendedor_">
+                    <tr class="children">
+                        <td x-text="item.hora"></td>
+                        <td><span class="tag is-small" x-text="item.result==1?'venta':(item.result==2?'anulado':
+                                         (item.result==3?'no estaba':(item.result==5?'mudo':(item.result==6?'fallecio':'fechado'))))"
+                                  :class="item.result==1?'is-success':(item.result==2?'is-danger':(item.result==3?'is-warning':
+                                         (item.result==5?'is-primary':(item.result==6?'if-black':'is-info'))))"></span></td>
+                        <td x-text="item.nombre"></td>
+                        <td x-text="item.calle+' '+item.num"></td>
+                        <td x-text="item.zona"></td>
+                        <td x-text="item.monto_vendido" class="pesos"></td>
+                    </tr>
+                    </template>
+                 </tbody>
+            </table>
+
+    </div>
+
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+ function main(){
+     return{
+         listaVisitasVendedor:[],
+         listaVisitasVendedor_:[],
+         listaFechas:[],
+         listaFechas_:[],
+         fecha:'',
+         vendedor:'',
+         listaVendedores:[],
+         getVisitasVendedor(){
+             axios.get('/vendedor/getvisitasvendedor')
+                  .then(res=>{
+                      this.listaVisitasVendedor = res.data.visitasvendedor
+                      this.listaVisitasVendedor.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      this.listaFechas = res.data.fechasvisitas
+                      this.listaFechas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      this.listaFechas_ = this.listaFechas
+                      let vdores = new Set(this.listaFechas.map(row=>row.vdor))
+                      this.listaVendedores = Array.from(vdores)
+             })
+         },
+         expandChildren(fecha){
+              if(this.fecha==fecha && this.listaVisitasVendedor_.length>0){
+                  this.listaVisitasVendedor_ = []
+                  return
+              }
+             this.listaVisitasVendedor_ = this.listaVisitasVendedor.filter(row=>row.vdor==this.vendedor)
+             this.listaVisitasVendedor_ = this.listaVisitasVendedor_.filter(row=>row.fecha==fecha)
+             this.fecha = fecha
+             setTimeout(()=>{
+             $tbody = document.querySelector('tbody')
+             $trfecha = document.getElementById(fecha)
+             let arrayrows = Array.from($tbody.children)
+             let children = arrayrows.filter(row=>row.classList.contains('children'))
+             children = children.reverse()
+             for(el of children){
+                 $tbody.insertBefore(el,$trfecha.nextSibling)
+               }},10)
+         },
+         filtrarVdor(vdor){
+             this.vendedor=vdor
+             this.listaFechas_ = this.listaFechas.filter(row=>row.vdor==this.vendedor)
+         },
+          limpiarToggles() {
+             $btnVdor = document.getElementById('btnVdor')
+             Array.from($btnVdor.children).slice(1).forEach(btn => {
+                 btn.classList.remove('is-warning')
+             })
+          },
+     }
+ }
+  </script>
+  {% endblock %}

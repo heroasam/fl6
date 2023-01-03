@@ -1116,3 +1116,27 @@ def vendedor_marcarcargado(vdor):
         con.close()
         log(upd)
         return 'ok'
+
+
+@vendedor.route('/k8E5hsVs4be3jsJJaob6OQmAX')
+@vendedor.route('/vendedor/getcargavendedor')
+@login_required
+@check_roles(['dev','gerente','vendedor'])
+def vendedor_getcargavendedor():
+    con = get_con()
+    if current_user.email == var_sistema['816']:
+        vdor = 816
+    elif current_user.email == var_sistema['835']:
+        vdor = 835
+    artvendedor = pgdict(con, f"select sum(detvta.cnt) as cnt,\
+    detvta.art as art from detvta,ventas where detvta.idvta=ventas.id and \
+    cargado=0 and idvdor={vdor} group by detvta.art")
+    return jsonify(artvendedor=artvendedor)
+
+
+@vendedor.route('/TWGQV0TM0p7Oa9tMPvrNWIHyd')
+@vendedor.route('/vendedor/cargararticulos')
+@login_required
+@check_roles(['dev','gerente','vendedor'])
+def vendedor_cargararticulos():
+    return render_template('/vendedor/cargarart.html')
