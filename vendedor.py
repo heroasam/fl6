@@ -1064,6 +1064,19 @@ def vendedor_filewapp():
         return jsonify(response=response)
 
 
+@vendedor.route('/vendedor/getcomisionesvendedor/<int:vdor>')
+@login_required
+@check_roles(['dev','gerente'])
+def vendedor_getcomisionesvendedor(vdor):
+    com = 'com'+str(vdor)
+    comision = var_sistema[com]
+    con = get_con()
+    comisiones = pgdict(con, f"select fecha,sum(comprado*{comision}) as venta \
+    from ventas where idvdor={vdor} and compagada=0 group by fecha order by \
+    fecha")
+    return jsonify(comisiones=comisiones)
+
+
 @vendedor.route('/MeHzAqFYsbb78KAVFAGTlZRW9/<dni>')
 @vendedor.route('/vendedor/buscaclientepordni/<dni>')
 @login_required
@@ -1104,6 +1117,27 @@ def vendedor_marcarcargado(vdor):
     con = get_con()
     upd = f"update detvta set cargado=1 where idvta in (select id from ventas \
     where idvdor={vdor})"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        con.close()
+        log(upd)
+        return 'ok'
+
+
+@vendedor.route('/vendedor/marcarpagadas/<int:vdor>')
+@login_required
+@check_roles(['dev','gerente'])
+def vendedor_marcarpagadas(vdor):
+    con = get_con()
+    upd = f"update ventas set compagada=1 where id in (select id from ventas \
+    where idvdor={vdor} and compagada=0)"
     cur = con.cursor()
     try:
         cur.execute(upd)

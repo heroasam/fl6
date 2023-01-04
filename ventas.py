@@ -989,3 +989,10 @@ def ventas_visitas():
 @check_roles(['dev', 'gerente'])
 def ventas_cargarartvdores():
     return render_template('/ventas/cargarartvdor.html')
+
+
+@ventas.route('/ventas/comisiones')
+@login_required
+@check_roles(['dev', 'gerente'])
+def ventas_comisiones():
+    return render_template('/ventas/comisiones.html')
