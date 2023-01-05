@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Comisiones{% endblock %}
+{% block style %}
+<style>
+  </style>
+  {% endblock %}
+
+{% block content %}
+
+  <div class="container" x-data="IkKmqwFGcDGnhd8x1TvBO6C6p()" x-init="getComisionesVdor">
+
+    <p class="title is-1">Comisiones por Vendedor</p>
+    <div class="columns">
+      <div class="column is-6">
+
+         <div class="xtags has-addons m-0" x-show="totalComision">
+		  <span class="tag is-large is-black m-0">Comision Total</span>
+		  <span class="tag is-large is-light m-0" x-text="'$'+totalComision"></span>
+	     </div>
+         <table class="table is-narrow" id="table">
+                <thead>
+                    <tr>
+                        <th>fecha</th>
+                        <th class="sumar">comision</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  <template x-for="item in listaComisiones">
+                    <tr>
+                          <td x-text="item.fecha"></td>
+                          <td x-text="item.com" class="pesos"></td>
+                    </tr>
+                  </template>
+                 </tbody>
+            </table>
+
+
+    </div>
+
+
+</div>
+{% endblock %}

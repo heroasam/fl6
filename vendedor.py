@@ -1071,7 +1071,7 @@ def vendedor_getcomisionesvendedor(vdor):
     com = 'com'+str(vdor)
     comision = var_sistema[com]
     con = get_con()
-    comisiones = pgdict(con, f"select fecha,sum(comprado*{comision}) as venta \
+    comisiones = pgdict(con, f"select fecha,sum(comprado*{comision}) as com \
     from ventas where idvdor={vdor} and compagada=0 group by fecha order by \
     fecha")
     return jsonify(comisiones=comisiones)
@@ -1174,3 +1174,29 @@ def vendedor_getcargavendedor():
 @check_roles(['dev','gerente','vendedor'])
 def vendedor_cargararticulos():
     return render_template('/vendedor/cargarart.html')
+
+
+@vendedor.route('/DDFEwfGEDYv5UHTVgcDPFUWm1')
+@vendedor.route('/vendedor/comisionesvdor')
+@login_required
+@check_roles(['dev','gerente','vendedor'])
+def vendedor_comisionesvdor():
+    return render_template('/vendedor/comisionesvdor.html')
+
+
+@vendedor.route('/IrV7gmqz4Wu8Q8rwmXMftphaB')
+@vendedor.route('/vendedor/getcomisionesparavendedor')
+@login_required
+@check_roles(['dev','gerente','vendedor'])
+def vendedor_getcomisionesparavendedor():
+    if current_user.email == var_sistema['816']:
+        vdor = 816
+    elif current_user.email == var_sistema['835']:
+        vdor = 835
+    com = 'com'+str(vdor)
+    comision = var_sistema[com]
+    con = get_con()
+    comisiones = pgdict(con, f"select fecha,sum(comprado*{comision}) as com \
+    from ventas where idvdor={vdor} and compagada=0 group by fecha order by \
+    fecha")
+    return jsonify(comisiones=comisiones)

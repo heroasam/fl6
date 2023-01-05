@@ -462,3 +462,33 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
          },
      }
  }
+ function GnIVzsHTcsg1sQFsVD7xfw7Dc(){
+     return{
+         listaArtVendedor:[],
+         getArtVendedor(){
+             //nueva ruta para /vendedor/getcargavendedor k8E5hsVs4be3jsJJaob6OQmAX
+             axios.get('/k8E5hsVs4be3jsJJaob6OQmAX')
+                  .then(res=>{
+                      this.listaArtVendedor = res.data.artvendedor
+                  })
+         },
+
+     }
+ }
+ function IkKmqwFGcDGnhd8x1TvBO6C6p(){
+     return{
+         listaComisiones:[],
+         totalComision:'',
+         getComisionesVdor(){
+             //nueva ruta para /vendedor/getcomisionesparavendedor
+             axios.get('/IrV7gmqz4Wu8Q8rwmXMftphaB')
+                  .then(res=>{
+                      this.listaComisiones = res.data.comisiones
+                      this.listaComisiones.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      this.listaComisiones.map(row=>row.com=parseFloat(row.com))
+                      this.totalComision = parseFloat(this.listaComisiones.map(row=>row.com).reduce((a,b)=>a+b,0))
+                  })
+         },
+
+     }
+ }

@@ -19,7 +19,11 @@
                            $event.target.classList.toggle('is-warning')" x-text="vdor"></button>
           </template>
         </div>
-            <table class="table is-narrow" id="table">
+         <div class="xtags has-addons m-0" x-show="totalComision">
+		  <span class="tag is-large is-black m-0">Comision Total</span>
+		  <span class="tag is-large is-light m-0" x-text="'$'+totalComision"></span>
+	     </div>
+         <table class="table is-narrow" id="table">
                 <thead>
                     <tr>
                         <th>fecha</th>
@@ -30,7 +34,7 @@
                   <template x-for="item in listaComisiones">
                     <tr>
                           <td x-text="item.fecha"></td>
-                          <td x-text="item.venta" class="pesos"></td>
+                          <td x-text="item.com" class="pesos"></td>
                     </tr>
                   </template>
                  </tbody>
@@ -50,6 +54,7 @@
          listaComisiones:[],
          vendedor:'',
          listaVendedores:[],
+         totalComision:'',
          getVendedores(){
              axios.get('/vendedor/getvendedores')
                   .then(res=>{
@@ -62,9 +67,11 @@
                   .then(res=>{
                       this.listaComisiones = res.data.comisiones
                       this.listaComisiones.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
-             })
+                      this.listaComisiones.map(row=>row.com=parseFloat(row.com))
+                      this.totalComision = parseFloat(this.listaComisiones.map(row=>row.com).reduce((a,b)=>a+b,0))
+                  })
          },
-          limpiarToggles() {
+         limpiarToggles() {
              $btnVdor = document.getElementById('btnVdor')
              Array.from($btnVdor.children).slice(1).forEach(btn => {
                  btn.classList.remove('is-warning')

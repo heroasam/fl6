@@ -8,7 +8,7 @@
 
 {% block content %}
 
-  <div class="container" x-data="main()" x-init="getArtVendedor()">
+  <div class="container" x-data="GnIVzsHTcsg1sQFsVD7xfw7Dc()" x-init="getArtVendedor()">
 
     <p class="title is-1">Cargar Articulos</p>
     <div class="columns">
@@ -35,21 +35,3 @@
 
 </div>
 {% endblock %}
-
-{% block script %}
-<script>
- function main(){
-     return{
-         listaArtVendedor:[],
-         getArtVendedor(){
-             //nueva ruta para /vendedor/getcargavendedor k8E5hsVs4be3jsJJaob6OQmAX
-             axios.get('/k8E5hsVs4be3jsJJaob6OQmAX')
-                  .then(res=>{
-                      this.listaArtVendedor = res.data.artvendedor
-             })
-         },
-
-     }
- }
-  </script>
-  {% endblock %}
