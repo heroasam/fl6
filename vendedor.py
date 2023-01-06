@@ -34,19 +34,39 @@ def calculo_cuota_maxima(idcliente):
     le disminuye 5% por cada mes de atraso que haya tenido
     le aumenta 5% por cada compra que haya tenido en los ultimos tres años.
     Esto ultimo se suspende pq aumenta mucho la cuota por la gran inflacion que
-    hay."""
+    hay.
+    Cambios: se saco el incremento por cantidad de ventas.
+    Se toman las ventas de los ultimos tres años canceladas o no, y se actualizan
+    luego se pone la cuota actualizada mas alta.
+    Tambien se tiene en cuenta el monto total de la venta/6 para el calculo de la
+    cuota para evitar distorsion si el plan fue en 4 o 5 cuotas.
+    """
     con = get_con()
-    cuotas = pgdict(con, f"select max(ic) as ic, max(date_format(fecha,'%Y%c')) as \
-    fecha from ventas where idcliente={idcliente} and fecha>date_sub(curdate(),\
-    interval 3 year) and saldo=0")[0]
-    if cuotas['ic'] and cuotas['fecha']:
-        cuota = cuotas['ic']
-        fecha = cuotas['fecha']
-        indice = pgonecolumn(con, f"select indice from inflacion \
-        where concat(year,month)='{fecha}'")
+    # cuotas = pgdict(con, f"select max(ic) as ic, max(date_format(fecha,'%Y%c')) as \
+    # fecha from ventas where idcliente={idcliente} and fecha>date_sub(curdate(),\
+    # interval 3 year)")[0]
+    cuotas = pgdict(con, f"select comprado as monto,date_format(fecha,'%Y%c') \
+    as fecha from ventas where idcliente={idcliente} and fecha>\
+    date_sub(curdate(),interval 3 year)")
+    # if cuotas['ic'] and cuotas['fecha']:
+    if cuotas:
+        # cuota = cuotas['ic']
+        # fecha = cuotas['fecha']
+        # indice = pgonecolumn(con, f"select indice from inflacion \
+        # by id desc limit 1")
         ultimo_valor = pgonecolumn(con, "select indice from inflacion order \
-        by id desc limit 1")
-        cuota_actualizada = ultimo_valor/indice * cuota
+            by id desc limit 1")
+        # cuota_actualizada = ultimo_valor/indice * cuota
+        cuotas_actualizadas = []
+        for venta in cuotas:
+            cuota = venta['monto']/6
+            fecha = venta['fecha']
+            indice = pgonecolumn(con, f"select indice from inflacion \
+            where concat(year,month)='{fecha}'")
+            actualizada = ultimo_valor/indice * cuota
+            cuotas_actualizadas.append(actualizada)
+        cuota_actualizada = max(cuotas_actualizadas)
+
         # cnt_compras = pgonecolumn(con, f"select count(*) from ventas where \
         # idcliente={idcliente} and saldo=0 and fecha>date_sub(curdate(), \
         # interval 3 year)")
@@ -87,6 +107,7 @@ def vendedor_guardardato():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     cuota_maxima = calculo_cuota_maxima(d['idcliente'])
+    print(cuota_maxima)
     sin_extension = calculo_sin_extension(d['idcliente'])
     if cuota_maxima==0 or cuota_maxima<float(d['cuota_maxima']):
         cuota_maxima = d['cuota_maxima']
