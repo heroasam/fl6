@@ -225,3 +225,83 @@ def utilidades_borraruser(id):
         con.close()
         log(stm)
         return 'ok'
+
+
+@utilidades.route('/utilidades/variables')
+@login_required
+@check_roles(['dev'])
+def utilidades_variables():
+    return render_template('/utilidades/variables.html')
+
+
+@utilidades.route('/utilidades/getdictvariables')
+@login_required
+@check_roles(['dev'])
+def utilidades_getdictvariables():
+    con = get_con()
+    variables = pgdict(con, f"select id,clave,valor from variables")
+    return jsonify(variables=variables)
+
+
+@utilidades.route('/utilidades/editarvariable' , methods=['POST'])
+@login_required
+@check_roles(['dev'])
+def utilidades_editarvariable():
+    con = get_con()
+    d_data = json.loads(request.data.decode("UTF-8"))
+    upd = f"update variables set clave='{d_data['clave']}', \
+    valor='{d_data['valor']}' where id={d_data['id']}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        con.close()
+        log(upd)
+        return 'ok'
+
+
+@utilidades.route('/utilidades/agregarvariable', methods=['POST'])
+@login_required
+@check_roles(['dev'])
+def utilidades_agregarvariable():
+    con = get_con()
+    d_data = json.loads(request.data.decode("UTF-8"))
+    ins = f"insert into variables(clave,valor) values('{d_data['clave']}',\
+    '{d_data['valor']}')"
+    cur = con.cursor()
+    try:
+        cur.execute(ins)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        con.close()
+        log(ins)
+        return 'ok'
+
+
+@utilidades.route('/utilidades/borrarvariable/<int:id>')
+@login_required
+@check_roles(['dev'])
+def utilidades_borrarvariable(id):
+    con = get_con()
+    stm = f"delete from variables where id={id}"
+    cur = con.cursor()
+    try:
+        cur.execute(stm)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        con.close()
+        log(stm)
+        return 'ok'
