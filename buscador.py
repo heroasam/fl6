@@ -145,6 +145,16 @@ def buscar_cuenta(buscar):
     return jsonify(clientes=clientes)
 
 
+@buscador.route('/buscador/getasignado/<zona>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_getasignado(zona):
+    con = get_con()
+    asignado = pgonecolumn(con, f"select asignado from zonas where \
+    zona='{zona}'")
+    return jsonify(asignado=asignado)
+
+
 @buscador.route('/buscador/clientesdireccion/<string:calle>/<string:num>')
 @login_required
 @check_roles(['dev','gerente','admin'])

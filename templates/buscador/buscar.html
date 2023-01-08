@@ -111,6 +111,7 @@
       <span class="tag is-warning is-small" x-show="verAvisoDniCopiado">DNI copiado al portapapeles</span>
       </div>
       <p class="subtitle subtitle-table is-4" x-text="Cliente.calle+' '+Cliente.num+' '+Cliente.barrio+' '+Cliente.zona"></p>
+      <p  x-show="Cliente.deuda" x-text="'Cobrador asignado: '+Cliente.asignado"></p>
       <p class="subtitle subtitle-table is-4"x-text="'tel:'+Cliente.tel+' wapp:'+Cliente.wapp"></p>
 
       <p  x-show="Cliente.acla" x-text="Cliente.acla"></p>
@@ -719,9 +720,10 @@
         <div class="block">
           <button class="button is-primary" @click="mostrarFichaPorPantalla=true;imprimirFicha()">Imprimir en pantalla</button>
         </div>
+        <p x-text="'Cobrador asignado: '+Cliente.asignado" x-show="Cliente.deuda"></p>
         <div class="buttons">
 		  <template x-for="cobr in listaCobradores">
-            <button class="button is-success" x-text="cobr" @click="cobrEnviar=cobr;imprimirFicha()"></button>
+            <button class="button" x-text="cobr" @click="cobrEnviar=cobr;imprimirFicha()" :class="cobr==Cliente.asignado?'is-danger':'is-success'"></button>
 		  </template>
         </div>
       </section>
@@ -871,10 +873,15 @@
          buscaCuentaporDni(dni){
 	         this.resetBuscar()
 	         this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
+             axios.get('/buscador/getasignado/'+this.Cliente.zona)
+                                .then(res=>{
+                                    this.Cliente.asignado = res.data.asignado
+             })
              this.obtenerVentas(this.Cliente.id)
              this.verCard = true;
              this.clipWappVentas()
 	         this.buscar = this.Cliente.calle+' '+this.Cliente.num
+             console.log( this.Cliente)
          },
          refreshCliente(dni){
              axios.get('/buscador/'+dni)

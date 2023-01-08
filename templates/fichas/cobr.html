@@ -14,7 +14,7 @@
 
   <div class="columns"><div class="column is-6">
 	<div class="grid-buscar  mr-3 mt-2">
-      <input type="search" placeholder="Busca: nombre/direccion/dni/tel" class="input " x-model="buscar"
+      <input type="search" placeholder="Busca: id/nombre/direccion/dni/tel" class="input " x-model="buscar"
 		     @focus="buscar=''" @keyup.enter="filtrarCobr(buscar)" autofocus :class="darkTheme?'input-dark':''">
       <button type="button" @click="filtrarCobr(buscar)" class="button is-primary ">Buscar</button>
 	</div>
@@ -229,7 +229,7 @@
          },
          filtrarCobr(buscar){
              this.listaCobradores_=this.listaCobradores.filter(row=>{
-                 return (row.dni+row.nombre+row.direccion+row.telefono).toLocaleLowerCase().includes(buscar.toLocaleLowerCase())
+                 return (row.id+row.dni+row.nombre+row.direccion+row.telefono).toLocaleLowerCase().includes(buscar.toLocaleLowerCase())
              })
          },
  }}
