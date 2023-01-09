@@ -1,0 +1,54 @@
+{% extends "base.html" %} {% block title %}Precios{% endblock %}
+
+{% block content %}
+<div class="container" x-data="main()" >
+
+  <div class="card">
+    <p class="title is-1">Calc Precios</p>
+      <label for="idcosto">Costo</label>
+    <div class="grid-buscar ml-3 mr-3 mt-2">
+      <input type="number" class="input text-big" :class=" darkTheme?'input-dark':''" x-model="costo" name="idcosto"  @focus="costo=''" />
+                   <button class="button is-primary text-big" @click="calcularPrecio">Calcular</button>
+    </div>
+
+  <label for="idiva">Costo + IVA</label>
+  <input type="text" class="input text-big" :class=" darkTheme?'input-dark':''" x-model="costomasiva" name="idiva" />
+  <label for="iddtoef">Descuento pago efectivo</label>
+  <input type="text" class="input text-big" :class=" darkTheme?'input-dark':''" x-model="dtoef" name="iddtoef" />
+  <label for="iddtosf">Descuento extra </label>
+  <input type="text" class="input text-big" :class=" darkTheme?'input-dark':''" x-model="dtosf" name="iddtosf" />
+  <label for="idneto">Costo Final</label>
+  <input type="text" class="input text-big" :class=" darkTheme?'input-dark':''" x-model="neto" name="idneto" />
+  <label for="idpvp">Precio Venta Publico</label>
+  <input type="text" class="input text-big" :class=" darkTheme?'input-dark':''" x-model="pvp" name="idpvp" />
+  <label for="id6c">6 cuotas de</label>
+  <input type="text" class="input text-big" :class=" darkTheme?'input-dark':''" x-model="cuota" name="id6c" />
+  </div>
+
+</div>
+
+
+
+{% endblock %} {% block script %}
+<script>
+ function main(){
+     return{
+         costo:'',
+         costomasiva:'',
+         dtoef:'',
+         dtosf:'',
+         pvp:'',
+         neto:'',
+         cuota:'',
+         calcularPrecio(){
+             this.costomasiva= parseInt(1.21 * this.costo)
+             this.dtoef = parseInt(0.04 * this.costomasiva)
+             this.dtosf = parseInt(0.1 * this.costomasiva)
+             this.neto = parseInt(this.costomasiva - this.dtoef - this.dtosf)
+             this.pvp = parseInt(4.5 * this.neto)
+             this.cuota = parseInt(this.pvp/6)
+         },
+     }
+ }
+    </script>
+{% endblock %}

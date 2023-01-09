@@ -96,6 +96,13 @@ def utilidades_contador():
     return render_template('/utilidades/contador.html')
 
 
+@utilidades.route('/utilidades/calcprecios')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def utilidades_calcprecios():
+    return render_template('/utilidades/calcprecios.html')
+
+
 @utilidades.route('/utilidades/documentos')
 @login_required
 @check_roles(['dev','gerente','admin'])

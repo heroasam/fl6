@@ -76,9 +76,14 @@ def ficha(con,ldni):
     # dictPos = {} # diccionario de posisiones de ficha en paginas
     # dictNombre = {} # dicc que guarda los nombres para el resumen
     # dictDir = {} # dicc que guarda la direccion para el resumen
+    listapmovtos = pglflat(con,f"select pmovto from clientes where dni in {lpg}")
+    pmovtos = [min(listapmovtos),max(listapmovtos)]
+    print(listapmovtos)
+    print('pmovtos',pmovtos)
     for dni in listdni:
         #regla para que no comience un encabezado con poco espacio
         cliente = pgdict0(con,f"select nombre,calle,num,tel,wapp,pmovto,barrio,zona,acla,mjecobr,horario,id,seguir,cuota from clientes where dni='{dni}'")
+
         estimado = calc(con, cliente[11])
         estimado += 9 # estimado bruto de los distintos encabezados
         if (pdf.get_y()+(estimado*6)>285):
@@ -141,9 +146,9 @@ def ficha(con,ldni):
             pagadas = pgddict(con, f"select fecha,imp,rec,rbo,cobr from pagos where idvta={venta[0]} order by fecha")
             # Calculo el largo total que tendra la grilla de pagos
             if (len(cuotas)>len(pagadas)):
-                max=len(cuotas)
+                max_el=len(cuotas)
             else:
-                max=len(pagadas)
+                max_el=len(pagadas)
 
             # Formula para el calculo del espacio ocupable
             # if ((pdf.get_y()+max*7)>280):
@@ -192,6 +197,11 @@ def ficha(con,ldni):
         #     pdf.cell(60,5,dictDir[x],1,0,'L')
         #     pdf.cell(20,5,'Pag N°'+str(dictPos[x]),1,1,'C')
         suma_a_cobrar = 0
+        pdf.set_font("Helvetica","B",18)
+        pdf.cell(60,10,cliente[7],0,0,'L')
+        pdf.set_font("Helvetica","",12)
+        pdf.cell(40,8,f"Desde: {pmovtos[0]}",1,0,'C')
+        pdf.cell(40,8,f"Hasta: {pmovtos[1]}",1,1,'C')
         for row in lisdatos:
             suma_a_cobrar += row[6]
             if row[5]:
