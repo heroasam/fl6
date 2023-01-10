@@ -68,7 +68,7 @@
         <tr>
           <td><i class="fa fa-times" aria-hidden="true" @click="borrarAsiento(asiento.id)"></td>
             <td x-text="asiento.id"></td>
-            <td :class="dia(asiento.fecha)" x-text="asiento.fecha"></td>
+            <td :class="dia(asiento.fecha)" x-text="asiento.fecha" style="min-width:100px;"></td>
             <td :class="asiento.cuenta.slice(0,6)=='bancos'?'bancos':''" x-text="asiento.cuenta" style="min-width:250px;"></td>
             <td :class="asiento.imp<0?'negativo':''" x-text="asiento.imp" style="min-width:100px;" class="pesos"></td>
             <td x-text="asiento.comentario"></td>

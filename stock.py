@@ -43,7 +43,7 @@ def stock_getasientos():
     """Proveo lista de asientos."""
     con = get_con()
     asientos=pgdict(con, "select id,fecha, cuenta, imp, comentario from caja \
-            where fecha>date_sub(curdate(),interval 1 year) order by id desc")
+            where fecha>date_sub(curdate(),interval 3 month) order by id desc")
     saldo = pgonecolumn(con, "select sum(imp) from caja,ctas where \
             caja.cuenta=ctas.cuenta and tipo in (0,1)")
     saldobancos = pgonecolumn(con, "select sum(imp) from caja,ctas where \
@@ -740,3 +740,17 @@ def stock_conciliarpago(id):
         con.commit()
         con.close()
         return 'ok',200
+
+@stock.route('/stock/banco')
+@login_required
+@check_roles(['dev','gerente'])
+def stock_getdatosbancos():
+    pd.options.display.float_format = '${:.0f}'.format
+    sql="select date_format(fecha,'%Y-%m') as mes,imp,caja.cuenta as cuenta from caja,ctas where caja.cuenta=ctas.cuenta and tipo=2"
+    dat = pd.read_sql_query(sql, engine)
+    df = pd.DataFrame(dat)
+    tbl = pd.pivot_table(df, values=['imp'],index='cuenta',columns='mes',aggfunc='sum').sort_index(axis=1, level='mes',ascending=False)
+    tbl = tbl.fillna("")
+    index = tbl.columns.tolist()
+    tbl = tbl.to_html(table_id="totales",classes="table")
+    return render_template("stock/banco.html", tbl=tbl, index=index )
