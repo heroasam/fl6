@@ -679,6 +679,13 @@ def pagos_bajas():
     return render_template('pagos/bajas.html')
 
 
+@pagos.route('/pagos/prestamos')
+@login_required
+@check_roles(['dev','gerente'])
+def pagos_prestamos():
+    return render_template('pagos/prestamos.html')
+
+
 @pagos.route('/pagos/marcarbajados', methods=['POST'])
 @login_required
 @check_roles(['dev','gerente','admin'])
@@ -708,3 +715,24 @@ def pagos_marcarbajados():
         cur.close()
         con.close()
         return 'OK'
+
+
+@pagos.route('/pagos/getvdorcondeuda')
+@login_required
+@check_roles(['dev','gerente'])
+def pagos_getvdorcondeuda():
+    con = get_con()
+    vendedores = pglflat(con, "select comentario from caja where cuenta \
+    in ('prestamos empleados','recupero prestamos') and fecha>'2022-01-01'")
+    return jsonify(vendedores=vendedores)
+
+
+@pagos.route('/pagos/getprestamosvdor/<int:vdor>')
+@login_required
+@check_roles(['dev','gerente'])
+def pagos_getprestamosvdor(vdor):
+    con = get_con()
+    prestamos = pgdict(con, f"select fecha, imp, cuenta from caja \
+    where cuenta in ('prestamos empleados','recupero prestamos') \
+    and fecha>'2022-01-01' and comentario like '%{vdor}%' order by fecha desc")
+    return jsonify(prestamos=prestamos)

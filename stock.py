@@ -43,7 +43,7 @@ def stock_getasientos():
     """Proveo lista de asientos."""
     con = get_con()
     asientos=pgdict(con, "select id,fecha, cuenta, imp, comentario from caja \
-            order by id desc limit 300")
+            where fecha>date_sub(curdate(),interval 1 year) order by id desc")
     saldo = pgonecolumn(con, "select sum(imp) from caja,ctas where \
             caja.cuenta=ctas.cuenta and tipo in (0,1)")
     saldobancos = pgonecolumn(con, "select sum(imp) from caja,ctas where \
