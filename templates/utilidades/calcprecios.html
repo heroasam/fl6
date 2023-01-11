@@ -19,10 +19,16 @@
   <input type="text" class="input text-big" :class=" darkTheme?'input-dark':''" x-model="dtosf" name="iddtosf" />
   <label for="idneto">Costo Final</label>
   <input type="text" class="input text-big" :class=" darkTheme?'input-dark':''" x-model="neto" name="idneto" />
-  <label for="idpvp">Precio Venta Publico</label>
-  <input type="text" class="input text-big" :class=" darkTheme?'input-dark':''" x-model="pvp" name="idpvp" />
-  <label for="id6c">6 cuotas de</label>
-  <input type="text" class="input text-big" :class=" darkTheme?'input-dark':''" x-model="cuota" name="id6c" />
+  <label for="idpvp">Precio Venta Publico    x4/x4.5</label>
+  <div class="flex">
+    <input type="text" class="input text-big" :class=" darkTheme?'input-dark':''" x-model="pvp" name="idpvp" />
+    <input type="text" class="input text-big" :class=" darkTheme?'input-dark':''" x-model="pvp1" name="idpvp" />
+  </div>
+  <label for="id6c">6 cuotas de    x4/x4.5</label>
+  <div class="flex">
+    <input type="text" class="input text-big" :class=" darkTheme?'input-dark':''" x-model="cuota" name="id6c" />
+    <input type="text" class="input text-big" :class=" darkTheme?'input-dark':''" x-model="cuota1" name="id6c" />
+  </div>
   </div>
 
 </div>
@@ -40,13 +46,19 @@
          pvp:'',
          neto:'',
          cuota:'',
+         pvp1:'',
+         cuota1:'',
          calcularPrecio(){
              this.costomasiva= parseInt(1.21 * this.costo)
              this.dtoef = parseInt(0.04 * this.costomasiva)
-             this.dtosf = parseInt(0.1 * this.costomasiva)
-             this.neto = parseInt(this.costomasiva - this.dtoef - this.dtosf)
-             this.pvp = parseInt(4.5 * this.neto)
+             let sub1 = this.costomasiva - this.dtoef
+             this.dtosf = parseInt(0.1 * sub1)
+             let sub2 = sub1 - this.dtosf
+             this.neto = parseInt(sub2)
+             this.pvp = parseInt(4 * this.neto)
+             this.pvp1 = parseInt(4.5 * this.neto)
              this.cuota = parseInt(this.pvp/6)
+             this.cuota1 = parseInt(this.pvp1/6)
          },
      }
  }
