@@ -60,7 +60,7 @@
              axios.get('/pagos/getvdorcondeuda')
                   .then(res=>{
                       let setVendedores = new Set()
-                      let pattern = /\d\d\d/g
+                      let pattern = /\d\d\d\s/g
                       let listaComentarios = res.data.vendedores
                       for(let item of listaComentarios){
                           let num = pattern.exec(item)
