@@ -532,6 +532,26 @@ def ventas_borrarzonapornombre(zona):
         return 'OK'
 
 
+@ventas.route('/ventas/borrarcallepornombre/<calle>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def ventas_borrarcallepornombre(calle):
+    con = get_con()
+    stm = f"delete from calles where calle='{calle}'"
+    cur = con.cursor()
+    try:
+        cur.execute(stm)
+    except mysql.connector.Error as e:
+        con.rollback()
+        error = e.msg
+        return make_response(error,400)
+    else:
+        con.commit()
+        log(stm)
+        cur.close()
+        con.close()
+        return 'OK'
+
 
 @ventas.route('/ventas/borrarcliente/<int:id>')
 @login_required
@@ -921,12 +941,28 @@ def ventas_cambiazonas():
     return render_template('ventas/rezonificar.html')
 
 
+@ventas.route('/ventas/cambiacalles')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def ventas_cambiacalles():
+    return render_template('ventas/recallificar.html')
+
+
 @ventas.route('/ventas/getclienteszona/<zona>')
 @login_required
 @check_roles(['dev','gerente','admin'])
 def ventas_getclienteszona(zona):
     con = get_con()
     clientes = pgdict(con, f"select * from clientes where zona='{zona}' order by barrio")
+    return jsonify(clientes=clientes)
+
+
+@ventas.route('/ventas/getclientescalle/<calle>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def ventas_getclientescalle(calle):
+    con = get_con()
+    clientes = pgdict(con, f"select * from clientes where calle='{calle}' order by num")
     return jsonify(clientes=clientes)
 
 
@@ -941,6 +977,32 @@ def ventas_cambiarzona(zona):
         lpg+="'"+id+"'"+","
     lpg = lpg[0:-1]+")"
     upd = f"update clientes set zona='{zona}' where id in {lpg}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as e:
+        con.rollback()
+        error = e.msg
+        return make_response(error,400)
+    else:
+        con.commit()
+        log(upd)
+        cur.close()
+        con.close()
+        return 'OK'
+
+
+@ventas.route('/ventas/cambiarcalle/<string:calle>',methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
+def ventas_cambiarcalle(calle):
+    con = get_con()
+    listaid = json.loads(request.data.decode("UTF-8"))
+    lpg ='('
+    for id in listaid:
+        lpg+="'"+id+"'"+","
+    lpg = lpg[0:-1]+")"
+    upd = f"update clientes set calle='{calle}' where id in {lpg}"
     cur = con.cursor()
     try:
         cur.execute(upd)

@@ -78,8 +78,6 @@ def ficha(con,ldni):
     # dictDir = {} # dicc que guarda la direccion para el resumen
     listapmovtos = pglflat(con,f"select pmovto from clientes where dni in {lpg}")
     pmovtos = [min(listapmovtos),max(listapmovtos)]
-    print(listapmovtos)
-    print('pmovtos',pmovtos)
     for dni in listdni:
         #regla para que no comience un encabezado con poco espacio
         cliente = pgdict0(con,f"select nombre,calle,num,tel,wapp,pmovto,barrio,zona,acla,mjecobr,horario,id,seguir,cuota from clientes where dni='{dni}'")
