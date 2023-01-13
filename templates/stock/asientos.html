@@ -40,10 +40,14 @@
       </div>
       <div class="control">
         <input type="text" x-model="Asiento.imp" class="input" size="5" placeholder="Imp" x-ref="imp"
+		       @keyup.enter="$refs.cod.focus()" :class="darkTheme?'input-dark':''">
+      </div>
+      <div class="control">
+        <input type="text" x-model="Asiento.codigo" class="input" size="5" placeholder="Cod" x-ref="cod"
 		       @keyup.enter="$refs.comentario.focus()" :class="darkTheme?'input-dark':''">
       </div>
       <div class="control">
-        <input type="text" x-model="Asiento.comentario" class="input" size="50" placeholder="Comentario"
+        <input type="text" x-model="Asiento.comentario" class="input" size="40" placeholder="Comentario"
                x-ref="comentario" :class="darkTheme?'input-dark':''">
       </div>
       <div class="control">
@@ -59,6 +63,7 @@
         <th>fecha</th>
         <th>cuenta</th>
         <th class="sumar numeric">imp</th>
+        <th>codigo</th>
         <th>comentario</th>
         <th></th>
       </tr>
@@ -71,6 +76,7 @@
             <td :class="dia(asiento.fecha)" x-text="asiento.fecha" style="min-width:100px;"></td>
             <td :class="asiento.cuenta.slice(0,6)=='bancos'?'bancos':''" x-text="asiento.cuenta" style="min-width:250px;"></td>
             <td :class="asiento.imp<0?'negativo':''" x-text="asiento.imp" style="min-width:100px;" class="pesos"></td>
+            <td x-text="asiento.codigo"></td>
             <td x-text="asiento.comentario"></td>
             <td><i class="fa fa-pencil" aria-hidden="true" @click="editarAsiento(asiento.id)"></td>
         </tr>
@@ -101,6 +107,9 @@
         <label for="idimporte">Importe</label>
         <input name="idimporte" type="text" x-model="AsientoEdicion.imp"  class="input mb-1"
                :class="darkTheme?'input-dark':''"/>
+        <label for="idcodigo">Codigo</label>
+        <input name="idcodigo" type="text" x-model="AsientoEdicion.codigo"  class="input mb-1"
+               :class="darkTheme?'input-dark':''"/>
         <label for="idcomentario">Comentario</label>
         <textarea class="textarea mb-3" rows="4" x-model="AsientoEdicion.comentario" id="idcomentario"
                   :class="darkTheme?'input-dark':''"></textarea>
@@ -125,7 +134,7 @@
          cuentas:[],
          saldo:0,
          saldobancos:0,
-         Asiento:{fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',comentario:''},
+         Asiento:{fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',codigo:'',comentario:''},
          AsientoEdicion:{},
          selected: null,
          getAsientos(){
@@ -174,7 +183,7 @@
                                                                              this.aplicarFiltro('bancos')},600
                                                                          )
                                                                      }
-                                                                     this.Asiento={fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',comentario:''},
+                                                                     this.Asiento={fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',codigo:'',comentario:''},
                                                                      msgSuccess('Exito!','Asiento guardado con exito')
                                                                  })
          },
@@ -185,6 +194,7 @@
 
          guardarEdicionAsiento(){
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             console.log( this.AsientoEdicion)
              axios.post('/stock/editarasiento',this.AsientoEdicion)
                                                                  .then(res=>{
                                                                      msgSuccess('Edicion Exitosa')

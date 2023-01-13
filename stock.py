@@ -42,8 +42,9 @@ def stock_arqueo():
 def stock_getasientos():
     """Proveo lista de asientos."""
     con = get_con()
-    asientos=pgdict(con, "select id,fecha, cuenta, imp, comentario from caja \
-            where fecha>date_sub(curdate(),interval 3 month) order by id desc")
+    asientos=pgdict(con, "select id,fecha, cuenta, imp,codigo, comentario \
+    from caja where fecha>date_sub(curdate(),interval 3 month) order by id \
+    desc")
     saldo = pgonecolumn(con, "select sum(imp) from caja,ctas where \
             caja.cuenta=ctas.cuenta and tipo in (0,1)")
     saldobancos = pgonecolumn(con, "select sum(imp) from caja,ctas where \
@@ -92,9 +93,9 @@ def stock_guardarasiento():
         importe = int(d_dato['imp'])*(-1)
     else:
         importe = int(d_dato['imp'])
-
-    ins = f"insert into caja(fecha,cuenta,imp,comentario) values\
-    ('{d_dato['fecha']}','{d_dato['cuenta']}',{importe},'{d_dato['comentario']}')"
+    ins = f"insert into caja(fecha,cuenta,imp,codigo,comentario) values \
+    ('{d_dato['fecha']}','{d_dato['cuenta']}',{importe},'{d_dato['codigo']}',\
+    '{d_dato['comentario']}')"
     cur = con.cursor()
     cur.execute(ins)
     con.commit()
@@ -115,7 +116,8 @@ def stock_editarasiento():
     d_data = json.loads(request.data.decode("UTF-8"))
     upd = f"update caja set comentario='{d_data['comentario']}', \
     fecha='{d_data['fecha']}', imp={d_data['imp']}, \
-    cuenta='{d_data['cuenta']}' where id= {d_data['id']}"
+    cuenta='{d_data['cuenta']}', codigo='{d_data['codigo']}' \
+    where id= {d_data['id']}"
     cur = con.cursor()
     cur.execute(upd)
     log(upd)
@@ -139,8 +141,8 @@ def stock_mayor():
 def stock_getmayor(cuenta):
     """Obtengo asientos por cuenta (mayorizo)."""
     con = get_con()
-    asientos=pgdict(con, f"select id,fecha, cuenta, imp, comentario from caja \
-                          where cuenta='{cuenta}' order by id desc")
+    asientos=pgdict(con, f"select id,fecha, cuenta, imp,codigo, comentario \
+    from caja where cuenta='{cuenta}' order by id desc")
     con.close()
     return jsonify(asientos=asientos)
 
