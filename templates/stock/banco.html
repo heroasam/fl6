@@ -17,6 +17,8 @@
       <div class="box">
         <canvas id="grafico-estadistica" width="600" height="400"></canvas>
       </div>
+      <h2 class="title is-3">Movimiento por cobrador</h2>
+      {{tbl1|safe}}
     </div>
   </div>
 
@@ -32,6 +34,7 @@
 	     getGrafico(){
              this.mes = {{index|tojson}}
              this.ingresototal = totalizar_tabla('totales',1)
+             totalizar_tabla('totalescobradores',1)
              console.log( this.mes, this.ingresototal)
              const canvas = document.getElementById('grafico-estadistica').getContext('2d');
              const chart = new Chart(canvas, {

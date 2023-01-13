@@ -749,13 +749,19 @@ def stock_conciliarpago(id):
 def stock_getdatosbancos():
     pd.options.display.float_format = '${:.0f}'.format
     sql="select date_format(fecha,'%Y-%m') as mes,imp,caja.cuenta as cuenta from caja,ctas where caja.cuenta=ctas.cuenta and tipo=2"
+    sql1="select date_format(fecha,'%Y-%m') as mes,imp,codigo from caja where cuenta='bancos ingreso cobradores'"
     dat = pd.read_sql_query(sql, engine)
+    dat1 = pd.read_sql_query(sql1, engine)
     df = pd.DataFrame(dat)
+    df1 = pd.DataFrame(dat1)
     tbl = pd.pivot_table(df, values=['imp'],index='cuenta',columns='mes',aggfunc='sum').sort_index(axis=1, level='mes',ascending=False)
+    tbl1 = pd.pivot_table(df1, values=['imp'],index='codigo',columns='mes',aggfunc='sum').sort_index(axis=1, level='mes',ascending=False)
     tbl = tbl.fillna("")
+    tbl1 = tbl1.fillna("")
     index = tbl.columns.tolist()
     tbl = tbl.to_html(table_id="totales",classes="table")
-    return render_template("stock/banco.html", tbl=tbl, index=index )
+    tbl1 = tbl1.to_html(table_id="totalescobradores",classes="table")
+    return render_template("stock/banco.html", tbl=tbl, tbl1=tbl1, index=index )
 
 
 @stock.route('/stock/acreencias')
