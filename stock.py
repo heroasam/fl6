@@ -756,3 +756,25 @@ def stock_getdatosbancos():
     index = tbl.columns.tolist()
     tbl = tbl.to_html(table_id="totales",classes="table")
     return render_template("stock/banco.html", tbl=tbl, index=index )
+
+
+@stock.route('/stock/acreencias')
+@login_required
+@check_roles(['dev','gerente'])
+def stock_acreencias():
+    """Muestro pagina acreencias."""
+    return render_template('/stock/acreencias.html')
+
+
+@stock.route('/stock/getacreenciassocio/<socio>')
+@login_required
+@check_roles(['dev','gerente'])
+def stock_getacreenciassocio(socio):
+    con = get_con()
+    if socio=='Fede':
+        cuenta = '_retirocapitalfede'
+    else:
+        cuenta = '_retirocapitalpapi'
+    acreencias = pgdict(con, f"select fecha,codigo from caja where cuenta =\
+    '{cuenta}'")
+    return jsonify(acreencias=acreencias)

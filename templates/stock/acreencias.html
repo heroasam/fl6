@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Acreencias{% endblock %}
+{% block style %}
+<style>
+  </style>
+  {% endblock %}
+
+{% block content %}
+
+  <div class="container" x-data="main()">
+
+    <p class="title is-1">Acreencias de capital</p>
+    <div class="columns">
+      <div class="column is-6">
+        <div class="buttons" id="btnSocios">
+          <template x-for="socio in listaSocios">
+            <button class="button is-info" @click="getDeudasSocio(socio);limpiarToggles();
+                           $event.target.classList.toggle('is-warning')" x-text="socio"></button>
+          </template>
+        </div>
+         <div class="xtags has-addons m-0">
+		  <span class="tag is-large is-black m-0">Deuda Total</span>
+		  <span class="tag is-large is-light m-0" x-text="'$'+totalDeuda"></span>
+	     </div>
+         <table class="table is-narrow" id="table">
+                <thead>
+                    <tr>
+                        <th>fecha</th>
+                        <th class="sumar">importe</th>
+                        <th>cuenta</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  <template x-for="item in listaDeudas">
+                    <tr>
+                          <td x-text="item.fecha"></td>
+                          <td x-text="item.imp" class="pesos"></td>
+                    </tr>
+                  </template>
+                 </tbody>
+            </table>
+
+    </div>
+
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+ function main(){
+     return{
+         listaDeudas:[],
+         socio:'',
+         listaSocios:['Fede', 'Papi'],
+         totalDeuda:'',
+         getDeudasVdor(socio){
+             this.socio = socio
+             axios.get('/stock/getacreenciassocio/'+socio)
+                  .then(res=>{
+                      limpiarTabla('table')
+                      this.listaDeudas = res.data.acreencias
+                      this.listaDeudas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      this.totalDeuda = parseFloat(this.listaDeudas.map(row=>row.imp).reduce((a,b)=>a+b,0))
+                  })
+         },
+         limpiarToggles() {
+             $btnSocios = document.getElementById('btnSocios')
+             Array.from($btnSocios.children).slice(1).forEach(btn => {
+                 btn.classList.remove('is-warning')
+             })
+          },
+
+     }
+ }
+  </script>
+  {% endblock %}
