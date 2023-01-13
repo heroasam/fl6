@@ -776,5 +776,5 @@ def stock_getacreenciassocio(socio):
     else:
         cuenta = '_retirocapitalpapi'
     acreencias = pgdict(con, f"select fecha,codigo from caja where cuenta =\
-    '{cuenta}'")
+    '{cuenta}' and fecha>'2022-01-01'")
     return jsonify(acreencias=acreencias)

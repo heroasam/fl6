@@ -21,21 +21,20 @@
         </div>
          <div class="xtags has-addons m-0">
 		  <span class="tag is-large is-black m-0">Deuda Total</span>
-		  <span class="tag is-large is-light m-0" x-text="'$'+totalDeuda"></span>
+		  <span class="tag is-large is-light m-0" x-text="'u$s'+totalDeuda"></span>
 	     </div>
          <table class="table is-narrow" id="table">
                 <thead>
                     <tr>
                         <th>fecha</th>
-                        <th class="sumar">importe</th>
-                        <th>cuenta</th>
+                        <th class="sumar">u$s</th>
                     </tr>
                 </thead>
                 <tbody>
                   <template x-for="item in listaDeudas">
                     <tr>
                           <td x-text="item.fecha"></td>
-                          <td x-text="item.imp" class="pesos"></td>
+                          <td x-text="item.codigo"></td>
                     </tr>
                   </template>
                  </tbody>
@@ -61,8 +60,9 @@
                   .then(res=>{
                       limpiarTabla('table')
                       this.listaDeudas = res.data.acreencias
+                      console.log( this.listaDeudas)
                       this.listaDeudas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
-                      this.totalDeuda = parseFloat(this.listaDeudas.map(row=>row.imp).reduce((a,b)=>a+b,0))
+                      this.totalDeuda = parseFloat(this.listaDeudas.map(row=>row.codigo).reduce((a,b)=>parseInt(a)+parseInt(b),0))
                   })
          },
          limpiarToggles() {
