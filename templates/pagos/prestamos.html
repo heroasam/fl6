@@ -59,16 +59,7 @@
          getVendedores(){
              axios.get('/pagos/getvdorcondeuda')
                   .then(res=>{
-                      let setVendedores = new Set()
-                      let pattern = /\d\d\d\s/g
-                      let listaComentarios = res.data.vendedores
-                      for(let item of listaComentarios){
-                          let num = pattern.exec(item)
-                          if(num){
-                              setVendedores.add(num[0])
-                          }
-                      }
-                      this.listaVendedores = Array.from(setVendedores)
+                      this.listaVendedores = res.data.vendedores
                   })
          },
          getDeudasVdor(vdor){
