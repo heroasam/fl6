@@ -86,7 +86,7 @@
           <th>fecha</th>
           <th>cuenta</th>
           <th class="sumar importe">imp</th>
-          <th>comentario</th>
+          <th>codigo</th>
           <th></th>
         </tr>
       </thead>
@@ -97,7 +97,7 @@
               <td :class="dia(asiento.fecha)" x-text="asiento.fecha"></td>
               <td x-text="asiento.cuenta" style="min-width:200px;"></td>
               <td x-text="asiento.imp" class="pesos" style="min-width:100px;"></td>
-              <td x-text="asiento.comentario"></td>
+              <td x-text="asiento.codigo"></td>
               <td><i class="fa fa-pencil" aria-hidden="true" @click="editarAsientocobr(asiento.id)"></td>
           </tr>
         </template>
@@ -113,7 +113,7 @@
           <th>fecha</th>
           <th>cuenta</th>
           <th class="sumar importe">imp</th>
-          <th>comentario</th>
+          <th>codigo</th>
           <th></th>
         </tr>
       </thead>
@@ -124,7 +124,7 @@
               <td :class="dia(asiento.fecha)" x-text="asiento.fecha"></td>
               <td x-text="asiento.cuenta" style="min-width:200px;"></td>
               <td x-text="asiento.imp" class="pesos" style="min-width:100px;"></td>
-              <td x-text="asiento.comentario"></td>
+              <td x-text="asiento.codigo"></td>
               <td><i class="fa fa-pencil" aria-hidden="true" @click="editarAsientotrans(asiento.id)"></td>
           </tr>
         </template>
@@ -155,9 +155,9 @@
         <label for="idimporte">Importe</label>
         <input name="idimporte" type="text" x-model="AsientoEdicion.imp"  class="input mb-1"
                :class="darkTheme?'input-dark':''"/>
-        <label for="idcomentario">Comentario</label>
-        <textarea class="textarea mb-3" rows="4" x-model="AsientoEdicion.comentario" id="idcomentario"
-                  :class="darkTheme?'input-dark':''"></textarea>
+        <label for="idcodigo">Codigo</label>
+        <input class="input  mb-1"  x-model="AsientoEdicion.codigo" id="idcodigo"
+                  :class="darkTheme?'input-dark':''"/>
 
       </section>
       <footer class="modal-card-foot">
