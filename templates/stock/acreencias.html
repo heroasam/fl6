@@ -55,7 +55,7 @@
          socio:'',
          listaSocios:['Fede', 'Papi'],
          totalDeuda:'',
-         getDeudasVdor(socio){
+         getDeudasSocio(socio){
              this.socio = socio
              axios.get('/stock/getacreenciassocio/'+socio)
                   .then(res=>{
