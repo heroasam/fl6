@@ -93,10 +93,9 @@ def vendedor_guardardato():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     cuota_maxima = calculo_cuota_maxima(d['idcliente'])
-    print(cuota_maxima)
     sin_extension = calculo_sin_extension(d['idcliente'])
-    if cuota_maxima<float(d['cuota_maxima']):
-        cuota_maxima = d['cuota_maxima']
+    if cuota_maxima==0 or cuota_maxima<float(d['cuota_maxima']):
+        cuota_maxima = var_sistema['cuota_basica']
     direccion_cliente = pgonecolumn(con, f"select concat(calle,num) from \
     clientes where id={d['idcliente']}")
     deuda_en_la_casa = pgonecolumn(con, f"select sum(deuda) from clientes \
