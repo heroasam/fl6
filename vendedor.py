@@ -42,21 +42,12 @@ def calculo_cuota_maxima(idcliente):
     cuota para evitar distorsion si el plan fue en 4 o 5 cuotas.
     """
     con = get_con()
-    # cuotas = pgdict(con, f"select max(ic) as ic, max(date_format(fecha,'%Y%c')) as \
-    # fecha from ventas where idcliente={idcliente} and fecha>date_sub(curdate(),\
-    # interval 3 year)")[0]
     cuotas = pgdict(con, f"select comprado as monto,date_format(fecha,'%Y%c') \
     as fecha from ventas where idcliente={idcliente} and fecha>\
     date_sub(curdate(),interval 3 year)")
-    # if cuotas['ic'] and cuotas['fecha']:
     if cuotas:
-        # cuota = cuotas['ic']
-        # fecha = cuotas['fecha']
-        # indice = pgonecolumn(con, f"select indice from inflacion \
-        # by id desc limit 1")
         ultimo_valor = pgonecolumn(con, "select indice from inflacion order \
             by id desc limit 1")
-        # cuota_actualizada = ultimo_valor/indice * cuota
         cuotas_actualizadas = []
         for venta in cuotas:
             cuota = venta['monto']/6
@@ -67,11 +58,6 @@ def calculo_cuota_maxima(idcliente):
             cuotas_actualizadas.append(actualizada)
         cuota_actualizada = max(cuotas_actualizadas)
 
-        # cnt_compras = pgonecolumn(con, f"select count(*) from ventas where \
-        # idcliente={idcliente} and saldo=0 and fecha>date_sub(curdate(), \
-        # interval 3 year)")
-        # if cnt_compras>1:
-        #     cuota_actualizada = cuota_actualizada * (1+cnt_compras*0.05)
         atraso = pgonecolumn(con, f"select atraso from clientes where id={idcliente}")
         if atraso>0:
             cuota_actualizada = cuota_actualizada * (1-(atraso/30)*0.05)
@@ -109,7 +95,7 @@ def vendedor_guardardato():
     cuota_maxima = calculo_cuota_maxima(d['idcliente'])
     print(cuota_maxima)
     sin_extension = calculo_sin_extension(d['idcliente'])
-    if cuota_maxima==0 or cuota_maxima<float(d['cuota_maxima']):
+    if cuota_maxima<float(d['cuota_maxima']):
         cuota_maxima = d['cuota_maxima']
     direccion_cliente = pgonecolumn(con, f"select concat(calle,num) from \
     clientes where id={d['idcliente']}")
