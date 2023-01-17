@@ -68,7 +68,7 @@
           <td><span class="tag is-small is-danger" x-show="dato.autorizado">Autorizado</span></td>
           <td x-text="dato.vendedor"></td>
           <td><i class="fa fa-times" aria-hidden="true" @click="rechazarDato(dato.id)"></td>
-            <td><div class="xtags has-addons m-0" x-show="dato.deuda_en_la_casa">
+            <td><div class="xtags has-addons m-0" x-show="dato.deuda_en_la_casa>0">
 		      <span class="tag is-warning  m-0">Casa</span>
 		      <span class="tag m-0" :class="dato.deuda_en_la_casa>29999?'is-danger':'is-light'"
                     x-text="'$'+dato.deuda_en_la_casa"></span>
