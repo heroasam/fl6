@@ -26,15 +26,17 @@
          <table class="table is-narrow" id="table">
                 <thead>
                     <tr>
-                        <th>fecha</th>
-                        <th class="sumar">comision</th>
+                      <th>fecha</th>
+                      <th>cuenta</th>
+                      <th class="sumar">comision</th>
                     </tr>
                 </thead>
                 <tbody>
                   <template x-for="item in listaComisiones">
                     <tr>
-                          <td x-text="item.fecha"></td>
-                          <td x-text="item.com" class="pesos"></td>
+                      <td x-text="item.fecha"></td>
+                      <td x-text="item.id"></td>
+                      <td x-text="item.com" class="pesos"></td>
                     </tr>
                   </template>
                  </tbody>

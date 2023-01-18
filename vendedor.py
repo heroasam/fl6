@@ -44,7 +44,7 @@ def calculo_cuota_maxima(idcliente):
     con = get_con()
     cuotas = pgdict(con, f"select comprado as monto,date_format(fecha,'%Y%c') \
     as fecha from ventas where idcliente={idcliente} and fecha>\
-    date_sub(curdate(),interval 3 year)")
+    date_sub(curdate(),interval 3 year) and devuelta=0")
     if cuotas:
         ultimo_valor = pgonecolumn(con, "select indice from inflacion order \
             by id desc limit 1")
@@ -550,8 +550,8 @@ def vendedor_getlistadodatosvendedor():
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
     zona, cuota_maxima,idcliente, sin_extension,idvta,resultado,\
     datos.dnigarante as dnigarante from datos, clientes where clientes.id = \
-    datos.idcliente and vendedor={vdor} and (resultado is null or (resultado=\
-    1 and date(fecha_definido)=curdate())) and fecha_visitar <=curdate() order \
+    datos.idcliente and vendedor={vdor} and (resultado is null or (resultado in \
+    (1,7) and date(fecha_definido)=curdate())) and fecha_visitar <=curdate() order \
     by id desc")
     return jsonify(listadodatos=listadodatos)
 
@@ -1045,7 +1045,12 @@ def vendedor_wapp():
     idcliente = d['idcliente']
     wapp = d['wapp']
     msg = d['msg']
-    if wapp:
+    devel = var_sistema['devel']
+    if devel=='1':
+        prod=0
+    else:
+        prod=1
+    if wapp and prod:
         response = send_msg_whatsapp(idcliente, wapp, msg)
         if response is None:
             response = 'Rejected'
@@ -1064,7 +1069,12 @@ def vendedor_filewapp():
     wapp = d['wapp']
     idcliente = d['idcliente']
     file = d['file']
-    if wapp:
+    devel = var_sistema['devel']
+    if devel=='1':
+        prod=0
+    else:
+        prod=1
+    if wapp and prod:
         response = send_file_whatsapp(
             idcliente,f"https://www.fedesal.lol/pdf/{file}.pdf", wapp)
         return jsonify(response=response)
@@ -1077,9 +1087,14 @@ def vendedor_getcomisionesvendedor(vdor):
     com = 'com'+str(vdor)
     comision = var_sistema[com]
     con = get_con()
-    comisiones = pgdict(con, f"select fecha,sum(comprado*{comision}) as com \
-    from ventas where idvdor={vdor} and compagada=0 group by fecha order by \
-    fecha")
+    comisiones = pgdict(con, f"select fecha,monto_vendido*{comision} \
+    as com,idvta as id from datos where vendedor={vdor} and com_pagada=0 \
+    and monto_vendido>0 order by fecha")
+    devoluciones = pgdict(con, f"select fecha,monto_devuelto*{comision}*(-1) \
+    as com, idvta as id from datos where vendedor={vdor} and com_pagada_dev=0 \
+    and monto_devuelto!=0 order by fecha")
+    if devoluciones:
+        comisiones = comisiones+devoluciones
     return jsonify(comisiones=comisiones)
 
 
@@ -1103,7 +1118,7 @@ def vendedor_getartvendedor(vdor):
     con = get_con()
     artvendedor = pgdict(con, f"select sum(detvta.cnt) as cnt,\
     detvta.art as art from detvta,ventas where detvta.idvta=ventas.id and \
-    cargado=0 and idvdor={vdor} group by detvta.art")
+    cargado=0 and detvta.devuelta=0 and idvdor={vdor} group by detvta.art")
     return jsonify(artvendedor=artvendedor)
 
 
@@ -1142,11 +1157,16 @@ def vendedor_marcarcargado(vdor):
 @check_roles(['dev','gerente'])
 def vendedor_marcarpagadas(vdor):
     con = get_con()
-    upd = f"update ventas set compagada=1 where id in (select id from ventas \
-    where idvdor={vdor} and compagada=0)"
+    upd = f"update datos set com_pagada=1, fechapagocom=current_date() where \
+    idvta in (select idvta from datos where vendedor={vdor} and com_pagada=0 \
+    and monto_vendido>0)"
+    upddev = f"update datos set com_pagada_dev=1, fechapagocomdev=\
+    current_date() where idvta in (select idvta from datos where vendedor=\
+    {vdor} and com_pagada_dev=0 and monto_devuelto!=0)"
     cur = con.cursor()
     try:
         cur.execute(upd)
+        cur.execute(upddev)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
@@ -1155,6 +1175,7 @@ def vendedor_marcarpagadas(vdor):
         con.commit()
         con.close()
         log(upd)
+        log(upddev)
         return 'ok'
 
 
@@ -1170,7 +1191,7 @@ def vendedor_getcargavendedor():
         vdor = 835
     artvendedor = pgdict(con, f"select sum(detvta.cnt) as cnt,\
     detvta.art as art from detvta,ventas where detvta.idvta=ventas.id and \
-    cargado=0 and idvdor={vdor} group by detvta.art")
+    cargado=0 and detvta.devuelta=0 and idvdor={vdor} group by detvta.art")
     return jsonify(artvendedor=artvendedor)
 
 
@@ -1202,7 +1223,12 @@ def vendedor_getcomisionesparavendedor():
     com = 'com'+str(vdor)
     comision = var_sistema[com]
     con = get_con()
-    comisiones = pgdict(con, f"select fecha,sum(comprado*{comision}) as com \
-    from ventas where idvdor={vdor} and compagada=0 group by fecha order by \
-    fecha")
+    comisiones = pgdict(con, f"select fecha,monto_vendido*{comision} \
+    as com, idvta as id from datos where vendedor={vdor} and com_pagada=0 \
+    and monto_vendido>0 order by fecha")
+    devoluciones = pgdict(con, f"select fecha,monto_devuelto*{comision}*(-1) \
+    as com, idvta as id from datos where vendedor={vdor} and com_pagada_dev=0 \
+    and monto_devuelto!=0 order by fecha")
+    if devoluciones:
+        comisiones = comisiones+devoluciones
     return jsonify(comisiones=comisiones)
