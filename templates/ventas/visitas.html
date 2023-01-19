@@ -83,7 +83,6 @@
                       this.listaVisitasVendedor.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                       this.listaFechas = res.data.fechasvisitas
                       this.listaFechas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
-                      this.listaFechas_ = this.listaFechas
                       let vdores = new Set(this.listaFechas.map(row=>row.vdor))
                       this.listaVendedores = Array.from(vdores)
              })
@@ -108,6 +107,8 @@
          },
          filtrarVdor(vdor){
              this.vendedor=vdor
+             this.listaFechas_ = []
+             this.listaVisitasVendedor_ = []
              this.listaFechas_ = this.listaFechas.filter(row=>row.vdor==this.vendedor)
          },
           limpiarToggles() {

@@ -59,6 +59,7 @@
          },
          getArtVendedor(vdor){
              this.vendedor = vdor
+             this.listaArtVendedor = []
              axios.get('/vendedor/getartvendedor/'+vdor)
                   .then(res=>{
                       this.listaArtVendedor = res.data.artvendedor

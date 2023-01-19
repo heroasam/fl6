@@ -59,6 +59,8 @@ def calculo_cuota_maxima(idcliente):
         cuota_actualizada = max(cuotas_actualizadas)
 
         atraso = pgonecolumn(con, f"select atraso from clientes where id={idcliente}")
+        if atraso is None:
+            atraso = 0
         if atraso>0:
             cuota_actualizada = cuota_actualizada * (1-(atraso/30)*0.05)
             if cuota_actualizada < 0:
@@ -94,7 +96,8 @@ def vendedor_guardardato():
     d = json.loads(request.data.decode("UTF-8"))
     cuota_maxima = calculo_cuota_maxima(d['idcliente'])
     sin_extension = calculo_sin_extension(d['idcliente'])
-    if cuota_maxima==0 or cuota_maxima<float(d['cuota_maxima']):
+    # if cuota_maxima==0 or cuota_maxima<float(d['cuota_maxima']):
+    if cuota_maxima < float(var_sistema['cuota_basica']):
         cuota_maxima = var_sistema['cuota_basica']
     direccion_cliente = pgonecolumn(con, f"select concat(calle,num) from \
     clientes where id={d['idcliente']}")
@@ -166,7 +169,7 @@ def vendedor_getlistadodatos():
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
     sin_extension, autorizado from datos, clientes where clientes.id = \
-    datos.idcliente order by id desc limit 300")
+    datos.idcliente and rechazado=0 order by id desc limit 300")
     # vendedor is null filtra los datos no asignados
     cuotabasica = var_sistema['cuota_basica']
     vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
@@ -183,7 +186,7 @@ def vendedor_getlistadodatosenviar():
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
     sin_extension, autorizado, monto_garantizado from datos, clientes where \
-    clientes.id = datos.idcliente and vendedor is null and resultado is null \
+    clientes.id = datos.idcliente and enviado_vdor=0 and rechazado=0 \
     order by id desc limit 300")
     # vendedor is null filtra los datos no asignados
     cuotabasica = var_sistema['cuota_basica']
@@ -201,7 +204,7 @@ def vendedor_getlistadodatosenviados():
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
     vendedor, autorizado from datos, clientes where clientes.id = \
-    datos.idcliente and vendedor is not null order by id desc")
+    datos.idcliente and enviado_vdor=1 order by id desc")
     # vendedor is null filtra los datos no asignados
     cuotabasica = var_sistema['cuota_basica']
     vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
@@ -217,7 +220,8 @@ def vendedor_asignardatosvendedor():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     ids = listsql(d['ids'])
-    upd = f"update datos set vendedor = {d['vendedor']} where id in {ids}"
+    upd = f"update datos set vendedor = {d['vendedor']},enviado_vdor=1 \
+    where id in {ids}"
     cur = con.cursor()
     try:
         cur.execute(upd)
@@ -424,11 +428,11 @@ def vendedor_envioclientenuevo():
         else:
             ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, \
             art,horarios, comentarios, cuota_maxima,deuda_en_la_casa,\
-            sin_extension,monto_garantizado,vendedor,dnigarante) values \
-            (curdate(),'{current_user.email}',{d['id']},curdate(),'','',\
+            sin_extension,monto_garantizado,vendedor,dnigarante,enviado_vdor) \
+            values (curdate(),'{current_user.email}',{d['id']},curdate(),'','',\
             'cliente enviado por vendedor', {cuota_maxima}, \
             '{deuda_en_la_casa}', {sin_extension}, {monto_garantizado},\
-            {vdor},{d['dnigarante']})"
+            {vdor},{d['dnigarante']},0)"
         # Testeo si hay cambios en los datos del cliente que envia el vendedor
         upd = None
         inslog = None
@@ -551,8 +555,8 @@ def vendedor_getlistadodatosvendedor():
     zona, cuota_maxima,idcliente, sin_extension,idvta,resultado,\
     datos.dnigarante as dnigarante from datos, clientes where clientes.id = \
     datos.idcliente and vendedor={vdor} and (resultado is null or (resultado in \
-    (1,7) and date(fecha_definido)=curdate())) and fecha_visitar <=curdate() order \
-    by id desc")
+    (1,7) and date(fecha_definido)=curdate())) and fecha_visitar <=curdate() \
+    and enviado_vdor=1 order by id desc")
     return jsonify(listadodatos=listadodatos)
 
 
@@ -793,7 +797,7 @@ def vendedor_getlistadoautorizados():
     autorizacion where autorizacion.idcliente=clientes.id) as cnt, \
     autorizacion.idcliente from datos, autorizacion,clientes  where \
     datos.idcliente=clientes.id and autorizacion.iddato=datos.id and \
-    autorizacion.autorizado=0 and resultado is null and rechazado=0")
+    autorizacion.autorizado=0 and resultado is null and datos.rechazado=0")
     cuotabasica = var_sistema['cuota_basica']
     return jsonify(listadoautorizados=listadoautorizados, cuotabasica=cuotabasica)
 
@@ -853,10 +857,12 @@ def vendedor_noautorizardato(id):
     autorizacion where iddato={id}")
     upd_aut = f"update autorizacion set autorizado=0, user = \
     '{current_user.email}',rechazado=1 where iddato={id}"
+    upddato = f"update datos set rechazado=1 where id={id}"
     con = get_con()
     cur = con.cursor()
     try:
         cur.execute(upd_aut)
+        cur.execute(upddato)
     except mysql.connector.Error as _error:
        con.rollback()
        error = _error.msg
@@ -865,6 +871,7 @@ def vendedor_noautorizardato(id):
        con.commit()
        con.close()
        log(upd_aut)
+       log(upddato)
        return 'ok'
 
 
@@ -906,9 +913,10 @@ def vendedor_pasarventa():
        return make_response(error,400)
     else:
        idvta = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
-       upd = f"update datos set resultado=1, monto_vendido={ic*6}, fecha_definido=\
-       current_timestamp(), idvta={idvta} where id={d['id']}"
-       cur.execute(upd)
+       # lo siguiente ha sido trasladado al trigger ventas_ins_clientes
+       # upd = f"update datos set resultado=1, monto_vendido={ic*6}, fecha_definido=\
+       # current_timestamp(), idvta={idvta} where id={d['id']}"
+       # cur.execute(upd)
        for item in d['arts']:
            cnt = item['cnt']
            art = item['art']
@@ -921,7 +929,7 @@ def vendedor_pasarventa():
            log(ins)
        con.commit()
        con.close()
-       log(upd)
+       # log(upd)
        log(insvta)
        return 'ok'
 

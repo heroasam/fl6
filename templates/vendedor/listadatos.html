@@ -98,6 +98,11 @@
                :class="darkTheme?'input-dark':''">
         <input type="text" list="listaart" class="input mb-1" x-model="Venta.art"
                :class="darkTheme?'input-dark':''"/>
+        <datalist id="listaart">
+          <template x-for="item in listaArticulos">
+              <option :value="item"></option>
+            </template>
+        </datalist>
         <button class="button is-primary" @click="agregarArticulo(Venta.cnt,Venta.art)">Agregar Articulo</button>
         <table class="no-total table">
           <thead>

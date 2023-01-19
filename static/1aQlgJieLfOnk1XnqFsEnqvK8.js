@@ -4,6 +4,7 @@
            cliente:{dni:'',nombre:'',calle:'',num:'',acla:'',barrio:'',tel:'',wapp:'',dnigarante:'',cuota_requerida:'',arts:''},
            calles:[],
            barrios:[],
+           articulos:[],
            nombregarante:'',
            direcciongarante:'',
            obtenerCalles(){
@@ -16,6 +17,7 @@
 	           axios.get('/w98LuAaWBax9c6rENQ2TjO3PR')
 		            .then(res=>{this.barrios=res.data.result})
            },
+
            buscarDni(dni){
                //nueva ruta para /vendedor/buscaclientepordni MeHzAqFYsbb78KAVFAGTlZRW9
                axios.get('/MeHzAqFYsbb78KAVFAGTlZRW9/'+dni)
