@@ -60,9 +60,9 @@
           <td x-text="dato.cuota_maxima"></td>
           <td x-text="dato.cuota_requerida"></td>
           <td><span class="tag is-small is-success" @click="autorizarDato(dato.id)"
-              x-show="![0,1,2,5,6].includes(dato.resultado)">Autorizar</span></td>
+              x-show="![0,1,2,5,6,8].includes(dato.resultado)">Autorizar</span></td>
           <td><span class="tag is-small is-danger" @click="noAutorizarDato(dato.id)"
-              x-show="![0,1,2,5,6].includes(dato.resultado)">Rechazar</span></td>
+              x-show="![0,1,2,5,6,8].includes(dato.resultado)">Rechazar</span></td>
             <td x-text="dato.arts"></td>
             <td x-text="dato.fechahora"></td>
           <td><span class="tag is-small is-danger" x-show="dato.sin_extension">Venta Basica</span></td>
@@ -238,6 +238,7 @@
              })
          },
          autorizarDato(id){
+             console.log( this.dato.vendedor)
              axios.get('/vendedor/autorizardato/'+id)
                   .then(res=>{
                       msgSuccess('Dato autorizado')
@@ -246,11 +247,10 @@
 con una compra de ${this.dato.arts}
 y una cuota de $${this.dato.cuota_requerida}.
 Cargue de nuevo la operacion y procese la venta. Gracias.`
-             let wapp = '3512411963'
-             let idcliente = 31446
-             let data = {msg,wapp,idcliente}
+                      let data = {msg,vdor:this.dato.vendedor}
+                      console.log(data)
                       axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-	                  axios.post('/buscador/wapp',data)
+	                  axios.post('/vendedor/wapprespauth',data)
                       this.getListadoAutorizados()
                   })
          },
@@ -263,11 +263,9 @@ Cargue de nuevo la operacion y procese la venta. Gracias.`
 con una compra de ${this.dato.arts}
 y una cuota de $${this.dato.cuota_requerida}.
 Se puede vender hasta la cuota autorizada previamente. Gracias.`
-             let wapp = '3512411963'
-             let idcliente = 31446
-             let data = {msg,wapp,idcliente}
+             let data = {msg,vdor:this.dato.vendedor}
                       axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-	                  axios.post('/buscador/wapp',data)
+	                  axios.post('/vendedor/wapprespauth',data)
                       this.getListadoAutorizados()
                   })
           },

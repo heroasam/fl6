@@ -140,15 +140,18 @@ def vendedor_guardardato():
 def vendedor_togglerechazardato(id):
     con = get_con()
     resultado = pgonecolumn(con, f"select resultado from datos where id={id}")
-    if resultado == 2: # o sea ya esta rechazado
-        upd = f"update datos set resultado=NULL where id={id}"
+    if resultado == 8: # o sea ya esta rechazado
+        upd = f"update datos set resultado=NULL, rechazado=0 where id={id}"
+        updaut = f"update autorizacion set rechazado=0,autorizado=0 where iddato={id}"
     elif resultado is None: # o sea se puede rechazar
-        upd = f"update datos set resultado=2 where id={id}"
+        upd = f"update datos set resultado=8,rechazado=1 where id={id}"
+        updaut = f"update autorizacion set rechazado=1,autorizado=0 where iddato={id}"
     else:
         return make_response("error", 400)
     cur = con.cursor()
     try:
         cur.execute(upd)
+        cur.execute(updaut)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
@@ -157,6 +160,7 @@ def vendedor_togglerechazardato(id):
         con.commit()
         con.close()
         log(upd)
+        log(updaut)
         return 'ok'
 
 
@@ -169,7 +173,7 @@ def vendedor_getlistadodatos():
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
     sin_extension, autorizado from datos, clientes where clientes.id = \
-    datos.idcliente and rechazado=0 order by id desc limit 300")
+    datos.idcliente order by id desc limit 300")
     # vendedor is null filtra los datos no asignados
     cuotabasica = var_sistema['cuota_basica']
     vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
@@ -201,7 +205,7 @@ def vendedor_getlistadodatosenviar():
 def vendedor_getlistadodatosenviados():
     con = get_con()
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
-    art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
+    art, horarios, comentarios,  dni, nombre, resultado,monto_vendido,autorizado, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
     vendedor, autorizado from datos, clientes where clientes.id = \
     datos.idcliente and enviado_vdor=1 order by id desc")
@@ -789,7 +793,7 @@ def vendedor_getlistadoautorizados():
     listadoautorizados = pgdict(con, f"select datos.id as id,datos.fecha as \
     fecha, datos.user as user, nombre, datos.resultado as resultado, datos.art \
     as art, datos.cuota_maxima as cuota_maxima, datos.sin_extension as \
-    sin_extension, datos.deuda_en_la_casa as deuda_en_la_casa, \
+    sin_extension, datos.deuda_en_la_casa as deuda_en_la_casa,datos.vendedor as vendedor, \
     clientes.novendermas as novendermas, clientes.incobrable as incobrable,\
     clientes.sev as sev, clientes.baja as baja, autorizacion.fecha as \
     fechahora, autorizacion.cuota_requerida as cuota_requerida, \
@@ -810,7 +814,7 @@ def vendedor_getlistadoautorizadosporid(idcliente):
     listadoautorizadosporid = pgdict(con, f"select datos.id as id,datos.fecha \
     as fecha, datos.user as user, nombre, datos.resultado as resultado, \
     datos.art as art, datos.cuota_maxima as cuota_maxima, datos.sin_extension \
-    as sin_extension, datos.deuda_en_la_casa as deuda_en_la_casa, \
+    as sin_extension, datos.deuda_en_la_casa as deuda_en_la_casa,datos.vendedor as vendedor,  \
     clientes.novendermas as novendermas, clientes.incobrable as incobrable,\
     clientes.sev as sev, clientes.baja as baja, autorizacion.fecha as \
     fechahora, autorizacion.cuota_requerida as cuota_requerida, \
@@ -1039,6 +1043,21 @@ def vendedor_wappaut():
     wapp = var_sistema['wapp_auth']
     if wapp:
         response = send_msg_whatsapp(idcliente, wapp, msg)
+        return response
+    else:
+        return 'error', 400
+
+
+@vendedor.route('/vendedor/wapprespauth', methods=["POST"])
+@login_required
+@check_roles(['dev','gerente','admin'])
+def vendedor_wapprespaut():
+    d = json.loads(request.data.decode("UTF-8"))
+    vdor = 'wapp'+str(d['vdor'])
+    wappvdor = var_sistema[vdor]
+    msg = d['msg']
+    if wappvdor:
+        response = send_msg_whatsapp(0, wappvdor, msg)
         return response
     else:
         return 'error', 400

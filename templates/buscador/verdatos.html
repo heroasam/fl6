@@ -7,7 +7,7 @@
 <div class="container" x-data="main()" x-init="getListadoDatos()">
 
 
-  <p class="title is-1">Listado de Datos</p>
+  <p class="title is-1">Ver Datos - filtrar</p>
   <div class="buttons">
     <button class="button is-small is-info" @click="filtraDatosPorUser('isabelheredie@gmail.com')">Isabel</button>
     <button class="button is-small is-info" @click="filtraDatosPorUser('n.dryon@gmail.com')">Naty</button>
@@ -51,9 +51,9 @@
               <td x-text="dato.user"></td>
               <td x-text="dato.nombre"></td>
               <td><span class="tag is-small" x-text="dato.resultado==1?'Vendido':(dato.resultado==0?'Anulado':
-                               (dato.resultado==2?'Rechazado':(dato.resultado==5?'Mudo':(dato.resultado==6?'Fallecio':(dato.resultado==7?'Devuelta':'Pendiente')))))"
+                               (dato.resultado==2?'Rechazado':(dato.resultado==5?'Mudo':(dato.resultado==6?'Fallecio':(dato.resultado==7?'Devuelta':(dato.resultado==8?'Rechazado':'Pendiente'))))))"
                         :class="dato.resultado==1?'is-success':(dato.resultado==0?'is-danger':(dato.resultado==2?'is-warning':
-                               (dato.resultado==5?'is-primary':(dato.resultado==6?'is-black':(dato.resultado==7?'is-danger':'is-info' )))))"></span></td>
+                               (dato.resultado==5?'is-primary':(dato.resultado==6?'is-black':(dato.resultado==7?'is-danger':(dato.resultado==8?'is-black':'is-info'))))))"></span></td>
               <td x-text="dato.monto_vendido" class="pesos"></td>
               <td x-text="dato.horarios"></td>
               <td x-text="dato.art"></td>
@@ -165,14 +165,14 @@
                  case 'pendientes':
                      this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==null)
                      break
-                 case 'rechazados':
-                     this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==2)
-                     break
                  case 'mudados':
                      this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==5)
                      break
                  case 'fallecidos':
                      this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==6)
+                     break
+                 case 'rechazados':
+                     this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==8)
                      break
                  case 'todos':
                      this.listadoDatos_ = this.listadoDatos
