@@ -6,6 +6,7 @@ import simplejson as json
 from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
     pglflat, log_busqueda, listsql, pgdict1
 from con import get_con, log, check_roles
+import logging
 
 vendedor = Blueprint('vendedor', __name__)
 
@@ -92,6 +93,7 @@ def calculo_sin_extension(idcliente):
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_guardardato():
+    global var_sistema
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     cuota_maxima = calculo_cuota_maxima(d['idcliente'])
@@ -168,6 +170,7 @@ def vendedor_togglerechazardato(id):
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_getlistadodatos():
+    global var_sistema
     con = get_con()
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
@@ -185,6 +188,7 @@ def vendedor_getlistadodatos():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_getlistadodatosenviar():
+    global var_sistema
     con = get_con()
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
@@ -203,6 +207,7 @@ def vendedor_getlistadodatosenviar():
 @login_required
 @check_roles(['dev','gerente'])
 def vendedor_getlistadodatosenviados():
+    global var_sistema
     con = get_con()
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido,autorizado, \
@@ -243,6 +248,7 @@ def vendedor_asignardatosvendedor():
 @login_required
 @check_roles(['dev','gerente'])
 def vendedor_ingresardatoyasignardatosvendedor():
+    global var_sistema
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     ids = d['ids']
@@ -288,6 +294,7 @@ def vendedor_ingresardatoyasignardatosvendedor():
 @login_required
 @check_roles(['dev','gerente'])
 def vendedor_getcuotabasica():
+    global var_sistema
     con = get_con()
     cuotabasica = var_sistema['cuota_basica']
     return jsonify(cuotabasica=cuotabasica)
@@ -394,6 +401,7 @@ def vendedor_agregarcliente():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_envioclientenuevo():
+    global var_sistema
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     if current_user.email == var_sistema['816']:
@@ -549,6 +557,7 @@ def vendedor_visitasvdor():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_getlistadodatosvendedor():
+    global var_sistema
     con = get_con()
     if current_user.email == var_sistema['816']:
         vdor = 816
@@ -625,6 +634,7 @@ def vendedor_editarwapp():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_guardardatofechado():
+    global var_sistema
     if current_user.email == var_sistema['816']:
         vdor = 816
     elif current_user.email == var_sistema['835']:
@@ -655,6 +665,7 @@ def vendedor_guardardatofechado():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_anulardato(iddato):
+    global var_sistema
     if current_user.email == var_sistema['816']:
         vdor = 816
     elif current_user.email == var_sistema['835']:
@@ -684,6 +695,7 @@ def vendedor_anulardato(iddato):
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_mudodato(iddato):
+    global var_sistema
     if current_user.email == var_sistema['816']:
         vdor = 816
     elif current_user.email == var_sistema['835']:
@@ -713,6 +725,7 @@ def vendedor_mudodato(iddato):
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_falleciodato(iddato):
+    global var_sistema
     if current_user.email == var_sistema['816']:
         vdor = 816
     elif current_user.email == var_sistema['835']:
@@ -762,6 +775,7 @@ def vendedor_validardni():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_registrarautorizacion():
+    global var_sistema
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     if current_user.email == var_sistema['816']:
@@ -789,6 +803,7 @@ def vendedor_registrarautorizacion():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_getlistadoautorizados():
+    global var_sistema
     con = get_con()
     listadoautorizados = pgdict(con, f"select datos.id as id,datos.fecha as \
     fecha, datos.user as user, nombre, datos.resultado as resultado, datos.art \
@@ -834,7 +849,7 @@ def vendedor_autorizardato(id):
     upd_aut = f"update autorizacion set autorizado=1, user = \
     '{current_user.email}' where iddato={id}"
     upd_dat = f"update datos set cuota_maxima = {cuota_requerida}, \
-    autorizado=1 where id={id}"
+    autorizado=1,enviado_vdor=1 where id={id}"
     con = get_con()
     cur = con.cursor()
     try:
@@ -884,6 +899,7 @@ def vendedor_noautorizardato(id):
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_pasarventa():
+    global var_sistema
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     if current_user.email == var_sistema['816']:
@@ -943,6 +959,7 @@ def vendedor_pasarventa():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_noestabadato(iddato):
+    global var_sistema
     con = get_con()
     if current_user.email == var_sistema['816']:
         vdor = 816
@@ -987,6 +1004,7 @@ def vendedor_getvisitasvendedor():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_getvisitasvdor():
+    global var_sistema
     con = get_con()
     if current_user.email == var_sistema['816']:
         vdor = 816
@@ -1036,13 +1054,15 @@ def vendedor_getventashoy():
 @login_required
 @check_roles(['dev','gerente','admin','vendedor'])
 def vendedor_wappaut():
+    global var_sistema
     d = json.loads(request.data.decode("UTF-8"))
     msg = d['msg']
-    tipo = d['tipo'] # a discriminar en el futuro
-    idcliente = var_sistema['idcliente_auth']
+    # tipo = d['tipo'] # a discriminar en el futuro
+    # idcliente = var_sistema['idcliente_auth']
     wapp = var_sistema['wapp_auth']
+    logging.warning(f"wapp {wapp}")
     if wapp:
-        response = send_msg_whatsapp(idcliente, wapp, msg)
+        response = send_msg_whatsapp(0, wapp, msg)
         return response
     else:
         return 'error', 400
@@ -1052,6 +1072,7 @@ def vendedor_wappaut():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_wapprespaut():
+    global var_sistema
     d = json.loads(request.data.decode("UTF-8"))
     vdor = 'wapp'+str(d['vdor'])
     wappvdor = var_sistema[vdor]
@@ -1092,6 +1113,7 @@ def vendedor_wapp():
 @login_required
 @check_roles(['dev','gerente','admin','vendedor'])
 def vendedor_filewapp():
+    global var_sistema
     d = json.loads(request.data.decode("UTF-8"))
     wapp = d['wapp']
     idcliente = d['idcliente']
@@ -1111,6 +1133,7 @@ def vendedor_filewapp():
 @login_required
 @check_roles(['dev','gerente'])
 def vendedor_getcomisionesvendedor(vdor):
+    global var_sistema
     com = 'com'+str(vdor)
     comision = var_sistema[com]
     con = get_con()
@@ -1211,6 +1234,7 @@ def vendedor_marcarpagadas(vdor):
 @login_required
 @check_roles(['dev','gerente','vendedor'])
 def vendedor_getcargavendedor():
+    global var_sistema
     con = get_con()
     if current_user.email == var_sistema['816']:
         vdor = 816
@@ -1243,6 +1267,7 @@ def vendedor_comisionesvdor():
 @login_required
 @check_roles(['dev','gerente','vendedor'])
 def vendedor_getcomisionesparavendedor():
+    global var_sistema
     if current_user.email == var_sistema['816']:
         vdor = 816
     elif current_user.email == var_sistema['835']:

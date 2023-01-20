@@ -84,9 +84,11 @@ uedo a la espera. Gracias.`;
                                                                        // envia a /vendedor/wappaut
 	                                                                   axios.post('/3ZbXanrRQalY6JL5eOBi49Nyc',data)
                                                                        // window.location envia a /vendedor/listadatos
+                                                                           .then(res=>{
                                                                        window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";
-                                                                       msgSuccess('Datos enviados. Espere la respuesta.');
-                                                                   })
+                                                                               msgSuccess('Datos enviados. Espere la respuesta.');
+
+                                                                           })})
            },
 
        }

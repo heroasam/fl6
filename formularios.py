@@ -245,7 +245,7 @@ def libredeuda(con,dni):
     pdf.cell(150,6,"DEPARTAMENTO DE COBRANZAS ROMITEX", 0, 1, 'R')
     pdf.set_y(260)
     pdf.set_font_size(18)
-    pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 155-297-472", 0, 1, 'L')
+    pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 153-882-892", 0, 1, 'L')
     pdf.set_font_size(12)
     pdf.output(f"/home/hero/libredeuda{dni}.pdf")
 
@@ -277,7 +277,7 @@ def recibotransferencia(con,fecha,cuenta,nc,ic,cobr,rbo,idcliente):
     pdf.cell(150,6,"DEPARTAMENTO DE COBRANZAS ROMITEX", 0, 1, 'R')
     pdf.set_y(260)
     pdf.set_font_size(18)
-    pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 155-297-472", 0, 1, 'L')
+    pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 153-882-892", 0, 1, 'L')
     pdf.set_font_size(12)
     pdf.output(f'/home/hero/recibotransferencia{cuenta}.pdf')
 
@@ -331,7 +331,7 @@ def intimacion(con,ldni):
         pdf.cell(150,6,"GESTION DE COBRO ROMITEX", 0, 1, 'R')
         pdf.set_y(260)
         pdf.set_font_size(18)
-        pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 155-297-472", 0, 1, 'L')
+        pdf.cell(150,12,"Rioja 441 Planta Baja Of. F - Tel 153-882-892", 0, 1, 'L')
         pdf.set_font_size(12)
     if len(ldni) == 1:
         pdf.output(f"/home/hero/intimacion{dni}.pdf")
