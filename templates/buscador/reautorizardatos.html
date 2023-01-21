@@ -42,6 +42,7 @@
         <th></th>
         <th>direccion</th>
         <th></th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -70,6 +71,7 @@
 		      <span class="tag is-warning  m-0">Casa</span>
 		      <span class="tag is-light  m-0" x-text="'$'+dato.deuda_en_la_casa"></span>
 	        </div></td>
+            <td><span class="tag is-danger" x-show="dato.comentarios=='cliente enviado por vendedor'">Ver primero el cliente ingresado</span></td>
             <td><span class="tag is-small is-danger" x-show="dato.novendermas">LN</span>
             <span class="tag is-small is-danger" x-show="dato.incobrable">INC</span>
             <span class="tag is-small is-success" x-show="dato.sev">SEVEN</span>
