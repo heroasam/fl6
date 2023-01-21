@@ -559,10 +559,12 @@ def vendedor_visitasvdor():
 def vendedor_getlistadodatosvendedor():
     global var_sistema
     con = get_con()
-    if current_user.email == var_sistema['816']:
-        vdor = 816
-    if current_user.email == var_sistema['835']:
-        vdor = 835
+    # if current_user.email == var_sistema['816']:
+    #     vdor = 816
+    # if current_user.email == var_sistema['835']:
+    #     vdor = 835
+    logging.warning(f"current {current_user.email, var_sistema['816'], current_user.email==var_sistema['816']}")
+    vdor = 816
     listadodatos = pgdict(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
     zona, cuota_maxima,idcliente, sin_extension,idvta,resultado,\
@@ -671,7 +673,7 @@ def vendedor_anulardato(iddato):
     elif current_user.email == var_sistema['835']:
         vdor = 835
     con = get_con()
-    upd = f"update datos set resultado=0, fecha_definido=current_timestamp()\
+    upd = f"update datos set resultado=2, fecha_definido=current_timestamp()\
     where id = {iddato}"
     ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
     values(curdate(),curtime(),{vdor},{iddato},2,0)"
