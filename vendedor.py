@@ -401,6 +401,7 @@ def vendedor_agregarcliente():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_envioclientenuevo():
+    logging.warning(f"envioclientenuevo {current_user.email}")
     global var_sistema
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -557,6 +558,7 @@ def vendedor_visitasvdor():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_getlistadodatosvendedor():
+    logging.warning(f"GETLISTADODATOSVENDEDOR, {current_user.email}")
     global var_sistema
     con = get_con()
     # if current_user.email == var_sistema['816']:
@@ -636,6 +638,7 @@ def vendedor_editarwapp():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_guardardatofechado():
+    logging.warning(f"guardardatofechado, {current_user.email}")
     global var_sistema
     if current_user.email == var_sistema['816']:
         vdor = 816
@@ -667,6 +670,7 @@ def vendedor_guardardatofechado():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_anulardato(iddato):
+    logging.warning(f"anulardato, {current_user.email}")
     global var_sistema
     if current_user.email == var_sistema['816']:
         vdor = 816
@@ -697,6 +701,7 @@ def vendedor_anulardato(iddato):
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_mudodato(iddato):
+    logging.warning(f"mudodato, {current_user.email}")
     global var_sistema
     if current_user.email == var_sistema['816']:
         vdor = 816
@@ -727,6 +732,7 @@ def vendedor_mudodato(iddato):
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_falleciodato(iddato):
+    logging.warning(f"falleciodato, {current_user.email}")
     global var_sistema
     if current_user.email == var_sistema['816']:
         vdor = 816
@@ -777,6 +783,7 @@ def vendedor_validardni():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_registrarautorizacion():
+    logging.warning(f"registrarautorizacion, {current_user.email}")
     global var_sistema
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -878,7 +885,7 @@ def vendedor_noautorizardato(id):
     autorizacion where iddato={id}")
     upd_aut = f"update autorizacion set autorizado=0, user = \
     '{current_user.email}',rechazado=1 where iddato={id}"
-    upddato = f"update datos set rechazado=1 where id={id}"
+    upddato = f"update datos set rechazado=1, autorizado=0, resultado=8 where id={id}"
     con = get_con()
     cur = con.cursor()
     try:
@@ -901,6 +908,7 @@ def vendedor_noautorizardato(id):
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_pasarventa():
+    logging.warning(f"pasarventa, {current_user.email}")
     global var_sistema
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
@@ -961,6 +969,7 @@ def vendedor_pasarventa():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_noestabadato(iddato):
+    logging.warning(f"noestabadato, {current_user.email}")
     global var_sistema
     con = get_con()
     if current_user.email == var_sistema['816']:
@@ -1006,6 +1015,7 @@ def vendedor_getvisitasvendedor():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_getvisitasvdor():
+    logging.warning(f"getvisitasvdor, {current_user.email}")
     global var_sistema
     con = get_con()
     if current_user.email == var_sistema['816']:
@@ -1236,6 +1246,7 @@ def vendedor_marcarpagadas(vdor):
 @login_required
 @check_roles(['dev','gerente','vendedor'])
 def vendedor_getcargavendedor():
+    logging.warning(f"getcargavendedor, {current_user.email}")
     global var_sistema
     con = get_con()
     if current_user.email == var_sistema['816']:
@@ -1269,6 +1280,7 @@ def vendedor_comisionesvdor():
 @login_required
 @check_roles(['dev','gerente','vendedor'])
 def vendedor_getcomisionesparavendedor():
+    logging.warning(f"getcomisionesparavendedor, {current_user.email}")
     global var_sistema
     if current_user.email == var_sistema['816']:
         vdor = 816
