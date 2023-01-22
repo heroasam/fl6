@@ -173,7 +173,8 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                   })
          },
          getListaZonas(){
-             let arrayZonas = this.listadoDatos.map(row=>row.zona);
+             let arrayZonas = this.listadoDatos.filter(row=>row.resultado==null).map(row=>row.zona);
+             console.log( arrayZonas)
              let zonaDatos = {};
              this.listaZonasDatos = [];
              arrayZonas.forEach(item=>{

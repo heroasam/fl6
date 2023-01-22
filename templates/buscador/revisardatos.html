@@ -21,16 +21,17 @@
     </div>
   </div>
 
-   <div class="buttons">
-     <button class="button is-small is-success" @click="filtraDatosPorStatus('vendidos')">Vendidos</button>
-     <button class="button is-small is-danger" @click="filtraDatosPorStatus('anulados')">Anulados</button>
-     <button class="button is-small is-info" @click="filtraDatosPorStatus('pendientes')">Pendientes</button>
-     <button class="button is-small is-primary" @click="filtraDatosPorStatus('mudados')">Mudados</button>
-     <button class="button is-small is-primary" @click="filtraDatosPorStatus('rechazados')">Rechazados</button>
-     <button class="button is-small is-black" @click="filtraDatosPorStatus('fallecidos')">Fallecidos</button>
-     <button class="button is-small is-warning" @click="filtraDatosPorStatus('todos')">Todos</button>
-      <button class="button is-small is-black" @click="filtraDatosPorVendedor(816)">816</button>
-      <button class="button is-small is-black" @click="filtraDatosPorVendedor(835)">835</button>
+  <div class="buttons">
+    <span><tag class="tag is-large is-black" x-text="cntDatos"></tag></span>
+    <button class="button is-small is-success" @click="filtraDatosPorStatus('vendidos');cntSeleccionados()">Vendidos</button>
+    <button class="button is-small is-danger" @click="filtraDatosPorStatus('anulados');cntSeleccionados()">Anulados</button>
+     <button class="button is-small is-info" @click="filtraDatosPorStatus('pendientes');cntSeleccionados()">Pendientes</button>
+     <button class="button is-small is-primary" @click="filtraDatosPorStatus('mudados');cntSeleccionados()">Mudados</button>
+     <button class="button is-small is-primary" @click="filtraDatosPorStatus('rechazados');cntSeleccionados()">Rechazados</button>
+     <button class="button is-small is-black" @click="filtraDatosPorStatus('fallecidos');cntSeleccionados()">Fallecidos</button>
+     <button class="button is-small is-warning" @click="filtraDatosPorStatus('todos');cntSeleccionados()">Todos</button>
+     <button class="button is-small is-black" @click="filtraDatosPorVendedor(816);cntSeleccionados()">816</button>
+     <button class="button is-small is-black" @click="filtraDatosPorVendedor(835);cntSeleccionados()">835</button>
    </div>
   <table class="table table-striped " id="table">
     <thead>
@@ -60,9 +61,9 @@
           <td x-text="dato.fecha"></td>
           <td x-text="dato.user"></td>
           <td x-text="dato.nombre"></td>
-          <td><span class="tag is-small" x-text="dato.resultado==1?'Vendido':(dato.resultado==0?'Anulado':
+          <td><span class="tag is-small" x-text="dato.resultado==1?'Vendido':(dato.resultado==2?'Anulado':
                            (dato.resultado==2?'Anulado':(dato.resultado==5?'Mudo':(dato.resultado==6?'Fallecio':(dato.resultado==8?'Rechazado':'Pendiente')))))"
-                    :class="dato.resultado==1?'is-success':(dato.resultado==0?'is-danger':(dato.resultado==2?'is-warning':
+                    :class="dato.resultado==1?'is-success':(dato.resultado==0?'is-danger':(dato.resultado==2?'is-danger':
                            (dato.resultado==5?'is-primary':(dato.resultado==6?'is-black':(dato.resultado==8?'is-black':'is-info')))))"></span></td>
           <td x-text="dato.art"></td>
           <td x-text="dato.cuota_maxima"></td>
@@ -153,6 +154,7 @@
          cntSeleccionados:'',
          vendedorAsignado:'',
          listaVdores:[],
+         cntDatos:'',
          getListadoDatos(){
              axios.get('/vendedor/getlistadodatosenviados')
                   .then(res=>{
@@ -162,7 +164,7 @@
                       this.listadoDatos_ = this.listadoDatos
                       this.cuota_basica = res.data.cuotabasica
                       this.listaVdores = res.data.vdores
-                      console.log( this.listadoDatos_)
+                      this.cntDatos = this.cntSeleccionados()
                   })
          },
          editarDato(id){
@@ -182,7 +184,7 @@
              })
          },
          filtraDatosPorVendedor(vdor){
-             this.listadoDatos_ = this.listadoDatos_.filter(row=>row.vendedor==vdor)
+             this.listadoDatos_ = this.listadoDatos_.filter(row=>row.vendedor==vdor&&row.resultado==null)
          },
          filtraDatosPorStatus(status){
              switch(status){
@@ -190,7 +192,7 @@
                      this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==1)
                      break
                  case 'anulados':
-                     this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==0)
+                     this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==2)
                      break
                  case 'pendientes':
                      this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==null)
@@ -231,6 +233,13 @@
                   .catch(error=>{
                       msgerror('Error. No se pudo hacer el cambio.')
                   })
+         },
+         cntSeleccionados(){
+             setTimeout(()=>{
+             const $tbody = document.querySelector("tbody");
+             arrayRows = Array.from($tbody.children);
+             this.cntDatos = arrayRows.length - 1
+             },10)
          },
      }
  }
