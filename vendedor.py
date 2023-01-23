@@ -272,10 +272,10 @@ def vendedor_ingresardatoyasignardatosvendedor():
                 deuda_en_la_casa = 0
             ins = f"insert into datos(fecha, user, idcliente, fecha_visitar,\
             art,horarios, comentarios, cuota_maxima,deuda_en_la_casa,\
-            sin_extension,vendedor,listado) values (curdate(), \
+            sin_extension,vendedor,listado,enviado_vdor) values (curdate(), \
             '{current_user.email}',{idcliente},curdate(),'','','', \
             {cuota_maxima},'{deuda_en_la_casa}',{sin_extension},\
-            {d['vendedor']},1)"
+            {d['vendedor']},1,1)"
             upd = f"update clientes set fechadato=curdate() where \
             id={idcliente}"
             cur.execute(ins)
@@ -561,12 +561,13 @@ def vendedor_getlistadodatosvendedor():
     logging.warning(f"GETLISTADODATOSVENDEDOR, {current_user.email}")
     global var_sistema
     con = get_con()
-    # if current_user.email == var_sistema['816']:
-    #     vdor = 816
-    # if current_user.email == var_sistema['835']:
-    #     vdor = 835
+    if current_user.email == var_sistema['816']:
+        vdor = 816
+    if current_user.email == var_sistema['835']:
+        vdor = 835
     logging.warning(f"current {current_user.email, var_sistema['816'], current_user.email==var_sistema['816']}")
-    vdor = 816
+    # vdor = 816
+    agrupar = var_sistema["agrupar"+str(vdor)]
     listadodatos = pgdict(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
     zona, cuota_maxima,idcliente, sin_extension,idvta,resultado,\
@@ -574,7 +575,7 @@ def vendedor_getlistadodatosvendedor():
     datos.idcliente and vendedor={vdor} and (resultado is null or (resultado in \
     (1,7) and date(fecha_definido)=curdate())) and fecha_visitar <=curdate() \
     and enviado_vdor=1 order by id desc")
-    return jsonify(listadodatos=listadodatos)
+    return jsonify(listadodatos=listadodatos, agrupar=agrupar)
 
 
 @vendedor.route('/pnZWxv9Nicwt6TQ6zxohzvats/<int:iddato>')
@@ -1054,7 +1055,7 @@ def vendedor_getventashoy():
     ventashoy = pgdict(con, "select fecha_definido,\
     nombre,concat(calle,num) as direccion, zona, monto_vendido, vendedor,dni \
     from datos,clientes where datos.idcliente = clientes.id and \
-    date(fecha_definido)=curdate() and resultado=1")
+    date(fecha_definido)=curdate() and resultado=1 order by fecha_definido")
     return jsonify(ventashoy=ventashoy)
 
 

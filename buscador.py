@@ -15,6 +15,11 @@ from con import get_con, log, check_roles
 buscador = Blueprint('buscador', __name__)
 
 
+def obtenerdni(idcliente):
+    con = get_con()
+    dni = pgonecolumn(con, f"select dni from clientes where id={idcliente}")
+    return dni
+
 
 @buscador.route('/buscador', methods=['GET', 'POST'])
 @login_required
@@ -92,6 +97,9 @@ def buscador_log():
 @check_roles(['dev','gerente','admin'])
 def buscar_interno_buscar(dni):
     """Anexo buscador para ver-cuenta desde otra pagina."""
+    if len(str(dni))<7:
+        dni = obtenerdni(dni)
+        print('ok',len(str(dni)),dni)
     return render_template('/buscador/buscar.html', dnilistado=dni)
 
 

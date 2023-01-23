@@ -10,8 +10,8 @@
   <p class="title is-1">Lista Datos</p>
 
   <div>
-    <template x-for="zona in listaZonasDatos">
-      <button class="button is-small is-primary" x-text="zona" @click="filtraPorZona(zona)"></button>
+    <template x-for="item in listaItemsDatos">
+      <button class="button is-small is-primary" x-text="item" @click="filtraPorItem(item)"></button>
     </template>
   </div>
   <table class="table table-striped " id="table" x-show="verCard==false">

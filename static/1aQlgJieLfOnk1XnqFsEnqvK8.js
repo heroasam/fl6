@@ -145,7 +145,8 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
      return{
          listadoDatos:[],
          listadoDatos_:[],
-         listaZonasDatos:[],
+         listaItemsDatos:[],
+         agrupar:'',
          listaArticulos:[],
          listaArtComprados:[],
          Articulos:[],
@@ -169,24 +170,29 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                       this.listadoDatos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'));
                       this.listadoDatos.map(row=>row.fecha_visitar=dayjs.utc(row.fecha_visitar).format('YYYY-MM-DD'));
                       this.listadoDatos_ = this.listadoDatos;
-                      this.getListaZonas();
+                      this.agrupar = res.data.agrupar
+                      this.getListaItems();
                   })
          },
-         getListaZonas(){
-             let arrayZonas = this.listadoDatos.filter(row=>row.resultado==null).map(row=>row.zona);
-             console.log( arrayZonas)
-             let zonaDatos = {};
-             this.listaZonasDatos = [];
-             arrayZonas.forEach(item=>{
-                 if (item in zonaDatos){
-                     zonaDatos[item] += 1;
+         getListaItems(){
+             let arrayItems = []
+             if(this.agrupar=='zonas'){
+                 arrayItems = this.listadoDatos.filter(row=>row.resultado==null).map(row=>row.zona);
+             }else{
+                 arrayItems = this.listadoDatos.filter(row=>row.resultado==null).map(row=>row.calle);
+             }
+             let itemDatos = {};
+             this.listaItemsDatos = [];
+             arrayItems.forEach(item=>{
+                 if (item in itemDatos){
+                     itemDatos[item] += 1;
                  }else{
-                     zonaDatos[item] = 1;
+                     itemDatos[item] = 1;
 
                  }
              })
-             for (let item in zonaDatos){
-                 this.listaZonasDatos.push(`${item}-${zonaDatos[item]}`);
+             for (let item in itemDatos){
+                 this.listaItemsDatos.push(`${item}-${itemDatos[item]}`);
              }
          },
          getListadoArt(){
@@ -217,11 +223,15 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                  break;
              }
          },
-         filtraPorZona(zona){
+         filtraPorItem(item){
              // la zona me viene en formato jid1-5 por eso tengo que limpiar
              pattern = /[^-]*/gi;
-             zona = pattern.exec(zona);
-             this.listadoDatos_ = this.listadoDatos.filter(row=>row.zona==zona);
+             item = pattern.exec(item);
+             if(this.agrupar=='zonas'){
+             this.listadoDatos_ = this.listadoDatos.filter(row=>row.zona==item);
+             }else{
+             this.listadoDatos_ = this.listadoDatos.filter(row=>row.calle==item);
+             }
              this.verCard = false;
          },
          abrirCliente(id){

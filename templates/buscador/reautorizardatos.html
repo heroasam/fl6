@@ -48,7 +48,7 @@
     <tbody>
       <template x-for="dato in listadoAutorizados_">
         <tr>
-          <td><a :href="'/buscador/interno/'+dato.dni">Ver</a></td>
+          <td><a :href="'/buscador/interno/'+dato.idcliente">Ver</a></td>
           <td><i class="fa fa-pencil" aria-hidden="true" @click="editarDato(dato.id)"></td>
           <td x-text="dato.id"></td>
           <td x-text="dato.fecha"></td>
@@ -167,6 +167,7 @@
 <script>
  function main(){
      return{
+         dni:'',
          listadoAutorizados:[],
          listadoAutorizados_:[],
          listadoAutorizadosporid:[],
@@ -271,6 +272,7 @@ Se puede vender hasta la cuota autorizada previamente. Gracias.`
                       this.getListadoAutorizados()
                   })
           },
+
  }}
 
 </script>
