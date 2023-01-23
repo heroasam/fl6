@@ -1150,7 +1150,7 @@ def vendedor_getcomisionesvendedor(vdor):
     com = 'com'+str(vdor)
     comision = var_sistema[com]
     con = get_con()
-    comisiones = pgdict(con, f"select fecha,monto_vendido*{comision} \
+    comisiones = pgdict(con, f"select date(fecha_definido),monto_vendido*{comision} \
     as com,idvta as id from datos where vendedor={vdor} and com_pagada=0 \
     and monto_vendido>0 order by fecha")
     devoluciones = pgdict(con, f"select fecha,monto_devuelto*{comision}*(-1) \
@@ -1290,7 +1290,7 @@ def vendedor_getcomisionesparavendedor():
     com = 'com'+str(vdor)
     comision = var_sistema[com]
     con = get_con()
-    comisiones = pgdict(con, f"select fecha,monto_vendido*{comision} \
+    comisiones = pgdict(con, f"select date(fecha_definido),monto_vendido*{comision} \
     as com, idvta as id from datos where vendedor={vdor} and com_pagada=0 \
     and monto_vendido>0 order by fecha")
     devoluciones = pgdict(con, f"select fecha,monto_devuelto*{comision}*(-1) \
