@@ -1058,3 +1058,17 @@ def ventas_cargarartvdores():
 @check_roles(['dev', 'gerente'])
 def ventas_comisiones():
     return render_template('/ventas/comisiones.html')
+
+
+@ventas.route('/ventas/yearcompra')
+@login_required
+@check_roles(['dev', 'gerente'])
+def ventas_yearcompra():
+    pd.options.display.float_format = '${:.0f}'.format
+    sql="select id,EXTRACT(YEAR_MONTH FROM fechacompra) as ym, yultcompra from prospectos where compro=1"
+    dat = pd.read_sql_query(sql, engine)
+    df = pd.DataFrame(dat)
+    tbl = pd.pivot_table(df, values=['id'],index='yultcompra',columns='ym',aggfunc='count').sort_index(axis=1, level='ym',ascending=False)
+    tbl = tbl.fillna("")
+    tbl = tbl.to_html(table_id="yultcompra",classes="table")
+    return render_template("ventas/yearcompra.html", tbl=tbl)
