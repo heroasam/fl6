@@ -3,8 +3,9 @@
 {% block title %}Ventas{% endblock %}
 {% block style %}
 <style>
-  </style>
-  {% endblock %}
+</style>
+{% endblock %}
+
 
 {% block content %}
 
@@ -95,5 +96,20 @@
          },
      }
  }
-  </script>
+ /* Documentacion:
+  *        getVentaHoy:
+  *        ventashoy = pgdict(con, "select fecha_definido,\
+    nombre,concat(calle,num) as direccion, zona, monto_vendido, vendedor,dni \
+    from datos,clientes where datos.idcliente = clientes.id and \
+    date(fecha_definido)=curdate() and resultado=1 order by fecha_definido")
+  * Es una vista de las ventas tomadas de la tabla DATOS para el dia de la fecha-->
+  * date(fecha_definido)==curdate()
+  * LA VISTA INCLUYE A TODOS LOS VENDEDORES EN LA TABLA.
+
+  *                                                   el setInterval que hay en x-init permite la reactualizacion de la pagina cada 1 minuto.
+  * y el .then de la funcion getVentaHoy incluye un test para generar un sonido cuando
+  * entra una operacion.
+  * Toma la diferencia entre ahora y el time de la ultima venta ingresada y si es menor al delta de actualizacion
+  * o sea menor a 60seg dispara el sonido. */
+</script>
   {% endblock %}

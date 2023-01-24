@@ -324,7 +324,7 @@ def stock_generarstock():
     cur = con.cursor()
     cur.execute('drop table if exists detalles')
     cur.execute("create temporary table if not exists detalles as select cnt,\
-    art from detvta where idvta>55203 and devuelta=0 UNION ALL select cnt,art \
+    art,detvta.id as id from detvta where idvta>55203 and devuelta=0 UNION ALL select cnt,art,detallesalida.id as id \
     from detallesalida")
     cur.execute('drop table if exists stockactual')
     cur.execute("create temporary table if not exists stockactual as select \

