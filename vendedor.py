@@ -944,28 +944,39 @@ def vendedor_pasarventa():
     values(curdate(),curtime(),{vdor},{d['id']},1,{ic*cc})"
     cur = con.cursor()
     try:
-        cur.execute(insvis)
-        cur.execute(insvta)
+        ultinsvta = pgonecolumn(con, "select valor from variables where id=13")
+        listart = ''
+        for item in d['arts']:
+            listart += item['cnt']
+            listart += item['art']
+        if str(ultinsvta)!=f"{cc}{ic}{p}{d['primera']}{d['idcliente']}{d['id']}{listart}":
+            cur.execute(insvis)
+            cur.execute(insvta)
+            inslog = f"update variables set valor='{cc}{ic}{p}{d['primera']}{d['idcliente']}{d['id']}{listart}' where id=13"
+            cur.execute(inslog)
+            idvta = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
+            # lo siguiente ha sido trasladado al trigger ventas_ins_clientes
+            # upd = f"update datos set resultado=1, monto_vendido={ic*6}, fecha_definido=\
+            # current_timestamp(), idvta={idvta} where id={d['id']}"
+            # cur.execute(upd)
+            for item in d['arts']:
+                cnt = item['cnt']
+                art = item['art']
+                ic = item['cuota']
+                costo = pgonecolumn(con, f"select costo from articulos where \
+                art='{art}'")
+                ins = f"insert into detvta(idvta,cnt,art,cc,ic,costo,devuelta) \
+                values({idvta},{cnt},'{art}',6,{ic},{costo},0)"
+                cur.execute(ins)
+                log(ins)
+        else:
+            logging.warning(f"duplicacion de venta {ultinsvta} Dara cod 401")
+            return make_response('error de duplicacion de venta',401)
     except mysql.connector.Error as _error:
        con.rollback()
        error = _error.msg
        return make_response(error,400)
     else:
-       idvta = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
-       # lo siguiente ha sido trasladado al trigger ventas_ins_clientes
-       # upd = f"update datos set resultado=1, monto_vendido={ic*6}, fecha_definido=\
-       # current_timestamp(), idvta={idvta} where id={d['id']}"
-       # cur.execute(upd)
-       for item in d['arts']:
-           cnt = item['cnt']
-           art = item['art']
-           ic = item['cuota']
-           costo = pgonecolumn(con, f"select costo from articulos where \
-           art='{art}'")
-           ins = f"insert into detvta(idvta,cnt,art,cc,ic,costo,devuelta) \
-           values({idvta},{cnt},'{art}',6,{ic},{costo},0)"
-           cur.execute(ins)
-           log(ins)
        con.commit()
        con.close()
        # log(upd)
