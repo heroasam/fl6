@@ -493,7 +493,10 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
  function IkKmqwFGcDGnhd8x1TvBO6C6p(){
      return{
          listaComisiones:[],
+         listaComisiones_:[],
          totalComision:'',
+         listaFechas:[],
+         fecha:'',
          getComisionesVdor(){
              //nueva ruta para /vendedor/getcomisionesparavendedor
              axios.get('/IrV7gmqz4Wu8Q8rwmXMftphaB')
@@ -502,7 +505,27 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
                       this.listaComisiones.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                       this.listaComisiones.map(row=>row.com=parseFloat(row.com))
                       this.totalComision = parseFloat(this.listaComisiones.map(row=>row.com).reduce((a,b)=>a+b,0))
+                      this.listaFechas = res.data.fechascomisiones
+                      this.listaFechas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      this.listaFechas.map(row=>row.comision=parseFloat(row.comision))
                   })
+         },
+         expandChildren(fecha){
+              if(this.fecha==fecha && this.listaComisiones_.length>0){
+                  this.listaComisiones_ = []
+                  return
+              }
+             this.listaComisiones_ = this.listaComisiones.filter(row=>row.fecha==fecha)
+             this.fecha = fecha
+             setTimeout(()=>{
+             $tbody = document.querySelector('tbody')
+             $trfecha = document.getElementById(fecha)
+             let arrayrows = Array.from($tbody.children)
+             let children = arrayrows.filter(row=>row.classList.contains('children'))
+             children = children.reverse()
+             for(el of children){
+                 $tbody.insertBefore(el,$trfecha.nextSibling)
+             }},10)
          },
 
      }

@@ -34,6 +34,7 @@
         <th>fecha</th>
         <th>user</th>
         <th>nombre</th>
+        <th>zona</th>
         <th>status</th>
         <th>articulos</th>
         <th>cuota</th>
@@ -53,6 +54,7 @@
           <td x-text="dato.fecha"></td>
           <td x-text="dato.user"></td>
           <td x-text="dato.nombre"></td>
+          <td x-text="dato.zona"></td>
           <td><span class="tag is-small" x-text="dato.resultado==1?'Vendido':(dato.resultado==0?'Anulado':(dato.resultado==2?'Rechazado':'Pendiente'))"
                     :class="dato.resultado==1?'is-success':(dato.resultado==0?'is-danger':(dato.resultado==2?'is-warning':'is-info' ))"></span></td>
           <td x-text="dato.art"></td>

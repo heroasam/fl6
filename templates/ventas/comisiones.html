@@ -25,16 +25,25 @@
 	     </div>
          <table class="table is-narrow" id="table">
                 <thead>
-                    <tr>
+                  <tr>
+                    <th></th>
                       <th>fecha</th>
-                      <th>cuenta</th>
+                      <th>cnt</th>
                       <th class="sumar">comision</th>
                     </tr>
                 </thead>
                 <tbody>
-                  <template x-for="item in listaComisiones">
-                    <tr>
-                      <td x-text="item.fecha"></td>
+                   <template x-for="item in listaFechas">
+                    <tr :id="item.fecha">
+                      <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
+                                                         @click="expandChildren(item.fecha)"></td>
+                          <td x-text="item.fecha"></td>
+                          <td x-text="item.cnt"></td>
+                          <td x-text="item.comision" class="pesos"></td>
+                    </tr>
+                   </template>
+                   <template x-for="item in listaComisiones_">
+                    <tr class="children">
                       <td x-text="item.id"></td>
                       <td x-text="item.com" class="pesos"></td>
                     </tr>
@@ -54,9 +63,12 @@
  function main(){
      return{
          listaComisiones:[],
+         listaComisiones_:[],
          vendedor:'',
          listaVendedores:[],
          totalComision:'',
+         listaFechas:[],
+         fecha:'',
          getVendedores(){
              axios.get('/vendedor/getvendedores')
                   .then(res=>{
@@ -71,6 +83,9 @@
                       this.listaComisiones.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                       this.listaComisiones.map(row=>row.com=parseFloat(row.com))
                       this.totalComision = parseFloat(this.listaComisiones.map(row=>row.com).reduce((a,b)=>a+b,0))
+                      this.listaFechas = res.data.fechascomisiones
+                      this.listaFechas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      this.listaFechas.map(row=>row.comision=parseFloat(row.comision))
                   })
          },
          limpiarToggles() {
@@ -96,6 +111,23 @@
                          this.getComisionesVdor(vdor)})
                      .catch(error=>msgError('No se pudo procesar. Hubo un error.'))
             }})
+         },
+         expandChildren(fecha){
+              if(this.fecha==fecha && this.listaComisiones_.length>0){
+                  this.listaComisiones_ = []
+                  return
+              }
+             this.listaComisiones_ = this.listaComisiones.filter(row=>row.fecha==fecha)
+             this.fecha = fecha
+             setTimeout(()=>{
+             $tbody = document.querySelector('tbody')
+             $trfecha = document.getElementById(fecha)
+             let arrayrows = Array.from($tbody.children)
+             let children = arrayrows.filter(row=>row.classList.contains('children'))
+             children = children.reverse()
+             for(el of children){
+                 $tbody.insertBefore(el,$trfecha.nextSibling)
+             }},10)
          },
      }
  }

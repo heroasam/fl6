@@ -20,22 +20,31 @@
 	     </div>
          <table class="table is-narrow" id="table">
                 <thead>
-                    <tr>
+                  <tr>
+                    <th></th>
                       <th>fecha</th>
-                      <th>cuenta</th>
+                      <th>cnt</th>
                       <th class="sumar">comision</th>
-                    </tr>
+                  </tr>
                 </thead>
                 <tbody>
-                  <template x-for="item in listaComisiones">
-                    <tr>
-                      <td x-text="item.fecha"></td>
+                   <template x-for="item in listaFechas">
+                    <tr :id="item.fecha">
+                      <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
+                                                         @click="expandChildren(item.fecha)"></td>
+                          <td x-text="item.fecha"></td>
+                          <td x-text="item.cnt"></td>
+                          <td x-text="item.comision" class="pesos"></td>
+                    </tr>
+                   </template>
+                   <template x-for="item in listaComisiones_">
+                    <tr class="children">
                       <td x-text="item.id"></td>
                       <td x-text="item.com" class="pesos"></td>
                     </tr>
-                  </template>
-                 </tbody>
-            </table>
+                   </template>
+                </tbody>
+         </table>
 
 
     </div>

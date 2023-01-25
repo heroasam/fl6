@@ -107,6 +107,8 @@ def vendedor_guardardato():
     where concat(calle,num)='{direccion_cliente}' and id!={d['idcliente']}")
     es_garante = pgonecolumn(con, f"select esgarante from clientes where id=\
     {d['idcliente']}")
+    zona = pgonecolumn(con, f"select zona from clientes where id=\
+    {d['idcliente']}")
     if es_garante:
         dni = pgonecolumn(con, f"select dni from clientes where id=\
         {d['idcliente']}")
@@ -118,10 +120,10 @@ def vendedor_guardardato():
         deuda_en_la_casa = 0
     ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, art,\
     horarios, comentarios, cuota_maxima,deuda_en_la_casa,sin_extension,\
-    monto_garantizado) values ('{d['fecha']}', '{d['user']}',\
+    monto_garantizado,zona) values ('{d['fecha']}', '{d['user']}',\
     {d['idcliente']},'{d['fecha_visitar']}','{d['art']}','{d['horarios']}',\
     '{d['comentarios']}', {cuota_maxima}, '{deuda_en_la_casa}',{sin_extension},\
-    {monto_garantizado})"
+    {monto_garantizado},'{zona}')"
     cur = con.cursor()
     try:
         cur.execute(ins)
@@ -175,7 +177,7 @@ def vendedor_getlistadodatos():
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
-    sin_extension, autorizado from datos, clientes where clientes.id = \
+    sin_extension, autorizado, datos.zona as zona from datos, clientes where clientes.id = \
     datos.idcliente order by id desc limit 300")
     # vendedor is null filtra los datos no asignados
     cuotabasica = var_sistema['cuota_basica']
@@ -193,7 +195,7 @@ def vendedor_getlistadodatosenviar():
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
-    sin_extension, autorizado, monto_garantizado from datos, clientes where \
+    sin_extension, autorizado, monto_garantizado,datos.zona as zona from datos, clientes where \
     clientes.id = datos.idcliente and enviado_vdor=0 and rechazado=0 \
     order by id desc limit 300")
     # vendedor is null filtra los datos no asignados
@@ -212,7 +214,7 @@ def vendedor_getlistadodatosenviados():
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido,autorizado, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
-    vendedor, autorizado from datos, clientes where clientes.id = \
+    vendedor, autorizado,datos.zona as zona from datos, clientes where clientes.id = \
     datos.idcliente and enviado_vdor=1 order by id desc")
     # vendedor is null filtra los datos no asignados
     cuotabasica = var_sistema['cuota_basica']
@@ -268,14 +270,16 @@ def vendedor_ingresardatoyasignardatosvendedor():
             clientes where concat(calle,num)='{direccion_cliente}' \
             and id!={idcliente} and ultpago<date_sub(curdate(), \
             interval 120 day)")
+            zona = pgonecolumn(con, f"select zona from clientes where id=\
+            {d['id']}")
             if deuda_en_la_casa is None:
                 deuda_en_la_casa = 0
             ins = f"insert into datos(fecha, user, idcliente, fecha_visitar,\
             art,horarios, comentarios, cuota_maxima,deuda_en_la_casa,\
-            sin_extension,vendedor,listado,enviado_vdor) values (curdate(), \
+            sin_extension,vendedor,listado,enviado_vdor,zona) values (curdate(), \
             '{current_user.email}',{idcliente},curdate(),'','','', \
             {cuota_maxima},'{deuda_en_la_casa}',{sin_extension},\
-            {d['vendedor']},1,1)"
+            {d['vendedor']},1,1,'{zona}')"
             upd = f"update clientes set fechadato=curdate() where \
             id={idcliente}"
             cur.execute(ins)
@@ -425,6 +429,8 @@ def vendedor_envioclientenuevo():
         where concat(calle,num)='{direccion_cliente}' and id!={d['id']}")
         es_garante = pgonecolumn(con, f"select esgarante from clientes where id=\
         {d['id']}")
+        zona = pgonecolumn(con, f"select zona from clientes where id=\
+        {d['id']}")
         if es_garante:
             dni = pgonecolumn(con, f"select dni from clientes where id=\
             {d['id']}")
@@ -441,11 +447,11 @@ def vendedor_envioclientenuevo():
         else:
             ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, \
             art,horarios, comentarios, cuota_maxima,deuda_en_la_casa,\
-            sin_extension,monto_garantizado,vendedor,dnigarante,enviado_vdor) \
+            sin_extension,monto_garantizado,vendedor,dnigarante,enviado_vdor,zona) \
             values (curdate(),'{current_user.email}',{d['id']},curdate(),'','',\
             'cliente enviado por vendedor', {cuota_maxima}, \
             '{deuda_en_la_casa}', {sin_extension}, {monto_garantizado},\
-            {vdor},{d['dnigarante']},0)"
+            {vdor},{d['dnigarante']},0,'{zona}')"
         # Testeo si hay cambios en los datos del cliente que envia el vendedor
         upd = None
         inslog = None
@@ -501,6 +507,8 @@ def vendedor_envioclientenuevo():
         where concat(calle,num)='{direccion_cliente}'")
         es_garante = 0
         monto_garantizado = 0
+        zona = pgonecolumn(con, f"select zona from clientes where id=\
+        {d['id']}")
         if deuda_en_la_casa is None:
             deuda_en_la_casa = 0
         if d['dnigarante']=='':
@@ -517,10 +525,10 @@ def vendedor_envioclientenuevo():
             idcliente = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
             ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, art,\
             horarios, comentarios, cuota_maxima,deuda_en_la_casa,sin_extension,\
-            monto_garantizado,vendedor,dnigarante) values (curdate(), \
+            monto_garantizado,vendedor,dnigarante,zona) values (curdate(), \
             '{current_user.email}',{idcliente},curdate(),'','',\
             'cliente enviado por vendedor', {cuota_maxima}, '{deuda_en_la_casa}',\
-            {sin_extension}, {monto_garantizado},{vdor},{dnigarante})"
+            {sin_extension}, {monto_garantizado},{vdor},{dnigarante},'{zona}')"
             cur.execute(ins)
             print(ins)
             iddato = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
@@ -570,7 +578,7 @@ def vendedor_getlistadodatosvendedor():
     agrupar = var_sistema["agrupar"+str(vdor)]
     listadodatos = pgdict(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
-    zona, cuota_maxima,idcliente, sin_extension,idvta,resultado,\
+    clientes.zona as zona, cuota_maxima,idcliente, sin_extension,idvta,resultado,\
     datos.dnigarante as dnigarante from datos, clientes where clientes.id = \
     datos.idcliente and vendedor={vdor} and (resultado is null or (resultado in \
     (1,7) and date(fecha_definido)=curdate())) and fecha_visitar <=curdate() \
@@ -586,7 +594,7 @@ def vendedor_getdato(iddato):
     con = get_con()
     dato = pgdict1(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
-    zona, cuota_maxima,idcliente, sin_extension, datos.dnigarante as \
+    clientes.zona as zona, cuota_maxima,idcliente, sin_extension, datos.dnigarante as \
     dnigarante,idvta,monto_vendido from datos, clientes where clientes.id = \
     datos.idcliente and datos.id={iddato}")
     return jsonify(dato=dato)
@@ -1000,7 +1008,7 @@ def vendedor_getvisitasvendedor():
     con = get_con()
     visitasvendedor = pgdict(con, "select visitas.fecha as fecha,\
     cast(hora as char) as hora, visitas.vdor as vdor, result, \
-    visitas.monto_vendido as monto_vendido, idcliente,nombre,calle,num,zona \
+    visitas.monto_vendido as monto_vendido, idcliente,nombre,calle,num,clientes.zona as zona \
     from visitas,datos,clientes where visitas.iddato=datos.id and \
     clientes.id=datos.idcliente order by visitas.fecha desc,hora")
 
@@ -1025,7 +1033,7 @@ def vendedor_getvisitasvdor():
         vdor = 835
     visitasvendedor = pgdict(con, f"select visitas.fecha as fecha,\
     cast(hora as char) as hora, visitas.vdor as vdor, result, \
-    visitas.monto_vendido as monto_vendido, idcliente,nombre,calle,num,zona \
+    visitas.monto_vendido as monto_vendido, idcliente,nombre,calle,num,clientes.zona as zona \
     from visitas,datos,clientes where visitas.iddato=datos.id and \
     clientes.id=datos.idcliente and visitas.vdor={vdor} order by \
     visitas.fecha desc,hora")
@@ -1053,7 +1061,7 @@ def vendedor_getclientesingresadosporvdor():
 def vendedor_getventashoy():
     con = get_con()
     ventashoy = pgdict(con, "select fecha_definido,\
-    nombre,concat(calle,num) as direccion, zona, monto_vendido, vendedor,dni \
+    nombre,concat(calle,num) as direccion,clientes.zona as zona, monto_vendido, vendedor,dni \
     from datos,clientes where datos.idcliente = clientes.id and \
     date(fecha_definido)=curdate() and resultado=1 order by fecha_definido")
     return jsonify(ventashoy=ventashoy)
@@ -1156,9 +1164,13 @@ def vendedor_getcomisionesvendedor(vdor):
     devoluciones = pgdict(con, f"select fecha,monto_devuelto*{comision}*(-1) \
     as com, idvta as id from datos where vendedor={vdor} and com_pagada_dev=0 \
     and monto_devuelto!=0 order by fecha")
+    fechascomisiones = pgdict(con, f"select date(fecha_definido) as fecha,  \
+    count(*) as cnt,sum(monto_vendido*{comision}) as comision from datos where \
+    resultado=1 and com_pagada=0 and vendedor={vdor} group by \
+    date(fecha_definido) order by date(fecha_definido) desc")
     if devoluciones:
         comisiones = comisiones+devoluciones
-    return jsonify(comisiones=comisiones)
+    return jsonify(comisiones=comisiones, fechascomisiones=fechascomisiones)
 
 
 @vendedor.route('/MeHzAqFYsbb78KAVFAGTlZRW9/<dni>')
@@ -1296,6 +1308,10 @@ def vendedor_getcomisionesparavendedor():
     devoluciones = pgdict(con, f"select fecha,monto_devuelto*{comision}*(-1) \
     as com, idvta as id from datos where vendedor={vdor} and com_pagada_dev=0 \
     and monto_devuelto!=0 order by fecha")
+    fechascomisiones = pgdict(con, f"select date(fecha_definido) as fecha,  \
+    count(*) as cnt,sum(monto_vendido*{comision}) as comision from datos where \
+    resultado=1 and com_pagada=0 and vendedor={vdor} group by \
+    date(fecha_definido) order by date(fecha_definido) desc")
     if devoluciones:
         comisiones = comisiones+devoluciones
-    return jsonify(comisiones=comisiones)
+    return jsonify(comisiones=comisiones, fechascomisiones=fechascomisiones)
