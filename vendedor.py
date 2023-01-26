@@ -507,8 +507,8 @@ def vendedor_envioclientenuevo():
         where concat(calle,num)='{direccion_cliente}'")
         es_garante = 0
         monto_garantizado = 0
-        zona = pgonecolumn(con, f"select zona from clientes where id=\
-        {d['id']}")
+        # el cliente recien ingresado no tiene zona
+        zona = ''
         if deuda_en_la_casa is None:
             deuda_en_la_casa = 0
         if d['dnigarante']=='':

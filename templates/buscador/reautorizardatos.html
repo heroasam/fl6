@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getListadoAutorizados()">
+<div class="container" x-data="main()" x-init="getListadoAutorizados();setInterval(()=>{getListadoAutorizados()},10000)">
 
   <div class="columns">
     <div class="column is-6">
@@ -176,6 +176,9 @@
          cntSeleccionados:'',
          vendedorAsignado:'',
          listaVdores:[],
+         largo:'',
+         ultlargo:0,
+         audio:new Audio("{{ url_for('static', filename='auth.mp3') }}"),
          getListadoAutorizados(){
              axios.get('/vendedor/getlistadoautorizados')
                   .then(res=>{
@@ -185,6 +188,11 @@
                       this.listadoAutorizados.map(row=>row.fechahora=dayjs.utc(row.fechahora).format('HH:mm'))
                       this.cuota_basica = res.data.cuotabasica
                       this.listadoAutorizados_ = this.listadoAutorizados
+                      this.largo = this.listadoAutorizados.length
+                      if (this.largo>this.ultlargo){
+                          this.audio.play();
+                          this.ultlargo=this.largo
+                      }
                   })
          },
          mostrarAutorizados(idcliente){
