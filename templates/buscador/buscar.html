@@ -146,6 +146,10 @@
 		  <span class="tag is-danger">atrasada</span>
 		  <span class="tag is-light" x-text="dayjs.utc().diff(Cliente.ultpago,'M')"></span>
 	    </div>
+        <div class="xtags has-addons m-0">
+		  <span class="tag is-small is-black m-0">cuota maxima</span>
+		  <span class="tag is-small is-light m-0" x-text="'$'+cuotaMaxima"></span>
+		</div>
 	    <div class="xtags has-addons m-0" x-show="Cliente.devueltas>0">
 		  <span class="tag is-warning">devueltas</span>
 		  <span class="tag is-light" x-text="Cliente.devueltas"></span>
@@ -836,6 +840,7 @@
          calleMostrada:'',
          totalCompradoActualizado:0,
          verAvisoDniCopiado:false,
+         cuotaMaxima:'',
 
          buscarCliente(){
              this.verCard = false
@@ -881,7 +886,12 @@
              this.verCard = true;
              this.clipWappVentas()
 	         this.buscar = this.Cliente.calle+' '+this.Cliente.num
-             console.log( this.Cliente)
+             axios.get('/vendedor/getcuotamaxima/'+this.Cliente.id)
+                               .then(res=>{
+                                   this.cuotaMaxima = res.data.cuotamaxima
+                               })
+             /* console.log(this.cuotaMaxima)
+              * console.log( this.Cliente) */
          },
          refreshCliente(dni){
              axios.get('/buscador/'+dni)

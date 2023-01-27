@@ -45,7 +45,8 @@
                    </template>
                 </tbody>
          </table>
-
+         <button class="button is-danger" @click="avisarRetiroZona()">Retiro Zona</button>
+         <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
 
     </div>
 

@@ -88,6 +88,15 @@ def calculo_sin_extension(idcliente):
         return 1
     return 0
 
+@vendedor.route('/vendedor/getcuotamaxima/<int:idcliente>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def vendedor_getcuotamaxima(idcliente):
+    cuotamaxima = int(calculo_cuota_maxima(idcliente))
+    if int(cuotamaxima) <int(var_sistema['cuota_basica']):
+        cuotamaxima = int(var_sistema['cuota_basica'])
+    return jsonify(cuotamaxima=cuotamaxima)
+
 
 @vendedor.route('/vendedor/guardardato', methods=['POST'])
 @login_required
@@ -1091,9 +1100,16 @@ def vendedor_getventashoy():
 @check_roles(['dev','gerente','admin','vendedor'])
 def vendedor_wappaut():
     global var_sistema
+    logging.warning(f"wappaut, {current_user.email}")
+    if current_user.email == var_sistema['816']:
+        vdor = 816
+    elif current_user.email == var_sistema['835']:
+        vdor = 835
     d = json.loads(request.data.decode("UTF-8"))
     msg = d['msg']
-    # tipo = d['tipo'] # a discriminar en el futuro
+    tipo = d['tipo'] # a discriminar en el futuro
+    if tipo=='retiro zona':
+        msg = msg + f" vendedor {vdor}"
     # idcliente = var_sistema['idcliente_auth']
     wapp = var_sistema['wapp_auth']
     logging.warning(f"wapp {wapp}")

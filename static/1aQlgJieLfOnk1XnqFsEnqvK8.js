@@ -91,6 +91,7 @@ uedo a la espera. Gracias.`;
                                                                            })})
            },
 
+
        }
    }
 
@@ -527,6 +528,18 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
                  $tbody.insertBefore(el,$trfecha.nextSibling)
              }},10)
          },
+         avisarRetiroZona(){
+             let msg = `Retiro zona.`;
+             let tipo = "retiro zona";
+             let data = {msg,tipo};
+             // nueva ruta para /vendedor/wappaut
+             // /3ZbXanrRQalY6JL5eOBi49Nyc
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+	         axios.post('/3ZbXanrRQalY6JL5eOBi49Nyc',data)
+                 .then(res=>{
+                     msgSuccess("Avisado retiro zona.")
+                 })
+           },
 
      }
  }
