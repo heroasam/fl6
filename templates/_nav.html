@@ -5,7 +5,7 @@
  /* {% endif %} */
 </script>
 
-<nav class="navbar" role="navigation" aria-label="main navigation" x-data="{verDropdownVentas:false, verDropdownPagos:false, verDropdownStock:false, verDropdownUtil:false, verDropdownThemes:false, verDropdownFichas:false, verDropdownAuditoria:false, verDropdownClientes:false, isClicked:false}">
+<nav class="navbar" role="navigation" aria-label="main navigation" x-data="{verDropdownVentas:false, verDropdownPagos:false, verDropdownStock:false, verDropdownUtil:false, verDropdownThemes:false, verDropdownFichas:false, verDropdownAuditoria:false, verDropdownClientes:false, verDropdownVendedor:false, isClicked:false}">
   <!-- espacio de marca y burger para mobile -->
   <div class="navbar-brand">
     <a class="navbar-item" href="/buscador">
@@ -23,15 +23,33 @@
     <!-- nav-start izquierda -->
     <div class="navbar-start">
 
-      <a href="/conta" class="navbar-link" x-show="rol=='gerente'">Conta</a>
+      <!-- dropdown-vendedor -->
+      <div class="navbar-item has-dropdown" :class="verDropdownVendedor?'is-active':''" x-show="['gerente','dev'].includes(rol)">
+        <a class="navbar-link is-arrowless" @click="verDropdownVendedor=!verDropdownVendedor;verDropdownVentas=false;verDropdownUtil=false;verDropdownStock=false;verDropdownPagos=false;verDropdownThemes=false;verDropdownFichas=false;verDropdownAuditoria=false">
+          Vendedor
+        </a>
+        <div class="navbar-dropdown" x-show="verDropdownVendedor">
+          <a class="navbar-item" href="/buscador/verdatos" x-show="['dev','gerente','admin'].includes(rol)">Ver Datos</a>
+          <a class="navbar-item" href="/buscador/enviardatos" x-show="['dev','gerente'].includes(rol)">Enviar Datos</a>
+          <a class="navbar-item" href="/buscador/revisardatos" x-show="['dev','gerente'].includes(rol)">Revisar Datos</a>
+          <a class="navbar-item" href="/buscador/reautorizardatos" x-show="['dev','gerente'].includes(rol)">Autorizar Datos</a>
+          <a class="navbar-item" href="/buscador/clientenuevovdor" x-show="['dev','gerente'].includes(rol)">Clientes Ingresados Vendedor</a>
+           <hr class="navbar-divider">
+    <a class="navbar-item" href="/ventas/ingresoventas" x-show="['dev','gerente'].includes(rol)"> Ventas al instante </a>
+    <a class="navbar-item" href="/ventas/cargarartvdor" x-show="['dev','gerente'].includes(rol)"> Cargar Articulos </a>
+    <a class="navbar-item" href="/ventas/visitas" x-show="['dev','gerente'].includes(rol)"> Visitas Vendedores </a>
+    <a class="navbar-item" href="/ventas/comisiones" x-show="['dev','gerente'].includes(rol)"> Comisiones Vendedores </a>
+        </div>
+      </div>
       <!-- dropdown-clientes -->
       <div class="navbar-item has-dropdown" :class="verDropdownClientes?'is-active':''" x-show="['dev','gerente','admin'].includes(rol)">
-        <a class="navbar-link is-arrowless" @click="verDropdownClientes=!verDropdownClientes">
+        <a class="navbar-link is-arrowless" @click="verDropdownClientes=!verDropdownClientes;verDropdownVentas=false;verDropdownUtil=false;verDropdownStock=false;verDropdownPagos=false;verDropdownThemes=false;verDropdownFichas=false;verDropdownAuditoria=false;verDropdownVendedor=false">
           Clientes
         </a>
         <div class="navbar-dropdown" x-show="verDropdownClientes">
           <a class="navbar-item" href="/buscador"  x-show="['dev','gerente','admin'].includes(rol)">Buscador</a>
           <a class="navbar-item" href="/buscador/clientenuevo" x-show="['dev','gerente','admin'].includes(rol)">Cliente Nuevo</a>
+          <hr class="navbar-divider">
           <a class="navbar-item" href="/buscador/verdatos" x-show="['dev','gerente','admin'].includes(rol)">Ver Datos</a>
           <a class="navbar-item" href="/buscador/enviardatos" x-show="['dev','gerente'].includes(rol)">Enviar Datos</a>
           <a class="navbar-item" href="/buscador/revisardatos" x-show="['dev','gerente'].includes(rol)">Revisar Datos</a>
@@ -42,41 +60,44 @@
 
     <!-- dropdown-ventas -->
       <div class="navbar-item has-dropdown" :class="verDropdownVentas?'is-active':''" x-show="['dev','gerente','admin'].includes(rol)">
-  <a class="navbar-link is-arrowless" @click="verDropdownVentas=!verDropdownVentas">
+        <a class="navbar-link is-arrowless" @click="verDropdownVentas=!verDropdownVentas;verDropdownClientes=false;verDropdownUtil=false;verDropdownStock=false;verDropdownPagos=false;verDropdownThemes=false;verDropdownFichas=false;verDropdownAuditoria=false;verDropdownVendedor=false">
     Ventas
   </a>
   <div class="navbar-dropdown" x-show="verDropdownVentas">
     <a class="navbar-item" href="/ventas/ventas"> Pasar Ventas </a>
+    <a class="navbar-item" href="/ventas/devolucion"> Devoluciones </a>
     <a class="navbar-item" href="/ventas/listado"> Listado </a>
+    <hr class="navbar-divider">
     <a class="navbar-item" href="/ventas/ingresoventas" x-show="['dev','gerente'].includes(rol)"> Ventas al instante </a>
     <a class="navbar-item" href="/ventas/cargarartvdor" x-show="['dev','gerente'].includes(rol)"> Cargar Articulos </a>
     <a class="navbar-item" href="/ventas/visitas" x-show="['dev','gerente'].includes(rol)"> Visitas Vendedores </a>
     <a class="navbar-item" href="/ventas/comisiones" x-show="['dev','gerente'].includes(rol)"> Comisiones Vendedores </a>
     <a class="navbar-item" href="/ventas/pordia"> Ventas por dia </a>
     <a class="navbar-item" href="/ventas/artyear" x-show="['dev','gerente'].includes(rol)"> Articulos por Año </a>
+    <a class="navbar-item" href="/ventas/estadisticas" x-show="['dev','gerente'].includes(rol)"> Estadisticas </a>
+    <a class="navbar-item" href="/ventas/pivotdevoluciones"> Pivot-Devoluciones </a>
+    <a class="navbar-item" href="/ventas/yearcompra" x-show="['dev','gerente'].includes(rol)"> Estadisticas visita clientes </a>
+    <hr class="navbar-divider">
     <a class="navbar-item" href="/ventas/clientes"> Clientes </a>
     <a class="navbar-item" href="/ventas/calles"> Calles </a>
     <a class="navbar-item" href="/ventas/barrios"> Barrios </a>
     <a class="navbar-item" href="/ventas/zonas"> Zonas </a>
     <a class="navbar-item" href="/ventas/cambiazonas" x-show="['dev'].includes(rol)"> Rezonificar </a>
     <a class="navbar-item" href="/ventas/cambiacalles" x-show="['dev'].includes(rol)"> Recallificar </a>
-    <a class="navbar-item" href="/ventas/estadisticas" x-show="['dev','gerente'].includes(rol)"> Estadisticas </a>
-    <a class="navbar-item" href="/ventas/devolucion"> Devoluciones </a>
-    <a class="navbar-item" href="/ventas/pivotdevoluciones"> Pivot-Devoluciones </a>
-    <a class="navbar-item" href="/ventas/yearcompra" x-show="['dev','gerente'].includes(rol)"> Estadisticas visita clientes </a>
   </div>
       </div>
       <!-- dropdown-pagos -->
       <div class="navbar-item has-dropdown" :class="verDropdownPagos?'is-active':''" x-show="['dev','gerente','admin'].includes(rol)">
-  <a class="navbar-link is-arrowless" @click="verDropdownPagos=!verDropdownPagos">
+        <a class="navbar-link is-arrowless" @click="verDropdownPagos=!verDropdownPagos;verDropdownClientes=false;verDropdownUtil=false;verDropdownStock=false;verDropdownVentas=false;verDropdownThemes=false;verDropdownFichas=false;verDropdownAuditoria=false;verDropdownVendedor=false">
     Pagos
   </a>
   <div class="navbar-dropdown" x-show="verDropdownPagos">
     <a class="navbar-item" href="/pagos"> Pasar Pagos </a>
     <a class="navbar-item" href="/pagos/verplanillas"> Planillas </a>
     <a class="navbar-item" href="/loterbo"> Registrar Lote Recibos </a>
-    <a class="navbar-item" href="/loterbo/ver"> Ver Lotes Recibos  </a>
     <a class="navbar-item" href="/pagos/editarrbo"> Editar Recibo </a>
+    <hr class="navbar-divider">
+    <a class="navbar-item" href="/loterbo/ver"> Ver Lotes Recibos  </a>
     <a class="navbar-item" href="/pagos/verzona"> Ver Zona </a>
     <a class="navbar-item" href="/pagos/cobrostotales" x-show="['dev','gerente'].includes(rol)"> Totales Cobrados </a>
     <a class="navbar-item" href="/pagos/estimados" x-show="['dev','gerente'].includes(rol)"> Estimados a Cobrar </a>
@@ -88,52 +109,55 @@
             </div>
                   <!-- dropdown-fichas -->
             <div class="navbar-item has-dropdown" :class="verDropdownFichas?'is-active':''" x-show="['dev','gerente','admin'].includes(rol)">
-  <a class="navbar-link is-arrowless" @click="verDropdownFichas=!verDropdownFichas">
+              <a class="navbar-link is-arrowless" @click="verDropdownFichas=!verDropdownFichas;verDropdownClientes=false;verDropdownUtil=false;verDropdownStock=false;verDropdownPagos=false;verDropdownThemes=false;verDropdownVentas=false;verDropdownAuditoria=false;verDropdownVendedor=false">
     Fichas
   </a>
   <div class="navbar-dropdown" x-show="verDropdownFichas">
     <a class="navbar-item" href="/fichas"> Fichas </a>
-    <a class="navbar-item" href="/fichas/cobradores"> Cobradores </a>
     <a class="navbar-item" href="/fichas/fechador"> Fechador </a>
     <a class="navbar-item" href="/fichas/listado"> Listado a Visitar  </a>
-    <a class="navbar-item" href="/fichas/listavisitar"> Listados Emitidos  </a>
+    <a class="navbar-item" href="/fichas/cobradores"> Cobradores </a>
     <a class="navbar-item" href="/fichas/cancelados"> Cancelados  </a>
     <a class="navbar-item" href="/fichas/programar">Botones Programables </a>
+    <hr class="navbar-divider">
+    <a class="navbar-item" href="/fichas/listavisitar"> Listados Emitidos  </a>
   </div>
             </div>
                               <!-- dropdown-stock -->
             <div class="navbar-item has-dropdown" :class="verDropdownStock?'is-active':''" x-show="['dev','gerente','admin'].includes(rol)">
-  <a class="navbar-link is-arrowless" @click="verDropdownStock=!verDropdownStock">
+              <a class="navbar-link is-arrowless" @click="verDropdownStock=!verDropdownStock;verDropdownClientes=false;verDropdownUtil=false;verDropdownVentas=false;verDropdownPagos=false;verDropdownThemes=false;verDropdownFichas=false;verDropdownAuditoria=false;verDropdownVendedor=false">
     Stock
   </a>
   <div class="navbar-dropdown" x-show="verDropdownStock">
     <a class="navbar-item" href="/stock/asientos" x-show="['dev','gerente'].includes(rol)"> Asientos </a>
-    <a class="navbar-item" href="/stock/arqueo"  x-show="['dev','gerente'].includes(rol)"> Arqueo Banco </a>
-    <a class="navbar-item" href="/stock/mayor"  x-show="['dev','gerente'].includes(rol)"> Mayor de Cuentas </a>
-    <a class="navbar-item" href="/stock/pivotcuentas"  x-show="['dev','gerente'].includes(rol)"> Pivot-Cuentas </a>
-    <a class="navbar-item" href="/stock/retiros"  x-show="['dev','gerente'].includes(rol)"> Retiros Socios  </a>
     <a class="navbar-item" href="/stock/compras"> Compras  </a>
-    <a class="navbar-item" href="/stock/verstock">Stock </a>
     <a class="navbar-item" href="/stock/salidas">Salidas </a>
     <a class="navbar-item" href="/stock/articulos">Articulos </a>
-    <a class="navbar-item" href="/stock/proveedores">Proveedores </a>
-    <a class="navbar-item" href="/stock/cuentas"  x-show="['dev','gerente'].includes(rol)">Cuentas </a>
+    <hr class="navbar-divider">
+    <a class="navbar-item" href="/stock/retiros"  x-show="['dev','gerente'].includes(rol)"> Retiros Socios  </a>
+    <a class="navbar-item" href="/stock/verstock">Stock </a>
     <a class="navbar-item" href="/stock/cuadro"  x-show="['dev','gerente'].includes(rol)">Cuadro Resultados </a>
     <a class="navbar-item" href="/stock/banco"  x-show="['dev','gerente'].includes(rol)">Cuenta Banco</a>
     <a class="navbar-item" href="/stock/acreencias"  x-show="['dev','gerente'].includes(rol)">Acreencias</a>
+    <hr class="navbar-divider">
+    <a class="navbar-item" href="/stock/arqueo"  x-show="['dev','gerente'].includes(rol)"> Arqueo Banco </a>
+    <a class="navbar-item" href="/stock/mayor"  x-show="['dev','gerente'].includes(rol)"> Mayor de Cuentas </a>
+    <a class="navbar-item" href="/stock/pivotcuentas"  x-show="['dev','gerente'].includes(rol)"> Pivot-Cuentas </a>
+    <a class="navbar-item" href="/stock/proveedores">Proveedores </a>
+    <a class="navbar-item" href="/stock/cuentas"  x-show="['dev','gerente'].includes(rol)">Cuentas </a>
   </div>
             </div>
             <!-- dropdown-utilidades -->
             <div class="navbar-item has-dropdown" :class="verDropdownUtil?'is-active':''" x-show="['dev','gerente','admin'].includes(rol)">
-  <a class="navbar-link is-arrowless" @click="verDropdownUtil=!verDropdownUtil">
+              <a class="navbar-link is-arrowless" @click="verDropdownUtil=!verDropdownUtil;verDropdownClientes=false;verDropdownVentas=false;verDropdownStock=false;verDropdownPagos=false;verDropdownThemes=false;verDropdownFichas=false;verDropdownAuditoria=false;verDropdownVendedor=false">
     Utilidades
   </a>
   <div class="navbar-dropdown" x-show="verDropdownUtil">
+    <a class="navbar-item" href="/utilidades/contador"> Contador </a>
+    <a class="navbar-item" href="/utilidades/calcprecios"> Calc Precios </a>
     <a class="navbar-item" href="/utilidades/planos"> Planos </a>
     <a class="navbar-item" href="/utilidades/impresos"> Impresos </a>
     <a class="navbar-item" href="/utilidades/pdfsistema"> PDF Sistema </a>
-    <a class="navbar-item" href="/utilidades/contador"> Contador </a>
-    <a class="navbar-item" href="/utilidades/calcprecios"> Calc Precios </a>
     <a class="navbar-item" href="/utilidades/documentos"> Documentos  </a>
     <a class="navbar-item" href="/utilidades/wapp"> Whatsapps  </a>
   </div>
@@ -142,7 +166,7 @@
 
               <!-- dropdown-auditoria -->
             <div class="navbar-item has-dropdown" :class="verDropdownAuditoria?'is-active':''" x-show="rol=='dev'">
-              <a class="navbar-link is-arrowless" @click="verDropdownAuditoria=!verDropdownAuditoria">
+              <a class="navbar-link is-arrowless" @click="verDropdownAuditoria=!verDropdownAuditoria;verDropdownClientes=false;verDropdownUtil=false;verDropdownStock=false;verDropdownPagos=false;verDropdownThemes=false;verDropdownFichas=false;verDropdownVentas=false;verDropdownVendedor=false">
                 Auditoria
               </a>
               <div class="navbar-dropdown" x-show="verDropdownAuditoria">
@@ -159,11 +183,11 @@
             </div>
 
     </div>
-
-  <!-- nav-end derecha -->
+    <!-- nav-end derecha -->
     <div class="navbar-end">
+            <a href="/conta" class="navbar-item navbar-link is-arrowless" x-show="rol=='gerente'">Conta</a>
       <div class="navbar-item has-dropdown" :class="verDropdownThemes?'is-active':''">
-        <a class="navbar-link is-arrowless" @click="verDropdownThemes=!verDropdownThemes">
+        <a class="navbar-link is-arrowless" @click="verDropdownThemes=!verDropdownThemes;verDropdownClientes=false;verDropdownUtil=false;verDropdownStock=false;verDropdownPagos=false;verDropdownVentas=false;verDropdownFichas=false;verDropdownAuditoria=false;verDropdownVendedor=false">
     Themes
   </a>
   <div class="navbar-dropdown" x-show="verDropdownThemes">

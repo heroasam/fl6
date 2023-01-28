@@ -93,6 +93,9 @@
         <label for="comentarios" class="label">Comentarios (opcional)</label>
         <input type="text" class="input mb-3" x-model="Datos.comentarios" id="comentarios" autocomplete="off"
                :class="darkTheme?'input-dark':''" >
+        <label for="cuota" class="label">Cuota Maxima</label>
+        <input type="text" class="input mb-3" x-model="Datos.cuota_maxima" id="cuota" autocomplete="off"
+               :class="darkTheme?'input-dark':''" >
       </section>
       <footer class="modal-card-foot">
         <button class="button is-primary" @click="guardarDato">Editar</button>

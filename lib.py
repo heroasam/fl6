@@ -522,7 +522,9 @@ def log_login(email, status, password=None):
     with open("/home/hero/log/login.log", "a", encoding="utf-8") as log_file:
         log_file.write('\n')
         if password:
-            log_file.write(str(date_time)+' '+str(email)+' '+str(password)+' '+str(status))
+            # log_file.write(str(date_time)+' '+str(email)+' '+str(password)+' '+str(status))
+            # por motivos de seguridad desactivo el registro de logins
+            log_file.write(str(date_time)+' '+str(email)+' '+str(status))
         else:
             log_file.write(str(date_time)+' '+str(email)+' '+str(status))
         log_file.close()

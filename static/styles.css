@@ -510,6 +510,9 @@ thead th {
 .navbar-item{
     font-size: 1.21em;
 }
+.navbar-divider{
+    height: 5px;
+}
 .no-mb{
     margin-bottom: 0rem !important;
 }
