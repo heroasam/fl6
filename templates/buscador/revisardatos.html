@@ -51,6 +51,7 @@
         <th>Rechazar</th>
         <th>direccion</th>
         <th></th>
+        <th>comentarios</th>
       </tr>
     </thead>
     <tbody>
@@ -77,10 +78,15 @@
 		      <span class="tag m-0" :class="dato.deuda_en_la_casa>29999?'is-danger':'is-light'"
                     x-text="'$'+dato.deuda_en_la_casa"></span>
 	        </div>
+            <div>
+            <td>
             <span class="tag is-small is-danger" x-show="dato.novendermas">LN</span>
             <span class="tag is-small is-danger" x-show="dato.incobrable">INC</span>
             <span class="tag is-small is-success" x-show="dato.sev">SEVEN</span>
-            <span class="tag is-small is-success" x-show="dato.baja">ex-SEVEN</span></td>
+            <span class="tag is-small is-success" x-show="dato.baja">ex-SEVEN</span>
+            <span class="tag is-small is-danger" x-show="dato.sin_extension">Basica</span></td>
+            </div>
+            <td x-text="dato.comentarios"></td>
 
         </tr>
       </template>
@@ -119,6 +125,10 @@
         <div class="flex">
           <button class="button is-black" @click="nosabana=!nosabana; Datos.nosabana=nosabana">No Sabana</button>
           <p class="title is-3" x-show="nosabana==1">Este cliente no puede comprar sabanas</p>
+        </div>
+        <div class="flex">
+          <button class="button is-black" @click="sin_extension=!sin_extension; Datos.sin_extension=sin_extension">Venta Basica</button>
+          <p class="title is-3" x-show="sin_extension==1">Venta Basica</p>
         </div>
       </section>
       <footer class="modal-card-foot">
@@ -162,6 +172,7 @@
          listaVdores:[],
          cntDatos:'',
          nosabana:0,
+         sin_extension:0,
          getListadoDatos(){
              axios.get('/vendedor/getlistadodatosenviados')
                   .then(res=>{
@@ -177,6 +188,7 @@
          editarDato(id){
              this.Datos = this.listadoDatos.filter(row=>row.id==id)[0]
              this.nosabana = this.Datos.nosabana
+             this.sin_extension = this.Datos.sin_extension
              toggleModal("modal-editar-dato")
          },
          guardarDato(){

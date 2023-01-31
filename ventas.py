@@ -1059,6 +1059,11 @@ def ventas_cargarartvdores():
 def ventas_comisiones():
     return render_template('/ventas/comisiones.html')
 
+@ventas.route('/ventas/comisionesprom')
+@login_required
+@check_roles(['dev', 'gerente', 'admin'])
+def ventas_comisionesprom():
+    return render_template('/ventas/comisionesprom.html')
 
 @ventas.route('/ventas/yearcompra')
 @login_required

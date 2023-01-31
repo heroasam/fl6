@@ -223,7 +223,7 @@ def vendedor_getlistadodatosenviados():
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido,autorizado, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
-    vendedor, autorizado,datos.zona as zona,nosabana from datos, clientes where clientes.id = \
+    vendedor, autorizado,datos.zona as zona,nosabana,sin_extension from datos, clientes where clientes.id = \
     datos.idcliente and enviado_vdor=1 order by id desc")
     # vendedor is null filtra los datos no asignados
     cuotabasica = var_sistema['cuota_basica']
@@ -344,10 +344,14 @@ def vendedor_editardato():
         nosabana = 1
     else:
         nosabana = 0
+    if d['sin_extension']:
+        sin_extension = 1
+    else:
+        sin_extension = 0
     upd = f"update datos set fecha='{d['fecha']}', user='{d['user']}',\
     fecha_visitar='{d['fecha_visitar']}', horarios='{d['horarios']}',\
     art='{d['art']}', comentarios='{d['comentarios']}', cuota_maxima=\
-    {d['cuota_maxima']},nosabana={nosabana} where id={d['id']}"
+    {d['cuota_maxima']},nosabana={nosabana},sin_extension={sin_extension} where id={d['id']}"
     cur = con.cursor()
     try:
         cur.execute(upd)
@@ -1208,6 +1212,21 @@ def vendedor_getcomisionesvendedor(vdor):
     return jsonify(comisiones=comisiones, fechascomisiones=fechascomisiones)
 
 
+@vendedor.route('/vendedor/getcomisionesprom')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def vendedor_getcomisionesprom():
+    con = get_con()
+    comisiones = pgdict(con, f"select date(fecha_definido) as fecha,monto_vendido*0.04 \
+    as com,idvta as id from datos where user in ('isabelheredie@gmail.com','n.dryon@gmail.com') and com_pagada_prom=0 \
+    and monto_vendido>0 order by date(fecha_definido)")
+    fechascomisiones = pgdict(con, f"select date(fecha_definido) as fecha,  \
+    count(*) as cnt,sum(monto_vendido*0.04) as comision from datos where \
+    resultado=1 and com_pagada_prom=0 and user in ('isabelheredie@gmail.com','n.dryon@gmail.com') group by \
+    date(fecha_definido) order by date(fecha_definido) desc")
+    return jsonify(comisiones=comisiones, fechascomisiones=fechascomisiones)
+
+
 @vendedor.route('/MeHzAqFYsbb78KAVFAGTlZRW9/<dni>')
 @vendedor.route('/vendedor/buscaclientepordni/<dni>')
 @login_required
@@ -1288,6 +1307,55 @@ def vendedor_marcarpagadas(vdor):
         log(upddev)
         return 'ok'
 
+
+@vendedor.route('/vendedor/marcarpagadascomprom')
+@login_required
+@check_roles(['dev','gerente'])
+def vendedor_marcarpagadascomprom():
+    con = get_con()
+    upd = f"update datos set com_pagada_prom=1, fechapagocom_prom=current_date() where \
+    idvta in (select idvta from datos where user in ('isabelheredie@gmail.com','n.dryon@gmail.com') and com_pagada_prom=0 \
+    and monto_vendido>0)"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        con.close()
+        log(upd)
+        return 'ok'
+
+
+@vendedor.route('/vendedor/marcarpagadascompromseleccionados', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente'])
+def vendedor_marcarpagadascompromseleccionados():
+    d = json.loads(request.data.decode("UTF-8"))
+    fechas = d['fechas']
+    lpg ='('
+    for fecha in fechas:
+        lpg+=f"'{str(fecha)}',"
+    lpg = lpg[0:-1]+')'
+    con = get_con()
+    upd = f"update datos set com_pagada_prom=1, fechapagocom_prom=current_date() where \
+    idvta in (select idvta from datos where user in ('isabelheredie@gmail.com','n.dryon@gmail.com') and com_pagada_prom=0 \
+    and monto_vendido>0 and date(fecha_definido) in {lpg})"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        con.close()
+        log(upd)
+        return 'ok'
 
 @vendedor.route('/k8E5hsVs4be3jsJJaob6OQmAX')
 @vendedor.route('/vendedor/getcargavendedor')
