@@ -268,6 +268,11 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                       this.Venta = {cnt:'', art:'',primera:dayjs.utc().format('YYYY-MM-DD'),dnigarante:this.Dato.dnigarante};
                       this.sumaCuota = '';
                       this.verNotificacionAutorizacion = false;
+                      if(this.Dato.nosabana==1){
+                          //filtra this.listaArticulos y saca sabanas
+                          this.listaArticulos = this.listaArticulos.filter(row=>!row.includes('Sab'))
+                          console.log( this.listaArticulos)
+                      }
                       toggleModal("modal-pasar-venta");
                   })
          },

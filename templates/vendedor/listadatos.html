@@ -43,7 +43,10 @@
   <!-- verCard Dato -->
   <div class="card box" x-show="verCard==true">
     <h1 class="title is-4" x-text="Dato.nombre"></h1>
-    <h2 class="title is-5" x-text="Dato.calle+' '+Dato.num"></h2>
+    <div class="flex-between">
+      <h2 class="title is-5" x-text="Dato.calle+' '+Dato.num"></h2>
+                  <a class="button is-black is-small" :href="'https://www.google.com/maps/place/'+Dato.calle+'+'+Dato.num+',+C%C3%B3rdoba'">Maps</a>
+    </div>
     <h4 class="subtitle is-6" x-text="Dato.acla" x-show="Dato.acla"></h4>
     <div class="flex-between">
       <h2 class="title is-5 no-mb" x-text="Dato.wapp?Dato.wapp:Dato.tel"></h2>
@@ -84,6 +87,7 @@
         <!-- Content ... -->
         <span class="tag is-small is-info" x-text="'Cuota Maxima $'+Dato.cuota_maxima"></span>
         <span class="tag is-small is-danger" x-show="Dato.sin_extension">Venta Basica</span>
+        <span class="tag is-small is-success" x-show="Dato.nosabana">No sabana</span>
         <label for="iddni" class="label">Ingrese DNI del cliente</label>
         <span class="tag is-small is-danger" x-show="!dnivalidado && Venta.dni">DNI no coincide con el cliente</span>
         <input type="number" class="input mb-3" x-model="Venta.dni" id="iddni" autocomplete="off"

@@ -116,6 +116,10 @@
         <label for="cuota" class="label">Cuota Maxima</label>
         <input type="text" class="input mb-3" x-model="Datos.cuota_maxima" id="cuota" autocomplete="off"
                :class="darkTheme?'input-dark':''" >
+        <div class="flex">
+          <button class="button is-black" @click="nosabana=!nosabana; Datos.nosabana=nosabana">No Sabana</button>
+          <p class="title is-3" x-show="nosabana==1">Este cliente no puede comprar sabanas</p>
+        </div>
       </section>
       <footer class="modal-card-foot">
         <button class="button is-primary" @click="guardarDato">Editar</button>
@@ -157,6 +161,7 @@
          vendedorAsignado:'',
          listaVdores:[],
          cntDatos:'',
+         nosabana:0,
          getListadoDatos(){
              axios.get('/vendedor/getlistadodatosenviados')
                   .then(res=>{
@@ -171,6 +176,7 @@
          },
          editarDato(id){
              this.Datos = this.listadoDatos.filter(row=>row.id==id)[0]
+             this.nosabana = this.Datos.nosabana
              toggleModal("modal-editar-dato")
          },
          guardarDato(){

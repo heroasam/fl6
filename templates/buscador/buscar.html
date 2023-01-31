@@ -110,7 +110,10 @@
       <p class="title title-table is-2" x-text="Cliente.nombre+'  '+Cliente.dni"></p>
       <span class="tag is-warning is-small" x-show="verAvisoDniCopiado">DNI copiado al portapapeles</span>
       </div>
-      <p class="subtitle subtitle-table is-4" x-text="Cliente.calle+' '+Cliente.num+' '+Cliente.barrio+' '+Cliente.zona"></p>
+      <div class="flex-between">
+        <p class="subtitle subtitle-table is-4" x-text="Cliente.calle+' '+Cliente.num+' '+Cliente.barrio+' '+Cliente.zona"></p>
+        <a class="button is-black is-small" :href="'https://www.google.com/maps/place/'+Cliente.calle+'+'+Cliente.num+',+C%C3%B3rdoba'">Maps</a>
+      </div>
       <p  x-show="Cliente.deuda>0" x-text="'Cobrador asignado: '+Cliente.asignado"></p>
       <p class="subtitle subtitle-table is-4"x-text="'tel:'+Cliente.tel+' wapp:'+Cliente.wapp"></p>
 

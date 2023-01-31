@@ -223,7 +223,7 @@ def vendedor_getlistadodatosenviados():
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido,autorizado, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
-    vendedor, autorizado,datos.zona as zona from datos, clientes where clientes.id = \
+    vendedor, autorizado,datos.zona as zona,nosabana from datos, clientes where clientes.id = \
     datos.idcliente and enviado_vdor=1 order by id desc")
     # vendedor is null filtra los datos no asignados
     cuotabasica = var_sistema['cuota_basica']
@@ -340,10 +340,14 @@ def vendedor_borrardato(id):
 def vendedor_editardato():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
+    if d['nosabana']:
+        nosabana = 1
+    else:
+        nosabana = 0
     upd = f"update datos set fecha='{d['fecha']}', user='{d['user']}',\
     fecha_visitar='{d['fecha_visitar']}', horarios='{d['horarios']}',\
     art='{d['art']}', comentarios='{d['comentarios']}', cuota_maxima=\
-    {d['cuota_maxima']} where id={d['id']}"
+    {d['cuota_maxima']},nosabana={nosabana} where id={d['id']}"
     cur = con.cursor()
     try:
         cur.execute(upd)
@@ -604,7 +608,7 @@ def vendedor_getdato(iddato):
     dato = pgdict1(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
     clientes.zona as zona, cuota_maxima,idcliente, sin_extension, datos.dnigarante as \
-    dnigarante,idvta,monto_vendido from datos, clientes where clientes.id = \
+    dnigarante,idvta,monto_vendido,nosabana from datos, clientes where clientes.id = \
     datos.idcliente and datos.id={iddato}")
     return jsonify(dato=dato)
 
