@@ -70,7 +70,7 @@ def buscador_reautorizardatos():
 
 @buscador.route('/buscador/revisardatos')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev','gerente','admin'])
 def buscador_revisardatos():
     """Pantalla generar vista de revision de datos enviados."""
     return render_template("buscador/revisardatos.html")

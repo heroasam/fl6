@@ -61,7 +61,8 @@
               <td x-text="dato.art"></td>
               <td x-text="dato.comentarios"></td>
               <td x-text="dato.cuota_maxima"></td>
-              <td><span class="tag is-small is-danger" x-show="dato.sin_extension">Venta Basica</span></td>
+              <td><span class="tag is-small is-danger" x-show="dato.sin_extension">Venta Basica</span>
+              <span class="tag is-small is-warning" x-show="dato.nosabana">NoSabana</span></td>
         </tr>
       </template>
     </tbody>
@@ -96,6 +97,14 @@
         <label for="cuota" class="label">Cuota Maxima</label>
         <input type="text" class="input mb-3" x-model="Datos.cuota_maxima" id="cuota" autocomplete="off"
                :class="darkTheme?'input-dark':''" >
+        <div class="flex">
+          <button class="button is-black" @click="nosabana=!nosabana; Datos.nosabana=nosabana">No Sabana</button>
+          <p class="title is-3" x-show="nosabana==1">Este cliente no puede comprar sabanas</p>
+        </div>
+        <div class="flex">
+          <button class="button is-black" @click="sin_extension=!sin_extension; Datos.sin_extension=sin_extension">Venta Basica</button>
+          <p class="title is-3" x-show="sin_extension==1">Venta Basica</p>
+        </div>
       </section>
       <footer class="modal-card-foot">
         <button class="button is-primary" @click="guardarDato">Editar</button>
@@ -113,6 +122,8 @@
          listadoDatos:[],
          listadoDatos_:[],
          Datos:{},
+         nosabana:0,
+         sin_extension:0,
          getListadoDatos(){
              axios.get('/vendedor/getlistadodatos')
                   .then(res=>{
@@ -142,6 +153,8 @@
          },
          editarDato(id){
              this.Datos = this.listadoDatos.filter(row=>row.id==id)[0]
+             this.nosabana = this.Datos.nosabana
+             this.sin_extension = this.Datos.sin_extension
              toggleModal("modal-editar-dato")
          },
          guardarDato(){

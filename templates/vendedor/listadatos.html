@@ -23,6 +23,8 @@
         <th></th>
         <th></th>
         <th></th>
+        <th>horario</th>
+        <th>comentarios</th>
       </tr>
     </thead>
     <tbody>
@@ -35,6 +37,8 @@
           <td><span class="tag is-small" x-text="dato.resultado==1?'Vendido':(dato.resultado==0?'Anulado':(dato.resultado==2?'Rechazado':(dato.resultado==7?'Devuelta':'Pendiente')))"
                     :class="dato.resultado==1?'is-success':(dato.resultado==0?'is-danger':(dato.resultado==2?'is-warning':(dato.resultado==7?'is-danger':'is-info' )))"></span></td>
           <td><span class="tag is-small is-success" x-text="dato.idvta" x-show="dato.idvta"></span></td>
+          <td x-text="dato.horarios"></td>
+          <td x-text="dato.comentarios"></td>
         </tr>
       </template>
     </tbody>

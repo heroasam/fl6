@@ -134,8 +134,11 @@ def vendedor_guardardato():
     '{d['comentarios']}', {cuota_maxima}, '{deuda_en_la_casa}',{sin_extension},\
     {monto_garantizado},'{zona}')"
     cur = con.cursor()
+    upd = f"update clientes set fechadato=curdate() where \
+                id={d['idcliente']}"
     try:
         cur.execute(ins)
+        cur.execute(upd)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
@@ -149,7 +152,7 @@ def vendedor_guardardato():
 
 @vendedor.route('/vendedor/togglerechazardato/<int:id>')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev','gerente','admin'])
 def vendedor_togglerechazardato(id):
     con = get_con()
     resultado = pgonecolumn(con, f"select resultado from datos where id={id}")
@@ -186,7 +189,7 @@ def vendedor_getlistadodatos():
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
-    sin_extension, autorizado, datos.zona as zona from datos, clientes where clientes.id = \
+    sin_extension,nosabana, autorizado, datos.zona as zona from datos, clientes where clientes.id = \
     datos.idcliente order by id desc limit 300")
     # vendedor is null filtra los datos no asignados
     cuotabasica = var_sistema['cuota_basica']
@@ -216,14 +219,14 @@ def vendedor_getlistadodatosenviar():
 
 @vendedor.route('/vendedor/getlistadodatosenviados')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev','gerente','admin'])
 def vendedor_getlistadodatosenviados():
     global var_sistema
     con = get_con()
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido,autorizado, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
-    vendedor, autorizado,datos.zona as zona,nosabana,sin_extension from datos, clientes where clientes.id = \
+    vendedor, autorizado,datos.zona as zona,nosabana,sin_extension,nosabana from datos, clientes where clientes.id = \
     datos.idcliente and enviado_vdor=1 order by id desc")
     # vendedor is null filtra los datos no asignados
     cuotabasica = var_sistema['cuota_basica']
@@ -280,19 +283,22 @@ def vendedor_ingresardatoyasignardatosvendedor():
             and id!={idcliente} and ultpago<date_sub(curdate(), \
             interval 120 day)")
             zona = pgonecolumn(con, f"select zona from clientes where id=\
-            {d['id']}")
+            {idcliente}")
             if deuda_en_la_casa is None:
                 deuda_en_la_casa = 0
-            ins = f"insert into datos(fecha, user, idcliente, fecha_visitar,\
-            art,horarios, comentarios, cuota_maxima,deuda_en_la_casa,\
-            sin_extension,vendedor,listado,enviado_vdor,zona) values (curdate(), \
-            '{current_user.email}',{idcliente},curdate(),'','','', \
-            {cuota_maxima},'{deuda_en_la_casa}',{sin_extension},\
-            {d['vendedor']},1,1,'{zona}')"
-            upd = f"update clientes set fechadato=curdate() where \
-            id={idcliente}"
-            cur.execute(ins)
-            cur.execute(upd)
+            existe_dato_ya = pgonecolumn(con,f"select id from datos where \
+            resultado is null and idcliente={idcliente}")
+            if not existe_dato_ya:
+                ins = f"insert into datos(fecha, user, idcliente, fecha_visitar,\
+                art,horarios, comentarios, cuota_maxima,deuda_en_la_casa,\
+                sin_extension,vendedor,listado,enviado_vdor,zona) values (curdate(), \
+                '{current_user.email}',{idcliente},curdate(),'','','', \
+                {cuota_maxima},'{deuda_en_la_casa}',{sin_extension},\
+                {d['vendedor']},1,1,'{zona}')"
+                upd = f"update clientes set fechadato=curdate() where \
+                id={idcliente}"
+                cur.execute(ins)
+                cur.execute(upd)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
