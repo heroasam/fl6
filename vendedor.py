@@ -190,7 +190,7 @@ def vendedor_getlistadodatos():
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
     sin_extension,nosabana, autorizado, datos.zona as zona from datos, clientes where clientes.id = \
-    datos.idcliente order by id desc limit 300")
+    datos.idcliente order by id desc limit 1000")
     # vendedor is null filtra los datos no asignados
     cuotabasica = var_sistema['cuota_basica']
     vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
@@ -207,7 +207,7 @@ def vendedor_getlistadodatosenviar():
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
-    sin_extension, autorizado, monto_garantizado,datos.zona as zona from datos, clientes where \
+    sin_extension,nosabana, autorizado, monto_garantizado,datos.zona as zona from datos, clientes where \
     clientes.id = datos.idcliente and enviado_vdor=0 and rechazado=0 \
     order by id desc limit 300")
     # vendedor is null filtra los datos no asignados
@@ -226,7 +226,7 @@ def vendedor_getlistadodatosenviados():
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido,autorizado, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
-    vendedor, autorizado,datos.zona as zona,nosabana,sin_extension,nosabana from datos, clientes where clientes.id = \
+    vendedor, autorizado,datos.zona as zona,nosabana,sin_extension from datos, clientes where clientes.id = \
     datos.idcliente and enviado_vdor=1 order by id desc")
     # vendedor is null filtra los datos no asignados
     cuotabasica = var_sistema['cuota_basica']
@@ -803,6 +803,7 @@ def vendedor_falleciodato(iddato):
 def vendedor_validardni():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
+    logging.warning(d)
     dni = pgonecolumn(con, f"select dni from clientes where id={d['id']}")
     if dni==int(d['dni']):
         return make_response('aprobado', 200)
@@ -1126,8 +1127,10 @@ def vendedor_wappaut():
         msg = msg + f" vendedor {vdor}"
     # idcliente = var_sistema['idcliente_auth']
     wapp = var_sistema['wapp_auth']
+    wapp1 = '3512411963'
     logging.warning(f"wapp {wapp}")
     if wapp:
+        response1 = send_msg_whatsapp(0, wapp1, msg)
         response = send_msg_whatsapp(0, wapp, msg)
         return response
     else:
@@ -1248,7 +1251,7 @@ def vendedor_buscaclientepordni(dni):
 
 @vendedor.route('/vendedor/getartvendedor/<int:vdor>')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev','gerente','admin'])
 def vendedor_getartvendedor(vdor):
     con = get_con()
     artvendedor = pgdict(con, f"select sum(detvta.cnt) as cnt,\
@@ -1259,7 +1262,7 @@ def vendedor_getartvendedor(vdor):
 
 @vendedor.route('/vendedor/getvendedores')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev','gerente','admin'])
 def vendedor_getvendedores():
     con = get_con()
     vendedores = pglflat(con, "select id from cobr where activo=1 and vdor=1")
@@ -1268,7 +1271,7 @@ def vendedor_getvendedores():
 
 @vendedor.route('/vendedor/marcarcargado/<int:vdor>')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev','gerente','admin'])
 def vendedor_marcarcargado(vdor):
     con = get_con()
     upd = f"update detvta set cargado=1 where idvta in (select id from ventas \
@@ -1311,6 +1314,35 @@ def vendedor_marcarpagadas(vdor):
         con.close()
         log(upd)
         log(upddev)
+        return 'ok'
+
+
+@vendedor.route('/vendedor/marcarpagadasseleccionados', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente'])
+def vendedor_marcarpagadasseleccionados():
+    d = json.loads(request.data.decode("UTF-8"))
+    vdor = d['vdor']
+    fechas = d['fechas']
+    lpg ='('
+    for fecha in fechas:
+        lpg+=f"'{str(fecha)}',"
+    lpg = lpg[0:-1]+')'
+    con = get_con()
+    upd = f"update datos set com_pagada=1, fechapagocom=current_date() where \
+    idvta in (select idvta from datos where vendedor={vdor} and com_pagada=0 \
+    and monto_vendido>0 and date(fecha_definido) in {lpg})"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        con.close()
+        log(upd)
         return 'ok'
 
 
@@ -1362,6 +1394,7 @@ def vendedor_marcarpagadascompromseleccionados():
         con.close()
         log(upd)
         return 'ok'
+
 
 @vendedor.route('/k8E5hsVs4be3jsJJaob6OQmAX')
 @vendedor.route('/vendedor/getcargavendedor')

@@ -195,6 +195,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
              for (let item in itemDatos){
                  this.listaItemsDatos.push(`${item}-${itemDatos[item]}`);
              }
+             this.listaItemsDatos = this.listaItemsDatos.sort()
          },
          getListadoArt(){
              // nueva ruta /kHEhacFNmI2vflFHBbaT1AQ1Z
@@ -534,6 +535,7 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
              }},10)
          },
          avisarRetiroZona(){
+             msgDelay("se estan enviando los mensajes...")
              let msg = `Retiro zona.`;
              let tipo = "retiro zona";
              let data = {msg,tipo};

@@ -21,7 +21,7 @@
     </div>
   </div>
 
-
+  <!-- table cuotas -->
   <div class="columns">
     <div class="column is-6">
   <div class="block">
@@ -76,9 +76,10 @@
       </table>
     </div>
   </div>
+  <!-- table cobradores -->
   <div class="columns">
     <div class="column is-6">
-      <p class="title is-3" x-text="'Total Banco ingreso cobradores $'+sumBancoCobradores"></p>
+      <p class="title is-3" x-text="'Diferencia cobradores $'+(sumTransferenciasCobradores + sumBancoCobradores)"></p>
       <table class="table">
          <thead>
         <tr>
@@ -105,7 +106,7 @@
       </table>
     </div>
     <div class="column is-6">
-      <p class="title is-3" x-text="'Total Transferencias cobradores $'+sumTransferenciasCobradores"></p>
+      <p class="title is-3">-</p>
       <table class="table">
          <thead>
         <tr>
@@ -237,7 +238,8 @@
          verNoConciliados(){
              this.bancoIngresoCuotas_ = this.bancoIngresoCuotas.filter(row=>row.comentario=='')
              this.listaCuotas_ = this.listaCuotas.filter(row=>row.conciliado==0)
-         }
+         },
+
 
      }
  }

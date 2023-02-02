@@ -1048,7 +1048,7 @@ def ventas_visitas():
 
 @ventas.route('/ventas/cargarartvdor')
 @login_required
-@check_roles(['dev', 'gerente'])
+@check_roles(['dev', 'gerente','admin'])
 def ventas_cargarartvdores():
     return render_template('/ventas/cargarartvdor.html')
 
@@ -1077,3 +1077,18 @@ def ventas_yearcompra():
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="yultcompra",classes="table")
     return render_template("ventas/yearcompra.html", tbl=tbl)
+
+
+@ventas.route('/ventas/vtalistadozonas')
+@login_required
+@check_roles(['dev', 'gerente'])
+def ventas_vtalistadozonas():
+    pd.options.display.float_format = '${:.0f}'.format
+    sql="select date_format(fecha,'%Y-%m') as fp,ventas.comprado as venta, zona from ventas,clientes where clientes.id=ventas.idcliente and fecha >date_sub(curdate(),interval 365 day) and idvdor=835"
+    dat = pd.read_sql_query(sql, engine)
+    df = pd.DataFrame(dat)
+    tbl = pd.pivot_table(df, values=['venta'],index='zona',columns='fp',aggfunc='sum').sort_index(axis=1, level='fp',ascending=False)
+    tbl = tbl.fillna("")
+    index = tbl.columns.tolist()
+    tbl = tbl.to_html(table_id="vtazonas",classes="table")
+    return render_template("ventas/vtalistadozona.html", tbl=tbl, index=index )

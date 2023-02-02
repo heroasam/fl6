@@ -34,12 +34,14 @@
                                                          @click="expandChildren(item.fecha)"></td>
                           <td x-text="item.fecha"></td>
                           <td x-text="item.cnt"></td>
-                          <td x-text="item.comision" class="pesos"></td>
+                          <td x-text="item.comision/2" class="pesos"></td>
                     </tr>
                    </template>
                    <template x-for="item in listaComisiones_">
                     <tr class="children">
                       <td x-text="item.id"></td>
+                      <td></td>
+                      <td></td>
                       <td x-text="item.com" class="pesos"></td>
                     </tr>
                   </template>
@@ -139,7 +141,7 @@
             if (result.isConfirmed) {
                 axios.post('/vendedor/marcarpagadascompromseleccionados',this.Procesar)
                      .then(res=>{
-                         msgSuccess('Marcado!','Las promotoras han cobrado lo que hay hasta el momento')
+                         msgSuccess('Marcado!','Las promotoras han cobrado los dias seleccionados')
                          this.getComisionesProm()
                          limpiarTabla('table')
                      })

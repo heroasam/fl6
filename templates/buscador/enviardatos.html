@@ -205,6 +205,7 @@
          },
          editarDato(id){
              this.Datos = this.listadoDatos.filter(row=>row.id==id)[0]
+             console.log( this.Datos)
              toggleModal("modal-editar-dato")
          },
          guardarDato(){
