@@ -1125,12 +1125,10 @@ def vendedor_wappaut():
     tipo = d['tipo'] # a discriminar en el futuro
     if tipo=='retiro zona':
         msg = msg + f" vendedor {vdor}"
-    # idcliente = var_sistema['idcliente_auth']
-    wapp = var_sistema['wapp_auth']
-    wapp1 = '3512411963'
-    logging.warning(f"wapp {wapp}")
-    if wapp:
+        wapp1 = '3512411963'
         response1 = send_msg_whatsapp(0, wapp1, msg)
+    wapp = var_sistema['wapp_auth']
+    if wapp:
         response = send_msg_whatsapp(0, wapp, msg)
         return response
     else:
