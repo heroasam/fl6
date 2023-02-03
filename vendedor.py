@@ -850,10 +850,10 @@ def vendedor_getlistadoautorizados():
     listadoautorizados = pgdict(con, f"select datos.id as id,datos.fecha as \
     fecha, datos.user as user, nombre, datos.resultado as resultado, datos.art \
     as art, datos.cuota_maxima as cuota_maxima, datos.sin_extension as \
-    sin_extension, datos.deuda_en_la_casa as deuda_en_la_casa,datos.vendedor as vendedor, \
+    sin_extension,datos.nosabana as nosabana, datos.deuda_en_la_casa as deuda_en_la_casa,datos.vendedor as vendedor, \
     clientes.novendermas as novendermas, clientes.incobrable as incobrable,\
     clientes.sev as sev, clientes.baja as baja, autorizacion.fecha as \
-    fechahora, autorizacion.cuota_requerida as cuota_requerida, \
+    fechahora, autorizacion.cuota_requerida as cuota_requerida,autorizacion.tomado as tomado, \
     autorizacion.arts as arts,horarios,comentarios,(select count(*) from \
     autorizacion where autorizacion.idcliente=clientes.id) as cnt, \
     autorizacion.idcliente from datos, autorizacion,clientes  where \
@@ -871,7 +871,7 @@ def vendedor_getlistadoautorizadosporid(idcliente):
     listadoautorizadosporid = pgdict(con, f"select datos.id as id,datos.fecha \
     as fecha, datos.user as user, nombre, datos.resultado as resultado, \
     datos.art as art, datos.cuota_maxima as cuota_maxima, datos.sin_extension \
-    as sin_extension, datos.deuda_en_la_casa as deuda_en_la_casa,datos.vendedor as vendedor,  \
+    as sin_extension,datos.nosabana as nosabana, datos.deuda_en_la_casa as deuda_en_la_casa,datos.vendedor as vendedor,  \
     clientes.novendermas as novendermas, clientes.incobrable as incobrable,\
     clientes.sev as sev, clientes.baja as baja, autorizacion.fecha as \
     fechahora, autorizacion.cuota_requerida as cuota_requerida, \
@@ -1455,3 +1455,47 @@ def vendedor_getcomisionesparavendedor():
     if devoluciones:
         comisiones = comisiones+devoluciones
     return jsonify(comisiones=comisiones, fechascomisiones=fechascomisiones)
+
+@vendedor.route('/vendedor/obtenerdni/<int:idcliente>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def vendedor_obtenerdni(idcliente):
+    con = get_con()
+    dni = pgonecolumn(con, f"select dni from clientes where id={idcliente}")
+    return jsonify(dni=dni)
+
+
+@vendedor.route('/vendedor/tomardato/<int:iddato>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def vendedor_tomardato(iddato):
+    con = get_con()
+    upd = f"update autorizacion set tomado=1 where iddato={iddato}"
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    con.close()
+    return 'ok'
+
+
+@vendedor.route('/vendedor/isatendido/<int:dni>')
+@login_required
+@check_roles(['dev','gerente','vendedor'])
+def vendedor_isatendido(dni):
+    con = get_con()
+    idcliente = pgonecolumn(con, f"select id from clientes where dni={dni}")
+    tomado = pgonecolumn(con, f"select tomado from autorizacion where iddato = (select max(iddato) from autorizacion where idcliente={idcliente})")
+    return jsonify(tomado=tomado)
+
+
+@vendedor.route('/vendedor/isrespondidoauth/<int:dni>')
+@login_required
+@check_roles(['dev','gerente','vendedor'])
+def vendedor_isrespondidoauth(dni):
+    con = get_con()
+    idcliente = pgonecolumn(con, f"select id from clientes where dni={dni}")
+    respuesta = pgonecolumn(con, f" select case when autorizado=1 then 'autorizado' \
+                                                when rechazado=1 then 'rechazado' \
+                                                when sigueigual=1 then 'sigueigual' end \
+    from autorizacion where iddato = (select max(iddato) from autorizacion where idcliente={idcliente})")
+    return jsonify(respuesta=respuesta)

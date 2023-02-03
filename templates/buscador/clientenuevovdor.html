@@ -18,6 +18,7 @@
       <tr>
         <th></th>
         <th>dni</th>
+        <th></th>
         <th>nombre</th>
         <th>calle</th>
         <th>num</th>
@@ -30,8 +31,9 @@
       <template x-for="cliente in listaClientes">
         <tr>
           <td><i class="fa fa-pencil" aria-hidden="true" @click="editarCliente(cliente.id)"></td>
-          <td x-text="cliente.dni"></td>
-          <td x-text="cliente.nombre"></td>
+            <td x-text="cliente.dni"></td>
+            <td><button class="button is-small is-success" @click="copiarDNI(cliente.id)">Copiar DNI</button></td>
+            <td x-text="cliente.nombre"></td>
           <td x-text="cliente.calle"></td>
           <td x-text="cliente.num"></td>
           <td x-text="cliente.zona"></td>
@@ -172,7 +174,15 @@
              axios.get('/buscador/toggleeditado/'+id)
                   .then(res=>{
                       this.getClientesIngresadosPorVdor()
-             })
+                  })
+         },
+         copiarDNI(idcliente){
+             axios.get('/vendedor/obtenerdni/'+idcliente)
+                  .then(res=>{
+                      let dni = res.data.dni
+                      textToClipboard(dni)
+                      msgSuccess("DNI copiado al portapapeles")
+                  })
          },
 
  }}

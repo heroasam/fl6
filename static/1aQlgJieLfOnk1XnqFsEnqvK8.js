@@ -85,11 +85,55 @@ uedo a la espera. Gracias.`;
 	                                                                   axios.post('/3ZbXanrRQalY6JL5eOBi49Nyc',data)
                                                                        // window.location envia a /vendedor/listadatos
                                                                            .then(res=>{
-                                                                       window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";
-                                                                               msgSuccess('Datos enviados. Espere la respuesta.');
+                                                                               console.log( "datos enviados")
+                                                                               let atendido = 0
+                                                                               let interval =setInterval(()=>{
+                                                                                       console.log('isatendido',Date.now())
+                                                                                   axios.get('/vendedor/isatendido/'+this.cliente.dni)
+                                                                                       .then(res=>{
+                                                                                           atendido = res.data.tomado
+                                                                                           if(atendido==1){
+                                                                                               msgDelay('la autorizacion se esta procesando. Puede tardar un poco...',300000)
+                                                                                               clearTimeout(interval)
+                                                                                               // setTimeout(()=>{
+                                                                                               // window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";
+                                                                                               // },60010)
+                                                                                               let intervalauth = setInterval(()=>{
+                                                                                                   console.log('isrespondido',Date.now())
+                                                                                               axios.get('/vendedor/isrespondidoauth/'+this.cliente.dni)
+                                                                                                   .then(res=>{
+                                                                                                       switch(res.data.respuesta){
+                                                                                                       case 'autorizado':
+                                                                                                           msgSuccess('Aprobado','El dato fue autorizado',10000)
+                                                                                                           clearTimeout(intervalauth)
+                                                                                                           setTimeout(()=>{
+                                                                                                               window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
+                                                                                                           break;
+                                                                                                       case 'sigueigual':
+                                                                                                           msgWarning('La cuota fue rechazada','La cuota no fue autorizada. Se puede vender hasta la cuota maxima que tenia antes.',10000)
+                                                                                                           clearTimeout(intervalauth)
+                                                                                                           setTimeout(()=>{
+                                                                                                               window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
+                                                                                                           break;
+                                                                                                       case 'rechazado':
+                                                                                                           msgError('Rechazado','El dato ha sido rechazado. No se le puede vender',10000)
+                                                                                                           clearTimeout(intervalauth)
+                                                                                                           setTimeout(()=>{
+                                                                                                               window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
+                                                                                                           break;
+                                                                                                       }
+                                                                                                   })},10000) // cierro el setInterval intervalauth
+                                                                                           } // cierro el if de atendido==1
 
-                                                                           })})
-           },
+
+
+
+                                                                                       }) // cierra el then de isatendido
+                                                                                   },10000) // cierra el setInterval Interval
+
+                                                                           }) // cierro el then de los datos enviados
+                                                                   }) // cierro el .then de la autorizacion enviada
+           }, //cierro la function
 
 
        }

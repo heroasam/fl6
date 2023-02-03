@@ -27,6 +27,8 @@
       <tr>
         <th></th>
         <th></th>
+        <th></th>
+        <th></th>
         <th>Id</th>
         <th>fecha</th>
         <th>nombre</th>
@@ -48,8 +50,11 @@
     <tbody>
       <template x-for="dato in listadoAutorizados_">
         <tr>
+          <td><button class="button is-small is-warning" @click="toggleAtender(dato.id)" x-text="dato.tomado?'Atendido':'Atender'"
+              :class="dato.tomado?'is-danger':'is-warning'"></button></td>
           <td><a :href="'/buscador/interno/'+dato.idcliente">Ver</a></td>
           <td><i class="fa fa-pencil" aria-hidden="true" @click="editarDato(dato.id)"></td>
+            <td><button class="button is-small is-success" @click="copiarDNI(dato.idcliente)">Copiar DNI</button></td>
           <td x-text="dato.id"></td>
           <td x-text="dato.fecha"></td>
           <td x-text="dato.nombre"></td>
@@ -66,7 +71,8 @@
               x-show="![0,1,2,5,6,8].includes(dato.resultado)">Rechazar</span></td>
             <td x-text="dato.arts"></td>
             <td x-text="dato.fechahora"></td>
-          <td><span class="tag is-small is-danger" x-show="dato.sin_extension">Venta Basica</span></td>
+            <td><span class="tag is-small is-danger" x-show="dato.sin_extension">Venta Basica</span>
+              <span class="tag is-small is-warning" x-show="dato.nosabana">NoSabana</span></td>
             <td><div class="xtags has-addons m-0" x-show="dato.deuda_en_la_casa">
 		      <span class="tag is-warning  m-0">Casa</span>
 		      <span class="tag is-light  m-0" x-text="'$'+dato.deuda_en_la_casa"></span>
@@ -112,6 +118,14 @@
         <label for="cuota" class="label">Cuota Maxima</label>
         <input type="text" class="input mb-3" x-model="Datos.cuota_maxima" id="cuota" autocomplete="off"
                :class="darkTheme?'input-dark':''" >
+         <div class="flex">
+          <button class="button is-black" @click="nosabana=!nosabana; Datos.nosabana=nosabana">No Sabana</button>
+          <p class="title is-3" x-show="nosabana==1">Este cliente no puede comprar sabanas</p>
+        </div>
+        <div class="flex">
+          <button class="button is-black" @click="sin_extension=!sin_extension; Datos.sin_extension=sin_extension">Venta Basica</button>
+          <p class="title is-3" x-show="sin_extension==1">Venta Basica</p>
+        </div>
       </section>
       <footer class="modal-card-foot">
         <button class="button is-primary" @click="guardarDato">Editar</button>
@@ -179,6 +193,8 @@
          largo:'',
          ultlargo:0,
          audio:new Audio("{{ url_for('static', filename='auth.mp3') }}"),
+         nosabana:0,
+         sin_extension:0,
          getListadoAutorizados(){
              axios.get('/vendedor/getlistadoautorizados')
                   .then(res=>{
@@ -211,6 +227,8 @@
          },
          editarDato(id){
              this.Datos = this.listadoAutorizados.filter(row=>row.id==id)[0]
+             this.nosabana = this.Datos.nosabana
+             this.sin_extension = this.Datos.sin_extension
              toggleModal("modal-editar-dato")
          },
          guardarDato(){
@@ -280,6 +298,24 @@ Se puede vender hasta la cuota autorizada previamente. Gracias.`
                       this.getListadoAutorizados()
                   })
           },
+         copiarDNI(idcliente){
+             axios.get('/vendedor/obtenerdni/'+idcliente)
+                  .then(res=>{
+                      let dni = res.data.dni
+                      textToClipboard(dni)
+                      msgSuccess("DNI copiado al portapapeles")
+             })
+         },
+         toggleAtender(iddato){
+             this.Datos = this.listadoAutorizados.filter(row=>row.id==iddato)[0]
+             this.tomado = this.Datos.tomado
+             if(this.tomado==0){
+                 axios.get('/vendedor/tomardato/'+iddato)
+                  .then(res=>{
+                      this.getListadoAutorizados()
+                  })
+             }
+         },
 
  }}
 

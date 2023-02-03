@@ -431,12 +431,12 @@ function msgWarning(title, text, timer = 3000) {
         timer: timer
     });
 }
-function msgDelay(text) {
+function msgDelay(text,timer=20000) {
     Swal.fire({
         title: 'Aguarde...',
         text: text,
         icon: 'warning',
-        timer: 20000,
+        timer: timer,
         timerProgressBar: true
     });
 }
@@ -595,4 +595,13 @@ function toggleActive(){
     const target = $navburger.dataset.target;
     const $target = document.getElementById(target);
     $target.classList.toggle('is-active');
+}
+
+function sleep(milliseconds) {
+ var start = new Date().getTime();
+ for (var i = 0; i < 1e7; i++) {
+  if ((new Date().getTime() - start) > milliseconds) {
+   break;
+  }
+ }
 }
