@@ -209,7 +209,7 @@ def vendedor_getlistadodatosenviar():
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
     sin_extension,nosabana, autorizado, monto_garantizado,datos.zona as zona from datos, clientes where \
     clientes.id = datos.idcliente and enviado_vdor=0 and rechazado=0 \
-    order by id desc limit 300")
+    order by id desc")
     # vendedor is null filtra los datos no asignados
     cuotabasica = var_sistema['cuota_basica']
     vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
@@ -831,15 +831,18 @@ def vendedor_registrarautorizacion():
     cur = con.cursor()
     try:
         cur.execute(ins)
+        idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
     except mysql.connector.Error as _error:
        con.rollback()
        error = _error.msg
        return make_response(error,400)
     else:
        con.commit()
-       con.close()
        log(ins)
-       return 'ok'
+       con.close()
+       print('idautorizacion',idautorizacion)
+       return jsonify(idautorizacion=idautorizacion)
+
 
 @vendedor.route('/vendedor/getlistadoautorizados')
 @login_required
@@ -858,7 +861,7 @@ def vendedor_getlistadoautorizados():
     autorizacion where autorizacion.idcliente=clientes.id) as cnt, \
     autorizacion.idcliente from datos, autorizacion,clientes  where \
     datos.idcliente=clientes.id and autorizacion.iddato=datos.id and \
-    autorizacion.autorizado=0 and resultado is null and datos.rechazado=0")
+    autorizacion.autorizado=0 and autorizacion.rechazado=0 and autorizacion.sigueigual=0")
     cuotabasica = var_sistema['cuota_basica']
     return jsonify(listadoautorizados=listadoautorizados, cuotabasica=cuotabasica)
 
@@ -888,10 +891,10 @@ def vendedor_autorizardato(id):
     con = get_con()
     cuota_requerida = pgonecolumn(con, f"select cuota_requerida from \
     autorizacion where iddato={id}")
-    upd_aut = f"update autorizacion set autorizado=1, user = \
+    upd_aut = f"update autorizacion set autorizado=1,rechazado=0,sigueigual=0, user = \
     '{current_user.email}' where iddato={id}"
     upd_dat = f"update datos set cuota_maxima = {cuota_requerida}, \
-    autorizado=1,enviado_vdor=1 where id={id}"
+    autorizado=1,rechazado=0,sigueigual=0,enviado_vdor=1 where id={id}"
     con = get_con()
     cur = con.cursor()
     try:
@@ -917,8 +920,35 @@ def vendedor_noautorizardato(id):
     cuota_requerida = pgonecolumn(con, f"select cuota_requerida from \
     autorizacion where iddato={id}")
     upd_aut = f"update autorizacion set autorizado=0, user = \
-    '{current_user.email}',rechazado=1 where iddato={id}"
-    upddato = f"update datos set rechazado=1, autorizado=0, resultado=8 where id={id}"
+    '{current_user.email}',rechazado=0,sigueigual=1 where iddato={id}"
+    upddato = f"update datos set rechazado=0, autorizado=0,sigueigual=1, resultado=null, enviado_vdor=1 where id={id}"
+    con = get_con()
+    cur = con.cursor()
+    try:
+        cur.execute(upd_aut)
+        cur.execute(upddato)
+    except mysql.connector.Error as _error:
+       con.rollback()
+       error = _error.msg
+       return make_response(error,400)
+    else:
+       con.commit()
+       con.close()
+       log(upd_aut)
+       log(upddato)
+       return 'ok'
+
+
+@vendedor.route('/vendedor/rechazardato/<int:id>')
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_rechazardato(id):
+    con = get_con()
+    cuota_requerida = pgonecolumn(con, f"select cuota_requerida from \
+    autorizacion where iddato={id}")
+    upd_aut = f"update autorizacion set autorizado=0, user = \
+    '{current_user.email}',rechazado=1,sigueigual=0 where iddato={id}"
+    upddato = f"update datos set rechazado=1, autorizado=0, sigueigual=0, resultado=8 where id={id}"
     con = get_con()
     cur = con.cursor()
     try:
@@ -1478,24 +1508,24 @@ def vendedor_tomardato(iddato):
     return 'ok'
 
 
-@vendedor.route('/vendedor/isatendido/<int:dni>')
+@vendedor.route('/u0IEJT3i1INZpKoNKbyezlfRy/<int:auth>')
+@vendedor.route('/vendedor/isatendido/<int:auth>')
 @login_required
 @check_roles(['dev','gerente','vendedor'])
-def vendedor_isatendido(dni):
+def vendedor_isatendido(auth):
     con = get_con()
-    idcliente = pgonecolumn(con, f"select id from clientes where dni={dni}")
-    tomado = pgonecolumn(con, f"select tomado from autorizacion where iddato = (select max(iddato) from autorizacion where idcliente={idcliente})")
+    tomado = pgonecolumn(con, f"select tomado from autorizacion where id={auth}")
     return jsonify(tomado=tomado)
 
 
-@vendedor.route('/vendedor/isrespondidoauth/<int:dni>')
+@vendedor.route('/ymIVWKdjgnCeJvo2zcodwRTQM/<int:auth>')
+@vendedor.route('/vendedor/isrespondidoauth/<int:auth>')
 @login_required
 @check_roles(['dev','gerente','vendedor'])
-def vendedor_isrespondidoauth(dni):
+def vendedor_isrespondidoauth(auth):
     con = get_con()
-    idcliente = pgonecolumn(con, f"select id from clientes where dni={dni}")
     respuesta = pgonecolumn(con, f" select case when autorizado=1 then 'autorizado' \
                                                 when rechazado=1 then 'rechazado' \
                                                 when sigueigual=1 then 'sigueigual' end \
-    from autorizacion where iddato = (select max(iddato) from autorizacion where idcliente={idcliente})")
+    from autorizacion where id={auth}")
     return jsonify(respuesta=respuesta)

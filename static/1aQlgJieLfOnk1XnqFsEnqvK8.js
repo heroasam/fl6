@@ -85,11 +85,10 @@ uedo a la espera. Gracias.`;
 	                                                                   axios.post('/3ZbXanrRQalY6JL5eOBi49Nyc',data)
                                                                        // window.location envia a /vendedor/listadatos
                                                                            .then(res=>{
-                                                                               console.log( "datos enviados")
                                                                                let atendido = 0
                                                                                let interval =setInterval(()=>{
-                                                                                       console.log('isatendido',Date.now())
-                                                                                   axios.get('/vendedor/isatendido/'+this.cliente.dni)
+                                                                                   axios.get('/u0IEJT3i1INZpKoNKbyezlfRy/'+this.cliente.dni)
+                                                                                   //ruta para /vendedor/isatendido u0IEJT3i1INZpKoNKbyezlfRy
                                                                                        .then(res=>{
                                                                                            atendido = res.data.tomado
                                                                                            if(atendido==1){
@@ -99,8 +98,8 @@ uedo a la espera. Gracias.`;
                                                                                                // window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";
                                                                                                // },60010)
                                                                                                let intervalauth = setInterval(()=>{
-                                                                                                   console.log('isrespondido',Date.now())
-                                                                                               axios.get('/vendedor/isrespondidoauth/'+this.cliente.dni)
+                                                                                                   axios.get('/vendedor/ymIVWKdjgnCeJvo2zcodwRTQM/'+this.cliente.dni)
+                                                                                                   //ruta para /vendedor/isrepondido ymIVWKdjgnCeJvo2zcodwRTQM
                                                                                                    .then(res=>{
                                                                                                        switch(res.data.respuesta){
                                                                                                        case 'autorizado':
@@ -316,7 +315,6 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                       if(this.Dato.nosabana==1){
                           //filtra this.listaArticulos y saca sabanas
                           this.listaArticulos = this.listaArticulos.filter(row=>!row.includes('Sab'))
-                          console.log( this.listaArticulos)
                       }
                       toggleModal("modal-pasar-venta");
                   })
@@ -428,6 +426,9 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
              // /vaHQ2gFYLW2pIWSr5I0ogCL0k
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
              axios.post('/vaHQ2gFYLW2pIWSr5I0ogCL0k',this.Dato)
+                 .then(res=>{
+                     this.Dato.idautorizacion = res.data.idautorizacion
+                 })
              //enviar un whatsapp al Fede informando del pedido de autorizacion
              let msg = `Solicito autorizacion para ${this.Dato.nombre}
 con una compra de ${this.Dato.arts}
@@ -439,7 +440,50 @@ Quedo a la espera. Gracias.`;
              // /3ZbXanrRQalY6JL5eOBi49Nyc
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 	         axios.post('/3ZbXanrRQalY6JL5eOBi49Nyc',data)
-         },
+              .then(res=>{
+                                                                               let atendido = 0
+                                                                               let interval =setInterval(()=>{
+                                                                                   axios.get('/u0IEJT3i1INZpKoNKbyezlfRy/'+this.Dato.idautorizacion)
+                                                                                   //nueva ruta para /vendedor/isatendido u0IEJT3i1INZpKoNKbyezlfRy
+                                                                                       .then(res=>{
+                                                                                           atendido = res.data.tomado
+                                                                                           if(atendido==1){
+                                                                                               msgDelay('la autorizacion se esta procesando. Puede tardar un poco...',300000)
+                                                                                               clearTimeout(interval)
+                                                                                               // setTimeout(()=>{
+                                                                                               // window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";
+                                                                                               // },60010)
+                                                                                               let intervalauth = setInterval(()=>{
+                                                                                                   axios.get('/vendedor/ymIVWKdjgnCeJvo2zcodwRTQM/'+this.Dato.idautorizacion)
+                                                                                                   // nueva ruta para /vendedor/isrespondidoauth ymIVWKdjgnCeJvo2zcodwRTQM
+                                                                                                   .then(res=>{
+                                                                                                       switch(res.data.respuesta){
+                                                                                                       case "autorizado":
+                                                                                                           msgSuccess('Aprobado','El dato fue autorizado',10000)
+                                                                                                           clearTimeout(intervalauth)
+                                                                                                           setTimeout(()=>{
+                                                                                                               window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
+                                                                                                           break;
+                                                                                                       case "sigueigual":
+                                                                                                           msgWarning('La cuota fue rechazada','La cuota no fue autorizada. Se puede vender hasta la cuota maxima que tenia antes.',10000)
+                                                                                                           clearTimeout(intervalauth)
+                                                                                                           setTimeout(()=>{
+                                                                                                               window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
+                                                                                                           break;
+                                                                                                       case "rechazado":
+                                                                                                           msgError('Rechazado','El dato ha sido rechazado. No se le puede vender',10000)
+                                                                                                           clearTimeout(intervalauth)
+                                                                                                           setTimeout(()=>{
+                                                                                                               window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
+                                                                                                           break;
+                                                                                                       }
+                                                                                                   })},10000) // cierro el then de isrespondido auth setInterval intervalauth
+                                                                                           } // cierro el if de atendido==1
+                                                                                       }) // cierra el then de isatendido
+                                                                                   },10000) // cierra el setInterval Interval
+
+                                                                           }) // cierro el then de los datos enviados
+         }, //cierro la function
          pasarVenta(){
              if(this.dnivalidado==false){
                  msgError('El DNI del cliente debe coincidir con nuestros registros');

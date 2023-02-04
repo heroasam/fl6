@@ -38,6 +38,7 @@
         <th>requerida</th>
         <th>autorizar</th>
         <th>rechazar</th>
+        <th>anular</th>
         <th>arts</th>
         <th>hora</th>
         <th></th>
@@ -67,9 +68,11 @@
           <td x-text="dato.cuota_requerida"></td>
           <td><span class="tag is-small is-success" @click="autorizarDato(dato.id)"
               x-show="![0,1,2,5,6,8].includes(dato.resultado)">Autorizar</span></td>
-          <td><span class="tag is-small is-danger" @click="noAutorizarDato(dato.id)"
-              x-show="![0,1,2,5,6,8].includes(dato.resultado)">Rechazar</span></td>
-            <td x-text="dato.arts"></td>
+          <td><span class="tag is-small is-warning" @click="noAutorizarDato(dato.id)"
+                    x-show="![0,1,2,5,6,8].includes(dato.resultado)">Rechazar</span></td>
+          <td><span class="tag is-small is-danger" @click="rechazarDato(dato.id)"
+                    x-show="![0,1,2,5,6,8].includes(dato.resultado)">Anular</span></td>
+          <td x-text="dato.arts"></td>
             <td x-text="dato.fechahora"></td>
             <td><span class="tag is-small is-danger" x-show="dato.sin_extension">Venta Basica</span>
               <span class="tag is-small is-warning" x-show="dato.nosabana">NoSabana</span></td>
@@ -286,7 +289,7 @@ Cargue de nuevo la operacion y procese la venta. Gracias.`
           noAutorizarDato(id){
              axios.get('/vendedor/noautorizardato/'+id)
                   .then(res=>{
-                      msgError('Dato rechazado')
+                      msgWarning('Cuota rechazada','Se puede vender la cuota que ya tenia')
                        //enviar un whatsapp al vendedor informando del rechazo.
              let msg = `Autorizacion RECHAZADA para ${this.dato.nombre}
 con una compra de ${this.dato.arts}
@@ -298,6 +301,21 @@ Se puede vender hasta la cuota autorizada previamente. Gracias.`
                       this.getListadoAutorizados()
                   })
           },
+         rechazarDato(id){
+             axios.get('/vendedor/rechazardato/'+id)
+                  .then(res=>{
+                      msgError('Dato anulado','NO SE PUEDE VENDER')
+                       //enviar un whatsapp al vendedor informando del rechazo.
+             let msg = `se ANULA el dato  para ${this.dato.nombre}
+con una compra de ${this.dato.arts}
+NO SE PUEDE VENDER!
+Gracias.`
+             let data = {msg,vdor:this.dato.vendedor}
+                      axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+	                  axios.post('/vendedor/wapprespauth',data)
+                      this.getListadoAutorizados()
+                  })
+         },
          copiarDNI(idcliente){
              axios.get('/vendedor/obtenerdni/'+idcliente)
                   .then(res=>{
@@ -308,7 +326,9 @@ Se puede vender hasta la cuota autorizada previamente. Gracias.`
          },
          toggleAtender(iddato){
              this.Datos = this.listadoAutorizados.filter(row=>row.id==iddato)[0]
+             console.log( this.Datos)
              this.tomado = this.Datos.tomado
+             console.log( this.tomado)
              if(this.tomado==0){
                  axios.get('/vendedor/tomardato/'+iddato)
                   .then(res=>{
