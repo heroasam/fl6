@@ -7,6 +7,7 @@ from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
     pglflat, log_busqueda, listsql, pgdict1
 from con import get_con, log, check_roles
 import logging
+# import time
 
 vendedor = Blueprint('vendedor', __name__)
 
@@ -850,7 +851,7 @@ def vendedor_registrarautorizacion():
 def vendedor_getlistadoautorizados():
     global var_sistema
     con = get_con()
-    listadoautorizados = pgdict(con, f"select datos.id as id,datos.fecha as \
+    listadoautorizados = pgdict(con, f"select autorizacion.id as id,datos.id as iddato,datos.fecha as \
     fecha, datos.user as user, nombre, datos.resultado as resultado, datos.art \
     as art, datos.cuota_maxima as cuota_maxima, datos.sin_extension as \
     sin_extension,datos.nosabana as nosabana, datos.deuda_en_la_casa as deuda_en_la_casa,datos.vendedor as vendedor, \
@@ -884,17 +885,19 @@ def vendedor_getlistadoautorizadosporid(idcliente):
     autorizacion.iddato=datos.id and autorizacion.idcliente={idcliente}")
     return jsonify(listadoautorizadosporid=listadoautorizadosporid)
 
-@vendedor.route('/vendedor/autorizardato/<int:id>')
+
+@vendedor.route('/vendedor/autorizardato/<int:idauth>')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
-def vendedor_autorizardato(id):
+def vendedor_autorizardato(idauth):
     con = get_con()
     cuota_requerida = pgonecolumn(con, f"select cuota_requerida from \
-    autorizacion where iddato={id}")
+    autorizacion where id={idauth}")
     upd_aut = f"update autorizacion set autorizado=1,rechazado=0,sigueigual=0, user = \
-    '{current_user.email}' where iddato={id}"
+    '{current_user.email}' where id={idauth}"
+    iddato = pgonecolumn(con, f"select iddato from autorizacion where id={idauth}")
     upd_dat = f"update datos set cuota_maxima = {cuota_requerida}, \
-    autorizado=1,rechazado=0,sigueigual=0,enviado_vdor=1 where id={id}"
+    autorizado=1,rechazado=0,sigueigual=0,enviado_vdor=1 where id={iddato}"
     con = get_con()
     cur = con.cursor()
     try:
@@ -912,16 +915,17 @@ def vendedor_autorizardato(id):
        return 'ok'
 
 
-@vendedor.route('/vendedor/noautorizardato/<int:id>')
+@vendedor.route('/vendedor/noautorizardato/<int:idauth>')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
-def vendedor_noautorizardato(id):
+def vendedor_noautorizardato(idauth):
     con = get_con()
     cuota_requerida = pgonecolumn(con, f"select cuota_requerida from \
-    autorizacion where iddato={id}")
+    autorizacion where id={idauth}")
     upd_aut = f"update autorizacion set autorizado=0, user = \
-    '{current_user.email}',rechazado=0,sigueigual=1 where iddato={id}"
-    upddato = f"update datos set rechazado=0, autorizado=0,sigueigual=1, resultado=null, enviado_vdor=1 where id={id}"
+    '{current_user.email}',rechazado=0,sigueigual=1 where id={idauth}"
+    iddato = pgonecolumn(con, f"select iddato from autorizacion where id={idauth}")
+    upddato = f"update datos set rechazado=0, autorizado=0,sigueigual=1, resultado=null, enviado_vdor=1 where id={iddato}"
     con = get_con()
     cur = con.cursor()
     try:
@@ -939,16 +943,17 @@ def vendedor_noautorizardato(id):
        return 'ok'
 
 
-@vendedor.route('/vendedor/rechazardato/<int:id>')
+@vendedor.route('/vendedor/rechazardato/<int:idauth>')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
-def vendedor_rechazardato(id):
+def vendedor_rechazardato(idauth):
     con = get_con()
     cuota_requerida = pgonecolumn(con, f"select cuota_requerida from \
-    autorizacion where iddato={id}")
+    autorizacion where id={idauth}")
     upd_aut = f"update autorizacion set autorizado=0, user = \
-    '{current_user.email}',rechazado=1,sigueigual=0 where iddato={id}"
-    upddato = f"update datos set rechazado=1, autorizado=0, sigueigual=0, resultado=8 where id={id}"
+    '{current_user.email}',rechazado=1,sigueigual=0 where id={idauth}"
+    iddato = pgonecolumn(con, f"select iddato from autorizacion where id={idauth}")
+    upddato = f"update datos set rechazado=1, autorizado=0, sigueigual=0, resultado=8 where id={iddato}"
     con = get_con()
     cur = con.cursor()
     try:
@@ -1157,6 +1162,9 @@ def vendedor_wappaut():
         msg = msg + f" vendedor {vdor}"
         wapp1 = '3512411963'
         response1 = send_msg_whatsapp(0, wapp1, msg)
+    # if tipo in ('autorizacion venta','pedido-autorizacion'):
+    #     logging.warning(time.time())
+    #     time.sleep(15)
     wapp = var_sistema['wapp_auth']
     if wapp:
         response = send_msg_whatsapp(0, wapp, msg)
@@ -1495,18 +1503,17 @@ def vendedor_obtenerdni(idcliente):
     return jsonify(dni=dni)
 
 
-@vendedor.route('/vendedor/tomardato/<int:iddato>')
+@vendedor.route('/vendedor/tomardato/<int:idauth>')
 @login_required
 @check_roles(['dev','gerente','admin'])
-def vendedor_tomardato(iddato):
+def vendedor_tomardato(idauth):
     con = get_con()
-    upd = f"update autorizacion set tomado=1 where iddato={iddato}"
+    upd = f"update autorizacion set tomado=1 where id={idauth}"
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
     con.close()
     return 'ok'
-
 
 @vendedor.route('/u0IEJT3i1INZpKoNKbyezlfRy/<int:auth>')
 @vendedor.route('/vendedor/isatendido/<int:auth>')
@@ -1528,4 +1535,5 @@ def vendedor_isrespondidoauth(auth):
                                                 when rechazado=1 then 'rechazado' \
                                                 when sigueigual=1 then 'sigueigual' end \
     from autorizacion where id={auth}")
+    logging.warning(f"respuesta {respuesta}")
     return jsonify(respuesta=respuesta)

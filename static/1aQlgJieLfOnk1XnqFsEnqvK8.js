@@ -454,7 +454,7 @@ Quedo a la espera. Gracias.`;
                                                                                                // window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";
                                                                                                // },60010)
                                                                                                let intervalauth = setInterval(()=>{
-                                                                                                   axios.get('/vendedor/ymIVWKdjgnCeJvo2zcodwRTQM/'+this.Dato.idautorizacion)
+                                                                                                   axios.get('/ymIVWKdjgnCeJvo2zcodwRTQM/'+this.Dato.idautorizacion)
                                                                                                    // nueva ruta para /vendedor/isrespondidoauth ymIVWKdjgnCeJvo2zcodwRTQM
                                                                                                    .then(res=>{
                                                                                                        switch(res.data.respuesta){

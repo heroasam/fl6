@@ -56,7 +56,7 @@
           <td><a :href="'/buscador/interno/'+dato.idcliente">Ver</a></td>
           <td><i class="fa fa-pencil" aria-hidden="true" @click="editarDato(dato.id)"></td>
             <td><button class="button is-small is-success" @click="copiarDNI(dato.idcliente)">Copiar DNI</button></td>
-          <td x-text="dato.id"></td>
+          <td x-text="dato.iddato"></td>
           <td x-text="dato.fecha"></td>
           <td x-text="dato.nombre"></td>
           <td><span class="tag is-small" x-text="dato.resultado==1?'Vendido':(dato.resultado==0?'Anulado':
@@ -269,9 +269,9 @@
                       msgerror('Error. No se pudo hacer el cambio.')
              })
          },
-         autorizarDato(id){
+         autorizarDato(idauth){
              console.log( this.dato.vendedor)
-             axios.get('/vendedor/autorizardato/'+id)
+             axios.get('/vendedor/autorizardato/'+idauth)
                   .then(res=>{
                       msgSuccess('Dato autorizado')
                        //enviar un whatsapp al vendedor informando de la autorizacion.
@@ -286,8 +286,8 @@ Cargue de nuevo la operacion y procese la venta. Gracias.`
                       this.getListadoAutorizados()
                   })
          },
-          noAutorizarDato(id){
-             axios.get('/vendedor/noautorizardato/'+id)
+          noAutorizarDato(idauth){
+             axios.get('/vendedor/noautorizardato/'+idauth)
                   .then(res=>{
                       msgWarning('Cuota rechazada','Se puede vender la cuota que ya tenia')
                        //enviar un whatsapp al vendedor informando del rechazo.
@@ -301,8 +301,8 @@ Se puede vender hasta la cuota autorizada previamente. Gracias.`
                       this.getListadoAutorizados()
                   })
           },
-         rechazarDato(id){
-             axios.get('/vendedor/rechazardato/'+id)
+         rechazarDato(idauth){
+             axios.get('/vendedor/rechazardato/'+idauth)
                   .then(res=>{
                       msgError('Dato anulado','NO SE PUEDE VENDER')
                        //enviar un whatsapp al vendedor informando del rechazo.
@@ -324,17 +324,11 @@ Gracias.`
                       msgSuccess("DNI copiado al portapapeles")
              })
          },
-         toggleAtender(iddato){
-             this.Datos = this.listadoAutorizados.filter(row=>row.id==iddato)[0]
-             console.log( this.Datos)
-             this.tomado = this.Datos.tomado
-             console.log( this.tomado)
-             if(this.tomado==0){
-                 axios.get('/vendedor/tomardato/'+iddato)
+         toggleAtender(idauth){
+                 axios.get('/vendedor/tomardato/'+idauth)
                   .then(res=>{
                       this.getListadoAutorizados()
                   })
-             }
          },
 
  }}
