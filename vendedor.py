@@ -7,7 +7,7 @@ from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
     pglflat, log_busqueda, listsql, pgdict1
 from con import get_con, log, check_roles
 import logging
-# import time
+import time
 
 vendedor = Blueprint('vendedor', __name__)
 
@@ -499,6 +499,7 @@ def vendedor_envioclientenuevo():
                 {vdor},{iddato},{d['id']},{d['cuota_requerida']},\
                 {cuota_maxima},'{d['arts']}')"
                 cur.execute(insaut)
+                idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
             else: # dato repetido update autorizacion en cuota_requerida y arts
                 updaut = f"update autorizacion set cuota_requerida=\
                 {d['cuota_requerida']},arts='{d['arts']}' where iddato={iddato}"
@@ -522,7 +523,7 @@ def vendedor_envioclientenuevo():
                 log(upd)
             if inslog:
                 log(inslog)
-            return 'ok'
+            return jsonify(idautorizacion=idautorizacion)
     else:
         sin_extension = 1
         cuota_maxima = var_sistema['cuota_basica']
@@ -562,6 +563,7 @@ def vendedor_envioclientenuevo():
             {cuota_maxima},'{d['arts']}')"
             cur.execute(insaut)
             print(insaut)
+            idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
         except mysql.connector.Error as _error:
             con.rollback()
             error = _error.msg
@@ -571,7 +573,7 @@ def vendedor_envioclientenuevo():
             con.close()
             log(ins)
             log(insaut)
-            return 'ok'
+            return jsonify(idautorizacion=idautorizacion)
 
 
 
@@ -1162,9 +1164,6 @@ def vendedor_wappaut():
         msg = msg + f" vendedor {vdor}"
         wapp1 = '3512411963'
         response1 = send_msg_whatsapp(0, wapp1, msg)
-    # if tipo in ('autorizacion venta','pedido-autorizacion'):
-    #     logging.warning(time.time())
-    #     time.sleep(15)
     wapp = var_sistema['wapp_auth']
     if wapp:
         response = send_msg_whatsapp(0, wapp, msg)
@@ -1183,6 +1182,7 @@ def vendedor_wapprespaut():
     wappvdor = var_sistema[vdor]
     msg = d['msg']
     if wappvdor:
+        time.sleep(15)
         response = send_msg_whatsapp(0, wappvdor, msg)
         return response
     else:
