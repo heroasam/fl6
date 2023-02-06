@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getListadoAutorizados();setInterval(()=>{getListadoAutorizados()},10000)">
+<div  x-data="main()" x-init="getListadoAutorizados();setInterval(()=>{getListadoAutorizados()},10000)">
 
   <div class="columns">
     <div class="column is-6">
@@ -66,8 +66,10 @@
           <td x-text="dato.art"></td>
           <td x-text="dato.cuota_maxima"></td>
           <td x-text="dato.cuota_requerida"></td>
+          <td><span class="tag is-small is-black" @click="motivoAutorizacion(dato.id)"
+                    x-show="![0,1,2,5,6,8].includes(dato.resultado)">Motivo</span></td>
           <td><span class="tag is-small is-success" @click="autorizarDato(dato.id)"
-              x-show="![0,1,2,5,6,8].includes(dato.resultado)">Autorizar</span></td>
+                    x-show="![0,1,2,5,6,8].includes(dato.resultado)">Autorizar</span></td>
           <td><span class="tag is-small is-warning" @click="noAutorizarDato(dato.id)"
                     x-show="![0,1,2,5,6,8].includes(dato.resultado)">Rechazar</span></td>
           <td><span class="tag is-small is-danger" @click="rechazarDato(dato.id)"
@@ -178,6 +180,25 @@
       </footer>
     </div>
   </div>
+   <!-- bulma-modal motivo-autorizacion -->
+  <div class="modal" id="modal-motivo-autorizacion">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Motivo autorizacion</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-motivo-autorizacion')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="idmotivo">Motivo</label>
+        <input type="text" class="input mb-3" x-model="motivo" id="idmotivo">
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="guardarMotivo()">Guardar</button>
+        <button class="button" @click="toggleModal('modal-motivo-autorizacion')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
 </div>
 {% endblock %}
 {% block script %}
@@ -198,6 +219,8 @@
          audio:new Audio("{{ url_for('static', filename='auth.mp3') }}"),
          nosabana:0,
          sin_extension:0,
+         motivo:'',
+         idauth:'',
          getListadoAutorizados(){
              axios.get('/vendedor/getlistadoautorizados')
                   .then(res=>{
@@ -270,15 +293,19 @@
              })
          },
          autorizarDato(idauth){
-             console.log( this.dato.vendedor)
              axios.get('/vendedor/autorizardato/'+idauth)
                   .then(res=>{
                       msgSuccess('Dato autorizado')
                        //enviar un whatsapp al vendedor informando de la autorizacion.
-             let msg = `Autorizacion para ${this.dato.nombre}
+             let msg = `AUTORIZADO para ${this.dato.nombre}
 con una compra de ${this.dato.arts}
 y una cuota de $${this.dato.cuota_requerida}.
 Cargue de nuevo la operacion y procese la venta. Gracias.`
+                      if(this.motivo!=''){
+                          msg = msg + `
+Motivo: ${this.motivo}`
+                          this.motivo = ''
+}
                       let data = {msg,vdor:this.dato.vendedor}
                       console.log(data)
                       axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
@@ -295,7 +322,12 @@ Cargue de nuevo la operacion y procese la venta. Gracias.`
 con una compra de ${this.dato.arts}
 y una cuota de $${this.dato.cuota_requerida}.
 Se puede vender hasta la cuota autorizada previamente. Gracias.`
-             let data = {msg,vdor:this.dato.vendedor}
+if(this.motivo!=''){
+     msg = msg + `
+Motivo: ${this.motivo}`
+     this.motivo = ''
+ }
+                      let data = {msg,vdor:this.dato.vendedor}
                       axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 	                  axios.post('/vendedor/wapprespauth',data)
                       this.getListadoAutorizados()
@@ -310,7 +342,12 @@ Se puede vender hasta la cuota autorizada previamente. Gracias.`
 con una compra de ${this.dato.arts}
 NO SE PUEDE VENDER!
 Gracias.`
-             let data = {msg,vdor:this.dato.vendedor}
+                      if(this.motivo!=''){
+                          msg = msg + `
+Motivo: ${this.motivo}`
+                          this.motivo = ''
+                      }
+                      let data = {msg,vdor:this.dato.vendedor}
                       axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 	                  axios.post('/vendedor/wapprespauth',data)
                       this.getListadoAutorizados()
@@ -329,6 +366,21 @@ Gracias.`
                   .then(res=>{
                       this.getListadoAutorizados()
                   })
+         },
+         motivoAutorizacion(idauth){
+             toggleModal("modal-motivo-autorizacion")
+             this.motivo = ''
+             this.idauth = idauth
+
+         },
+         guardarMotivo(){
+             toggleModal("modal-motivo-autorizacion")
+             if(this.motivo!=''){
+                 axios.get('/vendedor/motivoautorizacion/'+this.motivo+'/'+this.idauth)
+                  .then(res=>{
+                      msgSuccess('Motivo autorizacion guardado')
+                  })
+             }
          },
 
  }}

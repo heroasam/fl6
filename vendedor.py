@@ -1537,3 +1537,17 @@ def vendedor_isrespondidoauth(auth):
     from autorizacion where id={auth}")
     logging.warning(f"respuesta {respuesta}")
     return jsonify(respuesta=respuesta)
+
+
+@vendedor.route('/vendedor/motivoautorizacion/<motivo>/<int:idauth>')
+@login_required
+@check_roles(['dev','gerente'])
+def vendedor_motivoautorizacion(motivo,idauth):
+    print(motivo, idauth)
+    con = get_con()
+    upd = f"update autorizacion set motivo='{motivo}' where id={idauth}"
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    con.close()
+    return 'ok'

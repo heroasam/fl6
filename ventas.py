@@ -312,11 +312,11 @@ def ventas_getclientes(tipo):
     """Entrego lista de cliente segun tipo pedido."""
     con = get_con()
     if tipo=='idvta':
-        clientes = pgdict(con, "select ventas.id as idvta, nombre, calle,num,\
+        clientes = pgdict(con, "select ventas.id as idvta,dni, nombre, calle,num,\
         zona, gestion, mudo, incobrable,acla from ventas, clientes where \
         ventas.idcliente=clientes.id order by ventas.id desc limit 200")
     else:
-        clientes = pgdict(con, "select id, nombre, calle,num, zona, gestion,\
+        clientes = pgdict(con, "select id,dni, nombre, calle,num, zona, gestion,\
         mudo, incobrable,acla from  clientes  order by id desc limit 200")
 
     con.close()

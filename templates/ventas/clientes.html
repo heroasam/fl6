@@ -19,6 +19,7 @@
   <table class="table is-narrow nototal">
     <thead>
       <tr>
+        <th></th>
         <th x-show="idcliente"></th>
         <th x-show="idcliente">idcliente</th>
         <th x-show="!idcliente">idvta</th>
@@ -35,6 +36,7 @@
     <tbody>
       <template x-for="cliente in listaClientes">
         <tr>
+          <td><a :href="'/buscador/interno/'+cliente.dni">Ver</a></td>
           <td x-show="idcliente"><i class="fa fa-times" aria-hidden="true" @click="borrarCliente(cliente.id)"></td>
             <td x-text="cliente.idvta||cliente.id"></td>
           <td x-text="cliente.nombre"></td>
