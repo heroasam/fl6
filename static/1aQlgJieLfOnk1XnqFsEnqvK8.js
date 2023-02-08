@@ -73,6 +73,10 @@
                // nueva ruta para /vendedor/envioclientenuevo pEmPj7NAUn0Odsru4aL2BhlOu
                axios.post('/pEmPj7NAUn0Odsru4aL2BhlOu',this.cliente)
                    .then(res=>{
+                       if(res.data.otroasignado==1){
+                           msgError('Error','Este cliente ya tiene un dato hecho y esta asignado a otro vendedor.',10000)
+                           return
+                       }
                         this.cliente.idautorizacion = res.data.idautorizacion
                                                                        msgSuccess('autorizacion enviada. Espere la repuesta.')
                                                                        //enviar un whatsapp al Fede informando del pedido de autorizacion

@@ -37,6 +37,7 @@
         <th class="sumar numeric">cnt</th>
         <th>art</th>
         <th x-show="0">count</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -56,6 +57,11 @@
               <td x-text="item.cnt"></td>
               <td x-text="item.art"></td>
               <td x-show="0" x-text="item.count"></td>
+              <td>
+                <span class="tag is-danger" x-show="item.devuelta">Devuelta</span>
+                <span class="tag is-danger" x-show="item.parcial">Dev. Parcial</span>
+                <span class="tag is-danger" x-show="item.cambio">Cambio</span>
+              </td>
         </tr>
       </template>
     </tbody>
@@ -116,6 +122,7 @@
          buscar:'',
          nombregarante:'',
          direcciongarante:'',
+         isInDevolucion:0,
          getListado(){
              axios.get('/ventas/getlistado')
                   .then(res=>{
@@ -129,6 +136,20 @@
                   })
          },
          borrarVenta(id){
+             this.Venta = this.listadoVentas.filter(row=>row.id==id)[0]
+             axios.get('/ventas/isindevolucion/'+id)
+                              .then(res=>{
+                                  this.isInDevolucion = res.data.isindevolucion
+
+             if(this.isInDevolucion==1){
+                 msgError('Error','No se puede eliminar una venta que tiene devolucion Total, Parcial o Cambio')
+                 return
+             }
+                              })
+             if(this.Venta.fecha!=dayjs.utc().format('YYYY-MM-DD')){
+                 msgError('Error','No se puede eliminar una venta que no sea de hoy')
+                 return
+             }
              Swal.fire({
                  title: '¿Esta seguro?',
                  text: `Se borrara la venta Id${id}`,

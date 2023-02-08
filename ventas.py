@@ -218,7 +218,7 @@ def ventas_getarticulos():
 @check_roles(['dev','gerente','admin'])
 def ventas_getlistado():
     con = get_con()
-    listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count, dnigarante from ventas where pp=0 order by id desc limit 100")
+    listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count, dnigarante,devuelta,parcial,cambio from ventas where pp=0 order by id desc limit 100")
     con.close()
     return jsonify(listado=listado)
 
@@ -714,7 +714,7 @@ def ventas_devolucion_buscarcliente(idvta):
     con = get_con()
     venta = pgdict(con, f"select * from ventas where id={idvta}")[0]
     nombre = pgonecolumn(con, f"select nombre from clientes where id={venta['idcliente']}")
-    arts = pgdict(con, f"select * from detvta where idvta={idvta}")
+    arts = pgdict(con, f"select * from detvta where idvta={idvta} and devuelta=0")
     ic = venta['ic']
     cc = venta['cc']
     return jsonify(nombre=nombre, arts=arts, ic=ic, cc=cc)
@@ -724,15 +724,67 @@ def ventas_devolucion_buscarcliente(idvta):
 @login_required
 @check_roles(['dev','gerente','admin'])
 def ventas_devolucion_borrararticulo(id):
+    """Cuando se hace un cambio o una devolucion parcial,
+    le ponemos devuelta=1 al detvta.
+    Si cargado=1 hacemos ademas cnt=cnt*(-1) y cargado=0,
+    porque al ser un art viejo ya cargado, cuando lo devuelven
+    el vendedor debe traerlo a la empresa, por eso el negativo
+    y el cargado=0 que se pone.
+    Si cargado=0 significa que el art vendido no se cargo todavia,
+    y ahora se recupero, o sea se compensa, por eso se pone
+    cargado=1 para que no impacte."""
     con = get_con()
-    stm = f"delete from detvta where id={id}"
+    item = pgdict(con,f"select * from detvta where id={id}")[0]
+    cargado = item['cargado']
+    cnt = item['cnt']
+    art = item['art']
+    idvta = item['idvta']
+    if cargado==0:
+        upd = f"update detvta set devuelta=1, cargado=1 where id={id}"
+    else:
+        upd = f"update detvta set devuelta=1,cargado=0,cnt=cnt*(-1) where id={id}"
+    # en este momento puede que haya un registro en tabla devolucion. Por lo que hay
+    # que hacer una verificacion primero para ver si hay que hacer un upd o ins.
+    iddev = pgonecolumn(con,f"select id from devoluciones where idvta={idvta}")
+    if iddev:
+        stmlog = f"update devoluciones set log=concat(log,' devuelto:{cnt}-{art}') where id={iddev}"
+    else: # no hay un registro todavia de devoluciones
+        stmlog = f"insert into devoluciones(idvta,log) values({idvta},'agrego:{cnt}-{art}')"
     cur = con.cursor()
-    cur.execute(stm)
+    cur.execute(upd)
+    cur.execute(stmlog)
     con.commit()
     con.close()
-    log(stm)
+    log(upd)
     return 'ok'
 
+
+@ventas.route('/ventas/devolucion/agregararticulo', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
+def ventas_agregararticulo():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    ins = f"insert into detvta(cnt,art,ic,cc,idvta) values({d['cnt']},'{d['art']}',{d['ic']},{d['cc']},{d['idvta']})"
+    cur = con.cursor()
+    cur.execute(ins)
+    con.commit()
+    id =  pgonecolumn(con, "SELECT LAST_INSERT_ID()")
+    item = pgdict(con,f"select * from detvta where id={id}")[0]
+    cnt = item['cnt']
+    art = item['art']
+    idvta = item['idvta']
+    # en este momento puede que haya un registro en tabla devolucion. Por lo que hay
+    # que hacer una verificacion primero para ver si hay que hacer un upd o ins.
+    iddev = pgonecolumn(con,f"select id from devoluciones where idvta={idvta}")
+    if iddev:
+        stmlog = f"update devoluciones set log=concat(log,' agrego:{cnt}-{art}') where id={iddev}"
+    else: # no hay un registro todavia de devoluciones
+        stmlog = f"insert into devoluciones(idvta,log) values({idvta},'agrego:{cnt}-{art}')"
+    cur.execute(stmlog)
+    log(ins)
+    con.close()
+    return 'ok'
 
 @ventas.route('/ventas/devolucion/obtenerlistaarticulos')
 @login_required
@@ -748,6 +800,15 @@ def ventas_devolucion_obtenerlistaarticulos():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def ventas_devolucion_procesar():
+    """Cuando se hace un cambio o una devolucion parcial,
+    le ponemos devuelta=1 al detvta.
+    Si cargado=1 hacemos ademas cnt=cnt*(-1) y cargado=0,
+    porque al ser un art viejo ya cargado, cuando lo devuelven
+    el vendedor debe traerlo a la empresa, por eso el negativo
+    y el cargado=0 que se pone.
+    Si cargado=0 significa que el art vendido no se cargo todavia,
+    y ahora se recupero, o sea se compensa, por eso se pone
+    cargado=1 para que no impacte."""
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     idvta = d['idvta']
@@ -769,14 +830,17 @@ def ventas_devolucion_procesar():
         montodev = comprado - (cc*ic)
     registro = current_user.email
 
-    cnt = pgonecolumn(con, f"select sum(cnt) from detvta where idvta={idvta}")
-    art = pgonecolumn(con, f"select group_concat(art,'|') from detvta where idvta={idvta}")
+    cnt = pgonecolumn(con, f"select sum(cnt) from detvta where idvta={idvta} and devuelta=0")
+    art = pgonecolumn(con, f"select group_concat(art,'|') from detvta where idvta={idvta} and devuelta=0")
 
     # update ventas cc/ic/cnt/art para una devolucion parcial
     # update ventas devuelta=1, saldo=0 para una devolucion total
     cur = con.cursor(buffered=True)
     if totparc in ('Parcial','Cambio'):
-        updvta = f"update ventas set cc={cc},ic={ic},cnt={cnt},art='{art}' where id={idvta}"
+        if totparc=='Parcial':
+            updvta = f"update ventas set cc={cc},ic={ic},cnt={cnt},art='{art}',parcial=1 where id={idvta}"
+        else: # osea totparc=='Cambio'
+            updvta = f"update ventas set cc={cc},ic={ic},cnt={cnt},art='{art}',cambio=1 where id={idvta}"
         cur.execute(updvta)
         con.commit()
         log(updvta)
@@ -786,10 +850,28 @@ def ventas_devolucion_procesar():
         con.commit()
         log(updvta)
     #   update detvta poner devuelta=1 a los articulos devueltos en una devolucion total
-        upddetvta = f"update detvta set devuelta=1 where idvta={idvta}"
-        cur.execute(upddetvta)
+        ids_detvta = pglflat(con, f"select id from detvta where idvta={idvta}")
+        logging.warning(f"ids_detvta {ids_detvta}")
+        for id in ids_detvta:
+            cargado = pgonecolumn(con, f"select cargado from detvta where id={id}")
+            if cargado==0:
+                upddetvta = f"update detvta set devuelta=1,cargado=1 where id={id}"
+            else: # osea cargado==1 articulo viejo pongo cargado=0 y cnt=cnt*(-1)
+                upddetvta = f"update detvta set devuelta=1, cargado=0, cnt=cnt*(-1) where id={id}"
+            cur.execute(upddetvta)
+            log(upddetvta)
+            item = pgdict(con,f"select * from detvta where id={id}")[0]
+            cnt = item['cnt']
+            art = item['art']
+            idvta = item['idvta']
+            iddev = pgonecolumn(con,f"select id from devoluciones where idvta={idvta}")
+            logging.warning(f"iddev cuando procesa art por art {iddev}")
+            if iddev:
+                stmlog = f"update devoluciones set log=concat(log,' devolvio:{cnt}-{art}') where id={iddev}"
+            else: # no hay un registro todavia de devoluciones
+                stmlog = f"insert into devoluciones(idvta,log) values({idvta},'devolvio:{cnt}-{art}')"
+            cur.execute(stmlog)
         con.commit()
-        log(upddetvta)
     #  update ventas novendermas segun el valor de dicha variable
     if novendermas:
         updnvm = f"update clientes set novendermas=1 where id={idcliente}"
@@ -797,30 +879,20 @@ def ventas_devolucion_procesar():
         con.commit()
         log(updnvm)
 
-    # insert devoluciones con todos los datos de la devolucion
-    ins = f"insert into devoluciones(idvta,fechadev,cobr,comprdejado,rboN,totparc,novendermas,vdor,mesvta,montodev,registro) values({idvta},'{fechadev}',{cobr},'{comprdejado}','{rboN}','{totparc}',{novendermas}, {vdor}, '{mesvta}', {montodev},'{registro}')"
-    logging.warning(ins)
-    cur.execute(ins)
+    # update devoluciones con todos los datos de la devolucion
+    iddev = pgonecolumn(con,f"select id from devoluciones where idvta={idvta}")
+    logging.warning(f"iddev {iddev}")
+    upd = f"update devoluciones set fechadev='{fechadev}',cobr={cobr},comprdejado='{comprdejado}',rboN='{rboN}',totparc='{totparc}',novendermas={novendermas},vdor={vdor},mesvta='{mesvta}',montodev={montodev},registro='{registro}' where id={iddev}"
+    logging.warning(upd)
+    cur.execute(upd)
     con.commit()
-    log(ins)
+    log(upd)
     con.close()
 
     return 'ok'
 
 
-@ventas.route('/ventas/devolucion/agregararticulo', methods=['POST'])
-@login_required
-@check_roles(['dev','gerente','admin'])
-def ventas_agregararticulo():
-    con = get_con()
-    d = json.loads(request.data.decode("UTF-8"))
-    ins = f"insert into detvta(cnt,art,ic,cc,idvta) values({d['cnt']},'{d['art']}',{d['ic']},{d['cc']},{d['idvta']})"
-    cur = con.cursor()
-    cur.execute(ins)
-    con.commit()
-    log(ins)
-    con.close()
-    return 'ok'
+
 
 
 @ventas.route('/ventas/condonar/<int:id>')
@@ -1092,3 +1164,16 @@ def ventas_vtalistadozonas():
     index = tbl.columns.tolist()
     tbl = tbl.to_html(table_id="vtazonas",classes="table")
     return render_template("ventas/vtalistadozona.html", tbl=tbl, index=index )
+
+
+@ventas.route('/ventas/isindevolucion/<int:idvta>')
+@login_required
+@check_roles(['dev', 'gerente'])
+def ventas_isindevolucion(idvta):
+    con = get_con()
+    is_in_dev = pgonecolumn(con, f"select id from devoluciones where idvta={idvta}")
+    if is_in_dev:
+        isindevolucion = 1
+    else:
+        isindevolucion = 0
+    return jsonify(isindevolucion=isindevolucion)

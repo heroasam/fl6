@@ -500,10 +500,18 @@ def vendedor_envioclientenuevo():
                 {cuota_maxima},'{d['arts']}')"
                 cur.execute(insaut)
                 idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
-            else: # dato repetido update autorizacion en cuota_requerida y arts
-                updaut = f"update autorizacion set cuota_requerida=\
-                {d['cuota_requerida']},arts='{d['arts']}' where iddato={iddato}"
-                cur.execute(updaut)
+                vdorasignado = vdor
+            else: # dato repetido inserto auth con iddato que ya tenia de antes
+                vdorasignado = pgonecolumn(con, f"select vendedor from datos where id={iddato}")
+                if vdorasignado == vdor:
+                    insaut = f"insert into autorizacion(fecha,vdor,iddato,idcliente,\
+                    cuota_requerida,cuota_maxima,arts) values(current_timestamp(),\
+                    {vdor},{iddato},{d['id']},{d['cuota_requerida']},\
+                    {cuota_maxima},'{d['arts']}')"
+                    cur.execute(insaut)
+                    idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
+                else:
+                    idautorizacion = pgonecolumn(con,f"select id from autorizacion where iddato={iddato}")
 
             if upd:
                 cur.execute(upd)
@@ -523,7 +531,10 @@ def vendedor_envioclientenuevo():
                 log(upd)
             if inslog:
                 log(inslog)
-            return jsonify(idautorizacion=idautorizacion)
+            if vdor!=vdorasignado:
+                return jsonify(idautorizacion=idautorizacion, otroasignado=1)
+            else:
+                return jsonify(idautorizacion=idautorizacion, otroasignado=0)
     else:
         sin_extension = 1
         cuota_maxima = var_sistema['cuota_basica']
@@ -1292,7 +1303,8 @@ def vendedor_getartvendedor(vdor):
     con = get_con()
     artvendedor = pgdict(con, f"select sum(detvta.cnt) as cnt,\
     detvta.art as art from detvta,ventas where detvta.idvta=ventas.id and \
-    cargado=0 and detvta.devuelta=0 and idvdor={vdor} group by detvta.art")
+    cargado=0 and idvdor={vdor} group by detvta.art")
+    # no se filtra mas por devuelta=0, solo por cargado=0
     return jsonify(artvendedor=artvendedor)
 
 
@@ -1446,7 +1458,8 @@ def vendedor_getcargavendedor():
         vdor = 835
     artvendedor = pgdict(con, f"select sum(detvta.cnt) as cnt,\
     detvta.art as art from detvta,ventas where detvta.idvta=ventas.id and \
-    cargado=0 and detvta.devuelta=0 and idvdor={vdor} group by detvta.art")
+    cargado=0 and idvdor={vdor} group by detvta.art")
+    # no se filtra mas por devuelta=0, solo por cargado=0
     return jsonify(artvendedor=artvendedor)
 
 
