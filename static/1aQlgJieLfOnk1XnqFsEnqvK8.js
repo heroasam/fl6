@@ -219,6 +219,14 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                       this.listadoDatos_ = this.listadoDatos;
                       this.agrupar = res.data.agrupar
                       this.getListaItems();
+                      this.listadoDatos_.sort((a,b)=>{
+                          let s1 = a.nombre.toLowerCase(),
+                              s2 = b.nombre.toLowerCase()
+
+                          if(s1>s2) return 1
+                          if(s1<s2) return -1
+                          if(s1==s2) return 0
+                      })
                   })
          },
          getListaItems(){
@@ -276,9 +284,24 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
              pattern = /[^-]*/gi;
              item = pattern.exec(item);
              if(this.agrupar=='zonas'){
-             this.listadoDatos_ = this.listadoDatos.filter(row=>row.zona==item);
+                 this.listadoDatos_ = this.listadoDatos.filter(row=>row.zona==item);
+                 // ordeno por calle
+                 this.listadoDatos_.sort((a,b)=>{
+                     let fa = a.calle.toLowerCase(),
+                         fb = b.calle.toLowerCase();
+
+                     if (fa < fb) {
+                         return -1;
+                     }
+                     if (fa > fb) {
+                         return 1;
+                     }
+                     return 0;
+                 })
              }else{
-             this.listadoDatos_ = this.listadoDatos.filter(row=>row.calle==item);
+                 this.listadoDatos_ = this.listadoDatos.filter(row=>row.calle==item);
+                 // ordeno por numero
+                 this.listadoDatos_.sort((a,b)=>a.num - b.num)
              }
              this.verCard = false;
          },
