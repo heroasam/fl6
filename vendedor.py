@@ -433,6 +433,7 @@ def vendedor_envioclientenuevo():
     global var_sistema
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
+    print(d)
     if current_user.email == var_sistema['816']:
         vdor = 816
     elif current_user.email == var_sistema['835']:
@@ -535,7 +536,7 @@ def vendedor_envioclientenuevo():
                 return jsonify(idautorizacion=idautorizacion, otroasignado=1)
             else:
                 return jsonify(idautorizacion=idautorizacion, otroasignado=0)
-    else:
+    else: # o sea es un cliente nuevo
         sin_extension = 1
         cuota_maxima = var_sistema['cuota_basica']
         direccion_cliente = d['calle']+d['num']
@@ -610,7 +611,7 @@ def vendedor_getlistadodatosvendedor():
         vdor = 816
     if current_user.email == var_sistema['835']:
         vdor = 835
-    logging.warning(f"current {current_user.email, var_sistema['816'], current_user.email==var_sistema['816']}")
+    # logging.warning(f"current {current_user.email, var_sistema['816'], current_user.email==var_sistema['816']}")
     # vdor = 816
     agrupar = var_sistema["agrupar"+str(vdor)]
     listadodatos = pgdict(con, f"select datos.id, fecha, fecha_visitar,\
@@ -754,14 +755,20 @@ def vendedor_mudodato(iddato):
     elif current_user.email == var_sistema['835']:
         vdor = 835
     con = get_con()
+    idcliente = pgonecolumn(con, f"select idcliente from datos where id={iddato}")
     upd = f"update datos set resultado=5, fecha_definido=current_timestamp()\
     where id = {iddato}"
     ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
     values(curdate(),curtime(),{vdor},{iddato},5,0)"
+    updcliente = f"update clientes set mudo=1 where id={idcliente}"
+    inscomentario = f"insert into comentarios(idcliente, ingreso, comentario) \
+    values({idcliente},'{current_user.email}','puesto como mudado por vendedor {vdor}')"
     cur = con.cursor()
     try:
         cur.execute(upd)
         cur.execute(ins)
+        cur.execute(updcliente)
+        cur.execute(inscomentario)
     except mysql.connector.Error as _error:
        con.rollback()
        error = _error.msg
@@ -770,6 +777,7 @@ def vendedor_mudodato(iddato):
        con.commit()
        con.close()
        log(upd)
+       log(updcliente)
        return 'ok'
 
 
@@ -793,11 +801,14 @@ def vendedor_falleciodato(iddato):
     values(curdate(),curtime(),{vdor},{iddato},6,0)"
     updcli = f"update clientes set zona='-FALLECIDOS', modif_vdor=1 where id=\
     {idcliente}"
+    inscomentario = f"insert into comentarios(idcliente, ingreso, comentario) \
+    values({idcliente},'{current_user.email}','puesto como fallecido por vendedor {vdor}')"
     cur = con.cursor()
     try:
         cur.execute(upd)
         cur.execute(ins)
         cur.execute(updcli)
+        cur.execute(inscomentario)
     except mysql.connector.Error as _error:
        con.rollback()
        error = _error.msg
@@ -1024,6 +1035,7 @@ def vendedor_pasarventa():
         if str(ultinsvta)!=f"{cc}{ic}{p}{d['primera']}{d['idcliente']}{d['id']}{listart}":
             cur.execute(insvis)
             cur.execute(insvta)
+            con.commit()
 
             idvta = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
             # lo siguiente ha sido trasladado al trigger ventas_ins_clientes
@@ -1045,6 +1057,7 @@ def vendedor_pasarventa():
                 log(ins)
             inslog = f"update variables set valor='{cc}{ic}{p}{d['primera']}{d['idcliente']}{d['id']}{listart}' where id=13"
             cur.execute(inslog)
+            con.commit() # pruebo con hacer commit instantaneo de la variable que quizas no sea leida pq no se hizo el commit.
         else:
             logging.warning(f"duplicacion de venta {ultinsvta} Dara cod 401")
             return make_response('error de duplicacion de venta',401)

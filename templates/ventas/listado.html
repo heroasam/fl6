@@ -25,6 +25,7 @@
       <tr>
         <th></th>
         <th></th>
+        <th></th>
         <th>idvta</th>
         <th>fecha</th>
         <th>cc</th>
@@ -38,11 +39,13 @@
         <th>art</th>
         <th x-show="0">count</th>
         <th></th>
+        <th>idcliente</th>
       </tr>
     </thead>
     <tbody>
       <template x-for="item in listadoVentas">
         <tr :class="item.count>0?'deudora':'nodeudora'">
+          <td><a :href="'/buscador/interno/'+item.dni">Ver</a></td>
           <td><i class="fa fa-times" aria-hidden="true" @click="borrarVenta(item.id)"></td>
             <td><i class="fa fa-pencil" aria-hidden="true" @click="editarVenta(item.id)"></td>
               <td x-text="item.id"></td>
@@ -62,6 +65,7 @@
                 <span class="tag is-danger" x-show="item.parcial">Dev. Parcial</span>
                 <span class="tag is-danger" x-show="item.cambio">Cambio</span>
               </td>
+              <td x-text="item.idcliente"></td>
         </tr>
       </template>
     </tbody>

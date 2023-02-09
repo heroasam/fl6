@@ -85,6 +85,7 @@
                       this.listaFechas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                       let vdores = new Set(this.listaFechas.map(row=>row.vdor))
                       this.listaVendedores = Array.from(vdores)
+                      this.listaFechas.reverse()
              })
          },
          expandChildren(fecha){

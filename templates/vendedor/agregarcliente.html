@@ -59,7 +59,7 @@
                  pattern="(\d){4,8}$" :class="darkTheme?'input-dark':''">
           <input type="text" x-model="cliente.arts" placeholder="Articulos que va a comprar" size="60" class="input"
                  required :class="darkTheme?'input-dark':''">
-          <button class="button is-info" @click="validarClienteNuevo()">Pedir Autorizacion</button>
+          <button class="button is-info" @click="validarClienteNuevo()" id="buttonPedirAutorizacion">Pedir Autorizacion</button>
           <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
 
 

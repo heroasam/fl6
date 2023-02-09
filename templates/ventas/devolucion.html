@@ -125,7 +125,7 @@
         </div>
       </div>
     </div>
-    <button class="button is-danger" @click="procesarDevolucion">Procesar Devolucion</button>
+    <button class="button is-danger" @click="validarDevolucion">Procesar Devolucion</button>
 
     <!-- modal bulma -->
     <div class="modal" id="modal-add">
@@ -222,6 +222,37 @@
                         this.Arts.unshift('') // pongo un articulo vacio adelante para obligar a seleccionar
 		            })
 	       },
+           validarDevolucion(){
+               if(this.idvta==''){
+                   msgError('Error','No ingreso idvta')
+                   return
+               }
+               if(this.fechadev==''){
+                   msgError('Error','No ingreso fecha de devolucion')
+                   return
+               }
+               if(this.cobr==''){
+                   msgError('Error','No ingreso el cobrador que busco la devolucion')
+                   return
+               }
+               if(this.comprdejado==''){
+                   msgError('Error','No ingreso el comprobante dejado')
+                   return
+               }
+               if(this.totparcial==''){
+                   msgError('Error','No ingreso el tipo de devolucion: total, parcial, cambio')
+                   return
+               }
+               if(this.cc==''){
+                   msgError('Error','No ingreso la cantidad de cuotas')
+                   return
+               }
+               if(this.imp==''){
+                   msgError('Error','No ingreso el importe de la cuota que quedara')
+                   return
+               }
+               this.procesarDevolucion()
+           },
 	       procesarDevolucion(){
                data={
 			       idvta:this.idvta,

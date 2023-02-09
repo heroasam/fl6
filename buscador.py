@@ -906,6 +906,17 @@ def buscador_pedirlistagarantizados(id):
     return jsonify(listagarantizados=listagarantizados)
 
 
+@buscador.route('/buscador/pedirlistadevoluciones/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_pedirlistadevoluciones(id):
+    con = get_con()
+    idvtas = listsql(pglflat(con, f"select id from ventas where idcliente={id}"))
+    listadevoluciones = pgdict(con, f"select * from devoluciones where idvta in {idvtas}")
+    print(listadevoluciones)
+    return jsonify(listadevoluciones=listadevoluciones)
+
+
 @buscador.route('/buscador/toggleeditado/<int:id>')
 @login_required
 @check_roles(['dev','gerente','vendedor'])

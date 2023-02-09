@@ -496,6 +496,33 @@
       </table>
     </div>
   </div>
+  <div class="columns">
+    <div class="column is-10">
+      <span class="tag is-large" x-show="verCard && listaDevoluciones.length">Devoluciones</span>
+      <table class="table noselect is-narrow is-striped" x-show="verCard && listaDevoluciones.length" id="table-devoluciones">
+        <thead>
+          <tr>
+            <th>fechadev</th>
+            <th>totparc</th>
+            <th>idvta</th>
+            <th>log</th>
+            <th>cobr</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="item in listaDevoluciones">
+          <tr>
+            <td x-text="item.fechadev"></td>
+            <td x-text="item.totparc"></td>
+            <td x-text="item.idvta"></td>
+            <td x-text="item.log"></td>
+            <td x-text="item.cobr"></td>
+          </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+  </div>
   <!-- MODALES -->
   <!-- bulma-modal edicion-pmo-vto -->
   <div class="modal" id="modal-edicion-pmovto">
@@ -821,6 +848,7 @@
          listaBusquedasRecientes:[],
          listaGarantizados:[],
          listamsgs:[],
+         listaDevoluciones:[],
          Vtos:{},
          buscar:'',
 	     buscar1:'',
@@ -973,6 +1001,7 @@
                       this.pedirComentarios(idcliente)
                       this.pedirLogCambioDireccion(idcliente)
                       this.pedirListaGarantizados(idcliente)
+                      this.pedirListaDevoluciones(idcliente)
                   })
          },
          obtenerVentasCanceladas(idcliente){
@@ -1012,6 +1041,13 @@
                       this.listaGarantizados = res.data.listagarantizados
                       this.listaGarantizados.map(row=>row.ultpago=dayjs.utc(row.ultpago).format('YYYY-MM-DD'))
              })
+         },
+         pedirListaDevoluciones(id){
+             axios.get('/buscador/pedirlistadevoluciones/'+id)
+                  .then(res=>{
+                      this.listaDevoluciones = res.data.listadevoluciones
+                      this.listaDevoluciones.map(row=>row.fechadev=dayjs.utc(row.fechadev).format('YYYY-MM-DD'))
+                  })
          },
          hacerCuotas(){
              /* id,fecha,cc2,ic3,p4,idvdor,saldo6,comprado,pp8,devuelta,condonada,cnt,art,pagado13,primera14, */

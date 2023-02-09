@@ -69,6 +69,8 @@
                this.pedirAutorizacion();
            },
            pedirAutorizacion(){
+               idButton = document.getElementById('buttonPedirAutorizacion')
+               idButton.disabled=true
                axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
                // nueva ruta para /vendedor/envioclientenuevo pEmPj7NAUn0Odsru4aL2BhlOu
                axios.post('/pEmPj7NAUn0Odsru4aL2BhlOu',this.cliente)
@@ -297,13 +299,15 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                                                                      msgSuccess('WhatsApp editado correctamente');
                                                                  })
                                                                  .catch(error=>{
-                                                                     msgerror('Error. No se hizo la edicion');
+                                                                     msgError('Error. No se hizo la edicion');
                                                                  })
          },
          venderDato(iddato){
              //recargamos el Dato desde el servidor para asegurarnos ultimos valores
              // nueva ruta para /vendedor/getdato
              // pnZWxv9Nicwt6TQ6zxohzvats
+             idButton = document.getElementById('buttonPasarVenta')
+             idButton.disabled=false
              axios.get('/pnZWxv9Nicwt6TQ6zxohzvats/'+iddato)
                   .then(res=>{
                       this.Dato=res.data.dato;
@@ -334,30 +338,52 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                   })
          },
          mudoDato(iddato){
-             // nueva ruta para /vendedor/mudodato
-             // /gJUmonE8slTFGZqSKXSVwqPJ1
-             axios.get('/gJUmonE8slTFGZqSKXSVwqPJ1/'+iddato)
-                  .then(res=>{
-                      msgSuccess('Dato informado correctamente');
-                      this.getListadoDatosVendedor();
-                      this.verCard = false;
-                  })
-                  .catch(error=>{
-                      msgError('Hubo un error. El dato no se pudo procesar');
-                  })
+             Swal.fire({
+                 title: '¿Esta seguro?',
+                 text: `Se pondra como mudado el dato`,
+                 icon: 'warning',
+                 showCancelButton: true,
+                 confirmButtonColor: '#3085d6',
+                 cancelButtonColor: '#d33',
+                 confirmButtonText: 'Si, ponerlo!'
+             }).then((result) => {
+                 if (result.isConfirmed) {
+                     // nueva ruta para /vendedor/mudodato
+                     // /gJUmonE8slTFGZqSKXSVwqPJ1
+                     axios.get('/gJUmonE8slTFGZqSKXSVwqPJ1/'+iddato)
+                         .then(res=>{
+                             msgSuccess('Dato informado correctamente');
+                             this.getListadoDatosVendedor();
+                             this.verCard = false;
+                         })
+                         .catch(error=>{
+                             msgError('Hubo un error. El dato no se pudo procesar');
+                         })
+                 }})
          },
          fallecioDato(iddato){
-             //nueva ruta para /vendedor/falleciodato
-             // /sLTFCMArYAdVsrEgwsz7utyRi
-             axios.get('/sLTFCMArYAdVsrEgwsz7utyRi/'+iddato)
-                  .then(res=>{
-                      msgSuccess('Dato informado correctamente');
-                      this.getListadoDatosVendedor();
-                      this.verCard = false;
-                  })
-                  .catch(error=>{
-                      msgError('Hubo un error. El dato no se pudo procesar');
-                  })
+              Swal.fire({
+                  title: '¿Esta seguro?',
+                  text: `Se pondra como fallecido el dato`,
+                  icon: 'warning',
+                  showCancelButton: true,
+                  confirmButtonColor: '#3085d6',
+                  cancelButtonColor: '#d33',
+                  confirmButtonText: 'Si, ponerlo!'
+              }).then((result) => {
+                  if (result.isConfirmed) {
+                      //nueva ruta para /vendedor/falleciodato
+                      // /sLTFCMArYAdVsrEgwsz7utyRi
+                      axios.get('/sLTFCMArYAdVsrEgwsz7utyRi/'+iddato)
+                          .then(res=>{
+                              msgSuccess('Dato informado correctamente');
+                              this.getListadoDatosVendedor();
+                              this.verCard = false;
+                          })
+                          .catch(error=>{
+                              msgError('Hubo un error. El dato no se pudo procesar');
+                          })
+                  }})
          },
          fecharDato(iddato){
              toggleModal("modal-fechar-dato");
@@ -385,7 +411,12 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
          validarDni(dni){
              //nueva ruta para /vendedor/validardni
              // /fc3vpQG6SzEH95Ya7kTJPZ48M
-             datos = {dni, id: this.Dato.idcliente};
+             datos = {dni:dni, id: this.Dato.idcliente};
+             if(dni==undefined) {
+                 console.log( 'dni inexistente')
+                 return
+             }
+             console.log( datos)
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
              axios.post('/fc3vpQG6SzEH95Ya7kTJPZ48M',datos)
                                                                  .then(res=>{
@@ -502,6 +533,8 @@ Quedo a la espera. Gracias.`;
                  msgError('La venta excede la cuota maxima aprobada');
                  return;
              }
+             idButton = document.getElementById('buttonPasarVenta')
+             idButton.disabled=true
              this.Dato.arts = this.listaArtComprados;
              this.Dato.primera = this.Venta.primera;
              this.Dato.cuota = this.sumaCuota;

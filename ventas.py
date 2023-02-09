@@ -218,7 +218,7 @@ def ventas_getarticulos():
 @check_roles(['dev','gerente','admin'])
 def ventas_getlistado():
     con = get_con()
-    listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count, dnigarante,devuelta,parcial,cambio from ventas where pp=0 order by id desc limit 100")
+    listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count, dnigarante,devuelta,parcial,cambio,idcliente,(select dni from clientes where id=idcliente) as dni from ventas where pp=0 order by id desc limit 100")
     con.close()
     return jsonify(listado=listado)
 
@@ -749,7 +749,7 @@ def ventas_devolucion_borrararticulo(id):
     if iddev:
         stmlog = f"update devoluciones set log=concat(log,' devuelto:{cnt}-{art}') where id={iddev}"
     else: # no hay un registro todavia de devoluciones
-        stmlog = f"insert into devoluciones(idvta,log) values({idvta},'agrego:{cnt}-{art}')"
+        stmlog = f"insert into devoluciones(idvta,log) values({idvta},'devuelto:{cnt}-{art}')"
     cur = con.cursor()
     cur.execute(upd)
     cur.execute(stmlog)
@@ -777,11 +777,14 @@ def ventas_agregararticulo():
     # en este momento puede que haya un registro en tabla devolucion. Por lo que hay
     # que hacer una verificacion primero para ver si hay que hacer un upd o ins.
     iddev = pgonecolumn(con,f"select id from devoluciones where idvta={idvta}")
+    print(iddev)
     if iddev:
         stmlog = f"update devoluciones set log=concat(log,' agrego:{cnt}-{art}') where id={iddev}"
+        print(stmlog)
     else: # no hay un registro todavia de devoluciones
         stmlog = f"insert into devoluciones(idvta,log) values({idvta},'agrego:{cnt}-{art}')"
     cur.execute(stmlog)
+    con.commit()
     log(ins)
     con.close()
     return 'ok'
