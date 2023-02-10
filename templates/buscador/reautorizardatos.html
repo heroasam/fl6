@@ -227,14 +227,16 @@
                       this.listadoAutorizados = res.data.listadoautorizados
                       this.listadoAutorizados.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                       this.listadoAutorizados.map(row=>row.fecha_visitar=dayjs.utc(row.fecha_visitar).format('YYYY-MM-DD'))
+                      let diff = this.listadoAutorizados.filter(row=>row.diff=dayjs.utc().diff(dayjs.utc(row.fechahora),'s')-10800<61&&row.tomado==0) //pq ultimotime esta en GMT 3hs de diferencia
                       this.listadoAutorizados.map(row=>row.fechahora=dayjs.utc(row.fechahora).format('HH:mm'))
                       this.cuota_basica = res.data.cuotabasica
                       this.listadoAutorizados_ = this.listadoAutorizados
-                      this.largo = this.listadoAutorizados.length
-                      if (this.largo>this.ultlargo){
-                          this.audio.play();
-                          this.ultlargo=this.largo
-                      }
+                      /* this.largo = this.listadoAutorizados.length
+                       * if (this.largo>this.ultlargo){
+                       *     this.audio.play();
+                       *     this.ultlargo=this.largo
+                       * } */
+                      if(diff.length>0) this.audio.play()
                   })
          },
          mostrarAutorizados(idcliente){

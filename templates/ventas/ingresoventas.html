@@ -9,7 +9,7 @@
 
 {% block content %}
 
-  <div class="container" x-data="main()" x-init="getVentaHoy();setInterval(()=>{getVentaHoy()},60000)">
+<div class="container" x-data="main()" x-init="getVentaHoy();setInterval(()=>{getVentaHoy()},60000);setInterval(()=>{getListadoAutorizados()},10000)">
 
     <div class="columns flex-baseline">
       <div class="column is-6">
@@ -70,8 +70,18 @@
      return{
          listaVentasHoy:[],
          audio:new Audio("{{ url_for('static', filename='bell.ogg') }}"),
+         audioAuth:new Audio("{{ url_for('static', filename='auth.mp3') }}"),
          listaVtaVdores:{},
          totalVendido:'',
+         listadoAutorizados:[],
+         getListadoAutorizados(){
+             axios.get('/vendedor/getlistadoautorizados')
+                  .then(res=>{
+                      this.listadoAutorizados = res.data.listadoautorizados
+                      let diff = this.listadoAutorizados.filter(row=>row.diff=dayjs.utc().diff(dayjs.utc(row.fechahora),'s')-10800<61&&row.tomado==0) //pq ultimotime esta en GMT 3hs de diferencia
+                      if(diff.length>0) this.audioAuth.play()
+                  })
+         },
          getVentaHoy(){
              axios.get('/vendedor/getventashoy')
                   .then(res=>{

@@ -306,6 +306,16 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
              this.verCard = false;
          },
          abrirCliente(id){
+             idButton = document.getElementById('buttonAnularDato')
+             idButton.disabled=false
+             idButton = document.getElementById('buttonFecharDato')
+             idButton.disabled=false
+             idButton = document.getElementById('buttonNoestabaDato')
+             idButton.disabled=false
+             idButton = document.getElementById('buttonMudoDato')
+             idButton.disabled=false
+             idButton = document.getElementById('buttonFallecioDato')
+             idButton.disabled=false
              this.Dato = this.listadoDatos.filter(row=>row.idcliente==id)[0];
              this.verCard = true;
          },
@@ -348,6 +358,8 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                   })
          },
          anularDato(iddato){
+             idButton = document.getElementById('buttonAnularDato')
+             idButton.disabled=true
              // nueva ruta para /vendedor/anulardato
              // /UtVc3f6y5hfxu2dPmcrV9Y7mc
              axios.get('/UtVc3f6y5hfxu2dPmcrV9Y7mc/'+iddato)
@@ -371,6 +383,8 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                  confirmButtonText: 'Si, ponerlo!'
              }).then((result) => {
                  if (result.isConfirmed) {
+                     idButton = document.getElementById('buttonMudoDato')
+                     idButton.disabled=true
                      // nueva ruta para /vendedor/mudodato
                      // /gJUmonE8slTFGZqSKXSVwqPJ1
                      axios.get('/gJUmonE8slTFGZqSKXSVwqPJ1/'+iddato)
@@ -395,6 +409,8 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                   confirmButtonText: 'Si, ponerlo!'
               }).then((result) => {
                   if (result.isConfirmed) {
+                      idButton = document.getElementById('buttonFallecioDato')
+                      idButton.disabled=true
                       //nueva ruta para /vendedor/falleciodato
                       // /sLTFCMArYAdVsrEgwsz7utyRi
                       axios.get('/sLTFCMArYAdVsrEgwsz7utyRi/'+iddato)
@@ -409,6 +425,8 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                   }})
          },
          fecharDato(iddato){
+             idButton = document.getElementById('buttonFecharDato')
+             idButton.disabled=true
              toggleModal("modal-fechar-dato");
              this.verCard = false;
          },
@@ -426,6 +444,8 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                                                                  })
          },
          noEstabaDato(iddato){
+             idButton = document.getElementById('buttonNoestabaDato')
+             idButton.disabled=true
              // nueva ruta para /vendedor/noestabadato
              // /G9S85pbqWVEX17nNQuOOnpxvn
              axios.get('/G9S85pbqWVEX17nNQuOOnpxvn/'+iddato)
@@ -680,6 +700,8 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
              }},10)
          },
          avisarRetiroZona(){
+             idButton = document.getElementById('buttonRetiroZona')
+             idButton.disabled=true
              msgDelay("se estan enviando los mensajes...")
              let msg = `Retiro zona.`;
              let tipo = "retiro zona";

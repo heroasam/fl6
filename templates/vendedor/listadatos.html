@@ -69,11 +69,11 @@
     <h2 class="title is-4" x-text="'Cuota Maxima $'+Dato.cuota_maxima"></h2>
     <div class="buttons" x-show="!Dato.idvta">
       <button class="button is-small is-success" @click="venderDato(Dato.id)">Vender</button>
-      <button class="button is-small is-danger" @click="anularDato(Dato.id)">Anular</button>
-      <button class="button is-small is-info" @click="fecharDato(Dato.id)">Fechar</button>
-      <button class="button is-small is-warning" @click="noEstabaDato(Dato.id)">No Estaba</button>
-      <button class="button is-small is-primary" @click="mudoDato(Dato.id)">Mudo</button>
-      <button class="button is-small is-black" @click="fallecioDato(Dato.id)">Fallecio</button>
+      <button class="button is-small is-danger" @click="anularDato(Dato.id)" id="buttonAnularDato">Anular</button>
+      <button class="button is-small is-info" @click="fecharDato(Dato.id)" id="buttonFecharDato">Fechar</button>
+      <button class="button is-small is-warning" @click="noEstabaDato(Dato.id)" id="buttonNoestabaDato">No Estaba</button>
+      <button class="button is-small is-primary" @click="mudoDato(Dato.id)" id="buttonMudoDato">Mudo</button>
+      <button class="button is-small is-black" @click="fallecioDato(Dato.id)" id="buttonFallecioDato">Fallecio</button>
     </div>
 
   </div>
