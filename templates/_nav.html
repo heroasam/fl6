@@ -25,7 +25,7 @@
 
       <!-- dropdown-vendedor -->
       <div class="navbar-item has-dropdown" :class="verDropdownVendedor?'is-active':''" x-show="['gerente','dev'].includes(rol)">
-        <a class="navbar-link is-arrowless" @click="verDropdownVendedor=!verDropdownVendedor;verDropdownVentas=false;verDropdownUtil=false;verDropdownStock=false;verDropdownPagos=false;verDropdownThemes=false;verDropdownFichas=false;verDropdownAuditoria=false">
+        <a class="navbar-link is-arrowless" @click="verDropdownVendedor=!verDropdownVendedor;verDropdownVentas=false;verDropdownUtil=false;verDropdownStock=false;verDropdownPagos=false;verDropdownThemes=false;verDropdownFichas=false;verDropdownAuditoria=false;verDropdownClientes=false">
           Vendedor
         </a>
         <div class="navbar-dropdown" x-show="verDropdownVendedor">

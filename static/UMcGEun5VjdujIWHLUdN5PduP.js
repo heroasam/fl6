@@ -30,7 +30,7 @@ function nop(pesos) {
     }
 }
 
-const totalizar_tabla = (tableId, nivel=2) => {
+const totalizar_tabla = (tableId, nivel=2,pesos=0) => {
     let table = document.getElementById(tableId);
     let tbody = table.querySelector('tbody');
     let rowsArray = Array.from(tbody.rows);
@@ -48,7 +48,8 @@ const totalizar_tabla = (tableId, nivel=2) => {
 
     const cols = rowsArray[0].children.length; // determino la cant columnas
     for (let i = 0; i < cols; i++) {
-        $rowTotal.insertCell(i);
+        let cell = $rowTotal.insertCell(i);
+        if(pesos==1&&i>0) cell.classList.add('pesos')
     }
     $rowTotal.cells[0].innerHTML = "Total";
 

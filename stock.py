@@ -183,9 +183,9 @@ def stock_pivotcuentas():
 @check_roles(['dev','gerente'])
 def stock_retiros():
     """Pandas de retiro socios."""
-    sql="select date_format(fecha,'%Y-%m') as fecha,cuenta,imp from caja \
+    sql="select date_format(fecha,'%Y-%m') as fecha,cuenta,imp*(-1) as imp from caja \
             where cuenta like '%retiro%' and cuenta not like '%capital%' \
-            and fecha>date_sub(curdate(),interval 1 year)"
+            and fecha>'2022-09-30'"
     pd.options.display.float_format = '${:20.0f}'.format
     dat = pd.read_sql_query(sql, engine)
     dframe = pd.DataFrame(dat)

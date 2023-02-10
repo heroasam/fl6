@@ -6,8 +6,9 @@
 
 <div class="container">
 
- <p class="title is-1">Retiro Socios</p>
+  <p class="title is-1">Retiro Socios</p>
 <div  x-data="main()" x-init="getGrafico();getGraficoPie()">
+  <p class="title is-3 red" x-text="saldo>0?'Saldo a favor Papi $'+saldo:'Saldo a favor Fede $'+saldo*(-1)"></p>
   <div class="columns">
     <div class="column is-10">
         {{tbl|safe}}
@@ -38,15 +39,18 @@
  ths[5].innerText = "Bancos"
  ths[6].innerText = "Efectivo"
  ths[7].innerText = "Total"
+ ths[1].innerText = "Banco Fede"
+ ths[2].innerText = "Banco Papi"
  const tbody = table.querySelector('tbody')
  const arrayRows = Array.from(tbody.rows)
- arrayRows.forEach(row=>{
-     if(row.rowIndex>4){
-         row.cells[5].innerText=""
-         row.cells[6].innerText=""
-         row.cells[7].innerText=""
-     }
- })
+ /* arrayRows.forEach(row=>{
+  *     if(row.rowIndex>4){
+  *         row.cells[5].innerText=""
+  *         row.cells[6].innerText=""
+  *         row.cells[7].innerText=""
+  *     }
+  * }) */
+ totalizar_tabla('retiros',1,1)
  function main(){
      return{
          totfede:'',
@@ -55,6 +59,7 @@
          totalpapi:'',
          retirosocios:'',
          index:'',
+         saldo:'',
          getGrafico(){
              this.totfede = {{totfede|tojson}}
              this.totpapi = {{totpapi|tojson}}
@@ -65,6 +70,7 @@
              this.totalpapi = this.totpapi.map(a=>Number.isNaN(a)?0:a).reduce((a,b)=>(a+b))
              totalretiros = this.totalfede + this.totalpapi
              this.retirosocios = [this.totalfede/totalretiros*100, this.totalpapi/totalretiros*100]
+             this.saldo = this.totalfede - this.totalpapi
 
              const canvas = document.getElementById('grafico-estadistica').getContext('2d');
              const labels = this.index;
@@ -107,8 +113,8 @@
                  type: 'doughnut',
                  data: {
                      labels: [
-                         '% Papi',
                          '% Fede',
+                         '% Papi',
                      ],
                      datasets: [{
                          label: 'Porcentaje Retiro Socios',
