@@ -1135,12 +1135,12 @@ def vendedor_getvisitasvdor():
     cast(hora as char) as hora, visitas.vdor as vdor, result, \
     visitas.monto_vendido as monto_vendido, idcliente,nombre,calle,num,clientes.zona as zona \
     from visitas,datos,clientes where visitas.iddato=datos.id and \
-    clientes.id=datos.idcliente and visitas.vdor={vdor} order by \
+    clientes.id=datos.idcliente and visitas.vdor={vdor} and visitas.fecha>date_sub(curdate(),interval 6 day) order by \
     visitas.fecha desc,hora")
 
     fechasvisitas = pgdict(con,f"select visitas.fecha as fecha, visitas.vdor \
     as vdor, count(*) as cnt, sum(visitas.monto_vendido) as monto_vendido \
-    from visitas,datos where visitas.iddato=datos.id and visitas.vdor={vdor} \
+    from visitas,datos where visitas.iddato=datos.id and visitas.vdor={vdor} and visitas.fecha>date_sub(curdate(),interval 6 day) \
     group by visitas.fecha,visitas.vdor order by visitas.fecha,visitas.vdor \
     desc")
     return jsonify(visitasvendedor=visitasvendedor, fechasvisitas=fechasvisitas)

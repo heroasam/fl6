@@ -159,7 +159,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                         this.listaFechas = res.data.fechasvisitas;
                         this.listaFechas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'));
                         this.listaFechas_ = this.listaFechas;
-
+                        this.listaFechas_.reverse()
                     })
            },
            expandChildren(fecha){
