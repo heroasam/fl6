@@ -1269,12 +1269,13 @@ def vendedor_getcomisionesvendedor(vdor):
     comisiones = pgdict(con, f"select date(fecha_definido) as fecha,monto_vendido*{comision} \
     as com,idvta as id from datos where vendedor={vdor} and com_pagada=0 \
     and monto_vendido>0 order by date(fecha_definido)")
-    devoluciones = pgdict(con, f"select fecha,monto_devuelto*{comision}*(-1) \
+    devoluciones = pgdict(con, f"select date(fecha_definido) as fecha,monto_devuelto*{comision}*(-1) \
     as com, idvta as id from datos where vendedor={vdor} and com_pagada_dev=0 \
-    and monto_devuelto!=0 order by fecha")
+    and monto_devuelto!=0 order by date(fecha_definido)")
     fechascomisiones = pgdict(con, f"select date(fecha_definido) as fecha,  \
-    count(*) as cnt,sum(monto_vendido*{comision}) as comision from datos where \
-    resultado=1 and com_pagada=0 and vendedor={vdor} group by \
+    count(*) as cnt,sum(case when com_pagada=0 then monto_vendido*{comision} \
+    when com_pagada=1 then 0 end)+sum(monto_devuelto*{comision}*(-1)) as comision from datos where \
+    ((resultado=1 and com_pagada=0) or (monto_devuelto>0 and com_pagada_dev=0)) and vendedor={vdor} group by \
     date(fecha_definido) order by date(fecha_definido) desc")
     if devoluciones:
         comisiones = comisiones+devoluciones
