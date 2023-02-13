@@ -32,7 +32,12 @@
      <button class="button is-small is-warning" @click="filtraDatosPorStatus('todos');cntSeleccionados()">Todos</button>
      <button class="button is-small is-black" @click="filtraDatosPorVendedor(816);cntSeleccionados()">816</button>
      <button class="button is-small is-black" @click="filtraDatosPorVendedor(835);cntSeleccionados()">835</button>
-   </div>
+     	<div class="grid-buscar ml-3 mr-3 mt-2">
+      <input  placeholder="Nombre" class="input" x-model="buscar" @keyup.enter="buscarDato"
+		      @focus="buscar=''"  :class="darkTheme?'input-dark':''">
+      <button type="button" @click="buscarDato" class="button is-primary">Buscar</button>
+	    </div>
+  </div>
   <table class="table table-striped " id="table">
     <thead>
       <tr>
@@ -174,6 +179,7 @@
          cntDatos:'',
          nosabana:0,
          sin_extension:0,
+         buscar:'',
          getListadoDatos(){
              axios.get('/vendedor/getlistadodatosenviados')
                   .then(res=>{
@@ -185,6 +191,9 @@
                       this.listaVdores = res.data.vdores
                       this.cntDatos = this.cntSeleccionados()
                   })
+         },
+         buscarDato(){
+             this.listadoDatos_ = this.listadoDatos.filter(row=>row.nombre.toLowerCase().includes(this.buscar.toLowerCase()))
          },
          editarDato(id){
              this.Datos = this.listadoDatos.filter(row=>row.id==id)[0]
@@ -205,7 +214,7 @@
              })
          },
          filtraDatosPorVendedor(vdor){
-             this.listadoDatos_ = this.listadoDatos_.filter(row=>row.vendedor==vdor&&row.resultado==null)
+             this.listadoDatos_ = this.listadoDatos_.filter(row=>row.vendedor==vdor)
          },
          filtraDatosPorStatus(status){
              switch(status){
