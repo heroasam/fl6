@@ -23,7 +23,7 @@
 		  <span class="tag is-large is-black m-0">Comision Total</span>
 		  <span class="tag is-large is-light m-0" x-text="'$'+totalComision"></span>
 	     </div>
-         <table class="table is-narrow" id="table">
+         <table class="table is-narrow" id="comisiones">
                 <thead>
                   <tr>
                     <th></th>
@@ -81,6 +81,8 @@
                   })
          },
          getComisionesVdor(vdor){
+             limpiarTabla('comisiones')
+             this.listaComisiones_ = []
              this.vendedor = vdor
              axios.get('/vendedor/getcomisionesvendedor/'+vdor)
                   .then(res=>{

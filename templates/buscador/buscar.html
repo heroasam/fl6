@@ -395,7 +395,7 @@
 			<td data-titulo="monto" x-text="venta.comprado" class="pesos"></td>
 			<td data-titulo="actual" x-text="parseInt(venta.comprado*listaInflacion[dayjs(venta.fecha).format('YYYYM')])?
                              parseInt(venta.comprado*listaInflacion[dayjs(venta.fecha).format('YYYYM')]):venta.comprado"
-                class="red pesos"></td>
+                class="red pesos" style="min-width:80px;"></td>
 			<td data-titulo="vdor" x-text="venta.idvdor"></td>
 			<td data-titulo="arts" x-text="venta.cnt+'/'+venta.art"></td>
 			<td x-show="venta.pcondo" x-text="'CUENTA INCLUIDA EN UN PLAN DE PAGOS'" class="tag is-small is-info"></td>
@@ -496,6 +496,7 @@
       </table>
     </div>
   </div>
+  <!-- tabla devoluciones -->
   <div class="columns">
     <div class="column is-10">
       <span class="tag is-large" x-show="verCard && listaDevoluciones.length">Devoluciones</span>
@@ -523,7 +524,31 @@
       </table>
     </div>
   </div>
-  <!-- MODALES -->
+  <!-- tabla visitas -->
+   <div class="columns">
+    <div class="column is-10">
+      <span class="tag is-large" x-show="verCard && listaVisitas.length">Visitas Vendedor</span>
+      <table class="table noselect is-narrow is-striped" x-show="verCard && listaVisitas.length" id="table-visitas">
+        <thead>
+          <tr>
+            <th>fecha</th>
+            <th>vdor</th>
+            <th>resultado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="item in listaVisitas">
+          <tr>
+            <td x-text="item.fecha"></td>
+            <td x-text="item.vdor"></td>
+            <td x-text="item.result"></td>
+          </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+   </div>
+   <!-- MODALES -->
   <!-- bulma-modal edicion-pmo-vto -->
   <div class="modal" id="modal-edicion-pmovto">
     <div class="modal-background"></div>
@@ -849,6 +874,7 @@
          listaGarantizados:[],
          listamsgs:[],
          listaDevoluciones:[],
+         listaVisitas:[],
          Vtos:{},
          buscar:'',
 	     buscar1:'',
@@ -1002,6 +1028,7 @@
                       this.pedirLogCambioDireccion(idcliente)
                       this.pedirListaGarantizados(idcliente)
                       this.pedirListaDevoluciones(idcliente)
+                      this.pedirVisitas(idcliente)
                   })
          },
          obtenerVentasCanceladas(idcliente){
@@ -1048,6 +1075,13 @@
                       this.listaDevoluciones = res.data.listadevoluciones
                       this.listaDevoluciones.map(row=>row.fechadev=dayjs.utc(row.fechadev).format('YYYY-MM-DD'))
                   })
+         },
+         pedirVisitas(id){
+             axios.get('/buscador/pedirlistavisitas/'+id)
+                  .then(res=>{
+                      this.listaVisitas = res.data.listavisitas
+                      //this.listaVisitas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+             })
          },
          hacerCuotas(){
              /* id,fecha,cc2,ic3,p4,idvdor,saldo6,comprado,pp8,devuelta,condonada,cnt,art,pagado13,primera14, */

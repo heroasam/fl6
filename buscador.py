@@ -917,6 +917,26 @@ def buscador_pedirlistadevoluciones(id):
     return jsonify(listadevoluciones=listadevoluciones)
 
 
+@buscador.route('/buscador/pedirlistavisitas/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_pedirlistavisitas(id):
+    con = get_con()
+    listavisitas = pgdict(con, f"select concat(visitas.fecha,'    ',\
+    visitas.hora) as fecha, vdor,\
+                    case result when 1 then 'venta' \
+                                when 2 then 'anulado' \
+                                when 3 then 'no estaba' \
+                                when 4 then 'fechado' \
+                                when 5 then 'mudo' \
+                                when 6 then 'fallecio' \
+                                when 7 then 'devolucion' \
+                                when 8 then 'rechazado' end as result \
+    from visitas,datos where datos.id=visitas.iddato and idcliente = {id}")
+    print(listavisitas)
+    return jsonify(listavisitas=listavisitas)
+
+
 @buscador.route('/buscador/toggleeditado/<int:id>')
 @login_required
 @check_roles(['dev','gerente','vendedor'])
