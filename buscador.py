@@ -4,10 +4,10 @@ import logging
 import mysql.connector
 from flask import Blueprint, render_template, jsonify, make_response, request,\
     send_file
-from flask_login import login_required
+from flask_login import login_required, current_user
 import simplejson as json
 from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
-    pglflat, log_busqueda, listsql
+    pglflat, log_busqueda, listsql, actualizar
 from formularios import intimacion, libredeuda, ficha, recibotransferencia
 from con import get_con, log, check_roles
 
@@ -99,7 +99,6 @@ def buscar_interno_buscar(dni):
     """Anexo buscador para ver-cuenta desde otra pagina."""
     if len(str(dni))<7:
         dni = obtenerdni(dni)
-        print('ok',len(str(dni)),dni)
     return render_template('/buscador/buscar.html', dnilistado=dni)
 
 
@@ -643,16 +642,26 @@ def buscar_generarplandepagos():
     values('{d['fecha']}',{d['cc']},{d['ic']},{d['p']},'{d['primera']}' \
     ,1,10,{idcliente},1,'Plan de Pagos')"
     cur = con.cursor()
+    deuda = pgonecolumn(con, f"select deuda from clientes where id={idcliente}")
+    pmovto = pgonecolumn(con, f"select date_format(pmovto,'%Y%c')  from clientes where id={idcliente}")
+    saldoact = actualizar(deuda,pmovto)
     try:
         if stm is not None:
             cur.execute(stm)
         cur.execute(upd)
         cur.execute(ins)
+        idvta = pgonecolumn(con,  "SELECT LAST_INSERT_ID()")
+        insplan = f"insert into planes(fecha,idcliente,user,cc,ic,p,primera,\
+        saldoact,saldo,idvta) values(current_date(),{idcliente},\
+        '{current_user.email}',{d['cc']},{d['ic']},{d['p']},'{d['primera']}',\
+        {saldoact},{int(d['cc'])*int(d['ic'])},{idvta})"
+        cur.execute(insplan)
     except mysql.connector.Error as _error:
         if stm is not None:
             logging.warning(stm)
         logging.warning(ins)
         logging.warning(upd)
+        logging.warning(insplan)
         con.rollback()
         error = _error.msg
         logging.warning(error)
@@ -661,6 +670,7 @@ def buscar_generarplandepagos():
         con.commit()
         log(upd)
         log(ins)
+        log(insplan)
         if stm is not None:
             log(stm)
         con.close()
@@ -711,7 +721,7 @@ def buscador_libredeuda():
     deuda = d['deuda']
     idcliente = d['idcliente']
     libredeuda(con, dni)
-    if wapp and deuda == 0:
+    if wapp and deuda <= 0:
         response = send_file_whatsapp(
             idcliente, f"https://www.fedesal.lol/pdf/libredeuda{dni}.pdf", wapp)
         return jsonify(response)
@@ -913,7 +923,6 @@ def buscador_pedirlistadevoluciones(id):
     con = get_con()
     idvtas = listsql(pglflat(con, f"select id from ventas where idcliente={id}"))
     listadevoluciones = pgdict(con, f"select * from devoluciones where idvta in {idvtas}")
-    print(listadevoluciones)
     return jsonify(listadevoluciones=listadevoluciones)
 
 
@@ -933,7 +942,6 @@ def buscador_pedirlistavisitas(id):
                                 when 7 then 'devolucion' \
                                 when 8 then 'rechazado' end as result \
     from visitas,datos where datos.id=visitas.iddato and idcliente = {id}")
-    print(listavisitas)
     return jsonify(listavisitas=listavisitas)
 
 

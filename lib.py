@@ -528,3 +528,13 @@ def log_login(email, status, password=None):
         else:
             log_file.write(str(date_time)+' '+str(email)+' '+str(status))
         log_file.close()
+
+
+def actualizar(monto, fecha):
+    con = get_con()
+    ultimo_valor = pgonecolumn(con, "select indice from inflacion order \
+            by id desc limit 1")
+    indice = pgonecolumn(con, f"select indice from inflacion \
+            where concat(year,month)='{fecha}'")
+    actualizada = ultimo_valor/indice * int(monto)
+    return actualizada
