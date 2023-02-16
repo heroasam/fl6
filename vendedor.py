@@ -56,6 +56,8 @@ def calculo_cuota_maxima(idcliente):
             fecha = venta['fecha']
             indice = pgonecolumn(con, f"select indice from inflacion \
             where concat(year,month)='{fecha}'")
+            if not indice:
+                indice = ultimo_valor
             actualizada = ultimo_valor/indice * cuota
             cuotas_actualizadas.append(actualizada)
         cuota_actualizada = max(cuotas_actualizadas)

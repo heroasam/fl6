@@ -548,6 +548,40 @@
       </table>
     </div>
    </div>
+    <!-- tabla planes -->
+   <div class="columns">
+    <div class="column is-10">
+      <span class="tag is-large" x-show="verCard && listaPlanes.length">Planes de Pago</span>
+      <table class="table noselect is-narrow is-striped" x-show="verCard && listaPlanes.length" id="table-planes">
+        <thead>
+          <tr>
+            <th>fecha</th>
+            <th>cc</th>
+            <th>ic</th>
+            <th>p</th>
+            <th>primera</th>
+            <th>total</th>
+            <th>saldoact</th>
+            <th>user</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="item in listaPlanes">
+          <tr>
+            <td x-text="item.fecha"></td>
+            <td x-text="item.cc"></td>
+            <td class="pesos" x-text="item.ic"></td>
+            <td x-text="item.p"></td>
+            <td x-text="item.primera"></td>
+            <td class="pesos" x-text="item.saldo"></td>
+            <td class="pesos" x-text="item.saldoact"></td>
+            <td x-text="item.user"></td>
+          </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+   </div>
    <!-- MODALES -->
   <!-- bulma-modal edicion-pmo-vto -->
   <div class="modal" id="modal-edicion-pmovto">
@@ -875,6 +909,7 @@
          listamsgs:[],
          listaDevoluciones:[],
          listaVisitas:[],
+         listaPlanes:[],
          Vtos:{},
          buscar:'',
 	     buscar1:'',
@@ -1029,6 +1064,7 @@
                       this.pedirListaGarantizados(idcliente)
                       this.pedirListaDevoluciones(idcliente)
                       this.pedirVisitas(idcliente)
+                      this.pedirPlanes(idcliente)
                   })
          },
          obtenerVentasCanceladas(idcliente){
@@ -1081,6 +1117,14 @@
                   .then(res=>{
                       this.listaVisitas = res.data.listavisitas
                       //this.listaVisitas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+             })
+         },
+         pedirPlanes(id){
+             axios.get('/buscador/pedirlistaplanes/'+id)
+                  .then(res=>{
+                      this.listaPlanes = res.data.listaplanes
+                      this.listaPlanes.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      this.listaPlanes.map(row=>row.primera=dayjs.utc(row.primera).format('YYYY-MM-DD'))
              })
          },
          hacerCuotas(){

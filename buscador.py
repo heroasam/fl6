@@ -945,6 +945,15 @@ def buscador_pedirlistavisitas(id):
     return jsonify(listavisitas=listavisitas)
 
 
+@buscador.route('/buscador/pedirlistaplanes/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_pedirlistaplanes(id):
+    con = get_con()
+    listaplanes = pgdict(con, f"select * from planes where idcliente={id}")
+    return jsonify(listaplanes=listaplanes)
+
+
 @buscador.route('/buscador/toggleeditado/<int:id>')
 @login_required
 @check_roles(['dev','gerente','vendedor'])

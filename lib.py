@@ -536,5 +536,7 @@ def actualizar(monto, fecha):
             by id desc limit 1")
     indice = pgonecolumn(con, f"select indice from inflacion \
             where concat(year,month)='{fecha}'")
+    if not indice:
+        indice = ultimo_valor
     actualizada = ultimo_valor/indice * int(monto)
     return actualizada
