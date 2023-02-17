@@ -255,8 +255,6 @@ def buscador_deletecomentario(id):
         return 'ok'
 
 
-
-
 @buscador.route('/buscador/pedirlogcambiodireccion/<int:idcliente>')
 @login_required
 @check_roles(['dev','gerente','admin'])
@@ -312,12 +310,28 @@ def buscar_imprimirficha():
     idcliente = d['idcliente']
     ficha(con, [dni])
     con.close()
-    if wapp:
+    pattern = re.compile("\D")
+    not_valid_wapp = pattern.search(wapp)
+    logging.warning(f"/buscador/imprimirficha wapp:{wapp} idcliente:{idcliente} not_valid_wapp:{not_valid_wapp}")
+    if wapp and not not_valid_wapp:
         response = send_file_whatsapp(
             idcliente, "https://www.fedesal.lol/pdf/ficha.pdf", wapp)
         return jsonify(response=response)
     else:
-        return send_file('/home/hero/ficha.pdf')
+        return 'error',400
+
+
+@buscador.route('/buscador/imprimirfichanowapp', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscar_imprimirfichanowapp():
+    """Funcion para imprimir ficha de cliente en pantalla."""
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    dni = d['dni']
+    ficha(con, [dni])
+    con.close()
+    return send_file('/home/hero/ficha.pdf')
 
 
 @buscador.route('/buscador/togglesube/<string:dni>')
@@ -687,7 +701,10 @@ def buscador_intimar():
     idcliente = d['id']
     con = get_con()
     intimacion(con, [dni])
-    if wapp:
+    pattern = re.compile("\D")
+    not_valid_wapp = pattern.search(wapp)
+    logging.warning(f"/buscador/intimar wapp:{wapp} idcliente:{idcliente} not_valid_wapp:{not_valid_wapp}")
+    if wapp and not not_valid_wapp:
         response = send_file_whatsapp(
             idcliente, f"https://www.fedesal.lol/pdf/intimacion{dni}.pdf", wapp)
         if response == 'success':
@@ -696,7 +713,7 @@ def buscador_intimar():
             cur.execute(upd)
             con.commit()
     else:
-        response = 'sin wapp'
+        response = 'invalid'
     con.close()
     return jsonify(response=response)
 
@@ -721,10 +738,15 @@ def buscador_libredeuda():
     deuda = d['deuda']
     idcliente = d['idcliente']
     libredeuda(con, dni)
-    if wapp and deuda <= 0:
+    pattern = re.compile("\D")
+    not_valid_wapp = pattern.search(wapp)
+    logging.warning(f"/buscador/libredeuda wapp:{wapp} idcliente:{idcliente} not_valid_wapp:{not_valid_wapp}")
+    if wapp and not not_valid_wapp and deuda<=0:
         response = send_file_whatsapp(
             idcliente, f"https://www.fedesal.lol/pdf/libredeuda{dni}.pdf", wapp)
         return jsonify(response)
+    else:
+        return 'invalid',400
 
 
 @buscador.route('/buscador/libredeuda/nowapp', methods=['POST'])
@@ -819,10 +841,15 @@ def buscador_enviarrbotransferencia():
     cuenta = d['cuenta']
     idcliente = d['idcliente']
     con.close()
-    if wapp:
+    pattern = re.compile("\D")
+    not_valid_wapp = pattern.search(wapp)
+    logging.warning(f"/buscador/enviarrbotransferencia wapp:{wapp} idcliente:{idcliente} not_valid_wapp:{not_valid_wapp}")
+    if wapp and not not_valid_wapp:
         response = send_file_whatsapp(
             idcliente, f"https://www.fedesal.lol/pdf/recibotransferencia{cuenta}.pdf", wapp)
         return jsonify(response=response)
+    else:
+        return 'error',400
 
 
 @buscador.route('/buscador/enviarrbotransferencia/nowapp', methods=['POST'])
@@ -846,7 +873,10 @@ def buscador_wapp():
     idcliente = d['idcliente']
     wapp = d['wapp']
     msg = d['msg']
-    if wapp:
+    pattern = re.compile("\D")
+    not_valid_wapp = pattern.search(wapp)
+    logging.warning(f"/buscador/wapp wapp:{wapp} idcliente:{idcliente} not_valid_wapp:{not_valid_wapp}")
+    if wapp and not not_valid_wapp:
         response = send_msg_whatsapp(idcliente, wapp, msg)
         if response == 'success' and ('seven' in msg.lower()):
             con = get_con()
@@ -921,8 +951,11 @@ def buscador_pedirlistagarantizados(id):
 @check_roles(['dev','gerente','admin'])
 def buscador_pedirlistadevoluciones(id):
     con = get_con()
-    idvtas = listsql(pglflat(con, f"select id from ventas where idcliente={id}"))
-    listadevoluciones = pgdict(con, f"select * from devoluciones where idvta in {idvtas}")
+    idvtas = pglflat(con, f"select id from ventas where idcliente={id}")
+    if idvtas:
+        listadevoluciones = pgdict(con, f"select * from devoluciones where idvta in {listsql(idvtas)}")
+    else:
+        listadevoluciones = []
     return jsonify(listadevoluciones=listadevoluciones)
 
 

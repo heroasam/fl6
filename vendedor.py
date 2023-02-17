@@ -888,7 +888,8 @@ def vendedor_getlistadoautorizados():
     autorizacion where autorizacion.idcliente=clientes.id) as cnt, \
     autorizacion.idcliente from datos, autorizacion,clientes  where \
     datos.idcliente=clientes.id and autorizacion.iddato=datos.id and \
-    autorizacion.autorizado=0 and autorizacion.rechazado=0 and autorizacion.sigueigual=0")
+    autorizacion.autorizado=0 and autorizacion.rechazado=0 and autorizacion.sigueigual=0 and \
+    datos.resultado is null")
     cuotabasica = var_sistema['cuota_basica']
     return jsonify(listadoautorizados=listadoautorizados, cuotabasica=cuotabasica)
 

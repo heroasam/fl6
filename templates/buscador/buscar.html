@@ -811,7 +811,7 @@
       <section class="modal-card-body">
         <!-- Content ... -->
         <div class="block">
-          <button class="button is-primary" @click="mostrarFichaPorPantalla=true;imprimirFicha()">Imprimir en pantalla</button>
+          <button class="button is-primary" @click="mostrarFichaPorPantalla=true;imprimirFichaPantalla()">Imprimir en pantalla</button>
         </div>
         <p x-text="'Cobrador asignado: '+Cliente.asignado" x-show="Cliente.deuda"></p>
         <div class="buttons">
@@ -1221,11 +1221,20 @@
 										                                          if(res.data.response=='success') msgSuccess('WhatsApp!','Ficha enviada al cobrador');
 										                                          this.cobrEnviar = ''
 									                                          })
+                                                                              .catch(error=>{
+                                                                                  msgError('Error','El whatsapp es invalido')
+                                                                                  this.imprimirFichaPantalla()
+                                                                              })
                       })
              }else{
-                 data = {dni:this.Cliente.dni, whatsapp:"", idcliente:this.Cliente.id}
+                 this.imprimirFichaPantalla()
+             }
+         },
+         imprimirFichaPantalla(){
+             this.mostrarFichaPorPantalla = true
+             data = {dni:this.Cliente.dni, whatsapp:"", idcliente:this.Cliente.id}
                  axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-		         axios.post("/buscador/imprimirficha",data, {responseType: "blob"})
+		         axios.post("/buscador/imprimirfichanowapp",data, {responseType: "blob"})
 								                                     .then((res)=>{
                                                                          toggleModal('modal-edicion-impr-ficha')
 									                                     if (this.mostrarFichaPorPantalla) {
@@ -1234,7 +1243,6 @@
 									                                     }
 									                                     this.mostrarFichaPorPantalla = false
 								                                     })
-             }
          },
          intimarCliente(dni){
 	         data = {dni:dni, idcliente:this.Cliente.id},
@@ -1358,24 +1366,35 @@
 			                  case 'invalid': {
 				                  msgError('Error!','Whatsapp INVALIDO')
 				                  this.obtenerWappCliente()
+                                  this.emitirLibredeudaNoWapp()
 				                  break
 			                  }
 			                  case 'failed': {
 				                  msgError('Error!','Mensaje no enviado - Failed')
+                                  this.emitirLibredeudaNoWapp()
 				                  break
 			                  }
 			              }
 		              })
+                      .catch(error=>{
+                          msgError('Error!','Whatsapp INVALIDO')
+                          this.emitirLibredeudaNoWapp()
+                      })
 	         }else{
-		         axios.post('/buscador/libredeuda/nowapp',data,{responseType:"blob"})
-		              .then(res=>{
+		         this.emitirLibredeudaNoWapp()
+             }
+	     },
+         emitirLibredeudaNoWapp(){
+             console.log( "llamado a libredeudanowapp")
+             data= this.Cliente
+             axios.post('/buscador/libredeuda/nowapp',data,{responseType:"blob"})
+		          .then(res=>{
 			              let url = window.URL.createObjectURL(res.data);
 			              window.open(url);
 			              if (this.Cliente.wapp && this.Cliente.deuda>0) {
 			                  msgSuccess("Whatsapp!","No se envio el whatsapp porque todavia tiene deuda")}
 		              })
-             }
-	     },
+         },
          emitirRbo(){
 	         if(this.Cliente.deuda==0){msgError('Error!','El cliente no tiene deuda');return}
              toggleModal('modal-edicion-recibos')
@@ -1399,6 +1418,7 @@
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/buscador/generarrbotransferencia',this.Recibo)
 								                                 .then(res=>{
+                                                                     this.refreshCliente(this.Cliente.dni)
 								                                     this.Recibo.rbo = res.data.rbo
 								                                     if(this.Cliente.wapp){
 									                                     axios.post('/buscador/enviarrbotransferencia',this.Recibo)
@@ -1411,26 +1431,37 @@
 										                                              case 'invalid': {
 											                                              msgError('Error!','Whatsapp INVALIDO')
 											                                              this.obtenerWappCliente()
+                                                                                          this.enviarRboTransferenciaNoWapp()
 											                                              break
 										                                              }
 										                                              case 'failed': {
 											                                              msgError('Error!','Recibo no enviado - Failed')
+                                                                                          this.enviarRboTransferenciaNoWapp()
 											                                              break
 										                                              }
 										                                          }
 										                                          this.Recibo = {fecha:dayjs.utc().format('YYYY-MM-DD')}
-										                                          this.refreshCliente(this.Cliente.dni)
+
 									                                          })
-									                                          .catch(error=>msgError('Error!','no se pudo enviar el Recibo'))
-								                                     }else{
-									                                     axios.post('/buscador/enviarrbotransferencia/nowapp',this.Recibo,{responseType:"blob"})
+									                                          .catch(error=>{
+                                                                                  msgError('Error!','no se pudo enviar el Recibo, pero esta procesado.',10000)
+                                                                                  this.enviarRboTransferenciaNoWapp()
+
+
+								                                              })
+                                                                     }else{
+									                                     this.enviarRboTransferenciaNoWapp()
+								                                     }
+								                                 })
+								                                 .catch(error=>msgError('Error!','El recibo no se genero'))
+         },
+         enviarRboTransferenciaNoWapp(){
+             console.log( "enviando rbo transf nowapp en pantalla")
+              axios.post('/buscador/enviarrbotransferencia/nowapp',this.Recibo,{responseType:"blob"})
 									                                          .then(res=>{
 										                                          let url = window.URL.createObjectURL(res.data);
 										                                          window.open(url);
 									                                          })
-								                                     }
-								                                 })
-								                                 .catch(error=>msgError('Error!','El recibo no se genero'))
          },
          sendMsgVenta(wapp){
 	         msgDelay('Espere mientras se envia el Whatsapp')
@@ -1502,22 +1533,27 @@
 									                                         case 'invalid': {
 										                                         msgError('Error!','Whatsapp INVALIDO')
 										                                         this.obtenerWappCliente()
+                                                                                 this.intimarClienteNoWapp()
 										                                         break
 									                                         }
 									                                         case 'failed': {
 										                                         msgError('Error!','Mensaje no enviado - Failed')
+                                                                                 this.intimarClienteNoWapp()
 										                                         break
 									                                         }
 									                                     }
 								                                     }else{
-									                                     axios.get('/buscador/intimar/nowapp/'+this.Cliente.dni,{responseType:"blob"})
+                                                                         this.intimarClienteNoWapp()
+								                                     }
+								                                 })
+         },
+         intimarClienteNoWapp(){
+              axios.get('/buscador/intimar/nowapp/'+this.Cliente.dni,{responseType:"blob"})
 									                                          .then(res=>{
 										                                          let url = window.URL.createObjectURL(res.data);
 										                                          window.open(url);
 										                                          msgSuccess('Exito!','Intimacion impresa en pantalla')
 									                                          })
-								                                     }
-								                                 })
          },
          sendMsgGeneral(){
              toggleModal('modal-edicion-msg-wapp')
