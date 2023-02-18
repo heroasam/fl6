@@ -1,13 +1,14 @@
-from flask_login import login_required, current_user
-import mysql.connector
-from flask import Blueprint, render_template, jsonify, make_response, request,\
-    send_file, redirect, url_for
-import simplejson as json
-from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
-    pglflat, log_busqueda, listsql, pgdict1
-from con import get_con, log, check_roles
+"""Modulo que concentra la mayoria de las funciones del sistema vendedor."""
+
 import logging
 import time
+from flask_login import login_required, current_user
+import mysql.connector
+from flask import Blueprint, render_template, jsonify, make_response, request
+import simplejson as json
+from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
+    pglflat,  listsql, pgdict1
+from con import get_con, log, check_roles
 
 vendedor = Blueprint('vendedor', __name__)
 
@@ -16,11 +17,12 @@ var_sistema = {}
 def leer_variables():
     """Funcion para leer variables de sistema.
 
-    Las variables estan ubicadas en la tabla variables con los campos keys,value.
-    Y seran incorporados en una variable global var_sistema que es un dict."""
-    global var_sistema
+    Las variables estan ubicadas en la tabla variables con los campos clave,
+    valor.
+    Y seran incorporados en una variable  que es un dict."""
+
     con = get_con()
-    variables = pgdict(con, f"select clave,valor from variables")
+    variables = pgdict(con, "select clave,valor from variables")
     for row in variables:
         var_sistema[row['clave']] = row['valor']
     return 1
@@ -38,15 +40,16 @@ def calculo_cuota_maxima(idcliente):
     Esto ultimo se suspende pq aumenta mucho la cuota por la gran inflacion que
     hay.
     Cambios: se saco el incremento por cantidad de ventas.
-    Se toman las ventas de los ultimos tres años canceladas o no, y se actualizan
-    luego se pone la cuota actualizada mas alta.
-    Tambien se tiene en cuenta el monto total de la venta/6 para el calculo de la
-    cuota para evitar distorsion si el plan fue en 4 o 5 cuotas.
+    Se toman las ventas de los ultimos tres años canceladas o no, y se
+    actualizan luego se pone la cuota actualizada mas alta.
+    Tambien se tiene en cuenta el monto total de la venta/6 para el calculo de
+    la cuota para evitar distorsion si el plan fue en 4 o 5 cuotas.
     """
     con = get_con()
     cuotas = pgdict(con, f"select comprado as monto,date_format(fecha,'%Y%c') \
     as fecha from ventas where idcliente={idcliente} and fecha>\
     date_sub(curdate(),interval 3 year) and devuelta=0")
+    cuota_actualizada = 0
     if cuotas:
         ultimo_valor = pgonecolumn(con, "select indice from inflacion order \
             by id desc limit 1")
@@ -56,22 +59,20 @@ def calculo_cuota_maxima(idcliente):
             fecha = venta['fecha']
             indice = pgonecolumn(con, f"select indice from inflacion \
             where concat(year,month)='{fecha}'")
-            if not indice:
+            if not indice: # esto sucede si es un mes sin indice cargado aun
                 indice = ultimo_valor
             actualizada = ultimo_valor/indice * cuota
             cuotas_actualizadas.append(actualizada)
         cuota_actualizada = max(cuotas_actualizadas)
 
-        atraso = pgonecolumn(con, f"select atraso from clientes where id={idcliente}")
+        atraso = pgonecolumn(con, f"select atraso from clientes where \
+        id={idcliente}")
         if atraso is None:
             atraso = 0
         if atraso>0:
             cuota_actualizada = cuota_actualizada * (1-(atraso/30)*0.05)
-            if cuota_actualizada < 0:
-                cuota_actualizada = 0
-        return cuota_actualizada
-    else:
-        return 0
+            cuota_actualizada = max(cuota_actualizada,0)
+    return cuota_actualizada
 
 
 def calculo_sin_extension(idcliente):
@@ -86,15 +87,20 @@ def calculo_sin_extension(idcliente):
     and idcliente = {idcliente}")
     if cnt_vtas==1:
         return 1
-    atraso = pgonecolumn(con, f"select atraso from clientes where id={idcliente}")
+    atraso = pgonecolumn(con, f"select atraso from clientes where \
+    id={idcliente}")
     if atraso and atraso>60:
         return 1
     return 0
+
 
 @vendedor.route('/vendedor/getcuotamaxima/<int:idcliente>')
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_getcuotamaxima(idcliente):
+    """Funcion que pide la cuota maxima del cliente.
+
+    Si es menor a la cuota basica del sistema, pone esta ultima."""
     cuotamaxima = int(calculo_cuota_maxima(idcliente))
     if int(cuotamaxima) <int(var_sistema['cuota_basica']):
         cuotamaxima = int(var_sistema['cuota_basica'])
@@ -105,25 +111,33 @@ def vendedor_getcuotamaxima(idcliente):
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_guardardato():
-    global var_sistema
+    """Funcion que procesa el guardado de un dato del cliente.
+
+    Primero calcula la cuota_maxima y sin_extension. "sin_extension" significa
+    que no puede autorizar una cuota mas alta.
+    Calcula tambien la deuda en la casa, primero obteniendo la direccion del
+    cliente.
+    Calcula si es garante, en cuyo caso calcula el monto garantizado.
+    Luego hace la insersion en la tabla datos y hace update en tabla clientes
+    en el campo fechadato para que el mismo cliente no salga en listados."""
+    #
     con = get_con()
-    d = json.loads(request.data.decode("UTF-8"))
-    cuota_maxima = calculo_cuota_maxima(d['idcliente'])
-    sin_extension = calculo_sin_extension(d['idcliente'])
-    # if cuota_maxima==0 or cuota_maxima<float(d['cuota_maxima']):
+    d_data = json.loads(request.data.decode("UTF-8"))
+    cuota_maxima = calculo_cuota_maxima(d_data['idcliente'])
+    sin_extension = calculo_sin_extension(d_data['idcliente'])
     if cuota_maxima < float(var_sistema['cuota_basica']):
         cuota_maxima = var_sistema['cuota_basica']
     direccion_cliente = pgonecolumn(con, f"select concat(calle,num) from \
-    clientes where id={d['idcliente']}")
+    clientes where id={d_data['idcliente']}")
     deuda_en_la_casa = pgonecolumn(con, f"select sum(deuda) from clientes \
-    where concat(calle,num)='{direccion_cliente}' and id!={d['idcliente']}")
+    where concat(calle,num)='{direccion_cliente}' and id!={d_data['idcliente']}")
     es_garante = pgonecolumn(con, f"select esgarante from clientes where id=\
-    {d['idcliente']}")
+    {d_data['idcliente']}")
     zona = pgonecolumn(con, f"select zona from clientes where id=\
-    {d['idcliente']}")
+    {d_data['idcliente']}")
     if es_garante:
         dni = pgonecolumn(con, f"select dni from clientes where id=\
-        {d['idcliente']}")
+        {d_data['idcliente']}")
         monto_garantizado = pgonecolumn(con, f"select sum(saldo) from ventas \
         where garantizado=1 and dnigarante={dni}")
     else:
@@ -132,13 +146,13 @@ def vendedor_guardardato():
         deuda_en_la_casa = 0
     ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, art,\
     horarios, comentarios, cuota_maxima,deuda_en_la_casa,sin_extension,\
-    monto_garantizado,zona) values ('{d['fecha']}', '{d['user']}',\
-    {d['idcliente']},'{d['fecha_visitar']}','{d['art']}','{d['horarios']}',\
-    '{d['comentarios']}', {cuota_maxima}, '{deuda_en_la_casa}',{sin_extension},\
+    monto_garantizado,zona) values ('{d_data['fecha']}', '{d_data['user']}',\
+    {d_data['idcliente']},'{d_data['fecha_visitar']}','{d_data['art']}','{d_data['horarios']}',\
+    '{d_data['comentarios']}', {cuota_maxima}, '{deuda_en_la_casa}',{sin_extension},\
     {monto_garantizado},'{zona}')"
     cur = con.cursor()
     upd = f"update clientes set fechadato=curdate() where \
-                id={d['idcliente']}"
+                id={d_data['idcliente']}"
     try:
         cur.execute(ins)
         cur.execute(upd)
@@ -157,14 +171,19 @@ def vendedor_guardardato():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_togglerechazardato(id):
+    """Funcion que hace un toggle en el campo rechazado.
+
+    Tambien actualiza el campo resultado y la tabla autorizacion."""
     con = get_con()
     resultado = pgonecolumn(con, f"select resultado from datos where id={id}")
     if resultado == 8: # o sea ya esta rechazado
         upd = f"update datos set resultado=NULL, rechazado=0 where id={id}"
-        updaut = f"update autorizacion set rechazado=0,autorizado=0 where iddato={id}"
+        updaut = f"update autorizacion set rechazado=0,autorizado=0 where \
+        iddato={id}"
     elif resultado is None: # o sea se puede rechazar
         upd = f"update datos set resultado=8,rechazado=1 where id={id}"
-        updaut = f"update autorizacion set rechazado=1,autorizado=0 where iddato={id}"
+        updaut = f"update autorizacion set rechazado=1,autorizado=0 where \
+        iddato={id}"
     else:
         return make_response("error", 400)
     cur = con.cursor()
@@ -187,14 +206,16 @@ def vendedor_togglerechazardato(id):
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_getlistadodatos():
-    global var_sistema
+    """Funcion que entrega el listado de datos y otra informacion.
+
+    Entrega tambien cuota basica y lista de vendedores."""
+    #
     con = get_con()
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
-    sin_extension,nosabana, autorizado, datos.zona as zona from datos, clientes where clientes.id = \
-    datos.idcliente order by id desc limit 1000")
-    # vendedor is null filtra los datos no asignados
+    sin_extension,nosabana, autorizado, datos.zona as zona from datos, \
+    clientes where clientes.id =datos.idcliente order by id desc limit 1000")
     cuotabasica = var_sistema['cuota_basica']
     vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
     return jsonify(listadodatos=listadodatos, cuotabasica=cuotabasica, \
@@ -205,15 +226,18 @@ def vendedor_getlistadodatos():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_getlistadodatosenviar():
-    global var_sistema
+    """Funcion que entrega lista de datos a enviar.
+
+    enviado_vdor=0, rechazado=0."""
+    #
     con = get_con()
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
-    sin_extension,nosabana, autorizado, monto_garantizado,datos.zona as zona from datos, clientes where \
-    clientes.id = datos.idcliente and enviado_vdor=0 and rechazado=0 \
-    order by id desc")
-    # vendedor is null filtra los datos no asignados
+    sin_extension,nosabana, autorizado, monto_garantizado,datos.zona as zona \
+    from datos, clientes where clientes.id = datos.idcliente and \
+    enviado_vdor=0 and rechazado=0 order by id desc")
+    # enviado_vdor=0 filtra los datos no enviados aun.
     cuotabasica = var_sistema['cuota_basica']
     vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
     return jsonify(listadodatos=listadodatos, cuotabasica=cuotabasica, \
@@ -224,14 +248,18 @@ def vendedor_getlistadodatosenviar():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_getlistadodatosenviados():
-    global var_sistema
+    """Funcion que entrega una lista de los datos ya enviados.
+
+    campo enviado_vdor=1."""
+
     con = get_con()
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
-    art, horarios, comentarios,  dni, nombre, resultado,monto_vendido,autorizado, \
-    cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
-    vendedor, autorizado,datos.zona as zona,nosabana,sin_extension from datos, clientes where clientes.id = \
+    art, horarios, comentarios,  dni, nombre, resultado,monto_vendido,\
+    autorizado, cuota_maxima, novendermas, incobrable, sev, baja,\
+    deuda_en_la_casa, vendedor, autorizado,datos.zona as zona,nosabana,\
+    sin_extension from datos, clientes where clientes.id = \
     datos.idcliente and enviado_vdor=1 order by edited desc")
-    # vendedor is null filtra los datos no asignados
+    # enviado_vdor=1 filtra los datos enviados
     cuotabasica = var_sistema['cuota_basica']
     vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
     print(vdores)
@@ -243,10 +271,13 @@ def vendedor_getlistadodatosenviados():
 @login_required
 @check_roles(['dev','gerente'])
 def vendedor_asignardatosvendedor():
+    """Funcion que asigna datos a un vendedor dado.
+
+    Pone el codigo de vendedor y enviado_vdor=1."""
     con = get_con()
-    d = json.loads(request.data.decode("UTF-8"))
-    ids = listsql(d['ids'])
-    upd = f"update datos set vendedor = {d['vendedor']},enviado_vdor=1 \
+    d_data = json.loads(request.data.decode("UTF-8"))
+    ids = listsql(d_data['ids'])
+    upd = f"update datos set vendedor = {d_data['vendedor']},enviado_vdor=1 \
     where id in {ids}"
     cur = con.cursor()
     try:
@@ -265,10 +296,13 @@ def vendedor_asignardatosvendedor():
 @login_required
 @check_roles(['dev','gerente'])
 def vendedor_ingresardatoyasignardatosvendedor():
-    global var_sistema
+    """Funcion que ingresa el dato y automaticamente asigna el vendedor.
+
+    Se usa en asignacion de listado."""
+
     con = get_con()
-    d = json.loads(request.data.decode("UTF-8"))
-    ids = d['ids']
+    d_data = json.loads(request.data.decode("UTF-8"))
+    ids = d_data['ids']
     cur = con.cursor()
     try:
         for dni in ids:
@@ -292,12 +326,13 @@ def vendedor_ingresardatoyasignardatosvendedor():
             existe_dato_ya = pgonecolumn(con,f"select id from datos where \
             resultado is null and idcliente={idcliente}")
             if not existe_dato_ya:
-                ins = f"insert into datos(fecha, user, idcliente, fecha_visitar,\
-                art,horarios, comentarios, cuota_maxima,deuda_en_la_casa,\
-                sin_extension,vendedor,listado,enviado_vdor,zona) values (curdate(), \
+                ins = f"insert into datos(fecha, user, idcliente, \
+                fecha_visitar,art,horarios, comentarios, cuota_maxima,\
+                deuda_en_la_casa,\ sin_extension,vendedor,listado,\
+                enviado_vdor,zona) values (curdate(), \
                 '{current_user.email}',{idcliente},curdate(),'','','', \
                 {cuota_maxima},'{deuda_en_la_casa}',{sin_extension},\
-                {d['vendedor']},1,1,'{zona}')"
+                {d_data['vendedor']},1,1,'{zona}')"
                 upd = f"update clientes set fechadato=curdate() where \
                 id={idcliente}"
                 cur.execute(ins)
@@ -316,7 +351,8 @@ def vendedor_ingresardatoyasignardatosvendedor():
 @login_required
 @check_roles(['dev','gerente'])
 def vendedor_getcuotabasica():
-    global var_sistema
+    """Simple funcion para leer la cuota basica desde la variable."""
+
     con = get_con()
     cuotabasica = var_sistema['cuota_basica']
     return jsonify(cuotabasica=cuotabasica)
@@ -326,6 +362,7 @@ def vendedor_getcuotabasica():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_borrardato(id):
+    """Simple proceso para borrar un dato dado su iddato."""
     con = get_con()
     stm = f"delete from datos where id={id}"
     cur = con.cursor()
@@ -347,20 +384,22 @@ def vendedor_borrardato(id):
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_editardato():
+    """Funcion para editar dato."""
     con = get_con()
-    d = json.loads(request.data.decode("UTF-8"))
-    if d['nosabana']:
+    d_data = json.loads(request.data.decode("UTF-8"))
+    if d_data['nosabana']:
         nosabana = 1
     else:
         nosabana = 0
-    if d['sin_extension']:
+    if d_data['sin_extension']:
         sin_extension = 1
     else:
         sin_extension = 0
-    upd = f"update datos set fecha='{d['fecha']}', user='{d['user']}',\
-    fecha_visitar='{d['fecha_visitar']}', horarios='{d['horarios']}',\
-    art='{d['art']}', comentarios='{d['comentarios']}', cuota_maxima=\
-    {d['cuota_maxima']},nosabana={nosabana},sin_extension={sin_extension} where id={d['id']}"
+    upd = f"update datos set fecha='{d_data['fecha']}', user='{d_data['user']}',\
+    fecha_visitar='{d_data['fecha_visitar']}', horarios='{d_data['horarios']}',\
+    art='{d_data['art']}', comentarios='{d_data['comentarios']}', cuota_maxima=\
+    {d_data['cuota_maxima']},nosabana={nosabana},sin_extension={sin_extension} \
+    where id={d_data['id']}"
     cur = con.cursor()
     try:
         cur.execute(upd)
@@ -380,9 +419,10 @@ def vendedor_editardato():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_verificarqueyaesdato(idcliente):
+    """Simple funcion para verificar que un cliente tiene un dato pendiente."""
     con = get_con()
-    dato = pgonecolumn(con, f"select idcliente from datos where idcliente={idcliente} and resultado is null")
-    print('dato',dato)
+    dato = pgonecolumn(con, f"select idcliente from datos where \
+    idcliente={idcliente} and resultado is null")
     if dato:
         return make_response("error", 400)
     else:
@@ -393,6 +433,7 @@ def vendedor_verificarqueyaesdato(idcliente):
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_guardarcuotabasica(cuota):
+    """Simple funcion para actualizar la cuota basica."""
     con = get_con()
     upd = f"update variables set valor={cuota} where clave='cuota_basica'"
     cur = con.cursor()
@@ -415,6 +456,7 @@ def vendedor_guardarcuotabasica(cuota):
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_listadatos():
+    """Ruta para render pagina listadatos."""
     return render_template('/vendedor/listadatos.html')
 
 
@@ -423,6 +465,7 @@ def vendedor_listadatos():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_agregarcliente():
+    """Ruta para render pagina agregarcliente."""
     return render_template('/vendedor/agregarcliente.html')
 
 
@@ -431,63 +474,63 @@ def vendedor_agregarcliente():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_envioclientenuevo():
-    logging.warning(f"envioclientenuevo {current_user.email}")
-    global var_sistema
+    """Proceso para agregar cliente nuevo por el vendedor."""
+    logging.warning("envioclientenuevo %s", current_user.email)
+
     con = get_con()
-    d = json.loads(request.data.decode("UTF-8"))
-    print(d)
+    d_data = json.loads(request.data.decode("UTF-8"))
     if current_user.email == var_sistema['816']:
         vdor = 816
     elif current_user.email == var_sistema['835']:
         vdor = 835
-    dni = d['dni']
+    dni = d_data['dni']
     cur = con.cursor()
     cliente = pgdict(con, f"select * from clientes where dni={dni}")
     if cliente: # o sea esta en la base de Romitex
         cliente = cliente[0]
-        sin_extension = calculo_sin_extension(d['id'])
-        cuota_maxima = calculo_cuota_maxima(d['id'])
+        sin_extension = calculo_sin_extension(d_data['id'])
+        cuota_maxima = calculo_cuota_maxima(d_data['id'])
         cuota_basica = var_sistema['cuota_basica']
         if cuota_maxima==0 or cuota_maxima<float(cuota_basica):
             cuota_maxima = cuota_basica
         direccion_cliente = pgonecolumn(con, f"select concat(calle,num) from \
-        clientes where id={d['id']}")
+        clientes where id={d_data['id']}")
         deuda_en_la_casa = pgonecolumn(con, f"select sum(deuda) from clientes \
-        where concat(calle,num)='{direccion_cliente}' and id!={d['id']}")
-        es_garante = pgonecolumn(con, f"select esgarante from clientes where id=\
-        {d['id']}")
+        where concat(calle,num)='{direccion_cliente}' and id!={d_data['id']}")
+        es_garante = pgonecolumn(con, f"select esgarante from clientes where \
+        id={d_data['id']}")
         zona = pgonecolumn(con, f"select zona from clientes where id=\
-        {d['id']}")
+        {d_data['id']}")
         if es_garante:
             dni = pgonecolumn(con, f"select dni from clientes where id=\
-            {d['id']}")
-            monto_garantizado = pgonecolumn(con, f"select sum(saldo) from ventas \
-            where garantizado=1 and dnigarante={dni}")
+            {d_data['id']}")
+            monto_garantizado = pgonecolumn(con, f"select sum(saldo) from \
+            ventas where garantizado=1 and dnigarante={dni}")
         else:
             monto_garantizado = 0
         if deuda_en_la_casa is None:
             deuda_en_la_casa = 0
         iddato = pgonecolumn(con, f"select id from datos where idcliente =\
-        {d['id']} and resultado is null")
+        {d_data['id']} and resultado is null")
         if iddato: # o sea hay ya un dato sin definir de ese cliente
             ins = None
         else:
             ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, \
             art,horarios, comentarios, cuota_maxima,deuda_en_la_casa,\
-            sin_extension,monto_garantizado,vendedor,dnigarante,enviado_vdor,zona) \
-            values (curdate(),'{current_user.email}',{d['id']},curdate(),'','',\
-            'cliente enviado por vendedor', {cuota_maxima}, \
+            sin_extension,monto_garantizado,vendedor,dnigarante,enviado_vdor,\
+            zona) values (curdate(),'{current_user.email}',{d_data['id']},\
+            curdate(),'','','cliente enviado por vendedor', {cuota_maxima}, \
             '{deuda_en_la_casa}', {sin_extension}, {monto_garantizado},\
-            {vdor},{d['dnigarante']},0,'{zona}')"
+            {vdor},{d_data['dnigarante']},0,'{zona}')"
         # Testeo si hay cambios en los datos del cliente que envia el vendedor
         upd = None
         inslog = None
-        if cliente['calle']!=d['calle'] or cliente['num']!=d['num'] or \
-           cliente['barrio']!=d['barrio'] or cliente['wapp']!=d['wapp'] \
-               or cliente['tel']!=d['tel'] or cliente['acla']!=d['acla']:
-            upd = f"update clientes set calle='{d['calle']}', num={d['num']},\
-            barrio='{d['barrio']}',wapp='{d['wapp']}',tel='{d['tel']}', \
-            modif_vdor=1,acla='{d['acla']}' where id={d['id']}"
+        if cliente['calle']!=d_data['calle'] or cliente['num']!=d_data['num'] or \
+           cliente['barrio']!=d_data['barrio'] or cliente['wapp']!=d_data['wapp'] \
+               or cliente['tel']!=d_data['tel'] or cliente['acla']!=d_data['acla']:
+            upd = f"update clientes set calle='{d_data['calle']}', num={d_data['num']},\
+            barrio='{d_data['barrio']}',wapp='{d_data['wapp']}',tel='{d_data['tel']}', \
+            modif_vdor=1,acla='{d_data['acla']}' where id={d_data['id']}"
             inslog = f"insert into logcambiodireccion(idcliente,calle,\
             num,barrio,tel,acla,fecha,nombre,dni,wapp) values({cliente['id']},\
             '{cliente['calle']}','{cliente['num']}','{cliente['barrio']}',\
@@ -497,24 +540,26 @@ def vendedor_envioclientenuevo():
             if ins:
                 cur.execute(ins)
                 iddato = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
-                insaut = f"insert into autorizacion(fecha,vdor,iddato,idcliente,\
-                cuota_requerida,cuota_maxima,arts) values(current_timestamp(),\
-                {vdor},{iddato},{d['id']},{d['cuota_requerida']},\
-                {cuota_maxima},'{d['arts']}')"
+                insaut = f"insert into autorizacion(fecha,vdor,iddato,\
+                idcliente,cuota_requerida,cuota_maxima,arts) \
+                values(current_timestamp(),{vdor},{iddato},{d_data['id']},\
+                {d_data['cuota_requerida']},{cuota_maxima},'{d_data['arts']}')"
                 cur.execute(insaut)
                 idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
                 vdorasignado = vdor
             else: # dato repetido inserto auth con iddato que ya tenia de antes
-                vdorasignado = pgonecolumn(con, f"select vendedor from datos where id={iddato}")
+                vdorasignado = pgonecolumn(con, f"select vendedor from datos \
+                where id={iddato}")
                 if vdorasignado == vdor:
-                    insaut = f"insert into autorizacion(fecha,vdor,iddato,idcliente,\
-                    cuota_requerida,cuota_maxima,arts) values(current_timestamp(),\
-                    {vdor},{iddato},{d['id']},{d['cuota_requerida']},\
-                    {cuota_maxima},'{d['arts']}')"
+                    insaut = f"insert into autorizacion(fecha,vdor,iddato,\
+                    idcliente,cuota_requerida,cuota_maxima,arts) \
+                    values(current_timestamp(),{vdor},{iddato},{d_data['id']},\
+                    {d_data['cuota_requerida']},{cuota_maxima},'{d_data['arts']}')"
                     cur.execute(insaut)
                     idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
                 else:
-                    idautorizacion = pgonecolumn(con,f"select id from autorizacion where iddato={iddato}")
+                    idautorizacion = pgonecolumn(con,f"select id from \
+                    autorizacion where iddato={iddato}")
 
             if upd:
                 cur.execute(upd)
@@ -541,7 +586,7 @@ def vendedor_envioclientenuevo():
     else: # o sea es un cliente nuevo
         sin_extension = 1
         cuota_maxima = var_sistema['cuota_basica']
-        direccion_cliente = d['calle']+d['num']
+        direccion_cliente = d_data['calle']+d_data['num']
         deuda_en_la_casa = pgonecolumn(con, f"select sum(deuda) from clientes \
         where concat(calle,num)='{direccion_cliente}'")
         es_garante = 0
@@ -550,31 +595,30 @@ def vendedor_envioclientenuevo():
         zona = ''
         if deuda_en_la_casa is None:
             deuda_en_la_casa = 0
-        if d['dnigarante']=='':
+        if d_data['dnigarante']=='':
             dnigarante = 0
         else:
-            dnigarante = d['dnigarante']
+            dnigarante = d_data['dnigarante']
         inscliente = f"insert into clientes(sex,dni, nombre,calle,num,barrio,\
         tel,wapp,zona,modif_vdor,acla,horario,mjecobr,infoseven) values('F',\
-        {d['dni']},'{d['nombre']}','{d['calle']}',{d['num']},'{d['barrio']}',\
-        '{d['tel']}','{d['wapp']}','-CAMBIAR',1,'{d['acla']}','','','')"
-        print(inscliente)
+        {d_data['dni']},'{d_data['nombre']}','{d_data['calle']}',{d_data['num']},'{d_data['barrio']}',\
+        '{d_data['tel']}','{d_data['wapp']}','-CAMBIAR',1,'{d_data['acla']}','','','')"
         try:
             cur.execute(inscliente)
             idcliente = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
-            ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, art,\
-            horarios, comentarios, cuota_maxima,deuda_en_la_casa,sin_extension,\
-            monto_garantizado,vendedor,dnigarante,zona) values (curdate(), \
-            '{current_user.email}',{idcliente},curdate(),'','',\
-            'cliente enviado por vendedor', {cuota_maxima}, '{deuda_en_la_casa}',\
-            {sin_extension}, {monto_garantizado},{vdor},{dnigarante},'{zona}')"
+            ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, \
+            art,horarios, comentarios, cuota_maxima,deuda_en_la_casa,\
+            sin_extension,monto_garantizado,vendedor,dnigarante,zona) values \
+            (curdate(), '{current_user.email}',{idcliente},curdate(),'','',\
+            'cliente enviado por vendedor', {cuota_maxima}, \
+            '{deuda_en_la_casa}',{sin_extension}, {monto_garantizado},{vdor},\
+            {dnigarante},'{zona}')"
             cur.execute(ins)
-            print(ins)
             iddato = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
             insaut = f"insert into autorizacion(fecha,vdor,iddato,idcliente,\
             cuota_requerida,cuota_maxima,arts) values(current_timestamp(),\
-            {vdor},{iddato},{idcliente},{d['cuota_requerida']},\
-            {cuota_maxima},'{d['arts']}')"
+            {vdor},{iddato},{idcliente},{d_data['cuota_requerida']},\
+            {cuota_maxima},'{d_data['arts']}')"
             cur.execute(insaut)
             print(insaut)
             idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
@@ -590,14 +634,12 @@ def vendedor_envioclientenuevo():
             return jsonify(idautorizacion=idautorizacion)
 
 
-
-
-
 @vendedor.route('/4mY6khlmZKUzDRZDJkakr75iH')
 @vendedor.route('/vendedor/listavisitasvdor')
 @login_required
 @check_roles(['dev', 'gerente','vendedor'])
 def vendedor_visitasvdor():
+    """Ruta que render pagina listavisitasvdor."""
     return render_template('/vendedor/listavisitasvdor.html')
 
 
@@ -606,23 +648,22 @@ def vendedor_visitasvdor():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_getlistadodatosvendedor():
-    logging.warning(f"GETLISTADODATOSVENDEDOR, {current_user.email}")
-    global var_sistema
+    """Funcion que obtiene la lista de datos de un vendedor en particular."""
+    logging.warning("GETLISTADODATOSVENDEDOR, %s",current_user.email)
+
     con = get_con()
     if current_user.email == var_sistema['816']:
         vdor = 816
     if current_user.email == var_sistema['835']:
         vdor = 835
-    # logging.warning(f"current {current_user.email, var_sistema['816'], current_user.email==var_sistema['816']}")
-    # vdor = 816
     agrupar = var_sistema["agrupar"+str(vdor)]
     listadodatos = pgdict(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
-    clientes.zona as zona, cuota_maxima,idcliente, sin_extension,idvta,resultado,\
-    datos.dnigarante as dnigarante from datos, clientes where clientes.id = \
-    datos.idcliente and vendedor={vdor} and (resultado is null or (resultado in \
-    (1,7) and date(fecha_definido)=curdate())) and fecha_visitar <=curdate() \
-    and enviado_vdor=1 order by id desc")
+    clientes.zona as zona, cuota_maxima,idcliente, sin_extension,idvta,\
+    resultado,datos.dnigarante as dnigarante from datos, clientes where \
+    clientes.id = datos.idcliente and vendedor={vdor} and (resultado is null \
+    or (resultado in (1,7) and date(fecha_definido)=curdate())) and \
+    fecha_visitar <=curdate() and enviado_vdor=1 order by id desc")
     return jsonify(listadodatos=listadodatos, agrupar=agrupar)
 
 
@@ -631,12 +672,13 @@ def vendedor_getlistadodatosvendedor():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_getdato(iddato):
+    """Simple funcion que levanta un dato dado su id."""
     con = get_con()
     dato = pgdict1(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
-    clientes.zona as zona, cuota_maxima,idcliente, sin_extension, datos.dnigarante as \
-    dnigarante,idvta,monto_vendido,nosabana from datos, clientes where clientes.id = \
-    datos.idcliente and datos.id={iddato}")
+    clientes.zona as zona, cuota_maxima,idcliente, sin_extension, \
+    datos.dnigarante as dnigarante,idvta,monto_vendido,nosabana from datos, \
+    clientes where clientes.id = datos.idcliente and datos.id={iddato}")
     return jsonify(dato=dato)
 
 
@@ -645,6 +687,7 @@ def vendedor_getdato(iddato):
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_getlistadoarticulos():
+    """Simple funcion que levanta la lista de articulos activos."""
     con = get_con()
     articulos = pgdict(con, "select art,cuota from articulos where activo=1 \
     order by art")
@@ -656,14 +699,15 @@ def vendedor_getlistadoarticulos():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_editarwapp():
+    """Proceso para editar el wapp del cliente."""
     con = get_con()
-    d = json.loads(request.data.decode("UTF-8"))
+    d_data = json.loads(request.data.decode("UTF-8"))
     wapp_viejo = pgonecolumn(con, f"select wapp from clientes where id= \
-    {d['idcliente']}")
-    upd = f"update clientes set wapp='{d['wapp']}' where id={d['idcliente']}"
+    {d_data['idcliente']}")
+    upd = f"update clientes set wapp='{d_data['wapp']}' where id={d_data['idcliente']}"
     if wapp_viejo and wapp_viejo != 'INVALIDO':
         inslogcambio = f"insert into logcambiodireccion(idcliente,wapp,fecha) \
-        values ({d['idcliente']},'{wapp_viejo}', current_date())"
+        values ({d_data['idcliente']},'{wapp_viejo}', current_date())"
     else:
         inslogcambio = None
     cur = con.cursor()
@@ -672,14 +716,14 @@ def vendedor_editarwapp():
         if inslogcambio is not None:
             cur.execute(inslogcambio)
     except mysql.connector.Error as _error:
-       con.rollback()
-       error = _error.msg
-       return make_response(error,400)
+        con.rollback()
+        error = _error.msg
+        return make_response(error,400)
     else:
-       con.commit()
-       con.close()
-       log(upd)
-       return 'ok'
+        con.commit()
+        con.close()
+        log(upd)
+        return 'ok'
 
 
 @vendedor.route('/HvjJNtFgF71pRYafzcTC74nUt' , methods=['POST'])
@@ -687,31 +731,32 @@ def vendedor_editarwapp():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_guardardatofechado():
-    logging.warning(f"guardardatofechado, {current_user.email}")
-    global var_sistema
+    """Proceso para el fechado de un dato."""
+    logging.warning("guardardatofechado, %s", current_user.email)
+
     if current_user.email == var_sistema['816']:
         vdor = 816
     elif current_user.email == var_sistema['835']:
         vdor = 835
     con = get_con()
-    d = json.loads(request.data.decode("UTF-8"))
-    upd = f"update datos set fecha_visitar='{d['fecha_visitar']}' where id = \
-    {d['id']}"
+    d_data = json.loads(request.data.decode("UTF-8"))
+    upd = f"update datos set fecha_visitar='{d_data['fecha_visitar']}' where id = \
+    {d_data['id']}"
     ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
-    values(curdate(),curtime(),{vdor},{d['id']},4,0)"
+    values(curdate(),curtime(),{vdor},{d_data['id']},4,0)"
     cur = con.cursor()
     try:
         cur.execute(upd)
         cur.execute(ins)
     except mysql.connector.Error as _error:
-       con.rollback()
-       error = _error.msg
-       return make_response(error,400)
+        con.rollback()
+        error = _error.msg
+        return make_response(error,400)
     else:
-       con.commit()
-       con.close()
-       log(upd)
-       return 'ok'
+        con.commit()
+        con.close()
+        log(upd)
+        return 'ok'
 
 
 @vendedor.route('/UtVc3f6y5hfxu2dPmcrV9Y7mc/<int:iddato>')
@@ -719,8 +764,9 @@ def vendedor_guardardatofechado():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_anulardato(iddato):
-    logging.warning(f"anulardato, {current_user.email}")
-    global var_sistema
+    """Proceso para anular un dato."""
+    logging.warning("anulardato, %s", current_user.email)
+
     if current_user.email == var_sistema['816']:
         vdor = 816
     elif current_user.email == var_sistema['835']:
@@ -735,14 +781,14 @@ def vendedor_anulardato(iddato):
         cur.execute(upd)
         cur.execute(ins)
     except mysql.connector.Error as _error:
-       con.rollback()
-       error = _error.msg
-       return make_response(error,400)
+        con.rollback()
+        error = _error.msg
+        return make_response(error,400)
     else:
-       con.commit()
-       con.close()
-       log(upd)
-       return 'ok'
+        con.commit()
+        con.close()
+        log(upd)
+        return 'ok'
 
 
 @vendedor.route('/gJUmonE8slTFGZqSKXSVwqPJ1/<int:iddato>')
@@ -750,21 +796,24 @@ def vendedor_anulardato(iddato):
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_mudodato(iddato):
-    logging.warning(f"mudodato, {current_user.email}")
-    global var_sistema
+    """Proceso para registrar la mudanza de un cliente."""
+    logging.warning("mudodato, %s", current_user.email)
+
     if current_user.email == var_sistema['816']:
         vdor = 816
     elif current_user.email == var_sistema['835']:
         vdor = 835
     con = get_con()
-    idcliente = pgonecolumn(con, f"select idcliente from datos where id={iddato}")
+    idcliente = pgonecolumn(con, f"select idcliente from datos where \
+    id={iddato}")
     upd = f"update datos set resultado=5, fecha_definido=current_timestamp()\
     where id = {iddato}"
     ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
     values(curdate(),curtime(),{vdor},{iddato},5,0)"
     updcliente = f"update clientes set mudo=1 where id={idcliente}"
     inscomentario = f"insert into comentarios(idcliente, ingreso, comentario) \
-    values({idcliente},'{current_user.email}','puesto como mudado por vendedor {vdor}')"
+    values({idcliente},'{current_user.email}','puesto como mudado por \
+    vendedor {vdor}')"
     cur = con.cursor()
     try:
         cur.execute(upd)
@@ -772,15 +821,15 @@ def vendedor_mudodato(iddato):
         cur.execute(updcliente)
         cur.execute(inscomentario)
     except mysql.connector.Error as _error:
-       con.rollback()
-       error = _error.msg
-       return make_response(error,400)
+        con.rollback()
+        error = _error.msg
+        return make_response(error,400)
     else:
-       con.commit()
-       con.close()
-       log(upd)
-       log(updcliente)
-       return 'ok'
+        con.commit()
+        con.close()
+        log(upd)
+        log(updcliente)
+        return 'ok'
 
 
 @vendedor.route('/sLTFCMArYAdVsrEgwsz7utyRi/<int:iddato>')
@@ -788,8 +837,9 @@ def vendedor_mudodato(iddato):
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_falleciodato(iddato):
-    logging.warning(f"falleciodato, {current_user.email}")
-    global var_sistema
+    """Proceso para registrar el fallecimiento de un cliente."""
+    logging.warning("falleciodato, %s", current_user.email)
+
     if current_user.email == var_sistema['816']:
         vdor = 816
     elif current_user.email == var_sistema['835']:
@@ -804,7 +854,8 @@ def vendedor_falleciodato(iddato):
     updcli = f"update clientes set zona='-FALLECIDOS', modif_vdor=1 where id=\
     {idcliente}"
     inscomentario = f"insert into comentarios(idcliente, ingreso, comentario) \
-    values({idcliente},'{current_user.email}','puesto como fallecido por vendedor {vdor}')"
+    values({idcliente},'{current_user.email}','puesto como fallecido por \
+    vendedor {vdor}')"
     cur = con.cursor()
     try:
         cur.execute(upd)
@@ -812,15 +863,15 @@ def vendedor_falleciodato(iddato):
         cur.execute(updcli)
         cur.execute(inscomentario)
     except mysql.connector.Error as _error:
-       con.rollback()
-       error = _error.msg
-       return make_response(error,400)
+        con.rollback()
+        error = _error.msg
+        return make_response(error,400)
     else:
-       con.commit()
-       con.close()
-       log(upd)
-       log(updcli)
-       return 'ok'
+        con.commit()
+        con.close()
+        log(upd)
+        log(updcli)
+        return 'ok'
 
 
 @vendedor.route('/fc3vpQG6SzEH95Ya7kTJPZ48M' , methods=['POST'])
@@ -828,11 +879,12 @@ def vendedor_falleciodato(iddato):
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_validardni():
+    """Proceso para validar un DNI."""
     con = get_con()
-    d = json.loads(request.data.decode("UTF-8"))
-    logging.warning(d)
-    dni = pgonecolumn(con, f"select dni from clientes where id={d['id']}")
-    if dni==int(d['dni']):
+    d_data = json.loads(request.data.decode("UTF-8"))
+    logging.warning(d_data)
+    dni = pgonecolumn(con, f"select dni from clientes where id={d_data['id']}")
+    if dni==int(d_data['dni']):
         return make_response('aprobado', 200)
     else:
         return make_response('error', 400)
@@ -843,73 +895,79 @@ def vendedor_validardni():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_registrarautorizacion():
-    logging.warning(f"registrarautorizacion, {current_user.email}")
-    global var_sistema
+    """Proceso para registrar un pedido de autorizacion."""
+    logging.warning("registrarautorizacion, %s", current_user.email)
+
     con = get_con()
-    d = json.loads(request.data.decode("UTF-8"))
+    d_data = json.loads(request.data.decode("UTF-8"))
     if current_user.email == var_sistema['816']:
         vdor = 816
     if current_user.email == var_sistema['835']:
         vdor = 835
     ins = f"insert into autorizacion(fecha,vdor,iddato,idcliente,\
     cuota_requerida,cuota_maxima,arts) values(current_timestamp(),\
-    {vdor},{d['id']},{d['idcliente']},{d['cuota_requerida']},\
-    {d['cuota_maxima']},'{d['arts']}')"
+    {vdor},{d_data['id']},{d_data['idcliente']},{d_data['cuota_requerida']},\
+    {d_data['cuota_maxima']},'{d_data['arts']}')"
     cur = con.cursor()
     try:
         cur.execute(ins)
         idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
     except mysql.connector.Error as _error:
-       con.rollback()
-       error = _error.msg
-       return make_response(error,400)
+        con.rollback()
+        error = _error.msg
+        return make_response(error,400)
     else:
-       con.commit()
-       log(ins)
-       con.close()
-       print('idautorizacion',idautorizacion)
-       return jsonify(idautorizacion=idautorizacion)
+        con.commit()
+        log(ins)
+        con.close()
+        return jsonify(idautorizacion=idautorizacion)
 
 
 @vendedor.route('/vendedor/getlistadoautorizados')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_getlistadoautorizados():
-    global var_sistema
+    """Funcion que entrega lista de autorizaciones pendientes."""
+
     con = get_con()
-    listadoautorizados = pgdict(con, f"select autorizacion.id as id,datos.id as iddato,datos.fecha as \
-    fecha, datos.user as user, nombre, datos.resultado as resultado, datos.art \
-    as art, datos.cuota_maxima as cuota_maxima, datos.sin_extension as \
-    sin_extension,datos.nosabana as nosabana, datos.deuda_en_la_casa as deuda_en_la_casa,datos.vendedor as vendedor, \
-    clientes.novendermas as novendermas, clientes.incobrable as incobrable,\
-    clientes.sev as sev, clientes.baja as baja, autorizacion.fecha as \
-    fechahora, autorizacion.cuota_requerida as cuota_requerida,autorizacion.tomado as tomado, \
-    autorizacion.arts as arts,horarios,comentarios,(select count(*) from \
-    autorizacion where autorizacion.idcliente=clientes.id) as cnt, \
-    autorizacion.idcliente from datos, autorizacion,clientes  where \
-    datos.idcliente=clientes.id and autorizacion.iddato=datos.id and \
-    autorizacion.autorizado=0 and autorizacion.rechazado=0 and autorizacion.sigueigual=0 and \
-    datos.resultado is null")
+    listadoautorizados = pgdict(con, "select autorizacion.id as id,datos.id \
+    as iddato,datos.fecha as fecha, datos.user as user, nombre, \
+    datos.resultado as resultado, datos.art as art, datos.cuota_maxima as \
+    cuota_maxima, datos.sin_extension as sin_extension,datos.nosabana as \
+    nosabana, datos.deuda_en_la_casa as deuda_en_la_casa,datos.vendedor as \
+    vendedor, clientes.novendermas as novendermas, clientes.incobrable as \
+    incobrable,clientes.sev as sev, clientes.baja as baja, autorizacion.fecha \
+    as fechahora, autorizacion.cuota_requerida as cuota_requerida,\
+    autorizacion.tomado as tomado, autorizacion.arts as arts,horarios,\
+    comentarios,(select count(*) from autorizacion where \
+    autorizacion.idcliente=clientes.id) as cnt,autorizacion.idcliente from \
+    datos, autorizacion,clientes  where datos.idcliente=clientes.id and \
+    autorizacion.iddato=datos.id and autorizacion.autorizado=0 and \
+    autorizacion.rechazado=0 and autorizacion.sigueigual=0 and datos.resultado \
+    is null")
     cuotabasica = var_sistema['cuota_basica']
-    return jsonify(listadoautorizados=listadoautorizados, cuotabasica=cuotabasica)
+    return jsonify(listadoautorizados=listadoautorizados, \
+                   cuotabasica=cuotabasica)
 
 
 @vendedor.route('/vendedor/getlistadoautorizadosporid/<int:idcliente>')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_getlistadoautorizadosporid(idcliente):
+    """Funcion que entrega la lista de autorizaciones que tuvo un cliente."""
     con = get_con()
     listadoautorizadosporid = pgdict(con, f"select datos.id as id,datos.fecha \
     as fecha, datos.user as user, nombre, datos.resultado as resultado, \
     datos.art as art, datos.cuota_maxima as cuota_maxima, datos.sin_extension \
-    as sin_extension,datos.nosabana as nosabana, datos.deuda_en_la_casa as deuda_en_la_casa,datos.vendedor as vendedor,  \
-    clientes.novendermas as novendermas, clientes.incobrable as incobrable,\
-    clientes.sev as sev, clientes.baja as baja, autorizacion.fecha as \
-    fechahora, autorizacion.cuota_requerida as cuota_requerida, \
-    autorizacion.arts as arts,horarios,comentarios,(select count(*) from \
-    autorizacion where autorizacion.idcliente=clientes.id) as cnt from datos,\
-    autorizacion,clientes  where datos.idcliente=clientes.id and \
-    autorizacion.iddato=datos.id and autorizacion.idcliente={idcliente}")
+    as sin_extension,datos.nosabana as nosabana, datos.deuda_en_la_casa as \
+    deuda_en_la_casa,datos.vendedor as vendedor, clientes.novendermas as \
+    novendermas, clientes.incobrable as incobrable,clientes.sev as sev, \
+    clientes.baja as baja, autorizacion.fecha as fechahora, \
+    autorizacion.cuota_requerida as cuota_requerida, autorizacion.arts as arts,\
+    horarios,comentarios,(select count(*) from autorizacion where \
+    autorizacion.idcliente=clientes.id) as cnt from datos,autorizacion,\
+    clientes  where datos.idcliente=clientes.id and autorizacion.iddato=\
+    datos.id and autorizacion.idcliente={idcliente}")
     return jsonify(listadoautorizadosporid=listadoautorizadosporid)
 
 
@@ -917,12 +975,14 @@ def vendedor_getlistadoautorizadosporid(idcliente):
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_autorizardato(idauth):
+    """Proceso para autorizar un dato."""
     con = get_con()
     cuota_requerida = pgonecolumn(con, f"select cuota_requerida from \
     autorizacion where id={idauth}")
-    upd_aut = f"update autorizacion set autorizado=1,rechazado=0,sigueigual=0, user = \
-    '{current_user.email}' where id={idauth}"
-    iddato = pgonecolumn(con, f"select iddato from autorizacion where id={idauth}")
+    upd_aut = f"update autorizacion set autorizado=1,rechazado=0,sigueigual=0,\
+    user = '{current_user.email}' where id={idauth}"
+    iddato = pgonecolumn(con, f"select iddato from autorizacion where \
+    id={idauth}")
     upd_dat = f"update datos set cuota_maxima = {cuota_requerida}, \
     autorizado=1,rechazado=0,sigueigual=0,enviado_vdor=1 where id={iddato}"
     con = get_con()
@@ -931,71 +991,77 @@ def vendedor_autorizardato(idauth):
         cur.execute(upd_aut)
         cur.execute(upd_dat)
     except mysql.connector.Error as _error:
-       con.rollback()
-       error = _error.msg
-       return make_response(error,400)
+        con.rollback()
+        error = _error.msg
+        return make_response(error,400)
     else:
-       con.commit()
-       con.close()
-       log(upd_dat)
-       log(upd_aut)
-       return 'ok'
+        con.commit()
+        con.close()
+        log(upd_dat)
+        log(upd_aut)
+        return 'ok'
 
 
 @vendedor.route('/vendedor/noautorizardato/<int:idauth>')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_noautorizardato(idauth):
+    """Proceso para NO autorizar un dato, y que siga igual, venda la basica."""
     con = get_con()
     cuota_requerida = pgonecolumn(con, f"select cuota_requerida from \
     autorizacion where id={idauth}")
     upd_aut = f"update autorizacion set autorizado=0, user = \
     '{current_user.email}',rechazado=0,sigueigual=1 where id={idauth}"
-    iddato = pgonecolumn(con, f"select iddato from autorizacion where id={idauth}")
-    upddato = f"update datos set rechazado=0, autorizado=0,sigueigual=1, resultado=null, enviado_vdor=1 where id={iddato}"
+    iddato = pgonecolumn(con, f"select iddato from autorizacion where \
+    id={idauth}")
+    upddato = f"update datos set rechazado=0, autorizado=0,sigueigual=1, \
+    resultado=null, enviado_vdor=1 where id={iddato}"
     con = get_con()
     cur = con.cursor()
     try:
         cur.execute(upd_aut)
         cur.execute(upddato)
     except mysql.connector.Error as _error:
-       con.rollback()
-       error = _error.msg
-       return make_response(error,400)
+        con.rollback()
+        error = _error.msg
+        return make_response(error,400)
     else:
-       con.commit()
-       con.close()
-       log(upd_aut)
-       log(upddato)
-       return 'ok'
+        con.commit()
+        con.close()
+        log(upd_aut)
+        log(upddato)
+        return 'ok'
 
 
 @vendedor.route('/vendedor/rechazardato/<int:idauth>')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_rechazardato(idauth):
+    """Proceso para rechazar dato, no se puede vender alli."""
     con = get_con()
     cuota_requerida = pgonecolumn(con, f"select cuota_requerida from \
     autorizacion where id={idauth}")
     upd_aut = f"update autorizacion set autorizado=0, user = \
     '{current_user.email}',rechazado=1,sigueigual=0 where id={idauth}"
-    iddato = pgonecolumn(con, f"select iddato from autorizacion where id={idauth}")
-    upddato = f"update datos set rechazado=1, autorizado=0, sigueigual=0, resultado=8 where id={iddato}"
+    iddato = pgonecolumn(con, f"select iddato from autorizacion where \
+    id={idauth}")
+    upddato = f"update datos set rechazado=1, autorizado=0, sigueigual=0, \
+    resultado=8 where id={iddato}"
     con = get_con()
     cur = con.cursor()
     try:
         cur.execute(upd_aut)
         cur.execute(upddato)
     except mysql.connector.Error as _error:
-       con.rollback()
-       error = _error.msg
-       return make_response(error,400)
+        con.rollback()
+        error = _error.msg
+        return make_response(error,400)
     else:
-       con.commit()
-       con.close()
-       log(upd_aut)
-       log(upddato)
-       return 'ok'
+        con.commit()
+        con.close()
+        log(upd_aut)
+        log(upddato)
+        return 'ok'
 
 
 @vendedor.route('/xuNzBi4bvtSugd5KbxSQzD0Ey' , methods=['POST'])
@@ -1003,50 +1069,48 @@ def vendedor_rechazardato(idauth):
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_pasarventa():
-    logging.warning(f"pasarventa, {current_user.email}")
-    global var_sistema
+    """Proceso para pasar una venta por el vendedor."""
+    logging.warning("pasarventa, %s", current_user.email)
     con = get_con()
-    d = json.loads(request.data.decode("UTF-8"))
+    d_data = json.loads(request.data.decode("UTF-8"))
     if current_user.email == var_sistema['816']:
         vdor = 816
     elif current_user.email == var_sistema['835']:
         vdor = 835
     ant = 0
     cc = 6
-    ic = d['cuota']
+    ic = d_data['cuota']
     p = 1
-    # gar = pgdict1(con, f"select garantizado,dnigarante from clientes where \
-    # id={d['idcliente']}")
-    # garantizado = gar['garantizado']
-    # dnigarante = gar['dnigarante']
-    if d['dnigarante']:
+    if d_data['dnigarante']:
         garantizado = 1
     else:
         garantizado = 0
     insvta = f"insert into ventas(fecha,idvdor,ant,cc,ic,p,primera,idcliente,\
     garantizado,dnigarante) values(curdate(),{vdor},{ant},{cc},{ic},{p},\
-    '{d['primera']}',{d['idcliente']},{garantizado},{d['dnigarante']})"
-    insvis = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
-    values(curdate(),curtime(),{vdor},{d['id']},1,{ic*cc})"
+    '{d_data['primera']}',{d_data['idcliente']},{garantizado},{d_data['dnigarante']})"
+    insvis = f"insert into visitas(fecha,hora,vdor,iddato,result,\
+    monto_vendido) values(curdate(),curtime(),{vdor},{d_data['id']},1,{ic*cc})"
     cur = con.cursor()
     try:
         ultinsvta = pgonecolumn(con, "select valor from variables where id=13")
         listart = ''
-        for item in d['arts']:
+        for item in d_data['arts']:
             listart += item['cnt']
             listart += item['art']
-        if str(ultinsvta)!=f"{cc}{ic}{p}{d['primera']}{d['idcliente']}{d['id']}{listart}":
+        if str(ultinsvta)!=f"{cc}{ic}{p}{d_data['primera']}{d_data['idcliente']}\
+        {d_data['id']}{listart}":
             cur.execute(insvis)
             cur.execute(insvta)
             con.commit()
 
             idvta = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
             # lo siguiente ha sido trasladado al trigger ventas_ins_clientes
-            # upd = f"update datos set resultado=1, monto_vendido={ic*6}, fecha_definido=\
-            # current_timestamp(), idvta={idvta} where id={d['id']}"
+            # upd = f"update datos set resultado=1, monto_vendido={ic*6}, \
+                # fecha_definido=# current_timestamp(), idvta={idvta} where \
+                #     id={d_data['id']}"
             # cur.execute(upd)
             listart = ''
-            for item in d['arts']:
+            for item in d_data['arts']:
                 listart += item['cnt']
                 listart += item['art']
                 cnt = item['cnt']
@@ -1058,22 +1122,24 @@ def vendedor_pasarventa():
                 values({idvta},{cnt},'{art}',6,{ic},{costo},0)"
                 cur.execute(ins)
                 log(ins)
-            inslog = f"update variables set valor='{cc}{ic}{p}{d['primera']}{d['idcliente']}{d['id']}{listart}' where id=13"
+            inslog = f"update variables set valor='{cc}{ic}{p}{d_data['primera']}\
+            {d_data['idcliente']}{d_data['id']}{listart}' where id=13"
             cur.execute(inslog)
-            con.commit() # pruebo con hacer commit instantaneo de la variable que quizas no sea leida pq no se hizo el commit.
+            con.commit() # pruebo con hacer commit instantaneo de la variable
+            # que quizas no sea leida pq no se hizo el commit.
         else:
-            logging.warning(f"duplicacion de venta {ultinsvta} Dara cod 401")
+            logging.warning("duplicacion de venta %s Dara cod 401", ultinsvta)
             return make_response('error de duplicacion de venta',401)
     except mysql.connector.Error as _error:
-       con.rollback()
-       error = _error.msg
-       return make_response(error,400)
+        con.rollback()
+        error = _error.msg
+        return make_response(error,400)
     else:
-       con.commit()
-       con.close()
-       # log(upd)
-       log(insvta)
-       return 'ok'
+        con.commit()
+        con.close()
+        # log(upd)
+        log(insvta)
+        return 'ok'
 
 
 @vendedor.route('/G9S85pbqWVEX17nNQuOOnpxvn/<int:iddato>')
@@ -1081,8 +1147,9 @@ def vendedor_pasarventa():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_noestabadato(iddato):
-    logging.warning(f"noestabadato, {current_user.email}")
-    global var_sistema
+    """Proceso de noestaba. Vendedor visita y no esta el cliente."""
+    logging.warning("noestabadato, %s", current_user.email)
+
     con = get_con()
     if current_user.email == var_sistema['816']:
         vdor = 816
@@ -1094,26 +1161,26 @@ def vendedor_noestabadato(iddato):
     try:
         cur.execute(ins)
     except mysql.connector.Error as _error:
-       con.rollback()
-       error = _error.msg
-       return make_response(error,400)
+        con.rollback()
+        error = _error.msg
+        return make_response(error,400)
     else:
-       con.commit()
-       con.close()
-       return 'ok'
-
+        con.commit()
+        con.close()
+        return 'ok'
 
 
 @vendedor.route('/vendedor/getvisitasvendedor')
 @login_required
 @check_roles(['dev', 'gerente'])
 def vendedor_getvisitasvendedor():
+    """Funcion que entrega lista de visitas hechas por el vendedor."""
     con = get_con()
     visitasvendedor = pgdict(con, "select visitas.fecha as fecha,\
     cast(hora as char) as hora, visitas.vdor as vdor, result, \
-    visitas.monto_vendido as monto_vendido, idcliente,nombre,calle,num,clientes.zona as zona \
-    from visitas,datos,clientes where visitas.iddato=datos.id and \
-    clientes.id=datos.idcliente order by visitas.fecha desc,hora")
+    visitas.monto_vendido as monto_vendido, idcliente,nombre,calle,num,\
+    clientes.zona as zona from visitas,datos,clientes where visitas.iddato=\
+    datos.id and clientes.id=datos.idcliente order by visitas.fecha desc,hora")
 
     fechasvisitas = pgdict(con, "select visitas.fecha as fecha, visitas.vdor \
     as vdor, count(*) as cnt, sum(visitas.monto_vendido) as monto_vendido \
@@ -1127,8 +1194,9 @@ def vendedor_getvisitasvendedor():
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_getvisitasvdor():
-    logging.warning(f"getvisitasvdor, {current_user.email}")
-    global var_sistema
+    """Funcion que entrega la lista de visitas hechas por un vendedor."""
+    logging.warning("getvisitasvdor, %s", current_user.email)
+
     con = get_con()
     if current_user.email == var_sistema['816']:
         vdor = 816
@@ -1136,14 +1204,16 @@ def vendedor_getvisitasvdor():
         vdor = 835
     visitasvendedor = pgdict(con, f"select visitas.fecha as fecha,\
     cast(hora as char) as hora, visitas.vdor as vdor, result, \
-    visitas.monto_vendido as monto_vendido, idcliente,nombre,calle,num,clientes.zona as zona \
-    from visitas,datos,clientes where visitas.iddato=datos.id and \
-    clientes.id=datos.idcliente and visitas.vdor={vdor} and visitas.fecha>date_sub(curdate(),interval 6 day) order by \
+    visitas.monto_vendido as monto_vendido, idcliente,nombre,calle,num,\
+    clientes.zona as zona from visitas,datos,clientes where visitas.iddato=\
+    datos.id and clientes.id=datos.idcliente and visitas.vdor={vdor} and \
+    visitas.fecha>date_sub(curdate(),interval 6 day) order by \
     visitas.fecha desc,hora")
 
     fechasvisitas = pgdict(con,f"select visitas.fecha as fecha, visitas.vdor \
     as vdor, count(*) as cnt, sum(visitas.monto_vendido) as monto_vendido \
-    from visitas,datos where visitas.iddato=datos.id and visitas.vdor={vdor} and visitas.fecha>date_sub(curdate(),interval 6 day) \
+    from visitas,datos where visitas.iddato=datos.id and visitas.vdor={vdor} \
+    and visitas.fecha>date_sub(curdate(),interval 6 day) \
     group by visitas.fecha,visitas.vdor order by visitas.fecha,visitas.vdor \
     desc")
     return jsonify(visitasvendedor=visitasvendedor, fechasvisitas=fechasvisitas)
@@ -1153,6 +1223,7 @@ def vendedor_getvisitasvdor():
 @login_required
 @check_roles(['dev','gerente'])
 def vendedor_getclientesingresadosporvdor():
+    """Funcion entrega lista de clientes ingresados o alterados por el vdor."""
     con = get_con()
     clientes = pgdict(con, "select * from clientes where modif_vdor=1")
     return jsonify(clientes=clientes)
@@ -1164,13 +1235,10 @@ def vendedor_getclientesingresadosporvdor():
 def vendedor_getventashoy():
     con = get_con()
     ventashoy = pgdict(con, "select fecha_definido,\
-    nombre,concat(calle,num) as direccion,clientes.zona as zona, monto_vendido, vendedor,dni \
-    from datos,clientes where datos.idcliente = clientes.id and \
+    nombre,concat(calle,num) as direccion,clientes.zona as zona, monto_vendido,\
+    vendedor,dni from datos,clientes where datos.idcliente = clientes.id and \
     date(fecha_definido)=curdate() and resultado=1 order by fecha_definido")
     return jsonify(ventashoy=ventashoy)
-
-
-
 
 
 @vendedor.route('/3ZbXanrRQalY6JL5eOBi49Nyc', methods=["POST"])
@@ -1178,19 +1246,20 @@ def vendedor_getventashoy():
 @login_required
 @check_roles(['dev','gerente','admin','vendedor'])
 def vendedor_wappaut():
-    global var_sistema
-    logging.warning(f"wappaut, {current_user.email}")
+    """Funcion que procesa el wapp de autorizacion."""
+
+    logging.warning("wappaut, %s", current_user.email)
     if current_user.email == var_sistema['816']:
         vdor = 816
     elif current_user.email == var_sistema['835']:
         vdor = 835
-    d = json.loads(request.data.decode("UTF-8"))
-    msg = d['msg']
-    tipo = d['tipo'] # a discriminar en el futuro
+    d_data = json.loads(request.data.decode("UTF-8"))
+    msg = d_data['msg']
+    tipo = d_data['tipo'] # a discriminar en el futuro
     if tipo=='retiro zona':
         msg = msg + f" vendedor {vdor}"
         wapp1 = '3512411963'
-        response1 = send_msg_whatsapp(0, wapp1, msg)
+        send_msg_whatsapp(0, wapp1, msg)
     wapp = var_sistema['wapp_auth']
     if wapp:
         response = send_msg_whatsapp(0, wapp, msg)
@@ -1203,11 +1272,12 @@ def vendedor_wappaut():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_wapprespaut():
-    global var_sistema
-    d = json.loads(request.data.decode("UTF-8"))
-    vdor = 'wapp'+str(d['vdor'])
+    """Funcion que procesa la respuesta a la autorizacion."""
+
+    d_data = json.loads(request.data.decode("UTF-8"))
+    vdor = 'wapp'+str(d_data['vdor'])
     wappvdor = var_sistema[vdor]
-    msg = d['msg']
+    msg = d_data['msg']
     if wappvdor:
         time.sleep(15)
         response = send_msg_whatsapp(0, wappvdor, msg)
@@ -1221,10 +1291,11 @@ def vendedor_wapprespaut():
 @login_required
 @check_roles(['dev','gerente','admin','vendedor'])
 def vendedor_wapp():
-    d = json.loads(request.data.decode("UTF-8"))
-    idcliente = d['idcliente']
-    wapp = d['wapp']
-    msg = d['msg']
+    """Funcion que procesa wapp enviados por el vendedor."""
+    d_data = json.loads(request.data.decode("UTF-8"))
+    idcliente = d_data['idcliente']
+    wapp = d_data['wapp']
+    msg = d_data['msg']
     devel = var_sistema['devel']
     if devel=='1':
         prod=0
@@ -1239,17 +1310,17 @@ def vendedor_wapp():
         return 'error', 400
 
 
-
 @vendedor.route('/4qUK6eNZnCYjIiGTt3HSj2YDp', methods=['POST'])
 @vendedor.route('/vendedor/filewapp', methods=['POST'])
 @login_required
 @check_roles(['dev','gerente','admin','vendedor'])
 def vendedor_filewapp():
-    global var_sistema
-    d = json.loads(request.data.decode("UTF-8"))
-    wapp = d['wapp']
-    idcliente = d['idcliente']
-    file = d['file']
+    """Funcion que procesa el envio de pdf por el vendedor."""
+
+    d_data = json.loads(request.data.decode("UTF-8"))
+    wapp = d_data['wapp']
+    idcliente = d_data['idcliente']
+    file = d_data['file']
     devel = var_sistema['devel']
     if devel=='1':
         prod=0
@@ -1265,20 +1336,23 @@ def vendedor_filewapp():
 @login_required
 @check_roles(['dev','gerente'])
 def vendedor_getcomisionesvendedor(vdor):
-    global var_sistema
+    """Funcion que entrega lista de comisiones por vendedor."""
+
     com = 'com'+str(vdor)
     comision = var_sistema[com]
     con = get_con()
-    comisiones = pgdict(con, f"select date(fecha_definido) as fecha,monto_vendido*{comision} \
-    as com,idvta as id from datos where vendedor={vdor} and com_pagada=0 \
-    and monto_vendido>0 order by date(fecha_definido)")
-    devoluciones = pgdict(con, f"select date(fecha_definido) as fecha,monto_devuelto*{comision}*(-1) \
-    as com, idvta as id from datos where vendedor={vdor} and com_pagada_dev=0 \
-    and monto_devuelto!=0 order by date(fecha_definido)")
+    comisiones = pgdict(con, f"select date(fecha_definido) as fecha,\
+    monto_vendido*{comision} as com,idvta as id from datos where vendedor=\
+    {vdor} and com_pagada=0 and monto_vendido>0 order by date(fecha_definido)")
+    devoluciones = pgdict(con, f"select date(fecha_definido) as fecha,\
+    monto_devuelto*{comision}*(-1) as com, idvta as id from datos where \
+    vendedor={vdor} and com_pagada_dev=0 and monto_devuelto!=0 order by \
+    date(fecha_definido)")
     fechascomisiones = pgdict(con, f"select date(fecha_definido) as fecha,  \
     count(*) as cnt,sum(case when com_pagada=0 then monto_vendido*{comision} \
-    when com_pagada=1 then 0 end)+sum(monto_devuelto*{comision}*(-1)) as comision from datos where \
-    ((resultado=1 and com_pagada=0) or (monto_devuelto>0 and com_pagada_dev=0)) and vendedor={vdor} group by \
+    when com_pagada=1 then 0 end)+sum(monto_devuelto*{comision}*(-1)) as \
+    comision from datos where ((resultado=1 and com_pagada=0) or \
+    (monto_devuelto>0 and com_pagada_dev=0)) and vendedor={vdor} group by \
     date(fecha_definido) order by date(fecha_definido) desc")
     if devoluciones:
         comisiones = comisiones+devoluciones
@@ -1289,14 +1363,17 @@ def vendedor_getcomisionesvendedor(vdor):
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_getcomisionesprom():
+    """Funcion que entrega la lista de comisiones de las administrativas."""
     con = get_con()
-    comisiones = pgdict(con, f"select date(fecha_definido) as fecha,monto_vendido*0.04 \
-    as com,idvta as id from datos where user in ('isabelheredie@gmail.com','n.dryon@gmail.com') and com_pagada_prom=0 \
+    comisiones = pgdict(con, "select date(fecha_definido) as fecha,\
+    monto_vendido*0.04 as com,idvta as id from datos where user in \
+    ('isabelheredie@gmail.com','n.dryon@gmail.com') and com_pagada_prom=0 \
     and monto_vendido>0 order by date(fecha_definido)")
-    fechascomisiones = pgdict(con, f"select date(fecha_definido) as fecha,  \
+    fechascomisiones = pgdict(con, "select date(fecha_definido) as fecha,  \
     count(*) as cnt,sum(monto_vendido*0.04) as comision from datos where \
-    resultado=1 and com_pagada_prom=0 and user in ('isabelheredie@gmail.com','n.dryon@gmail.com') group by \
-    date(fecha_definido) order by date(fecha_definido) desc")
+    resultado=1 and com_pagada_prom=0 and user in ('isabelheredie@gmail.com',\
+    'n.dryon@gmail.com') group by date(fecha_definido) order by \
+    date(fecha_definido) desc")
     return jsonify(comisiones=comisiones, fechascomisiones=fechascomisiones)
 
 
@@ -1305,6 +1382,7 @@ def vendedor_getcomisionesprom():
 @login_required
 @check_roles(['dev','gerente','admin','vendedor'])
 def vendedor_buscaclientepordni(dni):
+    """Simple funcion que levanta datos del cliente por dni."""
     con = get_con()
     cliente = pgdict1(con, f"select * from clientes where dni={dni}")
     if cliente:
@@ -1317,6 +1395,7 @@ def vendedor_buscaclientepordni(dni):
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_getartvendedor(vdor):
+    """Funcion que entrega lista de articulos a cargar por vendedor."""
     con = get_con()
     artvendedor = pgdict(con, f"select sum(detvta.cnt) as cnt,\
     detvta.art as art from detvta,ventas where detvta.idvta=ventas.id and \
@@ -1329,6 +1408,7 @@ def vendedor_getartvendedor(vdor):
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_getvendedores():
+    """Simple funcion que entrega lista de vendedores."""
     con = get_con()
     vendedores = pglflat(con, "select id from cobr where activo=1 and vdor=1")
     return jsonify(vendedores=vendedores)
@@ -1338,6 +1418,7 @@ def vendedor_getvendedores():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_marcarcargado(vdor):
+    """Proceso que marca que los articulos pendientes fueron cargados."""
     con = get_con()
     upd = f"update detvta set cargado=1 where idvta in (select id from ventas \
     where idvdor={vdor})"
@@ -1359,6 +1440,7 @@ def vendedor_marcarcargado(vdor):
 @login_required
 @check_roles(['dev','gerente'])
 def vendedor_marcarpagadas(vdor):
+    """Proceso que marca como pagadas las comisiones pendientes de un vdor."""
     con = get_con()
     upd = f"update datos set com_pagada=1, fechapagocom=current_date() where \
     idvta in (select idvta from datos where vendedor={vdor} and com_pagada=0 \
@@ -1386,9 +1468,10 @@ def vendedor_marcarpagadas(vdor):
 @login_required
 @check_roles(['dev','gerente'])
 def vendedor_marcarpagadasseleccionados():
-    d = json.loads(request.data.decode("UTF-8"))
-    vdor = d['vdor']
-    fechas = d['fechas']
+    """Proceso que marca pagadas las comisiones de un vdor en ciertos dias."""
+    d_data = json.loads(request.data.decode("UTF-8"))
+    vdor = d_data['vdor']
+    fechas = d_data['fechas']
     lpg ='('
     for fecha in fechas:
         lpg+=f"'{str(fecha)}',"
@@ -1415,9 +1498,11 @@ def vendedor_marcarpagadasseleccionados():
 @login_required
 @check_roles(['dev','gerente'])
 def vendedor_marcarpagadascomprom():
+    """Proceso que marca pagadas comisiones promotoras pendientes."""
     con = get_con()
-    upd = f"update datos set com_pagada_prom=1, fechapagocom_prom=current_date() where \
-    idvta in (select idvta from datos where user in ('isabelheredie@gmail.com','n.dryon@gmail.com') and com_pagada_prom=0 \
+    upd = "update datos set com_pagada_prom=1, fechapagocom_prom=\
+    current_date() where idvta in (select idvta from datos where user in \
+    ('isabelheredie@gmail.com','n.dryon@gmail.com') and com_pagada_prom=0 \
     and monto_vendido>0)"
     cur = con.cursor()
     try:
@@ -1437,15 +1522,17 @@ def vendedor_marcarpagadascomprom():
 @login_required
 @check_roles(['dev','gerente'])
 def vendedor_marcarpagadascompromseleccionados():
-    d = json.loads(request.data.decode("UTF-8"))
-    fechas = d['fechas']
+    """Proceso que marca pagadas comisiones promotoras en ciertos dias."""
+    d_data = json.loads(request.data.decode("UTF-8"))
+    fechas = d_data['fechas']
     lpg ='('
     for fecha in fechas:
         lpg+=f"'{str(fecha)}',"
     lpg = lpg[0:-1]+')'
     con = get_con()
-    upd = f"update datos set com_pagada_prom=1, fechapagocom_prom=current_date() where \
-    idvta in (select idvta from datos where user in ('isabelheredie@gmail.com','n.dryon@gmail.com') and com_pagada_prom=0 \
+    upd = f"update datos set com_pagada_prom=1, fechapagocom_prom=\
+    current_date() where idvta in (select idvta from datos where user in \
+    ('isabelheredie@gmail.com','n.dryon@gmail.com') and com_pagada_prom=0 \
     and monto_vendido>0 and date(fecha_definido) in {lpg})"
     cur = con.cursor()
     try:
@@ -1466,8 +1553,9 @@ def vendedor_marcarpagadascompromseleccionados():
 @login_required
 @check_roles(['dev','gerente','vendedor'])
 def vendedor_getcargavendedor():
-    logging.warning(f"getcargavendedor, {current_user.email}")
-    global var_sistema
+    """Funcion entrega lista de articulos a cargar para el vendedor."""
+    logging.warning("getcargavendedor, %s",current_user.email)
+
     con = get_con()
     if current_user.email == var_sistema['816']:
         vdor = 816
@@ -1485,6 +1573,7 @@ def vendedor_getcargavendedor():
 @login_required
 @check_roles(['dev','gerente','vendedor'])
 def vendedor_cargararticulos():
+    """Ruta que renderiza la pagina cargarart."""
     return render_template('/vendedor/cargarart.html')
 
 
@@ -1493,6 +1582,7 @@ def vendedor_cargararticulos():
 @login_required
 @check_roles(['dev','gerente','vendedor'])
 def vendedor_comisionesvdor():
+    """Ruta que renderiza la pagina comisionesvdor."""
     return render_template('/vendedor/comisionesvdor.html')
 
 
@@ -1501,8 +1591,9 @@ def vendedor_comisionesvdor():
 @login_required
 @check_roles(['dev','gerente','vendedor'])
 def vendedor_getcomisionesparavendedor():
-    logging.warning(f"getcomisionesparavendedor, {current_user.email}")
-    global var_sistema
+    """Funcion que entrega lista de comisiones pendiente para el vendedor."""
+    logging.warning("getcomisionesparavendedor, %s",current_user.email)
+
     if current_user.email == var_sistema['816']:
         vdor = 816
     elif current_user.email == var_sistema['835']:
@@ -1510,9 +1601,10 @@ def vendedor_getcomisionesparavendedor():
     com = 'com'+str(vdor)
     comision = var_sistema[com]
     con = get_con()
-    comisiones = pgdict(con, f"select date(fecha_definido) as fecha ,monto_vendido*{comision} \
-    as com, idvta as id from datos where vendedor={vdor} and com_pagada=0 \
-    and monto_vendido>0 order by date(fecha_definido)")
+    comisiones = pgdict(con, f"select date(fecha_definido) as fecha,\
+    monto_vendido*{comision} as com, idvta as id from datos where \
+    vendedor={vdor} and com_pagada=0 and monto_vendido>0 order by \
+    date(fecha_definido)")
     devoluciones = pgdict(con, f"select fecha,monto_devuelto*{comision}*(-1) \
     as com, idvta as id from datos where vendedor={vdor} and com_pagada_dev=0 \
     and monto_devuelto!=0 order by fecha")
@@ -1524,10 +1616,12 @@ def vendedor_getcomisionesparavendedor():
         comisiones = comisiones+devoluciones
     return jsonify(comisiones=comisiones, fechascomisiones=fechascomisiones)
 
+
 @vendedor.route('/vendedor/obtenerdni/<int:idcliente>')
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_obtenerdni(idcliente):
+    """Simple funcion que busca el dni de un cliente dado su idcliente."""
     con = get_con()
     dni = pgonecolumn(con, f"select dni from clientes where id={idcliente}")
     return jsonify(dni=dni)
@@ -1537,6 +1631,7 @@ def vendedor_obtenerdni(idcliente):
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_tomardato(idauth):
+    """Simple proceso que marca que una autorizacion fue atendida."""
     con = get_con()
     upd = f"update autorizacion set tomado=1 where id={idauth}"
     cur = con.cursor()
@@ -1545,13 +1640,16 @@ def vendedor_tomardato(idauth):
     con.close()
     return 'ok'
 
+
 @vendedor.route('/u0IEJT3i1INZpKoNKbyezlfRy/<int:auth>')
 @vendedor.route('/vendedor/isatendido/<int:auth>')
 @login_required
 @check_roles(['dev','gerente','vendedor'])
 def vendedor_isatendido(auth):
+    """Simple funcion que marca si una autorizacion ya esta atendida."""
     con = get_con()
-    tomado = pgonecolumn(con, f"select tomado from autorizacion where id={auth}")
+    tomado = pgonecolumn(con, f"select tomado from autorizacion where id=\
+    {auth}")
     return jsonify(tomado=tomado)
 
 
@@ -1560,12 +1658,14 @@ def vendedor_isatendido(auth):
 @login_required
 @check_roles(['dev','gerente','vendedor'])
 def vendedor_isrespondidoauth(auth):
+    """Funcion que entrega la respuesta que tuvo la autorizacion."""
     con = get_con()
-    respuesta = pgonecolumn(con, f" select case when autorizado=1 then 'autorizado' \
-                                                when rechazado=1 then 'rechazado' \
-                                                when sigueigual=1 then 'sigueigual' end \
+    respuesta = pgonecolumn(con, f" select \
+                            case when autorizado=1 then 'autorizado' \
+                                 when rechazado=1 then 'rechazado' \
+                                 when sigueigual=1 then 'sigueigual' end \
     from autorizacion where id={auth}")
-    logging.warning(f"respuesta {respuesta}")
+    logging.warning("respuesta %s", respuesta)
     return jsonify(respuesta=respuesta)
 
 
@@ -1573,7 +1673,7 @@ def vendedor_isrespondidoauth(auth):
 @login_required
 @check_roles(['dev','gerente'])
 def vendedor_motivoautorizacion(motivo,idauth):
-    print(motivo, idauth)
+    """Proceso para registrar el motivo del rechazo de una autorizacion."""
     con = get_con()
     upd = f"update autorizacion set motivo='{motivo}' where id={idauth}"
     cur = con.cursor()
