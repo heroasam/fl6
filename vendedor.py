@@ -162,28 +162,30 @@ def vendedor_guardardato():
         return make_response(error, 400)
     else:
         con.commit()
-        con.close()
         log(ins)
         return 'ok'
+    finally:
+        con.close()
 
 
-@vendedor.route('/vendedor/togglerechazardato/<int:id>')
+
+@vendedor.route('/vendedor/togglerechazardato/<int:iddato>')
 @login_required
 @check_roles(['dev','gerente','admin'])
-def vendedor_togglerechazardato(id):
+def vendedor_togglerechazardato(iddato):
     """Funcion que hace un toggle en el campo rechazado.
 
     Tambien actualiza el campo resultado y la tabla autorizacion."""
     con = get_con()
-    resultado = pgonecolumn(con, f"select resultado from datos where id={id}")
+    resultado = pgonecolumn(con, f"select resultado from datos where id={iddato}")
     if resultado == 8: # o sea ya esta rechazado
-        upd = f"update datos set resultado=NULL, rechazado=0 where id={id}"
+        upd = f"update datos set resultado=NULL, rechazado=0 where id={iddato}"
         updaut = f"update autorizacion set rechazado=0,autorizado=0 where \
-        iddato={id}"
+        iddato={iddato}"
     elif resultado is None: # o sea se puede rechazar
-        upd = f"update datos set resultado=8,rechazado=1 where id={id}"
+        upd = f"update datos set resultado=8,rechazado=1 where id={iddato}"
         updaut = f"update autorizacion set rechazado=1,autorizado=0 where \
-        iddato={id}"
+        iddato={iddato}"
     else:
         return make_response("error", 400)
     cur = con.cursor()
@@ -196,10 +198,11 @@ def vendedor_togglerechazardato(id):
         return make_response(error, 400)
     else:
         con.commit()
-        con.close()
         log(upd)
         log(updaut)
         return 'ok'
+    finally:
+        con.close()
 
 
 @vendedor.route('/vendedor/getlistadodatos')
@@ -288,8 +291,9 @@ def vendedor_asignardatosvendedor():
         return make_response(error, 400)
     else:
         con.commit()
-        con.close()
         return 'ok'
+    finally:
+        con.close()
 
 
 @vendedor.route('/vendedor/ingresardatoyasignardatosvendedor', methods=['POST'])
@@ -328,7 +332,7 @@ def vendedor_ingresardatoyasignardatosvendedor():
             if not existe_dato_ya:
                 ins = f"insert into datos(fecha, user, idcliente, \
                 fecha_visitar,art,horarios, comentarios, cuota_maxima,\
-                deuda_en_la_casa,\ sin_extension,vendedor,listado,\
+                deuda_en_la_casa, sin_extension,vendedor,listado,\
                 enviado_vdor,zona) values (curdate(), \
                 '{current_user.email}',{idcliente},curdate(),'','','', \
                 {cuota_maxima},'{deuda_en_la_casa}',{sin_extension},\
@@ -343,8 +347,9 @@ def vendedor_ingresardatoyasignardatosvendedor():
         return make_response(error, 400)
     else:
         con.commit()
-        con.close()
         return 'ok'
+    finally:
+        con.close()
 
 
 @vendedor.route('/vendedor/getcuotabasica')
@@ -352,19 +357,17 @@ def vendedor_ingresardatoyasignardatosvendedor():
 @check_roles(['dev','gerente'])
 def vendedor_getcuotabasica():
     """Simple funcion para leer la cuota basica desde la variable."""
-
-    con = get_con()
     cuotabasica = var_sistema['cuota_basica']
     return jsonify(cuotabasica=cuotabasica)
 
 
-@vendedor.route('/vendedor/borrardato/<int:id>')
+@vendedor.route('/vendedor/borrardato/<int:iddato>')
 @login_required
 @check_roles(['dev','gerente','admin'])
-def vendedor_borrardato(id):
+def vendedor_borrardato(iddato):
     """Simple proceso para borrar un dato dado su iddato."""
     con = get_con()
-    stm = f"delete from datos where id={id}"
+    stm = f"delete from datos where id={iddato}"
     cur = con.cursor()
     try:
         cur.execute(stm)
@@ -375,9 +378,10 @@ def vendedor_borrardato(id):
         return make_response(error, 400)
     else:
         con.commit()
-        con.close()
         log(stm)
-    return 'ok'
+        return 'ok'
+    finally:
+        con.close()
 
 
 @vendedor.route('/vendedor/editardato', methods=['POST'])
@@ -410,9 +414,10 @@ def vendedor_editardato():
         return make_response(error, 400)
     else:
         con.commit()
-        con.close()
         log(upd)
-    return 'ok'
+        return 'ok'
+    finally:
+        con.close()
 
 
 @vendedor.route('/vendedor/verificarqueyaesdato/<int:idcliente>')
@@ -425,8 +430,7 @@ def vendedor_verificarqueyaesdato(idcliente):
     idcliente={idcliente} and resultado is null")
     if dato:
         return make_response("error", 400)
-    else:
-        return make_response("ok", 200)
+    return make_response("ok", 200)
 
 
 @vendedor.route('/vendedor/guardarcuotabasica/<int:cuota>')
@@ -445,10 +449,11 @@ def vendedor_guardarcuotabasica(cuota):
         return make_response(error, 400)
     else:
         con.commit()
-        con.close()
         log(upd)
         leer_variables()
         return 'ok'
+    finally:
+        con.close()
 
 
 @vendedor.route('/2xxXix5cnz7IKcYegqs6qf0R6')
@@ -525,9 +530,11 @@ def vendedor_envioclientenuevo():
         # Testeo si hay cambios en los datos del cliente que envia el vendedor
         upd = None
         inslog = None
-        if cliente['calle']!=d_data['calle'] or cliente['num']!=d_data['num'] or \
-           cliente['barrio']!=d_data['barrio'] or cliente['wapp']!=d_data['wapp'] \
-               or cliente['tel']!=d_data['tel'] or cliente['acla']!=d_data['acla']:
+        cliente_nuevo = [cliente['calle'], cliente['num'], cliente['barrio'], \
+                         cliente['wapp'], cliente['tel'], cliente['acla']]
+        cliente_viejo = [d_data['calle'], d_data['num'], d_data['barrio'], \
+                         d_data['wapp'], d_data['tel'], d_data['acla']]
+        if cliente_nuevo != cliente_viejo:
             upd = f"update clientes set calle='{d_data['calle']}', num={d_data['num']},\
             barrio='{d_data['barrio']}',wapp='{d_data['wapp']}',tel='{d_data['tel']}', \
             modif_vdor=1,acla='{d_data['acla']}' where id={d_data['id']}"
@@ -571,7 +578,6 @@ def vendedor_envioclientenuevo():
             return make_response(error, 400)
         else:
             con.commit()
-            con.close()
             log(ins)
             if ins:
                 log(insaut)
@@ -581,8 +587,10 @@ def vendedor_envioclientenuevo():
                 log(inslog)
             if vdor!=vdorasignado:
                 return jsonify(idautorizacion=idautorizacion, otroasignado=1)
-            else:
-                return jsonify(idautorizacion=idautorizacion, otroasignado=0)
+            return jsonify(idautorizacion=idautorizacion, otroasignado=0)
+        finally:
+            con.close()
+
     else: # o sea es un cliente nuevo
         sin_extension = 1
         cuota_maxima = var_sistema['cuota_basica']
@@ -628,10 +636,11 @@ def vendedor_envioclientenuevo():
             return make_response(error, 400)
         else:
             con.commit()
-            con.close()
             log(ins)
             log(insaut)
             return jsonify(idautorizacion=idautorizacion)
+        finally:
+            con.close()
 
 
 @vendedor.route('/4mY6khlmZKUzDRZDJkakr75iH')
@@ -721,9 +730,10 @@ def vendedor_editarwapp():
         return make_response(error,400)
     else:
         con.commit()
-        con.close()
         log(upd)
         return 'ok'
+    finally:
+        con.close()
 
 
 @vendedor.route('/HvjJNtFgF71pRYafzcTC74nUt' , methods=['POST'])
@@ -754,9 +764,10 @@ def vendedor_guardardatofechado():
         return make_response(error,400)
     else:
         con.commit()
-        con.close()
         log(upd)
         return 'ok'
+    finally:
+        con.close()
 
 
 @vendedor.route('/UtVc3f6y5hfxu2dPmcrV9Y7mc/<int:iddato>')
@@ -786,9 +797,10 @@ def vendedor_anulardato(iddato):
         return make_response(error,400)
     else:
         con.commit()
-        con.close()
         log(upd)
         return 'ok'
+    finally:
+        con.close()
 
 
 @vendedor.route('/gJUmonE8slTFGZqSKXSVwqPJ1/<int:iddato>')
@@ -826,10 +838,11 @@ def vendedor_mudodato(iddato):
         return make_response(error,400)
     else:
         con.commit()
-        con.close()
         log(upd)
         log(updcliente)
         return 'ok'
+    finally:
+        con.close()
 
 
 @vendedor.route('/sLTFCMArYAdVsrEgwsz7utyRi/<int:iddato>')
@@ -868,10 +881,11 @@ def vendedor_falleciodato(iddato):
         return make_response(error,400)
     else:
         con.commit()
-        con.close()
         log(upd)
         log(updcli)
         return 'ok'
+    finally:
+        con.close()
 
 
 @vendedor.route('/fc3vpQG6SzEH95Ya7kTJPZ48M' , methods=['POST'])
@@ -886,8 +900,7 @@ def vendedor_validardni():
     dni = pgonecolumn(con, f"select dni from clientes where id={d_data['id']}")
     if dni==int(d_data['dni']):
         return make_response('aprobado', 200)
-    else:
-        return make_response('error', 400)
+    return make_response('error', 400)
 
 
 @vendedor.route('/vaHQ2gFYLW2pIWSr5I0ogCL0k', methods=['POST'])
@@ -919,8 +932,9 @@ def vendedor_registrarautorizacion():
     else:
         con.commit()
         log(ins)
-        con.close()
         return jsonify(idautorizacion=idautorizacion)
+    finally:
+        con.close()
 
 
 @vendedor.route('/vendedor/getlistadoautorizados')
@@ -996,10 +1010,11 @@ def vendedor_autorizardato(idauth):
         return make_response(error,400)
     else:
         con.commit()
-        con.close()
         log(upd_dat)
         log(upd_aut)
         return 'ok'
+    finally:
+        con.close()
 
 
 @vendedor.route('/vendedor/noautorizardato/<int:idauth>')
@@ -1008,8 +1023,6 @@ def vendedor_autorizardato(idauth):
 def vendedor_noautorizardato(idauth):
     """Proceso para NO autorizar un dato, y que siga igual, venda la basica."""
     con = get_con()
-    cuota_requerida = pgonecolumn(con, f"select cuota_requerida from \
-    autorizacion where id={idauth}")
     upd_aut = f"update autorizacion set autorizado=0, user = \
     '{current_user.email}',rechazado=0,sigueigual=1 where id={idauth}"
     iddato = pgonecolumn(con, f"select iddato from autorizacion where \
@@ -1027,10 +1040,11 @@ def vendedor_noautorizardato(idauth):
         return make_response(error,400)
     else:
         con.commit()
-        con.close()
         log(upd_aut)
         log(upddato)
         return 'ok'
+    finally:
+        con.close()
 
 
 @vendedor.route('/vendedor/rechazardato/<int:idauth>')
@@ -1039,8 +1053,6 @@ def vendedor_noautorizardato(idauth):
 def vendedor_rechazardato(idauth):
     """Proceso para rechazar dato, no se puede vender alli."""
     con = get_con()
-    cuota_requerida = pgonecolumn(con, f"select cuota_requerida from \
-    autorizacion where id={idauth}")
     upd_aut = f"update autorizacion set autorizado=0, user = \
     '{current_user.email}',rechazado=1,sigueigual=0 where id={idauth}"
     iddato = pgonecolumn(con, f"select iddato from autorizacion where \
@@ -1058,10 +1070,11 @@ def vendedor_rechazardato(idauth):
         return make_response(error,400)
     else:
         con.commit()
-        con.close()
         log(upd_aut)
         log(upddato)
         return 'ok'
+    finally:
+        con.close()
 
 
 @vendedor.route('/xuNzBi4bvtSugd5KbxSQzD0Ey' , methods=['POST'])
@@ -1078,18 +1091,18 @@ def vendedor_pasarventa():
     elif current_user.email == var_sistema['835']:
         vdor = 835
     ant = 0
-    cc = 6
-    ic = d_data['cuota']
-    p = 1
+    cant_cuotas = 6
+    imp_cuota = d_data['cuota']
+    per = 1
     if d_data['dnigarante']:
         garantizado = 1
     else:
         garantizado = 0
-    insvta = f"insert into ventas(fecha,idvdor,ant,cc,ic,p,primera,idcliente,\
-    garantizado,dnigarante) values(curdate(),{vdor},{ant},{cc},{ic},{p},\
+    insvta = f"insert into ventas(fecha,idvdor,ant,cant_cuotas,imp_cuota,p,primera,idcliente,\
+    garantizado,dnigarante) values(curdate(),{vdor},{ant},{cant_cuotas},{imp_cuota},{per},\
     '{d_data['primera']}',{d_data['idcliente']},{garantizado},{d_data['dnigarante']})"
     insvis = f"insert into visitas(fecha,hora,vdor,iddato,result,\
-    monto_vendido) values(curdate(),curtime(),{vdor},{d_data['id']},1,{ic*cc})"
+    monto_vendido) values(curdate(),curtime(),{vdor},{d_data['id']},1,{imp_cuota*cant_cuotas})"
     cur = con.cursor()
     try:
         ultinsvta = pgonecolumn(con, "select valor from variables where id=13")
@@ -1097,7 +1110,7 @@ def vendedor_pasarventa():
         for item in d_data['arts']:
             listart += item['cnt']
             listart += item['art']
-        if str(ultinsvta)!=f"{cc}{ic}{p}{d_data['primera']}{d_data['idcliente']}\
+        if str(ultinsvta)!=f"{cant_cuotas}{imp_cuota}{per}{d_data['primera']}{d_data['idcliente']}\
         {d_data['id']}{listart}":
             cur.execute(insvis)
             cur.execute(insvta)
@@ -1105,7 +1118,7 @@ def vendedor_pasarventa():
 
             idvta = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
             # lo siguiente ha sido trasladado al trigger ventas_ins_clientes
-            # upd = f"update datos set resultado=1, monto_vendido={ic*6}, \
+            # upd = f"update datos set resultado=1, monto_vendido={imp_cuota*6}, \
                 # fecha_definido=# current_timestamp(), idvta={idvta} where \
                 #     id={d_data['id']}"
             # cur.execute(upd)
@@ -1115,14 +1128,14 @@ def vendedor_pasarventa():
                 listart += item['art']
                 cnt = item['cnt']
                 art = item['art']
-                ic = item['cuota']
+                imp_cuota = item['cuota']
                 costo = pgonecolumn(con, f"select costo from articulos where \
                 art='{art}'")
-                ins = f"insert into detvta(idvta,cnt,art,cc,ic,costo,devuelta) \
-                values({idvta},{cnt},'{art}',6,{ic},{costo},0)"
+                ins = f"insert into detvta(idvta,cnt,art,cant_cuotas,imp_cuota,costo,devuelta) \
+                values({idvta},{cnt},'{art}',6,{imp_cuota},{costo},0)"
                 cur.execute(ins)
                 log(ins)
-            inslog = f"update variables set valor='{cc}{ic}{p}{d_data['primera']}\
+            inslog = f"update variables set valor='{cant_cuotas}{imp_cuota}{per}{d_data['primera']}\
             {d_data['idcliente']}{d_data['id']}{listart}' where id=13"
             cur.execute(inslog)
             con.commit() # pruebo con hacer commit instantaneo de la variable
@@ -1136,10 +1149,11 @@ def vendedor_pasarventa():
         return make_response(error,400)
     else:
         con.commit()
-        con.close()
         # log(upd)
         log(insvta)
         return 'ok'
+    finally:
+        con.close()
 
 
 @vendedor.route('/G9S85pbqWVEX17nNQuOOnpxvn/<int:iddato>')
@@ -1166,8 +1180,9 @@ def vendedor_noestabadato(iddato):
         return make_response(error,400)
     else:
         con.commit()
-        con.close()
         return 'ok'
+    finally:
+        con.close()
 
 
 @vendedor.route('/vendedor/getvisitasvendedor')
@@ -1233,6 +1248,7 @@ def vendedor_getclientesingresadosporvdor():
 @login_required
 @check_roles(['dev','gerente'])
 def vendedor_getventashoy():
+    """Funcion que entrega lista de las ventas del dia para el vendedor."""
     con = get_con()
     ventashoy = pgdict(con, "select fecha_definido,\
     nombre,concat(calle,num) as direccion,clientes.zona as zona, monto_vendido,\
@@ -1264,8 +1280,7 @@ def vendedor_wappaut():
     if wapp:
         response = send_msg_whatsapp(0, wapp, msg)
         return response
-    else:
-        return 'error', 400
+    return 'error', 400
 
 
 @vendedor.route('/vendedor/wapprespauth', methods=["POST"])
@@ -1282,8 +1297,7 @@ def vendedor_wapprespaut():
         time.sleep(15)
         response = send_msg_whatsapp(0, wappvdor, msg)
         return response
-    else:
-        return 'error', 400
+    return 'error', 400
 
 
 @vendedor.route('/hX53695XAOpaLY9itLgmghkhH', methods=["POST"])
@@ -1306,8 +1320,7 @@ def vendedor_wapp():
         if response is None:
             response = 'Rejected'
         return response
-    else:
-        return 'error', 400
+    return 'error', 400
 
 
 @vendedor.route('/4qUK6eNZnCYjIiGTt3HSj2YDp', methods=['POST'])
@@ -1330,6 +1343,7 @@ def vendedor_filewapp():
         response = send_file_whatsapp(
             idcliente,f"https://www.fedesal.lol/pdf/{file}.pdf", wapp)
         return jsonify(response=response)
+    return 'error',400
 
 
 @vendedor.route('/vendedor/getcomisionesvendedor/<int:vdor>')
@@ -1387,8 +1401,7 @@ def vendedor_buscaclientepordni(dni):
     cliente = pgdict1(con, f"select * from clientes where dni={dni}")
     if cliente:
         return jsonify(cliente=cliente)
-    else:
-        return make_response("error", 401)
+    return make_response("error", 401)
 
 
 @vendedor.route('/vendedor/getartvendedor/<int:vdor>')
@@ -1431,9 +1444,10 @@ def vendedor_marcarcargado(vdor):
         return make_response(error, 400)
     else:
         con.commit()
-        con.close()
         log(upd)
         return 'ok'
+    finally:
+        con.close()
 
 
 @vendedor.route('/vendedor/marcarpagadas/<int:vdor>')
@@ -1458,10 +1472,12 @@ def vendedor_marcarpagadas(vdor):
         return make_response(error, 400)
     else:
         con.commit()
-        con.close()
         log(upd)
         log(upddev)
         return 'ok'
+    finally:
+        con.close()
+
 
 
 @vendedor.route('/vendedor/marcarpagadasseleccionados', methods=['POST'])
@@ -1489,9 +1505,10 @@ def vendedor_marcarpagadasseleccionados():
         return make_response(error, 400)
     else:
         con.commit()
-        con.close()
         log(upd)
         return 'ok'
+    finally:
+        con.close()
 
 
 @vendedor.route('/vendedor/marcarpagadascomprom')
@@ -1513,9 +1530,11 @@ def vendedor_marcarpagadascomprom():
         return make_response(error, 400)
     else:
         con.commit()
-        con.close()
         log(upd)
         return 'ok'
+    finally:
+        con.close()
+
 
 
 @vendedor.route('/vendedor/marcarpagadascompromseleccionados', methods=['POST'])
@@ -1543,9 +1562,10 @@ def vendedor_marcarpagadascompromseleccionados():
         return make_response(error, 400)
     else:
         con.commit()
-        con.close()
         log(upd)
         return 'ok'
+    finally:
+        con.close()
 
 
 @vendedor.route('/k8E5hsVs4be3jsJJaob6OQmAX')
