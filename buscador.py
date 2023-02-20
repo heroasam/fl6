@@ -1,11 +1,11 @@
 """Modulo que dirige todo lo relativo a la busqueda de clientes."""
 import re
 import logging
+import simplejson as json
 import mysql.connector
 from flask import Blueprint, render_template, jsonify, make_response, request,\
     send_file
 from flask_login import login_required, current_user
-import simplejson as json
 from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
     pglflat, log_busqueda, listsql, actualizar
 from formularios import intimacion, libredeuda, ficha, recibotransferencia
@@ -16,6 +16,7 @@ buscador = Blueprint('buscador', __name__)
 
 
 def obtenerdni(idcliente):
+    """Simple funcion que retorn el dni dado el idcliente."""
     con = get_con()
     dni = pgonecolumn(con, f"select dni from clientes where id={idcliente}")
     return dni
@@ -67,6 +68,7 @@ def buscador_autorizardatos():
 def buscador_reautorizardatos():
     """Pantalla generar vista de reautorizar datos."""
     return render_template("buscador/reautorizardatos.html")
+
 
 @buscador.route('/buscador/revisardatos')
 @login_required

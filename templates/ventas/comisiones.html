@@ -166,7 +166,7 @@
                      .then(res=>{
                          msgSuccess('Marcado!','El vendedor cobro los dias seleccionados')
                          this.getComisionesVdor(vdor)
-                         limpiarTabla('table')
+                         limpiarTabla('comisiones')
                      })
                      .catch(error=>msgError('No se pudo procesar. Hubo un error.'))
             }})

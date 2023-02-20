@@ -209,16 +209,13 @@ def vendedor_togglerechazardato(iddato):
 @login_required
 @check_roles(['dev','gerente','admin'])
 def vendedor_getlistadodatos():
-    """Funcion que entrega el listado de datos y otra informacion.
-
-    Entrega tambien cuota basica y lista de vendedores."""
-    #
+    """Entrega lista de datos, cuota basica y lista de vendedores."""
     con = get_con()
     listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
     sin_extension,nosabana, autorizado, datos.zona as zona from datos, \
-    clientes where clientes.id =datos.idcliente order by id desc limit 1000")
+    clientes where clientes.id =datos.idcliente order by id desc")
     cuotabasica = var_sistema['cuota_basica']
     vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
     return jsonify(listadodatos=listadodatos, cuotabasica=cuotabasica, \
@@ -1098,7 +1095,7 @@ def vendedor_pasarventa():
         garantizado = 1
     else:
         garantizado = 0
-    insvta = f"insert into ventas(fecha,idvdor,ant,cant_cuotas,imp_cuota,p,primera,idcliente,\
+    insvta = f"insert into ventas(fecha,idvdor,ant,cc,ic,p,primera,idcliente,\
     garantizado,dnigarante) values(curdate(),{vdor},{ant},{cant_cuotas},{imp_cuota},{per},\
     '{d_data['primera']}',{d_data['idcliente']},{garantizado},{d_data['dnigarante']})"
     insvis = f"insert into visitas(fecha,hora,vdor,iddato,result,\
@@ -1131,7 +1128,7 @@ def vendedor_pasarventa():
                 imp_cuota = item['cuota']
                 costo = pgonecolumn(con, f"select costo from articulos where \
                 art='{art}'")
-                ins = f"insert into detvta(idvta,cnt,art,cant_cuotas,imp_cuota,costo,devuelta) \
+                ins = f"insert into detvta(idvta,cnt,art,cc,ic,costo,devuelta) \
                 values({idvta},{cnt},'{art}',6,{imp_cuota},{costo},0)"
                 cur.execute(ins)
                 log(ins)
@@ -1262,7 +1259,10 @@ def vendedor_getventashoy():
 @login_required
 @check_roles(['dev','gerente','admin','vendedor'])
 def vendedor_wappaut():
-    """Funcion que procesa el wapp de autorizacion."""
+    """Funcion que procesa el wapp de autorizacion.
+
+    Si el tipo = 'retiro de zona' aparte de enviar wapp al wapp_auth envia un
+    segundo wapp a mi."""
 
     logging.warning("wappaut, %s", current_user.email)
     if current_user.email == var_sistema['816']:
@@ -1496,9 +1496,14 @@ def vendedor_marcarpagadasseleccionados():
     upd = f"update datos set com_pagada=1, fechapagocom=current_date() where \
     idvta in (select idvta from datos where vendedor={vdor} and com_pagada=0 \
     and monto_vendido>0 and date(fecha_definido) in {lpg})"
+    upddev = f"update datos set com_pagada_dev=1, fechapagocomdev=\
+    current_date() where idvta in (select idvta from datos where vendedor=\
+    {vdor} and com_pagada_dev=0 and monto_devuelto>0 and date(fecha_definido) \
+    in {lpg})"
     cur = con.cursor()
     try:
         cur.execute(upd)
+        cur.execute(upddev)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
