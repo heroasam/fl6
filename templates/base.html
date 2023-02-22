@@ -20,10 +20,13 @@
 
 	<header>
       {% if session["user"]!='' and session["roles"] %}
-          {% if session["roles"]=='vendedor' %}
-             {% include "_nav_vdor.html" %}
-          {% endif %}
-          {% if session["user"]!='' and session["roles"]!='vendedor' %}
+      {% if session["roles"]=='vendedor' %}
+      {% include "_nav_vdor.html" %}
+      {% endif %}
+      {% if session["roles"]=='cobrador' %}
+      {% include "_nav_cobr.html" %}
+      {% endif %}
+      {% if session["user"]!='' and session["roles"] not in  ['vendedor','cobrador'] %}
              {% include "_nav.html" %}
           {% endif %}
       {% endif %}

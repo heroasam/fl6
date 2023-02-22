@@ -16,6 +16,7 @@ from fichas import fichas
 from utilidades import utilidades
 from conta import conta
 from vendedor import vendedor
+from cobrador import cobrador
 import mysql.connector
 from con import get_con, log, check_roles
 
@@ -37,6 +38,8 @@ app.register_blueprint(fichas)
 app.register_blueprint(utilidades)
 app.register_blueprint(conta)
 app.register_blueprint(vendedor)
+app.register_blueprint(cobrador)
+
 
 def verifica_login(email):
     con = get_con()

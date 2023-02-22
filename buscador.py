@@ -514,14 +514,14 @@ def buscar_toggleseguir(dni):
 def busca_guardaredicioncliente(idcliente):
     """Funcion para guardar edicion cliente."""
     con = get_con()
-    d = json.loads(request.data.decode("UTF-8"))
-    cliente_viejo = pgdict(
-        con, f"select * from clientes where id={d['id']}")[0]
-    upd = f"update clientes set sex='{d['sex']}', dni='{d['dni']}', nombre=\
-    '{d['nombre']}', calle='{d['calle']}', num={d['num']}, barrio=\
-    '{d['barrio']}', zona='{d['zona']}', tel='{d['tel']}', wapp='{d['wapp']}',\
-    acla='{d['acla']}', mjecobr='{d['mjecobr']}', horario='{d['horario']}',\
-    infoseven='{d['infoseven']}' where id={idcliente}"
+    d_data = json.loads(request.data.decode("UTF-8"))
+    cliente_viejo = pgdict(con, f"select * from clientes where id={d['id']}")[0]
+    upd = f"update clientes set sex='{d_data['sex']}', dni='{d_data['dni']}',\
+    nombre='{d_data['nombre']}', calle='{d_data['calle']}', num={d_data['num']}\
+    , barrio='{d_data['barrio']}', zona='{d_data['zona']}', tel=\
+    '{d_data['tel']}', wapp='{d_data['wapp']}',acla='{d_data['acla']}', \
+    mjecobr='{d_data['mjecobr']}', horario='{d_data['horario']}',\
+    infoseven='{d_data['infoseven']}' where id={idcliente}"
     cur = con.cursor()
     try:
         cur.execute(upd)
@@ -538,25 +538,23 @@ def busca_guardaredicioncliente(idcliente):
         '{cliente_viejo['barrio']}','{cliente_viejo['tel']}',\
         '{cliente_viejo['acla']}',curdate(),'{cliente_viejo['nombre']}',\
         '{cliente_viejo['dni']}','{cliente_viejo['wapp']}')"
-        if cliente_viejo['calle'] != d['calle'] or cliente_viejo['num'] !=\
-           d['num'] or cliente_viejo['acla'] != d['acla'] or \
-               cliente_viejo['wapp'] != d['wapp']:
+        if cliente_viejo['calle'] != d_data['calle'] or cliente_viejo['num'] !=\
+           d_data['num'] or cliente_viejo['acla'] != d_data['acla'] or \
+               cliente_viejo['wapp'] != d_data['wapp']:
             cur.execute(ins)
             con.commit()
             log(ins)
-        con.close()
         return 'ok'
+    finally:
+        con.close()
 
 
 @buscador.route('/buscador/obtenerlistadocalles')
 @login_required
 @check_roles(['dev','gerente','admin'])
 def buscar_obtenerlistadocalles():
+    """Funcion que entrega listado de calles."""
     con = get_con()
-    # sql = "select calle from calles order by calle"
-    # cur = con.cursor(dictionary=True)
-    # cur.execute(sql)
-    # calles = cur.fetchall()
     calles = pglflat(con, "select calle from calles order by calle")
     con.close()
     return jsonify(result=calles)
@@ -566,11 +564,8 @@ def buscar_obtenerlistadocalles():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def buscar_obtenerlistabarrios():
+    """Funcion que entrega listado de barrios."""
     con = get_con()
-    # sql = "select barrio from barrios order by barrio"
-    # cur = con.cursor(dictionary=True)
-    # cur.execute(sql)
-    # barrios = cur.fetchall()
     barrios = pglflat(con,"select barrio from barrios order by barrio")
     con.close()
     return jsonify(result=barrios)
@@ -580,11 +575,8 @@ def buscar_obtenerlistabarrios():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def buscar_obtenerlistazonas():
+    """Funcion que entrega listado de zonas."""
     con = get_con()
-    # sql = "select zona from zonas order by zona"
-    # cur = con.cursor(dictionary=True)
-    # cur.execute(sql)
-    # zonas = cur.fetchall()
     zonas = pglflat(con,"select zona from zonas order by zona")
     con.close()
     return jsonify(result=zonas)
@@ -594,14 +586,12 @@ def buscar_obtenerlistazonas():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def buscar_obtenercobradores():
+    """Funcion que entrega lista cobradores.
+
+    activo=1, prom=0, id>100 para evitar 10,15 y id!=820 que es romitex."""
     con = get_con()
-    sql = "select id from cobr where activo=1 and prom=0 and id>100 and id!=820 order by id"
-    cur = con.cursor()
-    cur.execute(sql)
-    result = cur.fetchall()
-    cobradores = []
-    for cobr in result:
-        cobradores.append(cobr[0])
+    cobradores = pglflat(con,"select id from cobr where activo=1 and prom=0 \
+    and id>100 and id!=820 order by id")
     con.close()
     return jsonify(cobradores=cobradores)
 
@@ -610,11 +600,9 @@ def buscar_obtenercobradores():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def buscar_pedirwappcobrador(cobr):
+    "Simple funcion que obtiene el wapp de un cobrador dado."""
     con = get_con()
-    sql = f"select telefono from cobr where id={cobr}"
-    cur = con.cursor()
-    cur.execute(sql)
-    wapp = cur.fetchone()[0]
+    wapp = pgonecolumn(con, f"select telefono from cobr where id={cobr}")
     con.close()
     return jsonify(wapp=wapp)
 
@@ -631,7 +619,8 @@ def buscar_buscarplandepagos_muerto(idcliente):
     """
     con = get_con()
     # pongo max(id) pq hay casos no muchos que tienen planes superpuestos
-    idplan = pgonecolumn(con, f"select max(id) from ventas where pp=1 and idcliente={idcliente}")
+    idplan = pgonecolumn(con, f"select max(id) from ventas where pp=1 and \
+        idcliente={idcliente}")
     # ahora averiguo de ese idvta hizo pagos
     if idplan is not None:
         pagos = pglflat(con, f"select id from pagos where idvta={idplan}")
@@ -640,26 +629,30 @@ def buscar_buscarplandepagos_muerto(idcliente):
     return False
 
 
-@buscador.route('/buscador/generarplandepagos',
-                methods=['POST'])
+@buscador.route('/buscador/generarplandepagos', methods=['POST'])
 @login_required
 @check_roles(['dev','gerente','admin'])
 def buscar_generarplandepagos():
+    """Proceso para generar un plan de pagos."""
     con = get_con()
-    d = json.loads(request.data.decode("UTF-8"))
-    idcliente = d['idcliente']
+    d_data = json.loads(request.data.decode("UTF-8"))
+    idcliente = d_data['idcliente']
     stm = None
     if buscar_buscarplandepagos_muerto(idcliente):
-        idplanmuerto = pgonecolumn(con, f"select max(id) from ventas where pp=1 and idcliente={idcliente}")
+        idplanmuerto = pgonecolumn(con, f"select max(id) from ventas where \
+            pp=1 and idcliente={idcliente}")
         stm = f"delete from ventas where id={idplanmuerto}"
-    upd = f"update ventas set saldo=0, pcondo=1, pp=0 where idcliente={idcliente} \
-    and saldo>0"
-    ins = f"insert into ventas(fecha,cc,ic,p,primera,pp,idvdor,idcliente,cnt,art)\
-    values('{d['fecha']}',{d['cc']},{d['ic']},{d['p']},'{d['primera']}' \
-    ,1,10,{idcliente},1,'Plan de Pagos')"
+    upd = f"update ventas set saldo=0, pcondo=1, pp=0 where idcliente=\
+        {idcliente} and saldo>0"
+    ins = f"insert into ventas(fecha,cc,ic,p,primera,pp,idvdor,idcliente,cnt,\
+                               art)values('{d_data['fecha']}',{d_data['cc']},\
+                                          {d_data['ic']},{d_data['p']},\
+                                          '{d_data['primera']}',1,10,\
+                                          {idcliente},1,'Plan de Pagos')"
     cur = con.cursor()
     deuda = pgonecolumn(con, f"select deuda from clientes where id={idcliente}")
-    pmovto = pgonecolumn(con, f"select date_format(pmovto,'%Y%c')  from clientes where id={idcliente}")
+    pmovto = pgonecolumn(con, f"select date_format(pmovto,'%Y%c') from \
+        clientes where id={idcliente}")
     saldoact = actualizar(deuda,pmovto)
     try:
         if stm is not None:
@@ -669,8 +662,9 @@ def buscar_generarplandepagos():
         idvta = pgonecolumn(con,  "SELECT LAST_INSERT_ID()")
         insplan = f"insert into planes(fecha,idcliente,user,cc,ic,p,primera,\
         saldoact,saldo,idvta) values(current_date(),{idcliente},\
-        '{current_user.email}',{d['cc']},{d['ic']},{d['p']},'{d['primera']}',\
-        {saldoact},{int(d['cc'])*int(d['ic'])},{idvta})"
+        '{current_user.email}',{d_data['cc']},{d_data['ic']},{d_data['p']},\
+        '{d_data['primera']}',{saldoact},{int(d_data['cc'])*int(d_data['ic'])},\
+                                     {idvta})"
         cur.execute(insplan)
     except mysql.connector.Error as _error:
         if stm is not None:
@@ -689,28 +683,32 @@ def buscar_generarplandepagos():
         log(insplan)
         if stm is not None:
             log(stm)
-        con.close()
         return 'ok'
+    finally:
+        con.close()
 
 
 @buscador.route('/buscador/intimar', methods=["POST"])
 @login_required
 @check_roles(['dev','gerente','admin'])
 def buscador_intimar():
-    d = json.loads(request.data.decode("UTF-8"))
-    dni = d['dni']
-    wapp = d['wapp']
-    idcliente = d['id']
+    """Proceso intimar cliente."""
+    d_data = json.loads(request.data.decode("UTF-8"))
+    dni = d_data['dni']
+    wapp = d_data['wapp']
+    idcliente = d_data['id']
     con = get_con()
     intimacion(con, [dni])
     pattern = re.compile("\D")
     not_valid_wapp = pattern.search(wapp)
-    logging.warning(f"/buscador/intimar wapp:{wapp} idcliente:{idcliente} not_valid_wapp:{not_valid_wapp}")
+    logging.warning(f"/buscador/intimar wapp:{wapp} idcliente:{idcliente} \
+        not_valid_wapp:{not_valid_wapp}")
     if wapp and not not_valid_wapp:
         response = send_file_whatsapp(
             idcliente, f"https://www.fedesal.lol/pdf/intimacion{dni}.pdf", wapp)
         if response == 'success':
-            upd = f"update clientes set fechaintimacion=curdate() where dni={dni}"
+            upd = f"update clientes set fechaintimacion=curdate() where \
+                dni={dni}"
             cur = con.cursor()
             cur.execute(upd)
             con.commit()
@@ -724,6 +722,7 @@ def buscador_intimar():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def buscador_intimar_nowapp(dni):
+    """Proceso de intimar cuando no hay wapp, imprimiendo en pantalla."""
     con = get_con()
     intimacion(con, dni)
     return send_file(f'/home/hero/intimacion{dni}.pdf')
@@ -733,22 +732,23 @@ def buscador_intimar_nowapp(dni):
 @login_required
 @check_roles(['dev','gerente','admin'])
 def buscador_libredeuda():
+    """Proceso de emision de libre deuda."""
     con = get_con()
-    d = json.loads(request.data.decode("UTF-8"))
-    dni = d['dni']
-    wapp = d['wapp']
-    deuda = d['deuda']
-    idcliente = d['idcliente']
+    d_data = json.loads(request.data.decode("UTF-8"))
+    dni = d_data['dni']
+    wapp = d_data['wapp']
+    deuda = d_data['deuda']
+    idcliente = d_data['idcliente']
     libredeuda(con, dni)
     pattern = re.compile("\D")
     not_valid_wapp = pattern.search(wapp)
-    logging.warning(f"/buscador/libredeuda wapp:{wapp} idcliente:{idcliente} not_valid_wapp:{not_valid_wapp}")
+    logging.warning(f"/buscador/libredeuda wapp:{wapp} idcliente:{idcliente} \
+        not_valid_wapp:{not_valid_wapp}")
     if wapp and not not_valid_wapp and deuda<=0:
         response = send_file_whatsapp(
             idcliente, f"https://www.fedesal.lol/pdf/libredeuda{dni}.pdf", wapp)
         return jsonify(response)
-    else:
-        return 'invalid',400
+    return 'invalid',400
 
 
 @buscador.route('/buscador/libredeuda/nowapp', methods=['POST'])
