@@ -293,6 +293,31 @@ def vendedor_asignardatosvendedor():
         con.close()
 
 
+@vendedor.route('/vendedor/desafectardatos', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente'])
+def vendedor_desafectardatos():
+    """Funcion que desafecta datos asignados a un vendedor.
+
+    Pone el enviado_vdor=0 a los datos de la lista"""
+    con = get_con()
+    lista_ids = json.loads(request.data.decode("UTF-8"))
+    ids = listsql(lista_ids)
+    upd = f"update datos set enviado_vdor=0 where id in {ids}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        return 'ok'
+    finally:
+        con.close()
+
+
 @vendedor.route('/vendedor/ingresardatoyasignardatosvendedor', methods=['POST'])
 @login_required
 @check_roles(['dev','gerente'])

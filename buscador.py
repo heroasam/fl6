@@ -515,7 +515,8 @@ def busca_guardaredicioncliente(idcliente):
     """Funcion para guardar edicion cliente."""
     con = get_con()
     d_data = json.loads(request.data.decode("UTF-8"))
-    cliente_viejo = pgdict(con, f"select * from clientes where id={d['id']}")[0]
+    cliente_viejo = pgdict(con, f"select * from clientes where id=\
+    {d_data['id']}")[0]
     upd = f"update clientes set sex='{d_data['sex']}', dni='{d_data['dni']}',\
     nombre='{d_data['nombre']}', calle='{d_data['calle']}', num={d_data['num']}\
     , barrio='{d_data['barrio']}', zona='{d_data['zona']}', tel=\
@@ -987,6 +988,16 @@ def buscador_pedirlistaplanes(id):
     con = get_con()
     listaplanes = pgdict(con, f"select * from planes where idcliente={id}")
     return jsonify(listaplanes=listaplanes)
+
+
+@buscador.route('/buscador/pedirasignado/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_pedirasignado(id):
+    con = get_con()
+    asignado = pgonecolumn(con, f"select asignado from clientes,zonas where \
+        clientes.zona=zonas.zona and clientes.id={id}")
+    return jsonify(asignado=asignado)
 
 
 @buscador.route('/buscador/toggleeditado/<int:id>')

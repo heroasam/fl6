@@ -970,10 +970,10 @@
          buscaCuentaporDni(dni){
 	         this.resetBuscar()
 	         this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
-             axios.get('/buscador/getasignado/'+this.Cliente.zona)
-                                .then(res=>{
-                                    this.Cliente.asignado = res.data.asignado
-             })
+             /* axios.get('/buscador/getasignado/'+this.Cliente.zona)
+              *                    .then(res=>{
+              *                        this.Cliente.asignado = res.data.asignado
+              * }) */
              this.obtenerVentas(this.Cliente.id)
              this.verCard = true;
              this.clipWappVentas()
@@ -1000,6 +1000,7 @@
 		              })
                       this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
                       this.obtenerVentas(this.Cliente.id)
+                      console.log( this.Cliente)
                   })
          },
 	     resetBuscar(){
@@ -1065,6 +1066,7 @@
                       this.pedirListaDevoluciones(idcliente)
                       this.pedirVisitas(idcliente)
                       this.pedirPlanes(idcliente)
+                      this.pedirAsignado(idcliente)
                   })
          },
          obtenerVentasCanceladas(idcliente){
@@ -1125,6 +1127,12 @@
                       this.listaPlanes = res.data.listaplanes
                       this.listaPlanes.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                       this.listaPlanes.map(row=>row.primera=dayjs.utc(row.primera).format('YYYY-MM-DD'))
+             })
+         },
+         pedirAsignado(id){
+             axios.get('/buscador/pedirasignado/'+id)
+                  .then(res=>{
+                      this.Cliente.asignado = res.data.asignado
              })
          },
          hacerCuotas(){
@@ -1296,6 +1304,7 @@
              axios.post('/buscador/guardaredicioncliente/'+this.Cliente.id,this.Cliente)
 								                                 .then(res=>{
 								                                     msgSuccess('Exito','Cliente editado con exito')
+                                                                     this.refreshCliente(this.Cliente.dni)
 								                                 })
 								                                 .catch(error=>{
 								                                     msgError('Error',error.request.response)

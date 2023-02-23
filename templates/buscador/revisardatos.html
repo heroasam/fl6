@@ -37,6 +37,7 @@
 		      @focus="buscar=''"  :class="darkTheme?'input-dark':''">
       <button type="button" @click="buscarDato" class="button is-primary">Buscar</button>
 	    </div>
+      <button type="button" class="button is-black" @click="desafectarDatosSeleccionados()">Desafectar</button>
   </div>
   <table class="table table-striped " id="table">
     <thead>
@@ -162,7 +163,7 @@
       </footer>
     </div>
   </div>
-
+  <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
 </div>
 {% endblock %}
 {% block script %}
@@ -271,7 +272,32 @@
              this.cntDatos = arrayRows.length - 1
              },10)
          },
+         seleccionarRows(){
+             let ids = [];
+             let tbody = table.querySelector("tbody");
+             let rowsArray = Array.from(tbody.rows);
+             rowsArray.forEach((row) => {
+                 if (row.classList.contains("is-selected")) {
+                     ids.push(row.cells[2].innerHTML);
+                     //la columna que corresponda al dni OJO
+                 }
+             });
+             return ids
+         },
+         desafectarDatosSeleccionados(){
+             ids = this.seleccionarRows()
+             if(ids.length>1){
+                 axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+                 axios.post('/vendedor/desafectardatos',ids)
+                                                                     .then(res=>{
+                                                                         limpiarTabla('table')
+                                                                         this.getListadoDatos()
+                                                                         msgSuccess("Datos desafectados con exito")
+                 })
+
+             }
+         },
+         }
      }
- }
 </script>
 {% endblock %}
