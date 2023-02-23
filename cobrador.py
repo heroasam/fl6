@@ -46,14 +46,22 @@ def cobrador_listafichas():
 @login_required
 @check_roles(['dev','gerente','cobrador'])
 def cobrador_getlistadofichas():
-    """Funcion que entrega lista fichas, lista zonas."""
+    """Funcion que entrega lista fichas, lista zonas.
+
+    Filtro mudados, fallecidos, fechados y cobrados.
+    El filtro cobrados opera para los ultpago>-7dias y <hoy.
+    Para que no se muestren los que pueden haber sido cobrados luego de la
+    asignacion, pero si se muestren los cobrados en el dia de la fecha."""
     cobr = get_cobr()
     con = get_con()
     zonas = pglflat(con, f"select clientes.zona as zona from clientes,zonas \
-    where asignada=1 and asignado={cobr} and clientes.zona=zonas.zona group \
-    by clientes.zona")
+    where asignada=1 and asignado={cobr} and clientes.zona=zonas.zona \
+    group by clientes.zona")
     fichas = pgdict(con, f"select * from clientes,zonas where asignada=1 and \
-    asignado={cobr} and clientes.zona=zonas.zona")
+    asignado={cobr} and clientes.zona=zonas.zona and \
+    mudo=0 and clientes.zona!='-FALLECIDOS' and fechado=0 and (datediff(now(),\
+    ultpago) >6 or datediff(now(), ultpago) is null) or datediff(now(),\
+    ultpago)=0")
     return jsonify(zonas=zonas, fichas=fichas)
 
 
@@ -61,8 +69,13 @@ def cobrador_getlistadofichas():
 @login_required
 @check_roles(['dev','gerente','cobrador'])
 def cobrador_fecharficha(idcliente,pmovto):
+    """Proceso para fechar fichas por el cobrador.
+
+    Hay un campo fechada en clientes que permite filtrarle al cobrador las
+    fichas fechadas."""
     con = get_con()
-    upd = f"update clientes set pmovto='{pmovto}' where id={idcliente}"
+    upd = f"update clientes set pmovto='{pmovto}',fechada=1 where id=\
+    {idcliente}"
     cur = con.cursor()
     try:
         cur.execute(upd)
