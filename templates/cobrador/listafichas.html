@@ -5,10 +5,7 @@
 {% block content %}
 
 <div class="container" x-data="main()" x-init="getListadoFichas();setInterval(()=>{getListadoFichas()},600000)">
-
-
   <p class="title is-1">Lista Fichas</p>
-
   <div>
     <template x-for="zona in listaZonas">
       <button class="button is-small is-primary" x-text="zona" @click="filtraPorZona(zona)"></button>
@@ -76,7 +73,7 @@
       <button class="button is-small is-black" @click="fallecioFicha(Ficha.id)" id="buttonFallecioFicha">Fallecio</button>
     </div>
   </div>
-  </div>
+
 
   <!-- bulma-modal fechar-ficha -->
   <div class="modal" id="modal-fechar-ficha">
