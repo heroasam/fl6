@@ -55,3 +55,23 @@ def cobrador_getlistadofichas():
     fichas = pgdict(con, f"select * from clientes,zonas where asignada=1 and \
     asignado={cobr} and clientes.zona=zonas.zona")
     return jsonify(zonas=zonas, fichas=fichas)
+
+
+@cobrador.route('/cobrador/fecharficha/<int:idcliente>/<pmovto>')
+@login_required
+@check_roles(['dev','gerente','cobrador'])
+def cobrador_fecharficha(idcliente,pmovto):
+    con = get_con()
+    upd = f"update clientes set pmovto='{pmovto}' where id={idcliente}"
+    cur = con.cursor()
+    try:
+        cur.execute(upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        return 'ok'
+    finally:
+        con.close()

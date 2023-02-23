@@ -22,6 +22,7 @@
   <table class="table table-striped " id="table" x-show="verCard==false">
     <thead>
       <tr>
+        <th></th>
         <th>nombre</th>
         <th>calle</th>
         <th>num</th>
@@ -32,6 +33,7 @@
     <tbody>
       <template x-for="ficha in listaFichas_">
         <tr>
+          <td><span class="tag is-small is-danger" @click="abrirCliente(ficha.id)">Ir</span></td>
           <td x-text="ficha.nombre"></td>
           <td x-text="ficha.calle"></td>
           <td x-text="ficha.num"></td>
@@ -73,12 +75,28 @@
       <button class="button is-small is-primary" @click="mudoFicha(Ficha.id)" id="buttonMudoFicha">Mudo</button>
       <button class="button is-small is-black" @click="fallecioFicha(Ficha.id)" id="buttonFallecioFicha">Fallecio</button>
     </div>
-
+  </div>
   </div>
 
-
+  <!-- bulma-modal fechar-ficha -->
+  <div class="modal" id="modal-fechar-ficha">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Fechar ficha</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-fechar-ficha')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="idfecha">Nueva Fecha a Visitar</label>
+        <input type="date" class="input mb-3" x-model="Ficha.pmovto" id="idfecha">
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="guardarfichaFechado()">Guardar</button>
+        <button class="button" @click="toggleModal('modal-fechar-ficha')">Cancelar</button>
+      </footer>
+    </div>
   </div>
-
 </div>
 {% endblock %}
 {% block script %}
@@ -113,6 +131,34 @@
              calle = pattern.exec(calle);
              this.listaFichas_=this.listaFichas.filter(row=>row.calle==calle)
 
+         },
+          abrirCliente(id){
+             idButton = document.getElementById('buttonAnularFicha')
+             idButton.disabled=false
+             idButton = document.getElementById('buttonFecharFicha')
+             idButton.disabled=false
+             idButton = document.getElementById('buttonNoestabaFicha')
+             idButton.disabled=false
+             idButton = document.getElementById('buttonMudoFicha')
+             idButton.disabled=false
+             idButton = document.getElementById('buttonFallecioFicha')
+             idButton.disabled=false
+             this.Ficha = this.listaFichas.filter(row=>row.id==id)[0];
+             this.verCard = true;
+          },
+         fecharFicha(idcliente){
+             idButton = document.getElementById('buttonFecharFicha')
+             idButton.disabled=true
+             toggleModal("modal-fechar-ficha");
+             this.verCard = false;
+         },
+         guardarfichaFechado(){
+             toggleModal("modal-fechar-ficha");
+             axios.get('/cobrador/fecharficha/'+this.Ficha.id+'/'+this.Ficha.pmovto)
+                  .then(res=>{
+                      this.getListadoFichas()
+                      msgSuccess("Ficha fechada correctamente")
+             })
          },
 
      }

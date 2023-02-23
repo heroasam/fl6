@@ -516,3 +516,7 @@ thead th {
 .no-mb{
     margin-bottom: 0rem !important;
 }
+.asignada{
+    background-color: indianred;
+    color: white;
+}
