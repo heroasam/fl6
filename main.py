@@ -133,6 +133,8 @@ def login():
             if not next_page or url_parse(next_page).netloc != '':
                 if session['roles']=='vendedor':
                     next_page = url_for('vendedor.vendedor_listadatos')
+                elif session['roles']=='cobrador':
+                    next_page = url_for('cobrador.cobrador_listafichas')
                 else:
                     next_page = url_for('buscador.buscador_')
             return redirect(next_page)

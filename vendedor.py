@@ -728,7 +728,7 @@ def vendedor_getlistadoarticulos():
 @vendedor.route('/uQ3gisetQ8v0n6tw81ORnpL1s' , methods=['POST'])
 @vendedor.route('/vendedor/editarwapp' , methods=['POST'])
 @login_required
-@check_roles(['dev', 'gerente', 'vendedor'])
+@check_roles(['dev', 'gerente', 'vendedor','cobrador'])
 def vendedor_editarwapp():
     """Proceso para editar el wapp del cliente."""
     con = get_con()

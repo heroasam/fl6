@@ -198,8 +198,8 @@ def utilidades_getusers():
 def utilidades_editaruser():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    upd = f"update users set roles='{d['roles']}',auth={d['auth']} where id=\
-    {d['id']}"
+    upd = f"update users set name='{d['name']}', email='{d['email']}',\
+    roles='{d['roles']}',auth={d['auth']} where id={d['id']}"
     cur = con.cursor()
     try:
         cur.execute(upd)

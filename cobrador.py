@@ -57,8 +57,8 @@ def cobrador_getlistadofichas():
     zonas = pglflat(con, f"select clientes.zona as zona from clientes,zonas \
     where asignada=1 and asignado={cobr} and clientes.zona=zonas.zona \
     group by clientes.zona")
-    fichas = pgdict(con, f"select * from clientes,zonas where asignada=1 and \
-    asignado={cobr} and clientes.zona=zonas.zona and \
+    fichas = pgdict(con, f"select clientes.* from clientes,zonas where \
+    asignada=1 and asignado={cobr} and clientes.zona=zonas.zona and \
     mudo=0 and clientes.zona!='-FALLECIDOS' and fechado=0 and (datediff(now(),\
     ultpago) >6 or datediff(now(), ultpago) is null) or datediff(now(),\
     ultpago)=0")
@@ -74,11 +74,115 @@ def cobrador_fecharficha(idcliente,pmovto):
     Hay un campo fechada en clientes que permite filtrarle al cobrador las
     fichas fechadas."""
     con = get_con()
-    upd = f"update clientes set pmovto='{pmovto}',fechada=1 where id=\
+    upd = f"update clientes set pmovto='{pmovto}',fechado=1 where id=\
     {idcliente}"
     cur = con.cursor()
     try:
         cur.execute(upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        return 'ok'
+    finally:
+        con.close()
+
+
+@cobrador.route('/cobrador/asignar', methods = ['POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
+def cobrador_asignar():
+    """Proceso para marcar asignada la ficha a un cobrador.
+
+    No se pone el idcobr porque ya esta registrado en la tabla zonas.
+    Se pone fechado=0 para que permita marcar fechado luego de la asignacion."""
+    con = get_con()
+    listadni = json.loads(request.data.decode("UTF-8"))
+    upd = f"update clientes set asignada=1, fechado=0 where dni in \
+    {listsql(listadni)}"
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    log(upd)
+    con.close()
+    return 'ok'
+
+
+@cobrador.route('/cobrador/noestabaficha/<int:idcliente>')
+@login_required
+@check_roles(['dev','gerente','cobrador'])
+def cobrador_noestabaficha(idcliente):
+    """Proceso para poner 'no estaba' a la ficha por el cobrador.
+
+    En la ficha(tabla clientes) no se registra nada, pero se registra la
+    visita."""
+    con = get_con()
+    cobr = var_sistema[current_user.email]
+    ins = f"insert into visitascobr(fecha,hora,cobr,idcliente,result) \
+    values(curdate(),curtime(),{cobr},{idcliente},3)"
+    cur = con.cursor()
+    try:
+        cur.execute(ins)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        return 'ok'
+    finally:
+        con.close()
+
+
+@cobrador.route('/cobrador/mudoficha/<int:idcliente>')
+@login_required
+@check_roles(['dev','gerente','cobrador'])
+def cobrador_mudoficha(idcliente):
+    """Proceso para poner 'mudado' a la ficha por el cobrador."""
+    con = get_con()
+    cobr = var_sistema[current_user.email]
+    ins = f"insert into visitascobr(fecha,hora,cobr,idcliente,result) \
+    values(curdate(),curtime(),{cobr},{idcliente},5)"
+    upd = f"update clientes set mudo=1 where id={idcliente}"
+    inscomentario = f"insert into comentarios(idcliente, ingreso, comentario) \
+    values({idcliente},'{current_user.email}','puesto como mudado por \
+    cobrador {cobr}')"
+    cur = con.cursor()
+    try:
+        cur.execute(ins)
+        cur.execute(upd)
+        cur.execute(inscomentario)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        con.commit()
+        return 'ok'
+    finally:
+        con.close()
+
+
+@cobrador.route('/cobrador/fallecioficha/<int:idcliente>')
+@login_required
+@check_roles(['dev','gerente','cobrador'])
+def cobrador_fallecioficha(idcliente):
+    """Proceso para poner 'fallecido' a la ficha por el cobrador."""
+    con = get_con()
+    cobr = var_sistema[current_user.email]
+    ins = f"insert into visitascobr(fecha,hora,cobr,idcliente,result) \
+    values(curdate(),curtime(),{cobr},{idcliente},6)"
+    upd = f"update clientes set zona='-FALLECIDOS' where id={idcliente}"
+    inscomentario = f"insert into comentarios(idcliente, ingreso, comentario) \
+    values({idcliente},'{current_user.email}','puesto como fallecido por \
+    cobrador {cobr}')"
+    cur = con.cursor()
+    try:
+        cur.execute(ins)
+        cur.execute(upd)
+        cur.execute(inscomentario)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg

@@ -77,21 +77,6 @@ def fichas_imprimir():
     return send_file('/home/hero/ficha.pdf')
 
 
-@fichas.route('/fichas/asignar', methods = ['POST'])
-@login_required
-@check_roles(['dev','gerente','admin'])
-def fichas_asignar():
-    con = get_con()
-    listadni = json.loads(request.data.decode("UTF-8"))
-    upd = f"update clientes set asignada=1 where dni in {listsql(listadni)}"
-    cur = con.cursor()
-    cur.execute(upd)
-    con.commit()
-    log(upd)
-    con.close()
-    return 'ok'
-
-
 @fichas.route('/fichas/intimar', methods = ['POST'])
 @login_required
 @check_roles(['dev','gerente','admin'])
