@@ -126,6 +126,7 @@
                   .then(res=>{
                       this.listaZonas = res.data.zonas
                       this.listaFichas = res.data.fichas
+                      this.listaFichas_ = this.listaFichas
                       this.listaFichas_.sort((a,b)=>{
                           let s1 = a.nombre.toLowerCase(),
                               s2 = b.nombre.toLowerCase()
@@ -145,12 +146,28 @@
                  callesCnt.push(`${calle}-${cnt}`);
              })
              this.listaCalles = callesCnt.sort()
+             this.listaFichas_.sort((a,b)=>{
+                 let s1 = a.nombre.toLowerCase(),
+                     s2 = b.nombre.toLowerCase()
+
+                 if(s1>s2) return 1
+                 if(s1<s2) return -1
+                 if(s1==s2) return 0
+             })
          },
          filtraPorCalle(calle){
              pattern = /[^-]*/gi;
              calle = pattern.exec(calle);
              this.listaFichas_=this.listaFichas.filter(row=>row.calle==calle)
              this.verCard = false;
+             this.listaFichas_.sort((a,b)=>{
+                 let s1 = a.nombre.toLowerCase(),
+                     s2 = b.nombre.toLowerCase()
+
+                 if(s1>s2) return 1
+                 if(s1<s2) return -1
+                 if(s1==s2) return 0
+             })
          },
          abrirCliente(id){
              idButton = document.getElementById('buttonFecharFicha')
@@ -224,8 +241,7 @@
                      axios.get('/cobrador/mudoficha/'+this.Ficha.id)
                          .then(res=>{
                              msgSuccess('Mudado informado correctamente');
-                             setInterval(()=>{
-                             this.getListadoFichas();},500)
+                             this.getListadoFichas()
                              this.verCard = false;
                          })
                          .catch(error=>{
