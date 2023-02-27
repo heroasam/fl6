@@ -66,6 +66,34 @@
       <button class="button is-small is-primary" @click="mudoFicha()" id="buttonMudoFicha">Mudo</button>
       <button class="button is-small is-black" @click="fallecioFicha()" id="buttonFallecioFicha">Fallecio</button>
     </div>
+    	<!-- tablecuotas -->
+    <div class="column is-3">
+	  <div class="flex-center" x-show="verCard">
+        <span class="tag is-large">Cuotas a Pagar</span>
+        <!-- <span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"></i></span> -->
+	  </div>
+      <table class="table is-narrow is-striped"  id="table-cuotas">
+        <thead>
+          <tr>
+            <th>N</th>
+            <th>Fecha</th>
+            <th class="sumar numeric">Saldo</i></th>
+            <th class="sumar numeric">Actual</i></th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="cuota in listaCuotas">
+            <!-- nc-vto-saldo -->
+			<tr x-show="cuota[2]">
+              <td x-text="cuota[0]"></td>
+              <td x-text="cuota[1]" style="min-width: 100px;"></td>
+              <td x-text="cuota[2]" class="pesos" :class="cuota[3]>cuota[2]?'strike':''"></td>
+              <td x-text="cuota[3]" class="pesos red" x-show="cuota[3]>cuota[2]"></td>
+			</tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
   </div>
 
 
@@ -119,6 +147,10 @@
          listaFichas:[],
          listaFichas_:[],
          listaCalles:[],
+         listaVentas:[],
+         listaCuotas:[],
+         Vtos:[],
+         listaInflacion:[],
          verCard:false,
          Ficha:{},
          getListadoFichas(){
@@ -180,7 +212,8 @@
              idButton.disabled=false
              this.Ficha = this.listaFichas.filter(row=>row.id==id)[0];
              this.verCard = true;
-          },
+             this.obtenerVentas(id)
+         },
          fecharFicha(idcliente){
              idButton = document.getElementById('buttonFecharFicha')
              idButton.disabled=true
@@ -273,7 +306,50 @@
                           })
               }})
          },
+          hacerCuotas(){
+             /* id,fecha,cc2,ic3,p4,idvdor,saldo6,comprado,pp8,devuelta,condonada,cnt,art,pagado13,primera14, */
+             tblCuota=[]
+             let vto
+             this.listaVentas.forEach(row=>{
+                 saldo = row.saldo
+                 if(saldo!==0){
+                     pagado = row.pagado
+                     cc = row.cc
+                     ic = row.ic
+                     p = row.p
+                     primera = row.primera
+                     for (let i=1; i<=cc ;i++){
+                         if(p==='MEN') vto = dayjs.utc(primera).add(i-1,'month').format('YYYY-MM-DD')
+                         if(p==='QUI') vto = dayjs.utc(primera).add((i-1)*2,'week').format('YYYY-MM-DD')
+                         if(p==='SEM') vto = dayjs.utc(primera).add(i-1,'week').format('YYYY-MM-DD')
+                         ym = dayjs(vto).format('YYYYM')
+                         index = this.listaInflacion[ym] || null
+                         saldo = pagado>=ic?0:pagado<=0?ic:ic-pagado
+                         saldo_actualizado = index ? parseInt(saldo * index) : saldo
+                         tblCuota.push([i,vto,saldo, saldo_actualizado])
+                         pagado = pagado - ic
+                     }
+                 }
+             })
+              return tblCuota
+          },
+         obtenerVentas(idcliente){
+             axios.get('/buscador/obtenerventasporidcliente/'+idcliente)
+                  .then(res=>{
+                      let arrayVentas=res.data.ventas
+                      arrayVentas.map(row=>{
+                          row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD')
+                          if(row.p==1) row.p='MEN'
+                          if(row.p==2) row.p='QUI'
+                          if(row.p==3) row.p='SEM'
+                          this.Vtos[row.id]=row.vto;
+                      })
+                      this.listaVentas = arrayVentas
+                      this.listaCuotas = this.hacerCuotas()
 
+
+                  })
+         },
      }
  }
 </script>
