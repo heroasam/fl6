@@ -7,7 +7,7 @@ from flask import Blueprint, render_template, jsonify, make_response, request,\
     send_file
 from flask_login import login_required, current_user
 from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
-    pglflat, log_busqueda, listsql, actualizar
+    pglflat, log_busqueda, listsql, actualizar, send_img_whatsapp
 from formularios import intimacion, libredeuda, ficha, recibotransferencia
 from con import get_con, log, check_roles
 
@@ -84,6 +84,14 @@ def buscador_revisardatos():
 def buscador_pdf(pdf):
     """Reenvia un pdf por una ruta."""
     return send_file('/home/hero/'+pdf)
+
+
+@buscador.route('/img/<img>')
+#@login_required
+#@check_roles(['dev','gerente','admin'])
+def buscador_img(img):
+    """Reenvia una imagen por una ruta."""
+    return send_file('/home/hero/'+img)
 
 
 @buscador.route('/log')
@@ -687,6 +695,35 @@ def buscar_generarplandepagos():
         return 'ok'
     finally:
         con.close()
+
+
+@buscador.route('/buscador/imagenes', methods=["POST"])
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_imagenes():
+    """Proceso intimar cliente."""
+    d_data = json.loads(request.data.decode("UTF-8"))
+    dni = d_data['dni']
+    wapp = d_data['wapp']
+    idcliente = d_data['id']
+    con = get_con()
+    pattern = re.compile("\D")
+    not_valid_wapp = pattern.search(wapp)
+    logging.warning(f"/buscador/imagenes wapp:{wapp} idcliente:{idcliente} \
+        not_valid_wapp:{not_valid_wapp}")
+    if wapp and not not_valid_wapp:
+        response = send_img_whatsapp(
+            idcliente, f"https://www.fedesal.lol/img/cortinas.jpeg", wapp)
+        if response == 'success':
+            upd = f"update clientes set fechaintimacion=curdate() where \
+                dni={dni}"
+            cur = con.cursor()
+            cur.execute(upd)
+            con.commit()
+    else:
+        response = 'invalid'
+    con.close()
+    return jsonify(response=response)
 
 
 @buscador.route('/buscador/intimar', methods=["POST"])

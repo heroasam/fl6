@@ -474,6 +474,93 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
         return 'error', 401
 
 
+def send_img_whatsapp(idcliente, file, wapp, msg=""):
+    """Funcion que envia un archivo por whatsapp."""
+    wapp_original = wapp
+    file_log = os.path.split(file)[1]
+    if "@" in str(current_user):
+        email = current_user.email
+    else:
+        email = ""
+    wapp = "+549"+wapp
+    with open(file, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read())
+        img_bas64=urllib.parse.quote_plus(encoded_string)
+
+    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&\
+            apikey=kGdEFC1HvHVJ&text={msg}&document={img_bas64}"
+    # primero encolo el mensaje en la base de datos
+    con = get_con()
+    last_timeout = pgonecolumn(con, "select timeout from logwhatsapp order by\
+            id desc limit 1")
+    last_enviado = pgonecolumn(con, "select enviado from logwhatsapp where\
+            enviado!=0 order by id desc limit 1")
+    if not last_timeout:
+        last_timeout = int(time.time())
+    if not last_enviado:
+        last_enviado = int(time.time())
+    timeout = last_enviado if last_enviado > last_timeout else last_timeout
+    ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,\
+            timeout,response,enviado,fecha) values({idcliente},\
+            {wapp_original},'{msg.replace('%20',' ')[:100]}','{file_log}'\
+            ,'{email}',{int(time.time())},{timeout+20},'',0,curdate())"
+    cur = con.cursor()
+    cur.execute(ins)
+    con.commit()
+    id = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
+    time_delivery = timeout+20
+    logging.warning(f"time_delivery:{time_delivery} real-time:{time.ctime(time.time())}")
+    while True:
+        if time.time() > time_delivery:
+            response = requests.request("GET", payload)
+            logging.warning(f"Time al request:{time.time()}")
+            break
+        time.sleep(1)
+    wapp_log(response.status_code, response.text, idcliente)
+    if "Success" in response.text:
+        upd = f"update logwhatsapp set response='success', enviado=\
+                {int(time.time())} where id = {id}"
+        logging.warning(upd)
+        cur.execute(upd)
+        con.commit()
+        con.close()
+        return "success"
+    elif "Invalid Destination WhatsApp" in response.text:
+        updinv = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' \
+                where id={idcliente}"
+        logging.warning(updinv)
+        con = get_con()
+        cur = con.cursor()
+        logging.warning(updinv)
+        cur.execute(updinv)
+        log(updinv)
+        upd = f"update logwhatsapp set response='invalid', enviado=\
+                {int(time.time())} where id = {id}"
+        logging.warning(upd)
+        cur.execute(upd)
+        con.commit()
+        con.close()
+        return "invalid"
+    elif "Failed" in response.text:
+        upd = f"update logwhatsapp set response='failed', enviado=\
+                {int(time.time())} where id = {id}"
+        logging.warning(upd)
+        cur.execute(upd)
+        con.commit()
+        con.close()
+        return "failed"
+    elif "limit" in response.text:
+        upd = f"update logwhatsapp set response='limit', enviado=\
+                {int(time.time())} where id = {id}"
+        logging.warning(upd)
+        cur.execute(upd)
+        con.commit()
+        con.close()
+        return "limit"
+    else:
+        return 'error', 401
+
+
 def wapp_log(log1, log2, idcliente):
     """Funcion que hace un log en txt de las responses de la api."""
     with open("/home/hero/log/wapp.log", "a", encoding="utf-8") as log_file:
