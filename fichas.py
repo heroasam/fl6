@@ -166,10 +166,14 @@ def fichas_msgprogramado():
     d = json.loads(request.data.decode("UTF-8"))
     clientes = d['listaclientes']
     msg = d['msg']
+    file = d['file']
+    print('file',file,type(file))
     for cliente in clientes:
         if cliente['wapp']:
-            send_msg_whatsapp(cliente['id'], cliente['wapp'], msg)
-            #time.sleep(10)
+            if file:
+                send_file_whatsapp(cliente['id'],file,cliente['wapp'])
+            else:
+                send_msg_whatsapp(cliente['id'], cliente['wapp'], msg)
     return 'ok'
 
 
@@ -423,7 +427,7 @@ def fichas_getzonas():
 @check_roles(['dev','gerente','admin'])
 def fichas_getmsgs():
     con = get_con()
-    msgs = pgdict(con, f"select id, nombre, msg from msgs")
+    msgs = pgdict(con, f"select id, nombre, msg, file from msgs")
     con.close()
     return jsonify(msgs=msgs)
 
@@ -682,7 +686,9 @@ def fichas_programarboton():
     id = d['id']
     nombre = d['nombre']
     msg = d['msg']
-    upd = f"update msgs set nombre = '{nombre}', msg='{msg}' where id={id}"
+    file = d['file']
+    upd = f"update msgs set nombre = '{nombre}', msg='{msg}',file='{file}' \
+    where id={id}"
     cur = con.cursor()
     cur.execute(upd)
     con.commit()

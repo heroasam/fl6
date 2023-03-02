@@ -9,6 +9,7 @@ from flask_login import current_user
 from flask import make_response
 import mysql.connector
 from con import get_con, log
+# import base64, urllib
 
 
 FORMAT = '%(asctime)s  %(message)s'
@@ -478,17 +479,19 @@ def send_img_whatsapp(idcliente, file, wapp, msg=""):
     """Funcion que envia un archivo por whatsapp."""
     wapp_original = wapp
     file_log = os.path.split(file)[1]
+    file = "/home/hero/imagenes/romitex.png"
     if "@" in str(current_user):
         email = current_user.email
     else:
         email = ""
     wapp = "+549"+wapp
-    with open(file, "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read())
-        img_bas64=urllib.parse.quote_plus(encoded_string)
+    # with open(file, "rb") as image_file:
+    #     encoded_string = base64.b64encode(image_file.read())
+    #     img_base64=urllib.parse.quote_plus(encoded_string)
+    # print(img_base64)
 
     payload = f"https://api.textmebot.com/send.php?recipient={wapp}&\
-            apikey=kGdEFC1HvHVJ&text={msg}&document={img_bas64}"
+            apikey=kGdEFC1HvHVJ&file={file}"
     # primero encolo el mensaje en la base de datos
     con = get_con()
     last_timeout = pgonecolumn(con, "select timeout from logwhatsapp order by\

@@ -295,11 +295,12 @@ endblock %} {% block style %}
              if(ids.length>0) {
                  idle = ids.length * 12000
                  msg = this.listamsgs.filter(row=>row.nombre==nombre)[0].msg
+                 file = this.listamsgs.filter(row=>row.nombre==nombre)[0].file
              }
              msgWarning('Espere mientras se envian los mensajes!','',idle)
              ids = ids.map(id=>parseInt(id))
              Clientes = this.listaClientes.filter(row=>ids.includes(row.dni))
-             data = {listaclientes:Clientes, msg:msg}
+             data = {listaclientes:Clientes, msg:msg, file:file}
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
              axios.post('/fichas/msgprogramado',data)
                                                                  .then(res=>{

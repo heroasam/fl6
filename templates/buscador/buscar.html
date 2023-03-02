@@ -939,13 +939,13 @@
              this.resetBuscar()
 	         this.buscar = this.buscar1.length>0?this.buscar1:this.buscar
              let patternDni = /^(\d){7,8}$/
-             if(patternDni.test(this.buscar)){
-                 textToClipboard(this.buscar)
-                 this.verAvisoDniCopiado=true
-                 setTimeout(()=>{this.verAvisoDniCopiado=false},3000)
-             }else{
-                 clearClipboard()
-             }
+             /* if(patternDni.test(this.buscar)){
+              *     textToClipboard(this.buscar)
+              *     this.verAvisoDniCopiado=true
+              *     setTimeout(()=>{this.verAvisoDniCopiado=false},3000)
+              * }else{
+              *     clearClipboard()
+              * } */
 	         if(this.buscar=='') this.buscar='-'
              axios.get('/buscador/'+this.buscar)
 		          .then(res=>{
@@ -984,6 +984,13 @@
                                })
              /* console.log(this.cuotaMaxima)
               * console.log( this.Cliente) */
+             if(this.Cliente.dni){
+                 textToClipboard(this.Cliente.dni)
+                 this.verAvisoDniCopiado=true
+                 setTimeout(()=>{this.verAvisoDniCopiado=false},3000)
+             }else{
+                 clearClipboard()
+             }
          },
          refreshCliente(dni){
              axios.get('/buscador/'+dni)
