@@ -236,7 +236,7 @@ def vendedor_getlistadodatosenviar():
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
     sin_extension,nosabana, autorizado, monto_garantizado,datos.zona as zona \
     from datos, clientes where clientes.id = datos.idcliente and \
-    enviado_vdor=0 and rechazado=0 order by id desc")
+    enviado_vdor=0 and rechazado=0 and resultado is null order by id desc")
     # enviado_vdor=0 filtra los datos no enviados aun.
     cuotabasica = var_sistema['cuota_basica']
     vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
@@ -299,11 +299,11 @@ def vendedor_asignardatosvendedor():
 def vendedor_desafectardatos():
     """Funcion que desafecta datos asignados a un vendedor.
 
-    Pone el enviado_vdor=0 a los datos de la lista"""
+    Pone el enviado_vdor=0 y resultado=10 (que significa descartado)."""
     con = get_con()
     lista_ids = json.loads(request.data.decode("UTF-8"))
     ids = listsql(lista_ids)
-    upd = f"update datos set enviado_vdor=0 where id in {ids}"
+    upd = f"update datos set enviado_vdor=0, resultado=10 where id in {ids}"
     cur = con.cursor()
     try:
         cur.execute(upd)
