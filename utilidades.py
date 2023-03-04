@@ -175,7 +175,7 @@ def utilidades_logtheme(theme, ismobile):
 def update_dni_garantes():
     con = get_con()
     cur = con.cursor()
-    listadni = pglflat(con, "select dnigarante from ventas where garantizado=1 and saldo>0")
+    listadni = pglist(con, "select dnigarante from ventas where garantizado=1 and saldo>0")
     for dni in listadni:
         upd = f"update clientes set esgarante=1 where dni={dni}"
         cur.execute(upd)

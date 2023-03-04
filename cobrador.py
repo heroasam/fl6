@@ -7,7 +7,7 @@ import mysql.connector
 from flask import Blueprint, render_template, jsonify, make_response, request
 import simplejson as json
 from lib import pgonecolumn, pglistdict, send_msg_whatsapp, send_file_whatsapp, \
-    pglflat,  listsql, pgdict
+    pglist,  listsql, pgdict
 from con import get_con, log, check_roles
 
 
@@ -54,7 +54,7 @@ def cobrador_getlistadofichas():
     asignacion, pero si se muestren los cobrados en el dia de la fecha."""
     cobr = get_cobr()
     con = get_con()
-    zonas = pglflat(con, f"select clientes.zona as zona from clientes,zonas \
+    zonas = pglist(con, f"select clientes.zona as zona from clientes,zonas \
     where asignada=1 and asignado={cobr} and clientes.zona=zonas.zona \
     group by clientes.zona")
     fichas = pglistdict(con, f"select clientes.* from clientes,zonas where \

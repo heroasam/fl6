@@ -4,7 +4,7 @@ from flask_login import login_required
 import simplejson as json
 import mysql.connector
 from con import get_con, check_roles
-from lib import pglistdict, pglflat, pgonecolumn
+from lib import pglistdict, pglist, pgonecolumn
 
 conta = Blueprint('conta',__name__)
 
@@ -155,7 +155,7 @@ def conta_getasientos():
             order by id desc limit 100")
     saldo = pgonecolumn(con, "select sum(imp) from caja1,ctas1 where \
             caja1.cuenta=ctas1.cuenta")
-    cuentas = pglflat(con, "select cuenta from ctas1")
+    cuentas = pglist(con, "select cuenta from ctas1")
     con.close()
     return jsonify(asientos=asientos,saldo=saldo, cuentas=cuentas)
 

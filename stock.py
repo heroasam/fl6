@@ -6,7 +6,7 @@ import simplejson as json
 
 import pandas as pd
 import mysql.connector
-from lib import pglistdict, pgonecolumn, pglflat, logcaja
+from lib import pglistdict, pgonecolumn, pglist, logcaja
 from con import get_con, log, engine, check_roles
 from formularios import listaprecios, imprimir_stock
 
@@ -76,7 +76,7 @@ def stock_deleteasiento(id_asiento):
 def stock_getcuentas():
     """Proveo lista de cuentas."""
     con = get_con()
-    cuentas = pglflat(con, "select cuenta from ctas order by cuenta")
+    cuentas = pglist(con, "select cuenta from ctas order by cuenta")
     con.close()
     return jsonify(result=cuentas)
 
@@ -217,7 +217,7 @@ def stock_getcompras():
     con = get_con()
     compras=pglistdict(con, "select id,fecha,art,cnt, costo,total,proveedor from \
                           artcomprado order by id desc limit 200")
-    proveedores = pglflat(con, "select distinct proveedor from artcomprado")
+    proveedores = pglist(con, "select distinct proveedor from artcomprado")
     con.close()
     return jsonify(compras=compras, proveedores=proveedores)
 
@@ -228,7 +228,7 @@ def stock_getcompras():
 def stock_getarticulos():
     """Obtengo lista de articulos."""
     con = get_con()
-    articulos=pglflat(con, "select art from articulos where codigo is not null")
+    articulos=pglist(con, "select art from articulos where codigo is not null")
     con.close()
     return jsonify(articulos=articulos)
 
@@ -411,7 +411,7 @@ def stock_getlistaarticulos():
     """Obtengo lista de articulos."""
     con = get_con()
     articulos=pglistdict(con, "select * from articulos order by activo desc,art" )
-    grupos = pglflat(con, "select distinct grupo from articulos where grupo \
+    grupos = pglist(con, "select distinct grupo from articulos where grupo \
     is not null")
     con.close()
     return jsonify(articulos=articulos, grupos=grupos)
@@ -595,7 +595,7 @@ def stock_generarlistaprecios():
     con = get_con()
     lista = pglistdict(con, "select * from articulos where activo=1 order by grupo\
     ,codigo")
-    grupos = pglflat(con, "select distinct grupo from articulos where activo=1\
+    grupos = pglist(con, "select distinct grupo from articulos where activo=1\
                            and grupo is not null order by grupo")
     listaprecios(lista,grupos)
     return 'ok'
@@ -719,7 +719,7 @@ def stock_getdatosarqueo():
     listatrancobr= pglistdict(con, "select * from caja where cuenta=\
     'transferencia de cobradores' and id not in (15451,15424,15423) \
     order by id desc")
-    listacuentas = pglflat(con, "select cuenta from ctas")
+    listacuentas = pglist(con, "select cuenta from ctas")
     return jsonify(bancocuotas=bancocuotas, bancocobr=bancocobr, \
                    listacuotas=listacuotas, listatrancobr=listatrancobr,\
                    listacuentas=listacuentas)

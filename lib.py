@@ -79,7 +79,7 @@ def pgonecolumn(con, sel):
     return res
 
 
-def pglflat(con, sel):
+def pglist(con, sel):
     """Funcion que entrega una lista de valores."""
     lista = pglisttuples(con, sel)
     flatlist = []

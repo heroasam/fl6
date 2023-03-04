@@ -4,7 +4,7 @@ import time
 from datetime import date, datetime
 from fpdf import FPDF
 from dateutil.relativedelta import relativedelta
-from lib import pgtuple, pglisttuples, per, pglflat,pglistdict,pgonecolumn, letras, listsql
+from lib import pgtuple, pglisttuples, per, pglist,pglistdict,pgonecolumn, letras, listsql
 
 
 def cuotaje(con,idvta):
@@ -69,14 +69,14 @@ def ficha(con,ldni):
     for dni in ldni:
         lpg+=str(dni)+','
     lpg = lpg[0:-1]+')'
-    listdni = pglflat(con,f"select dni from clientes where dni in {lpg} order by calle,num")
+    listdni = pglist(con,f"select dni from clientes where dni in {lpg} order by calle,num")
 
     i=1
     lisdatos = [] # lista que contendra los datos del resumen
     # dictPos = {} # diccionario de posisiones de ficha en paginas
     # dictNombre = {} # dicc que guarda los nombres para el resumen
     # dictDir = {} # dicc que guarda la direccion para el resumen
-    listapmovtos = pglflat(con,f"select pmovto from clientes where dni in {lpg}")
+    listapmovtos = pglist(con,f"select pmovto from clientes where dni in {lpg}")
     pmovtos = [min(listapmovtos),max(listapmovtos)]
     for dni in listdni:
         #regla para que no comience un encabezado con poco espacio
@@ -306,7 +306,7 @@ def intimacion(con,ldni):
     for dni in ldni:
         lpg+=str(dni)+','
     lpg = lpg[0:-1]+')'
-    listdni = pglflat(con,f"select dni from clientes where dni in {lpg} order by calle,num")
+    listdni = pglist(con,f"select dni from clientes where dni in {lpg} order by calle,num")
     for dni in listdni:
         if (pdf.get_y()>250):
             pdf.add_page()
@@ -387,8 +387,8 @@ def listado(con, ldni, formato):
     pdf.set_margins(20,30)
     pdf.add_page()
     pdf.set_font("Helvetica","",14)
-    listdni = pglflat(con,f"select dni from clientes where dni in {listsql(ldni)}")
-    listcallenum = pglflat(con, f"select  distinct concat(calle, ' ' ,num) from clientes where dni in {listsql(listdni)} order by calle,num")
+    listdni = pglist(con,f"select dni from clientes where dni in {listsql(ldni)}")
+    listcallenum = pglist(con, f"select  distinct concat(calle, ' ' ,num) from clientes where dni in {listsql(listdni)} order by calle,num")
 
     for direccion in listcallenum:
         clientes = pglistdict(con, f"select nombre,calle,num,acla,dni,year(ultcompra) as year,wapp,deuda,comprado from clientes where concat(calle,' ',num)='{direccion}' and dni in {listsql(ldni)}")
@@ -442,7 +442,7 @@ def asuntos(con,ids):
     for id in ids:
         lpg+=str(id)+','
     lpg = lpg[0:-1]+')'
-    listasuntos = pglflat(con,f"select asuntos.id as id,zona from asuntos,clientes where clientes.id=asuntos.idcliente and  asuntos.id in {lpg} order by zona")
+    listasuntos = pglist(con,f"select asuntos.id as id,zona from asuntos,clientes where clientes.id=asuntos.idcliente and  asuntos.id in {lpg} order by zona")
     for id in listasuntos:
         asunto = pglistdict(con, f"select asuntos.id as id, idcliente, tipo, fecha, vdor, asunto,nombre,calle,num,wapp,completado,zona from asuntos,clientes where clientes.id=asuntos.idcliente and asuntos.id={id}")[0]
         pdf.cell(60,6,asunto['nombre'][0:24],0,0)

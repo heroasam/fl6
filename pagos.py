@@ -64,7 +64,7 @@ def loterbo_imprimir(fecha,cobr,idlote):
 @check_roles(['dev','gerente','admin'])
 def loterbo_reimprimir(fecha,cobr,idlote):
     con = get_con()
-    listarbo = pglflat(con, f"select rbo from rbos where idloterbos={idlote}")
+    listarbo = pglist(con, f"select rbo from rbos where idloterbos={idlote}")
     estimado = pglistdict(con, f"select date_format(pmovto,'%Y-%m') as periodo,sum(cuota) as cuotas from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%' and asignado={cobr} group by periodo having periodo=date_format(curdate(),'%Y-%m')")[0]
     cobrado = pgonecolumn(con, f"select sum(imp+rec) from pagos where cobr={cobr} and date_format(fecha,'%Y-%m')=date_format(curdate(),'%Y-%m')")
     if cobrado is None:
@@ -121,7 +121,7 @@ def loterbo_buscanombrecobr(cobr):
 @check_roles(['dev','gerente','admin'])
 def loterbo_getidcobradores():
     con = get_con()
-    idcobradores = pglflat(con, "select id from cobr where activo=1 and prom=0 and id>500")
+    idcobradores = pglist(con, "select id from cobr where activo=1 and prom=0 and id>500")
     return jsonify(idcobradores=idcobradores)
 
 
@@ -724,7 +724,7 @@ def pagos_marcarbajados():
 @check_roles(['dev','gerente'])
 def pagos_getvdorcondeuda():
     con = get_con()
-    vendedores = pglflat(con, "select distinct codigo from caja where cuenta \
+    vendedores = pglist(con, "select distinct codigo from caja where cuenta \
     in ('prestamos empleados','recupero prestamos') and fecha>'2022-01-01'")
     return jsonify(vendedores=vendedores)
 

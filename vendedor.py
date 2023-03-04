@@ -7,7 +7,7 @@ import mysql.connector
 from flask import Blueprint, render_template, jsonify, make_response, request
 import simplejson as json
 from lib import pgonecolumn, pglistdict, send_msg_whatsapp, send_file_whatsapp, \
-    pglflat,  listsql, pgdict, pgexec
+    pglist,  listsql, pgdict, pgexec
 from con import get_con, log, check_roles
 
 vendedor = Blueprint('vendedor', __name__)
@@ -219,7 +219,7 @@ def vendedor_getlistadodatos():
     sin_extension,nosabana, autorizado, datos.zona as zona from datos, \
     clientes where clientes.id =datos.idcliente order by id desc")
     cuotabasica = var_sistema['cuota_basica']
-    vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
+    vdores = pglist(con, "select id from cobr where vdor=1 and activo=1")
     return jsonify(listadodatos=listadodatos, cuotabasica=cuotabasica, \
                    vdores=vdores)
 
@@ -241,7 +241,7 @@ def vendedor_getlistadodatosenviar():
     enviado_vdor=0 and rechazado=0 and resultado is null order by id desc")
     # enviado_vdor=0 filtra los datos no enviados aun.
     cuotabasica = var_sistema['cuota_basica']
-    vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
+    vdores = pglist(con, "select id from cobr where vdor=1 and activo=1")
     return jsonify(listadodatos=listadodatos, cuotabasica=cuotabasica, \
                    vdores=vdores)
 
@@ -263,7 +263,7 @@ def vendedor_getlistadodatosenviados():
     datos.idcliente and enviado_vdor=1 order by edited desc")
     # enviado_vdor=1 filtra los datos enviados
     cuotabasica = var_sistema['cuota_basica']
-    vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
+    vdores = pglist(con, "select id from cobr where vdor=1 and activo=1")
     return jsonify(listadodatos=listadodatos, cuotabasica=cuotabasica, \
                    vdores=vdores)
 
@@ -1448,7 +1448,7 @@ def vendedor_getartvendedor(vdor):
 def vendedor_getvendedores():
     """Simple funcion que entrega lista de vendedores."""
     con = get_con()
-    vendedores = pglflat(con, "select id from cobr where activo=1 and vdor=1")
+    vendedores = pglist(con, "select id from cobr where activo=1 and vdor=1")
     return jsonify(vendedores=vendedores)
 
 

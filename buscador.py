@@ -7,7 +7,7 @@ from flask import Blueprint, render_template, jsonify, make_response, request,\
     send_file
 from flask_login import login_required, current_user
 from lib import pgonecolumn, pglistdict, send_msg_whatsapp, send_file_whatsapp, \
-    pglflat, log_busqueda, listsql, actualizar, send_img_whatsapp
+    pglist, log_busqueda, listsql, actualizar, send_img_whatsapp
 from formularios import intimacion, libredeuda, ficha, recibotransferencia
 from con import get_con, log, check_roles
 
@@ -564,7 +564,7 @@ def busca_guardaredicioncliente(idcliente):
 def buscar_obtenerlistadocalles():
     """Funcion que entrega listado de calles."""
     con = get_con()
-    calles = pglflat(con, "select calle from calles order by calle")
+    calles = pglist(con, "select calle from calles order by calle")
     con.close()
     return jsonify(result=calles)
 
@@ -575,7 +575,7 @@ def buscar_obtenerlistadocalles():
 def buscar_obtenerlistabarrios():
     """Funcion que entrega listado de barrios."""
     con = get_con()
-    barrios = pglflat(con,"select barrio from barrios order by barrio")
+    barrios = pglist(con,"select barrio from barrios order by barrio")
     con.close()
     return jsonify(result=barrios)
 
@@ -586,7 +586,7 @@ def buscar_obtenerlistabarrios():
 def buscar_obtenerlistazonas():
     """Funcion que entrega listado de zonas."""
     con = get_con()
-    zonas = pglflat(con,"select zona from zonas order by zona")
+    zonas = pglist(con,"select zona from zonas order by zona")
     con.close()
     return jsonify(result=zonas)
 
@@ -599,7 +599,7 @@ def buscar_obtenercobradores():
 
     activo=1, prom=0, id>100 para evitar 10,15 y id!=820 que es romitex."""
     con = get_con()
-    cobradores = pglflat(con,"select id from cobr where activo=1 and prom=0 \
+    cobradores = pglist(con,"select id from cobr where activo=1 and prom=0 \
     and id>100 and id!=820 order by id")
     con.close()
     return jsonify(cobradores=cobradores)
@@ -632,7 +632,7 @@ def buscar_buscarplandepagos_muerto(idcliente):
         idcliente={idcliente}")
     # ahora averiguo de ese idvta hizo pagos
     if idplan is not None:
-        pagos = pglflat(con, f"select id from pagos where idvta={idplan}")
+        pagos = pglist(con, f"select id from pagos where idvta={idplan}")
         if len(pagos)==0:
             return True
     return False
@@ -830,7 +830,7 @@ def buscador_cargarasunto():
 @check_roles(['dev','gerente','admin'])
 def buscador_obtenerlistacalles():
     con = get_con()
-    calles = pglflat(con, 'select calle from calles order by calle')
+    calles = pglist(con, 'select calle from calles order by calle')
     return jsonify(result=calles)
 
 
@@ -991,7 +991,7 @@ def buscador_pedirlistagarantizados(id):
 @check_roles(['dev','gerente','admin'])
 def buscador_pedirlistadevoluciones(id):
     con = get_con()
-    idvtas = pglflat(con, f"select id from ventas where idcliente={id}")
+    idvtas = pglist(con, f"select id from ventas where idcliente={id}")
     if idvtas:
         listadevoluciones = pglistdict(con, f"select * from devoluciones where idvta in {listsql(idvtas)}")
     else:

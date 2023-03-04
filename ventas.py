@@ -23,7 +23,7 @@ def ventas_pasarventas():
 @check_roles(['dev','gerente','admin','vendedor'])
 def ventas_getcalles():
     con = get_con()
-    calles = pglflat(con, f"select calle from calles order by calle")
+    calles = pglist(con, f"select calle from calles order by calle")
     con.close()
     return jsonify(result=calles)
 
@@ -34,7 +34,7 @@ def ventas_getcalles():
 @check_roles(['dev','gerente','admin','vendedor'])
 def ventas_getbarrios():
     con = get_con()
-    barrios = pglflat(con, f"select barrio from barrios order by barrio")
+    barrios = pglist(con, f"select barrio from barrios order by barrio")
     con.close()
     return jsonify(result=barrios)
 
@@ -44,7 +44,7 @@ def ventas_getbarrios():
 @check_roles(['dev','gerente','admin'])
 def ventas_getzonas():
     con = get_con()
-    zonas = pglflat(con, f"select zona from zonas order by zona")
+    zonas = pglist(con, f"select zona from zonas order by zona")
     con.close()
     return jsonify(result=zonas)
 
@@ -208,7 +208,7 @@ def ventas_borrardetvta(id):
 @check_roles(['dev','gerente','admin'])
 def ventas_getarticulos():
     con = get_con()
-    articulos = pglflat(con, f"select concat(codigo,'-',art) as art from articulos where activo=1 and codigo is not null")
+    articulos = pglist(con, f"select concat(codigo,'-',art) as art from articulos where activo=1 and codigo is not null")
     con.close()
     return jsonify(result=articulos)
 
@@ -792,7 +792,7 @@ def ventas_agregararticulo():
 @check_roles(['dev','gerente','admin'])
 def ventas_devolucion_obtenerlistaarticulos():
     con = get_con()
-    arts = pglflat(con, f"select art from articulos where activo=1")
+    arts = pglist(con, f"select art from articulos where activo=1")
     con.close()
     return jsonify(arts=arts)
 
@@ -851,7 +851,7 @@ def ventas_devolucion_procesar():
         con.commit()
         log(updvta)
     #   update detvta poner devuelta=1 a los articulos devueltos en una devolucion total
-        ids_detvta = pglflat(con, f"select id from detvta where idvta={idvta}")
+        ids_detvta = pglist(con, f"select id from detvta where idvta={idvta}")
         logging.warning(f"ids_detvta {ids_detvta}")
         for id in ids_detvta:
             cargado = pgonecolumn(con, f"select cargado from detvta where id={id}")
