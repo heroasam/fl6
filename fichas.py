@@ -111,9 +111,9 @@ def fichas_intimarpdf():
 
 def msg_intimacion(dni):
     con = get_con()
-    sev, nombre, idcliente,calle,num = pgdict0(con, f"select sev, nombre, id, calle, num from clientes where dni={dni}")
+    sev, nombre, idcliente,calle,num = pgtuple(con, f"select sev, nombre, id, calle, num from clientes where dni={dni}")
     # nombre = pgonecolumn(con, f"select nombre from clientes where dni={dni}")
-    fecha, articulos = pgdict0(con, f"select fecha,art from ventas where idcliente={idcliente} order by fecha desc limit 1")
+    fecha, articulos = pgtuple(con, f"select fecha,art from ventas where idcliente={idcliente} order by fecha desc limit 1")
     direccion = f"{calle} {num}"
     if sev:
         text="Nos comunicamos de la empresa ROMITEX por una deuda que usted tiene con la firma. Usted fue subido al SEVEN hasta regularizar su cuenta. Puede hacer un plan de pagos. Consulte por Wapp. Una vez cancelado en 48hs se lo elimina del SEVEN. De no desmostrar interes nos vemos obligados a cobrar su pagare por via JUDICIAL. Atte. *Departamento de cobranzas de ROMITEX*"
@@ -167,7 +167,6 @@ def fichas_msgprogramado():
     clientes = d['listaclientes']
     msg = d['msg']
     file = d['file']
-    print('file',file,type(file))
     for cliente in clientes:
         if cliente['wapp']:
             if file:

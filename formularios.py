@@ -4,7 +4,7 @@ import time
 from datetime import date, datetime
 from fpdf import FPDF
 from dateutil.relativedelta import relativedelta
-from lib import pgdict0, pgddict, per, pglflat,pgdict,pgonecolumn, letras, listsql
+from lib import pgtuple, pglisttuples, per, pglflat,pgdict,pgonecolumn, letras, listsql
 
 
 def cuotaje(con,idvta):
@@ -80,7 +80,7 @@ def ficha(con,ldni):
     pmovtos = [min(listapmovtos),max(listapmovtos)]
     for dni in listdni:
         #regla para que no comience un encabezado con poco espacio
-        cliente = pgdict0(con,f"select nombre,calle,num,tel,wapp,pmovto,barrio,zona,acla,mjecobr,horario,id,seguir,cuota from clientes where dni='{dni}'")
+        cliente = pgtuple(con,f"select nombre,calle,num,tel,wapp,pmovto,barrio,zona,acla,mjecobr,horario,id,seguir,cuota from clientes where dni='{dni}'")
 
         estimado = calc(con, cliente[11])
         estimado += 9 # estimado bruto de los distintos encabezados
@@ -126,14 +126,14 @@ def ficha(con,ldni):
         pdf.set_font_size(10)
         pdf.cell(40,6,f'Visitar el {pmovto}',1,1)
 
-        ventas=pgddict(con,f"select id,fecha,cc,ic,p,saldo from ventas where saldo>0 and idcliente={cliente[11]}")
+        ventas=pglisttuples(con,f"select id,fecha,cc,ic,p,saldo from ventas where saldo>0 and idcliente={cliente[11]}")
         for venta in ventas:
             pdf.set_font_size(10)
             pdf.cell(15,6,f"{venta[0]}",1,0,'C')
             pdf.cell(25,6,f"{venta[1]}",1,0,'C')
             pdf.cell(50,6,f"{venta[2]} cuotas de ${venta[3]} {per(venta[4])}",1,0,'C')
             pdf.cell(35,6,f"Saldo ${venta[5]}",1,1,'C')
-            detvtas=pgddict(con,f"select cnt,art,cc,ic from detvta where idvta={venta[0]}")
+            detvtas=pglisttuples(con,f"select cnt,art,cc,ic from detvta where idvta={venta[0]}")
             for detvta in detvtas:
                 pdf.set_font_size(8)
                 pdf.cell(10,4,f"{detvta[0]}",1,0,'C')
@@ -141,7 +141,7 @@ def ficha(con,ldni):
                 pdf.cell(35,4,f"{detvta[2]} cuotas de ${detvta[3]}",1,1,'C')
 
             cuotas = cuotaje(con,venta[0])
-            pagadas = pgddict(con, f"select fecha,imp,rec,rbo,cobr from pagos where idvta={venta[0]} order by fecha")
+            pagadas = pglisttuples(con, f"select fecha,imp,rec,rbo,cobr from pagos where idvta={venta[0]} order by fecha")
             # Calculo el largo total que tendra la grilla de pagos
             if (len(cuotas)>len(pagadas)):
                 max_el=len(cuotas)
@@ -225,7 +225,7 @@ def libredeuda(con,dni):
     pdf.set_margins(30,30)
     pdf.add_page()
     pdf.set_font("Helvetica","",10)
-    cliente = pgdict0(con, f"select nombre, calle,num,barrio,sev from clientes where dni='{dni}'")
+    cliente = pgtuple(con, f"select nombre, calle,num,barrio,sev from clientes where dni='{dni}'")
     pdf.set_font_size(22)
     pdf.image('/home/hero/imagenes/romitex.png', w=80, h=20)
     pdf.ln(5)
@@ -252,7 +252,7 @@ def libredeuda(con,dni):
 
 def recibotransferencia(con,fecha,cuenta,nc,ic,cobr,rbo,idcliente):
     today = datetime.today().strftime('%Y-%m-%d')
-    cliente = pgdict0(con, f"select nombre, calle,num,barrio,sev from clientes where id='{idcliente}'")
+    cliente = pgtuple(con, f"select nombre, calle,num,barrio,sev from clientes where id='{idcliente}'")
     texto = f"""RECIBIMOS de {cliente[0]} con domicilio en {cliente[1]} {cliente[2]} {cliente[3]} la suma de pesos {letras(ic)} en concepto de pago de la cuota {nc} de la cuenta {cuenta}, por medio de una transferencia al CBU 0170084840000048757878."""
     advertencia = """Este recibo solo es valido si se adjunta con el comprobante de la transferencia que lo origino"""
     pdf=FPDF()
@@ -311,7 +311,7 @@ def intimacion(con,ldni):
         if (pdf.get_y()>250):
             pdf.add_page()
             pdf.set_y(15)
-        cliente = pgdict0(con,f"select nombre,calle,num,barrio,sev from clientes where dni='{dni}'")
+        cliente = pgtuple(con,f"select nombre,calle,num,barrio,sev from clientes where dni='{dni}'")
         pdf.set_font_size(22)
         pdf.cell(100,12,"INTIMACION DE PAGO", 0, 1, 'L')
         pdf.set_font_size(12)

@@ -617,7 +617,7 @@ def pagos_togglesube(id):
 @check_roles(['dev','gerente','admin'])
 def pagos_sevenaltas():
     con = get_con()
-    sevenaltas = pglist(con, f"select 2210,dni,dni,3,sex,'','',nombre,concat(calle,' ',num),5000,barrio,'Cordoba','Cordoba','M', date_format(current_date(),'%Y-%m-%d'),0,'01','',wapp from clientes where subirseven=1 and alta is null")
+    sevenaltas = pglisttuples(con, f"select 2210,dni,dni,3,sex,'','',nombre,concat(calle,' ',num),5000,barrio,'Cordoba','Cordoba','M', date_format(current_date(),'%Y-%m-%d'),0,'01','',wapp from clientes where subirseven=1 and alta is null")
     con.close()
     return jsonify(sevenaltas=sevenaltas)
 
@@ -659,6 +659,7 @@ def pagos_marcarsubidos():
 def pagos_loadbajas():
     con = get_con()
     listbajas = pgdict(con, f"select dni,nombre,dni, 'Cancelado' as canc, ultpago from clientes where sev=1 and deuda=0")
+    print(listbajas)
     con.close()
     return jsonify(listbajas=listbajas)
 
@@ -668,7 +669,8 @@ def pagos_loadbajas():
 @check_roles(['dev','gerente','admin'])
 def pagos_sevenbajas():
     con = get_con()
-    sevenbajas = pglist(con, f"select dni,nombre,dni,'Cancelado' as canc,ultpago from clientes where sev=1 and deuda=0")
+    sevenbajas = pglisttuples(con, f"select dni,nombre,dni,'Cancelado' as canc,ultpago from clientes where sev=1 and deuda=0")
+    print(sevenbajas)
     return jsonify(sevenbajas=sevenbajas)
 
 

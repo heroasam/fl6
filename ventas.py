@@ -777,10 +777,8 @@ def ventas_agregararticulo():
     # en este momento puede que haya un registro en tabla devolucion. Por lo que hay
     # que hacer una verificacion primero para ver si hay que hacer un upd o ins.
     iddev = pgonecolumn(con,f"select id from devoluciones where idvta={idvta}")
-    print(iddev)
     if iddev:
         stmlog = f"update devoluciones set log=concat(log,' agrego:{cnt}-{art}') where id={iddev}"
-        print(stmlog)
     else: # no hay un registro todavia de devoluciones
         stmlog = f"insert into devoluciones(idvta,log) values({idvta},'agrego:{cnt}-{art}')"
     cur.execute(stmlog)

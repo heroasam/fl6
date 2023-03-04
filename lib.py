@@ -16,34 +16,33 @@ FORMAT = '%(asctime)s  %(message)s'
 logging.basicConfig(format=FORMAT)
 
 
-def pgdict0(con, sel):
-    """Funcion que entrega una lista de valores en formato lista plana.
+def pgtuple(con, sel):
+    """Funcion que entrega una tupla de valores listo para desempacar.
 
-    o flat list entregado por el fetchall sobre un cursor
+    Debe proporcionarse un select que entregue una sola fila.
     """
     cur = con.cursor()
     cur.execute(sel)
     rec = cur.fetchone()
-    cur.close()
     return rec
 
 
 def pgdict(con, sel):
-    """Funcion que entrega una lista de valores en formato list of list.
+    """Funcion que entrega una lista de diccionarios.
 
-    entregado por el fetchall sobre un cursor
+    Un diccionario por cada fila. Cuyas claves son los nombres de los campos.
     """
     cur = con.cursor(dictionary=True)
     cur.execute(sel)
     rec = cur.fetchall()
-    # cur.close()
     return rec
 
 
 def pgdict1(con, sel):
-    """Funcion que entrega una lista de valores en formato list of list.
+    """Funcion que entrega un diccionario.
 
-    entregado por el fetchall sobre un cursor. Pero entrega una fila.
+    Las claves son los campos del select.
+    Si no hay resultado entrega None.
     """
     cur = con.cursor(dictionary=True)
     cur.execute(sel)
@@ -54,25 +53,21 @@ def pgdict1(con, sel):
         return None
 
 
-def pglist(con, sel):
-    """Funcion que entrega una lista de valores en formato list of list.
+def pglisttuples(con, sel):
+    """Funcion que entrega una lista de tuplas.
 
-    entregado por el fetchall sobre un cursor
+    Una tupla por fila.
     """
     cur = con.cursor()
     cur.execute(sel)
     rec = cur.fetchall()
-    cur.close()
     return rec
 
 
 def pgonecolumn(con, sel):
-    """Funcion que entrega un solo valor como el onecolumn de sqlite.
+    """Funcion que entrega un solo valor.
 
-    en caso de que el select no de resultado, lo cual se expresaria en
-    el cur.fetchone() = None damos por resultado "", sino damos [0] que
-    es el primer elemento de la tupla que normalmente fetchone entrega
-    obteniendo con eso un resultado flat para uso directo
+    Si el select no lo especifica, entrega el primer campo de la primera fila.
     """
     cur = con.cursor()
     cur.execute(sel)
@@ -81,38 +76,24 @@ def pgonecolumn(con, sel):
         return ""
     else:
         return res[0]
-    # cur.close()
-    return res
-
-
-def pgddict(con, sel):
-    """Funcion que entrega una lista de valores en formato list of list.
-
-    entregado por el fetchall sobre un cursor
-    """
-    cur = con.cursor()
-    cur.execute(sel)
-    rec = cur.fetchall()
-    cur.close()
-    return rec
-
-
-def pgllist(con, sel):
-    """Funcion que entrega una lista de listas."""
-    cur = con.cursor()
-    cur.execute(sel)
-    res = cur.fetchall()
-    cur.close()
     return res
 
 
 def pglflat(con, sel):
-    """Funcion que entrega una lista plana."""
-    lista = pgllist(con, sel)
+    """Funcion que entrega una lista de valores."""
+    lista = pglisttuples(con, sel)
     flatlist = []
     for lis in lista:
         flatlist.append(lis[0])
     return flatlist
+
+
+def pgexec(con, sel):
+    """Funcion que ejecuta una sentencia."""
+    cur = con.cursor()
+    cur.execute(sel)
+    con.commit()
+    return 'ok'
 
 
 def listsql(lista):
@@ -488,7 +469,6 @@ def send_img_whatsapp(idcliente, file, wapp, msg=""):
     # with open(file, "rb") as image_file:
     #     encoded_string = base64.b64encode(image_file.read())
     #     img_base64=urllib.parse.quote_plus(encoded_string)
-    # print(img_base64)
 
     payload = f"https://api.textmebot.com/send.php?recipient={wapp}&\
             apikey=kGdEFC1HvHVJ&file={file}"

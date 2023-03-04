@@ -84,7 +84,7 @@
                                                                        //enviar un whatsapp al Fede informando del pedido de autorizacion
                                                                        let msg = `Solicito autorizacion para ${this.cliente.nombre}
 como CLIENTE NUEVO.
-uedo a la espera. Gracias.`;
+Quedo a la espera. Gracias.`;
                                                                        let tipo = "pedido-autorizacion";
                                                                        let data = {msg,tipo};
                                                                        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;

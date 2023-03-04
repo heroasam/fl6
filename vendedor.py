@@ -7,7 +7,7 @@ import mysql.connector
 from flask import Blueprint, render_template, jsonify, make_response, request
 import simplejson as json
 from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
-    pglflat,  listsql, pgdict1
+    pglflat,  listsql, pgdict1, pgexec
 from con import get_con, log, check_roles
 
 vendedor = Blueprint('vendedor', __name__)
@@ -154,14 +154,16 @@ def vendedor_guardardato():
     upd = f"update clientes set fechadato=curdate() where \
                 id={d_data['idcliente']}"
     try:
-        cur.execute(ins)
-        cur.execute(upd)
+        # cur.execute(ins)
+        # cur.execute(upd)
+        pgexec(con, upd)
+        pgexec(con, ins)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
         return make_response(error, 400)
     else:
-        con.commit()
+        # con.commit()
         log(ins)
         return 'ok'
     finally:
@@ -262,7 +264,6 @@ def vendedor_getlistadodatosenviados():
     # enviado_vdor=1 filtra los datos enviados
     cuotabasica = var_sistema['cuota_basica']
     vdores = pglflat(con, "select id from cobr where vdor=1 and activo=1")
-    print(vdores)
     return jsonify(listadodatos=listadodatos, cuotabasica=cuotabasica, \
                    vdores=vdores)
 
@@ -650,7 +651,6 @@ def vendedor_envioclientenuevo():
             {vdor},{iddato},{idcliente},{d_data['cuota_requerida']},\
             {cuota_maxima},'{d_data['arts']}')"
             cur.execute(insaut)
-            print(insaut)
             idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
         except mysql.connector.Error as _error:
             con.rollback()
