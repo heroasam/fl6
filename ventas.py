@@ -63,7 +63,7 @@ def ventas_getperiodicidad():
 def ventas_getcuentaspordni(dni):
     con = get_con()
     try:
-        clientes = pgdict(con,f"select sex,dni,nombre,calle,num,barrio,zona,tel,wapp,acla,horario,mjecobr,infoseven,id from clientes where dni='{dni}'")
+        clientes = pglistdict(con,f"select sex,dni,nombre,calle,num,barrio,zona,tel,wapp,acla,horario,mjecobr,infoseven,id from clientes where dni='{dni}'")
         if len(clientes)==1:
             clientes = clientes[0]
     except mysql.connector.Error as e:
@@ -83,7 +83,7 @@ def ventas_guardarcliente():
     cur = con.cursor()
     d = json.loads(request.data.decode("UTF-8"))
     if d['id']: # o sea existe el id, es decir es un update
-        cliente_viejo = pgdict(con, f"select * from clientes where id={d['id']}")[0]
+        cliente_viejo = pglistdict(con, f"select * from clientes where id={d['id']}")[0]
     if d['id']=="":
         stm = f"insert into clientes(sex,dni,nombre,calle,num,barrio,zona,tel,wapp,acla,horario,mjecobr,infoseven) values('{d['sex']}','{d['dni']}','{d['nombre']}','{d['calle']}','{d['num']}','{d['barrio']}','{d['zona']}','{d['tel']}','{d['wapp']}','{d['acla']}','{d['horario']}','{d['mjecobr']}','{d['infoseven']}')"
     else:
@@ -170,7 +170,7 @@ def ventas_guardardetvta():
         con.commit()
         log(ins)
         cur.close()
-        detvta = pgdict(con,f"select id,cnt,art,cc,ic from detvta where idvta={d['idvta']}")
+        detvta = pglistdict(con,f"select id,cnt,art,cc,ic from detvta where idvta={d['idvta']}")
         sumic = pgonecolumn(con,f"select sum(ic) from detvta where idvta={d['idvta']}")
         con.close()
         return jsonify(detvta=detvta,sumic=sumic)
@@ -194,7 +194,7 @@ def ventas_borrardetvta(id):
         con.commit()
         log(stm)
         cur.close()
-        detvta = pgdict(con,f"select id,cnt,art,cc,ic from detvta where idvta={idvta}")
+        detvta = pglistdict(con,f"select id,cnt,art,cc,ic from detvta where idvta={idvta}")
         sumic = pgonecolumn(con,f"select sum(ic) from detvta where idvta={idvta}")
         if sumic is None:
             sumic=0
@@ -218,7 +218,7 @@ def ventas_getarticulos():
 @check_roles(['dev','gerente','admin'])
 def ventas_getlistado():
     con = get_con()
-    listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count, dnigarante,devuelta,parcial,cambio,idcliente,(select dni from clientes where id=idcliente) as dni from ventas where pp=0 order by id desc limit 100")
+    listado = pglistdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count, dnigarante,devuelta,parcial,cambio,idcliente,(select dni from clientes where id=idcliente) as dni from ventas where pp=0 order by id desc limit 100")
     con.close()
     return jsonify(listado=listado)
 
@@ -228,7 +228,7 @@ def ventas_getlistado():
 @check_roles(['dev','gerente','admin'])
 def ventas_getlistadocuenta(cuenta):
     con = get_con()
-    listado = pgdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count from ventas where id={cuenta}")
+    listado = pglistdict(con,f"select id, fecha, cc, ic, p, pmovto  , comprado, idvdor, primera, cnt, art, (select count(id) from ventas as b where b.idcliente=ventas.idcliente and saldo>0 and pmovto<date_sub(curdate(), interval 120 day)) as count from ventas where id={cuenta}")
     con.close()
     return jsonify(listado=listado)
 
@@ -266,7 +266,7 @@ def ventas_borrarventa(id):
 @check_roles(['dev','gerente','admin'])
 def ventas_datosventa(id):
     con = get_con()
-    venta = pgdict(con, f"select fecha,cc,ic,p,pmovto,idvdor,primera from ventas where id={id}")[0]
+    venta = pglistdict(con, f"select fecha,cc,ic,p,pmovto,idvdor,primera from ventas where id={id}")[0]
     con.close()
     return jsonify(venta=venta)
 
@@ -312,11 +312,11 @@ def ventas_getclientes(tipo):
     """Entrego lista de cliente segun tipo pedido."""
     con = get_con()
     if tipo=='idvta':
-        clientes = pgdict(con, "select ventas.id as idvta,dni, nombre, calle,num,\
+        clientes = pglistdict(con, "select ventas.id as idvta,dni, nombre, calle,num,\
         zona, gestion, mudo, incobrable,acla from ventas, clientes where \
         ventas.idcliente=clientes.id order by ventas.id desc limit 200")
     else:
-        clientes = pgdict(con, "select id,dni, nombre, calle,num, zona, gestion,\
+        clientes = pglistdict(con, "select id,dni, nombre, calle,num, zona, gestion,\
         mudo, incobrable,acla from  clientes  order by id desc limit 200")
 
     con.close()
@@ -349,7 +349,7 @@ def zonas_calles():
 @check_roles(['dev','gerente','admin'])
 def ventas_getcallesconid():
     con = get_con()
-    calles = pgdict(con, f"select id,calle from calles order by calle")
+    calles = pglistdict(con, f"select id,calle from calles order by calle")
     con.close()
     return jsonify(calles= calles)
 
@@ -359,7 +359,7 @@ def ventas_getcallesconid():
 @check_roles(['dev','gerente','admin'])
 def ventas_getbarriosconid():
     con = get_con()
-    barrios = pgdict(con, f"select id,barrio from barrios order by barrio")
+    barrios = pglistdict(con, f"select id,barrio from barrios order by barrio")
     con.close()
     return jsonify(barrios= barrios)
 
@@ -369,7 +369,7 @@ def ventas_getbarriosconid():
 @check_roles(['dev','gerente','admin'])
 def ventas_getzonasconid():
     con = get_con()
-    zonas = pgdict(con, f"select id,zona from zonas order by zona")
+    zonas = pglistdict(con, f"select id,zona from zonas order by zona")
     con.close()
     return jsonify(zonas= zonas)
 
@@ -653,7 +653,7 @@ def ventas_estadisticas():
 @check_roles(['dev','gerente'])
 def ventas_estadisticasanuales():
     con = get_con()
-    est_anuales = pgdict(con,f"select date_format(fecha,'%Y') as y, sum(comprado) as comprado, sum(saldo) as saldo, sum(saldo)/sum(comprado) as inc,sum(cnt) as cnt from ventas where devuelta=0 and pp=0 group by y order by y desc")
+    est_anuales = pglistdict(con,f"select date_format(fecha,'%Y') as y, sum(comprado) as comprado, sum(saldo) as saldo, sum(saldo)/sum(comprado) as inc,sum(cnt) as cnt from ventas where devuelta=0 and pp=0 group by y order by y desc")
     con.close()
     return jsonify(est_anuales=est_anuales)
 
@@ -663,7 +663,7 @@ def ventas_estadisticasanuales():
 @check_roles(['dev','gerente'])
 def ventas_estadisticasmensuales(year):
     con = get_con()
-    est_mensuales = pgdict(con,f"select date_format(fecha,'%Y-%m') as ym, sum(comprado) as comprado, sum(saldo) as saldo, sum(saldo)/sum(comprado) as inc,sum(cnt) as cnt from ventas where devuelta=0 and pp=0 and date_format(fecha,'%Y')='{year}' group by ym order by ym")
+    est_mensuales = pglistdict(con,f"select date_format(fecha,'%Y-%m') as ym, sum(comprado) as comprado, sum(saldo) as saldo, sum(saldo)/sum(comprado) as inc,sum(cnt) as cnt from ventas where devuelta=0 and pp=0 and date_format(fecha,'%Y')='{year}' group by ym order by ym")
     con.close()
     return jsonify(est_mensuales=est_mensuales)
 
@@ -674,7 +674,7 @@ def ventas_estadisticasmensuales(year):
 def ventas_filtracalles(buscar):
     con = get_con()
     buscar = '%'+buscar.replace(' ','%')+'%'
-    listacalles = pgdict(con,f"select id,calle from calles where lower(calle) like lower('{buscar}')")
+    listacalles = pglistdict(con,f"select id,calle from calles where lower(calle) like lower('{buscar}')")
     return jsonify(listacalles=listacalles)
 
 @ventas.route('/ventas/getmorosidadprimercuota')
@@ -712,9 +712,9 @@ def ventas_devoluciones():
 @check_roles(['dev','gerente','admin'])
 def ventas_devolucion_buscarcliente(idvta):
     con = get_con()
-    venta = pgdict(con, f"select * from ventas where id={idvta}")[0]
+    venta = pglistdict(con, f"select * from ventas where id={idvta}")[0]
     nombre = pgonecolumn(con, f"select nombre from clientes where id={venta['idcliente']}")
-    arts = pgdict(con, f"select * from detvta where idvta={idvta} and devuelta=0")
+    arts = pglistdict(con, f"select * from detvta where idvta={idvta} and devuelta=0")
     ic = venta['ic']
     cc = venta['cc']
     return jsonify(nombre=nombre, arts=arts, ic=ic, cc=cc)
@@ -734,7 +734,7 @@ def ventas_devolucion_borrararticulo(id):
     y ahora se recupero, o sea se compensa, por eso se pone
     cargado=1 para que no impacte."""
     con = get_con()
-    item = pgdict(con,f"select * from detvta where id={id}")[0]
+    item = pglistdict(con,f"select * from detvta where id={id}")[0]
     cargado = item['cargado']
     cnt = item['cnt']
     art = item['art']
@@ -770,7 +770,7 @@ def ventas_agregararticulo():
     cur.execute(ins)
     con.commit()
     id =  pgonecolumn(con, "SELECT LAST_INSERT_ID()")
-    item = pgdict(con,f"select * from detvta where id={id}")[0]
+    item = pglistdict(con,f"select * from detvta where id={id}")[0]
     cnt = item['cnt']
     art = item['art']
     idvta = item['idvta']
@@ -861,7 +861,7 @@ def ventas_devolucion_procesar():
                 upddetvta = f"update detvta set devuelta=1, cargado=0, cnt=cnt*(-1) where id={id}"
             cur.execute(upddetvta)
             log(upddetvta)
-            item = pgdict(con,f"select * from detvta where id={id}")[0]
+            item = pglistdict(con,f"select * from detvta where id={id}")[0]
             cnt = item['cnt']
             art = item['art']
             idvta = item['idvta']
@@ -980,7 +980,7 @@ def ventas_obtenerventasultyear():
     """Entrega lista de ventas ultimo ano."""
     con = get_con()
     listventas = []
-    result = pgdict(con, "select date_format(fecha,'%Y-%m') as ym, \
+    result = pglistdict(con, "select date_format(fecha,'%Y-%m') as ym, \
     sum(comprado) as vta from ventas where fecha>date_sub(curdate(),\
     interval 1 year)  group by ym")
     for row in result:
@@ -996,7 +996,7 @@ def ventas_buscarcliente(buscar):
     rdni = r'^[0-9]{7,8}$'
     sql = f"select * from clientes where dni='{buscar}'"
     if (re.match(rdni, buscar)):
-        clientes = pgdict(con, sql)
+        clientes = pglistdict(con, sql)
         error_msg = "DNI no encontrado"
     else:
         error_msg = "Ponga un formato valido de DNI"
@@ -1026,7 +1026,7 @@ def ventas_cambiacalles():
 @check_roles(['dev','gerente','admin'])
 def ventas_getclienteszona(zona):
     con = get_con()
-    clientes = pgdict(con, f"select * from clientes where zona='{zona}' order by barrio")
+    clientes = pglistdict(con, f"select * from clientes where zona='{zona}' order by barrio")
     return jsonify(clientes=clientes)
 
 
@@ -1035,7 +1035,7 @@ def ventas_getclienteszona(zona):
 @check_roles(['dev','gerente','admin'])
 def ventas_getclientescalle(calle):
     con = get_con()
-    clientes = pgdict(con, f"select * from clientes where calle='{calle}' order by num")
+    clientes = pglistdict(con, f"select * from clientes where calle='{calle}' order by num")
     return jsonify(clientes=clientes)
 
 
@@ -1097,7 +1097,7 @@ def ventas_cambiarcalle(calle):
 @check_roles(['dev','gerente','admin','vendedor'])
 def ventas_obtenerdatosgarante(dni):
     con = get_con()
-    garante = pgdict(con, f"select nombre, concat(calle, ' ', num) as direccion from clientes where dni={dni}")
+    garante = pglistdict(con, f"select nombre, concat(calle, ' ', num) as direccion from clientes where dni={dni}")
     if len(garante)>0:
         return jsonify(garante=garante)
     else:

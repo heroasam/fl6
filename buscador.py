@@ -6,7 +6,7 @@ import mysql.connector
 from flask import Blueprint, render_template, jsonify, make_response, request,\
     send_file
 from flask_login import login_required, current_user
-from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
+from lib import pgonecolumn, pglistdict, send_msg_whatsapp, send_file_whatsapp, \
     pglflat, log_busqueda, listsql, actualizar, send_img_whatsapp
 from formularios import intimacion, libredeuda, ficha, recibotransferencia
 from con import get_con, log, check_roles
@@ -523,7 +523,7 @@ def busca_guardaredicioncliente(idcliente):
     """Funcion para guardar edicion cliente."""
     con = get_con()
     d_data = json.loads(request.data.decode("UTF-8"))
-    cliente_viejo = pgdict(con, f"select * from clientes where id=\
+    cliente_viejo = pglistdict(con, f"select * from clientes where id=\
     {d_data['id']}")[0]
     upd = f"update clientes set sex='{d_data['sex']}', dni='{d_data['dni']}',\
     nombre='{d_data['nombre']}', calle='{d_data['calle']}', num={d_data['num']}\
@@ -805,7 +805,7 @@ def buscador_libredeuda_nowapp():
 @check_roles(['dev','gerente','admin'])
 def buscador_obtenerlogs():
     con = get_con()
-    logs = pgdict(con, "select * from log order by id desc limit 1000")
+    logs = pglistdict(con, "select * from log order by id desc limit 1000")
     con.close()
     return jsonify(logs=logs)
 
@@ -839,7 +839,7 @@ def buscador_obtenerlistacalles():
 @check_roles(['dev','gerente','admin'])
 def buscador_mostrarcalle(calle):
     con = get_con()
-    calle = pgdict(
+    calle = pglistdict(
         con, f"select num,nombre,deuda,dni, coalesce(datediff(now(), ultpago),0) as atraso from clientes where calle='{calle}' and comprado>0 order by num")
     return jsonify(calle=calle)
 
@@ -944,7 +944,7 @@ def buscador_wapp():
 @check_roles(['dev','gerente','admin'])
 def buscador_callesprueba():
     con = get_con()
-    result = pgdict(con, "select id, calle as text from calles order by id")
+    result = pglistdict(con, "select id, calle as text from calles order by id")
     return jsonify(result=result)
 
 
@@ -957,7 +957,7 @@ def buscador_bajaindividualseven(id):
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
-    cliente = pgdict(con, f"select * from clientes where id={id}")
+    cliente = pglistdict(con, f"select * from clientes where id={id}")
     con.close()
     log(upd)
     return jsonify(cliente=cliente)
@@ -968,7 +968,7 @@ def buscador_bajaindividualseven(id):
 @check_roles(['dev','gerente','admin'])
 def buscador_tablainflacion():
     con = get_con()
-    inflacion = pgdict(con, "select year,month,indice from inflacion")
+    inflacion = pglistdict(con, "select year,month,indice from inflacion")
     ultimo_valor = pgonecolumn(con, "select indice from inflacion order by id desc limit 1")
     dict_inflacion = {}
     for row in inflacion:
@@ -982,7 +982,7 @@ def buscador_tablainflacion():
 def buscador_pedirlistagarantizados(id):
     con = get_con()
     dni = pgonecolumn(con, f"select dni from clientes where id={id}")
-    listagarantizados = pgdict(con, f"select * from clientes where dnigarante={dni} and garantizado=1")
+    listagarantizados = pglistdict(con, f"select * from clientes where dnigarante={dni} and garantizado=1")
     return jsonify(listagarantizados=listagarantizados)
 
 
@@ -993,7 +993,7 @@ def buscador_pedirlistadevoluciones(id):
     con = get_con()
     idvtas = pglflat(con, f"select id from ventas where idcliente={id}")
     if idvtas:
-        listadevoluciones = pgdict(con, f"select * from devoluciones where idvta in {listsql(idvtas)}")
+        listadevoluciones = pglistdict(con, f"select * from devoluciones where idvta in {listsql(idvtas)}")
     else:
         listadevoluciones = []
     return jsonify(listadevoluciones=listadevoluciones)
@@ -1004,7 +1004,7 @@ def buscador_pedirlistadevoluciones(id):
 @check_roles(['dev','gerente','admin'])
 def buscador_pedirlistavisitas(id):
     con = get_con()
-    listavisitas = pgdict(con, f"select concat(visitas.fecha,'    ',\
+    listavisitas = pglistdict(con, f"select concat(visitas.fecha,'    ',\
     visitas.hora) as fecha, vdor,\
                     case result when 1 then 'venta' \
                                 when 2 then 'anulado' \
@@ -1023,7 +1023,7 @@ def buscador_pedirlistavisitas(id):
 @check_roles(['dev','gerente','admin'])
 def buscador_pedirlistaplanes(id):
     con = get_con()
-    listaplanes = pgdict(con, f"select * from planes where idcliente={id}")
+    listaplanes = pglistdict(con, f"select * from planes where idcliente={id}")
     return jsonify(listaplanes=listaplanes)
 
 

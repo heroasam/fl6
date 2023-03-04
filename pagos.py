@@ -51,7 +51,7 @@ def loterbo_imprimir(fecha,cobr,idlote):
     listarbo = json.loads(request.data.decode("UTF-8"))
     # aca se el ast.literal entrega la lista enviada por el axios-post directamente
 
-    estimado = pgdict(con, f"select date_format(pmovto,'%Y-%m') as periodo,sum(cuota) as cuotas from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%' and asignado={cobr} group by periodo having periodo=date_format(curdate(),'%Y-%m')")[0]
+    estimado = pglistdict(con, f"select date_format(pmovto,'%Y-%m') as periodo,sum(cuota) as cuotas from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%' and asignado={cobr} group by periodo having periodo=date_format(curdate(),'%Y-%m')")[0]
     cobrado = pgonecolumn(con, f"select sum(imp+rec) from pagos where cobr={cobr} and date_format(fecha,'%Y-%m')=date_format(curdate(),'%Y-%m')")
     if cobrado is None:
         cobrado = 0
@@ -65,7 +65,7 @@ def loterbo_imprimir(fecha,cobr,idlote):
 def loterbo_reimprimir(fecha,cobr,idlote):
     con = get_con()
     listarbo = pglflat(con, f"select rbo from rbos where idloterbos={idlote}")
-    estimado = pgdict(con, f"select date_format(pmovto,'%Y-%m') as periodo,sum(cuota) as cuotas from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%' and asignado={cobr} group by periodo having periodo=date_format(curdate(),'%Y-%m')")[0]
+    estimado = pglistdict(con, f"select date_format(pmovto,'%Y-%m') as periodo,sum(cuota) as cuotas from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%' and asignado={cobr} group by periodo having periodo=date_format(curdate(),'%Y-%m')")[0]
     cobrado = pgonecolumn(con, f"select sum(imp+rec) from pagos where cobr={cobr} and date_format(fecha,'%Y-%m')=date_format(curdate(),'%Y-%m')")
     if cobrado is None:
         cobrado = 0
@@ -86,7 +86,7 @@ def loterbo_ver():
 @check_roles(['dev','gerente','admin'])
 def loterbo_getlistalotesrbo():
     con = get_con()
-    lotesrbo = pgdict(con,f"select id,fecha,cobr,cnt from loterbos order by id desc limit 100")
+    lotesrbo = pglistdict(con,f"select id,fecha,cobr,cnt from loterbos order by id desc limit 100")
     con.close()
     return jsonify(listalotesrbo=lotesrbo)
 
@@ -137,8 +137,8 @@ def pagos_():
 @check_roles(['dev','gerente','admin'])
 def pagos_listado(fechapago, cobrador):
     con = get_con()
-    listado = pgdict(con, f"select pagos.id as id, rbo, fecha, idvta,imp as imp, rec as rec, (imp+rec) as total, nombre, concat(calle,' ',num) as direccion, zona,deuda as deuda from pagos, clientes where clientes.id=pagos.idcliente and fecha='{fechapago}' and pagos.cobr={cobrador} order by id desc")
-    planilla = pgdict(con, f"select * from planillas where fecha='{fechapago}' and idcobr={cobrador}")
+    listado = pglistdict(con, f"select pagos.id as id, rbo, fecha, idvta,imp as imp, rec as rec, (imp+rec) as total, nombre, concat(calle,' ',num) as direccion, zona,deuda as deuda from pagos, clientes where clientes.id=pagos.idcliente and fecha='{fechapago}' and pagos.cobr={cobrador} order by id desc")
+    planilla = pglistdict(con, f"select * from planillas where fecha='{fechapago}' and idcobr={cobrador}")
     con.close()
     return jsonify(listado=listado, planilla=planilla)
 
@@ -170,7 +170,7 @@ def pagos_buscar(cuenta):
 def pagos_idvtas(dni):
     con = get_con()
     sel = f"select ventas.id as id,concat(calle,' ',num) from ventas,clientes where clientes.id=ventas.idcliente and dni='{dni}' and saldo>0"
-    idvtas = pgdict(con,sel)
+    idvtas = pglistdict(con,sel)
     con.close()
     return jsonify(idvtas=idvtas)
 
@@ -304,7 +304,7 @@ def pagos_verplanillas():
 @check_roles(['dev','gerente','admin'])
 def pagos_getplanillas():
     con = get_con()
-    planillas = pgdict(con,f"select planillas.fecha as fecha,sum(cobrado) as cobrado,sum(comision) as comision,sum(viatico) as viatico,sum(cntrbos) as cntrbos,(select imp from caja where comentario='global' and cuenta='cobranza' and fecha=planillas.fecha) as cobradocaja, (-1)*(select imp from caja where comentario='via' and cuenta='cobranza' and fecha=planillas.fecha) as viaticocaja from planillas  where planillas.fecha>date_sub(curdate(), interval 60 day) group by planillas.fecha order by planillas.fecha desc")
+    planillas = pglistdict(con,f"select planillas.fecha as fecha,sum(cobrado) as cobrado,sum(comision) as comision,sum(viatico) as viatico,sum(cntrbos) as cntrbos,(select imp from caja where comentario='global' and cuenta='cobranza' and fecha=planillas.fecha) as cobradocaja, (-1)*(select imp from caja where comentario='via' and cuenta='cobranza' and fecha=planillas.fecha) as viaticocaja from planillas  where planillas.fecha>date_sub(curdate(), interval 60 day) group by planillas.fecha order by planillas.fecha desc")
     con.close()
     return jsonify(planillas=planillas)
 
@@ -314,7 +314,7 @@ def pagos_getplanillas():
 @check_roles(['dev','gerente','admin'])
 def pagos_getplanillashoy(fecha):
     con = get_con()
-    planillas = pgdict(con,f"select fecha,idcobr,cobrado,comision,viatico,cntrbos,idlote from planillas where fecha='{fecha}'")
+    planillas = pglistdict(con,f"select fecha,idcobr,cobrado,comision,viatico,cntrbos,idlote from planillas where fecha='{fecha}'")
     con.close()
     return jsonify(planillas=planillas)
 
@@ -324,7 +324,7 @@ def pagos_getplanillashoy(fecha):
 @check_roles(['dev','gerente','admin'])
 def pagos_getplanillascobr():
     con = get_con()
-    planillascobr = pgdict(con, f"select fecha,idcobr,cobrado,comision,viatico,cntrbos from planillas order by fecha desc limit 100")
+    planillascobr = pglistdict(con, f"select fecha,idcobr,cobrado,comision,viatico,cntrbos from planillas order by fecha desc limit 100")
     con.close()
     return jsonify(planillascobr=planillascobr)
 
@@ -366,7 +366,7 @@ def pagos_editarrbo():
 @check_roles(['dev','gerente','admin'])
 def pagos_obtenerrbo(id):
     con = get_con()
-    reg = pgdict(con, f"select fecha, idvta, imp, rec, rbo, cobr, id, (select nombre from clientes where clientes.id=pagos.idcliente) as nombre from pagos where id={id}")
+    reg = pglistdict(con, f"select fecha, idvta, imp, rec, rbo, cobr, id, (select nombre from clientes where clientes.id=pagos.idcliente) as nombre from pagos where id={id}")
     con.close()
     return jsonify (reg=reg)
 
@@ -387,7 +387,7 @@ def pagos_obtenernuevonombre(idvta):
 def pagos_obtenerregrbo(buscar):
     con = get_con()
     try:
-        reg = pgdict(con, f"select pagos.id as id, fecha, idvta, imp, rec, rbo, cobr, idcliente, nombre from pagos,clientes where clientes.id=pagos.idcliente and  rbo={buscar}")
+        reg = pglistdict(con, f"select pagos.id as id, fecha, idvta, imp, rec, rbo, cobr, idcliente, nombre from pagos,clientes where clientes.id=pagos.idcliente and  rbo={buscar}")
         # idcliente = pgonecolumn(con, f"select idcliente from pagos where rbo={buscar}")
         # nombre = pgonecolumn(con, f"select nombre from clientes where id={idcliente}")
     except mysql.connector.Error as e:
@@ -437,7 +437,7 @@ def pagos_guardaredicionrbo():
 @check_roles(['dev','gerente','admin'])
 def pagos_getzonasasignadas():
     con = get_con()
-    zonas = pgdict(con, f"select zonas.id as id,zonas.zona as zona,asignado as cobr,(select nombre from cobr where cobr.id=asignado) as nombre, count(*) as cnt, sum(cuota) as cuotas from zonas,clientes where clientes.zona=zonas.zona and pmovto>=date_sub(curdate(),interval 90 day) and zonas.zona not like '-%' group by zonas.id order by asignado")
+    zonas = pglistdict(con, f"select zonas.id as id,zonas.zona as zona,asignado as cobr,(select nombre from cobr where cobr.id=asignado) as nombre, count(*) as cnt, sum(cuota) as cuotas from zonas,clientes where clientes.zona=zonas.zona and pmovto>=date_sub(curdate(),interval 90 day) and zonas.zona not like '-%' group by zonas.id order by asignado")
     con.close()
     return jsonify(zonas=zonas)
 
@@ -470,7 +470,7 @@ def pagos_editarasignado():
 @check_roles(['dev','gerente'])
 def pagos_gettotaleszonas():
     con = get_con()
-    totales = pgdict(con, f"select asignado as cobr,(select nombre from cobr where cobr.id=asignado) as nombre, sum(cuota) as total from zonas,clientes where clientes.zona=zonas.zona and pmovto>=date_sub(curdate(),interval 90 day) and zonas.zona not like '-%' group by asignado order by asignado")
+    totales = pglistdict(con, f"select asignado as cobr,(select nombre from cobr where cobr.id=asignado) as nombre, sum(cuota) as total from zonas,clientes where clientes.zona=zonas.zona and pmovto>=date_sub(curdate(),interval 90 day) and zonas.zona not like '-%' group by asignado order by asignado")
     con.close()
     return jsonify(totales=totales)
 
@@ -588,7 +588,7 @@ def pagos_altas():
 @check_roles(['dev','gerente','admin'])
 def pagos_loadaltas():
     con = get_con()
-    listaltas = pgdict(con, f"select id,nombre,dni,sex, calle,num,deuda,ultpago,subirseven from clientes where subirseven=1 and alta is null order by deuda")
+    listaltas = pglistdict(con, f"select id,nombre,dni,sex, calle,num,deuda,ultpago,subirseven from clientes where subirseven=1 and alta is null order by deuda")
     con.close()
     return jsonify(listaltas=listaltas)
 
@@ -658,7 +658,7 @@ def pagos_marcarsubidos():
 @check_roles(['dev','gerente','admin'])
 def pagos_loadbajas():
     con = get_con()
-    listbajas = pgdict(con, f"select dni,nombre,dni, 'Cancelado' as canc, ultpago from clientes where sev=1 and deuda=0")
+    listbajas = pglistdict(con, f"select dni,nombre,dni, 'Cancelado' as canc, ultpago from clientes where sev=1 and deuda=0")
     print(listbajas)
     con.close()
     return jsonify(listbajas=listbajas)
@@ -734,7 +734,7 @@ def pagos_getvdorcondeuda():
 @check_roles(['dev','gerente'])
 def pagos_getprestamosvdor(vdor):
     con = get_con()
-    prestamos = pgdict(con, f"select fecha, imp, cuenta from caja \
+    prestamos = pglistdict(con, f"select fecha, imp, cuenta from caja \
     where cuenta in ('prestamos empleados','recupero prestamos') \
     and fecha>'2022-01-01' and codigo like '%{vdor}%' order by fecha desc")
     return jsonify(prestamos=prestamos)

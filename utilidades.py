@@ -115,7 +115,7 @@ def utilidades_documentos():
 @check_roles(['dev','gerente','admin'])
 def utilidades_getdocumentos(desde,hasta):
     con = get_con()
-    documentos = pgdict(con, f"select ventas.id as id,nombre,concat\
+    documentos = pglistdict(con, f"select ventas.id as id,nombre,concat\
     (calle,' ',num) as direccion, saldo from ventas,clientes where \
     ventas.idcliente=clientes.id and ventas.id>={desde} and ventas.id\
     <={hasta} and saldo>0")
@@ -138,7 +138,7 @@ def utilidades_imprimirlistadocumentos():
 def utilidades_listawapp():
     """Lista whatsapps."""
     con = get_con()
-    wapps = pgdict(con, "select wapp,fecha,msg,file,id,idcliente,user,timein,\
+    wapps = pglistdict(con, "select wapp,fecha,msg,file,id,idcliente,user,timein,\
     timeout,enviado,response from logwhatsapp order by id desc")
     return jsonify(wapps=wapps)
 
@@ -188,7 +188,7 @@ def update_dni_garantes():
 @check_roles(['dev'])
 def utilidades_getusers():
     con = get_con()
-    users = pgdict(con, "select id,email,name,roles,auth from users")
+    users = pglistdict(con, "select id,email,name,roles,auth from users")
     return jsonify(users=users)
 
 
@@ -246,7 +246,7 @@ def utilidades_variables():
 @check_roles(['dev'])
 def utilidades_getdictvariables():
     con = get_con()
-    variables = pgdict(con, f"select id,clave,valor from variables")
+    variables = pglistdict(con, f"select id,clave,valor from variables")
     return jsonify(variables=variables)
 
 

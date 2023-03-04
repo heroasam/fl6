@@ -6,8 +6,8 @@ from flask_login import login_required, current_user
 import mysql.connector
 from flask import Blueprint, render_template, jsonify, make_response, request
 import simplejson as json
-from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
-    pglflat,  listsql, pgdict1, pgexec
+from lib import pgonecolumn, pglistdict, send_msg_whatsapp, send_file_whatsapp, \
+    pglflat,  listsql, pgdict, pgexec
 from con import get_con, log, check_roles
 
 vendedor = Blueprint('vendedor', __name__)
@@ -22,7 +22,7 @@ def leer_variables():
     Y seran incorporados en una variable  que es un dict."""
 
     con = get_con()
-    variables = pgdict(con, "select clave,valor from variables")
+    variables = pglistdict(con, "select clave,valor from variables")
     for row in variables:
         var_sistema[row['clave']] = row['valor']
     return 1
@@ -46,7 +46,7 @@ def calculo_cuota_maxima(idcliente):
     la cuota para evitar distorsion si el plan fue en 4 o 5 cuotas.
     """
     con = get_con()
-    cuotas = pgdict(con, f"select comprado as monto,date_format(fecha,'%Y%c') \
+    cuotas = pglistdict(con, f"select comprado as monto,date_format(fecha,'%Y%c') \
     as fecha from ventas where idcliente={idcliente} and fecha>\
     date_sub(curdate(),interval 3 year) and devuelta=0")
     cuota_actualizada = 0
@@ -213,7 +213,7 @@ def vendedor_togglerechazardato(iddato):
 def vendedor_getlistadodatos():
     """Entrega lista de datos, cuota basica y lista de vendedores."""
     con = get_con()
-    listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
+    listadodatos = pglistdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
     sin_extension,nosabana, autorizado, datos.zona as zona from datos, \
@@ -233,7 +233,7 @@ def vendedor_getlistadodatosenviar():
     enviado_vdor=0, rechazado=0."""
     #
     con = get_con()
-    listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
+    listadodatos = pglistdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
     sin_extension,nosabana, autorizado, monto_garantizado,datos.zona as zona \
@@ -255,7 +255,7 @@ def vendedor_getlistadodatosenviados():
     campo enviado_vdor=1."""
 
     con = get_con()
-    listadodatos = pgdict(con, "select datos.id, fecha, user,fecha_visitar,\
+    listadodatos = pglistdict(con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido,\
     autorizado, cuota_maxima, novendermas, incobrable, sev, baja,\
     deuda_en_la_casa, vendedor, autorizado,datos.zona as zona,nosabana,\
@@ -513,7 +513,7 @@ def vendedor_envioclientenuevo():
         vdor = 835
     dni = d_data['dni']
     cur = con.cursor()
-    cliente = pgdict(con, f"select * from clientes where dni={dni}")
+    cliente = pglistdict(con, f"select * from clientes where dni={dni}")
     if cliente: # o sea esta en la base de Romitex
         cliente = cliente[0]
         sin_extension = calculo_sin_extension(d_data['id'])
@@ -688,7 +688,7 @@ def vendedor_getlistadodatosvendedor():
     if current_user.email == var_sistema['835']:
         vdor = 835
     agrupar = var_sistema["agrupar"+str(vdor)]
-    listadodatos = pgdict(con, f"select datos.id, fecha, fecha_visitar,\
+    listadodatos = pglistdict(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
     clientes.zona as zona, cuota_maxima,idcliente, sin_extension,idvta,\
     resultado,datos.dnigarante as dnigarante from datos, clientes where \
@@ -705,7 +705,7 @@ def vendedor_getlistadodatosvendedor():
 def vendedor_getdato(iddato):
     """Simple funcion que levanta un dato dado su id."""
     con = get_con()
-    dato = pgdict1(con, f"select datos.id, fecha, fecha_visitar,\
+    dato = pgdict(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
     clientes.zona as zona, cuota_maxima,idcliente, sin_extension, \
     datos.dnigarante as dnigarante,idvta,monto_vendido,nosabana from datos, \
@@ -720,7 +720,7 @@ def vendedor_getdato(iddato):
 def vendedor_getlistadoarticulos():
     """Simple funcion que levanta la lista de articulos activos."""
     con = get_con()
-    articulos = pgdict(con, "select art,cuota from articulos where activo=1 \
+    articulos = pglistdict(con, "select art,cuota from articulos where activo=1 \
     order by art")
     return jsonify(articulos=articulos)
 
@@ -966,7 +966,7 @@ def vendedor_getlistadoautorizados():
     """Funcion que entrega lista de autorizaciones pendientes."""
 
     con = get_con()
-    listadoautorizados = pgdict(con, "select autorizacion.id as id,datos.id \
+    listadoautorizados = pglistdict(con, "select autorizacion.id as id,datos.id \
     as iddato,datos.fecha as fecha, datos.user as user, nombre, \
     datos.resultado as resultado, datos.art as art, datos.cuota_maxima as \
     cuota_maxima, datos.sin_extension as sin_extension,datos.nosabana as \
@@ -992,7 +992,7 @@ def vendedor_getlistadoautorizados():
 def vendedor_getlistadoautorizadosporid(idcliente):
     """Funcion que entrega la lista de autorizaciones que tuvo un cliente."""
     con = get_con()
-    listadoautorizadosporid = pgdict(con, f"select datos.id as id,datos.fecha \
+    listadoautorizadosporid = pglistdict(con, f"select datos.id as id,datos.fecha \
     as fecha, datos.user as user, nombre, datos.resultado as resultado, \
     datos.art as art, datos.cuota_maxima as cuota_maxima, datos.sin_extension \
     as sin_extension,datos.nosabana as nosabana, datos.deuda_en_la_casa as \
@@ -1213,13 +1213,13 @@ def vendedor_noestabadato(iddato):
 def vendedor_getvisitasvendedor():
     """Funcion que entrega lista de visitas hechas por el vendedor."""
     con = get_con()
-    visitasvendedor = pgdict(con, "select visitas.fecha as fecha,\
+    visitasvendedor = pglistdict(con, "select visitas.fecha as fecha,\
     cast(hora as char) as hora, visitas.vdor as vdor, result, \
     visitas.monto_vendido as monto_vendido, idcliente,nombre,calle,num,\
     clientes.zona as zona from visitas,datos,clientes where visitas.iddato=\
     datos.id and clientes.id=datos.idcliente order by visitas.fecha desc,hora")
 
-    fechasvisitas = pgdict(con, "select visitas.fecha as fecha, visitas.vdor \
+    fechasvisitas = pglistdict(con, "select visitas.fecha as fecha, visitas.vdor \
     as vdor, count(*) as cnt, sum(visitas.monto_vendido) as monto_vendido \
     from visitas,datos where visitas.iddato=datos.id group by visitas.fecha,\
     visitas.vdor order by visitas.fecha,visitas.vdor desc")
@@ -1239,7 +1239,7 @@ def vendedor_getvisitasvdor():
         vdor = 816
     elif current_user.email == var_sistema['835']:
         vdor = 835
-    visitasvendedor = pgdict(con, f"select visitas.fecha as fecha,\
+    visitasvendedor = pglistdict(con, f"select visitas.fecha as fecha,\
     cast(hora as char) as hora, visitas.vdor as vdor, result, \
     visitas.monto_vendido as monto_vendido, idcliente,nombre,calle,num,\
     clientes.zona as zona from visitas,datos,clientes where visitas.iddato=\
@@ -1247,7 +1247,7 @@ def vendedor_getvisitasvdor():
     visitas.fecha>date_sub(curdate(),interval 6 day) order by \
     visitas.fecha desc,hora")
 
-    fechasvisitas = pgdict(con,f"select visitas.fecha as fecha, visitas.vdor \
+    fechasvisitas = pglistdict(con,f"select visitas.fecha as fecha, visitas.vdor \
     as vdor, count(*) as cnt, sum(visitas.monto_vendido) as monto_vendido \
     from visitas,datos where visitas.iddato=datos.id and visitas.vdor={vdor} \
     and visitas.fecha>date_sub(curdate(),interval 6 day) \
@@ -1262,7 +1262,7 @@ def vendedor_getvisitasvdor():
 def vendedor_getclientesingresadosporvdor():
     """Funcion entrega lista de clientes ingresados o alterados por el vdor."""
     con = get_con()
-    clientes = pgdict(con, "select * from clientes where modif_vdor=1")
+    clientes = pglistdict(con, "select * from clientes where modif_vdor=1")
     return jsonify(clientes=clientes)
 
 
@@ -1272,7 +1272,7 @@ def vendedor_getclientesingresadosporvdor():
 def vendedor_getventashoy():
     """Funcion que entrega lista de las ventas del dia para el vendedor."""
     con = get_con()
-    ventashoy = pgdict(con, "select fecha_definido,\
+    ventashoy = pglistdict(con, "select fecha_definido,\
     nombre,concat(calle,num) as direccion,clientes.zona as zona, monto_vendido,\
     vendedor,dni from datos,clientes where datos.idcliente = clientes.id and \
     date(fecha_definido)=curdate() and resultado=1 order by fecha_definido")
@@ -1380,14 +1380,14 @@ def vendedor_getcomisionesvendedor(vdor):
     com = 'com'+str(vdor)
     comision = var_sistema[com]
     con = get_con()
-    comisiones = pgdict(con, f"select date(fecha_definido) as fecha,\
+    comisiones = pglistdict(con, f"select date(fecha_definido) as fecha,\
     monto_vendido*{comision} as com,idvta as id from datos where vendedor=\
     {vdor} and com_pagada=0 and monto_vendido>0 order by date(fecha_definido)")
-    devoluciones = pgdict(con, f"select date(fecha_definido) as fecha,\
+    devoluciones = pglistdict(con, f"select date(fecha_definido) as fecha,\
     monto_devuelto*{comision}*(-1) as com, idvta as id from datos where \
     vendedor={vdor} and com_pagada_dev=0 and monto_devuelto!=0 order by \
     date(fecha_definido)")
-    fechascomisiones = pgdict(con, f"select date(fecha_definido) as fecha,  \
+    fechascomisiones = pglistdict(con, f"select date(fecha_definido) as fecha,  \
     count(*) as cnt,sum(case when com_pagada=0 then monto_vendido*{comision} \
     when com_pagada=1 then 0 end)+sum(monto_devuelto*{comision}*(-1)) as \
     comision from datos where ((resultado=1 and com_pagada=0) or \
@@ -1404,11 +1404,11 @@ def vendedor_getcomisionesvendedor(vdor):
 def vendedor_getcomisionesprom():
     """Funcion que entrega la lista de comisiones de las administrativas."""
     con = get_con()
-    comisiones = pgdict(con, "select date(fecha_definido) as fecha,\
+    comisiones = pglistdict(con, "select date(fecha_definido) as fecha,\
     monto_vendido*0.04 as com,idvta as id from datos where user in \
     ('isabelheredie@gmail.com','n.dryon@gmail.com') and com_pagada_prom=0 \
     and monto_vendido>0 order by date(fecha_definido)")
-    fechascomisiones = pgdict(con, "select date(fecha_definido) as fecha,  \
+    fechascomisiones = pglistdict(con, "select date(fecha_definido) as fecha,  \
     count(*) as cnt,sum(monto_vendido*0.04) as comision from datos where \
     resultado=1 and com_pagada_prom=0 and user in ('isabelheredie@gmail.com',\
     'n.dryon@gmail.com') group by date(fecha_definido) order by \
@@ -1423,7 +1423,7 @@ def vendedor_getcomisionesprom():
 def vendedor_buscaclientepordni(dni):
     """Simple funcion que levanta datos del cliente por dni."""
     con = get_con()
-    cliente = pgdict1(con, f"select * from clientes where dni={dni}")
+    cliente = pgdict(con, f"select * from clientes where dni={dni}")
     if cliente:
         return jsonify(cliente=cliente)
     return make_response("error", 401)
@@ -1435,7 +1435,7 @@ def vendedor_buscaclientepordni(dni):
 def vendedor_getartvendedor(vdor):
     """Funcion que entrega lista de articulos a cargar por vendedor."""
     con = get_con()
-    artvendedor = pgdict(con, f"select sum(detvta.cnt) as cnt,\
+    artvendedor = pglistdict(con, f"select sum(detvta.cnt) as cnt,\
     detvta.art as art from detvta,ventas where detvta.idvta=ventas.id and \
     cargado=0 and idvdor={vdor} group by detvta.art")
     # no se filtra mas por devuelta=0, solo por cargado=0
@@ -1611,7 +1611,7 @@ def vendedor_getcargavendedor():
         vdor = 816
     elif current_user.email == var_sistema['835']:
         vdor = 835
-    artvendedor = pgdict(con, f"select sum(detvta.cnt) as cnt,\
+    artvendedor = pglistdict(con, f"select sum(detvta.cnt) as cnt,\
     detvta.art as art from detvta,ventas where detvta.idvta=ventas.id and \
     cargado=0 and idvdor={vdor} group by detvta.art")
     # no se filtra mas por devuelta=0, solo por cargado=0
@@ -1651,14 +1651,14 @@ def vendedor_getcomisionesparavendedor():
     com = 'com'+str(vdor)
     comision = var_sistema[com]
     con = get_con()
-    comisiones = pgdict(con, f"select date(fecha_definido) as fecha,\
+    comisiones = pglistdict(con, f"select date(fecha_definido) as fecha,\
     monto_vendido*{comision} as com, idvta as id from datos where \
     vendedor={vdor} and com_pagada=0 and monto_vendido>0 order by \
     date(fecha_definido)")
-    devoluciones = pgdict(con, f"select fecha,monto_devuelto*{comision}*(-1) \
+    devoluciones = pglistdict(con, f"select fecha,monto_devuelto*{comision}*(-1) \
     as com, idvta as id from datos where vendedor={vdor} and com_pagada_dev=0 \
     and monto_devuelto!=0 order by fecha")
-    fechascomisiones = pgdict(con, f"select date(fecha_definido) as fecha,  \
+    fechascomisiones = pglistdict(con, f"select date(fecha_definido) as fecha,  \
     count(*) as cnt,sum(monto_vendido*{comision}) as comision from datos where \
     resultado=1 and com_pagada=0 and vendedor={vdor} group by \
     date(fecha_definido) order by date(fecha_definido) desc")

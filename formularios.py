@@ -4,12 +4,12 @@ import time
 from datetime import date, datetime
 from fpdf import FPDF
 from dateutil.relativedelta import relativedelta
-from lib import pgtuple, pglisttuples, per, pglflat,pgdict,pgonecolumn, letras, listsql
+from lib import pgtuple, pglisttuples, per, pglflat,pglistdict,pgonecolumn, letras, listsql
 
 
 def cuotaje(con,idvta):
     """Funcion que entrega la matriz de cuotas a pagar para una cuenta dada."""
-    venta = pgdict(con, f"select id,fecha,cc,ic,saldo,pagado,primera,p from \
+    venta = pglistdict(con, f"select id,fecha,cc,ic,saldo,pagado,primera,p from \
                            ventas where id={idvta}")[0]
     listcuotas = []
     saldo = venta['saldo']
@@ -391,7 +391,7 @@ def listado(con, ldni, formato):
     listcallenum = pglflat(con, f"select  distinct concat(calle, ' ' ,num) from clientes where dni in {listsql(listdni)} order by calle,num")
 
     for direccion in listcallenum:
-        clientes = pgdict(con, f"select nombre,calle,num,acla,dni,year(ultcompra) as year,wapp,deuda,comprado from clientes where concat(calle,' ',num)='{direccion}' and dni in {listsql(ldni)}")
+        clientes = pglistdict(con, f"select nombre,calle,num,acla,dni,year(ultcompra) as year,wapp,deuda,comprado from clientes where concat(calle,' ',num)='{direccion}' and dni in {listsql(ldni)}")
         if clientes[0]['acla']:
             pdf.set_font("Helvetica","B",14)
             pdf.cell(80,10,direccion,0,0,'center')
@@ -444,7 +444,7 @@ def asuntos(con,ids):
     lpg = lpg[0:-1]+')'
     listasuntos = pglflat(con,f"select asuntos.id as id,zona from asuntos,clientes where clientes.id=asuntos.idcliente and  asuntos.id in {lpg} order by zona")
     for id in listasuntos:
-        asunto = pgdict(con, f"select asuntos.id as id, idcliente, tipo, fecha, vdor, asunto,nombre,calle,num,wapp,completado,zona from asuntos,clientes where clientes.id=asuntos.idcliente and asuntos.id={id}")[0]
+        asunto = pglistdict(con, f"select asuntos.id as id, idcliente, tipo, fecha, vdor, asunto,nombre,calle,num,wapp,completado,zona from asuntos,clientes where clientes.id=asuntos.idcliente and asuntos.id={id}")[0]
         pdf.cell(60,6,asunto['nombre'][0:24],0,0)
         pdf.cell(50,6,asunto['calle']+' '+asunto['num'],0,0)
         pdf.cell(30,6,asunto['zona'],0,0)
@@ -469,7 +469,7 @@ def cancelados(con, ids):
     for id in ids:
         lpg+=str(id)+','
     lpg = lpg[0:-1]+')'
-    listacancelados = pgdict(con, f"select nombre, calle, num, acla, barrio, zona, tel, wapp from clientes where dni in {lpg} order by zona,barrio,calle,num")
+    listacancelados = pglistdict(con, f"select nombre, calle, num, acla, barrio, zona, tel, wapp from clientes where dni in {lpg} order by zona,barrio,calle,num")
     for c in listacancelados:
         pdf.cell(60,6,c['nombre'][0:24],0,0)
         pdf.cell(70,6,c['calle']+' '+c['num'],0,0)

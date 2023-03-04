@@ -27,7 +27,7 @@ def pgtuple(con, sel):
     return rec
 
 
-def pgdict(con, sel):
+def pglistdict(con, sel):
     """Funcion que entrega una lista de diccionarios.
 
     Un diccionario por cada fila. Cuyas claves son los nombres de los campos.
@@ -38,7 +38,7 @@ def pgdict(con, sel):
     return rec
 
 
-def pgdict1(con, sel):
+def pgdict(con, sel):
     """Funcion que entrega un diccionario.
 
     Las claves son los campos del select.

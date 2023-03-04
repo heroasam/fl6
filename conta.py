@@ -4,7 +4,7 @@ from flask_login import login_required
 import simplejson as json
 import mysql.connector
 from con import get_con, check_roles
-from lib import pgdict, pglflat, pgonecolumn
+from lib import pglistdict, pglflat, pgonecolumn
 
 conta = Blueprint('conta',__name__)
 
@@ -61,7 +61,7 @@ def conta_getdictcuentas():
     """Obtengo lista cuentas."""
     create_tables()
     con = get_con()
-    cuentas = pgdict(con, "select * from ctas1")
+    cuentas = pglistdict(con, "select * from ctas1")
     return jsonify(cuentas=cuentas)
 
 
@@ -151,7 +151,7 @@ def conta_guardarasiento():
 def conta_getasientos():
     """Proveo lista de asientos."""
     con = get_con()
-    asientos=pgdict(con, "select id,fecha, cuenta, imp, comentario from caja1 \
+    asientos=pglistdict(con, "select id,fecha, cuenta, imp, comentario from caja1 \
             order by id desc limit 100")
     saldo = pgonecolumn(con, "select sum(imp) from caja1,ctas1 where \
             caja1.cuenta=ctas1.cuenta")
@@ -187,7 +187,7 @@ def conta_borrarasiento(id_asiento):
 def conta_obtenerresumenmensual(mes):
     """Obtengo resumen mensual."""
     con = get_con()
-    resumen = pgdict(con, f"select caja1.cuenta as cuenta,sum(imp) as imp,tipo \
+    resumen = pglistdict(con, f"select caja1.cuenta as cuenta,sum(imp) as imp,tipo \
     from caja1,ctas1 where date_format(fecha,'%Y-%m')='{mes}' and caja1.cuenta=\
     ctas1.cuenta group by caja1.cuenta")
     return jsonify(resumen=resumen)

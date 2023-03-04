@@ -86,7 +86,7 @@ class User(UserMixin):
 def load_user(id):
     con = get_con()
     try:
-        log = pgdict(con, f"select id,name,email,password,roles,auth from users where id={id}")[0]
+        log = pglistdict(con, f"select id,name,email,password,roles,auth from users where id={id}")[0]
         user = User(log['id'], log['name'], log['email'], log['password'], log['roles'], log['auth'])
         return user
     except:
@@ -105,7 +105,7 @@ def login():
         email = request.form['email']
         password = request.form['password']
         sel = f"select id,name,email,password,roles,auth from users where email='{email}'"
-        logs = pgdict(con, sel)
+        logs = pglistdict(con, sel)
         if logs:
             logs = logs[0]
         errormail = "Ese email no existe en la base de datos. Registrese"

@@ -6,8 +6,8 @@ from flask_login import login_required, current_user
 import mysql.connector
 from flask import Blueprint, render_template, jsonify, make_response, request
 import simplejson as json
-from lib import pgonecolumn, pgdict, send_msg_whatsapp, send_file_whatsapp, \
-    pglflat,  listsql, pgdict1
+from lib import pgonecolumn, pglistdict, send_msg_whatsapp, send_file_whatsapp, \
+    pglflat,  listsql, pgdict
 from con import get_con, log, check_roles
 
 
@@ -23,7 +23,7 @@ def leer_variables():
     Y seran incorporados en una variable  que es un dict."""
 
     con = get_con()
-    variables = pgdict(con, "select clave,valor from variables")
+    variables = pglistdict(con, "select clave,valor from variables")
     for row in variables:
         var_sistema[row['clave']] = row['valor']
     return 1
@@ -57,7 +57,7 @@ def cobrador_getlistadofichas():
     zonas = pglflat(con, f"select clientes.zona as zona from clientes,zonas \
     where asignada=1 and asignado={cobr} and clientes.zona=zonas.zona \
     group by clientes.zona")
-    fichas = pgdict(con, f"select clientes.* from clientes,zonas where \
+    fichas = pglistdict(con, f"select clientes.* from clientes,zonas where \
     asignada=1 and asignado={cobr} and clientes.zona=zonas.zona and \
     mudo=0 and clientes.zona!='-FALLECIDOS' and fechado=0 and (datediff(now(),\
     ultpago) >6 or datediff(now(), ultpago) is null) or datediff(now(),\

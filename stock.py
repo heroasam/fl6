@@ -6,7 +6,7 @@ import simplejson as json
 
 import pandas as pd
 import mysql.connector
-from lib import pgdict, pgonecolumn, pglflat, logcaja
+from lib import pglistdict, pgonecolumn, pglflat, logcaja
 from con import get_con, log, engine, check_roles
 from formularios import listaprecios, imprimir_stock
 
@@ -42,7 +42,7 @@ def stock_arqueo():
 def stock_getasientos():
     """Proveo lista de asientos."""
     con = get_con()
-    asientos=pgdict(con, "select id,fecha, cuenta, imp,codigo, comentario \
+    asientos=pglistdict(con, "select id,fecha, cuenta, imp,codigo, comentario \
     from caja where fecha>date_sub(curdate(),interval 3 month) order by id \
     desc")
     saldo = pgonecolumn(con, "select sum(imp) from caja,ctas where \
@@ -141,7 +141,7 @@ def stock_mayor():
 def stock_getmayor(cuenta):
     """Obtengo asientos por cuenta (mayorizo)."""
     con = get_con()
-    asientos=pgdict(con, f"select id,fecha, cuenta, imp,codigo, comentario \
+    asientos=pglistdict(con, f"select id,fecha, cuenta, imp,codigo, comentario \
     from caja where cuenta='{cuenta}' order by id desc")
     con.close()
     return jsonify(asientos=asientos)
@@ -215,7 +215,7 @@ def stock_retiros():
 def stock_getcompras():
     """Obtengo lista compras."""
     con = get_con()
-    compras=pgdict(con, "select id,fecha,art,cnt, costo,total,proveedor from \
+    compras=pglistdict(con, "select id,fecha,art,cnt, costo,total,proveedor from \
                           artcomprado order by id desc limit 200")
     proveedores = pglflat(con, "select distinct proveedor from artcomprado")
     con.close()
@@ -309,7 +309,7 @@ def stock_saldosorpresa():
 def stock_getdepositos():
     """Obtengo lista depositos."""
     con = get_con()
-    depositos=pgdict(con, "select fecha,imp from caja where cuenta=\
+    depositos=pglistdict(con, "select fecha,imp from caja where cuenta=\
     'depositos sorpresa' order by id desc")
     con.close()
     return jsonify(depositos=depositos)
@@ -333,7 +333,7 @@ def stock_generarstock():
     group by art")
     con.commit()
     cur.close()
-    listastock = pgdict(con, "select stockactual.art, ingreso, IFNULL(egreso,\
+    listastock = pglistdict(con, "select stockactual.art, ingreso, IFNULL(egreso,\
     0) as egreso, ingreso-IFNULL(egreso, 0) as stock, costo, cuota from \
     stockactual,articulos where articulos.art=stockactual.art order by stock \
     desc")
@@ -363,7 +363,7 @@ def stock_salidas():
 def stock_getsalidas():
     """Obtengo lista de salidas."""
     con = get_con()
-    salidas=pgdict(con, "select id,fecha,cnt,art,costo,comentario from \
+    salidas=pglistdict(con, "select id,fecha,cnt,art,costo,comentario from \
     detallesalida order by id desc limit 100")
     con.close()
     return jsonify(salidas=salidas)
@@ -410,7 +410,7 @@ def stock_guardarsalida():
 def stock_getlistaarticulos():
     """Obtengo lista de articulos."""
     con = get_con()
-    articulos=pgdict(con, "select * from articulos order by activo desc,art" )
+    articulos=pglistdict(con, "select * from articulos order by activo desc,art" )
     grupos = pglflat(con, "select distinct grupo from articulos where grupo \
     is not null")
     con.close()
@@ -526,7 +526,7 @@ def stock_guardaredicionarticulo():
 def stock_getproveedores():
     """Obtengo proveedores."""
     con = get_con()
-    proveedores = pgdict(con, "select * from proveedores order by empresa")
+    proveedores = pglistdict(con, "select * from proveedores order by empresa")
     return jsonify(proveedores=proveedores)
 
 
@@ -593,7 +593,7 @@ def stock_borrarproveedor(id_proveedor):
 def stock_generarlistaprecios():
     """Genero lista de precios."""
     con = get_con()
-    lista = pgdict(con, "select * from articulos where activo=1 order by grupo\
+    lista = pglistdict(con, "select * from articulos where activo=1 order by grupo\
     ,codigo")
     grupos = pglflat(con, "select distinct grupo from articulos where activo=1\
                            and grupo is not null order by grupo")
@@ -614,7 +614,7 @@ def stock_cuentas():
 def stock_getdictcuentas():
     """Obtengo lista cuentas."""
     con = get_con()
-    cuentas = pgdict(con, "select * from ctas")
+    cuentas = pglistdict(con, "select * from ctas")
     return jsonify(cuentas=cuentas)
 
 
@@ -687,7 +687,7 @@ def stock_cuadro():
 def stock_obtenerresumenmensual(mes):
     """Obtengo resumen mensual."""
     con = get_con()
-    resumen = pgdict(con, f"select caja.cuenta as cuenta,sum(imp) as imp,tipo \
+    resumen = pglistdict(con, f"select caja.cuenta as cuenta,sum(imp) as imp,tipo \
     from caja,ctas where date_format(fecha,'%Y-%m')='{mes}' and caja.cuenta=\
     ctas.cuenta group by caja.cuenta")
     return jsonify(resumen=resumen)
@@ -709,14 +709,14 @@ def stock_imprimirstock():
 @check_roles(['dev','gerente'])
 def stock_getdatosarqueo():
     con = get_con()
-    bancocuotas = pgdict(con, "select * from caja where cuenta=\
+    bancocuotas = pglistdict(con, "select * from caja where cuenta=\
     'bancos ingreso clientes' and fecha>'2022-09-30' order by id desc")
-    bancocobr =  pgdict(con, "select * from caja where cuenta=\
+    bancocobr =  pglistdict(con, "select * from caja where cuenta=\
     'bancos ingreso cobradores' order by id desc")
-    listacuotas = pgdict(con, "select fecha,imp+rec as imp, nombre,pagos.id \
+    listacuotas = pglistdict(con, "select fecha,imp+rec as imp, nombre,pagos.id \
     as id,conciliado from pagos,clientes where clientes.id = pagos.idcliente \
     and  cobr in (13,15) and fecha>'2022-09-30' order by pagos.id desc")
-    listatrancobr= pgdict(con, "select * from caja where cuenta=\
+    listatrancobr= pglistdict(con, "select * from caja where cuenta=\
     'transferencia de cobradores' and id not in (15451,15424,15423) \
     order by id desc")
     listacuentas = pglflat(con, "select cuenta from ctas")
@@ -781,6 +781,6 @@ def stock_getacreenciassocio(socio):
         cuenta = '_retirocapitalfede'
     else:
         cuenta = '_retirocapitalpapi'
-    acreencias = pgdict(con, f"select fecha,codigo from caja where cuenta =\
+    acreencias = pglistdict(con, f"select fecha,codigo from caja where cuenta =\
     '{cuenta}' and fecha>'2022-01-01'")
     return jsonify(acreencias=acreencias)

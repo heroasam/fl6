@@ -108,7 +108,7 @@
  }
  /* Documentacion:
   *        getVentaHoy:
-  *        ventashoy = pgdict(con, "select fecha_definido,\
+  *        ventashoy = pglistdict(con, "select fecha_definido,\
     nombre,concat(calle,num) as direccion, zona, monto_vendido, vendedor,dni \
     from datos,clientes where datos.idcliente = clientes.id and \
     date(fecha_definido)=curdate() and resultado=1 order by fecha_definido")

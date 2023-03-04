@@ -22,7 +22,7 @@ def fichas_():
 @check_roles(['dev','gerente','admin'])
 def fichas_getcobradores():
     con = get_con()
-    cobradores = pgdict(con,"select id from cobr where activo=1 and prom=0 and id>15")
+    cobradores = pglistdict(con,"select id from cobr where activo=1 and prom=0 and id>15")
     con.close()
     return jsonify(cobradores=cobradores)
 
@@ -32,7 +32,7 @@ def fichas_getcobradores():
 @check_roles(['dev','gerente','admin'])
 def fichas_muestrazona(cobr):
     con = get_con()
-    zonas = pgdict(con,f"select zona from zonas where asignado={cobr}")
+    zonas = pglistdict(con,f"select zona from zonas where asignado={cobr}")
     con.close()
     return jsonify(zonas=zonas)
 
@@ -43,23 +43,23 @@ def fichas_muestrazona(cobr):
 def fichas_muestraclientes(tipo,zona):
     con = get_con()
     if tipo=='normales':
-        clientes = pgdict(con,f"select * from clientes where zona='{zona}' and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  and gestion=0 and incobrable=0 and mudo=0 order by pmovto")
+        clientes = pglistdict(con,f"select * from clientes where zona='{zona}' and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  and gestion=0 and incobrable=0 and mudo=0 order by pmovto")
     elif tipo=='gestion':
-        clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  and (gestion=1 or incobrable=1 or mudo=1) order by pmovto")
+        clientes = pglistdict(con,f"select * from clientes where zona like '{zona}' and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  and (gestion=1 or incobrable=1 or mudo=1) order by pmovto")
     elif tipo=='antiguos':
-        clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and pmovto<=date_sub(curdate(),interval 210 day) and deuda>0  order by ultpago desc")
+        clientes = pglistdict(con,f"select * from clientes where zona like '{zona}' and pmovto<=date_sub(curdate(),interval 210 day) and deuda>0  order by ultpago desc")
     elif tipo=='nuevomoroso':
-        clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and pmovto<=date_sub(curdate(),interval 5 day) and deuda>0 and ultcompra>date_sub(curdate(),interval 30 day)  order by pmovto")
+        clientes = pglistdict(con,f"select * from clientes where zona like '{zona}' and pmovto<=date_sub(curdate(),interval 5 day) and deuda>0 and ultcompra>date_sub(curdate(),interval 30 day)  order by pmovto")
     elif tipo=='morosos':
-        clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and pmovto<=date_sub(curdate(),interval 60 day) and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  order by pmovto")
+        clientes = pglistdict(con,f"select * from clientes where zona like '{zona}' and pmovto<=date_sub(curdate(),interval 60 day) and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  order by pmovto")
     elif tipo=='vender':
-        clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and ultpago>=date_sub(curdate(),interval 40 day) and deuda>0 and deuda<=cuota and sev=0 and novendermas=0 and gestion=0 and mudo=0 and incobrable=0  order by zona,calle,num")
+        clientes = pglistdict(con,f"select * from clientes where zona like '{zona}' and ultpago>=date_sub(curdate(),interval 40 day) and deuda>0 and deuda<=cuota and sev=0 and novendermas=0 and gestion=0 and mudo=0 and incobrable=0  order by zona,calle,num")
     elif tipo=='cancelados':
-        clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and deuda=0  order by ultpago desc")
+        clientes = pglistdict(con,f"select * from clientes where zona like '{zona}' and deuda=0  order by ultpago desc")
     elif tipo=='ppagos':
-        clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and deuda>0 and planvigente=1  order by ultpago desc")
+        clientes = pglistdict(con,f"select * from clientes where zona like '{zona}' and deuda>0 and planvigente=1  order by ultpago desc")
     elif tipo=='garantizado':
-        clientes = pgdict(con,f"select * from clientes where zona like '{zona}' and deuda>0 and garantizado=1  order by ultpago desc")
+        clientes = pglistdict(con,f"select * from clientes where zona like '{zona}' and deuda>0 and garantizado=1  order by ultpago desc")
     con.close()
     return jsonify(clientes=clientes)
 
@@ -221,7 +221,7 @@ def fichas_programar():
 @check_roles(['dev','gerente','admin'])
 def fichas_getfullcobradores():
     con = get_con()
-    cobradores = pgdict(con,f"select * from cobr order by id desc")
+    cobradores = pglistdict(con,f"select * from cobr order by id desc")
     con.close()
     return jsonify(cobradores=cobradores)
 
@@ -327,7 +327,7 @@ def fichas_borrarcobrador(id):
 @check_roles(['dev','gerente','admin'])
 def fichas_getcobradorbyid(id):
     con = get_con()
-    cobrador = pgdict(con, f"select id,dni,nombre,direccion,telefono,fechanac, desde, activo,prom from cobr where id={id}")[0]
+    cobrador = pglistdict(con, f"select id,dni,nombre,direccion,telefono,fechanac, desde, activo,prom from cobr where id={id}")[0]
     con.close()
     return jsonify(cobrador=cobrador)
 
@@ -369,7 +369,7 @@ def fichas_fechador():
 @check_roles(['dev','gerente','admin'])
 def fichas_buscacuenta(idvta):
     con = get_con()
-    cuenta = pgdict(con, f"select nombre, clientes.pmovto as pmovto,asignado \
+    cuenta = pglistdict(con, f"select nombre, clientes.pmovto as pmovto,asignado \
     from clientes, ventas,zonas where clientes.id=ventas.idcliente and \
     clientes.zona=zonas.zona and ventas.id={idvta}")
     if cuenta:
@@ -426,7 +426,7 @@ def fichas_getzonas():
 @check_roles(['dev','gerente','admin'])
 def fichas_getmsgs():
     con = get_con()
-    msgs = pgdict(con, f"select id, nombre, msg, file from msgs")
+    msgs = pglistdict(con, f"select id, nombre, msg, file from msgs")
     con.close()
     return jsonify(msgs=msgs)
 
@@ -442,19 +442,19 @@ def fichas_getlistado(zona):
     dire_deudoras_con_inc = listsql(pglflat(con, "select concat(calle,num) \
     from clientes where deuda>2000 and pmovto<date_sub(curdate(),interval 90 \
     day) and incobrable=1"))
-    listado = pgdict(con, f"select date_format(ultpago,'%Y') as year, ultpago, \
+    listado = pglistdict(con, f"select date_format(ultpago,'%Y') as year, ultpago, \
     dni,nombre, concat(calle,' ',num) as direccion from clientes where zona=\
     '{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and \
     novendermas=0 and comprado>0 and ultpago>'2010-01-01' and \
     concat(calle,num) not in {direcciones_deudoras} and  \
     (fechadato is null or fechadato<ultcompra or datediff(now(),fechadato)>45) order by ultpago desc")
-    noexceptuados =  pgdict(con, f"select date_format(ultpago,'%Y') as year, ultpago, \
+    noexceptuados =  pglistdict(con, f"select date_format(ultpago,'%Y') as year, ultpago, \
     dni,nombre, concat(calle,' ',num) as direccion from clientes where zona=\
     '{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and \
     novendermas=0 and comprado>0 and ultpago>'2010-01-01' and \
     concat(calle,num) in {dire_deudoras_con_inc} and  \
     (fechadato is null or fechadato<ultcompra or datediff(now(),fechadato)>45) order by ultpago desc")
-    exceptuados =  pgdict(con, f"select date_format(ultpago,'%Y') as year, ultpago, \
+    exceptuados =  pglistdict(con, f"select date_format(ultpago,'%Y') as year, ultpago, \
     dni,nombre, concat(calle,' ',num) as direccion from clientes where zona=\
     '{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and \
     novendermas=0 and comprado>0 and ultpago>'2010-01-01' and \
@@ -469,7 +469,7 @@ def fichas_getlistado(zona):
 @check_roles(['dev','gerente','admin'])
 def fichas_getresumen(zona):
     con = get_con()
-    resumen = pgdict(con, f"select date_format(ultpago,'%Y') as y, count(*) as cnt from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and ultpago>'2010-01-01' group by y order by y")
+    resumen = pglistdict(con, f"select date_format(ultpago,'%Y') as y, count(*) as cnt from clientes where zona='{zona}' and deuda=0 and incobrable=0 and mudo=0 and gestion=0 and novendermas=0 and ultpago>'2010-01-01' group by y order by y")
     con.close()
     return jsonify(resumen=resumen)
 
@@ -492,7 +492,7 @@ def fichas_imprimirlistado():
 @check_roles(['dev','gerente','admin'])
 def fichas_obtenerlistadofechados():
     con = get_con()
-    listado = pgdict(con, f"select fechados.id as id,nombre,expmovto,fechados.pmovto as pmovto,cobr from fechados,clientes where clientes.id=fechados.idcliente and fecha=current_date() order by fechados.id desc")
+    listado = pglistdict(con, f"select fechados.id as id,nombre,expmovto,fechados.pmovto as pmovto,cobr from fechados,clientes where clientes.id=fechados.idcliente and fecha=current_date() order by fechados.id desc")
     con.close()
     return jsonify(listado=listado)
 
@@ -502,7 +502,7 @@ def fichas_obtenerlistadofechados():
 @check_roles(['dev','gerente','admin'])
 def fichas_borrarfechado(id):
     con = get_con()
-    fechado = pgdict(con, f"select * from fechados where id={id}")[0]
+    fechado = pglistdict(con, f"select * from fechados where id={id}")[0]
     stm = f"delete from fechados where id={id}"
     upd = f"update clientes set pmovto = '{fechado['expmovto']}' where id={fechado['idcliente']}"
     cur = con.cursor()
@@ -527,7 +527,7 @@ def fichas_asuntos():
 @check_roles(['dev','gerente','admin'])
 def fichas_getasuntos():
     con = get_con()
-    asuntos = pgdict(con, f"select asuntos.id as id, idcliente, tipo, fecha, vdor, asunto,nombre,completado from asuntos,clientes where clientes.id=asuntos.idcliente")
+    asuntos = pglistdict(con, f"select asuntos.id as id, idcliente, tipo, fecha, vdor, asunto,nombre,completado from asuntos,clientes where clientes.id=asuntos.idcliente")
     con.close()
     return jsonify(asuntos=asuntos)
 
@@ -610,17 +610,17 @@ def fichas_getcancelados():
     dire_deudoras_con_inc = listsql(pglflat(con, "select concat(calle,num) from \
     clientes where deuda>2000 and pmovto<date_sub(curdate(),interval 90 day) \
     and incobrable=1"))
-    cancelados = pgdict(con, f"select ultpago, nombre, calle, num, zona, tel, \
+    cancelados = pglistdict(con, f"select ultpago, nombre, calle, num, zona, tel, \
     wapp, dni from clientes where deuda=0 and incobrable=0 and mudo=0 and \
     gestion=0 and novendermas=0 and ultpago>date_sub(curdate(),interval 30 \
     day) and (fechadato is null or fechadato<ultcompra or datediff(now(),fechadato)>45) and concat(calle,num) \
     not in {direcciones_deudoras}  order by ultpago desc")
-    noexceptuados = pgdict(con, f"select ultpago,nombre,calle,num,zona,tel, \
+    noexceptuados = pglistdict(con, f"select ultpago,nombre,calle,num,zona,tel, \
     wapp, dni from clientes where deuda=0 and incobrable=0 and mudo=0 and \
     gestion=0 and novendermas=0 and ultpago>date_sub(curdate(),interval 30 \
     day) and (fechadato is null or fechadato<ultcompra or datediff(now(),fechadato)>45) and concat(calle,num) \
     in {dire_deudoras_con_inc}  order by ultpago desc")
-    exceptuados = pgdict(con, f"select ultpago,nombre,calle,num,zona,tel, \
+    exceptuados = pglistdict(con, f"select ultpago,nombre,calle,num,zona,tel, \
     wapp, dni from clientes where deuda=0 and incobrable=0 and mudo=0 and \
     gestion=0 and novendermas=0 and ultpago>date_sub(curdate(),interval 30 \
     day) and (fechadato is null or fechadato<ultcompra or datediff(now(),fechadato)>45) and concat(calle,num) \
@@ -645,7 +645,7 @@ def fichas_mudados():
 @check_roles(['dev','gerente','admin'])
 def fichas_getmudados():
     con = get_con()
-    mudados = pgdict(con, f"select nombre, calle, num, zona, tel, wapp, dni from clientes where deuda=0 and  mudo=1 and mudado_llamado=0 and novendermas=0 and ultpago>date_sub(curdate(), interval 4 year) order by ultpago desc")
+    mudados = pglistdict(con, f"select nombre, calle, num, zona, tel, wapp, dni from clientes where deuda=0 and  mudo=1 and mudado_llamado=0 and novendermas=0 and ultpago>date_sub(curdate(), interval 4 year) order by ultpago desc")
     return jsonify(mudados=mudados)
 
 
@@ -718,7 +718,7 @@ def fichas_procesarlistado():
     idlistavisitar = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
 
     for dni in clientes:
-        cliente = pgdict(con, f"select id, year(ultcompra) as yultcompra from\
+        cliente = pglistdict(con, f"select id, year(ultcompra) as yultcompra from\
                   clientes where dni={dni}")[0]
         if not cliente['yultcompra']:
             cliente['yultcompra'] = date.today().year
@@ -742,7 +742,7 @@ def fichas_listavisitar():
 @check_roles(['dev','gerente','admin'])
 def fichas_getlistalistados():
     con = get_con()
-    listalistados = pgdict(con, "select * from listavisitar order by id desc")
+    listalistados = pglistdict(con, "select * from listavisitar order by id desc")
     return jsonify(listalistados=listalistados)
 
 
