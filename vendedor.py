@@ -6,8 +6,8 @@ from flask_login import login_required, current_user
 import mysql.connector
 from flask import Blueprint, render_template, jsonify, make_response, request
 import simplejson as json
-from lib import pgonecolumn, pglistdict, send_msg_whatsapp, send_file_whatsapp, \
-    pglist,  listsql, pgdict, pgexec
+from lib import pgonecolumn, pglistdict, send_msg_whatsapp, \
+    send_file_whatsapp, pglist,  listsql, pgdict, pgexec
 from con import get_con, log, check_roles
 
 vendedor = Blueprint('vendedor', __name__)
@@ -22,10 +22,18 @@ def leer_variables():
     Y seran incorporados en una variable  que es un dict."""
 
     con = get_con()
-    variables = pglistdict(con, "select clave,valor from variables")
-    for row in variables:
-        var_sistema[row['clave']] = row['valor']
-    return 1
+    try:
+        variables = pglistdict(con, "select clave,valor from variables")
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        for row in variables:
+            var_sistema[row['clave']] = row['valor']
+        return 1
+    finally:
+        con.close()
 
 
 leer_variables()
@@ -50,29 +58,37 @@ def calculo_cuota_maxima(idcliente):
     as fecha from ventas where idcliente={idcliente} and fecha>\
     date_sub(curdate(),interval 3 year) and devuelta=0")
     cuota_actualizada = 0
-    if cuotas:
-        ultimo_valor = pgonecolumn(con, "select indice from inflacion order \
-            by id desc limit 1")
-        cuotas_actualizadas = []
-        for venta in cuotas:
-            cuota = venta['monto']/6
-            fecha = venta['fecha']
-            indice = pgonecolumn(con, f"select indice from inflacion \
-            where concat(year,month)='{fecha}'")
-            if not indice: # esto sucede si es un mes sin indice cargado aun
-                indice = ultimo_valor
-            actualizada = ultimo_valor/indice * cuota
-            cuotas_actualizadas.append(actualizada)
-        cuota_actualizada = max(cuotas_actualizadas)
+    try:
+        if cuotas:
+            ultimo_valor = pgonecolumn(con, "select indice from inflacion order \
+                by id desc limit 1")
+            cuotas_actualizadas = []
+            for venta in cuotas:
+                cuota = venta['monto']/6
+                fecha = venta['fecha']
+                indice = pgonecolumn(con, f"select indice from inflacion \
+                where concat(year,month)='{fecha}'")
+                if not indice: # esto sucede si es un mes sin indice cargado aun
+                    indice = ultimo_valor
+                actualizada = ultimo_valor/indice * cuota
+                cuotas_actualizadas.append(actualizada)
+            cuota_actualizada = max(cuotas_actualizadas)
 
-        atraso = pgonecolumn(con, f"select atraso from clientes where \
-        id={idcliente}")
-        if atraso is None:
-            atraso = 0
-        if atraso>0:
-            cuota_actualizada = cuota_actualizada * (1-(atraso/30)*0.05)
-            cuota_actualizada = max(cuota_actualizada,0)
-    return cuota_actualizada
+            atraso = pgonecolumn(con, f"select atraso from clientes where \
+            id={idcliente}")
+            if atraso is None:
+                atraso = 0
+            if atraso>0:
+                cuota_actualizada = cuota_actualizada * (1-(atraso/30)*0.05)
+                cuota_actualizada = max(cuota_actualizada,0)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        return cuota_actualizada
+    finally:
+        con.close()
 
 
 def calculo_sin_extension(idcliente):
@@ -83,15 +99,23 @@ def calculo_sin_extension(idcliente):
     Return 1 negativo sin_extension. 0 positivo se puede ofrecer extension."""
 
     con = get_con()
-    cnt_vtas = pgonecolumn(con, f"select count(*) from ventas where saldo=0 \
-    and idcliente = {idcliente}")
-    if cnt_vtas==1:
-        return 1
-    atraso = pgonecolumn(con, f"select atraso from clientes where \
-    id={idcliente}")
-    if atraso and atraso>60:
-        return 1
-    return 0
+    try:
+        cnt_vtas = pgonecolumn(con, f"select count(*) from ventas where \
+        saldo=0 and idcliente = {idcliente}")
+        if cnt_vtas==1:
+            return 1
+        atraso = pgonecolumn(con, f"select atraso from clientes where \
+        id={idcliente}")
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        if atraso and atraso>60:
+            return 1
+        return 0
+    finally:
+        con.close()
 
 
 @vendedor.route('/vendedor/getcuotamaxima/<int:idcliente>')
@@ -120,7 +144,6 @@ def vendedor_guardardato():
     Calcula si es garante, en cuyo caso calcula el monto garantizado.
     Luego hace la insersion en la tabla datos y hace update en tabla clientes
     en el campo fechadato para que el mismo cliente no salga en listados."""
-    #
     con = get_con()
     d_data = json.loads(request.data.decode("UTF-8"))
     cuota_maxima = calculo_cuota_maxima(d_data['idcliente'])
