@@ -150,7 +150,7 @@ def ficha(con,ldni):
 
             # Formula para el calculo del espacio ocupable
             # if ((pdf.get_y()+max*7)>280):
-            #     pdf.add_page()
+            #     qpdf.add_page()
             #     pdf.set_y(15)
 
             pdf.ln(2)
@@ -212,7 +212,8 @@ def ficha(con,ldni):
             pdf.cell(40,5,row[2][:22],1,0,'L')
             pdf.cell(15,5,'Pag '+ str(row[3]),1,0,'C')
             pdf.cell(20,5,str(row[6]),1,1,'C')
-        pdf.cell(165,10,f'Suma a cobrar ${suma_a_cobrar}',1,1,'R')
+        pdf.cell(165,10,f'Suma a cobrar esta planilla ${suma_a_cobrar}',1,1,'R')
+
     pdf.output("/home/hero/ficha.pdf")
 
 def libredeuda(con,dni):
@@ -342,31 +343,30 @@ def intimacion(con,ldni):
 
 def loterbo(con, lrbo, fecha, cobr, idlote, estimado, cobrado):
     pdf=FPDF()
-    pdf.set_margins(15,15)
+    pdf.set_margins(10,10)
     pdf.add_page()
     pdf.set_font("Helvetica","",10)
     pdf.set_y(5)
     pdf.cell(20,6,str(fecha),0,0,'C')
     pdf.cell(20,6,f"Cobr {cobr}",0,0,'C')
-    pdf.cell(20,6,f"Lote N° {idlote}",0,0,'C')
-    pdf.cell(60,6,f"Cobrado en el mes ${cobrado}",0,0,'C')
-    pdf.cell(60,6,f"Falta estimado ${estimado}",0,1,'C')
+    pdf.cell(20,6,f"Lote N° {idlote}",0,1,'C')
+
     pdf.set_y(15)
     for n,rbo in enumerate(lrbo):
-        if n==43:
+        if n==40:
             pdf.set_y(15)
             pdf.set_x(80)
-        if n==86:
+        if n==80:
             pdf.set_y(15)
             pdf.set_x(150)
-        if (n>43 and n<86):
+        if (n>40 and n<80):
             pdf.set_x(80)
-        if n>86:
+        if n>80:
             pdf.set_x(150)
         pdf.cell(8,6,str(n+1),1,0,'C')
         pdf.cell(20,6,str(rbo),1,0,'C')
         pdf.cell(25,6,'',1,1)
-    pdf.set_y(-50)
+    pdf.set_y(-65)
     pdf.set_x(150)
     pdf.cell(28,6,'Total',1,0,'R')
     pdf.cell(25,6,'$',1,1)
@@ -379,6 +379,11 @@ def loterbo(con, lrbo, fecha, cobr, idlote, estimado, cobrado):
     pdf.set_x(150)
     pdf.cell(28,6,'A RENDIR',1,0,'R')
     pdf.cell(25,6,'$',1,1)
+    pdf.ln(2)
+    pdf.cell(60,6,f"Total a cobrar en el mes ${estimado}",0,0,'L')
+    pdf.cell(60,6,f"Cobrado en el mes ${cobrado}",0,0,'L')
+    pdf.cell(60,6,f"Porcentaje cobrado {cobrado/estimado*100 :.2f}%",0,1,'L')
+    pdf.cell(120,6,"Recordar que se debe cobrar el 90% del total para evitar redimensionamiento de zona",0,1,'L')
     pdf.output("/home/hero/loterbo.pdf")
 
 

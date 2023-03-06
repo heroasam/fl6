@@ -69,8 +69,8 @@ def fichas_muestraclientes(tipo,zona):
 @check_roles(['dev','gerente','admin'])
 def fichas_imprimir():
     con = get_con()
-    listadni = json.loads(request.data.decode("UTF-8"))
     # aca se el ast.literal entrega la lista enviada por el axios-post directamente
+    listadni = json.loads(request.data.decode("UTF-8"))
 
     ficha(con, listadni)
     con.close()

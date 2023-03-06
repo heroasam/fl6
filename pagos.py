@@ -51,7 +51,7 @@ def loterbo_imprimir(fecha,cobr,idlote):
     listarbo = json.loads(request.data.decode("UTF-8"))
     # aca se el ast.literal entrega la lista enviada por el axios-post directamente
 
-    estimado = pglistdict(con, f"select date_format(pmovto,'%Y-%m') as periodo,sum(cuota) as cuotas from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%' and asignado={cobr} group by periodo having periodo=date_format(curdate(),'%Y-%m')")[0]
+    estimado = pgdict(con, f"select sum(cuota) as cuotas from clientes,zonas where clientes.zona=zonas.zona and zonas.zona not like '-%' and asignado={cobr} and date_format(pmovto,'%Y-%m')>=date_format(curdate(),'%Y-%m')")
     cobrado = pgonecolumn(con, f"select sum(imp+rec) from pagos where cobr={cobr} and date_format(fecha,'%Y-%m')=date_format(curdate(),'%Y-%m')")
     if cobrado is None:
         cobrado = 0

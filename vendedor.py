@@ -177,8 +177,6 @@ def vendedor_guardardato():
     upd = f"update clientes set fechadato=curdate() where \
                 id={d_data['idcliente']}"
     try:
-        # cur.execute(ins)
-        # cur.execute(upd)
         pgexec(con, upd)
         pgexec(con, ins)
     except mysql.connector.Error as _error:
@@ -186,7 +184,6 @@ def vendedor_guardardato():
         error = _error.msg
         return make_response(error, 400)
     else:
-        # con.commit()
         log(ins)
         return 'ok'
     finally:
