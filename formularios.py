@@ -60,7 +60,7 @@ class MyFPDF(FPDF):
         pass
 
 
-def ficha(con,ldni):
+def ficha(con,ldni, total_cobrable=None, total_cobrado=None):
     pdf=MyFPDF()
     pdf.set_margins(30,15)
     pdf.add_page()
@@ -213,6 +213,12 @@ def ficha(con,ldni):
             pdf.cell(15,5,'Pag '+ str(row[3]),1,0,'C')
             pdf.cell(20,5,str(row[6]),1,1,'C')
         pdf.cell(165,10,f'Suma a cobrar esta planilla ${suma_a_cobrar}',1,1,'R')
+        pdf.cell(165,10,f'Total a cobrar esta zona ${total_cobrable}',1,1,'R')
+        pdf.cell(165,10,f'Total cobrado esta zona ${total_cobrado}',1,1,'R')
+        pdf.cell(165,10,f'Porcentaje cobrado hasta ahora {total_cobrado/total_cobrable*100 :.2f}%',1,1,'R')
+        pdf.cell(165,10,'Recordar que se debe cobrar el 90% del total para evitar redimensionamiento de zona',1,1,'R')
+
+
 
     pdf.output("/home/hero/ficha.pdf")
 

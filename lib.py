@@ -144,7 +144,17 @@ def letras(num):
     """Funcion que traduce numeros a letras."""
     millares = {'0': '', '1': 'mil', '2': 'dos mil', '3': 'tres mil',
                 '4': 'cuatro mil', '5': 'cinco mil', '6': 'seis mil',
-                '7': 'siete mil', '8': 'ocho mil', '9': 'nueve mil'}
+                '7': 'siete mil', '8': 'ocho mil', '9': 'nueve mil',
+                '10': 'diez mil','11':'once mil', '12':'doce mil',
+                '13': 'trece mil', '14':'catorce mil','15':'quince mil',
+                '16': 'dieciseis mil','17':'diecisiete mil',
+                '18': 'dieciocho mil', 'dieciocho mil','19':'diecinueve mil',
+                '20':'veinte mil', '21':'veintiun mil','22':'veintidos mil',
+                '23':'veintitres mil', '24':'veinticuatro mil',
+                '25':'veinticinco mil', '26':'veintiseis mil',
+                '27':'veintisiete mil', '28':'veintiocho mil',
+                '29':'veintinueve mil', '30':'treinta mil'
+                }
     centenas = {'0': '', '1': 'ciento', '2': 'doscientos', '3':
                 'trescientos', '4': 'cuatrocientos', '5': 'quinientos',
                 '6': 'seiscientos', '7': 'setecientos', '8': 'ochocientos',
@@ -167,7 +177,7 @@ def letras(num):
     centena = '0'
     decena = '0'
     if len(str(num)) > 3:
-        millar = str(num)[-4]
+        millar = str(num)[:-3]
 
     if len(str(num)) > 2:
         centena = str(num)[-3]
