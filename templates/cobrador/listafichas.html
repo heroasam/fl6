@@ -66,7 +66,16 @@
       <button class="button is-small is-primary" @click="mudoFicha()" id="buttonMudoFicha">Mudo</button>
       <button class="button is-small is-black" @click="fallecioFicha()" id="buttonFallecioFicha">Fallecio</button>
     </div>
-    	<!-- tablecuotas -->
+    <!-- listaVentas -->
+    <div>
+      <template x-for="venta in listaVentas">
+        <button class="button is-small is-danger" x-text="venta.pp?'PLAN':venta.art.split(' ')[0]"
+                ></button>
+
+      </template>
+
+    </div>
+    <!-- tablecuotas -->
     <div class="column is-3">
 	  <div class="flex-center" x-show="verCard">
         <span class="tag is-large">Cuotas a Pagar</span>
@@ -153,6 +162,7 @@
          listaInflacion:[],
          verCard:false,
          Ficha:{},
+         verCuenta:false,
          getListadoFichas(){
              axios.get('/cobrador/getlistadofichas')
                   .then(res=>{
@@ -346,7 +356,7 @@
                       })
                       this.listaVentas = arrayVentas
                       this.listaCuotas = this.hacerCuotas()
-
+console.log( this.listaVentas)
 
                   })
          },

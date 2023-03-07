@@ -54,14 +54,14 @@ def calculo_cuota_maxima(idcliente):
     la cuota para evitar distorsion si el plan fue en 4 o 5 cuotas.
     """
     con = get_con()
-    cuotas = pglistdict(con, f"select comprado as monto,date_format(fecha,'%Y%c') \
-    as fecha from ventas where idcliente={idcliente} and fecha>\
-    date_sub(curdate(),interval 3 year) and devuelta=0")
+    cuotas = pglistdict(con, f"select comprado as monto,\
+    date_format(fecha,'%Y%c') as fecha from ventas where idcliente={idcliente} \
+    and fecha>date_sub(curdate(),interval 3 year) and devuelta=0")
     cuota_actualizada = 0
     try:
         if cuotas:
-            ultimo_valor = pgonecolumn(con, "select indice from inflacion order \
-                by id desc limit 1")
+            ultimo_valor = pgonecolumn(con, "select indice from inflacion \
+            order by id desc limit 1")
             cuotas_actualizadas = []
             for venta in cuotas:
                 cuota = venta['monto']/6
@@ -170,9 +170,9 @@ def vendedor_guardardato():
     ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, art,\
     horarios, comentarios, cuota_maxima,deuda_en_la_casa,sin_extension,\
     monto_garantizado,zona) values ('{d_data['fecha']}', '{d_data['user']}',\
-    {d_data['idcliente']},'{d_data['fecha_visitar']}','{d_data['art']}','{d_data['horarios']}',\
-    '{d_data['comentarios']}', {cuota_maxima}, '{deuda_en_la_casa}',{sin_extension},\
-    {monto_garantizado},'{zona}')"
+    {d_data['idcliente']},'{d_data['fecha_visitar']}','{d_data['art']}',\
+    '{d_data['horarios']}','{d_data['comentarios']}', {cuota_maxima}, \
+    '{deuda_en_la_casa}',{sin_extension},{monto_garantizado},'{zona}')"
     cur = con.cursor()
     upd = f"update clientes set fechadato=curdate() where \
                 id={d_data['idcliente']}"
@@ -199,7 +199,8 @@ def vendedor_togglerechazardato(iddato):
 
     Tambien actualiza el campo resultado y la tabla autorizacion."""
     con = get_con()
-    resultado = pgonecolumn(con, f"select resultado from datos where id={iddato}")
+    resultado = pgonecolumn(con, f"select resultado from datos where \
+    id={iddato}")
     if resultado == 8: # o sea ya esta rechazado
         upd = f"update datos set resultado=NULL, rechazado=0 where id={iddato}"
         updaut = f"update autorizacion set rechazado=0,autorizado=0 where \
@@ -442,7 +443,7 @@ def vendedor_editardato():
         sin_extension = 1
     else:
         sin_extension = 0
-    upd = f"update datos set fecha='{d_data['fecha']}', user='{d_data['user']}',\
+    upd = f"update datos set fecha='{d_data['fecha']}',user='{d_data['user']}',\
     fecha_visitar='{d_data['fecha_visitar']}', horarios='{d_data['horarios']}',\
     art='{d_data['art']}', comentarios='{d_data['comentarios']}', cuota_maxima=\
     {d_data['cuota_maxima']},nosabana={nosabana},sin_extension={sin_extension} \
@@ -578,8 +579,9 @@ def vendedor_envioclientenuevo():
         cliente_viejo = [d_data['calle'], d_data['num'], d_data['barrio'], \
                          d_data['wapp'], d_data['tel'], d_data['acla']]
         if cliente_nuevo != cliente_viejo:
-            upd = f"update clientes set calle='{d_data['calle']}', num={d_data['num']},\
-            barrio='{d_data['barrio']}',wapp='{d_data['wapp']}',tel='{d_data['tel']}', \
+            upd = f"update clientes set calle='{d_data['calle']}', \
+            num={d_data['num']},barrio='{d_data['barrio']}',\
+            wapp='{d_data['wapp']}',tel='{d_data['tel']}', \
             modif_vdor=1,acla='{d_data['acla']}' where id={d_data['id']}"
             inslog = f"insert into logcambiodireccion(idcliente,calle,\
             num,barrio,tel,acla,fecha,nombre,dni,wapp) values({cliente['id']},\
@@ -604,7 +606,8 @@ def vendedor_envioclientenuevo():
                     insaut = f"insert into autorizacion(fecha,vdor,iddato,\
                     idcliente,cuota_requerida,cuota_maxima,arts) \
                     values(current_timestamp(),{vdor},{iddato},{d_data['id']},\
-                    {d_data['cuota_requerida']},{cuota_maxima},'{d_data['arts']}')"
+                    {d_data['cuota_requerida']},{cuota_maxima},\
+                    '{d_data['arts']}')"
                     cur.execute(insaut)
                     idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
                 else:
@@ -652,8 +655,9 @@ def vendedor_envioclientenuevo():
             dnigarante = d_data['dnigarante']
         inscliente = f"insert into clientes(sex,dni, nombre,calle,num,barrio,\
         tel,wapp,zona,modif_vdor,acla,horario,mjecobr,infoseven) values('F',\
-        {d_data['dni']},'{d_data['nombre']}','{d_data['calle']}',{d_data['num']},'{d_data['barrio']}',\
-        '{d_data['tel']}','{d_data['wapp']}','-CAMBIAR',1,'{d_data['acla']}','','','')"
+        {d_data['dni']},'{d_data['nombre']}','{d_data['calle']}',\
+        {d_data['num']},'{d_data['barrio']}','{d_data['tel']}',\
+        '{d_data['wapp']}','-CAMBIAR',1,'{d_data['acla']}','','','')"
         try:
             cur.execute(inscliente)
             idcliente = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
@@ -755,7 +759,8 @@ def vendedor_editarwapp():
     d_data = json.loads(request.data.decode("UTF-8"))
     wapp_viejo = pgonecolumn(con, f"select wapp from clientes where id= \
     {d_data['idcliente']}")
-    upd = f"update clientes set wapp='{d_data['wapp']}' where id={d_data['idcliente']}"
+    upd = f"update clientes set wapp='{d_data['wapp']}' where \
+    id={d_data['idcliente']}"
     if wapp_viejo and wapp_viejo != 'INVALIDO':
         inslogcambio = f"insert into logcambiodireccion(idcliente,wapp,fecha) \
         values ({d_data['idcliente']},'{wapp_viejo}', current_date())"
@@ -792,8 +797,8 @@ def vendedor_guardardatofechado():
         vdor = 835
     con = get_con()
     d_data = json.loads(request.data.decode("UTF-8"))
-    upd = f"update datos set fecha_visitar='{d_data['fecha_visitar']}' where id = \
-    {d_data['id']}"
+    upd = f"update datos set fecha_visitar='{d_data['fecha_visitar']}' where \
+    id = {d_data['id']}"
     ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
     values(curdate(),curtime(),{vdor},{d_data['id']},4,0)"
     cur = con.cursor()
@@ -986,8 +991,8 @@ def vendedor_getlistadoautorizados():
     """Funcion que entrega lista de autorizaciones pendientes."""
 
     con = get_con()
-    listadoautorizados = pglistdict(con, "select autorizacion.id as id,datos.id \
-    as iddato,datos.fecha as fecha, datos.user as user, nombre, \
+    listadoautorizados = pglistdict(con, "select autorizacion.id as id,\
+    datos.id as iddato,datos.fecha as fecha, datos.user as user, nombre, \
     datos.resultado as resultado, datos.art as art, datos.cuota_maxima as \
     cuota_maxima, datos.sin_extension as sin_extension,datos.nosabana as \
     nosabana, datos.deuda_en_la_casa as deuda_en_la_casa,datos.vendedor as \
@@ -1012,13 +1017,13 @@ def vendedor_getlistadoautorizados():
 def vendedor_getlistadoautorizadosporid(idcliente):
     """Funcion que entrega la lista de autorizaciones que tuvo un cliente."""
     con = get_con()
-    listadoautorizadosporid = pglistdict(con, f"select datos.id as id,datos.fecha \
-    as fecha, datos.user as user, nombre, datos.resultado as resultado, \
-    datos.art as art, datos.cuota_maxima as cuota_maxima, datos.sin_extension \
-    as sin_extension,datos.nosabana as nosabana, datos.deuda_en_la_casa as \
-    deuda_en_la_casa,datos.vendedor as vendedor, clientes.novendermas as \
-    novendermas, clientes.incobrable as incobrable,clientes.sev as sev, \
-    clientes.baja as baja, autorizacion.fecha as fechahora, \
+    listadoautorizadosporid = pglistdict(con, f"select datos.id as id,\
+    datos.fecha as fecha, datos.user as user, nombre, datos.resultado as \
+    resultado, datos.art as art, datos.cuota_maxima as cuota_maxima, \
+    datos.sin_extension as sin_extension,datos.nosabana as nosabana, \
+    datos.deuda_en_la_casa as deuda_en_la_casa,datos.vendedor as vendedor, \
+    clientes.novendermas as novendermas, clientes.incobrable as incobrable,\
+    clientes.sev as sev,clientes.baja as baja, autorizacion.fecha as fechahora,\
     autorizacion.cuota_requerida as cuota_requerida, autorizacion.arts as arts,\
     horarios,comentarios,(select count(*) from autorizacion where \
     autorizacion.idcliente=clientes.id) as cnt from datos,autorizacion,\

@@ -59,9 +59,9 @@ def cobrador_getlistadofichas():
     group by clientes.zona")
     fichas = pglistdict(con, f"select clientes.* from clientes,zonas where \
     asignada=1 and asignado={cobr} and clientes.zona=zonas.zona and \
-    mudo=0 and clientes.zona!='-FALLECIDOS' and fechado=0 and (datediff(now(),\
+    mudo=0 and clientes.zona!='-FALLECIDOS' and fechado=0 and ((datediff(now(),\
     ultpago) >6 or datediff(now(), ultpago) is null) or datediff(now(),\
-    ultpago)=0")
+    ultpago)=0) and deuda>0")
     return jsonify(zonas=zonas, fichas=fichas)
 
 
