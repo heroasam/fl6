@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Por Cobrador{% endblock %}
+{% block style %}
+<style>
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="container" x-data="main()" x-init="getCobrosCobrador()">
+
+
+  <p class="title is-1">Ver cobros por Cobrador</p>
+
+  <div class="box">
+    <table class="table" id="table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>cobrador</th>
+          <th>cobrado</th>
+          <th>estimado</th>
+          <th>porc cobr</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="item in listaCobros">
+           <tr :id="String(item.id)">
+             <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
+                                                @click="expandChildren(item.id)"></td>
+            <td x-text="item.id"></td>
+            <td x-text="item.cobrado"></td>
+            <td x-text="item.estimado"></td>
+            <td x-text="(item.cobrado/item.estimado*100).toFixed(1)+'%'"></td>
+          </tr>
+        </template>
+        <template x-for="item in listaCobrosZona">
+          <tr class="children">
+            <td x-text="item.zona"></td>
+            <td x-text="item.cobrado"></td>
+            <td x-text="item.estimado"></td>
+            <td x-text="(item.cobrado/item.estimado*100).toFixed(1)+'%'"></td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+
+
+
+
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+ function main(){
+     return{
+         listaCobros:[],
+         listaCobrosZona:[],
+         cobr:'',
+         getCobrosCobrador(){
+             axios.get('/pagos/getcobroscobrador')
+                  .then(res=>{
+                      this.listaCobros = res.data.listacobros
+                  })
+         },
+         getCobrosZonaCobrador(cobr){
+             axios.get('/pagos/getcobroszonas/'+cobr)
+                  .then(res=>{
+                      this.listaCobrosZona = res.data.listacobroszonas
+                  })
+         },
+         expandChildren(cobr){
+             if(this.cobr==cobr && this.listaCobrosZona.length>0){
+                 this.listaCobrosZona=[]
+                 return
+             }
+             axios.get('/pagos/getcobroszonas/'+cobr)
+                  .then(res=>{
+                      this.listaCobrosZona = res.data.listacobroszonas
+
+                      this.cobr = cobr
+                      $tbody = document.querySelector('tbody')
+                      $trcobr = document.getElementById(String(cobr))
+                      setTimeout(()=>{
+                          let arrayrows = Array.from($tbody.children)
+                          let children = arrayrows.filter(row=>row.classList.contains('children'))
+                          children = children.reverse()
+                          for(el of children){
+                              $tbody.insertBefore(el,$trcobr.nextSibling)
+                          }
+                      },1)
+                  })
+         },
+
+ }}
+</script>
+{% endblock %}

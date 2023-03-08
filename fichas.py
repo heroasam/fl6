@@ -174,13 +174,9 @@ def fichas_msgprogramado():
     d = json.loads(request.data.decode("UTF-8"))
     clientes = d['listaclientes']
     msg = d['msg']
-    file = d['file']
     for cliente in clientes:
         if cliente['wapp']:
-            if file:
-                send_file_whatsapp(cliente['id'],file,cliente['wapp'])
-            else:
-                send_msg_whatsapp(cliente['id'], cliente['wapp'], msg)
+            send_msg_whatsapp(cliente['id'], cliente['wapp'], msg)
     return 'ok'
 
 

@@ -148,7 +148,7 @@ def letras(num):
                 '10': 'diez mil','11':'once mil', '12':'doce mil',
                 '13': 'trece mil', '14':'catorce mil','15':'quince mil',
                 '16': 'dieciseis mil','17':'diecisiete mil',
-                '18': 'dieciocho mil', 'dieciocho mil','19':'diecinueve mil',
+                '18': 'dieciocho mil','19':'diecinueve mil',
                 '20':'veinte mil', '21':'veintiun mil','22':'veintidos mil',
                 '23':'veintitres mil', '24':'veinticuatro mil',
                 '25':'veinticinco mil', '26':'veintiseis mil',

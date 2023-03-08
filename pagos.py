@@ -738,3 +738,40 @@ def pagos_getprestamosvdor(vdor):
     where cuenta in ('prestamos empleados','recupero prestamos') \
     and fecha>'2022-01-01' and codigo like '%{vdor}%' order by fecha desc")
     return jsonify(prestamos=prestamos)
+
+
+@pagos.route('/pagos/pivotcobros')
+@login_required
+@check_roles(['dev','gerente'])
+def pagos_pivotcobros():
+    return render_template('pagos/pivotcobros.html' )
+
+
+@pagos.route('/pagos/getcobroscobrador')
+@login_required
+@check_roles(['dev','gerente'])
+def pagos_getcobroscobrador():
+    con = get_con()
+    listacobros = pglistdict(con, f"select id , (select sum(imp+\
+    rec) from pagos where cobr=cobr.id and date_format(fecha,'%Y%m')=\
+    date_format(curdate(),'%Y%m')) as cobrado, (select sum(cuota) from \
+    clientes,zonas where clientes.zona=zonas.zona and asignado=cobr.id and \
+    date_format(pmovto, '%Y%m')>=date_format(curdate(),'%Y%m')) as estimado \
+    from cobr where activo=1 and prom=0 and id not in (10,15,816,835,820)")
+    return jsonify(listacobros=listacobros)
+
+
+@pagos.route('/pagos/getcobroszonas/<int:cobr>')
+@login_required
+@check_roles(['dev','gerente'])
+def pagos_getcobroszonas(cobr):
+    con = get_con()
+    listacobroszonas = pglistdict(con, f"select clientes.zona , (select \
+    sum(imp+rec) from pagos where cobr={cobr} and date_format(fecha,'%Y%m')=\
+    date_format(curdate(),'%Y%m') and idcliente in (select id from clientes \
+    as clientes1 where clientes1.zona=clientes.zona)) as cobrado, (select \
+    sum(cuota) from clientes as clientes2 where clientes2.zona=\
+    clientes.zona and date_format(pmovto, '%Y%m')>=\
+    date_format(curdate(),'%Y%m')) as estimado from clientes,zonas where \
+    clientes.zona=zonas.zona and asignado={cobr} group by clientes.zona")
+    return jsonify(listacobroszonas=listacobroszonas)

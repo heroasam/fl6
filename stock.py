@@ -908,7 +908,7 @@ def stock_getdatosarqueo():
         con.close()
 
 
-@stock.route('/stock/conciliarpago/<int:id>')
+@stock.route('/stock/conciliarpago/<int:idpago>')
 @login_required
 @check_roles(['dev','gerente','admin'])
 def stock_conciliarpago(idpago):
