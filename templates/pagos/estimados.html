@@ -23,7 +23,7 @@
   {{tbl1|safe}}
     </div>
   </div>
-
+  <button class="button is-black" @click="getPagosEstimadosMes()">Generar Tabla Estimados</button>
 </div>
 {% endblock %}
 
@@ -35,7 +35,7 @@
 	     cobranzatotal:[],
 	     getGrafico(){
              this.mescobranza = {{index|tojson}}
-             console.log( this.mescobranza)
+             //console.log( this.mescobranza)
              this.cobranzatotal = totalizar_tabla('estimados',1)
 
              const canvas = document.getElementById('grafico-estadistica').getContext('2d');
@@ -76,6 +76,15 @@
 		         }
              });
 	     },
+         getPagosEstimadosMes(){
+             axios.get('/pagos/estimadosmes')
+                  .then(res=>{
+                      console.log( res.data.tbl)
+                      console.log( res.data.tbl1)
+                      console.log( res.data.type)
+                     // console.log( res.data.index)
+             })
+         },
  }}
 </script>
 {% endblock %}

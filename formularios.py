@@ -212,6 +212,8 @@ def ficha(con,ldni, total_cobrable=None, total_cobrado=None):
             pdf.cell(40,5,row[2][:22],1,0,'L')
             pdf.cell(15,5,'Pag '+ str(row[3]),1,0,'C')
             pdf.cell(20,5,str(row[6]),1,1,'C')
+        if total_cobrado is None:
+            total_cobrado = 0
         pdf.cell(165,10,f'Suma a cobrar esta planilla ${suma_a_cobrar}',1,1,'R')
         pdf.cell(165,10,f'Total a cobrar esta zona ${total_cobrable}',1,1,'R')
         pdf.cell(165,10,f'Total cobrado esta zona ${total_cobrado}',1,1,'R')

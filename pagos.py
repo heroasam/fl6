@@ -51,7 +51,7 @@ def loterbo_imprimir(fecha,cobr,idlote):
     listarbo = json.loads(request.data.decode("UTF-8"))
     # aca se el ast.literal entrega la lista enviada por el axios-post directamente
 
-    estimado = pgdict(con, f"select sum(cuota) as cuotas from clientes,zonas where clientes.zona=zonas.zona and zonas.zona not like '-%' and asignado={cobr} and date_format(pmovto,'%Y-%m')>=date_format(curdate(),'%Y-%m')")
+    estimado = pgdict(con, f"select sum(monto) as cuotas from estimados where cobr={cobr} and mes=date_format(curdate(),'%Y%m')")
     cobrado = pgonecolumn(con, f"select sum(imp+rec) from pagos where cobr={cobr} and date_format(fecha,'%Y-%m')=date_format(curdate(),'%Y-%m')")
     if cobrado is None:
         cobrado = 0
@@ -518,6 +518,38 @@ def pagos_estimados():
     return render_template("pagos/estimados.html", tbl=tbl, tbl1=tbl1, index=index )
 
 
+@pagos.route('/pagos/estimadosmes')
+@login_required
+@check_roles(['dev','gerente'])
+def pagos_estimadosmes():
+    con = get_con()
+    pd.options.display.float_format = '${:.0f}'.format
+    sql="select date_format(pmovto,'%Y-%m') as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and date_format(pmovto,'%Y%m')=date_format(curdate(),'%Y%m')  and zonas.zona not like '-%'"
+    dat = pd.read_sql_query(sql, engine)
+    df = pd.DataFrame(dat)
+    tbl = pd.pivot_table(df, values=['cuota'],index='asignado',columns='pmovto',aggfunc='sum')
+    tbl = tbl.fillna("")
+    tbl1 = pd.pivot_table(df, values=['cuota'],index='zona',columns='pmovto',aggfunc='sum')
+    tbl1 = tbl1.fillna("")
+    #index = tbl.columns.values.tolist()
+    # aca entregamos el valor de las columnas como indice
+    tbl = tbl.to_json()
+    tbl1 = tbl1.to_json()
+    tbl = tbl.split(')":')[1][:-1]
+    tbl1 = tbl1.split(')":')[1][:-1]
+    d = tbl1[1:-1]
+    d = d.split(',')
+
+    for item in d:
+        k,v = item.split(':')
+        k = k[1:-1]
+        cobr = pgonecolumn(con, f"select asignado from zonas where zona='{k}'")
+        ins = f"insert into estimados(mes,zona,monto,cobr) values(\
+        date_format(curdate(),'%Y%m'),'{k}',{v},{cobr})"
+        pgexec(con, ins)
+    return 'ok'
+
+
 @pagos.route('/pagos/comisiones')
 @login_required
 @check_roles(['dev','gerente'])
@@ -754,9 +786,8 @@ def pagos_getcobroscobrador():
     con = get_con()
     listacobros = pglistdict(con, f"select id , (select sum(imp+\
     rec) from pagos where cobr=cobr.id and date_format(fecha,'%Y%m')=\
-    date_format(curdate(),'%Y%m')) as cobrado, (select sum(cuota) from \
-    clientes,zonas where clientes.zona=zonas.zona and asignado=cobr.id and \
-    date_format(pmovto, '%Y%m')>=date_format(curdate(),'%Y%m')) as estimado \
+    date_format(curdate(),'%Y%m')) as cobrado, (select sum(monto) from estimados where cobr=cobr.id and \
+    mes = date_format(curdate(),'%Y%m') group by cobr) as estimado \
     from cobr where activo=1 and prom=0 and id not in (10,15,816,835,820)")
     return jsonify(listacobros=listacobros)
 
@@ -769,9 +800,7 @@ def pagos_getcobroszonas(cobr):
     listacobroszonas = pglistdict(con, f"select clientes.zona , (select \
     sum(imp+rec) from pagos where cobr={cobr} and date_format(fecha,'%Y%m')=\
     date_format(curdate(),'%Y%m') and idcliente in (select id from clientes \
-    as clientes1 where clientes1.zona=clientes.zona)) as cobrado, (select \
-    sum(cuota) from clientes as clientes2 where clientes2.zona=\
-    clientes.zona and date_format(pmovto, '%Y%m')>=\
-    date_format(curdate(),'%Y%m')) as estimado from clientes,zonas where \
+    as clientes1 where clientes1.zona=clientes.zona)) as cobrado,  (select monto from estimados where cobr={cobr} and \
+    mes = date_format(curdate(),'%Y%m') and zona=clientes.zona) as estimado from clientes,zonas where \
     clientes.zona=zonas.zona and asignado={cobr} group by clientes.zona")
     return jsonify(listacobroszonas=listacobroszonas)

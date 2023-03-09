@@ -74,8 +74,8 @@ def fichas_imprimir():
     zona,cobr = pgtuple(con, f"select clientes.zona as zona, asignado from \
     clientes, zonas where clientes.zona=zonas.zona and \
     clientes.dni={listadni[0]}")
-    total_cobrable = pgonecolumn(con, f"select sum(cuota) from clientes where \
-                 zona='{zona}' and date_format(pmovto,'%Y%m')>=date_format(curdate(),'%Y%m')")
+    total_cobrable = pgonecolumn(con, f"select monto from estimados where \
+                 zona='{zona}' and mes=date_format(curdate(),'%Y%m')")
     total_cobrado = pgonecolumn(con, f"select sum(imp+rec) from pagos,clientes \
     where pagos.idcliente=clientes.id and zona='{zona}' and cobr={cobr} and \
                      date_format(fecha,'%Y%m')=date_format(curdate(),'%Y%m')")

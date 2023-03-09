@@ -18,9 +18,9 @@
         <tr>
           <th></th>
           <th>cobrador</th>
-          <th>cobrado</th>
-          <th>estimado</th>
-          <th>porc cobr</th>
+          <th class="numeric">cobrado</th>
+          <th class="numeric">estimado</th>
+          <th class="numeric">porc cobr</th>
         </tr>
       </thead>
       <tbody>
@@ -29,17 +29,18 @@
              <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
                                                 @click="expandChildren(item.id)"></td>
             <td x-text="item.id"></td>
-            <td x-text="item.cobrado"></td>
-            <td x-text="item.estimado"></td>
-            <td x-text="(item.cobrado/item.estimado*100).toFixed(1)+'%'"></td>
+            <td x-text="item.cobrado" class="pesos"></td>
+            <td x-text="item.estimado" class="pesos"></td>
+            <td x-text="(item.cobrado/item.estimado*100).toFixed(1)" class="perc"></td>
           </tr>
         </template>
         <template x-for="item in listaCobrosZona">
           <tr class="children">
+            <td></td>
             <td x-text="item.zona"></td>
-            <td x-text="item.cobrado"></td>
-            <td x-text="item.estimado"></td>
-            <td x-text="(item.cobrado/item.estimado*100).toFixed(1)+'%'"></td>
+            <td x-text="item.cobrado" class="pesos"></td>
+            <td x-text="item.estimado" class="pesos"></td>
+            <td x-text="(item.cobrado/item.estimado*100).toFixed(1)" class="perc"></td>
           </tr>
         </template>
       </tbody>
