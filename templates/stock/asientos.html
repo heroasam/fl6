@@ -18,6 +18,8 @@
         <h2 class="title is-size-1 pointer" x-text="'Caja $'+saldo" @click="aplicarFiltro('caja')"></h2>
         <h2 class="title is-size-1 pointer" style="color:red;" x-text="'Bancos $'+saldobancos"
             @click="aplicarFiltro('bancos')" @dblclick="aplicarFiltro('noasignados')"></h2>
+        <h2 class="title is-size-1 pointer" style="color:green;" x-text="'u$s'+saldodolares"
+            +            @click="aplicarFiltro('dolares')"></h2>
       </div>
     </div>
   </div>
@@ -134,6 +136,7 @@
          cuentas:[],
          saldo:0,
          saldobancos:0,
+         saldodolares:0,
          Asiento:{fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',codigo:'',comentario:''},
          AsientoEdicion:{},
          selected: null,
@@ -145,6 +148,7 @@
                       this.listAsientos_=this.listAsientos
                       this.saldo = res.data.saldo
                       this.saldobancos  =  res.data.saldobancos
+                      this.saldodolares = res.data.saldodolares || 0
                   })
          },
          borrarAsiento(id){
@@ -207,7 +211,10 @@
                      this.listAsientos = this.listAsientos_.filter(row=>row.cuenta.includes('bancos'))
                      break
                  case 'caja':
-                     this.listAsientos = this.listAsientos_.filter(row=>!row.cuenta.includes('bancos'))
+                     this.listAsientos = this.listAsientos_.filter(row=>!row.cuenta.includes('bancos','dolares'))
+                     break
+                 case 'dolares':
+ +                     this.listAsientos = this.listAsientos_.filter(row=>row.cuenta.includes('dolares'))
                      break
                  case 'noasignados':
                      this.listAsientos = this.listAsientos_.filter(row=>row.cuenta.includes('bancos')&&row.comentario==''

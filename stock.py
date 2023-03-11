@@ -50,6 +50,8 @@ def stock_getasientos():
             caja.cuenta=ctas.cuenta and tipo in (0,1)")
     saldobancos = pgonecolumn(con, "select sum(imp) from caja,ctas where \
             caja.cuenta=ctas.cuenta and tipo in (2,3)")
+     saldodolares = pgonecolumn(con, "select sum(imp) from caja,ctas where \
+            caja.cuenta=ctas.cuenta and tipo in (4,5)")
     con.close()
     return jsonify(asientos=asientos,saldo=saldo,saldobancos=saldobancos)
 
@@ -102,7 +104,7 @@ def stock_guardarasiento():
     d_dato = json.loads(request.data.decode("UTF-8"))
     tipo = pgonecolumn(con, f"select tipo from ctas where cuenta=\
     '{d_dato['cuenta']}'")
-    if tipo in [0, 3]:
+    if tipo in [0, 3, 5]:
         importe = int(d_dato['imp'])*(-1)
     else:
         importe = int(d_dato['imp'])
