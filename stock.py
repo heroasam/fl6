@@ -50,7 +50,7 @@ def stock_getasientos():
             caja.cuenta=ctas.cuenta and tipo in (0,1)")
     saldobancos = pgonecolumn(con, "select sum(imp) from caja,ctas where \
             caja.cuenta=ctas.cuenta and tipo in (2,3)")
-     saldodolares = pgonecolumn(con, "select sum(imp) from caja,ctas where \
+    saldodolares = pgonecolumn(con, "select sum(imp) from caja,ctas where \
             caja.cuenta=ctas.cuenta and tipo in (4,5)")
     con.close()
     return jsonify(asientos=asientos,saldo=saldo,saldobancos=saldobancos)
