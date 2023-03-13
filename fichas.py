@@ -430,7 +430,7 @@ def fichas_getzonas():
 @check_roles(['dev','gerente','admin'])
 def fichas_getmsgs():
     con = get_con()
-    msgs = pglistdict(con, f"select id, nombre, msg, file from msgs")
+    msgs = pglistdict(con, f"select * from msgs")
     con.close()
     return jsonify(msgs=msgs)
 
