@@ -786,6 +786,9 @@
         <label for="nombre" class="label">Nombre</label>
         <input type="text" class="input mb-3" x-model="Cliente.nombre" id="nombre" autocomplete="off"
                readonly :class="darkTheme?'input-dark':''">
+        <label for="direccion" class="label">Direccion</label>
+        <input type="text" class="input mb-3" x-model="Cliente.direccion" id="direccion" autocomplete="off"
+               readonly :class="darkTheme?'input-dark':''">
         <label for="whatsapp" class="label">WhatsApp</label>
         <input type="text" class="input mb-3" x-model="Cliente.wapp" id="whatsapp" autocomplete="off" readonly
                :class="darkTheme?'input-dark':''">
@@ -974,6 +977,7 @@
               *                    .then(res=>{
               *                        this.Cliente.asignado = res.data.asignado
               * }) */
+             this.Cliente.direccion = this.Cliente.calle+' '+this.Cliente.num
              this.obtenerVentas(this.Cliente.id)
              this.verCard = true;
              this.clipWappVentas()
