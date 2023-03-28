@@ -17,6 +17,7 @@
     <thead>
       <tr>
         <th></th>
+        <th></th>
         <th>dni</th>
         <th></th>
         <th>nombre</th>
@@ -30,6 +31,7 @@
     <tbody>
       <template x-for="cliente in listaClientes">
         <tr>
+          <td><a :href="'/buscador/interno/'+cliente.id">Ver</a></td>
           <td><i class="fa fa-pencil" aria-hidden="true" @click="editarCliente(cliente.id)"></td>
             <td x-text="cliente.dni"></td>
             <td><button class="button is-small is-success" @click="copiarDNI(cliente.id)">Copiar DNI</button></td>
