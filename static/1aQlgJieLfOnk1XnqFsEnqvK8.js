@@ -316,6 +316,8 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
              idButton.disabled=false
              idButton = document.getElementById('buttonFallecioDato')
              idButton.disabled=false
+             idButton = document.getElementById('buttonPedirAutorizacion')
+             idButton.disabled=false
              this.Dato = this.listadoDatos.filter(row=>row.idcliente==id)[0];
              this.verCard = true;
          },
@@ -489,6 +491,8 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
              this.sumaCuota = this.listaArtComprados.map(row=>row.total).reduce((a,b)=>a+b,0)/6;
          },
          pedirAutorizacion(){
+             idButton = document.getElementById('buttonPedirAutorizacion')
+             idButton.disabled=true
              this.verNotificacionAutorizacion = true;
              //registrar pedido autorizacion en tabla autorizacion
              this.Dato.cuota_requerida = this.sumaCuota;
@@ -523,7 +527,7 @@ Quedo a la espera. Gracias.`;
                                                                                        .then(res=>{
                                                                                            atendido = res.data.tomado
                                                                                            if(atendido==1){
-                                                                                               msgDelay('la autorizacion se esta procesando. Puede tardar un poco...',300000)
+                                                                                               msgDelay('la autorizacion se esta procesando. Puede tardar un poco... No cierre esta ventana!!',300000)
                                                                                                clearTimeout(interval)
                                                                                                // setTimeout(()=>{
                                                                                                // window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";

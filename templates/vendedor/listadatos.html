@@ -148,10 +148,10 @@
            :class="sumaCuota>Dato.cuota_maxima?'red':''"></p>
         <span class="tag is-small is-danger" x-show="sumaCuota>Dato.cuota_maxima">Cuota supera Cuota-Maxima</span>
         <button class="button is-primary"
-                @click="pedirAutorizacion">Pedir Autorizacion</button>
-        <div class="notification is-warning" x-show="verNotificacionAutorizacion">
-          <p>Notificacion pedida. Cancele la operacion. Espere el whatsapp de confirmacion y vuelva a cargar la operacion.</p>
-        </div>
+                @click="pedirAutorizacion" id="buttonPedirAutorizacion">Pedir Autorizacion</button>
+        <!-- <div class="notification is-warning" x-show="verNotificacionAutorizacion">
+             <p>Notificacion pedida. Cancele la operacion. Espere el whatsapp de confirmacion y vuelva a cargar la operacion.</p>
+             </div> -->
       </section>
       <footer class="modal-card-foot">
         <button class="button is-primary" @click="pasarVenta" id="buttonPasarVenta">Pasar Venta</button>
