@@ -509,6 +509,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                      this.Dato.idautorizacion = res.data.idautorizacion
                  })
              //enviar un whatsapp al Fede informando del pedido de autorizacion
+             msgSuccess("Aguarde...", "Se envio el pedido de autorizacion.",100000)
              let msg = `Solicito autorizacion para ${this.Dato.nombre}
 con una compra de ${this.Dato.arts}
 y una cuota de $${this.sumaCuota}.

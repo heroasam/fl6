@@ -313,7 +313,7 @@ Motivo: ${this.motivo}`
                       let data = {msg,vdor:this.dato.vendedor}
                       console.log(data)
                       axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-	                  axios.post('/vendedor/wapprespauth',data)
+	                  /* axios.post('/vendedor/wapprespauth',data) */
                       this.getListadoAutorizados()
                   })
          },
@@ -333,7 +333,7 @@ Motivo: ${this.motivo}`
  }
                       let data = {msg,vdor:this.dato.vendedor}
                       axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-	                  axios.post('/vendedor/wapprespauth',data)
+	                  /* axios.post('/vendedor/wapprespauth',data) */
                       this.getListadoAutorizados()
                   })
           },
@@ -353,7 +353,7 @@ Motivo: ${this.motivo}`
                       }
                       let data = {msg,vdor:this.dato.vendedor}
                       axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-	                  axios.post('/vendedor/wapprespauth',data)
+	                  /* axios.post('/vendedor/wapprespauth',data) */
                       this.getListadoAutorizados()
                   })
          },
