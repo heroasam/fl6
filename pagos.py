@@ -786,9 +786,10 @@ def pagos_getcobroscobrador():
     con = get_con()
     listacobros = pglistdict(con, f"select id , (select sum(imp+\
     rec) from pagos where cobr=cobr.id and date_format(fecha,'%Y%m')=\
-    date_format(curdate(),'%Y%m')) as cobrado, (select sum(monto) from estimados where cobr=cobr.id and \
+    date_format(curdate(),'%Y%m')) as cobrado, (select sum(monto) from \
+    estimados where cobr=cobr.id and \
     mes = date_format(curdate(),'%Y%m') group by cobr) as estimado \
-    from cobr where activo=1 and prom=0 and id not in (10,15,816,835,820)")
+    from cobr where activo=1 and prom=0 and id not in (10,816,835,820)")
     return jsonify(listacobros=listacobros)
 
 
