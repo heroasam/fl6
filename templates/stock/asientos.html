@@ -14,11 +14,13 @@
   <div class="columns">
     <div class="column is-9">
       <div class="flex-space-between">
-        <h1 class="title is-size-1 pointer" @click="aplicarFiltro('todo')">Asientos</h1>
-        <h2 class="title is-size-1 pointer" x-text="'Caja $'+saldo" @click="aplicarFiltro('caja')"></h2>
-        <h2 class="title is-size-1 pointer" style="color:red;" x-text="'Bancos $'+saldobancos"
+        <h1 class="title is-size-3 pointer" @click="aplicarFiltro('todo')">Asientos</h1>
+        <h2 class="title is-size-3 pointer" x-text="'Caja $'+saldo" @click="aplicarFiltro('caja')"></h2>
+        <h2 class="title is-size-3 pointer" style="color:red;" x-text="'Bancos $'+saldobancos"
             @click="aplicarFiltro('bancos')" @dblclick="aplicarFiltro('noasignados')"></h2>
-        <h2 class="title is-size-1 pointer" style="color:green;" x-text="'u$s'+saldodolares"
+        <h2 class="title is-size-3 pointer" style="color:orange;" x-text="'NaranjaX $'+saldonaranja"
+            @click="aplicarFiltro('naranjax')" @dblclick="aplicarFiltro('noasignados')"></h2>
+        <h2 class="title is-size-3 pointer" style="color:green;" x-text="'u$s'+saldodolares"
             +            @click="aplicarFiltro('dolares')"></h2>
       </div>
     </div>
@@ -137,6 +139,7 @@
          saldo:0,
          saldobancos:0,
          saldodolares:0,
+         saldonaranja:0,
          Asiento:{fecha:dayjs.utc().format('YYYY-MM-DD'),cuenta:'',imp:'',codigo:'',comentario:''},
          AsientoEdicion:{},
          selected: null,
@@ -149,6 +152,7 @@
                       this.saldo = res.data.saldo
                       this.saldobancos  =  res.data.saldobancos
                       this.saldodolares = res.data.saldodolares || 0
+                      this.saldonaranja = res.data.saldonaranja || 0
                   })
          },
          borrarAsiento(id){
@@ -211,10 +215,13 @@
                      this.listAsientos = this.listAsientos_.filter(row=>row.cuenta.includes('bancos'))
                      break
                  case 'caja':
-                     this.listAsientos = this.listAsientos_.filter(row=>!row.cuenta.includes('bancos','dolares'))
+                     this.listAsientos = this.listAsientos_.filter(row=>!row.cuenta.includes('bancos','dolares','naranjax'))
                      break
                  case 'dolares':
                      this.listAsientos = this.listAsientos_.filter(row=>row.cuenta.includes('dolares'))
+                     break
+                 case 'naranjax':
+                     this.listAsientos = this.listAsientos_.filter(row=>row.cuenta.includes('naranjax'))
                      break
                  case 'noasignados':
                      this.listAsientos = this.listAsientos_.filter(row=>row.cuenta.includes('bancos')&&row.comentario==''

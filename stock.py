@@ -52,9 +52,11 @@ def stock_getasientos():
             caja.cuenta=ctas.cuenta and tipo in (2,3)")
     saldodolares = pgonecolumn(con, "select sum(imp) from caja,ctas where \
             caja.cuenta=ctas.cuenta and tipo in (4,5)")
+    saldonaranja = pgonecolumn(con, "select sum(imp) from caja,ctas where \
+            caja.cuenta=ctas.cuenta and tipo in (6,7)")
     con.close()
     return jsonify(asientos=asientos,saldo=saldo,saldobancos=saldobancos,\
-                   saldodolares=saldodolares)
+                   saldodolares=saldodolares,saldonaranja=saldonaranja)
 
 
 @stock.route('/stock/deleteasiento/<int:id_asiento>')
@@ -105,7 +107,7 @@ def stock_guardarasiento():
     d_dato = json.loads(request.data.decode("UTF-8"))
     tipo = pgonecolumn(con, f"select tipo from ctas where cuenta=\
     '{d_dato['cuenta']}'")
-    if tipo in [0, 3, 5]:
+    if tipo in [0, 3, 5, 7]:
         importe = int(d_dato['imp'])*(-1)
     else:
         importe = int(d_dato['imp'])
@@ -890,7 +892,8 @@ def stock_getdatosarqueo():
         bancocuotas = pglistdict(con, "select * from caja where cuenta=\
         'bancos ingreso clientes' and fecha>'2022-09-30' order by id desc")
         bancocobr =  pglistdict(con, "select * from caja where cuenta=\
-        'bancos ingreso cobradores' order by id desc")
+        'bancos ingreso cobradores' or cuenta='naranjax ingreso cobradores' \
+        order by id desc")
         listacuotas = pglistdict(con, "select fecha,imp+rec as imp, nombre,\
         pagos.id as id,conciliado from pagos,clientes where clientes.id = \
         pagos.idcliente and  cobr in (13,15) and fecha>'2022-09-30' order \
