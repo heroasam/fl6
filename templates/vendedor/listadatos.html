@@ -147,7 +147,7 @@
         <p class="title is-3" x-text="'6 cuotas de $'+sumaCuota" x-show="sumaCuota"
            :class="sumaCuota>Dato.cuota_maxima?'red':''"></p>
         <span class="tag is-small is-danger" x-show="sumaCuota>Dato.cuota_maxima">Cuota supera Cuota-Maxima</span>
-        <button class="button is-primary"
+        <button class="button is-primary"  x-show="sumaCuota>Dato.cuota_maxima"
                 @click="pedirAutorizacion" id="buttonPedirAutorizacion">Pedir Autorizacion</button>
         <!-- <div class="notification is-warning" x-show="verNotificacionAutorizacion">
              <p>Notificacion pedida. Cancele la operacion. Espere el whatsapp de confirmacion y vuelva a cargar la operacion.</p>

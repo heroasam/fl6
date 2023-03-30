@@ -22,7 +22,7 @@
                 </thead>
                 <tbody>
                   <template x-for="item in listaArtVendedor">
-                    <tr>
+                    <tr x-show="item.cnt!=0">
                       <td x-text="item.cnt"></td>
                       <td x-text="item.art"></td>
                     </tr>

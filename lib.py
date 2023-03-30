@@ -320,18 +320,18 @@ def send_msg_whatsapp(idcliente, wapp, msg):
     con.commit()
     id = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
     time_delivery = timeout+10
-    logging.warning(f"time_delivery:{time_delivery} real-time:{time.ctime(time.time())}")
+    # logging.warning(f"time_delivery:{time_delivery} real-time:{time.ctime(time.time())}")
     while True:
         if time.time() > time_delivery:
             response = requests.request("GET", payload)
-            logging.warning(f"time al request:{time.time()}")
+            # logging.warning(f"time al request:{time.time()}")
             break
         time.sleep(0.5)
     wapp_log(response.status_code, response.text, idcliente)
     if "Success" in response.text:
         upd = f"update logwhatsapp set response='success',\
         enviado={int(time.time())} where id = {id}"
-        logging.warning(upd)
+        # logging.warning(upd)
         cur.execute(upd)
         con.commit()
         con.close()
@@ -339,8 +339,8 @@ def send_msg_whatsapp(idcliente, wapp, msg):
     elif "Invalid Destination WhatsApp" in response.text:
         updinv = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' \
                 where id={idcliente}"
-        logging.warning(updinv)
-        logging.warning(f"Para resolver bug-invalido. Valor de <con> aqui:{con} y de cur:{cur}")
+        # logging.warning(updinv)
+        # logging.warning(f"Para resolver bug-invalido. Valor de <con> aqui:{con} y de cur:{cur}")
         # mientras resuelvo el bug con mas informacion recogida con el logging.warning de arriba
         # dejo las dos lineas de abajo que redefinen redundantemente con y cur, siendo que en
         # pruebas de oficina funcionan bien sin esas re-definiciones.
@@ -351,13 +351,13 @@ def send_msg_whatsapp(idcliente, wapp, msg):
         log(updinv)
         upd = f"update logwhatsapp set response='invalid', enviado=\
                 {int(time.time())} where id = {id}"
-        logging.warning(upd)
+        # logging.warning(upd)
         try:
             cur.execute(upd)
         except mysql.connector.Error as _error:
             con.rollback()
             error = _error.msg
-            logging.warning(error)
+            # logging.warning(error)
             return make_response(error, 400)
         else:
             con.commit()
@@ -366,7 +366,7 @@ def send_msg_whatsapp(idcliente, wapp, msg):
     elif "Failed" in response.text:
         upd = f"update logwhatsapp set response='failed', enviado=\
                 {int(time.time())} where id = {id}"
-        logging.warning(upd)
+        # logging.warning(upd)
         cur.execute(upd)
         con.commit()
         con.close()
@@ -374,7 +374,7 @@ def send_msg_whatsapp(idcliente, wapp, msg):
     elif "limit" in response.text:
         upd = f"update logwhatsapp set response='limit', enviado=\
                 {int(time.time())} where id = {id}"
-        logging.warning(upd)
+        # logging.warning(upd)
         cur.execute(upd)
         con.commit()
         con.close()
@@ -414,18 +414,18 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
     con.commit()
     id = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
     time_delivery = timeout+20
-    logging.warning(f"time_delivery:{time_delivery} real-time:{time.ctime(time.time())}")
+    # logging.warning(f"time_delivery:{time_delivery} real-time:{time.ctime(time.time())}")
     while True:
         if time.time() > time_delivery:
             response = requests.request("GET", payload)
-            logging.warning(f"Time al request:{time.time()}")
+            # logging.warning(f"Time al request:{time.time()}")
             break
         time.sleep(1)
     wapp_log(response.status_code, response.text, idcliente)
     if "Success" in response.text:
         upd = f"update logwhatsapp set response='success', enviado=\
                 {int(time.time())} where id = {id}"
-        logging.warning(upd)
+        # logging.warning(upd)
         cur.execute(upd)
         con.commit()
         con.close()
@@ -433,15 +433,15 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
     elif "Invalid Destination WhatsApp" in response.text:
         updinv = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' \
                 where id={idcliente}"
-        logging.warning(updinv)
+        # logging.warning(updinv)
         con = get_con()
         cur = con.cursor()
-        logging.warning(updinv)
+        # logging.warning(updinv)
         cur.execute(updinv)
         log(updinv)
         upd = f"update logwhatsapp set response='invalid', enviado=\
                 {int(time.time())} where id = {id}"
-        logging.warning(upd)
+        # logging.warning(upd)
         cur.execute(upd)
         con.commit()
         con.close()
@@ -449,7 +449,7 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
     elif "Failed" in response.text:
         upd = f"update logwhatsapp set response='failed', enviado=\
                 {int(time.time())} where id = {id}"
-        logging.warning(upd)
+        # logging.warning(upd)
         cur.execute(upd)
         con.commit()
         con.close()
@@ -457,7 +457,7 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
     elif "limit" in response.text:
         upd = f"update logwhatsapp set response='limit', enviado=\
                 {int(time.time())} where id = {id}"
-        logging.warning(upd)
+        # logging.warning(upd)
         cur.execute(upd)
         con.commit()
         con.close()
@@ -502,18 +502,18 @@ def send_img_whatsapp(idcliente, file, wapp, msg=""):
     con.commit()
     id = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
     time_delivery = timeout+20
-    logging.warning(f"time_delivery:{time_delivery} real-time:{time.ctime(time.time())}")
+    # logging.warning(f"time_delivery:{time_delivery} real-time:{time.ctime(time.time())}")
     while True:
         if time.time() > time_delivery:
             response = requests.request("GET", payload)
-            logging.warning(f"Time al request:{time.time()}")
+            # logging.warning(f"Time al request:{time.time()}")
             break
         time.sleep(1)
     wapp_log(response.status_code, response.text, idcliente)
     if "Success" in response.text:
         upd = f"update logwhatsapp set response='success', enviado=\
                 {int(time.time())} where id = {id}"
-        logging.warning(upd)
+        # logging.warning(upd)
         cur.execute(upd)
         con.commit()
         con.close()
@@ -521,15 +521,15 @@ def send_img_whatsapp(idcliente, file, wapp, msg=""):
     elif "Invalid Destination WhatsApp" in response.text:
         updinv = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' \
                 where id={idcliente}"
-        logging.warning(updinv)
+        # logging.warning(updinv)
         con = get_con()
         cur = con.cursor()
-        logging.warning(updinv)
+        # logging.warning(updinv)
         cur.execute(updinv)
         log(updinv)
         upd = f"update logwhatsapp set response='invalid', enviado=\
                 {int(time.time())} where id = {id}"
-        logging.warning(upd)
+        # logging.warning(upd)
         cur.execute(upd)
         con.commit()
         con.close()
@@ -537,7 +537,7 @@ def send_img_whatsapp(idcliente, file, wapp, msg=""):
     elif "Failed" in response.text:
         upd = f"update logwhatsapp set response='failed', enviado=\
                 {int(time.time())} where id = {id}"
-        logging.warning(upd)
+        # logging.warning(upd)
         cur.execute(upd)
         con.commit()
         con.close()
@@ -545,7 +545,7 @@ def send_img_whatsapp(idcliente, file, wapp, msg=""):
     elif "limit" in response.text:
         upd = f"update logwhatsapp set response='limit', enviado=\
                 {int(time.time())} where id = {id}"
-        logging.warning(upd)
+        # logging.warning(upd)
         cur.execute(upd)
         con.commit()
         con.close()
