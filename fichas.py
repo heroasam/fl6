@@ -22,7 +22,7 @@ def fichas_():
 @check_roles(['dev','gerente','admin'])
 def fichas_getcobradores():
     con = get_con()
-    cobradores = pglistdict(con,"select id from cobr where activo=1 and prom=0 and id>15")
+    cobradores = pglistdict(con,"select id from cobr where activo=1 and prom=0 and id>14")
     con.close()
     return jsonify(cobradores=cobradores)
 
