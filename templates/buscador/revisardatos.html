@@ -187,7 +187,7 @@
                       this.listadoDatos = res.data.listadodatos
                       this.listadoDatos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                       this.listadoDatos.map(row=>row.fecha_visitar=dayjs.utc(row.fecha_visitar).format('YYYY-MM-DD'))
-                      this.listadoDatos_ = this.listadoDatos
+                      this.listadoDatos_ = this.listadoDatos.slice(0,100)
                       this.cuota_basica = res.data.cuotabasica
                       this.listaVdores = res.data.vdores
                       this.cntDatos = this.cntSeleccionados()
