@@ -234,7 +234,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
              if(this.agrupar=='zonas'){
                  arrayItems = this.listadoDatos.filter(row=>row.resultado==null).map(row=>row.zona);
              }else{
-                 arrayItems = this.listadoDatos.filter(row=>row.resultado==null).map(row=>row.calle);
+                 arrayItems = this.listadoDatos.filter(row=>row.resultado==null).map(row=>row.calle.trim());
              }
              let itemDatos = {};
              this.listaItemsDatos = [];
@@ -299,7 +299,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                      return 0;
                  })
              }else{
-                 this.listadoDatos_ = this.listadoDatos.filter(row=>row.calle==item);
+                 this.listadoDatos_ = this.listadoDatos.filter(row=>row.calle.trim()==item);
                  // ordeno por numero
                  this.listadoDatos_.sort((a,b)=>a.num - b.num)
              }
