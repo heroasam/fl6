@@ -1032,6 +1032,20 @@ def vendedor_getlistadoautorizadosporid(idcliente):
     return jsonify(listadoautorizadosporid=listadoautorizadosporid)
 
 
+@vendedor.route('/vendedor/getlistaautorizados')
+@login_required
+@check_roles(['dev', 'gerente'])
+def vendedor_getlistaautorizados():
+    """Funcion que entrega lista de autorizaciones."""
+
+    con = get_con()
+    listaautorizados = pglistdict(con, "select id,fecha,vdor,idcliente,\
+    (select nombre from clientes where id=autorizacion.idcliente) as nombre,\
+    cuota_requerida,cuota_maxima,autorizado,user,rechazado,sigueigual,\
+    motivo,comentario from autorizacion order by id desc")
+    return jsonify(listaautorizados=listaautorizados)
+
+
 @vendedor.route('/vendedor/autorizardato/<int:idauth>')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -1753,6 +1767,20 @@ def vendedor_motivoautorizacion(motivo,idauth):
     """Proceso para registrar el motivo del rechazo de una autorizacion."""
     con = get_con()
     upd = f"update autorizacion set motivo='{motivo}' where id={idauth}"
+    cur = con.cursor()
+    cur.execute(upd)
+    con.commit()
+    con.close()
+    return 'ok'
+
+
+@vendedor.route('/vendedor/comentarioautorizacion/<comentario>/<int:idauth>')
+@login_required
+@check_roles(['dev','gerente'])
+def vendedor_comentarioautorizacion(comentario,idauth):
+    """Proceso para registrar el comentario del rechazo de una autorizacion."""
+    con = get_con()
+    upd = f"update autorizacion set comentario='{comentario}' where id={idauth}"
     cur = con.cursor()
     cur.execute(upd)
     con.commit()

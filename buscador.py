@@ -70,6 +70,14 @@ def buscador_reautorizardatos():
     return render_template("buscador/reautorizardatos.html")
 
 
+@buscador.route('/buscador/listaautorizados')
+@login_required
+@check_roles(['dev','gerente'])
+def buscador_listaautorizados():
+    """Pantalla generar vista de reautorizar datos."""
+    return render_template("buscador/listaautorizados.html")
+
+
 @buscador.route('/buscador/revisardatos')
 @login_required
 @check_roles(['dev','gerente','admin'])

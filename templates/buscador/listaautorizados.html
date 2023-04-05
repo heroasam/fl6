@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Lista de Autorizados{% endblock %}
+
+{% block content %}
+
+<div  x-data="main()" x-init="getListaAutorizados();setInterval(()=>{getListaAutorizados()},10000)">
+
+  <div class="columns">
+    <div class="column is-6">
+  <p class="title is-1">Lista de Autorizados</p>
+    </div>
+   </div>
+
+
+  <table class="table table-striped " id="table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Id</th>
+        <th>hora</th>
+        <th>nombre</th>
+        <th>vend</th>
+        <th>basica</th>
+        <th>requerida</th>
+        <th></th>
+        <th></th>
+        <th>comentario</th>
+        <th>autorizo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="auth in listaAutorizados">
+        <tr>
+
+          <td><a :href="'/buscador/interno/'+auth.idcliente">Ver</a></td>
+          <td x-text="auth.id"></td>
+            <td x-text="auth.fecha"></td>
+          <td x-text="auth.nombre"></td>
+          <td x-text="auth.vdor"></td>
+          <td x-text="auth.cuota_maxima"></td>
+          <td x-text="auth.cuota_requerida"></td>
+          <td><button class="button is-small" :class="auth.autorizado?'is-success':(auth.rechazado?'is-danger':'is-warning')" x-text="auth.autorizado?'Autorizado':(auth.rechazado?'Rechazado':'CuotaMaxima')"></button></td>
+          <td><i class="fa fa-pencil" aria-hidden="true" @click="comentarioAutorizacion(auth.id)"></td>
+            <td x-text="auth.comentario"></td>
+            <td x-text="auth.user"></td>
+
+
+
+
+        </tr>
+      </template>
+    </tbody>
+  </table>
+
+
+
+   <!-- bulma-modal comentario-autorizacion -->
+  <div class="modal" id="modal-comentario-autorizacion">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Comentario autorizacion</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-comentario-autorizacion')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <label for="idcomentario">Comentario</label>
+        <input type="text" class="input mb-3" x-model="comentario" id="idcomentario">
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="guardarComentario()">Guardar</button>
+        <button class="button" @click="toggleModal('modal-comentario-autorizacion')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+ function main(){
+     return{
+         listaAutorizados:[],
+         idauth:'',
+         comentario:'',
+         getListaAutorizados(){
+             axios.get('/vendedor/getlistaautorizados')
+                  .then(res=>{
+                      this.listaAutorizados = res.data.listaautorizados
+                      this.listaAutorizados.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD HH:mm'))
+                  })
+         },
+         comentarioAutorizacion(idauth){
+             toggleModal("modal-comentario-autorizacion")
+             this.comentario = ''
+             this.idauth = idauth
+
+         },
+         guardarComentario(){
+             toggleModal("modal-comentario-autorizacion")
+             if(this.comentario!=''){
+                 axios.get('/vendedor/comentarioautorizacion/'+this.comentario+'/'+this.idauth)
+                  .then(res=>{
+                      msgSuccess('Comentario autorizacion guardado')
+                      this.getListaAutorizados()
+                  })
+             }
+         },
+
+ }}
+
+</script>
+{% endblock %}
