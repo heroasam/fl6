@@ -231,18 +231,20 @@ def stock_retiros():
     dframe = pd.DataFrame(dat)
     tbl = pd.pivot_table(dframe, values=['imp'],index='fecha',columns='cuenta'\
         ,aggfunc='sum').sort_index(axis=0,level='fecha',ascending=False)
-    col0 = tbl.iloc[:,0]
-    col1 = tbl.iloc[:,1]
-    diff1 = col0.sub(col1,axis=0,fill_value=0)
-    col2 = tbl.iloc[:,2]
-    col3 = tbl.iloc[:,3]
-    diff2 = col2.sub(col3,axis=0,fill_value=0)
-    tbl.insert(4,'diff1', diff1)
-    tbl.insert(5,'diff2', diff2)
-    diff3 = diff1.add(diff2,axis=0,fill_value=0)
-    tbl.insert(6,'diff3', diff3)
-    totfede = tbl.iloc[:,0].add(tbl.iloc[:,2],axis=0,fill_value=0).tolist()
-    totpapi = tbl.iloc[:,1].add(tbl.iloc[:,3],axis=0,fill_value=0).tolist()
+    col0 = tbl.iloc[:,0] # bancos fede
+    col1 = tbl.iloc[:,1] # bancos papi
+    col2 = tbl.iloc[:,2] # naranjax fede
+    col3 = tbl.iloc[:,3] # naranjax papi
+    col4 = tbl.iloc[:,4] # eft fede
+    col5 = tbl.iloc[:,5] # eft papi
+    tot1 = col0.add(col2,axis=0,fill_value=0).add(col4,axis=0,fill_value=0)
+    tot2 = col1.add(col3,axis=0,fill_value=0).add(col5,axis=0,fill_value=0)
+    tot0 = tot1.sub(tot2,axis=0,fill_value=0)
+    tbl.insert(6,'tot1', tot1)
+    tbl.insert(7,'tot2', tot2)
+    tbl.insert(8,'tot0', tot0)
+    totfede = tbl.iloc[:,0].add(tbl.iloc[:,2],axis=0,fill_value=0).add(tbl.iloc[:,4],axis=0,fill_value=0).tolist()
+    totpapi = tbl.iloc[:,1].add(tbl.iloc[:,3],axis=0,fill_value=0).add(tbl.iloc[:,5],axis=0,fill_value=0).tolist()
     index = tbl.index.tolist()
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="retiros",classes="table is-narrow")
