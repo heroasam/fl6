@@ -5,6 +5,7 @@ from datetime import datetime
 import os
 import logging
 import requests
+import re
 from flask_login import current_user
 from flask import make_response
 import mysql.connector
@@ -293,6 +294,9 @@ def letras(num):
 def send_msg_whatsapp(idcliente, wapp, msg):
     """Funcion que encola y envia los whatsapp."""
     wapp_original = wapp
+    pattern = r'^[0-9]+$'
+    if re.match(pattern, wapp_original)==None:
+        return 'error', 402
     if "@" in str(current_user):
         email = current_user.email
     else:
@@ -312,7 +316,7 @@ def send_msg_whatsapp(idcliente, wapp, msg):
         last_enviado = int(time.time())
     timeout = last_enviado if last_enviado > last_timeout else last_timeout
     ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,\
-    timeout,response,enviado,fecha) values({idcliente},{wapp_original},\
+    timeout,response,enviado,fecha) values({idcliente},'{wapp_original}',\
     '{msg.replace('%20',' ')[:100]}','','{email}',{int(time.time())}\
     ,{timeout+10},'',0,curdate())"
     cur = con.cursor()
@@ -386,6 +390,9 @@ def send_msg_whatsapp(idcliente, wapp, msg):
 def send_file_whatsapp(idcliente, file, wapp, msg=""):
     """Funcion que envia un archivo por whatsapp."""
     wapp_original = wapp
+    pattern = r'^[0-9]+$'
+    if re.match(pattern, wapp_original)==None:
+        return 'error', 402
     file_log = os.path.split(file)[1]
     if "@" in str(current_user):
         email = current_user.email
@@ -407,7 +414,7 @@ def send_file_whatsapp(idcliente, file, wapp, msg=""):
     timeout = last_enviado if last_enviado > last_timeout else last_timeout
     ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,\
             timeout,response,enviado,fecha) values({idcliente},\
-            {wapp_original},'{msg.replace('%20',' ')[:100]}','{file_log}'\
+            '{wapp_original}','{msg.replace('%20',' ')[:100]}','{file_log}'\
             ,'{email}',{int(time.time())},{timeout+20},'',0,curdate())"
     cur = con.cursor()
     cur.execute(ins)

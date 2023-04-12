@@ -1378,12 +1378,12 @@ def vendedor_wapp():
     idcliente = d_data['idcliente']
     wapp = d_data['wapp']
     msg = d_data['msg']
-    devel = var_sistema['devel']
-    if devel=='1':
-        prod=0
-    else:
-        prod=1
-    if wapp and prod:
+    # devel = var_sistema['devel']
+    # if devel=='1':
+    #     prod=0
+    # else:
+    #     prod=1
+    if wapp:
         response = send_msg_whatsapp(idcliente, wapp, msg)
         if response is None:
             response = 'Rejected'
@@ -1402,12 +1402,12 @@ def vendedor_filewapp():
     wapp = d_data['wapp']
     idcliente = d_data['idcliente']
     file = d_data['file']
-    devel = var_sistema['devel']
-    if devel=='1':
-        prod=0
-    else:
-        prod=1
-    if wapp and prod:
+    # devel = var_sistema['devel']
+    # if devel=='1':
+    #     prod=0
+    # else:
+    #     prod=1
+    if wapp:
         response = send_file_whatsapp(
             idcliente,f"https://www.fedesal.lol/pdf/{file}.pdf", wapp)
         return jsonify(response=response)
