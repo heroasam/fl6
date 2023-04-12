@@ -150,10 +150,10 @@
                  return
              }
                               })
-             if(this.Venta.fecha!=dayjs.utc().format('YYYY-MM-DD')){
-                 msgError('Error','No se puede eliminar una venta que no sea de hoy')
-                 return
-             }
+             /* if(this.Venta.fecha!=dayjs.utc().format('YYYY-MM-DD')){
+              *     msgError('Error','No se puede eliminar una venta que no sea de hoy')
+              *     return
+              * } */
              Swal.fire({
                  title: '¿Esta seguro?',
                  text: `Se borrara la venta Id${id}`,
