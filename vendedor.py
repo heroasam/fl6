@@ -1329,17 +1329,21 @@ def vendedor_wappaut():
     segundo wapp a mi."""
 
     logging.warning("wappaut, %s", current_user.email)
-    if current_user.email == var_sistema['816']:
-        vdor = 816
-    elif current_user.email == var_sistema['835']:
-        vdor = 835
+    # if current_user.email == var_sistema['816']:
+    #     vdor = 816
+    # elif current_user.email == var_sistema['835']:
+    #     vdor = 835
+    vdor = var_sistema[current_user.email]
     d_data = json.loads(request.data.decode("UTF-8"))
-    msg = d_data['msg']
+    # msg = d_data['msg']
+    msg = f"Autorizacion para el vdor {vdor}"
     tipo = d_data['tipo'] # a discriminar en el futuro
     if tipo=='retiro zona':
         msg = msg + f" vendedor {vdor}"
+        wapp0 = '3515297472'
         wapp1 = '3512411963'
         send_msg_whatsapp(0, wapp1, msg)
+        send_msg_whatsapp(0, wapp0, msg)
     wapp = var_sistema['wapp_auth']
     if wapp:
         response = send_msg_whatsapp(0, wapp, msg)
