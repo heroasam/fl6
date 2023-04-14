@@ -1801,3 +1801,15 @@ def vendedor_comentarioautorizacion(comentario,idauth):
     con.commit()
     con.close()
     return 'ok'
+
+
+@vendedor.route('/pDfkNKQMQvgp8Zbqa0C6ETYAh/<int:idvta>')
+@vendedor.route('/vendedor/marksendwapp/<int:idvta>')
+@login_required
+@check_roles(['dev','gerente','vendedor'])
+def vendedor_marksendwapp(idvta):
+    con = get_con()
+    upd = f"update ventas set sendwapp=1 where id={idvta}"
+    pgexec(con, upd)
+    con.close()
+    return 'ok'

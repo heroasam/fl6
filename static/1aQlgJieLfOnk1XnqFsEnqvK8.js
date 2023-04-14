@@ -646,11 +646,14 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
              // nueva ruta para /vendedor/wapp
              // /hX53695XAOpaLY9itLgmghkhH
 	         axios.post('/hX53695XAOpaLY9itLgmghkhH',data)
-                                                                 .then(res=>{
-                                                                     //nueva ruta para /vendedor/filewapp
-                                                                     // /4qUK6eNZnCYjIiGTt3HSj2YDp
-                                                                     axios.post('/4qUK6eNZnCYjIiGTt3HSj2YDp',data)
-                                                                 })
+                 .then(res=>{
+                     // nueva ruta para /vendedor/marksendwapp
+                     // pDfkNKQMQvgp8Zbqa0C6ETYAh
+                     axios.get('/pDfkNKQMQvgp8Zbqa0C6ETYAh/'+this.Dato.idvta)
+                     //nueva ruta para /vendedor/filewapp
+                     // /4qUK6eNZnCYjIiGTt3HSj2YDp
+                     axios.post('/4qUK6eNZnCYjIiGTt3HSj2YDp',data)
+                 })
          },
      }
  }
