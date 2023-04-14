@@ -62,29 +62,51 @@
                  </tbody>
             </table>
       </div>
-      <div class="column is-4">
+      <div class="column is-2">
+        <button class="button is-info">816</button>
         <table class="table is-narrow">
           <thead>
             <tr>
               <th>hora</th>
               <th>res</th>
-              <th>vdor</th>
             </tr>
           </thead>
           <tbody>
-            <template x-for="item in listaVisitasHoy">
+            <template x-for="item in listaVisitasHoy816">
               <tr>
                 <td x-text="dayjs.utc(item.fechahora).format('HH:mm:ss')"></td>
                 <td><span class="tag is-small" x-text="item.result==1?'venta':(item.result==2?'anulado':
                                  (item.result==3?'no estaba':(item.result==5?'mudo':(item.result==6?'fallecio':'fechado'))))"
                           :class="item.result==1?'is-success':(item.result==2?'is-danger':(item.result==3?'is-warning':
                                  (item.result==5?'is-primary':(item.result==6?'if-black':'is-info'))))"></span></td>
-                <td x-text="item.vdor"></td>
               </tr>
             </template>
           </tbody>
         </table>
       </div>
+      <div class="column is-2">
+        <button class="button is-info">835</button>
+        <table class="table is-narrow">
+          <thead>
+            <tr>
+              <th>hora</th>
+              <th>res</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="item in listaVisitasHoy835">
+              <tr>
+                <td x-text="dayjs.utc(item.fechahora).format('HH:mm:ss')"></td>
+                <td><span class="tag is-small" x-text="item.result==1?'venta':(item.result==2?'anulado':
+                                 (item.result==3?'no estaba':(item.result==5?'mudo':(item.result==6?'fallecio':'fechado'))))"
+                          :class="item.result==1?'is-success':(item.result==2?'is-danger':(item.result==3?'is-warning':
+                                 (item.result==5?'is-primary':(item.result==6?'if-black':'is-info'))))"></span></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+
     </div>
 </div>
 {% endblock %}
@@ -95,6 +117,8 @@
      return{
          listaVentasHoy:[],
          listaVisitasHoy:[],
+         listaVisitasHoy816:[],
+         listaVisitasHoy835:[],
          audio:new Audio("{{ url_for('static', filename='bell.ogg') }}"),
          audioAuth:new Audio("{{ url_for('static', filename='auth.mp3') }}"),
          listaVtaVdores:{},
@@ -133,6 +157,8 @@
              axios.get('/vendedor/getvisitashoy')
                   .then(res=>{
                       this.listaVisitasHoy = res.data.visitashoy
+                      this.listaVisitasHoy816 = this.listaVisitasHoy.filter(row=>row.vdor==816)
+                      this.listaVisitasHoy835 = this.listaVisitasHoy.filter(row=>row.vdor==835)
              })
          },
      }
