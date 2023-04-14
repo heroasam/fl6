@@ -9,7 +9,7 @@
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getVentaHoy();setInterval(()=>{getVentaHoy()},60000);setInterval(()=>{getListadoAutorizados()},10000)">
+<div class="container" x-data="main()" x-init="getVentaHoy();getVisitasHoy();setInterval(()=>{getVentaHoy()},60000);setInterval(()=>{getListadoAutorizados()},10000)">
 
     <div class="columns flex-baseline">
       <div class="column is-6">
@@ -32,6 +32,7 @@
       </template>
     </div>
     <div class="columns">
+      <div class="column is-8">
             <table class="table is-narrow" id="table">
                 <thead>
                   <tr>
@@ -60,6 +61,30 @@
                   </template>
                  </tbody>
             </table>
+      </div>
+      <div class="column is-4">
+        <table class="table is-narrow">
+          <thead>
+            <tr>
+              <th>hora</th>
+              <th>res</th>
+              <th>vdor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="item in listaVisitasHoy">
+              <tr>
+                <td x-text="dayjs.utc(item.fechahora).format('HH:mm:ss')"></td>
+                <td><span class="tag is-small" x-text="item.result==1?'venta':(item.result==2?'anulado':
+                                 (item.result==3?'no estaba':(item.result==5?'mudo':(item.result==6?'fallecio':'fechado'))))"
+                          :class="item.result==1?'is-success':(item.result==2?'is-danger':(item.result==3?'is-warning':
+                                 (item.result==5?'is-primary':(item.result==6?'if-black':'is-info'))))"></span></td>
+                <td x-text="item.vdor"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
     </div>
 </div>
 {% endblock %}
@@ -69,6 +94,7 @@
  function main(){
      return{
          listaVentasHoy:[],
+         listaVisitasHoy:[],
          audio:new Audio("{{ url_for('static', filename='bell.ogg') }}"),
          audioAuth:new Audio("{{ url_for('static', filename='auth.mp3') }}"),
          listaVtaVdores:{},
@@ -101,8 +127,13 @@
                           this.listaVtaVdores[vdor] = this.listaVentasHoy.filter(row=>row.vendedor==vdor).map(row=>row.monto_vendido).reduce((a,b)=>a+b,0)
                       }
                       this.totalVendido = this.listaVentasHoy.map(row=>row.monto_vendido).reduce((a,b)=>a+b,0)
-                      console.log( this.listaVtaVdores)
                   })
+         },
+         getVisitasHoy(){
+             axios.get('/vendedor/getvisitashoy')
+                  .then(res=>{
+                      this.listaVisitasHoy = res.data.visitashoy
+             })
          },
      }
  }

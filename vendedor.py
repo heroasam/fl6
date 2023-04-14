@@ -1318,6 +1318,17 @@ def vendedor_getventashoy():
     return jsonify(ventashoy=ventashoy)
 
 
+@vendedor.route('/vendedor/getvisitashoy')
+@login_required
+@check_roles(['dev','gerente'])
+def vendedor_getvisitashoy():
+    """Funcion que entrega lista de las visitas del dia para el vendedor."""
+    con = get_con()
+    visitashoy = pglistdict(con, "select concat(fecha,' ',hora) as fechahora,\
+    vdor,result from visitas where fecha=curdate()  order by hora")
+    return jsonify(visitashoy=visitashoy)
+
+
 @vendedor.route('/3ZbXanrRQalY6JL5eOBi49Nyc', methods=["POST"])
 @vendedor.route('/vendedor/wappaut', methods=["POST"])
 @login_required
