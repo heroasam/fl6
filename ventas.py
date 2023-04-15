@@ -313,7 +313,7 @@ def ventas_getclientes(tipo):
     con = get_con()
     if tipo=='idvta':
         clientes = pglistdict(con, "select ventas.id as idvta,dni, nombre, calle,num,\
-        zona, gestion, mudo, incobrable,acla from ventas, clientes where \
+        zona, gestion, mudo, incobrable,acla,wapp,sendwapp from ventas, clientes where \
         ventas.idcliente=clientes.id order by ventas.id desc limit 200")
     else:
         clientes = pglistdict(con, "select id,dni, nombre, calle,num, zona, gestion,\
@@ -1178,3 +1178,37 @@ def ventas_isindevolucion(idvta):
     else:
         isindevolucion = 0
     return jsonify(isindevolucion=isindevolucion)
+
+
+@ventas.route('/pDfkNKQMQvgp8Zbqa0C6ETYAh/<int:idvta>')
+@ventas.route('/ventas/marksendwapp/<int:idvta>')
+@login_required
+@check_roles(['dev','gerente','vendedor'])
+def ventas_marksendwapp(idvta):
+    con = get_con()
+    upd = f"update ventas set sendwapp=1 where id={idvta}"
+    pgexec(con, upd)
+    con.close()
+    return 'ok'
+
+
+@ventas.route('/ventas/resendwapp/<int:idvta>')
+@login_required
+@check_roles(['dev', 'gerente', 'admin'])
+def ventas_resendwapp(idvta):
+    con = get_con()
+    (idcliente,cc,ic,primera,arts) = pgtuple(con, f"select idcliente,cc,ic,\
+    primera,art from ventas where id={idvta}")
+    (nombre,wapp) = pgtuple(con, f"select nombre,wapp from clientes where \
+    id={idcliente}")
+    arts = arts.replace('|',' ')
+    msg = f"""Estimado cliente: {nombre}, agradecemos su compra de {arts}.
+Le recordamos que el plan de pagos elegido es de {cc} cuotas mensuales de ${ic} y la primer cuota vence el dia {primera:%d-%m-%Y} para cualquier consulta no dude en contactarnos, estamos a su disposición!."""
+    response = send_msg_whatsapp(idcliente, wapp, msg)
+    print('response',response)
+    if response == 'success':
+        pgexec(con, f"update ventas set sendwapp=1 where id={idvta}")
+    send_file_whatsapp(
+            idcliente,f"https://www.fedesal.lol/pdf/informacion-importante.pdf", wapp)
+    con.close()
+    return response

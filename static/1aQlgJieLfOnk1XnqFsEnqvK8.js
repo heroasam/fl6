@@ -647,7 +647,7 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
              // /hX53695XAOpaLY9itLgmghkhH
 	         axios.post('/hX53695XAOpaLY9itLgmghkhH',data)
                  .then(res=>{
-                     // nueva ruta para /vendedor/marksendwapp
+                     // nueva ruta para /ventas/marksendwapp
                      // pDfkNKQMQvgp8Zbqa0C6ETYAh
                      axios.get('/pDfkNKQMQvgp8Zbqa0C6ETYAh/'+this.Dato.idvta)
                      //nueva ruta para /vendedor/filewapp

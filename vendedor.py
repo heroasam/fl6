@@ -1350,7 +1350,7 @@ def vendedor_wappaut():
     msg = f"Autorizacion para el vdor {vdor}"
     tipo = d_data['tipo'] # a discriminar en el futuro
     if tipo=='retiro zona':
-        msg = msg + f" vendedor {vdor}"
+        msg = "Retiro zona vendedor {vdor}"
         wapp0 = '3515297472'
         wapp1 = '3512411963'
         send_msg_whatsapp(0, wapp1, msg)
@@ -1799,17 +1799,5 @@ def vendedor_comentarioautorizacion(comentario,idauth):
     cur = con.cursor()
     cur.execute(upd)
     con.commit()
-    con.close()
-    return 'ok'
-
-
-@vendedor.route('/pDfkNKQMQvgp8Zbqa0C6ETYAh/<int:idvta>')
-@vendedor.route('/vendedor/marksendwapp/<int:idvta>')
-@login_required
-@check_roles(['dev','gerente','vendedor'])
-def vendedor_marksendwapp(idvta):
-    con = get_con()
-    upd = f"update ventas set sendwapp=1 where id={idvta}"
-    pgexec(con, upd)
     con.close()
     return 'ok'
