@@ -5,10 +5,14 @@
 {% block content %}
 
 <div class="container" x-data="BuuZZCDVMyzK4I1OcGEvNeeob()" x-init="getListadoDatosVendedor();setInterval(()=>{getListadoDatosVendedor()},600000);getListadoArt()">
-
-
-  <p class="title is-1">Lista Datos</p>
-
+  <div class="columns">
+    <div class="column is-4">
+  <div class="flex-space-between">
+    <p class="title is-3">Datos</p>
+    <a href="/KgcigrlPdMMjIFsWucdrEVDzX" target="blank" class="button is-info is-small">Precios</a>
+  </div>
+  </div>
+  </div>
   <div>
     <template x-for="item in listaItemsDatos">
       <button class="button is-small is-primary" x-text="item" @click="filtraPorItem(item)"></button>
@@ -49,15 +53,15 @@
     <h1 class="title is-4" x-text="Dato.nombre"></h1>
     <div class="flex-between">
       <h2 class="title is-5" x-text="Dato.calle+' '+Dato.num"></h2>
-                  <a class="button is-black is-small" :href="'https://www.google.com/maps/place/'+Dato.calle+'+'+Dato.num+',+C%C3%B3rdoba'">Maps</a>
+      <a class="button is-black is-small" :href="'https://www.google.com/maps/place/'+Dato.calle+'+'+Dato.num+',+C%C3%B3rdoba'">Maps</a>
     </div>
     <h4 class="subtitle is-6" x-text="Dato.acla" x-show="Dato.acla"></h4>
     <div class="flex-between">
       <h2 class="title is-5 no-mb" x-text="Dato.wapp?Dato.wapp:Dato.tel"></h2>
-            <a x-bind:href=`https://wa.me/549${Dato.wapp}?text=''` class="tag is-success is-small"
-               target="blank" style="text-decoration: none;" x-show="Dato.wapp">Whats</a>
-            <span class="tag is-small is-info pointer ml-5" @click="hacerLlamada(Dato.wapp?Dato.wapp:Dato.tel)">Llamar</span>
-            <span class="tag is-small is-primary pointer ml-5" @click="editarWapp">Editar</span>
+      <a x-bind:href=`https://wa.me/549${Dato.wapp}?text=''` class="tag is-success is-small"
+         target="blank" style="text-decoration: none;" x-show="Dato.wapp">Whats</a>
+      <span class="tag is-small is-info pointer ml-5" @click="hacerLlamada(Dato.wapp?Dato.wapp:Dato.tel)">Llamar</span>
+      <span class="tag is-small is-primary pointer ml-5" @click="editarWapp">Editar</span>
     </div>
     <h4 class="subtitle is-6" x-text="Dato.barrio"></h4>
     <hr/>
@@ -108,8 +112,8 @@
                :class="darkTheme?'input-dark':''"/>
         <datalist id="listaart">
           <template x-for="item in listaArticulos">
-              <option :value="item"></option>
-            </template>
+            <option :value="item"></option>
+          </template>
         </datalist>
         <button class="button is-primary" @click="agregarArticulo(Venta.cnt,Venta.art)">Agregar Articulo</button>
         <table class="no-total table">
