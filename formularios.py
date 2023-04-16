@@ -525,10 +525,12 @@ def listaprecios(lista,grupos):
                 pdf.cell(50,8,f"     6 cuotas de ${item['cuota']:5}",1,1,'L')
         pdf.ln(3)
     # removemos todas las listas viejas generadas
-    filelist = glob.glob('/home/hero/documentos/impresos/listapreciosGENERADA*.pdf')
-    for f in filelist:
-        os.remove(f)
-    pdf.output(f"/home/hero/documentos/impresos/listapreciosGENERADA{aleatorio}.pdf")
+    # filelist = glob.glob('/home/hero/documentos/impresos/listapreciosGENERADA*.pdf')
+    # for f in filelist:
+    #     os.remove(f)
+    # pdf.output(f"/home/hero/documentos/impresos/listapreciosGENERADA{aleatorio}.pdf")
+    # No se la causa por la cual hice el nombre aleatorio
+    pdf.output("/home/hero/documentos/impresos/listaprecios.pdf")
 
 
 def imprimir_stock(con, stock):

@@ -312,3 +312,11 @@ def utilidades_borrarvariable(id):
         con.close()
         log(stm)
         return 'ok'
+
+
+@utilidades.route('/KgcigrlPdMMjIFsWucdrEVDzX')
+@utilidades.route('/utilidades/imprimirlistaprecios')
+@login_required
+@check_roles(['dev','gerente','vendedor'])
+def utilidades_imprimirlistaprecios():
+    return send_file(os.path.join('/home/hero/documentos/impresos','listaprecios.pdf'))
