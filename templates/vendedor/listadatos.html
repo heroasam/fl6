@@ -14,6 +14,11 @@
   </div>
   </div>
   <div>
+    <template x-for="item in listaSector">
+      <button class="button is-small is-black" x-text="item" x-show="agrupar=='zonas'" @click="filtraPorSector(item)"></button>
+    </template>
+  </div>
+  <div>
     <template x-for="item in listaItemsDatos">
       <button class="button is-small is-primary" x-text="item" @click="filtraPorItem(item)"></button>
     </template>

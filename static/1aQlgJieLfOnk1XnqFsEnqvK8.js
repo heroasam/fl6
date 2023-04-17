@@ -208,6 +208,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
          verNotificacionAutorizacion:false,
          nombregarante:'',
          direcciongarante:'',
+         listaSector:['Norte','Sur','Este','Local'],
          getListadoDatosVendedor(){
              // nueva ruta: /VGIdj7tUnI1hWCX3N7W7WAXgU
              // para /vendedor/getlistadodatosvendedor
@@ -218,7 +219,8 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                       this.listadoDatos.map(row=>row.fecha_visitar=dayjs.utc(row.fecha_visitar).format('YYYY-MM-DD'));
                       this.listadoDatos_ = this.listadoDatos;
                       this.agrupar = res.data.agrupar
-                      this.getListaItems();
+                      if (this.agrupar=='calles') this.getListaItems()
+                      //en agrupar zonas no hace falta pq tiene otro filtro por sectores
                       this.listadoDatos_.sort((a,b)=>{
                           let s1 = a.nombre.toLowerCase(),
                               s2 = b.nombre.toLowerCase()
@@ -232,7 +234,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
          getListaItems(){
              let arrayItems = []
              if(this.agrupar=='zonas'){
-                 arrayItems = this.listadoDatos.filter(row=>row.resultado==null).map(row=>row.zona);
+                 arrayItems = this._listadoDatos.filter(row=>row.resultado==null).map(row=>row.zona);
              }else{
                  arrayItems = this.listadoDatos.filter(row=>row.resultado==null).map(row=>row.calle.trim());
              }
@@ -284,7 +286,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
              pattern = /[^-]*/gi;
              item = pattern.exec(item);
              if(this.agrupar=='zonas'){
-                 this.listadoDatos_ = this.listadoDatos.filter(row=>row.zona==item);
+                 this.listadoDatos_ = this._listadoDatos.filter(row=>row.zona==item);
                  // ordeno por calle
                  this.listadoDatos_.sort((a,b)=>{
                      let fa = a.calle.toLowerCase(),
@@ -304,6 +306,17 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                  this.listadoDatos_.sort((a,b)=>a.num - b.num)
              }
              this.verCard = false;
+         },
+         filtraPorSector(item){
+             // sectores Norte, Sur, Este, Local
+             listaZonas = {
+                 'Local': ['PAGO_LOCAL'],
+                 'Norte': ['Marques','Sargento','Fragueiro','Panamericano','Liceo','Remedios','Patricios','Mosconi','Bustos','America','MT','Italia','YofreSur'],
+                 'Sur': ['Vicor','SI3','Congreso','SI2','Cabildo','Rosedal','Adela','EstacionFlores','SanRoque','Republica','Union'],
+                 'Este': ['Hernandez','Olmedo','Carcano','JID45','JID23','JID1','Ferreyra','Ituizango','Mayo','Coops']
+             }
+             this._listadoDatos = this.listadoDatos.filter(row=>listaZonas[item].includes(row.zona))
+             this.getListaItems()
          },
          abrirCliente(id){
              idButton = document.getElementById('buttonAnularDato')
@@ -458,10 +471,8 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
              // /fc3vpQG6SzEH95Ya7kTJPZ48M
              datos = {dni:dni, id: this.Dato.idcliente};
              if(dni==undefined) {
-                 console.log( 'dni inexistente')
                  return
              }
-             console.log( datos)
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
              axios.post('/fc3vpQG6SzEH95Ya7kTJPZ48M',datos)
                                                                  .then(res=>{
