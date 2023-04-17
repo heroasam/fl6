@@ -1186,7 +1186,8 @@ def ventas_isindevolucion(idvta):
 @check_roles(['dev','gerente','vendedor'])
 def ventas_marksendwapp(idvta):
     con = get_con()
-    upd = f"update ventas set sendwapp=1 where id={idvta}"
+    upd = f"update ventas set sendwapp=1 where id={idvta} and pp=0"
+    # pp=0 asegura que no se marcaran los planes de pago
     pgexec(con, upd)
     con.close()
     return 'ok'
