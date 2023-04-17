@@ -1350,7 +1350,7 @@ def vendedor_wappaut():
     msg = f"Autorizacion para el vdor {vdor}"
     tipo = d_data['tipo'] # a discriminar en el futuro
     if tipo=='retiro zona':
-        msg = "Retiro zona vendedor {vdor}"
+        msg = f"Retiro zona vendedor {vdor}"
         wapp0 = '3515297472'
         wapp1 = '3512411963'
         send_msg_whatsapp(0, wapp1, msg)
