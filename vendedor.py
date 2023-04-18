@@ -443,11 +443,15 @@ def vendedor_editardato():
         sin_extension = 1
     else:
         sin_extension = 0
+    if d_data['resultado']==None:
+        resultado = 'NULL'
+    else:
+        resultado = d_data['resultado']
     upd = f"update datos set fecha='{d_data['fecha']}',user='{d_data['user']}',\
     fecha_visitar='{d_data['fecha_visitar']}', horarios='{d_data['horarios']}',\
     art='{d_data['art']}', comentarios='{d_data['comentarios']}', cuota_maxima=\
-    {d_data['cuota_maxima']},nosabana={nosabana},sin_extension={sin_extension} \
-    where id={d_data['id']}"
+    {d_data['cuota_maxima']},nosabana={nosabana},sin_extension={sin_extension},\
+    resultado={resultado} where id={d_data['id']}"
     cur = con.cursor()
     try:
         cur.execute(upd)
@@ -1356,7 +1360,7 @@ def vendedor_wappaut():
         send_msg_whatsapp(0, wapp1, msg)
         send_msg_whatsapp(0, wapp0, msg)
     wapp = var_sistema['wapp_auth']
-    if wapp:
+    if wapp and tipo !='retiro zona':
         response = send_msg_whatsapp(0, wapp, msg)
         return response
     return 'error', 400
