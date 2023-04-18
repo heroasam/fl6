@@ -128,8 +128,9 @@ def ficha(con,ldni, total_cobrable=None, total_cobrado=None):
 
         ventas=pglisttuples(con,f"select id,fecha,cc,ic,p,saldo from ventas where saldo>0 and idcliente={cliente[11]}")
         for venta in ventas:
-            pdf.set_font_size(10)
+            pdf.set_font_size(13)
             pdf.cell(15,6,f"{venta[0]}",1,0,'C')
+            pdf.set_font_size(10)
             pdf.cell(25,6,f"{venta[1]}",1,0,'C')
             pdf.cell(50,6,f"{venta[2]} cuotas de ${venta[3]} {per(venta[4])}",1,0,'C')
             pdf.cell(35,6,f"Saldo ${venta[5]}",1,1,'C')
