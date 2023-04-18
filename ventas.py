@@ -312,12 +312,14 @@ def ventas_getclientes(tipo):
     """Entrego lista de cliente segun tipo pedido."""
     con = get_con()
     if tipo=='idvta':
-        clientes = pglistdict(con, "select ventas.id as idvta,dni, nombre, calle,num,\
-        zona, gestion, mudo, incobrable,acla,wapp,sendwapp from ventas, clientes where \
-        ventas.idcliente=clientes.id order by ventas.id desc limit 200")
+        clientes = pglistdict(con, "select ventas.id as idvta,dni, nombre, \
+        calle,num,zona, gestion, mudo, incobrable,acla,wapp,sendwapp from \
+        ventas, clientes where ventas.idcliente=clientes.id and pp=0 and \
+        devuelta=0 order by ventas.id desc limit 500")
     else:
-        clientes = pglistdict(con, "select id,dni, nombre, calle,num, zona, gestion,\
-        mudo, incobrable,acla from  clientes  order by id desc limit 200")
+        clientes = pglistdict(con, "select id,dni, nombre, calle,num, zona, \
+        gestion,mudo, incobrable,acla from  clientes  order by id desc \
+        limit 500")
 
     con.close()
     return jsonify(clientes=clientes)

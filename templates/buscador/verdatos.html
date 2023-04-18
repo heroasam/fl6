@@ -9,6 +9,7 @@
 
   <p class="title is-1">Ver Datos - filtrar</p>
   <div class="buttons">
+    <span><tag class="tag is-large is-black" x-text="cntDatos"></tag></span>
     <button class="button is-small is-info" @click="filtraDatosPorUser('isabelheredie@gmail.com')">Isabel</button>
     <button class="button is-small is-info" @click="filtraDatosPorUser('n.dryon@gmail.com')">Naty</button>
     <button class="button is-small is-success" @click="filtraDatosPorStatus('vendidos')">Vendidos</button>
@@ -20,6 +21,11 @@
     <button class="button is-small is-warning" @click="filtraDatosPorStatus('todos')">Todos</button>
     <button class="button is-small is-black" @click="filtraDatosPorUserParcial('isabelheredie@gmail.com')">Isabel</button>
     <button class="button is-small is-black" @click="filtraDatosPorUserParcial('n.dryon@gmail.com')">Naty</button>
+    <div class="grid-buscar ml-3 mr-3 mt-2">
+      <input  placeholder="IdDato" class="input" x-model="buscar" @keyup.enter="buscarDato"
+		      @focus="buscar=''"  :class="darkTheme?'input-dark':''">
+      <button type="button" @click="buscarDato" class="button is-primary">Buscar</button>
+	</div>
   </div>
   <table class="table table-striped " id="table">
     <thead>
@@ -124,13 +130,16 @@
          Datos:{},
          nosabana:0,
          sin_extension:0,
+         cntDatos:0,
+         buscar:'',
          getListadoDatos(){
              axios.get('/vendedor/getlistadodatos')
                   .then(res=>{
                       this.listadoDatos = res.data.listadodatos
                       this.listadoDatos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                       this.listadoDatos.map(row=>row.fecha_visitar=dayjs.utc(row.fecha_visitar).format('YYYY-MM-DD'))
-                      this.listadoDatos_ = this.listadoDatos
+                      this.listadoDatos_ = this.listadoDatos.slice(0,100)
+                      this.cntSeleccionados()
                   })
          },
          borrarDato(id){
@@ -171,6 +180,7 @@
          },
          filtraDatosPorUser(user){
              this.listadoDatos_ = this.listadoDatos.filter(row=>row.user==user)
+             this.cntSeleccionados()
          },
          filtraDatosPorStatus(status){
              switch(status){
@@ -196,9 +206,21 @@
                      this.listadoDatos_ = this.listadoDatos
                      break
              }
+             this.cntSeleccionados()
          },
          filtraDatosPorUserParcial(user){
              this.listadoDatos_ = this.listadoDatos_.filter(row=>row.user==user)
+             this.cntSeleccionados()
+         },
+         cntSeleccionados(){
+             setTimeout(()=>{
+             const $tbody = document.querySelector("tbody");
+             arrayRows = Array.from($tbody.children);
+                 this.cntDatos = arrayRows.length - 1
+             },10)
+         },
+         buscarDato(){
+             this.listadoDatos_ = this.listadoDatos.filter(row=>row.id==this.buscar)
          },
 
      }
