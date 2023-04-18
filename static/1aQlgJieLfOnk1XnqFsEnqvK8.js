@@ -597,6 +597,7 @@ Quedo a la espera. Gracias.`;
              this.Dato.arts = this.listaArtComprados;
              this.Dato.primera = this.Venta.primera;
              this.Dato.cuota = this.sumaCuota;
+             this.Dato.dnigarante = this.Venta.dnigarante;
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
              // nueva ruta para /vendedor/pasarventa
              // /xuNzBi4bvtSugd5KbxSQzD0Ey
