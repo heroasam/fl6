@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Anotador{% endblock %}
+
+{% block content %}
+
+<div x-data="main()" class="container" x-init="getZonas()">
+
+
+  <div class="columns">
+    <div class="column is-7">
+      <h1 style="width:70%;" class="title is-size-1">Anotador</h1>
+    </div>
+  </div>
+
+
+  <table class="table nototal" id="table">
+    <thead>
+      <tr>
+        <th>zona</th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="item in listZonas">
+        <tr>
+          <td x-text="item.zona"></td>
+          <td><button class="button is-small" :class="item.tarea1?'is-black':'is-outlined is-success'"
+                      @click="toggleTarea1(item.id)">Vender</button></td>
+          <td><button class="button is-small" :class="item.tarea2?'is-black':'is-outlined is-danger'"
+                      @click="toggleTarea2(item.id)">Intimar</button></td>
+          <td><button class="button is-small" :class="item.tarea3?'is-black':'is-outlined is-warning'"
+                      @click="toggleTarea3(item.id)">Llamar</button></td>
+
+        </tr>
+      </template>
+    </tbody>
+  </table>
+
+
+</div>
+{% endblock %}
+{% block script %}
+<script>
+ function main(){
+     return {
+         listZonas:[],
+         getZonas(){
+             axios.get('/utilidades/getzonas')
+                  .then(res=>{
+                      this.listZonas = res.data.zonas
+                  })
+         },
+         toggleTarea1(idZona){
+             axios.get('/utilidades/toggletarea1/'+idZona)
+                  .then(res=>{
+                      this.getZonas()
+             })
+         },
+          toggleTarea2(idZona){
+             axios.get('/utilidades/toggletarea2/'+idZona)
+                  .then(res=>{
+                      this.getZonas()
+                  })
+          },
+          toggleTarea3(idZona){
+             axios.get('/utilidades/toggletarea3/'+idZona)
+                  .then(res=>{
+                      this.getZonas()
+                  })
+          },
+
+     }
+ }
+
+</script>
+{% endblock %}

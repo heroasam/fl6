@@ -320,3 +320,71 @@ def utilidades_borrarvariable(id):
 @check_roles(['dev','gerente','vendedor'])
 def utilidades_imprimirlistaprecios():
     return send_file(os.path.join('/home/hero/documentos/impresos','listaprecios.pdf'))
+
+
+@utilidades.route('/utilidades/anotador')
+@login_required
+@check_roles(['dev','gerente'])
+def utilidades_anotador():
+    return render_template('/utilidades/anotador.html')
+
+
+@utilidades.route('/utilidades/getzonas')
+@login_required
+@check_roles(['dev','gerente'])
+def utilidades_getzonas():
+    con = get_con()
+    zonas = pglistdict(con, "select * from zonas where asignado is not null \
+    order by zona")
+    return jsonify(zonas=zonas)
+
+
+@utilidades.route('/utilidades/toggletarea1/<int:idzona>')
+@login_required
+@check_roles(['dev','gerente'])
+def utilidades_toggletarea1(idzona):
+    con = get_con()
+    statusactual = pgonecolumn(con, f"select tarea1 from zonas where \
+    id={idzona}")
+    if statusactual==1:
+        status=0
+    else:
+        status=1
+    upd = f"update zonas set tarea1={status} where id={idzona}"
+    pgexec(con, upd)
+    con.close()
+    return 'ok'
+
+
+@utilidades.route('/utilidades/toggletarea2/<int:idzona>')
+@login_required
+@check_roles(['dev','gerente'])
+def utilidades_toggletarea2(idzona):
+    con = get_con()
+    statusactual = pgonecolumn(con, f"select tarea2 from zonas where \
+    id={idzona}")
+    if statusactual==1:
+        status=0
+    else:
+        status=1
+    upd = f"update zonas set tarea2={status} where id={idzona}"
+    pgexec(con, upd)
+    con.close()
+    return 'ok'
+
+
+@utilidades.route('/utilidades/toggletarea3/<int:idzona>')
+@login_required
+@check_roles(['dev','gerente'])
+def utilidades_toggletarea3(idzona):
+    con = get_con()
+    statusactual = pgonecolumn(con, f"select tarea3 from zonas where \
+    id={idzona}")
+    if statusactual==1:
+        status=0
+    else:
+        status=1
+    upd = f"update zonas set tarea3={status} where id={idzona}"
+    pgexec(con, upd)
+    con.close()
+    return 'ok'
