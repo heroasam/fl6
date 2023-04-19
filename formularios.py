@@ -33,10 +33,10 @@ def cuotaje(con,idvta):
 
 
 def calc(con, idcliente):
+    """Calcula la cantidad de renglones que ocuparan las ventas vigentes que
+    apareceran en la ficha."""
     sql =  f"select id from ventas where idcliente={idcliente} and saldo>0"
-    cur = con.cursor()
-    cur.execute(sql)
-    ventas = cur.fetchall()[0]
+    ventas = pglist(con, sql)
     cnt = 0
     for v in ventas:
         dv = pgonecolumn(con, f"select count(*) from detvta where idvta={v}")
