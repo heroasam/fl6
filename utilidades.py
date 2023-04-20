@@ -339,52 +339,28 @@ def utilidades_getzonas():
     return jsonify(zonas=zonas)
 
 
-@utilidades.route('/utilidades/toggletarea1/<int:idzona>')
+@utilidades.route('/utilidades/toggletarea/<int:id>/<int:idzona>')
 @login_required
 @check_roles(['dev','gerente'])
-def utilidades_toggletarea1(idzona):
+def utilidades_toggletarea1(id,idzona):
     con = get_con()
-    statusactual = pgonecolumn(con, f"select tarea1 from zonas where \
+    statusactual = pgonecolumn(con, f"select tarea{id} from zonas where \
     id={idzona}")
     if statusactual==1:
         status=0
     else:
         status=1
-    upd = f"update zonas set tarea1={status} where id={idzona}"
+    upd = f"update zonas set tarea{id}={status} where id={idzona}"
     pgexec(con, upd)
     con.close()
     return 'ok'
 
 
-@utilidades.route('/utilidades/toggletarea2/<int:idzona>')
+@utilidades.route('/utilidades/resetear/<int:id>')
 @login_required
 @check_roles(['dev','gerente'])
-def utilidades_toggletarea2(idzona):
+def utilidades_resetear(id):
     con = get_con()
-    statusactual = pgonecolumn(con, f"select tarea2 from zonas where \
-    id={idzona}")
-    if statusactual==1:
-        status=0
-    else:
-        status=1
-    upd = f"update zonas set tarea2={status} where id={idzona}"
-    pgexec(con, upd)
-    con.close()
-    return 'ok'
-
-
-@utilidades.route('/utilidades/toggletarea3/<int:idzona>')
-@login_required
-@check_roles(['dev','gerente'])
-def utilidades_toggletarea3(idzona):
-    con = get_con()
-    statusactual = pgonecolumn(con, f"select tarea3 from zonas where \
-    id={idzona}")
-    if statusactual==1:
-        status=0
-    else:
-        status=1
-    upd = f"update zonas set tarea3={status} where id={idzona}"
-    pgexec(con, upd)
+    pgexec(con, f"update zonas set tarea{id}=0")
     con.close()
     return 'ok'

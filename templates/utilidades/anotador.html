@@ -28,17 +28,21 @@
         <tr>
           <td x-text="item.zona"></td>
           <td><button class="button is-small" :class="item.tarea1?'is-black':'is-outlined is-success'"
-                      @click="toggleTarea1(item.id)">Vender</button></td>
+                      @click="toggleTarea(1,item.id)">Vender</button></td>
           <td><button class="button is-small" :class="item.tarea2?'is-black':'is-outlined is-danger'"
-                      @click="toggleTarea2(item.id)">Intimar</button></td>
+                      @click="toggleTarea(2,item.id)">Intimar</button></td>
           <td><button class="button is-small" :class="item.tarea3?'is-black':'is-outlined is-warning'"
-                      @click="toggleTarea3(item.id)">Llamar</button></td>
+                      @click="toggleTarea(3,item.id)">Llamar</button></td>
 
         </tr>
       </template>
     </tbody>
   </table>
-
+  <div class="buttons">
+    <button class="button is-success" @click="resetear(1)">Resetear-Vender</button>
+    <button class="button is-danger" @click="resetear(2)">Resetear-Intimar</button>
+    <button class="button is-warning" @click="resetear(3)">Resetear-Llamar</button>
+  </div>
 
 </div>
 {% endblock %}
@@ -53,24 +57,35 @@
                       this.listZonas = res.data.zonas
                   })
          },
-         toggleTarea1(idZona){
-             axios.get('/utilidades/toggletarea1/'+idZona)
+         toggleTarea(id,idZona){
+             axios.get('/utilidades/toggletarea/'+id+'/'+idZona)
                   .then(res=>{
                       this.getZonas()
              })
          },
-          toggleTarea2(idZona){
-             axios.get('/utilidades/toggletarea2/'+idZona)
-                  .then(res=>{
-                      this.getZonas()
-                  })
-          },
-          toggleTarea3(idZona){
-             axios.get('/utilidades/toggletarea3/'+idZona)
-                  .then(res=>{
-                      this.getZonas()
-                  })
-          },
+         resetear(id){
+             reg={
+                 1:'Vender',
+                 2:'Intimar',
+                 3:'Llamar',
+             }
+             Swal.fire({
+                 title: '¿Esta seguro?',
+                 text: `Se resetearan los registros de ${reg[id]}`,
+                 icon: 'warning',
+                 showCancelButton: true,
+                 confirmButtonColor: '#3085d6',
+                 cancelButtonColor: '#d33',
+                 confirmButtonText: 'Si, resetear!'
+             }).then((result) => {
+                 if (result.isConfirmed) {
+                     axios.get('/utilidades/resetear/'+id)
+                          .then(res=>{
+                              msgSuccess('Reseteado!','El campo ha sido reseteado')
+                              this.getZonas()})
+                          .catch(error=>msgError('No se pudo resetear.'))
+             }})
+         },
 
      }
  }
