@@ -33,6 +33,8 @@
                       @click="toggleTarea(2,item.id)">Intimar</button></td>
           <td><button class="button is-small" :class="item.tarea3?'is-black':'is-outlined is-warning'"
                       @click="toggleTarea(3,item.id)">Llamar</button></td>
+          <td><button class="button is-small" :class="item.tarea4?'is-black':'is-outlined is-info'"
+                      @click="toggleTarea(4,item.id)">Controlar</button></td>
 
         </tr>
       </template>
@@ -42,6 +44,7 @@
     <button class="button is-success" @click="resetear(1)">Resetear-Vender</button>
     <button class="button is-danger" @click="resetear(2)">Resetear-Intimar</button>
     <button class="button is-warning" @click="resetear(3)">Resetear-Llamar</button>
+    <button class="button is-info" @click="resetear(4)">Resetear-Controlar</button>
   </div>
 
 </div>
@@ -68,6 +71,7 @@
                  1:'Vender',
                  2:'Intimar',
                  3:'Llamar',
+                 4:'Controlar',
              }
              Swal.fire({
                  title: '¿Esta seguro?',

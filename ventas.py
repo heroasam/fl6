@@ -371,7 +371,7 @@ def ventas_getbarriosconid():
 @check_roles(['dev','gerente','admin'])
 def ventas_getzonasconid():
     con = get_con()
-    zonas = pglistdict(con, f"select id,zona from zonas order by zona")
+    zonas = pglistdict(con, f"select id,zona,asignado from zonas order by zona")
     con.close()
     return jsonify(zonas= zonas)
 
@@ -433,7 +433,8 @@ def ventas_guardaredicionbarrio():
 def ventas_guardaredicionzona():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    upd = f"update zonas set zona='{d['zona']}' where id={d['id']}"
+    upd = f"update zonas set zona='{d['zona']}',asignado={d['asignado']} \
+    where id={d['id']}"
     cur = con.cursor()
     try:
         cur.execute(upd)

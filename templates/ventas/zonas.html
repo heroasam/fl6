@@ -31,6 +31,7 @@
         <th></th>
         <th class="numeric">id</th>
         <th>zona</th>
+        <th>asignado</th>
       </tr>
     </thead>
     <tbody>
@@ -40,6 +41,7 @@
             <td><i class="fa fa-pencil" aria-hidden="true" @click="editarZona(zona.id)"></td>
               <td x-text="zona.id"></td>
               <td x-text="zona.zona"></td>
+              <td x-text="zona.asignado"></td>
         </tr>
       </template>
     </tbody>
@@ -58,7 +60,8 @@
         <!-- Content ... -->
         <label for="idZona">Zona</label>
         <input name="idZona" class="input" type="text" x-model="zonaEditar.zona" />
-
+        <label for="idAsignado">Asignado</label>
+        <input name="idAsignado" class="input" type="text" x-model="zonaEditar.asignado" />
       </section>
       <footer class="modal-card-foot">
         <button class="button is-success" @click="guardarEdicion()">Editar</button>

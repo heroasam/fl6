@@ -324,14 +324,14 @@ def utilidades_imprimirlistaprecios():
 
 @utilidades.route('/utilidades/anotador')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev','admin','gerente'])
 def utilidades_anotador():
     return render_template('/utilidades/anotador.html')
 
 
 @utilidades.route('/utilidades/getzonas')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev','admin','gerente'])
 def utilidades_getzonas():
     con = get_con()
     zonas = pglistdict(con, "select * from zonas where asignado is not null \
@@ -341,7 +341,7 @@ def utilidades_getzonas():
 
 @utilidades.route('/utilidades/toggletarea/<int:id>/<int:idzona>')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev','admin','gerente'])
 def utilidades_toggletarea1(id,idzona):
     con = get_con()
     statusactual = pgonecolumn(con, f"select tarea{id} from zonas where \
@@ -358,7 +358,7 @@ def utilidades_toggletarea1(id,idzona):
 
 @utilidades.route('/utilidades/resetear/<int:id>')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev','admin','gerente'])
 def utilidades_resetear(id):
     con = get_con()
     pgexec(con, f"update zonas set tarea{id}=0")

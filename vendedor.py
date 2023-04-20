@@ -56,7 +56,7 @@ def calculo_cuota_maxima(idcliente):
     con = get_con()
     cuotas = pglistdict(con, f"select comprado as monto,\
     date_format(fecha,'%Y%c') as fecha from ventas where idcliente={idcliente} \
-    and fecha>date_sub(curdate(),interval 3 year) and devuelta=0")
+    and fecha>date_sub(curdate(),interval 3 year) and devuelta=0 and pp=0")
     cuota_actualizada = 0
     try:
         if cuotas:
