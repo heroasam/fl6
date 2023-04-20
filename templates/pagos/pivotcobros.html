@@ -12,6 +12,8 @@
 
   <p class="title is-1">Ver cobros por Cobrador</p>
 
+  <div class="columns">
+    <div class="column is-6">
   <div class="box">
     <table class="table" id="table">
       <thead>
@@ -27,7 +29,7 @@
         <template x-for="item in listaCobros">
            <tr :id="String(item.id)">
              <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
-                                                @click="expandChildren(item.id)"></td>
+                                                @click="expandChildren(item.id)"></i></span></td>
             <td x-text="item.id"></td>
             <td x-text="item.cobrado" class="pesos"></td>
             <td x-text="item.estimado" class="pesos"></td>
@@ -46,12 +48,25 @@
       </tbody>
     </table>
   </div>
+    </div>
+    <div class="column is-6">
+      <div class="flex-space-between">
+    <p class="title is-3" x-text="'Estimado $'+estimado"></p>
+    <p class="title is-3" x-text="'Cobrado $'+cobrado"></p>
+    <p class="title is-3" x-text="'Porcentaje '+(cobrado/estimado).toFixed(2)+'%'"></p>
+      </div>
+       <div class="box">
+         <canvas id="grafico-estadistica1" width="200" height="200"></canvas>
+       </div>
+    </div>
+    </div>
+  </div>
 
 
 
 
 
-</div>
+
 {% endblock %}
 
 {% block script %}
@@ -61,10 +76,15 @@
          listaCobros:[],
          listaCobrosZona:[],
          cobr:'',
+         estimado:0,
+         cobrado:0,
          getCobrosCobrador(){
              axios.get('/pagos/getcobroscobrador')
                   .then(res=>{
                       this.listaCobros = res.data.listacobros
+                      this.estimado = this.listaCobros.map(row=>row.estimado).reduce((a,b)=> Number(a) + Number(b),0)
+                      this.cobrado = this.listaCobros.map(row=>row.cobrado).reduce((a,b)=> Number(a) + Number(b),0)
+                      this.getGraficoPie()
                   })
          },
          getCobrosZonaCobrador(cobr){
@@ -94,6 +114,27 @@
                           }
                       },1)
                   })
+         },
+         getGraficoPie(){
+             const canvas = document.getElementById('grafico-estadistica1').getContext('2d');
+             this.chart = new Chart(canvas, {
+                 type: 'doughnut',
+                 data: {
+                     labels: [
+                         '% Cobrado',
+                         '% Estimado',
+                     ],
+                     datasets: [{
+                         label: 'Porcentaje Cobrado vs Estimado',
+                         data: [this.cobrado,this.estimado],
+                         backgroundColor: [
+                             'rgb(255, 205, 86)',
+                             'rgb(66, 135, 245)',
+                         ],
+                         hoverOffset: 2
+                     }]
+                 }
+             })
          },
 
  }}
