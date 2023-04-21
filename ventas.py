@@ -922,15 +922,39 @@ def ventas_pordia():
     """Pivot-table de ventas por dia para controlar entradas."""
     pd.options.display.float_format = '{:.0f}'.format
     sql = "select fecha,comprado,idvdor from ventas where devuelta=0 and pp=0 \
-    and fecha>date_sub(curdate(),interval 1 month) order by id desc"
+    and fecha>date_sub(curdate(),interval 1 month) and idvdor>15 \
+    order by id desc"
     dat = pd.read_sql_query(sql, engine)
     df = pd.DataFrame(dat)
-    tbl = pd.pivot_table(df, values=['comprado'],index='fecha',columns='idvdor',aggfunc='sum').sort_index(axis=0, level='fecha',ascending=False)
+    tbl = pd.pivot_table(df, values=['comprado'],index='fecha',\
+                         columns='idvdor',aggfunc='sum').sort_index(axis=0,\
+                                            level='fecha',ascending=False)
     tot = tbl.iloc[:,0].add(tbl.iloc[:,1],axis=0,fill_value=0).tolist()
     tbl.insert(2,'total',tot)
     tbl = tbl.fillna("")
     tbl = tbl.to_html(table_id="tableventas",classes="table")
     return render_template("ventas/pordia.html", tbl=tbl)
+
+
+@ventas.route('/ventas/pormes')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def ventas_pormes():
+    """Pivot-table de ventas por mes, presente año."""
+    pd.options.display.float_format = '${:.0f}'.format
+    sql = "select date_format(fecha,'%Y-%m') as mes,comprado,idvdor from \
+    ventas where devuelta=0 and pp=0 and year(fecha)=year(curdate()) and \
+    idvdor>15 order by id desc"
+    dat = pd.read_sql_query(sql, engine)
+    df = pd.DataFrame(dat)
+    tbl = pd.pivot_table(df, values=['comprado'],index='mes',columns='idvdor',\
+                         aggfunc='sum').sort_index(axis=0, level='mes',\
+                                                   ascending=True)
+    tot = tbl.iloc[:,0].add(tbl.iloc[:,1],axis=0,fill_value=0).tolist()
+    tbl.insert(2,'total',tot)
+    tbl = tbl.fillna("")
+    tbl = tbl.to_html(table_id="tableventas",classes="table")
+    return render_template("ventas/pormes.html", tbl=tbl, tot=tot)
 
 
 @ventas.route('/ventas/artyear')

@@ -35,6 +35,8 @@
                       @click="toggleTarea(3,item.id)">Llamar</button></td>
           <td><button class="button is-small" :class="item.tarea4?'is-black':'is-outlined is-info'"
                       @click="toggleTarea(4,item.id)">Controlar</button></td>
+          <td><button class="button is-small" :class="item.tarea5?'is-black':'is-outlined is-link'"
+                      @click="toggleTarea(5,item.id)">Int-Papel</button></td>
 
         </tr>
       </template>
@@ -45,6 +47,7 @@
     <button class="button is-danger" @click="resetear(2)">Resetear-Intimar</button>
     <button class="button is-warning" @click="resetear(3)">Resetear-Llamar</button>
     <button class="button is-info" @click="resetear(4)">Resetear-Controlar</button>
+    <button class="button is-link" @click="resetear(5)">Resetear-Int-Papel</button>
   </div>
 
 </div>
@@ -72,6 +75,7 @@
                  2:'Intimar',
                  3:'Llamar',
                  4:'Controlar',
+                 5:'Int-Papel',
              }
              Swal.fire({
                  title: '¿Esta seguro?',

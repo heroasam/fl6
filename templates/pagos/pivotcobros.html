@@ -122,11 +122,11 @@
                  data: {
                      labels: [
                          '% Cobrado',
-                         '% Estimado',
+                         '% Faltante',
                      ],
                      datasets: [{
-                         label: 'Porcentaje Cobrado vs Estimado',
-                         data: [this.cobrado,this.estimado],
+                         label: 'Porcentaje Cobrado vs Faltante',
+                         data: [this.cobrado,this.estimado-this.cobrado],
                          backgroundColor: [
                              'rgb(255, 205, 86)',
                              'rgb(66, 135, 245)',
