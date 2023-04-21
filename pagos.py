@@ -805,3 +805,33 @@ def pagos_getcobroszonas(cobr):
     mes = date_format(curdate(),'%Y%m') and zona=clientes.zona) as estimado from clientes,zonas where \
     clientes.zona=zonas.zona and asignado={cobr} group by clientes.zona")
     return jsonify(listacobroszonas=listacobroszonas)
+
+
+@pagos.route('/pagos/acumulativo')
+@login_required
+@check_roles(['dev','gerente'])
+def pagos_acumulativo():
+    return render_template('pagos/acumulativo.html' )
+
+
+@pagos.route('/pagos/getpagosacumulativos')
+@login_required
+@check_roles(['dev','gerente'])
+def pagos_getpagosacumulativos():
+    con = get_con()
+    mesactual = pgonecolumn(con, "select date_format(curdate(),'%Y-%m')")
+    mespasado = pgonecolumn(con, "select date_format(date_sub(curdate(),\
+    interval 1 month), '%Y-%m')")
+    antepenultimo = pgonecolumn(con, "select date_format(date_sub(curdate(),\
+    interval 2 month), '%Y-%m')")
+    pagosestemes = pglist(con, f"select sum(imp+rec) from pagos where \
+    date_format(fecha,'%Y-%m')='{mesactual}' and cobr>15 and cobr!=816 and \
+    cobr != 835 group by fecha")
+    pagosmespasado = pglist(con, f"select sum(imp+rec) from pagos where \
+    date_format(fecha,'%Y-%m')='{mespasado}' and cobr>15 and cobr!=816 and \
+    cobr != 835 group by fecha")
+    pagosantepenultimo = pglist(con, f"select sum(imp+rec) from pagos where \
+    date_format(fecha,'%Y-%m')='{antepenultimo}' and cobr>15 and cobr!=816 and \
+    cobr != 835 group by fecha")
+    return jsonify(pagosestemes=pagosestemes,pagosmespasado=pagosmespasado,\
+                   pagosantepenultimo=pagosantepenultimo)

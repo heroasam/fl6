@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Acumulativo{% endblock %}
+{% block style %}
+<style>
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="container" x-data="main()" x-init="getPagosAcumulativos()">
+
+
+  <p class="title is-1">Acumulativo</p>
+
+
+          <div class="box">
+         <canvas id="grafico-estadistica" width="600" height="300"></canvas>
+       </div>
+    </div>
+
+
+
+
+
+
+
+{% endblock %}
+
+{% block script %}
+  <script>
+   function main(){
+       return{
+           acumuladoEsteMes:[],
+           acumuladoMesPasado:[],
+           acumuladoAntepenultimo:[],
+           getPagosAcumulativos(){
+               axios.get('/pagos/getpagosacumulativos')
+                    .then(res=>{
+                        let pagosEsteMes = res.data.pagosestemes
+                        let pagosMesPasado = res.data.pagosmespasado
+                        let pagosAntepenultimo = res.data.pagosantepenultimo
+                        this.acumuladoAntepenultimo = this.acumular(pagosAntepenultimo)
+                        this.acumuladoMesPasado = this.acumular(pagosMesPasado)
+                        this.acumuladoEsteMes = this.acumular(pagosEsteMes)
+                        this.getGrafico()
+                    })
+           },
+           acumular(list){
+               let listacumulada = []
+               listacumulada[0] = Number(list[0])
+               for(i=1;i<list.length;i++){
+                   listacumulada[i] = Number(list[i]) + Number(listacumulada[i-1])
+               }
+               return listacumulada
+           },
+           getGrafico(){
+               const canvas = document.getElementById('grafico-estadistica').getContext('2d');
+               const chart = new Chart(canvas, {
+                   type: 'bar',
+                   data: {
+                       labels: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+                       datasets: [
+                           {
+                               label: 'Actual',
+                               data: this.acumuladoEsteMes,
+                               borderColor: 'pink',
+                               backgroundColor: 'pink',
+                           },
+                           {
+                               label: 'Pasado',
+                               data: this.acumuladoMesPasado,
+                               borderColor: 'lightblue',
+                               backgroundColor: 'lightblue',
+                           },
+                            {
+                                label: 'Penultimo',
+                                data: this.acumuladoAntepenultimo,
+                                borderColor: 'yellow',
+                                backgroundColor: 'yellow',
+                            },
+                       ]
+                   },
+               });
+           },
+
+   }}
+  </script>
+{% endblock %}

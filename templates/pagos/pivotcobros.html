@@ -53,7 +53,7 @@
       <div class="flex-space-between">
     <p class="title is-3" x-text="'Estimado $'+estimado"></p>
     <p class="title is-3" x-text="'Cobrado $'+cobrado"></p>
-    <p class="title is-3" x-text="'Porcentaje '+(cobrado/estimado).toFixed(2)+'%'"></p>
+    <p class="title is-3" x-text="'Porcentaje '+(cobrado/estimado*100).toFixed()+'%'"></p>
       </div>
        <div class="box">
          <canvas id="grafico-estadistica1" width="200" height="200"></canvas>
