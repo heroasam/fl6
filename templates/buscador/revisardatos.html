@@ -144,7 +144,7 @@
                      (Datos.resultado==2?'Anulado':(Datos.resultado==5?'Mudo':(Datos.resultado==6?'Fallecio':(Datos.resultado==8?'Rechazado':'Pendiente')))))"
               :class="Datos.resultado==1?'is-success':(Datos.resultado==0?'is-danger':(Datos.resultado==2?'is-danger':
                      (Datos.resultado==5?'is-primary':(Datos.resultado==6?'is-black':(Datos.resultado==8?'is-black':'is-info')))))"></span>
-        <button class="button is-black" @click="Datos.resultado=null;guardarDato">Restaurar Dato</button>
+        <button class="button is-black" @click="restaurarDato(Datos.id)">Restaurar Dato</button>
       </section>
       <footer class="modal-card-foot">
         <button class="button is-primary" @click="guardarDato">Editar</button>
@@ -330,6 +330,11 @@
                           .catch(error=>msgError('No se pudo borrar el dato. Hubo un error.'))
              }})
           },
+         restaurarDato(idDato){
+             this.Datos.resultado=null;
+             this.guardarDato()
+             axios.get('/vendedor/borrarvisita/'+idDato)
+         },
      }
  }
 </script>

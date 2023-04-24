@@ -428,6 +428,29 @@ def vendedor_borrardato(iddato):
         con.close()
 
 
+@vendedor.route('/vendedor/borrarvisita/<int:iddato>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def vendedor_borrarvisita(iddato):
+    """Simple proceso para borrar visita de un dato restaurado."""
+    con = get_con()
+    stm = f"delete from visitas where iddato={iddato}"
+    cur = con.cursor()
+    try:
+        cur.execute(stm)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        logging.warning(error)
+        return make_response(error, 400)
+    else:
+        con.commit()
+        log(stm)
+        return 'ok'
+    finally:
+        con.close()
+
+
 @vendedor.route('/vendedor/editardato', methods=['POST'])
 @login_required
 @check_roles(['dev','gerente','admin'])
