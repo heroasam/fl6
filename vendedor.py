@@ -1352,7 +1352,9 @@ def vendedor_getvisitashoy():
     """Funcion que entrega lista de las visitas del dia para el vendedor."""
     con = get_con()
     visitashoy = pglistdict(con, "select concat(fecha,' ',hora) as fechahora,\
-    vdor,result from visitas where fecha=curdate()  order by hora")
+    vdor,result,(select concat(calle,num) from clientes where id=(select \
+    idcliente from datos where id=iddato)) as direccion from visitas \
+    where fecha=curdate() order by hora")
     return jsonify(visitashoy=visitashoy)
 
 

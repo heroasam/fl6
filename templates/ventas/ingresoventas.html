@@ -9,7 +9,7 @@
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getVentaHoy();getVisitasHoy();setInterval(()=>{getVentaHoy()},60000);setInterval(()=>{getListadoAutorizados()},10000)">
+<div x-data="main()" x-init="getVentaHoy();getVisitasHoy();setInterval(()=>{getVentaHoy()},60000);setInterval(()=>{getListadoAutorizados()},10000)">
 
     <div class="columns flex-baseline">
       <div class="column is-6">
@@ -32,7 +32,7 @@
       </template>
     </div>
     <div class="columns">
-      <div class="column is-8">
+      <div class="column is-6">
             <table class="table is-narrow" id="table">
                 <thead>
                   <tr>
@@ -62,7 +62,7 @@
                  </tbody>
             </table>
       </div>
-      <div class="column is-2">
+      <div class="column is-3">
         <button class="button is-info">816</button>
         <table class="table is-narrow">
           <thead>
@@ -79,12 +79,13 @@
                                  (item.result==3?'no estaba':(item.result==5?'mudo':(item.result==6?'fallecio':'fechado'))))"
                           :class="item.result==1?'is-success':(item.result==2?'is-danger':(item.result==3?'is-warning':
                                  (item.result==5?'is-primary':(item.result==6?'if-black':'is-info'))))"></span></td>
+                <td x-text="item.direccion"></td>
               </tr>
             </template>
           </tbody>
         </table>
       </div>
-      <div class="column is-2">
+      <div class="column is-3">
         <button class="button is-info">835</button>
         <table class="table is-narrow">
           <thead>
@@ -101,6 +102,7 @@
                                  (item.result==3?'no estaba':(item.result==5?'mudo':(item.result==6?'fallecio':'fechado'))))"
                           :class="item.result==1?'is-success':(item.result==2?'is-danger':(item.result==3?'is-warning':
                                  (item.result==5?'is-primary':(item.result==6?'if-black':'is-info'))))"></span></td>
+                <td x-text="item.direccion"></td>
               </tr>
             </template>
           </tbody>
