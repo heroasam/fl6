@@ -1339,7 +1339,7 @@ def vendedor_getventashoy():
     """Funcion que entrega lista de las ventas del dia para el vendedor."""
     con = get_con()
     ventashoy = pglistdict(con, "select fecha_definido,\
-    nombre,concat(calle,num) as direccion,clientes.zona as zona, monto_vendido,\
+    nombre,concat(calle,' ',num) as direccion,clientes.zona as zona, monto_vendido,\
     vendedor,dni from datos,clientes where datos.idcliente = clientes.id and \
     date(fecha_definido)=curdate() and resultado=1 order by fecha_definido")
     return jsonify(ventashoy=ventashoy)
@@ -1352,7 +1352,7 @@ def vendedor_getvisitashoy():
     """Funcion que entrega lista de las visitas del dia para el vendedor."""
     con = get_con()
     visitashoy = pglistdict(con, "select concat(fecha,' ',hora) as fechahora,\
-    vdor,result,(select concat(calle,num) from clientes where id=(select \
+    vdor,result,(select concat(calle,' ',num) from clientes where id=(select \
     idcliente from datos where id=iddato)) as direccion from visitas \
     where fecha=curdate() order by hora")
     return jsonify(visitashoy=visitashoy)

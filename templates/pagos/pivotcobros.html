@@ -7,13 +7,20 @@
 {% endblock %}
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getCobrosCobrador()">
+<div class="container" x-data="main()" x-init="cambiaGrafico(dayjs.utc().format('YYYYMM'))">
 
-
+  <div class="flex-space-between">
   <p class="title is-1">Ver cobros por Cobrador</p>
+  <p class="title is-1 red" x-text="mesMostrado"></p>
+  </div>
 
   <div class="columns">
     <div class="column is-6">
+      <div class="buttons">
+        <template x-for="mes in mesesEstimados">
+          <button class="button is-black" x-text="mes" @click="cambiaGrafico(mes)"></button>
+        </template>
+      </div>
   <div class="box">
     <table class="table" id="table">
       <thead>
@@ -78,9 +85,15 @@
          cobr:'',
          estimado:0,
          cobrado:0,
-         getCobrosCobrador(){
-             axios.get('/pagos/getcobroscobrador')
+         mesesEstimados:[],
+         cnt:'',
+         chart:'',
+         mesMostrado:'',
+         getCobrosCobrador(cnt){
+             axios.get('/pagos/getcobroscobrador/'+cnt)
                   .then(res=>{
+                      this.mesesEstimados = res.data.listamesesestimados
+                      this.mesesEstimados = this.mesesEstimados.reverse()
                       this.listaCobros = res.data.listacobros
                       this.estimado = this.listaCobros.map(row=>row.estimado).reduce((a,b)=> Number(a) + Number(b),0)
                       this.cobrado = this.listaCobros.map(row=>row.cobrado).reduce((a,b)=> Number(a) + Number(b),0)
@@ -98,7 +111,7 @@
                  this.listaCobrosZona=[]
                  return
              }
-             axios.get('/pagos/getcobroszonas/'+cobr)
+             axios.get('/pagos/getcobroszonas/'+cobr+'/'+this.cnt)
                   .then(res=>{
                       this.listaCobrosZona = res.data.listacobroszonas
 
@@ -117,6 +130,7 @@
          },
          getGraficoPie(){
              const canvas = document.getElementById('grafico-estadistica1').getContext('2d');
+             if(this.chart!='') this.chart.destroy()
              this.chart = new Chart(canvas, {
                  type: 'doughnut',
                  data: {
@@ -135,6 +149,13 @@
                      }]
                  }
              })
+         },
+         cambiaGrafico(mes){
+             console.log( mes)
+             this.mesMostrado = mes
+             let today = dayjs.utc()
+             this.cnt = today.diff(mes,'month')
+             this.getCobrosCobrador(this.cnt)
          },
 
  }}

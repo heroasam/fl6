@@ -779,30 +779,35 @@ def pagos_pivotcobros():
     return render_template('pagos/pivotcobros.html' )
 
 
-@pagos.route('/pagos/getcobroscobrador')
+@pagos.route('/pagos/getcobroscobrador/<int:cnt>')
 @login_required
 @check_roles(['dev','gerente'])
-def pagos_getcobroscobrador():
+def pagos_getcobroscobrador(cnt):
     con = get_con()
+    listamesesestimados = pglist(con, "select distinct mes from estimados")
     listacobros = pglistdict(con, f"select id , (select sum(imp+\
     rec) from pagos where cobr=cobr.id and date_format(fecha,'%Y%m')=\
-    date_format(curdate(),'%Y%m')) as cobrado, (select sum(monto) from \
-    estimados where cobr=cobr.id and \
-    mes = date_format(curdate(),'%Y%m') group by cobr) as estimado \
-    from cobr where activo=1 and prom=0 and id not in (10,816,835,820)")
-    return jsonify(listacobros=listacobros)
+    date_format(date_sub(curdate(),interval {cnt} month),'%Y%m')) as cobrado,\
+    (select sum(monto) from estimados where cobr=cobr.id and \
+    mes = date_format(date_sub(curdate(),interval {cnt} month),'%Y%m') group \
+    by cobr) as estimado from cobr where activo=1 and prom=0 and id not in \
+    (10,816,835,820)")
+    return jsonify(listacobros=listacobros, listamesesestimados=\
+                   listamesesestimados)
 
 
-@pagos.route('/pagos/getcobroszonas/<int:cobr>')
+@pagos.route('/pagos/getcobroszonas/<int:cobr>/<int:cnt>')
 @login_required
 @check_roles(['dev','gerente'])
-def pagos_getcobroszonas(cobr):
+def pagos_getcobroszonas(cobr,cnt):
     con = get_con()
     listacobroszonas = pglistdict(con, f"select clientes.zona , (select \
     sum(imp+rec) from pagos where cobr={cobr} and date_format(fecha,'%Y%m')=\
-    date_format(curdate(),'%Y%m') and idcliente in (select id from clientes \
-    as clientes1 where clientes1.zona=clientes.zona)) as cobrado,  (select monto from estimados where cobr={cobr} and \
-    mes = date_format(curdate(),'%Y%m') and zona=clientes.zona) as estimado from clientes,zonas where \
+    date_format(date_sub(curdate(),interval {cnt} month),'%Y%m') and idcliente \
+    in (select id from clientes as clientes1 where clientes1.zona=\
+    clientes.zona)) as cobrado,  (select monto from estimados where cobr=\
+    {cobr} and  mes = date_format(date_sub(curdate(),interval {cnt} month),\
+    '%Y%m') and zona=clientes.zona) as estimado from clientes,zonas where \
     clientes.zona=zonas.zona and asignado={cobr} group by clientes.zona")
     return jsonify(listacobroszonas=listacobroszonas)
 
