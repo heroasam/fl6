@@ -55,11 +55,13 @@
       </tbody>
     </table>
     <div class="buttons">
-      <template x-for="item in cobr">
+      <template x-for="item in listaCobr">
         <button class="button is-black" x-text="item.id" @click="enviarInforme(item.id)" :disabled="item.id>15"></button>
       </template>
     </div>
+
   </div>
+
     </div>
     <div class="column is-6">
       <div class="flex-space-between">
@@ -94,11 +96,11 @@
          cnt:'',
          chart:'',
          mesMostrado:'',
-         cobr:[],
+         listaCobr:[],
          getCobrosCobrador(cnt){
              axios.get('/pagos/getcobroscobrador/'+cnt)
                   .then(res=>{
-                      this.cobr = res.data.cobr
+                      this.listaCobr = res.data.cobr
                       this.mesesEstimados = res.data.listamesesestimados
                       this.mesesEstimados = this.mesesEstimados.reverse()
                       this.listaCobros = res.data.listacobros
