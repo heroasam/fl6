@@ -784,6 +784,8 @@ def pagos_pivotcobros():
 @check_roles(['dev','gerente'])
 def pagos_getcobroscobrador(cnt):
     con = get_con()
+    listacobr = pglistdict(con, "select id from cobr where activo=1 and prom=0 \
+    and id>10 and id not in (816,835)")
     listamesesestimados = pglist(con, "select distinct mes from estimados")
     listacobros = pglistdict(con, f"select id , (select sum(imp+\
     rec) from pagos where cobr=cobr.id and date_format(fecha,'%Y%m')=\
@@ -793,7 +795,7 @@ def pagos_getcobroscobrador(cnt):
     by cobr) as estimado from cobr where activo=1 and prom=0 and id not in \
     (10,816,835,820)")
     return jsonify(listacobros=listacobros, listamesesestimados=\
-                   listamesesestimados)
+                   listamesesestimados,cobr=listacobr)
 
 
 @pagos.route('/pagos/getcobroszonas/<int:cobr>/<int:cnt>')
@@ -840,3 +842,15 @@ def pagos_getpagosacumulativos():
     cobr != 835 group by fecha")
     return jsonify(pagosestemes=pagosestemes,pagosmespasado=pagosmespasado,\
                    pagosantepenultimo=pagosantepenultimo)
+
+
+
+@pagos.route('/pagos/getnickcobrador/<int:cobr>')
+@login_required
+@check_roles(['dev','gerente'])
+def pagos_getnickcobrador(cobr):
+    con = get_con()
+
+    nick,wapp = pgtuple(con, f"select nick,telefono from cobr where id={cobr}")
+    print(nick,wapp)
+    return jsonify(nick=nick, wapp=wapp)
