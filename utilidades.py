@@ -4,6 +4,7 @@ from lib import *
 from con import get_con, log, check_roles
 import pandas as pd
 import simplejson as json
+import logging
 import mysql.connector
 import os
 import glob
@@ -164,6 +165,7 @@ def utilidades_logtheme(theme, ismobile):
         ismobile = 'mobile'
     else:
         ismobile = 'desktop'
+    logging.warning(f"debug-themes {email}-{ismobile}-{theme}-{ruta}")
     with open("/home/hero/log/themes.log", "a", encoding="utf-8") as log_file:
         log_file.write('\n')
         log_file.write(time.strftime('%Y-%m-%d',time.localtime())+', '+\
@@ -171,6 +173,7 @@ def utilidades_logtheme(theme, ismobile):
                        theme+', '+email+', '+ismobile+', '+ruta)
         log_file.close()
     return 'ok'
+
 
 def update_dni_garantes():
     con = get_con()
