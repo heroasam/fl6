@@ -484,7 +484,8 @@ let lightThemes = ['defaultbulma', 'cerulean', 'cosmo', 'journal','flatly','lite
 // bulma change theme dark-light
 let logoRomitex;
 let darkTheme;
-let cdnTheme = localStorage.getItem('cdn-theme');
+let cdnTheme = localStorage.getItem('cdn-theme')||"https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/darkly/bulmaswatch.min.css";
+console.log( 'cdnTheme',cdnTheme)
 let pattern = /0.8.1\/(\w+)\//g
 const match=  cdnTheme.matchAll(pattern)
 let nameTheme;
@@ -492,7 +493,6 @@ for (let group of match) {
     nameTheme = group[1]
 }
 if(nameTheme=='default') nameTheme='defaultbulma'
-
 
 if(lightThemes.includes(nameTheme)){
     darkTheme = false;
