@@ -3,6 +3,7 @@ import re
 from flask import Blueprint, render_template, jsonify, make_response,\
      request, send_file, url_for, redirect
 from flask_login import login_required
+from collections import defaultdict
 import pandas as pd
 import simplejson as json
 import mysql.connector
@@ -865,3 +866,16 @@ def pagos_markreporte(cobr):
     pgexec(con, upd)
     con.close()
     return 'ok'
+
+
+@pagos.route('/pagos/getinfodatos'  , methods=['POST'])
+@login_required
+@check_roles(['dev','gerente'])
+def pagos_getinfodatos():
+    con = get_con()
+    ids =  json.loads(request.data.decode("UTF-8"))
+    zonas = defaultdict(int)
+    for id in ids:
+        zona = pgonecolumn(con, f"select zona from datos where id={id}")
+        zonas[zona] +=1
+    return jsonify(zonas=zonas)

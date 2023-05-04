@@ -89,6 +89,7 @@
       </footer>
     </div>
   </div>
+  <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
 
 </div>
 
@@ -194,22 +195,23 @@
                  axios.post("/vendedor/ingresardatoyasignardatosvendedor", datos)
                       .then(res=>{
                           let datos = {clientes:this.listImprimir,vdor:this.idVdor,zona:this.zonatitle}
+                          this.reporteListado(datos)
                           axios.post('/fichas/procesarlistado',datos)
                           toggleModal('listado')
                           msgSuccess('Se enviaron los datos al vendedor')
                       })
-                          return
+                 return
              }
-                 axios.post("/fichas/imprimirlistado", data, { responseType: "blob" })
-                      .then((res) => {
-                          let url = window.URL.createObjectURL(res.data);
-                          toggleModal('listado')
-                          msgSuccess('Se registro el listado al vendedor')
-                          setTimeout(()=>{
-                              window.open(url);
-                          },2000)
-                          this.procesarListado()
-                      });
+             axios.post("/fichas/imprimirlistado", data, { responseType: "blob" })
+                  .then((res) => {
+                      let url = window.URL.createObjectURL(res.data);
+                      toggleModal('listado')
+                      msgSuccess('Se registro el listado al vendedor')
+                      setTimeout(()=>{
+                          window.open(url);
+                      },2000)
+                      this.procesarListado()
+                  });
          },
          procesarListado(){
              let datos = {clientes:this.listImprimir,vdor:this.idVdor,zona:this.zonatitle}
@@ -223,8 +225,24 @@
          },
          verNoExceptuados(){
              this.listado_=this.listaNoExceptuados
-         }
-     }
- }
+         },
+         reporteListado(datos){
+             axios.get('/pagos/getnickcobrador/'+datos.vdor)
+                    .then(res=>{
+                        let nick = res.data.nick
+                        let wapp = res.data.wapp
+                        msg = `Estimado ${nick}:
+             Te enviamos ${datos.clientes.length} datos de la zona ${datos.zona}.`
+
+             let data = {idcliente:0,wapp:wapp,msg:msg}
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+	         axios.post('/buscador/wapp',data)
+                                                                 .then(res=>{
+                                                                     axios.get('/pagos/markreporte/'+datos.vdor)
+                                                                     msgSuccess("Reporte enviado")
+                                                                 })
+                    })
+         },
+     }}
 </script>
 {% endblock %}

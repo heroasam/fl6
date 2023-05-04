@@ -182,7 +182,6 @@
                       this.listadoDatos_ = this.listadoDatos
                       this.cuota_basica = res.data.cuotabasica
                       this.listaVdores = res.data.vdores
-                      console.log( this.listaVdores)
                   })
          },
          rechazarDato(id){
@@ -205,7 +204,6 @@
          },
          editarDato(id){
              this.Datos = this.listadoDatos.filter(row=>row.id==id)[0]
-             console.log( this.Datos)
              toggleModal("modal-editar-dato")
          },
          guardarDato(){
@@ -277,7 +275,8 @@
              axios.post('/vendedor/asignardatosvendedor',datos)
                                                                  .then(res=>{
                       msgSuccess('Datos asignados con exito')
-                      this.getListadoDatos()
+                                                                     this.getListadoDatos()
+                                                                     this.reporteDatos(datos)
                   })
                   .catch(error=>{
                       msgError('Hubo un error, no se pudo asignar los datos')
@@ -292,9 +291,34 @@
                      arraySeleccionados.push(row.cells[2].innerHTML)
                      //OJO la celda de los iddato
              }})
-             console.log( arraySeleccionados)
              return arraySeleccionados
          },
+          reporteDatos(datos){
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.get('/pagos/getnickcobrador/'+datos.vendedor)
+                  .then(res=>{
+                        let nick = res.data.nick
+                        let wapp = res.data.wapp
+                      axios.post('/pagos/getinfodatos',ids)
+                                      .then(res=>{
+                                          let zonas = res.data.zonas
+                                          console.log( zonas)
+
+                        msg = `Estimado ${nick}:
+             Te enviamos ${datos.ids.length} datos.`
+                              for (let zona in zonas){
+                                  msg += `${zona} :${zonas[zona]} ,`
+                              }
+                                          let data = {idcliente:0,wapp:wapp,msg:msg}
+	                                      axios.post('/buscador/wapp',data)
+                                                                 .then(res=>{
+                                                                     axios.get('/pagos/markreporte/'+datos.vendedor)
+                                                                     msgSuccess("Reporte enviado")
+                                                                 })
+                      })
+
+                  })
+          },
 
      }
  }
