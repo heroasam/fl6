@@ -784,8 +784,8 @@ def pagos_pivotcobros():
 @check_roles(['dev','gerente'])
 def pagos_getcobroscobrador(cnt):
     con = get_con()
-    listacobr = pglistdict(con, "select id from cobr where activo=1 and prom=0 \
-    and id>10 and id not in (816,835)")
+    listacobr = pglistdict(con, "select id,reporte from cobr where activo=1 \
+    and prom=0 and id>10 and id not in (816,835)")
     listamesesestimados = pglist(con, "select distinct mes from estimados")
     listacobros = pglistdict(con, f"select id , (select sum(imp+\
     rec) from pagos where cobr=cobr.id and date_format(fecha,'%Y%m')=\
@@ -854,3 +854,14 @@ def pagos_getnickcobrador(cobr):
     nick,wapp = pgtuple(con, f"select nick,telefono from cobr where id={cobr}")
     print(nick,wapp)
     return jsonify(nick=nick, wapp=wapp)
+
+
+@pagos.route('/pagos/markreporte/<int:cobr>')
+@login_required
+@check_roles(['dev','gerente'])
+def pagos_markreporte(cobr):
+    con = get_con()
+    upd = f"update cobr set reporte=curdate() where id={cobr}"
+    pgexec(con, upd)
+    con.close()
+    return 'ok'

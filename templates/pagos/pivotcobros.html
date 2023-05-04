@@ -56,7 +56,9 @@
     </table>
     <div class="buttons">
       <template x-for="item in listaCobr">
-        <button class="button is-black" x-text="item.id" @click="enviarInforme(item.id)" :disabled="item.id>15"></button>
+        <button class="button is-black" x-text="item.id" @click="enviarInforme(item.id)"
+                :class="esHoy(item.reporte)?'is-danger':''"
+                :disabled="item.id>15"></button>
       </template>
     </div>
 
@@ -99,30 +101,30 @@
          listaCobr:[],
          getCobrosCobrador(cnt){
              axios.get('/pagos/getcobroscobrador/'+cnt)
-                  .then(res=>{
-                      this.listaCobr = res.data.cobr
-                      this.mesesEstimados = res.data.listamesesestimados
-                      this.mesesEstimados = this.mesesEstimados.reverse()
-                      this.listaCobros = res.data.listacobros
-                      this.listaCobros.forEach(row=>{
-                          row['porc']=Number((row.cobrado/row.estimado*100).toFixed(1))
-                      })
-                      this.listaCobros.sort(function (a, b) {
-                          if (a.porc > b.porc) {
-                              return -1;
-                          }
-                          if (a.porc < b.porc) {
-                              return 1;
-                          }
-                          // a must be equal to b
-                          return 0;
-                      });
+                    .then(res=>{
+                        this.listaCobr = res.data.cobr
+                        this.mesesEstimados = res.data.listamesesestimados
+                        this.mesesEstimados = this.mesesEstimados.reverse()
+                        this.listaCobros = res.data.listacobros
+                        this.listaCobros.forEach(row=>{
+                            row['porc']=Number((row.cobrado/row.estimado*100).toFixed(1))
+                        })
+                        this.listaCobros.sort(function (a, b) {
+                            if (a.porc > b.porc) {
+                                return -1;
+                            }
+                            if (a.porc < b.porc) {
+                                return 1;
+                            }
+                            // a must be equal to b
+                            return 0;
+                        });
 
-                      this.estimado = this.listaCobros.map(row=>row.estimado).reduce((a,b)=> Number(a) + Number(b),0)
-                      this.cobrado = this.listaCobros.map(row=>row.cobrado).reduce((a,b)=> Number(a) + Number(b),0)
-                      this.getGraficoPie()
+                        this.estimado = this.listaCobros.map(row=>row.estimado).reduce((a,b)=> Number(a) + Number(b),0)
+                        this.cobrado = this.listaCobros.map(row=>row.cobrado).reduce((a,b)=> Number(a) + Number(b),0)
+                        this.getGraficoPie()
 
-                  })
+                    })
          },
          getCobrosZonaCobrador(cobr){
              axios.get('/pagos/getcobroszonas/'+cobr)
@@ -178,7 +180,7 @@
                      ],
                      datasets: [{
                          label: 'Porcentaje Cobrado vs Faltante',
-                         data: [this.cobrado,this.estimado-this.cobrado],
+                         data: [this.cobrado,this.cobrado>this.estimado?0:this.estimado-this.cobrado],
                          backgroundColor: [
                              'rgb(255, 205, 86)',
                              'rgb(66, 135, 245)',
@@ -200,45 +202,62 @@
              let estimados = this.listaCobros.filter(row=>row.id==cobr)
              let porc = (estimados[0].cobrado/estimados[0].estimado*100).toFixed(1)
              axios.get('/pagos/getcobroszonas/'+cobr+'/'+this.cnt)
-                  .then(res=>{
-                      let estimadosZonas = res.data.listacobroszonas
-                      estimadosZonas.forEach(row=>{
-                          row['porc']=Number((row.cobrado/row.estimado*100).toFixed(1))
-                      })
-                      estimadosZonas.sort(function (a, b) {
-                          if (a.porc > b.porc) {
-                              return -1;
-                          }
-                          if (a.porc < b.porc) {
-                              return 1;
-                          }
-                          // a must be equal to b
-                          return 0;
-                      });
-                      let zonasRezagadas = []
-                      estimadosZonas.forEach(row=>{
-                          if(row.porc<porc&&row.porc<100) zonasRezagadas.push({'zona':row.zona,'porc':row.porc})
-                      })
-                      axios.get('/pagos/getnickcobrador/'+cobr)
-                                    .then(res=>{
-                                         let nick = res.data.nick
-                                        let wapp = res.data.wapp
+                                                                        .then(res=>{
+                                                                            let estimadosZonas = res.data.listacobroszonas
+                                                                            estimadosZonas.forEach(row=>{
+                                                                                row['porc']=Number((row.cobrado/row.estimado*100).toFixed(1))
+                                                                            })
+                                                                            estimadosZonas.sort(function (a, b) {
+                                                                                if (a.porc > b.porc) {
+                                                                                    return -1;
+                                                                                }
+                                                                                if (a.porc < b.porc) {
+                                                                                    return 1;
+                                                                                }
+                                                                                // a must be equal to b
+                                                                                return 0;
+                                                                            });
+                                                                            let zonasRezagadas = []
+                                                                            estimadosZonas.forEach(row=>{
+                                                                                if(row.porc<porc&&row.porc<100) zonasRezagadas.push({'zona':row.zona,'porc':row.porc})
+                                                                            })
+                                                                            axios.get('/pagos/getnickcobrador/'+cobr)
+                                                                                          .then(res=>{
+                                                                                              let nick = res.data.nick
+                                                                                              let wapp = res.data.wapp
 
-                      let msg = `Estimado ${nick}
+                                                                                              let msg = `Estimado ${nick}
                       hasta el momento has cubierto el ${porc}% de tus zonas en general.
                       En particular las que necesitan atencion son:`
-                      zonasRezagadas.forEach(row=>{
-                          msg += row.zona+':'+row.porc+'%  '
-                      })
-                                        console.log( msg)
-                                        let data = {idcliente:0,wapp:wapp,msg:msg}
-                                        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-	                                    axios.post('/buscador/wapp',data)
+                                                                                              zonasRezagadas.forEach(row=>{
+                                                                                                  msg += row.zona+':'+row.porc+'%  '
+                                                                                              })
+                                                                                              console.log( msg)
+                                                                                              let data = {idcliente:0,wapp:wapp,msg:msg}
+                                                                                              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+	                                                                                          axios.post('/buscador/wapp',data)
+                                                                                                                                                  .then(res=>{
+                                                                                                                                                      axios.get('/pagos/markreporte/'+cobr)
+                                                                                                                                                      this.getCobrosCobrador
+                                                                                                                                                      msgSuccess("Reporte Enviado")
+                                                                                                                                                  })
+                                                                                                                                                  .catch(error=>{
+                                                                                                                                                      msgError("El reporte no se envio")
+                                                                                                                                                  })
 
 
-                                    })
-                  })
+                                                                                          })
+                                                                        })
          },
-     }}
+         esHoy(fecha){
+             let date = fecha || '2023-01-01'
+             console.log( 'fecha', fecha, date)
+             if(dayjs.utc().isSame(dayjs.utc(date).format('YYYY-MM-DD'),'day')){
+                 return 1
+             } else {
+                 return 0
+             }
+         },
+ }}
 </script>
 {% endblock %}
