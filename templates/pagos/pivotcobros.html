@@ -191,7 +191,6 @@
              })
          },
          cambiaGrafico(mes){
-             console.log( mes)
              this.mesMostrado = mes
              let today = dayjs.utc()
              this.cnt = today.diff(mes,'month')
@@ -232,14 +231,18 @@
                                                                                               zonasRezagadas.forEach(row=>{
                                                                                                   msg += row.zona+':'+row.porc+'%  '
                                                                                               })
-                                                                                              console.log( msg)
                                                                                               let data = {idcliente:0,wapp:wapp,msg:msg}
                                                                                               axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 	                                                                                          axios.post('/buscador/wapp',data)
                                                                                                                                                   .then(res=>{
                                                                                                                                                       axios.get('/pagos/markreporte/'+cobr)
-                                                                                                                                                      this.getCobrosCobrador
-                                                                                                                                                      msgSuccess("Reporte Enviado")
+                                                                                                                                                           .then(res=>{
+
+                                                                                                                                                                   this.getCobrosCobrador(this.cnt)
+
+                                                                                                                                                               msgSuccess("Reporte Enviado")
+
+                                                                                                                                                           })
                                                                                                                                                   })
                                                                                                                                                   .catch(error=>{
                                                                                                                                                       msgError("El reporte no se envio")
@@ -251,7 +254,6 @@
          },
          esHoy(fecha){
              let date = fecha || '2023-01-01'
-             console.log( 'fecha', fecha, date)
              if(dayjs.utc().isSame(dayjs.utc(date).format('YYYY-MM-DD'),'day')){
                  return 1
              } else {
