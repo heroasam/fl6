@@ -209,8 +209,9 @@ def log2_log():
     """Muestra log de login."""
     f = open('/tmp/login.txt', "w")
     log = open('/home/hero/log/login.log', "r")
-    log2log = log.read()
-    f.write(log2log)
+    log2log = list(reversed(log.readlines()))
+    log2log[0] = log2log[0]+'\n'
+    f.writelines(log2log)
     f.close()
     log.close()
     return send_file('/tmp/login.txt')
@@ -223,8 +224,9 @@ def log3_log():
     """Muestra log de wapp."""
     f = open('/tmp/wapp.txt', "w")
     log = open('/home/hero/log/wapp.log', "r")
-    log3log = log.read()
-    f.write(log3log)
+    log3log = list(reversed(log.readlines()))
+    log3log[0] = log3log[0]+'\n'
+    f.writelines(log3log)
     f.close()
     log.close()
     return send_file('/tmp/wapp.txt')
@@ -237,8 +239,9 @@ def log4_log():
     """Muestra log de busquedas."""
     f = open('/tmp/busquedas.txt', "w")
     log = open('/home/hero/log/busquedas.log', "r")
-    log4log = log.read()
-    f.write(log4log)
+    log4log = list(reversed(log.readlines()))
+    log4log[0] = log4log[0]+'\n'
+    f.writelines(log4log)
     f.close()
     log.close()
     return send_file('/tmp/busquedas.txt')
@@ -251,8 +254,9 @@ def log5_log():
     """Muestra log de themes."""
     f = open('/tmp/themes.txt', "w")
     log = open('/home/hero/log/themes.log', "r")
-    log5log = log.read()
-    f.write(log5log)
+    log5log = list(reversed(log.readlines()))
+    log5log[0] = log5log[0]+'\n'
+    f.writelines(log5log)
     f.close()
     log.close()
     return send_file('/tmp/themes.txt')
@@ -265,8 +269,9 @@ def log6_log():
     """Muestra log de caja."""
     f = open('/tmp/caja.txt', "w")
     log = open('/home/hero/log/caja.log', "r")
-    log6log = log.read()
-    f.write(log6log)
+    log6log = list(reversed(log.readlines()))
+    log6log[0] = log6log[0]+'\n'
+    f.writelines(log6log)
     f.close()
     log.close()
     return send_file('/tmp/caja.txt')
