@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Log Busquedas{% endblock %}
+
+{% block content %}
+<div class="container mt-6">
+    <table class="table is-narrow" id="table-logs">
+    </table>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+ let logs = []
+ log = {{log4log|tojson}}
+ for(let row of log){
+     let listrow = row.split(",")
+     logs.push({'fecha':listrow[0], 'hora':listrow[1],'busqueda':listrow[2],'user':listrow[3],
+                })
+ }
+        let obj = dataWrapper(logs)
+        const dataTable = new simpleDatatables.DataTable("#table-logs", {
+            searchable: true,
+            data: obj,
+
+        })
+
+</script>
+{% endblock %}

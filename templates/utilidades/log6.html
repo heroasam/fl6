@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Log Caja{% endblock %}
+
+{% block content %}
+<div class="container mt-6">
+    <table class="table is-narrow" id="table-logs">
+    </table>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+ let logs = []
+ log = {{log6log|tojson}}
+ for(let row of log){
+     let listrow = row.split(",")
+     console.log( listrow)
+     logs.push({'saldo-asiento Nº-fecha':listrow[0], 'hora-movimiento-user':listrow[1]})
+ }
+        let obj = dataWrapper(logs)
+        const dataTable = new simpleDatatables.DataTable("#table-logs", {
+            searchable: true,
+            data: obj,
+
+        })
+
+</script>
+{% endblock %}

@@ -214,7 +214,7 @@ def log2_log():
     f.writelines(log2log)
     f.close()
     log.close()
-    return send_file('/tmp/login.txt')
+    return render_template('/utilidades/log2.html', log2log=log2log)
 
 
 @app.route('/log3')
@@ -229,7 +229,7 @@ def log3_log():
     f.writelines(log3log)
     f.close()
     log.close()
-    return send_file('/tmp/wapp.txt')
+    return render_template('/utilidades/log3.html', log3log=log3log)
 
 
 @app.route('/log4')
@@ -244,7 +244,7 @@ def log4_log():
     f.writelines(log4log)
     f.close()
     log.close()
-    return send_file('/tmp/busquedas.txt')
+    return render_template('/utilidades/log4.html', log4log=log4log)
 
 
 @app.route('/log5')
@@ -259,7 +259,7 @@ def log5_log():
     f.writelines(log5log)
     f.close()
     log.close()
-    return send_file('/tmp/themes.txt')
+    return render_template('/utilidades/log5.html', log5log=log5log)
 
 
 @app.route('/log6')
@@ -274,8 +274,7 @@ def log6_log():
     f.writelines(log6log)
     f.close()
     log.close()
-    return send_file('/tmp/caja.txt')
-
+    return render_template('/utilidades/log6.html', log6log=log6log)
 
 
 @app.template_filter()

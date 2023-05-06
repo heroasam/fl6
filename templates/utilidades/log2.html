@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Log Login{% endblock %}
+
+{% block content %}
+<div class="container mt-6">
+    <table class="table is-narrow" id="table-logs">
+    </table>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+ let logs = []
+ log = {{log2log|tojson}}
+ for(let row of log){
+     let listrow = row.split(",")
+     let fecha = listrow[0]
+     let hora = listrow[1]?.split(" ")[1]
+     let user = listrow[1]?.split(" ")[2]
+     let tipo = listrow[1]?.split(" ")[3]
+     logs.push({fecha,hora,user,tipo})
+ }
+        let obj = dataWrapper(logs)
+        const dataTable = new simpleDatatables.DataTable("#table-logs", {
+            searchable: true,
+            data: obj,
+
+        })
+
+</script>
+{% endblock %}
