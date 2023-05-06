@@ -15,7 +15,7 @@
  for(let row of log){
      let listrow = row.split(",")
      logs.push({'fecha':listrow[0], 'hora':listrow[1],'theme':listrow[2],'user':listrow[3],
-                'plataforma':listrow[4],'ruta':listrow[5]})
+                'plataforma':listrow[4],'ruta':listrow[5],'browser':listrow[6]})
  }
         let obj = dataWrapper(logs)
         const dataTable = new simpleDatatables.DataTable("#table-logs", {

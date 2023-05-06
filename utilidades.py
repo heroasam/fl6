@@ -152,9 +152,9 @@ def utilidades_wapp():
     return render_template('/utilidades/wapp.html')
 
 
-@utilidades.route('/utilidades/logthemes/<theme>/<ismobile>')
+@utilidades.route('/utilidades/logthemes/<theme>/<ismobile>/<browser>')
 @login_required
-def utilidades_logtheme(theme, ismobile):
+def utilidades_logtheme(theme, ismobile,browser):
     """Hago el log del theme usado por el usuario."""
     ruta = urlparse(request.referrer).path
     if "@" in str(current_user):
@@ -170,7 +170,7 @@ def utilidades_logtheme(theme, ismobile):
         log_file.write('\n')
         log_file.write(time.strftime('%Y-%m-%d',time.localtime())+', '+\
                       time.strftime('%H:%M:%S',time.localtime())+', '+\
-                       theme+', '+email+', '+ismobile+', '+ruta)
+                       theme+', '+email+', '+ismobile+', '+ruta+', '+browser)
         log_file.close()
     return 'ok'
 

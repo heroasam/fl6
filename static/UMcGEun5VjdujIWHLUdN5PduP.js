@@ -448,9 +448,11 @@ let details = navigator.userAgent;
 containing some mobile devices keywords
 to search it in details string*/
 let regexp = /android|iphone|kindle|ipad/i;
+let firefox = /firefox/i;
 /* Using test() method to search regexp in details
 it returns boolean value*/
 let isMobileDevice = regexp.test(details);
+let isFirefox = firefox.test(details)||0;
 
 
 // themes dark
@@ -485,7 +487,6 @@ let lightThemes = ['defaultbulma', 'cerulean', 'cosmo', 'journal','flatly','lite
 let logoRomitex;
 let darkTheme;
 let cdnTheme = localStorage.getItem('cdn-theme')||"https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/darkly/bulmaswatch.min.css";
-console.log( 'cdnTheme',cdnTheme)
 let pattern = /0.8.1\/(\w+)\//g
 const match=  cdnTheme.matchAll(pattern)
 let nameTheme;
@@ -515,7 +516,10 @@ function toggleTheme(themeName) {
 document.addEventListener("DOMContentLoaded", () => {
     const theme = document.getElementById('bulma');
     theme.setAttribute('href', cdnTheme);
-    axios.get('/utilidades/logthemes/'+nameTheme+'/'+isMobileDevice)
+    let browser = 'chrome'
+    if(isFirefox){
+        browser = 'firefox'}
+    axios.get('/utilidades/logthemes/'+nameTheme+'/'+isMobileDevice+'/'+browser)
 });
 // if(document.readyState === 'loading') {
 //     document.addEventListener('DOMContentLoaded',afterDOMLoaded);
