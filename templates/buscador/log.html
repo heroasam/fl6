@@ -3,6 +3,7 @@
 
 {% block content %}
 <div class="container mt-6">
+  <h1 class="title is-3">Log Base de Datos</h1>
     <table class="table is-narrow" id="table-logs">
     </table>
 </div>
@@ -18,7 +19,7 @@ axios.get('/buscador/obtenerlogs')
             searchable: true,
             data: obj,
             columns:[
-                {select:0, 
+                {select:0,
                     render: function(data, cell, row) {
 			return dayjs.utc(data).format('YYYY-MM-DD HH:mm:ss')
                     }

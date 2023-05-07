@@ -3,6 +3,7 @@
 
 {% block content %}
 <div class="container mt-6">
+  <h1 class="title is-3">Log Themes</h1>
     <table class="table is-narrow" id="table-logs">
     </table>
 </div>
@@ -10,12 +11,45 @@
 
 {% block script %}
 <script>
+ let rutes = {
+     '/2xxXix5cnz7IKcYegqs6qf0R6':'/vendedor/listadatos',
+     '/Hb0IQfDEnbLV4eyWZeg5kbcff':'/vendedor/agregarcliente',
+     '/pEmPj7NAUn0Odsru4aL2BhlOu':'/vendedor/envioclientenuevo',
+     '/4mY6khlmZKUzDRZDJkakr75iH':'/vendedor/listavisitasvdor',
+     '/VGIdj7tUnI1hWCX3N7W7WAXgU':'/vendedor/getlistadodatosvendedor',
+     '/pnZWxv9Nicwt6TQ6zxohzvats/':'/vendedor/getdato/',
+     '/kHEhacFNmI2vflFHBbaT1AQ1Z':'/vendedor/getlistadoarticulos',
+     '/uQ3gisetQ8v0n6tw81ORnpL1s':'/vendedor/editarwapp' ,
+     '/HvjJNtFgF71pRYafzcTC74nUt':'/vendedor/guardardatofechado',
+     '/UtVc3f6y5hfxu2dPmcrV9Y7mc':'/vendedor/anulardato/',
+     '/gJUmonE8slTFGZqSKXSVwqPJ1/':'/vendedor/mudodato/',
+     '/sLTFCMArYAdVsrEgwsz7utyRi/':'/vendedor/falleciodato/',
+     '/fc3vpQG6SzEH95Ya7kTJPZ48M':'/vendedor/validardni',
+     '/vaHQ2gFYLW2pIWSr5I0ogCL0k':'/vendedor/registrarautorizacion',
+     '/xuNzBi4bvtSugd5KbxSQzD0Ey':'/vendedor/pasarventa',
+     '/G9S85pbqWVEX17nNQuOOnpxvn/':'/vendedor/noestabadato/',
+     '/F8cq9GzHJIG9hENBo0Xq7hdH7':'/vendedor/getvisitasvdor',
+     '/3ZbXanrRQalY6JL5eOBi49Nyc':'/vendedor/wappaut',
+     '/hX53695XAOpaLY9itLgmghkhH':'/vendedor/wapp',
+     '/4qUK6eNZnCYjIiGTt3HSj2YDp':'/vendedor/filewapp',
+     '/MeHzAqFYsbb78KAVFAGTlZRW9/':'/vendedor/buscaclientepordni/',
+     '/k8E5hsVs4be3jsJJaob6OQmAX':'/vendedor/getcargavendedor',
+     '/TWGQV0TM0p7Oa9tMPvrNWIHyd':'/vendedor/cargararticulos',
+     '/DDFEwfGEDYv5UHTVgcDPFUWm1':'/vendedor/comisionesvdor',
+     '/IrV7gmqz4Wu8Q8rwmXMftphaB':'/vendedor/getcomisionesparavendedor',
+     '/u0IEJT3i1INZpKoNKbyezlfRy/':'/vendedor/isatendido/',
+     '/ymIVWKdjgnCeJvo2zcodwRTQM/':'/vendedor/isrespondidoauth/',
+ }
+
  let logs = []
  log = {{log5log|tojson}}
- for(let row of log){
-     let listrow = row.split(",")
+     for(let row of log){
+         let listrow = row.split(",")
+         if(listrow[1]==undefined) continue
+         let rute = listrow[5]?.trim()
+
      logs.push({'fecha':listrow[0], 'hora':listrow[1],'theme':listrow[2],'user':listrow[3],
-                'plataforma':listrow[4],'ruta':listrow[5],'browser':listrow[6]})
+     'plataforma':listrow[4],'ruta':rutes[rute]||rute,'browser':listrow[6]})
  }
         let obj = dataWrapper(logs)
         const dataTable = new simpleDatatables.DataTable("#table-logs", {
