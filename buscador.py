@@ -7,7 +7,7 @@ from flask import Blueprint, render_template, jsonify, make_response, request,\
     send_file
 from flask_login import login_required, current_user
 from lib import pgonecolumn, pglistdict, send_msg_whatsapp, send_file_whatsapp, \
-    pglist, log_busqueda, listsql, actualizar, send_img_whatsapp
+    pglist, log_busqueda, listsql, actualizar, send_img_whatsapp, pgexec
 from formularios import intimacion, libredeuda, ficha, recibotransferencia
 from con import get_con, log, check_roles
 
@@ -213,7 +213,8 @@ def buscar_pedirpagadasporidcliente(idcliente):
 @check_roles(['dev','gerente','admin','cobrador'])
 def buscar_obtenerventasporidcliente(idcliente):
     """Entrega lista de ventas por idcliente."""
-    sql = f"select * from ventas where idcliente={idcliente} and saldo>0 order by id desc"
+    sql = f"select * from ventas where idcliente={idcliente} and saldo>0 order \
+    by id desc"
     con = get_con()
     cur = con.cursor(dictionary=True)
     cur.execute(sql)
@@ -1063,3 +1064,24 @@ def buscador_toggleeditado(id):
         con.commit()
         con.close()
         return 'ok'
+
+
+@buscador.route('/buscador/markquieredevolver/<int:idvta>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_quieredevolver(idvta):
+    con = get_con()
+    idcliente = pgonecolumn(con, f"select idcliente from ventas where id=\
+        {idvta}")
+    status_devolucion = pgonecolumn(con, f"select proceso_devolucion from \
+        clientes where id={idcliente}")
+    if status_devolucion:
+        upd = f"update clientes set proceso_devolucion=0 where id={idcliente}"
+        upddato = f"update datos set quiere_devolver=0 where idvta={idvta}"
+    else:
+        upd = f"update clientes set proceso_devolucion=1 where id={idcliente}"
+        upddato = f"update datos set quiere_devolver=1 where idvta={idvta}"
+    pgexec(con, upd)
+    pgexec(con, upddato)
+    con.close()
+    return 'ok'

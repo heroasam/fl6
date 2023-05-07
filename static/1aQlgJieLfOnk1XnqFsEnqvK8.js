@@ -234,9 +234,9 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
          getListaItems(){
              let arrayItems = []
              if(this.agrupar=='zonas'){
-                 arrayItems = this._listadoDatos.filter(row=>row.resultado==null).map(row=>row.zona);
+                 arrayItems = this._listadoDatos.filter(row=>row.resultado==null || row.resultado==1&&row.quiere_devolver==1).map(row=>row.zona);
              }else{
-                 arrayItems = this.listadoDatos.filter(row=>row.resultado==null).map(row=>row.calle.trim());
+                 arrayItems = this.listadoDatos.filter(row=>row.resultado==null || row.resultado==1&&row.quiere_devolver==1).map(row=>row.calle.trim());
              }
              let itemDatos = {};
              this.listaItemsDatos = [];

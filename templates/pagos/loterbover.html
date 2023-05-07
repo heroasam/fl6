@@ -46,7 +46,6 @@
                   .then(res=>{
                       this.listaLotesRbos = res.data.listalotesrbo
                       this.listaLotesRbos.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
-                      console.log( this.listaLotesRbos)
                   })
          },
          borrarLoteRbo(id){

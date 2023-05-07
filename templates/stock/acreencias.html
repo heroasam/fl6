@@ -60,7 +60,6 @@
                   .then(res=>{
                       limpiarTabla('table')
                       this.listaDeudas = res.data.acreencias
-                      console.log( this.listaDeudas)
                       this.listaDeudas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                       this.totalDeuda = parseFloat(this.listaDeudas.map(row=>row.codigo).reduce((a,b)=>parseInt(a)+parseInt(b),0))
                   })

@@ -77,7 +77,7 @@
                       this.listaFechas = res.data.fechascomisiones
                       this.listaFechas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
                       this.listaFechas.map(row=>row.comision=parseFloat(row.comision))
-                      console.log( this.listaComisiones, this.listaFechas)
+
                   })
          },
          validarPagado(){

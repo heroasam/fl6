@@ -154,7 +154,6 @@
 
          guardarEdicionAsiento(){
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-             console.log( this.AsientoEdicion)
              axios.post('/stock/editarasiento',this.AsientoEdicion)
                                                                  .then(res=>{
                                                                      msgSuccess('Edicion Exitosa')

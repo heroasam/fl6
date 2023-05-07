@@ -302,7 +302,6 @@
                       axios.post('/pagos/getinfodatos',ids)
                                       .then(res=>{
                                           let zonas = res.data.zonas
-                                          console.log( zonas)
 
                         msg = `Estimado ${nick}:
              Te enviamos ${datos.ids.length} datos.`

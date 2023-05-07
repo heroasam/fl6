@@ -136,6 +136,7 @@
             @click="open('/buscador/interno/'+Cliente.dnigarante,'_blank')">GARANTE</span>
       <span class="tag is-small is-info pointer"  x-show="Cliente.esgarante"
             @click="document.getElementById('table-garantizados').scrollIntoView({behavior: 'smooth'});">ES GARANTE</span>
+      <span class="tag is-info is-small is-danger" x-show="Cliente.proceso_devolucion">PROCESO DEVOLUCION</span>
     </div>
     <div :class="!isMobileDevice?'flex-baseline-space':'flex-column'">
       <h2 x-text="Cliente.deuda>0?'$'+Cliente.deuda:'SIN DEUDA'" class="title is-2"></h2>
@@ -296,7 +297,8 @@
           <td x-text="venta.idvdor"></td>
           <td x-text="venta.cnt+'/'+venta.art" x-show="venta.cnt"></td>
           <td x-text="'PLAN DE PAGOS'" x-show="venta.pp" class="tag-danger"></td>
-		  <td><button class="button is-primary is-small" @click="condonarVenta(venta.id)">Condonar</button></td>
+		  <td><button class="button is-primary is-small" @click="condonarVenta(venta.id)" x-show="venta.pp==0">Condonar</button>
+            <button class="button is-small is-danger" @click="quiereDevolver(venta.id)" x-show="venta.pp==0">Devolver</button></td>
 		</tr>
       </template>
     </tbody>
@@ -987,8 +989,6 @@
                                .then(res=>{
                                    this.cuotaMaxima = res.data.cuotamaxima
                                })
-             /* console.log(this.cuotaMaxima)
-              * console.log( this.Cliente) */
              if(this.Cliente.dni){
                  textToClipboard(this.Cliente.dni)
                  this.verAvisoDniCopiado=true
@@ -1012,7 +1012,6 @@
 		              })
                       this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
                       this.obtenerVentas(this.Cliente.id)
-                      console.log( this.Cliente)
                   })
          },
 	     resetBuscar(){
@@ -1406,7 +1405,6 @@
              }
 	     },
          emitirLibredeudaNoWapp(){
-             console.log( "llamado a libredeudanowapp")
              data= this.Cliente
              axios.post('/buscador/libredeuda/nowapp',data,{responseType:"blob"})
 		          .then(res=>{
@@ -1477,7 +1475,6 @@
 								                                 .catch(error=>msgError('Error!','El recibo no se genero'))
          },
          enviarRboTransferenciaNoWapp(){
-             console.log( "enviando rbo transf nowapp en pantalla")
               axios.post('/buscador/enviarrbotransferencia/nowapp',this.Recibo,{responseType:"blob"})
 									                                          .then(res=>{
 										                                          let url = window.URL.createObjectURL(res.data);
@@ -1799,6 +1796,13 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
                               this.pedirComentarios(idcliente)
                           })
              }})
+         },
+         quiereDevolver(idvta){
+             axios.get('/buscador/markquieredevolver/'+idvta)
+                  .then(res=>{
+                      this.refreshCliente(this.Cliente.dni)
+             })
+
          },
      }
  }

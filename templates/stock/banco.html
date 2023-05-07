@@ -35,7 +35,6 @@
              this.mes = {{index|tojson}}
              this.ingresototal = totalizar_tabla('totales',1)
              totalizar_tabla('totalescobradores',1)
-             console.log( this.mes, this.ingresototal)
              const canvas = document.getElementById('grafico-estadistica').getContext('2d');
              const chart = new Chart(canvas, {
 		         type: 'bar',
