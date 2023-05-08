@@ -679,8 +679,8 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
              if(tipo!='Total') {
                  const { value: text } = await Swal.fire({
                      input: 'textarea',
-                     inputLabel: 'Message',
-                     inputPlaceholder: 'Type your message here...',
+                     inputLabel: 'Descripcion de la devolucion',
+                     inputPlaceholder: 'Anote los detalles aca...',
                      inputAttributes: {
                          'aria-label': 'Type your message here'
                      },

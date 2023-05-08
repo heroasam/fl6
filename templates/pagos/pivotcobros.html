@@ -57,8 +57,7 @@
     <div class="buttons">
       <template x-for="item in listaCobr">
         <button class="button is-black" x-text="item.id" @click="enviarInforme(item.id)"
-                :class="esHoy(item.reporte)?'is-danger':''"
-                :disabled="item.id>15"></button>
+                :class="esHoy(item.reporte)?'is-danger':''"></button>
       </template>
     </div>
 
@@ -143,6 +142,7 @@
                       this.listaCobrosZona.forEach(row=>{
                           row['porc']=Number((row.cobrado/row.estimado*100).toFixed(1))
                       })
+                      this.listaCobrosZona = this.listaCobrosZona.filter(row=>isNaN(row.porc)==0)
                       this.listaCobrosZona.sort(function (a, b) {
                           if (a.porc > b.porc) {
                               return -1;
