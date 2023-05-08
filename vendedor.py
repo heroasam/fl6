@@ -749,8 +749,8 @@ def vendedor_getlistadodatosvendedor():
     listadodatos = pglistdict(con, "select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
     clientes.zona as zona, cuota_maxima,idcliente, sin_extension,idvta,\
-    resultado,datos.dnigarante as dnigarante,quiere_devolver from datos, \
-    clientes where clientes.id = datos.idcliente and vendedor=835 and \
+    resultado,datos.dnigarante as dnigarante,quiere_devolver,vendedor from \
+    datos,clientes where clientes.id = datos.idcliente and vendedor=835 and \
     (resultado is null or resultado=7 or (resultado=1 and quiere_devolver=1) \
     or (resultado=1 and date(fecha_definido)=curdate())) and \
     fecha_visitar <=curdate() and enviado_vdor=1 order by id desc")
@@ -766,7 +766,7 @@ def vendedor_getdato(iddato):
     con = get_con()
     dato = pgdict(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
-    clientes.zona as zona, cuota_maxima,idcliente, sin_extension, \
+    clientes.zona as zona, cuota_maxima,idcliente, sin_extension,vendedor, \
     datos.dnigarante as dnigarante,idvta,monto_vendido,nosabana from datos, \
     clientes where clientes.id = datos.idcliente and datos.id={iddato}")
     return jsonify(dato=dato)

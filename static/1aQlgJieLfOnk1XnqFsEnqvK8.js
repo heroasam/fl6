@@ -135,6 +135,7 @@ Quedo a la espera. Gracias.`;
 
                                                                             })}) // cierro el then de los datos enviados
            }, //cierro la function
+
        }}
 
 
@@ -667,6 +668,27 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
                      axios.post('/4qUK6eNZnCYjIiGTt3HSj2YDp',data)
                  })
          },
+         async informa(tipo,idvta,vendedor){
+             let msg = `DEVOLUCION: Informo el retiro ${tipo.toUpperCase()} de la mercaderia correspondiente a la cuenta ${idvta}. Vendedor ${vendedor}`
+             if(tipo!='Total') {
+                 const { value: text } = await Swal.fire({
+                     input: 'textarea',
+                     inputLabel: 'Message',
+                     inputPlaceholder: 'Type your message here...',
+                     inputAttributes: {
+                         'aria-label': 'Type your message here'
+                     },
+                     showCancelButton: true
+                 })
+                 if(text) msg += `. Aclaracion: ${text}.`
+             }
+              let data = {idcliente:0, wapp:'3512411963', msg}
+              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
+                   axios.post('/hX53695XAOpaLY9itLgmghkhH',data)
+                       .then(res=>{
+                           msgSuccess("El informe ya fue enviado")
+                       })
+           },
      }
  }
  function GnIVzsHTcsg1sQFsVD7xfw7Dc(){

@@ -1076,10 +1076,13 @@ def buscador_quieredevolver(idvta):
     status_devolucion = pgonecolumn(con, f"select proceso_devolucion from \
         clientes where id={idcliente}")
     if status_devolucion:
-        upd = f"update clientes set proceso_devolucion=0 where id={idcliente}"
+        upd = f"update clientes set proceso_devolucion=0, pmovto=COALESCE((\
+                select max(pmovto) from ventas where idcliente={idcliente} and \
+                devuelta=0),NULL) where id={idcliente}"
         upddato = f"update datos set quiere_devolver=0 where idvta={idvta}"
     else:
-        upd = f"update clientes set proceso_devolucion=1 where id={idcliente}"
+        upd = f"update clientes set proceso_devolucion=1 , pmovto=date_add(\
+                curdate(),interval 1 month) where id={idcliente}"
         upddato = f"update datos set quiere_devolver=1 where idvta={idvta}"
     pgexec(con, upd)
     pgexec(con, upddato)

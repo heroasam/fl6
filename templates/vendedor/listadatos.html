@@ -70,7 +70,10 @@
     </div>
     <h4 class="subtitle is-6" x-text="Dato.barrio"></h4>
     <hr/>
+    <div class="flex-space-between">
     <h2 class="title is-2 red" x-text="Dato.idvta" x-show="Dato.idvta"></h2>
+    <span class="tag is-large is-danger" x-show="Dato.quiere_devolver">Devolucion</span>
+    </div>
     <h4 class="title is-6 no-mb" x-text="Dato.fecha_visitar"></h4>
     <h4 class="title is-6 no-mb" x-text="Dato.horarios" x-show="Dato.horarios"></h4>
     <h4 class="title is-6 no-mb" x-text="Dato.art" x-show="Dato.art"></h4>
@@ -86,6 +89,11 @@
     </div>
     <div class="buttons" x-show="Dato.quiere_devolver">
       <button class="button is-small is-info">Ver Ficha</button>
+    </div>
+    <div class="buttons" x-show="Dato.quiere_devolver">
+      <button class="button is-small is-danger" @click="informa('Total',Dato.idvta,Dato.vendedor)">Dev. Total</button>
+      <button class="button is-small is-warning" @click="informa('Parcial',Dato.idvta,Dato.vendedor)">Dev. Parcial</button>
+      <button class="button is-small is-success" @click="informa('Cambio',Dato.idvta,Dato.vendedor)">Cambio</button>
     </div>
 
   </div>
