@@ -230,6 +230,12 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                           if(s1<s2) return -1
                           if(s1==s2) return 0
                       })
+                      this.listadoDatos_.forEach((item,i)=>{
+                          if(item.quiere_devolver){
+                              this.listadoDatos_.splice(i,1)
+                              this.listadoDatos_.unshift(item)
+                          }
+                      })
                   })
          },
          getListaItems(){
@@ -681,6 +687,10 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
                      showCancelButton: true
                  })
                  if(text) msg += `. Aclaracion: ${text}.`
+                 if(!text){
+                     msgError("El informe no se enviara. Escribalo de nuevo")
+                     return
+                 }
              }
               let data = {idcliente:0, wapp:'3512411963', msg}
               axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
@@ -688,7 +698,18 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
                        .then(res=>{
                            msgSuccess("El informe ya fue enviado")
                        })
-           },
+         },
+         verFichaPantalla(idcliente){
+             let data={idcliente}
+             // route ('/vendedor/imprimirfichapantalla/<int:idcliente>')
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/quBXVVWkNijghkJ4JpwSgluJQ',data,{responseType:"blob"})
+								                                     .then((res)=>{
+									                                         let url = window.URL.createObjectURL(res.data);
+									                                         window.open(url);
+									                                 })
+
+         },
      }
  }
  function GnIVzsHTcsg1sQFsVD7xfw7Dc(){

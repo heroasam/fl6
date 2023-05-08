@@ -4,11 +4,13 @@ import logging
 import time
 from flask_login import login_required, current_user
 import mysql.connector
-from flask import Blueprint, render_template, jsonify, make_response, request
+from flask import Blueprint, render_template, jsonify, make_response, request, \
+    send_file
 import simplejson as json
 from lib import pgonecolumn, pglistdict, send_msg_whatsapp, \
     send_file_whatsapp, pglist,  listsql, pgdict, pgexec
 from con import get_con, log, check_roles
+from formularios import ficha
 
 vendedor = Blueprint('vendedor', __name__)
 
@@ -746,11 +748,11 @@ def vendedor_getlistadodatosvendedor():
     # clientes.id = datos.idcliente and vendedor={vdor} and (resultado is null \
     # or (resultado in (1,7) and date(fecha_definido)=curdate())) and \
     # fecha_visitar <=curdate() and enviado_vdor=1 order by id desc")
-    listadodatos = pglistdict(con, "select datos.id, fecha, fecha_visitar,\
+    listadodatos = pglistdict(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
     clientes.zona as zona, cuota_maxima,idcliente, sin_extension,idvta,\
     resultado,datos.dnigarante as dnigarante,quiere_devolver,vendedor from \
-    datos,clientes where clientes.id = datos.idcliente and vendedor=835 and \
+    datos,clientes where clientes.id = datos.idcliente and vendedor={vdor} and \
     (resultado is null or resultado=7 or (resultado=1 and quiere_devolver=1) \
     or (resultado=1 and date(fecha_definido)=curdate())) and \
     fecha_visitar <=curdate() and enviado_vdor=1 order by id desc")
@@ -1838,3 +1840,18 @@ def vendedor_comentarioautorizacion(comentario,idauth):
     con.commit()
     con.close()
     return 'ok'
+
+
+@vendedor.route('/quBXVVWkNijghkJ4JpwSgluJQ' , methods=['POST'])
+@vendedor.route('/vendedor/imprimirfichapantalla' , methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','vendedor'])
+def vendedor_imprimirfichapantalla():
+    """Funcion para imprimir ficha de cliente en pantalla a vendedor."""
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    idcliente = d['idcliente']
+    dni = pgonecolumn(con, f"select dni from clientes where id={idcliente}")
+    ficha(con, [dni])
+    con.close()
+    return send_file('/home/hero/ficha.pdf')
