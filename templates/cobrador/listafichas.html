@@ -8,14 +8,10 @@
   <p class="title is-1">Lista Fichas</p>
   <div>
     <template x-for="zona in listaZonas">
-      <button class="button is-small is-primary" x-text="zona" @click="filtraPorZona(zona)"></button>
+      <button class="button is-small is-primary" x-text="zona" @click="filtraPorZona(zona);verCard=false"></button>
     </template>
   </div>
-  <div>
-    <template x-for="calle in listaCalles">
-      <button class="button is-small is-black" x-text="calle" @click="filtraPorCalle(calle)"></button>
-    </template>
-  </div>
+
   <table class="table table-striped " id="table" x-show="verCard==false">
     <thead>
       <tr>
@@ -69,9 +65,12 @@
     <!-- listaVentas -->
     <div>
       <template x-for="venta in listaVentas">
-        <button class="button is-small is-danger" x-text="venta.pp?'PLAN':venta.art.split(' ')[0]"
-                ></button>
-
+        <div>
+        <span class="tag is-small" :class="venta.pp?'is-danger':'is-white'" x-text="venta.pp?'PLAN de PAGOS':
+                       `${venta.art.split(' ')[0]}-${venta.cc} cuotas de $${venta.ic}`"
+        ></span>
+        <span class="tag is-small is-info pointer" @click="imprimirFicha(venta.idcliente)">Ficha</span>
+        </div>
       </template>
 
     </div>
@@ -155,7 +154,6 @@
          listaZonas:[],
          listaFichas:[],
          listaFichas_:[],
-         listaCalles:[],
          listaVentas:[],
          listaCuotas:[],
          Vtos:[],
@@ -170,8 +168,8 @@
                       this.listaFichas = res.data.fichas
                       this.listaFichas_ = this.listaFichas
                       this.listaFichas_.sort((a,b)=>{
-                          let s1 = a.nombre.toLowerCase(),
-                              s2 = b.nombre.toLowerCase()
+                          let s1 = a.zona.toLowerCase()+a.calle.toLowerCase()+a.num,
+                              s2 = b.zona.toLowerCase()+b.calle.toLowerCase()+b.num
 
                           if(s1>s2) return 1
                           if(s1<s2) return -1
@@ -181,16 +179,9 @@
          },
          filtraPorZona(zona){
              this.listaFichas_=this.listaFichas.filter(row=>row.zona==zona)
-             this.listaCalles=Array.from(new Set(this.listaFichas_.map(row=>row.calle)))
-             let callesCnt = []
-             this.listaCalles.forEach(calle=>{
-                 let cnt = this.listaFichas_.filter(row=>row.calle==calle).length
-                 callesCnt.push(`${calle}-${cnt}`);
-             })
-             this.listaCalles = callesCnt.sort()
              this.listaFichas_.sort((a,b)=>{
-                 let s1 = a.nombre.toLowerCase(),
-                     s2 = b.nombre.toLowerCase()
+                 let s1 = a.calle.toLowerCase()+a.num,
+                     s2 = b.calle.toLowerCase()+b.num
 
                  if(s1>s2) return 1
                  if(s1<s2) return -1
@@ -357,6 +348,15 @@
                       this.listaCuotas = this.hacerCuotas()
 
                   })
+         },
+         imprimirFicha(idcliente){
+             data = {idcliente}
+                 axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+		         axios.post("/cobrador/imprimirfichapantalla",data, {responseType: "blob"})
+								                                     .then((res)=>{
+									                                         let url = window.URL.createObjectURL(res.data);
+									                                         window.open(url);
+								                                     })
          },
      }
  }

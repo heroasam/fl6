@@ -4,11 +4,13 @@ import logging
 import time
 from flask_login import login_required, current_user
 import mysql.connector
-from flask import Blueprint, render_template, jsonify, make_response, request
+from flask import Blueprint, render_template, jsonify, make_response, request,\
+send_file
 import simplejson as json
-from lib import pgonecolumn, pglistdict, send_msg_whatsapp, send_file_whatsapp, \
-    pglist,  listsql, pgdict
+from lib import pgonecolumn, pglistdict, send_msg_whatsapp, send_file_whatsapp,\
+    pglist,  listsql, pgdict, pgexec
 from con import get_con, log, check_roles
+from formularios import ficha
 
 
 cobrador = Blueprint('cobrador', __name__)
@@ -192,3 +194,28 @@ def cobrador_fallecioficha(idcliente):
         return 'ok'
     finally:
         con.close()
+
+
+@cobrador.route('/cobrador/limpiar/<zona>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def cobrador_limpiar(zona):
+    con = get_con()
+    upd = f"update clientes set asignada=0 where zona='{zona}'"
+    pgexec(con, upd)
+    con.close()
+    return 'ok'
+
+
+@cobrador.route('/cobrador/imprimirfichapantalla' , methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','cobrador'])
+def cobrador_imprimirfichapantalla():
+    """Funcion para imprimir ficha de cliente en pantalla a cobrador."""
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    idcliente = d['idcliente']
+    dni = pgonecolumn(con, f"select dni from clientes where id={idcliente}")
+    ficha(con, [dni])
+    con.close()
+    return send_file('/home/hero/ficha.pdf')

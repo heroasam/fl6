@@ -695,7 +695,9 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
               let data = {idcliente:0, wapp:'3512411963', msg}
               axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
                    axios.post('/hX53695XAOpaLY9itLgmghkhH',data)
-                       .then(res=>{
+                 .then(res=>{
+                     //ruta : /vendedor/visitadevolucion'
+                     axios.post('/S0rjYKB35QIcHunPmebg2tmr1',{tipo,idvta,vendedor})
                            msgSuccess("El informe ya fue enviado")
                        })
          },

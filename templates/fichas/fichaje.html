@@ -28,9 +28,10 @@ endblock %} {% block style %}
     <label for="hasta"></label>
     <input type="date" name="hasta" x-model="hasta" class="input" style="width:140px;" :class="darkTheme?'input-dark':''"/>
     <button class="button is-small is-primary" @click="seleccionarHasta()">Seleccionar</button>
-    <button class="button is-small is-danger" @click="asignar()">Asignar</button>
     <button class="button is-small is-danger" @click="imprimir()">Imprimir</button>
     <button class="button is-small is-danger" @click="intimar()">Intimar</button>
+    <button class="button is-small is-success" @click="limpiar()">Limpiar</button>
+    <button class="button is-small is-success" @click="asignar()">Asignar</button>
     <button class="button is-small is-dark" @click="muestraClientes('cancelados',zonaactual);filter='Cancelados'">Cancelados</button>
     <button class="button is-small is-warning" @click="muestraClientes('gestion',zonaactual||'%');filter='Gestion'">Gestion</button>
     <button class="button is-small is-dark" @click="muestraClientes('antiguos',zonaactual);filter='Antiguos'">Antiguos</button>
@@ -275,6 +276,14 @@ endblock %} {% block style %}
              }else{
                  msgError('Debe seleccionar algo para asignar')
              }
+         },
+         limpiar(){
+             console.log( this.ultimazona)
+             axios.get('/cobrador/limpiar/'+this.ultimazona)
+                  .then(res=>{
+                      this.refresh()
+                      msgSuccess("La zona se desasigno")
+             })
          },
          sendMsgRecordatorio(){
              ids = this.seleccionarRows()

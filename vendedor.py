@@ -1855,3 +1855,18 @@ def vendedor_imprimirfichapantalla():
     ficha(con, [dni])
     con.close()
     return send_file('/home/hero/ficha.pdf')
+
+
+@vendedor.route('/S0rjYKB35QIcHunPmebg2tmr1' , methods=['POST'])
+@vendedor.route('/vendedor/visitadevolucion' , methods=['POST'])
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_visitadevolucion():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    iddato = pgonecolumn(con, f"select id from datos where idvta={d['idvta']}")
+    ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
+    values(curdate(),curtime(),{d['vendedor']},{iddato},7,0)"
+    pgexec(con, ins)
+    con.close()
+    return 'ok'
