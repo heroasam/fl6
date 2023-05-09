@@ -5,7 +5,6 @@
 {% block content %}
 
 <div class="container" x-data="main()" x-init="getListadoFichas();setInterval(()=>{getListadoFichas()},600000)">
-  <p class="title is-1">Lista Fichas</p>
   <div>
     <template x-for="zona in listaZonas">
       <button class="button is-small is-primary" x-text="zona" @click="filtraPorZona(zona);verCard=false"></button>
@@ -58,7 +57,7 @@
     <h4 class="title is-6 no-mb" x-text="Ficha.comentarios" x-show="Ficha.comentarios"></h4>
     <div class="buttons" x-show="!Ficha.idvta">
       <button class="button is-small is-info" @click="fecharFicha(Ficha.id)" id="buttonFecharFicha">Fechar</button>
-      <button class="button is-small is-warning" @click="noEstabaFicha()" id="buttonNoestabaFicha">No Estaba</button>
+      <button class="button is-small is-warning" @click="noEstabaFicha()" id="buttonNoestabaFicha">Nadie</button>
       <button class="button is-small is-primary" @click="mudoFicha()" id="buttonMudoFicha">Mudo</button>
       <button class="button is-small is-black" @click="fallecioFicha()" id="buttonFallecioFicha">Fallecio</button>
     </div>
@@ -77,7 +76,7 @@
     <!-- tablecuotas -->
     <div class="column is-3">
 	  <div class="flex-center" x-show="verCard">
-        <span class="tag is-large">Cuotas a Pagar</span>
+        <!-- <span class="tag is-large">Cuotas a Pagar</span> -->
         <!-- <span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"></i></span> -->
 	  </div>
       <table class="table is-narrow is-striped"  id="table-cuotas">
@@ -102,6 +101,7 @@
         </tbody>
       </table>
     </div>
+    <button class="button is-success" @click="cobrarFicha()">Cobrar</button>
   </div>
 
 
@@ -145,6 +145,41 @@
     <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
   </div>
 
+   <!-- bulma-modal cobrar -->
+  <div class="modal" id="modal-cobrar">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Cobrar</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-cobrar')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <div x-show="listaCuentas.length==1">
+          <h1 class="title is-1 red" x-text="listaCuentas[0]"></h1>
+        </div>
+          <div x-show="listaCuentas.length>1">
+        <label for="cuenta" class="label">Cuenta</label>
+        <input list="cuentas" id="cuenta" class="input mb-3" x-model="cobrar.cuenta" autocomplete="off">
+        <datalist id="cuentas">
+          <template x-for="cuenta in listaCuentas">
+            <option :value="cuenta"></option>
+          </template>
+        </datalist>
+        </div>
+        <label for="imp">Importe Pagado</label>
+        <input type="text" class="input mb-3" x-model="cobrar.imp" id="imp">
+        <label for="rbo">Nº Recibo fisico (opcional)</label>
+        <input type="text" class="input mb-3" x-model="cobrar.rbo" id="rbo">
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-primary" @click="procesarCobro">Procesar</button>
+        <button class="button" @click="toggleModal('modal-cobrar')">Cancelar</button>
+      </footer>
+    </div>
+    <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+  </div>
+
 </div>
 {% endblock %}
 {% block script %}
@@ -156,11 +191,13 @@
          listaFichas_:[],
          listaVentas:[],
          listaCuotas:[],
+         listaCuentas:[],
          Vtos:[],
          listaInflacion:[],
          verCard:false,
          Ficha:{},
          verCuenta:false,
+         cobrar:{},
          getListadoFichas(){
              axios.get('/cobrador/getlistadofichas')
                   .then(res=>{
@@ -168,8 +205,8 @@
                       this.listaFichas = res.data.fichas
                       this.listaFichas_ = this.listaFichas
                       this.listaFichas_.sort((a,b)=>{
-                          let s1 = a.zona.toLowerCase()+a.calle.toLowerCase()+a.num,
-                              s2 = b.zona.toLowerCase()+b.calle.toLowerCase()+b.num
+                          let s1 = a.zona.toLowerCase()+a.calle.toLowerCase()+a.num.toString().padStart(4,' '),
+                              s2 = b.zona.toLowerCase()+b.calle.toLowerCase()+b.num.toString().padStart(4,' ')
 
                           if(s1>s2) return 1
                           if(s1<s2) return -1
@@ -180,8 +217,8 @@
          filtraPorZona(zona){
              this.listaFichas_=this.listaFichas.filter(row=>row.zona==zona)
              this.listaFichas_.sort((a,b)=>{
-                 let s1 = a.calle.toLowerCase()+a.num,
-                     s2 = b.calle.toLowerCase()+b.num
+                 let s1 = a.calle.toLowerCase()+a.num.toString().padStart(4,' '),
+                     s2 = b.calle.toLowerCase()+b.num.toString().padStart(4,' ')
 
                  if(s1>s2) return 1
                  if(s1<s2) return -1
@@ -346,6 +383,7 @@
                       })
                       this.listaVentas = arrayVentas
                       this.listaCuotas = this.hacerCuotas()
+                      this.listaCuentas = this.listaVentas.map(row=>row.id)
 
                   })
          },
@@ -357,6 +395,9 @@
 									                                         let url = window.URL.createObjectURL(res.data);
 									                                         window.open(url);
 								                                     })
+         },
+         cobrarFicha(){
+             toggleModal("modal-cobrar");
          },
      }
  }
