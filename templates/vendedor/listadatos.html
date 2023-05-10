@@ -74,11 +74,11 @@
     <h2 class="title is-2 red" x-text="Dato.idvta" x-show="Dato.idvta"></h2>
     <span class="tag is-large is-danger" x-show="Dato.quiere_devolver">Devolucion</span>
     </div>
-    <h4 class="title is-6 no-mb" x-text="Dato.fecha_visitar"></h4>
-    <h4 class="title is-6 no-mb" x-text="Dato.horarios" x-show="Dato.horarios"></h4>
-    <h4 class="title is-6 no-mb" x-text="Dato.art" x-show="Dato.art"></h4>
-    <h4 class="title is-6 no-mb" x-text="Dato.comentarios" x-show="Dato.comentarios"></h4>
-    <h2 class="title is-4" x-text="'Cuota Maxima $'+Dato.cuota_maxima"></h2>
+    <h4 class="title is-6 no-mb" x-text="Dato.fecha_visitar"  x-show="!Dato.quiere_devolver"></h4>
+    <h4 class="title is-6 no-mb" x-text="Dato.horarios" x-show="Dato.horarios && !Dato.quiere_devolver"></h4>
+    <h4 class="title is-6 no-mb" x-text="Dato.art" x-show="Dato.art  && !Dato.quiere_devolver"></h4>
+    <h4 class="title is-6 no-mb" x-text="Dato.comentarios" x-show="Dato.comentarios && !Dato.quiere_devolver"></h4>
+    <h2 class="title is-4" x-text="'Cuota Maxima $'+Dato.cuota_maxima" x-show="!Dato.quiere_devolver"></h2>
     <div class="buttons" x-show="!Dato.idvta">
       <button class="button is-small is-success" @click="venderDato(Dato.id)">Vender</button>
       <button class="button is-small is-danger" @click="anularDato(Dato.id)" id="buttonAnularDato">Anular</button>
