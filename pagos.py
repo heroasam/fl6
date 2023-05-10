@@ -232,6 +232,8 @@ def pagos_pasarplanilla():
         d['viatico']=0
     ins = f"insert into planillas(fecha, idcobr, idlote,cobrado, comision, viatico, cntrbos) values('{d['fecha']}','{d['idcobr']}',0,{d['cobrado']},{d['comision']},{d['viatico']},{d['cntrbos']})"
     upd = f"update planillas set fecha='{d['fecha']}', idcobr='{d['idcobr']}',idlote=0,cobrado={d['cobrado']},comision={d['comision']},viatico={d['viatico']},cntrbos={d['cntrbos']} where id={idplanilla}"
+    updpagos = f"update pagos set rendido=1 where cobr={d['idcobr']} and \
+    rendido=0"
     cur = con.cursor()
     if(idplanilla==""):
         cur.execute(ins)
@@ -239,6 +241,7 @@ def pagos_pasarplanilla():
     else:
         cur.execute(upd)
         log(upd)
+    cur.execute(updpagos)
     con.commit()
     con.close()
     return 'ok'
