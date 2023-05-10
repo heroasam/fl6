@@ -201,9 +201,7 @@ def buscar_pedirpagadasporidcliente(idcliente):
     """Entrega lista de cuotas pagadas por idcliente."""
     sql = f"select * from pagos where idcliente={idcliente} order by id desc"
     con = get_con()
-    cur = con.cursor(dictionary=True)
-    cur.execute(sql)
-    pagadas = cur.fetchall()
+    pagadas = pglistdict(con, sql)
     con.close()
     return jsonify(pagadas=pagadas)
 

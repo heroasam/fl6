@@ -191,13 +191,15 @@ def pagos_traerficha(idvta):
 
 @pagos.route('/pagos/pasarpagos' , methods = ['POST'])
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev','gerente','admin', 'cobrador'])
 def pagos_pasarpagos():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     if(d['rec']==''):
         d['rec']=0
-    ins = f"insert into pagos(idvta,fecha,imp,rec,rbo,cobr,idcliente) values({d['idvta']},'{d['fecha']}',{d['imp']},{d['rec']},{d['rbo']},{d['cobr']},{d['idcliente']})"
+    ins = f"insert into pagos(idvta,fecha,imp,rec,rbo,cobr,idcliente,rendido) \
+    values({d['idvta']},'{d['fecha']}',{d['imp']},{d['rec']},{d['rbo']},\
+    {d['cobr']},{d['idcliente']},{d['rendido']})"
     cur = con.cursor()
     cur.execute(ins)
     con.commit()

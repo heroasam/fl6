@@ -159,7 +159,7 @@
         </div>
           <div x-show="listaCuentas.length>1">
         <label for="cuenta" class="label">Cuenta</label>
-        <input list="cuentas" id="cuenta" class="input mb-3" x-model="cobrar.cuenta" autocomplete="off">
+        <input list="cuentas" id="cuenta" class="input mb-3" x-model="cobrar.idvta" autocomplete="off">
         <datalist id="cuentas">
           <template x-for="cuenta in listaCuentas">
             <option :value="cuenta"></option>
@@ -167,9 +167,9 @@
         </datalist>
         </div>
         <label for="imp">Importe Pagado</label>
-        <input type="text" class="input mb-3" x-model="cobrar.imp" id="imp">
+        <input type="number" class="input mb-3" x-model="cobrar.imp" id="imp">
         <label for="rbo">Nº Recibo fisico (opcional)</label>
-        <input type="text" class="input mb-3" x-model="cobrar.rbo" id="rbo">
+        <input type="number" class="input mb-3" x-model="cobrar.rbo" id="rbo">
       </section>
       <footer class="modal-card-foot">
         <button class="button is-primary" @click="procesarCobro">Procesar</button>
@@ -198,9 +198,12 @@
          verCuenta:false,
          cobrar:{},
          cntCuentas:1,
+         cobr:'',
+         idvta:'',
          getListadoFichas(){
              axios.get('/cobrador/getlistadofichas')
                   .then(res=>{
+                      this.cobr = res.data.cobr
                       this.listaZonas = res.data.zonas
                       this.listaFichas = res.data.fichas
                       this.listaFichas_ = this.listaFichas
@@ -348,7 +351,8 @@
              tblCuota=[]
               let vto
               this.cntCuentas = this.listaVentas.length
-             this.listaVentas.forEach(row=>{
+              this.listaVentas.forEach(row=>{
+                 this.idvta = row.id
                  saldo = row.saldo
                  if(saldo!==0){
                      pagado = row.pagado
@@ -406,6 +410,19 @@
          },
          cobrarFicha(){
              toggleModal("modal-cobrar");
+             this.cobrar={rbo:0,rec:'',cobr:this.cobr, idcliente:this.Ficha.id,idvta:this.idvta,fecha:dayjs.utc().format('YYYY-MM-DD'),rendido:0}
+         },
+         procesarCobro(){
+             toggleModal("modal-cobrar");
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
+             axios.post('/pagos/pasarpagos',this.cobrar)
+                  .then(res=>{
+                      msgSuccess("El pago fue procesado con exito")
+                      this.obtenerVentas(this.cobrar.idcliente)
+                  })
+                  .catch(error=>{
+                      msgError("Ocurrio un error el pago no se proceso")
+             })
          },
      }
  }

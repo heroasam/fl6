@@ -64,7 +64,7 @@ def cobrador_getlistadofichas():
     mudo=0 and clientes.zona!='-FALLECIDOS' and fechado=0 and ((datediff(now(),\
     ultpago) >6 or datediff(now(), ultpago) is null) or datediff(now(),\
     ultpago)=0) and deuda>0")
-    return jsonify(zonas=zonas, fichas=fichas)
+    return jsonify(zonas=zonas, fichas=fichas, cobr=cobr)
 
 
 @cobrador.route('/cobrador/fecharficha/<int:idcliente>/<pmovto>')

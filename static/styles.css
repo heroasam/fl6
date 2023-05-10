@@ -520,3 +520,7 @@ thead th {
     background-color: indianred;
     color: white;
 }
+.norendido{
+    background-color: slategrey !important;
+    color: orange !important;
+}

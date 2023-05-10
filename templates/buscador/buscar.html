@@ -137,6 +137,7 @@
       <span class="tag is-small is-info pointer"  x-show="Cliente.esgarante"
             @click="document.getElementById('table-garantizados').scrollIntoView({behavior: 'smooth'});">ES GARANTE</span>
       <span class="tag is-info is-small is-danger" x-show="Cliente.proceso_devolucion">PROCESO DEVOLUCION</span>
+      <span class="tag is-info is-small is-success" x-show="Cliente.dato_pendiente">TIENE DATO PENDIENTE</span>
     </div>
     <div :class="!isMobileDevice?'flex-baseline-space':'flex-column'">
       <h2 x-text="Cliente.deuda>0?'$'+Cliente.deuda:'SIN DEUDA'" class="title is-2"></h2>
@@ -352,17 +353,19 @@
             <th class="sumar numeric">Rec</th>
             <th>Cobr</th>
             <th>Cuenta</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           <template x-for="paga in listaPagadas">
-			<tr :class="dayjs(Vtos[paga.idvta])<dayjs(paga.fecha)?'cuotavencida':''">
+			<tr :class="dayjs(Vtos[paga.idvta])<dayjs(paga.fecha)?'cuotavencida':(!paga.rendido?'norendido':'')">
               <td x-text="paga.fecha" style="min-width: 150px;"></td>
               <td x-text="paga.rbo">
                 <td x-text="paga.imp" class="pesos"></td>
                 <td x-text="paga.rec" class="pesos"></td>
                 <td x-text="paga.cobr"></td>
                 <td x-text="paga.idvta"></td>
+                <td x-show="!paga.rendido">No Confirmado</td>
 			</tr>
           </template>
         </tbody>
