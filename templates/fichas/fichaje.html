@@ -48,7 +48,22 @@ endblock %} {% block style %}
       </template>
     </datalist>
     <button class="button is-small is-danger" @click="cambiarZona(zona)" x-show="verZonas">Guardar</button>
-    <button class="button is-small is-black" @click="muestraClientes('mudofallecido','%');filter='Mudo-Fallecido por Cobrador'">Revisar</button>
+    <div class="dropdown is-hoverable">
+	  <div class="dropdown-trigger">
+	    <button class="button is-small is-black" aria-haspopup="true" aria-controls="dropdown-menu">
+		  <span>Revisar</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
+	    </button>
+	  </div>
+	  <div class="dropdown-menu" id="dropdown-menu" role="menu">
+	    <div class="dropdown-content">
+
+		  <div>
+		    <a href="#" @click="muestraClientes('mudofallecido','%');filter='Mudo-Fallecido por Cobrador'" class="dropdown-item">Mudo y Fallecido marcados por Cobrador</a>
+		      <a href="#" @click="confirmarAccionCobrador()" class="dropdown-item">Confirmar accion del cobrador</a>
+		  </div>
+	    </div>
+	  </div>
+    </div>
     <div class="dropdown is-hoverable">
 	  <div class="dropdown-trigger">
 	    <button class="button is-small is-info" aria-haspopup="true" aria-controls="dropdown-menu">
@@ -399,9 +414,19 @@ endblock %} {% block style %}
                  btn.classList.remove('is-link')
              })
          },
-         revisarMudoFallecido(){
-
+         confirmarAccionCobrador(){
+             let dnis = this.seleccionarRows()
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/fichas/aceptaraccioncobrador',dnis)
+                                                                 .then(res=>{
+                                                                     this.muestraClientes(this.ultimotipo,this.ultimazona)
+                                                                     msgSuccess("Registros Procesados")
+                                                                 })
+                                                                 .catch(error=>{
+                                                                     msgError(error.request.response)
+                                                                 })
          },
+
  }};
 
 

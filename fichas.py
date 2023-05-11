@@ -764,3 +764,16 @@ def fichas_borrarlistavisitar(id):
     con.close()
     log(stm)
     return 'ok', 200
+
+
+@fichas.route('/fichas/aceptaraccioncobrador', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','cobrador'])
+def fichas_aceptaraccioncobrador():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    dnis = listsql(d)
+    upd = f"update clientes set mudofallecio_proceso=0 where dni in {dnis}"
+    pgexec(con, upd)
+    con.close()
+    return 'ok'
