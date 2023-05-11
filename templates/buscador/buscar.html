@@ -316,22 +316,22 @@
       <table class="table is-narrow is-striped" x-show="verCard && listaCuotas.length" id="table-cuotas">
         <thead>
           <tr>
+            <th x-show="cntCuentas>1">Cuenta</th>
             <th>N</th>
             <th>Fecha</th>
             <th class="sumar numeric">Saldo</th>
-            <th class="sumar numeric" x-show="cuota[3]>cuota[2]">Actual</th>
-            <th x-show="cntCuentas>1">Cuenta</th>
+            <th class="sumar numeric">Actual</th>
           </tr>
         </thead>
         <tbody>
           <template x-for="cuota in listaCuotas">
             <!-- nc-vto-saldo -->
 			<tr x-show="cuota[2]">
+              <td x-text="cuota[4]" x-show="cntCuentas>1"></td>
               <td x-text="cuota[0]"></td>
               <td x-text="cuota[1]" style="min-width: 100px;"></td>
               <td x-text="cuota[2]" class="pesos" :class="cuota[3]>cuota[2]?'strike':''"></td>
               <td x-text="cuota[3]" class="pesos red" x-show="cuota[3]>cuota[2]"></td>
-              <td x-text="cuota[4]" x-show="cntCuentas>1"></td>
 			</tr>
           </template>
         </tbody>
