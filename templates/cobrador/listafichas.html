@@ -101,6 +101,7 @@
       </table>
     </div>
     <button class="button is-success" @click="cobrarFicha()">Cobrar</button>
+    <button class="button is-black" @click="cancelarCobrarFicha()">Cancelar</button>
   </div>
 
 
@@ -200,6 +201,7 @@
          cntCuentas:1,
          cobr:'',
          idvta:'',
+         zonaactual:'',
          getListadoFichas(){
              axios.get('/cobrador/getlistadofichas')
                   .then(res=>{
@@ -218,6 +220,7 @@
                   })
          },
          filtraPorZona(zona){
+             this.zonaactual = zona
              this.listaFichas_=this.listaFichas.filter(row=>row.zona==zona)
              this.listaFichas_.sort((a,b)=>{
                  let s1 = a.calle.toLowerCase()+a.num.toString().padStart(4,' '),
@@ -423,6 +426,10 @@
                   .catch(error=>{
                       msgError("Ocurrio un error el pago no se proceso")
              })
+         },
+         cancelarCobrarFicha(){
+             this.verCard=false
+             this.filtraPorZona(this.zonaactual)
          },
      }
  }

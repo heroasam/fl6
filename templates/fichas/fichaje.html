@@ -423,7 +423,7 @@ endblock %} {% block style %}
                                                                      msgSuccess("Registros Procesados")
                                                                  })
                                                                  .catch(error=>{
-                                                                     msgError(error.request.response)
+                                                                     msgError("Hubo un error. Los registros no se procesaron.")
                                                                  })
          },
 
