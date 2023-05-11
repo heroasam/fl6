@@ -147,7 +147,7 @@ def cobrador_mudoficha(idcliente):
     cobr = var_sistema[current_user.email]
     ins = f"insert into visitascobr(fecha,hora,cobr,idcliente,result) \
     values(curdate(),curtime(),{cobr},{idcliente},5)"
-    upd = f"update clientes set mudo=1,mudofallecio_proceso=1 where \
+    upd = f"update clientes set mudo=1,mudofallecio_proceso=1,asignada=0 where \
     id={idcliente}"
     inscomentario = f"insert into comentarios(idcliente, ingreso, comentario) \
     values({idcliente},'{current_user.email}','puesto como mudado por \
@@ -177,8 +177,8 @@ def cobrador_fallecioficha(idcliente):
     cobr = var_sistema[current_user.email]
     ins = f"insert into visitascobr(fecha,hora,cobr,idcliente,result) \
     values(curdate(),curtime(),{cobr},{idcliente},6)"
-    upd = f"update clientes set zona='-FALLECIDOS',mudofallecio_proceso=1 \
-    where id={idcliente}"
+    upd = f"update clientes set zona='-FALLECIDOS',mudofallecio_proceso=1, \
+    asignada=0 where id={idcliente}"
     inscomentario = f"insert into comentarios(idcliente, ingreso, comentario) \
     values({idcliente},'{current_user.email}','puesto como fallecido por \
     cobrador {cobr}')"

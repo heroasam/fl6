@@ -48,10 +48,24 @@ endblock %} {% block style %}
       </template>
     </datalist>
     <button class="button is-small is-danger" @click="cambiarZona(zona)" x-show="verZonas">Guardar</button>
-    <button class="button is-small is-danger" @click="intimarWhatsapp()">INTWhat</button>
-    <button class="button is-small is-danger" @click="intimarPdf()">INTpdf</button>
-    <button class="button is-small is-danger" @click="sendMsgRecordatorio()">RecTrans</button>
+    <button class="button is-small is-black" @click="muestraClientes('mudofallecido','%');filter='Mudo-Fallecido por Cobrador'">Revisar</button>
+    <div class="dropdown is-hoverable">
+	  <div class="dropdown-trigger">
+	    <button class="button is-small is-info" aria-haspopup="true" aria-controls="dropdown-menu">
+		  <span>Fijos</span><span class="icon is-small"><i class="fa fa-angle-double-down" aria-hidden="true"></i></span>
+	    </button>
+	  </div>
+	  <div class="dropdown-menu" id="dropdown-menu" role="menu">
+	    <div class="dropdown-content">
 
+		  <div>
+		      <a href="#" @click="intimarWhatsapp()" class="dropdown-item">Intimar por WhatApp</a>
+		      <a href="#" @click="intimarPdf()" class="dropdown-item">Intimar por PDF</a>
+		      <a href="#" @click="sendMsgRecordatorio()" class="dropdown-item">Recordar hacer transferencia</a>
+		  </div>
+	    </div>
+	  </div>
+    </div>
     <div class="dropdown is-hoverable">
 	  <div class="dropdown-trigger">
 	    <button class="button is-small is-danger" aria-haspopup="true" aria-controls="dropdown-menu">
@@ -384,6 +398,9 @@ endblock %} {% block style %}
              Array.from($btnCobradores.children).slice(1).forEach(btn=>{
                  btn.classList.remove('is-link')
              })
+         },
+         revisarMudoFallecido(){
+
          },
  }};
 
