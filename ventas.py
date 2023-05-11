@@ -889,6 +889,9 @@ def ventas_devolucion_procesar():
     upd = f"update devoluciones set fechadev='{fechadev}',cobr={cobr},comprdejado='{comprdejado}',rboN='{rboN}',totparc='{totparc}',novendermas={novendermas},vdor={vdor},mesvta='{mesvta}',montodev={montodev},registro='{registro}' where id={iddev}"
     logging.warning(upd)
     cur.execute(upd)
+    # se pone el campo proceso_devolucion a 0
+    upd_proceso = f"update clientes set proceso_devolucion=0 where id={idcliente}"
+    cur.execute(upd_proceso)
     con.commit()
     log(upd)
     con.close()
