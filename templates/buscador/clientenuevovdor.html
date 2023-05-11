@@ -24,6 +24,7 @@
         <th>calle</th>
         <th>num</th>
         <th>zona</th>
+        <th>deuda</th>
         <th>acla</th>
         <th></th>
       </tr>
@@ -39,8 +40,9 @@
           <td x-text="cliente.calle"></td>
           <td x-text="cliente.num"></td>
           <td x-text="cliente.zona"></td>
+          <td x-text="cliente.deuda"></td>
           <td x-text="cliente.acla"></td>
-          <td><i class="fa fa-toggle-on" aria-hidden="true" @click="toggleEditado(cliente.id)"></td>
+          <td><button class="button is-small is-danger"  @click="toggleEditado(cliente.id)">Aprobar</button></td>
         </tr>
       </template>
     </tbody>
@@ -137,6 +139,14 @@
              axios.get('/vendedor/getclientesingresadosporvdor')
                   .then(res=>{
                       this.listaClientes=res.data.clientes
+                      this.listaClientes.sort((a,b)=>{
+                          let za = a.zona.toLowerCase(),
+                              zb = b.zona.toLowerCase();
+                          if(za<zb) return -1;
+                          if(za>zb) return 1;
+                          if(za==zb) return 0;
+                      })
+
                   })
          },
          editarCliente(id){
