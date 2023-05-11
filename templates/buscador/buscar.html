@@ -318,8 +318,9 @@
           <tr>
             <th>N</th>
             <th>Fecha</th>
-            <th class="sumar numeric">Saldo</i></th>
-            <th class="sumar numeric">Actual</i></th>
+            <th class="sumar numeric">Saldo</th>
+            <th class="sumar numeric" x-show="cuota[3]>cuota[2]">Actual</th>
+            <th x-show="cntCuentas>1">Cuenta</th>
           </tr>
         </thead>
         <tbody>
@@ -330,6 +331,7 @@
               <td x-text="cuota[1]" style="min-width: 100px;"></td>
               <td x-text="cuota[2]" class="pesos" :class="cuota[3]>cuota[2]?'strike':''"></td>
               <td x-text="cuota[3]" class="pesos red" x-show="cuota[3]>cuota[2]"></td>
+              <td x-text="cuota[4]" x-show="cntCuentas>1"></td>
 			</tr>
           </template>
         </tbody>
@@ -942,6 +944,7 @@
          totalCompradoActualizado:0,
          verAvisoDniCopiado:false,
          cuotaMaxima:'',
+         cntCuentas:1,
 
          buscarCliente(){
              this.verCard = false
@@ -1153,6 +1156,7 @@
              /* id,fecha,cc2,ic3,p4,idvdor,saldo6,comprado,pp8,devuelta,condonada,cnt,art,pagado13,primera14, */
              tblCuota=[]
              let vto
+             this.cntCuentas = this.listaVentas.length
              this.listaVentas.forEach(row=>{
                  saldo = row.saldo
                  if(saldo!==0){
@@ -1169,11 +1173,19 @@
                          index = this.listaInflacion[ym] || null
                          saldo = pagado>=ic?0:pagado<=0?ic:ic-pagado
                          saldo_actualizado = index ? parseInt(saldo * index) : saldo
-                         tblCuota.push([i,vto,saldo, saldo_actualizado])
+                         tblCuota.push([i,vto,saldo, saldo_actualizado,row.id])
                          pagado = pagado - ic
                      }
                  }
              })
+             tblCuota.sort((a,b)=>{
+                 let s1 = a[1]
+                 let s2 = b[1]
+                 if(s1>s2) return 1
+                 if(s1<s2) return -1
+                 if(s1==s2) return 0
+             })
+             console.log( tblCuota)
              return tblCuota
          },
          pedirPagadas(idcliente){
