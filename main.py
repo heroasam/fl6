@@ -5,6 +5,8 @@ from flask_login import LoginManager, login_user, current_user, logout_user, log
 from flask_bcrypt import Bcrypt
 from flask_login import UserMixin
 from flask_cors import CORS
+from flask_cors import cross_origin
+from flask_wtf import csrf
 from werkzeug.urls import url_parse
 from lib import *
 from formularios import *
@@ -18,7 +20,11 @@ from conta import conta
 from vendedor import vendedor
 from cobrador import cobrador
 import mysql.connector
+import simplejson as json
 from con import get_con, log, check_roles
+from datetime import datetime
+import logging
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
@@ -275,6 +281,29 @@ def log6_log():
     f.close()
     log.close()
     return render_template('/utilidades/log6.html', log6log=log6log)
+
+
+@app.route('/webhook' , methods=['POST'])
+@cross_origin()
+@csrf.exempt
+def webhook():
+    """api wapp webhook"""
+    # read and parse input data
+    if request.method == 'POST':
+        data = json.loads(request.data.decode('utf-8'))
+        message = data["message"]
+        sender = data["from"]
+        guardar_msg(sender,message)
+    return 'ok'
+
+
+def guardar_msg(wapp,msg):
+    """Guarda el msg recibido por el webhook en la tabla correspondiente."""
+    con = get_con()
+    ins = f"insert into wappsrecibidos(wapp,msg) values('{wapp}','{msg}')"
+    pgexec(con, ins)
+    con.close()
+    return
 
 
 @app.template_filter()

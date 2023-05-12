@@ -143,8 +143,6 @@
       <h2 x-text="Cliente.deuda>0?'$'+Cliente.deuda:'SIN DEUDA'" class="title is-2"></h2>
       <h2 x-text="Cliente.pmovto=='Invalid Date'?'':Cliente.pmovto" class="title is-2 pointer" x-show="Cliente.deuda"
 	      @click="fecharPmovto(Cliente.id)"></h2>
-      <a href="#table-comentarios"
-	     x-show="listaComentarios.length">Hay comentarios</a>
 
       <div>
         <div class="xtags has-addons m0"
@@ -190,6 +188,12 @@
 	    </div>
       </div>
     </div>
+      <div>
+      <a href="#table-comentarios" class="tag is-small is-warning"
+	     x-show="listaComentarios.length">Hay comentarios</a>
+      <a href="#table-wapps" class="tag is-small is-success"
+	     x-show="listaWapps.length">Hay whatsapps</a>
+      </div>
   </div>
   <div class="buttons ml-3 mr-3 mb-1" x-show="verCard">
     <button class="button is-secondary is-small" x-show="!Cliente.sev" @click="toggleSube()">SUBE</button>
@@ -590,6 +594,30 @@
       </table>
     </div>
    </div>
+    <!-- tabla wapps -->
+   <div class="columns">
+    <div class="column is-10">
+      <span class="tag is-large" x-show="verCard && listaWapps.length">Lista de WhatsApp</span>
+      <table class="table noselect is-narrow is-striped" x-show="verCard && listaWapps.length" id="table-wapps">
+        <thead>
+          <tr>
+            <th>fecha</th>
+            <th>dir</th>
+            <th>msg</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="item in listaWapps">
+          <tr>
+            <td x-text="item.fecha"></td>
+            <td x-text="item.dir"></td>
+            <td x-text="item.msg"></td>
+          </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+   </div>
    <!-- MODALES -->
   <!-- bulma-modal edicion-pmo-vto -->
   <div class="modal" id="modal-edicion-pmovto">
@@ -921,6 +949,7 @@
          listaDevoluciones:[],
          listaVisitas:[],
          listaPlanes:[],
+         listaWapps:[],
          Vtos:{},
          buscar:'',
 	     buscar1:'',
@@ -988,6 +1017,7 @@
               * }) */
              this.Cliente.direccion = this.Cliente.calle+' '+this.Cliente.num
              this.obtenerVentas(this.Cliente.id)
+             this.obtenerWapps(this.Cliente.wapp)
              this.verCard = true;
              this.clipWappVentas()
 	         this.buscar = this.Cliente.calle+' '+this.Cliente.num
@@ -1101,6 +1131,22 @@
                       })
                       this.listaVentasCanceladas = arrayVentasCanceladas
                   })
+         },
+         obtenerWapps(wapp){
+             axios.get('/buscador/obtenerwapps/'+wapp)
+                  .then(res=>{
+                      let recibidos = res.data.recibidos
+                      let enviados = res.data.enviados
+                      this.listaWapps = [...recibidos, ...enviados]
+                      this.listaWapps = this.listaWapps.filter(row=>row.msg!==null&&row.msg!==undefined)
+                      this.listaWapps.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      this.listaWapps.sort((a,b)=>{
+                          if(a.fecha>b.fecha) return -1
+                          if(a.fecha<b.fecha) return 1
+                          if(a.fecha==b.fecha) return 0
+                      })
+                      console.log('wapps', this.listaWapps)
+             })
          },
          pedirComentarios(idcliente){
              axios.get('/buscador/pedircomentarios/'+idcliente)
@@ -1604,6 +1650,7 @@
 								                                     switch(res.data){
 									                                     case 'success': {
 									                                         msgSuccess('Exito!','Mensaje Enviado')
+                                                                             axios.post('/buscador/registrarwapp',data)
 									                                         break
 									                                     }
 									                                     case 'invalid': {

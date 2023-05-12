@@ -939,11 +939,31 @@ def buscador_wapp():
         return 'error', 400
 
 
+@buscador.route('/buscador/registrarwapp', methods=["POST"])
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscar_registrarwapp():
+    d = json.loads(request.data.decode("UTF-8"))
+    wapp = d['wapp']
+    msg = d['msg']
+    con = get_con()
+    ins = f"insert into wappsenviados(wapp,msg) values('{wapp}','{msg}')"
+    pgexec(con, ins)
+    con.close()
+    return 'ok'
 
 
-
-
-
+@buscador.route('/buscador/obtenerwapps/<wapp>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscar_obtenerwapps(wapp):
+    con = get_con()
+    recibidos = pglistdict(con, f"select fecha,msg,'rec' as dir from wappsrecibidos \
+        where wapp='549{wapp}'")
+    enviados = pglistdict(con, f"select fecha,msg,'env' as dir from wappsenviados \
+        where wapp='{wapp}'")
+    con.close()
+    return jsonify(recibidos=recibidos, enviados=enviados)
 
 
 @buscador.route('/buscador/callesprueba')
