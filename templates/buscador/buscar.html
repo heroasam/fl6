@@ -3,7 +3,7 @@
 {% block title %}Clientes{% endblock %}
 {% block content %}
 <div x-data="main()"  class="container" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores();
-             getInflacion();autoLoad();cargarMsgs()">
+             getInflacion();autoLoad();cargarMsgs();setInterval(()=>{verificarWapps()},10000)">
 
   <div>
 	<div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
@@ -597,25 +597,30 @@
     <!-- tabla wapps -->
    <div class="columns">
     <div class="column is-10">
-      <span class="tag is-large" x-show="verCard && listaWapps.length">Lista de WhatsApp</span>
+      <div x-show="verCard && listaWapps.length"><span class="tag is-large">Lista de WhatsApp</span> <span class="tag is-small is-success pointer" @click="contestarWapp=1">Contestar</tag></div>
       <table class="table noselect is-narrow is-striped" x-show="verCard && listaWapps.length" id="table-wapps">
         <thead>
           <tr>
             <th>fecha</th>
-            <th>dir</th>
             <th>msg</th>
+            <th>user</th>
           </tr>
         </thead>
         <tbody>
           <template x-for="item in listaWapps">
-          <tr>
+          <tr :class="item.user?'wapp_respuesta':''">
             <td x-text="item.fecha"></td>
-            <td x-text="item.dir"></td>
             <td x-text="item.msg"></td>
+            <td x-text="item.user||''"></td>
           </tr>
           </template>
         </tbody>
       </table>
+      <div x-show="contestarWapp">
+        <label for="msg" class="label">Mensaje</label>
+        <textarea x-model="msgWhatsapp" id="msg" autocomplete="off" rows="5" cols="32"></textarea>
+        <button class="button is-small is-info" @click="responderWapp()">Enviar</button>
+      </div>
     </div>
    </div>
    <!-- MODALES -->
@@ -974,6 +979,7 @@
          verAvisoDniCopiado:false,
          cuotaMaxima:'',
          cntCuentas:1,
+         contestarWapp:0,
 
          buscarCliente(){
              this.verCard = false
@@ -1138,14 +1144,13 @@
                       let recibidos = res.data.recibidos
                       let enviados = res.data.enviados
                       this.listaWapps = [...recibidos, ...enviados]
-                      this.listaWapps = this.listaWapps.filter(row=>row.msg!==null&&row.msg!==undefined)
-                      this.listaWapps.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      this.listaWapps = this.listaWapps.filter(row=>row.msg!==null&&row.msg!==undefined&&row.msg!='')
+                      this.listaWapps.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD HH:mm:ss'))
                       this.listaWapps.sort((a,b)=>{
-                          if(a.fecha>b.fecha) return -1
-                          if(a.fecha<b.fecha) return 1
+                          if(a.fecha>b.fecha) return 1
+                          if(a.fecha<b.fecha) return -1
                           if(a.fecha==b.fecha) return 0
                       })
-                      console.log('wapps', this.listaWapps)
              })
          },
          pedirComentarios(idcliente){
@@ -1634,6 +1639,11 @@
 										                                          msgSuccess('Exito!','Intimacion impresa en pantalla')
 									                                          })
          },
+         responderWapp(){
+             this.enviarWhatsapp()
+             this.msgWhatsapp = ''
+             this.contestarWapp = 0
+         },
          sendMsgGeneral(){
              toggleModal('modal-edicion-msg-wapp')
          },
@@ -1642,7 +1652,7 @@
 		            wapp:this.Cliente.wapp,
 		            msg:this.msgWhatsapp,
 	         }
-             toggleModal('modal-edicion-msg-wapp')
+             closeModal('modal-edicion-msg-wapp')
 	         msgDelay('Espere mientras se envia el mensaje')
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 	         axios.post('/buscador/wapp',data)
@@ -1865,6 +1875,11 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
                       this.refreshCliente(this.Cliente.dni)
              })
 
+         },
+         verificarWapps(){
+             if(this.listaWapps.length){
+                 this.obtenerWapps(this.Cliente.wapp)
+             }
          },
      }
  }

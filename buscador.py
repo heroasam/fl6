@@ -947,7 +947,8 @@ def buscar_registrarwapp():
     wapp = d['wapp']
     msg = d['msg']
     con = get_con()
-    ins = f"insert into wappsenviados(wapp,msg) values('{wapp}','{msg}')"
+    ins = f"insert into wappsenviados(wapp,msg,user) values('{wapp}','{msg}',\
+                                                    '{current_user.email}')"
     pgexec(con, ins)
     con.close()
     return 'ok'
@@ -960,7 +961,7 @@ def buscar_obtenerwapps(wapp):
     con = get_con()
     recibidos = pglistdict(con, f"select fecha,msg,'rec' as dir from wappsrecibidos \
         where wapp='549{wapp}'")
-    enviados = pglistdict(con, f"select fecha,msg,'env' as dir from wappsenviados \
+    enviados = pglistdict(con, f"select fecha,msg,'env' as  dir, user from wappsenviados \
         where wapp='{wapp}'")
     con.close()
     return jsonify(recibidos=recibidos, enviados=enviados)

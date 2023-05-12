@@ -539,6 +539,13 @@ function toggleModal(id) {
     $id.classList.toggle('is-active'); //
 }
 
+function closeModal(id) {
+    let $id = document.getElementById(id);
+    if($id.classList.contains('is-active')){
+        $id.classList.toggle('is-active')
+    }
+}
+
 function dia(day) {
     //formamos el nombre de la clase con la palabra color mas
     //el ultimo digito de los dias para tener solo diez colores
