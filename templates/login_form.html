@@ -24,10 +24,11 @@
                 {% endif %}
                 <div class="field">
                     <div class="control">
-                        <input class="input is-large" type="email" name="email" placeholder="Your Email" autofocus="" v-model="email">
+                      <input class="input is-large" type="email" name="email" placeholder="Your Email" autofocus=""
+                             autocomplete="off" v-model="email">
                     </div>
                 </div>
-    
+
                 <div class="field">
                     <div class="control">
                         <input class="input is-large" type="password" name="password" placeholder="Your Password" v-model="password">
@@ -45,4 +46,3 @@
     </div>
 </div>
 {% endblock %}
-
