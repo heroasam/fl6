@@ -50,6 +50,7 @@
         </a>
         <div class="navbar-dropdown" x-show="verDropdownClientes">
           <a class="navbar-item" href="/buscador"  x-show="['dev','gerente','admin'].includes(rol)">Buscador</a>
+          <a class="navbar-item" href="/buscador/gestionarwapps"  x-show="['dev','gerente','admin'].includes(rol)">WhatsApps</a>
           <a class="navbar-item" href="/buscador/clientenuevo" x-show="['dev','gerente','admin'].includes(rol)">Cliente Nuevo</a>
           <hr class="navbar-divider">
           <a class="navbar-item" href="/buscador/verdatos" x-show="['dev','gerente','admin'].includes(rol)">Ver Datos</a>

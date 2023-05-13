@@ -30,6 +30,14 @@ def buscador_():
     return render_template("buscador/buscar.html")
 
 
+@buscador.route('/buscador/gestionarwapps', methods=['GET', 'POST'])
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_gestionarwapps():
+    """Muestra pagina buscador."""
+    return render_template("buscador/gestionarwapps.html")
+
+
 @buscador.route('/buscador/clientenuevo')
 @login_required
 @check_roles(['dev','gerente','admin'])
@@ -960,9 +968,24 @@ def buscar_registrarwapp():
 def buscar_obtenerwapps(wapp):
     con = get_con()
     recibidos = pglistdict(con, f"select fecha,msg,'rec' as dir from wappsrecibidos \
-        where wapp='549{wapp}'")
+        where wapp like '%{wapp}'")
     enviados = pglistdict(con, f"select fecha,msg,'env' as  dir, user from wappsenviados \
         where wapp='{wapp}'")
+    con.close()
+    return jsonify(recibidos=recibidos, enviados=enviados)
+
+
+@buscador.route('/buscador/obtenertodoswapps')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscar_obtenertodoswapps():
+    con = get_con()
+    recibidos = pglistdict(con, "select fecha,msg,'rec' as dir,wapp from \
+    wappsrecibidos where wapp in (select wapp from wappsrecibidos where \
+                               respondido=0)")
+    enviados = pglistdict(con, "select fecha,msg,'env' as  dir, user,wapp from \
+    wappsenviados where wapp in (select wapp from wappsrecibidos where \
+                                 respondido=0)")
     con.close()
     return jsonify(recibidos=recibidos, enviados=enviados)
 
