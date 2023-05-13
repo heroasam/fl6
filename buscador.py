@@ -1107,3 +1107,19 @@ def buscador_quieredevolver(idvta):
     pgexec(con, upddato)
     con.close()
     return 'ok'
+
+
+@buscador.route('/buscador/chequeardato/<int:id>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_chequeardato(id):
+        """Chequea en tabla datos si el idcliente dado tiene dato pendiente."""
+        con = get_con()
+        tiene_dato = pgonecolumn(con, f"select count(*) from datos where \
+            idcliente={id} and resultado is null")
+        print('tiene_dato',tiene_dato)
+        if tiene_dato is None:
+            tiene_dato = 0
+        print('tiene_dato',tiene_dato)
+
+        return jsonify(tienedato=tiene_dato)

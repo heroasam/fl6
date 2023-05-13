@@ -3,7 +3,7 @@
 {% block title %}Clientes{% endblock %}
 {% block content %}
 <div x-data="main()"  class="container" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores();
-             getInflacion();autoLoad();cargarMsgs();setInterval(()=>{verificarWapps()},10000)">
+             getInflacion();autoLoad();cargarMsgs();setInterval(()=>{verificarWapps()},10000);obtenerHistorialBusquedas();">
 
   <div>
 	<div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
@@ -193,6 +193,7 @@
 	     x-show="listaComentarios.length">Hay comentarios</a>
       <a href="#table-wapps" class="tag is-small is-success"
 	     x-show="listaWapps.length">Hay whatsapps</a>
+      <span class="tag is-small is-info" x-show="tieneDato">Tiene Dato</span>
       </div>
   </div>
   <div class="buttons ml-3 mr-3 mb-1" x-show="verCard">
@@ -980,19 +981,13 @@
          cuotaMaxima:'',
          cntCuentas:1,
          contestarWapp:0,
+         tieneDato:0,
 
          buscarCliente(){
              this.verCard = false
              this.resetBuscar()
 	         this.buscar = this.buscar1.length>0?this.buscar1:this.buscar
              let patternDni = /^(\d){7,8}$/
-             /* if(patternDni.test(this.buscar)){
-              *     textToClipboard(this.buscar)
-              *     this.verAvisoDniCopiado=true
-              *     setTimeout(()=>{this.verAvisoDniCopiado=false},3000)
-              * }else{
-              *     clearClipboard()
-              * } */
 	         if(this.buscar=='') this.buscar='-'
              axios.get('/buscador/'+this.buscar)
 		          .then(res=>{
@@ -1007,7 +1002,7 @@
 			              if(row.ultcompra>row.ultpago) row.ultpago=row.ultcompra
 		              })
 		              if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
-                      this.listaBusquedasRecientes.push(this.buscar)
+                      this.agregarBusquedaReciente(this.buscar)
 
 		          })
 		          .catch(error=>{
@@ -1017,27 +1012,25 @@
          buscaCuentaporDni(dni){
 	         this.resetBuscar()
 	         this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
-             /* axios.get('/buscador/getasignado/'+this.Cliente.zona)
-              *                    .then(res=>{
-              *                        this.Cliente.asignado = res.data.asignado
-              * }) */
              this.Cliente.direccion = this.Cliente.calle+' '+this.Cliente.num
              this.obtenerVentas(this.Cliente.id)
              this.obtenerWapps(this.Cliente.wapp)
+             this.chequearDatos(this.Cliente.id)
              this.verCard = true;
              this.clipWappVentas()
+             textToClipboard(this.Cliente.dni)
 	         this.buscar = this.Cliente.calle+' '+this.Cliente.num
              axios.get('/vendedor/getcuotamaxima/'+this.Cliente.id)
                                .then(res=>{
                                    this.cuotaMaxima = res.data.cuotamaxima
                                })
-             if(this.Cliente.dni){
-                 textToClipboard(this.Cliente.dni)
-                 this.verAvisoDniCopiado=true
-                 setTimeout(()=>{this.verAvisoDniCopiado=false},3000)
-             }else{
-                 clearClipboard()
-             }
+             /* if(this.Cliente.dni){
+              *     textToClipboard(this.Cliente.dni)
+              *     this.verAvisoDniCopiado=true
+              *     setTimeout(()=>{this.verAvisoDniCopiado=false},3000)
+              * }else{
+              *     clearClipboard()
+              * } */
          },
          refreshCliente(dni){
              axios.get('/buscador/'+dni)
@@ -1236,7 +1229,6 @@
                  if(s1<s2) return -1
                  if(s1==s2) return 0
              })
-             console.log( tblCuota)
              return tblCuota
          },
          pedirPagadas(idcliente){
@@ -1881,7 +1873,22 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
                  this.obtenerWapps(this.Cliente.wapp)
              }
          },
-     }
+         obtenerHistorialBusquedas(){
+             this.listaBusquedasRecientes=JSON.parse(localStorage.getItem('logBusquedas'))  || []
+         },
+         agregarBusquedaReciente(busqueda){
+             if(this.listaBusquedasRecientes.length>10) this.listaBusquedasRecientes.shift()
+             this.listaBusquedasRecientes.push(busqueda)
+             this.listaBusquedasRecientes = [...new Set(this.listaBusquedasRecientes)]
+             localStorage.setItem('logBusquedas',JSON.stringify(this.listaBusquedasRecientes))
+         },
+         chequearDatos(idcliente){
+             axios.get('/buscador/chequeardato/'+idcliente)
+                  .then(res=>{
+                      this.tieneDato = res.data.tienedato
+             })
+         },
+ }
  }
 </script>
 {% endblock %}

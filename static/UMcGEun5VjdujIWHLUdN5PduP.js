@@ -585,8 +585,10 @@ function autoComplete(url, inputId, suggestionId) {
 }
 
 
- function textToClipboard(text) {
-     navigator.clipboard.writeText(text);
+function textToClipboard(text) {
+    navigator.clipboard.writeText(text)
+        .then(() => console.log('Texto copiado al portapapeles',text))
+  .catch((err) => console.error('Error al copiar el texto: ', err));
  }
  function copyToClipboard(input) {
      var copyText = document.getElementById(input);
