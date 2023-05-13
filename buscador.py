@@ -981,8 +981,8 @@ def buscar_obtenerwapps(wapp):
 def buscar_obtenertodoswapps():
     con = get_con()
     recibidos = pglistdict(con, "select fecha,msg,'rec' as dir,wapp,(select \
-    min(nombre) from clientes where clientes.wapp=SUBSTRING\
-    (wappsrecibidos.wapp, -10) order by deuda desc) as nombre \
+    min(nombre) from clientes where clientes.wapp=\
+    SUBSTRING(wappsrecibidos.wapp, -10) order by deuda desc) as nombre \
     from wappsrecibidos where wapp in (select wapp from wappsrecibidos where \
                                respondido=0)")
     print(recibidos)
