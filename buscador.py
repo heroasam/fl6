@@ -980,9 +980,12 @@ def buscar_obtenerwapps(wapp):
 @check_roles(['dev','gerente','admin'])
 def buscar_obtenertodoswapps():
     con = get_con()
-    recibidos = pglistdict(con, "select fecha,msg,'rec' as dir,wapp from \
-    wappsrecibidos where wapp in (select wapp from wappsrecibidos where \
+    recibidos = pglistdict(con, "select fecha,msg,'rec' as dir,wapp,(select \
+    min(nombre) from clientes where clientes.wapp=SUBSTRING\
+    (wappsrecibidos.wapp, -10) order by deuda desc) as nombre \
+    from wappsrecibidos where wapp in (select wapp from wappsrecibidos where \
                                respondido=0)")
+    print(recibidos)
     enviados = pglistdict(con, "select fecha,msg,'env' as  dir, user,wapp from \
     wappsenviados where wapp in (select wapp from wappsrecibidos where \
                                  respondido=0)")

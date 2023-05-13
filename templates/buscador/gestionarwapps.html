@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Gestionar WhatsApps{% endblock %}
+
+{% block content %}
+
+<div class="container" x-data="main()" x-init="getWapps()">
+
+
+  <p class="title is-1">Gestionar WhatsApps</p>
+
+  <table class="table noselect is-narrow is-striped">
+     <thead>
+        <tr>
+          <th></th>
+          <th>whatsapp</th>
+          <th>nombre</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-for="item in listaChats">
+          //listaChats es un Array de wapps
+           <tr :id="item.wapp">
+             <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
+                                                @click="expandChildren(item.wapp)"></i></span></td>
+             <td x-text="item.wapp"></td>
+             <td x-text="item.nombre"></td>
+             <td><button class="button is-small is-info" x-show="item.nombre">Contestar</button></td>
+          </tr>
+        </template>
+        <template x-for="item in listaWapps_">
+          <tr class="children">
+            <td></td>
+            <td x-text="item.fecha"></td>
+            <td x-text="item.msg"></td>
+            <td x-text="item.user"></td>
+          </tr>
+        </template>
+      </tbody>
+   </table>
+
+
+
+</div>
+{% endblock %}
+{% block script %}
+<script>
+ function main(){
+     return{
+         listaWapps:[],
+         listaChats:[],
+         listaWapps_:[],
+         wapp:'',
+         getWapps(){
+              axios.get('/buscador/obtenertodoswapps')
+                  .then(res=>{
+                      let recibidos = res.data.recibidos
+                      let enviados = res.data.enviados
+                      this.listaWapps = [...recibidos, ...enviados]
+                      this.listaWapps = this.listaWapps.filter(row=>row.msg!==null&&row.msg!==undefined&&row.msg!='')
+                      this.listaWapps.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD HH:mm:ss'))
+                      this.listaWapps.sort((a,b)=>{
+                          if(a.fecha>b.fecha) return 1
+                          if(a.fecha<b.fecha) return -1
+                          if(a.fecha==b.fecha) return 0
+                      })
+                      this.listaWapps.forEach(row=>{
+                          if(!this.listaChats.find(item => item.wapp === row.wapp)){
+                              this.listaChats.push({'wapp':row.wapp,'nombre':row.nombre})
+                          }
+                      })
+
+             console.log( this.listaWapps, this.listaChats)
+                  })
+         },
+         expandChildren(wapp){
+             if(this.wapp==wapp && this.listaWapps_.length>0){
+                 console.log( "entra aqui")
+                 this.listaWapps_=[]
+                 return
+             }
+             console.log( this.listaWapps)
+             this.listaWapps_ = this.listaWapps.filter(row=>row.wapp.includes(wapp.slice(-10)))
+             this.wapp = wapp
+             $tbody = document.querySelector('tbody')
+             $trwapp = document.getElementById(String(wapp))
+             setTimeout(()=>{
+                 let arrayrows = Array.from($tbody.children)
+                 let children = arrayrows.filter(row=>row.classList.contains('children'))
+                 children = children.reverse()
+                 for(el of children){
+                     $tbody.insertBefore(el,$trwapp.nextSibling)
+                 }
+             },1)
+         },
+
+     }
+ }
+</script>
+{% endblock %}
