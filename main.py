@@ -300,7 +300,7 @@ def webhook():
 def guardar_msg(wapp,msg):
     """Guarda el msg recibido por el webhook en la tabla correspondiente."""
     con = get_con()
-    ins = f"insert into wappsrecibidos(wapp,msg) values('{wapp}','{msg}')"
+    ins = f"insert into wappsrecibidos(wapp,msg,fecha) values('{wapp}','{msg}',curdate())"
     pgexec(con, ins)
     con.close()
     return

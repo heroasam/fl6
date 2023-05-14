@@ -1149,3 +1149,20 @@ def buscador_chequeardato(id):
         print('tiene_dato',tiene_dato)
 
         return jsonify(tienedato=tiene_dato)
+
+
+@buscador.route('/buscador/obtenerdniporwapp/<wapp>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_obtenerdniporwapp(wapp):
+       """Busca el mejor cliente posible que tenga ese wapp."""
+       con = get_con()
+       list_dni_deuda = pglistdict(con, f"select dni,deuda from clientes \
+           where wapp=SUBSTRING({wapp},-10)")
+       if len(list_dni_deuda) > 1:
+           list_dni_deuda_ordenada = sorted(list_dni_deuda, key=lambda x: x['deuda'], reverse=True)
+           dni = list_dni_deuda_ordenada[0]['dni']
+       else:
+           dni = list_dni_deuda[0]['dni']
+       return jsonify(dni=dni)
+           

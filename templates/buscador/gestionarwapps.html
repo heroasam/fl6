@@ -9,7 +9,7 @@
 
   <p class="title is-1">Gestionar WhatsApps</p>
 
-  <table class="table noselect is-narrow is-striped">
+  <table class="table noselect is-narrow">
      <thead>
         <tr>
           <th></th>
@@ -26,7 +26,7 @@
                                                 @click="expandChildren(item.wapp)"></i></span></td>
              <td x-text="item.wapp"></td>
              <td x-text="item.nombre"></td>
-             <td><button class="button is-small is-info" x-show="item.nombre">Contestar</button></td>
+             <td><button class="button is-small is-info" x-show="item.nombre" @click="contestarWapp(item.wapp)">Contestar</button></td>
           </tr>
         </template>
         <template x-for="item in listaWapps_">
@@ -51,6 +51,7 @@
          listaWapps:[],
          listaChats:[],
          listaWapps_:[],
+         hace24horas : dayjs().subtract(24, 'hour'), 
          wapp:'',
          getWapps(){
               axios.get('/buscador/obtenertodoswapps')
@@ -67,7 +68,11 @@
                       })
                       this.listaWapps.forEach(row=>{
                           if(!this.listaChats.find(item => item.wapp === row.wapp)){
+                            // vamos a filtrar los chats innominados o sea los que no tienen cliente 
+                            // salvo los del dia de hoy
+                            if(row.nombre || dayjs(row.fecha).isAfter(this.hace24horas) && !row.nombre){
                               this.listaChats.push({'wapp':row.wapp,'nombre':row.nombre})
+                            }
                           }
                       })
 
@@ -93,6 +98,13 @@
                      $tbody.insertBefore(el,$trwapp.nextSibling)
                  }
              },1)
+         },
+         contestarWapp(wapp){
+             axios.get('/buscador/obtenerdniporwapp/'+wapp)
+                  .then(res=>{
+                      dni = res.data.dni
+                      window.open('/buscador/interno/'+dni, target='_self')
+             })
          },
 
      }
