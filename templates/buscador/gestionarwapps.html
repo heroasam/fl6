@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getWapps()">
+<div class="container" x-data="main()" x-init="getWapps();setInterval(()=>{getWapps()},10000)">
 
 
   <p class="title is-1">Gestionar WhatsApps</p>
@@ -103,7 +103,7 @@
              axios.get('/buscador/obtenerdniporwapp/'+wapp)
                   .then(res=>{
                       dni = res.data.dni
-                      window.open('/buscador/interno/'+dni, target='_self')
+                      window.open('/buscador/interno/'+dni, target='_blank')
              })
          },
 
