@@ -26,7 +26,8 @@
                                                 @click="expandChildren(item.wapp)"></i></span></td>
              <td x-text="item.wapp"></td>
              <td x-text="item.nombre"></td>
-             <td><button class="button is-small is-info" x-show="item.nombre" @click="contestarWapp(item.wapp)">Contestar</button></td>
+             <td><button class="button is-small is-info" x-show="item.nombre" @click="contestarWapp(item.wapp)">
+              Contestar</button><span class="tag is-small is-warning" x-text="item.cnt" x-show="item.cnt>1"></span></td>
           </tr>
         </template>
         <template x-for="item in listaWapps_">
@@ -71,7 +72,7 @@
                             // vamos a filtrar los chats innominados o sea los que no tienen cliente 
                             // salvo los del dia de hoy
                             if(row.nombre || dayjs(row.fecha).isAfter(this.hace24horas) && !row.nombre){
-                              this.listaChats.push({'wapp':row.wapp,'nombre':row.nombre})
+                              this.listaChats.push({'wapp':row.wapp,'nombre':row.nombre,'cnt':row.cnt})
                             }
                           }
                       })

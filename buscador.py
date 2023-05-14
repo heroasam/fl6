@@ -971,8 +971,10 @@ def buscar_obtenerwapps(wapp):
         where wapp like '%{wapp}'")
     enviados = pglistdict(con, f"select fecha,msg,'env' as  dir, user from wappsenviados \
         where wapp='{wapp}'")
+    cntcompartenwapp = pgonecolumn(con, f"select count(*) from clientes where \
+                                   wapp=SUBSTRING({wapp},-10)")
     con.close()
-    return jsonify(recibidos=recibidos, enviados=enviados)
+    return jsonify(recibidos=recibidos, enviados=enviados, cntcompartenwapp=cntcompartenwapp)
 
 
 @buscador.route('/buscador/obtenertodoswapps')
@@ -982,10 +984,11 @@ def buscar_obtenertodoswapps():
     con = get_con()
     recibidos = pglistdict(con, "select fecha,msg,'rec' as dir,wapp,(select \
     min(nombre) from clientes where clientes.wapp=\
-    SUBSTRING(wappsrecibidos.wapp, -10) order by deuda desc) as nombre \
+    SUBSTRING(wappsrecibidos.wapp, -10) order by deuda desc) as nombre, \
+    (select count(*) from clientes where clientes.wapp=\
+    SUBSTRING(wappsrecibidos.wapp, -10)) as cnt \
     from wappsrecibidos where wapp in (select wapp from wappsrecibidos where \
                                respondido=0)")
-    print(recibidos)
     enviados = pglistdict(con, "select fecha,msg,'env' as  dir, user,wapp from \
     wappsenviados where wapp in (select wapp from wappsrecibidos where \
                                  respondido=0)")
@@ -1165,4 +1168,3 @@ def buscador_obtenerdniporwapp(wapp):
        else:
            dni = list_dni_deuda[0]['dni']
        return jsonify(dni=dni)
-           

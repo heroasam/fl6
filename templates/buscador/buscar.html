@@ -598,7 +598,11 @@
     <!-- tabla wapps -->
    <div class="columns">
     <div class="column is-10">
-      <div x-show="verCard && listaWapps.length"><span class="tag is-large">Lista de WhatsApp</span> <span class="tag is-small is-success pointer" @click="contestarWapp=1">Contestar</tag></div>
+      <div x-show="verCard && listaWapps.length">
+        <span class="tag is-large">Lista de WhatsApp</span> 
+        <span class="tag is-small is-success pointer" @click="contestarWapp=1">Contestar</span>
+        <span class="tag is-small is-warning" x-text="cntCompartenWapp" x-show="cntCompartenWapp>1"></span>
+      </div>
       <table class="table noselect is-narrow is-striped" x-show="verCard && listaWapps.length" id="table-wapps">
         <thead>
           <tr>
@@ -618,9 +622,13 @@
         </tbody>
       </table>
       <div x-show="contestarWapp">
-        <label for="msg" class="label">Mensaje</label>
+        <div>
+        <label for="msg" class="label">Mensaje</label>    
         <textarea x-model="msgWhatsapp" id="msg" autocomplete="off" rows="5" cols="32"></textarea>
+        </div>
+        <div x-ref="button-wapps">
         <button class="button is-small is-info" @click="responderWapp()">Enviar</button>
+        </div>
       </div>
     </div>
    </div>
@@ -982,6 +990,7 @@
          cntCuentas:1,
          contestarWapp:0,
          tieneDato:0,
+         cntCompartenWapp:1,
 
          buscarCliente(){
              this.verCard = false
@@ -1134,6 +1143,7 @@
          obtenerWapps(wapp){
              axios.get('/buscador/obtenerwapps/'+wapp)
                   .then(res=>{
+                      this.cntCompartenWapp = res.data.cntcompartenwapp
                       let recibidos = res.data.recibidos
                       let enviados = res.data.enviados
                       this.listaWapps = [...recibidos, ...enviados]
@@ -1635,6 +1645,8 @@
              this.enviarWhatsapp()
              this.msgWhatsapp = ''
              this.contestarWapp = 0
+             const element = document.querySelector(`[x-ref='button-wapps']`);
+             element.scrollIntoView({behavior: 'smooth'});
          },
          sendMsgGeneral(){
              toggleModal('modal-edicion-msg-wapp')
