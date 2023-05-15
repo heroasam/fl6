@@ -967,12 +967,17 @@ def buscar_registrarwapp():
 @check_roles(['dev','gerente','admin'])
 def buscar_obtenerwapps(wapp):
     con = get_con()
+    if len(wapp) > 10:
+        wapp = wapp[:10]
+    if wapp is None:
+        wapp = 'sin wapp'
     recibidos = pglistdict(con, f"select fecha,msg,'rec' as dir from wappsrecibidos \
         where wapp like '%{wapp}'")
     enviados = pglistdict(con, f"select fecha,msg,'env' as  dir, user from wappsenviados \
         where wapp='{wapp}'")
     cntcompartenwapp = pgonecolumn(con, f"select count(*) from clientes where \
-                                   wapp=SUBSTRING({wapp},-10)")
+                                   wapp={wapp}")
+    print(recibidos,enviados,cntcompartenwapp)
     con.close()
     return jsonify(recibidos=recibidos, enviados=enviados, cntcompartenwapp=cntcompartenwapp)
 
@@ -992,6 +997,7 @@ def buscar_obtenertodoswapps():
     enviados = pglistdict(con, "select fecha,msg,'env' as  dir, user,wapp from \
     wappsenviados where wapp in (select wapp from wappsrecibidos where \
                                  respondido=0)")
+    print(recibidos,enviados)
     con.close()
     return jsonify(recibidos=recibidos, enviados=enviados)
 

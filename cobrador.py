@@ -44,6 +44,13 @@ def cobrador_listafichas():
     return render_template('/cobrador/listafichas.html')
 
 
+@cobrador.route('/cobrador/visitas')
+@login_required
+@check_roles(['dev','gerente','cobrador'])
+def cobrador_visitas():
+    """Muestra pagina lista de visitas."""
+    return render_template('/cobrador/visitas.html')
+
 
 @cobrador.route('/cobrador/getlistadofichas')
 @login_required
@@ -253,3 +260,21 @@ def cobrador_pasarpagos():
             return 'ok' 
     finally:
             con.close()
+
+
+@cobrador.route('/cobrador/getvisitascobrador')
+@login_required
+@check_roles(['dev', 'gerente', 'cobrador'])
+def cobrador_getvisitascobrador():
+    """Funcion que entrega lista de visitas hechas por el cobrador."""
+    con = get_con()
+    visitascobrador = pglistdict(con, "select visitascobr.fecha as fecha,\
+    cast(hora as char) as hora, visitascobr.cobr as cobr, result, \
+    visitascobr.monto_cobrado as monto_cobrado, idcliente,nombre,calle,num,\
+    clientes.zona as zona from visitascobr,clientes where clientes.id=\
+    visitascobr.idcliente order by visitascobr.fecha desc,hora")
+
+    fechasvisitas = pglistdict(con, "select fecha,cobr, count(*) as cnt, \
+    sum(monto_cobrado) as monto_cobrado from visitascobr group by fecha,\
+    cobr order by fecha,cobr desc")
+    return jsonify(visitascobrador=visitascobrador, fechasvisitas=fechasvisitas)

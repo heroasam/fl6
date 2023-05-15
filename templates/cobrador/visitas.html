@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Visitas{% endblock %}
+{% block style %}
+<style>
+  </style>
+  {% endblock %}
+
+{% block content %}
+
+  <div class="container" x-data="main()" x-init="getVisitasCobrador()">
+
+    <p class="title is-1">Visitas Diarias por Cobrador</p>
+    <div class="columns">
+      <div class="column is-6">
+        <div class="buttons" id="btnCobr">
+          <template x-for="cobr in listaCobradores">
+            <button class="button is-info" @click="filtrarCobr(cobr);limpiarToggles();
+                           $event.target.classList.toggle('is-warning')" x-text="cobr"></button>
+          </template>
+        </div>
+            <table class="table is-narrow" id="table">
+                <thead>
+                    <tr>
+                        <th>hora</th>
+                        <th>resultado</th>
+                        <th>nombre</th>
+                        <th>direccion</th>
+                        <th>zona</th>
+                        <th class="sumar">cobrado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  <template x-for="item in listaFechas_">
+                    <tr :id="item.fecha">
+                      <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
+                                                         @click="expandChildren(item.fecha)"></td>
+                          <td x-text="item.fecha"></td>
+                          <td x-text="item.cnt"></td>
+                          <td></td>
+                          <td></td>
+                          <td x-text="item.monto_cobrado" class="pesos"></td>
+                    </tr>
+                  </template>
+
+                  <template x-for="item in listaVisitasCobrador_">
+                    <tr class="children">
+                        <td x-text="item.hora"></td>
+                        <td><span class="tag is-small" x-text="item.result==1?'cobranza':(item.result==2?'fechado':
+                                         (item.result==3?'no estaba':(item.result==4?'mudo':'fallecio')))"
+                                  :class="item.result==1?'is-success':(item.result==2?'is-info':(item.result==3?'is-warning':
+                                         (item.result==4?'is-danger':'is-black')))"></span></td>
+                        <td x-text="item.nombre"></td>
+                        <td x-text="item.calle+' '+item.num"></td>
+                        <td x-text="item.zona"></td>
+                        <td x-text="item.monto_cobrado" class="pesos"></td>
+                    </tr>
+                    </template>
+                 </tbody>
+            </table>
+
+    </div>
+
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+ function main(){
+     return{
+         listaVisitasCobrador:[],
+         listaVisitasCobrador_:[],
+         listaFechas:[],
+         listaFechas_:[],
+         fecha:'',
+         Cobrador:'',
+         listaCobradores:[],
+         getVisitasCobrador(){
+             axios.get('/cobrador/getvisitascobrador')
+                  .then(res=>{
+                      this.listaVisitasCobrador = res.data.visitascobrador
+                      this.listaVisitasCobrador.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      this.listaFechas = res.data.fechasvisitas
+                      this.listaFechas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+                      let cobres = new Set(this.listaFechas.map(row=>row.cobr))
+                      this.listaCobradores = Array.from(cobres)
+                      this.listaFechas.reverse()
+             })
+         },
+         expandChildren(fecha){
+              if(this.fecha==fecha && this.listaVisitasCobrador_.length>0){
+                  this.listaVisitasCobrador_ = []
+                  return
+              }
+             this.listaVisitasCobrador_ = this.listaVisitasCobrador.filter(row=>row.cobr==this.Cobrador)
+             this.listaVisitasCobrador_ = this.listaVisitasCobrador_.filter(row=>row.fecha==fecha)
+             this.fecha = fecha
+             setTimeout(()=>{
+             $tbody = document.querySelector('tbody')
+             $trfecha = document.getElementById(fecha)
+             let arrayrows = Array.from($tbody.children)
+             let children = arrayrows.filter(row=>row.classList.contains('children'))
+             children = children.reverse()
+             for(el of children){
+                 $tbody.insertBefore(el,$trfecha.nextSibling)
+               }},10)
+         },
+         filtrarCobr(cobr){
+             this.Cobrador=cobr
+             this.listaFechas_ = []
+             this.listaVisitasCobrador_ = []
+             this.listaFechas_ = this.listaFechas.filter(row=>row.cobr==this.Cobrador)
+         },
+          limpiarToggles() {
+             $btncobr = document.getElementById('btncobr')
+             Array.from($btncobr.children).slice(1).forEach(btn => {
+                 btn.classList.remove('is-warning')
+             })
+          },
+     }
+ }
+  </script>
+  {% endblock %}
