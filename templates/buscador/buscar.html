@@ -1011,7 +1011,7 @@
 			              if(row.ultcompra>row.ultpago) row.ultpago=row.ultcompra
 		              })
 		              if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
-                      this.agregarBusquedaReciente(this.buscar)
+                      
 
 		          })
 		          .catch(error=>{
@@ -1033,13 +1033,8 @@
                                .then(res=>{
                                    this.cuotaMaxima = res.data.cuotamaxima
                                })
-             /* if(this.Cliente.dni){
-              *     textToClipboard(this.Cliente.dni)
-              *     this.verAvisoDniCopiado=true
-              *     setTimeout(()=>{this.verAvisoDniCopiado=false},3000)
-              * }else{
-              *     clearClipboard()
-              * } */
+                               this.agregarBusquedaReciente(this.buscar)  
+             
          },
          refreshCliente(dni){
              axios.get('/buscador/'+dni)
@@ -1890,7 +1885,7 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
          },
          agregarBusquedaReciente(busqueda){
              if(this.listaBusquedasRecientes.length>10) this.listaBusquedasRecientes.shift()
-             this.listaBusquedasRecientes.push(busqueda)
+             this.listaBusquedasRecientes.push(this.Cliente.nombre+' '+this.Cliente.calle+' '+this.Cliente.num)
              this.listaBusquedasRecientes = [...new Set(this.listaBusquedasRecientes)]
              localStorage.setItem('logBusquedas',JSON.stringify(this.listaBusquedasRecientes))
          },
