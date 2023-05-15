@@ -1168,3 +1168,21 @@ def buscador_obtenerdniporwapp(wapp):
        else:
            dni = list_dni_deuda[0]['dni']
        return jsonify(dni=dni)
+
+
+
+@buscador.route('/buscador/marcarrespondidoporwappoficial/<wapp>')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscador_marcarrespondidoporwappoficial(wapp):
+    con = get_con()
+    upd = f"update wappsrecibidos set respondido=1 where wapp like '%{wapp}'"
+    try:
+        pgexec(con, upd)
+    except mysql.connector.Error as _error:
+       con.rollback()
+       error = _error.msg
+       return make_response(error,400)
+    else:
+        con.close()
+        return 'ok'

@@ -16,6 +16,7 @@
           <th>whatsapp</th>
           <th>nombre</th>
           <th></th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -28,6 +29,7 @@
              <td x-text="item.nombre"></td>
              <td><button class="button is-small is-info" x-show="item.nombre" @click="contestarWapp(item.wapp)">
               Contestar</button><span class="tag is-small is-warning" x-text="item.cnt" x-show="item.cnt>1"></span></td>
+              <td><button class="button is-small is-success" @click="marcarRespondidoWappOficial(item.wapp)">Respondido</button></td>
           </tr>
         </template>
         <template x-for="item in listaWapps_">
@@ -106,6 +108,12 @@
                       dni = res.data.dni
                       window.open('/buscador/interno/'+dni, target='_blank')
              })
+         },
+         marcarRespondidoWappOficial(wapp){
+          axios.get('/buscador/marcarrespondidoporwappoficial/'+wapp)
+          .then(res=>{
+            this.getWapps()
+          })
          },
 
      }
