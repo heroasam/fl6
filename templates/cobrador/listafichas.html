@@ -412,14 +412,16 @@
          },
          cobrarFicha(){
              toggleModal("modal-cobrar");
-             this.cobrar={rbo:0,rec:'',cobr:this.cobr, idcliente:this.Ficha.id,idvta:this.idvta,fecha:dayjs.utc().format('YYYY-MM-DD'),rendido:0}
+             this.cobrar={rbo:0,rec:'',cobr:this.cobr, idcliente:this.Ficha.id,idvta:this.idvta,
+             fecha:dayjs.utc().format('YYYY-MM-DD'),rendido:0}
          },
          procesarCobro(){
              toggleModal("modal-cobrar");
-             this.cobrar.idvta = this.cobrar.cuenta
+             this.cobrar.idvta = this.cobrar.cuenta || this.idvta;
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
              axios.post('/pagos/pasarpagos',this.cobrar)
                   .then(res=>{
+                      axios.post('/cobrador/pasarpagos',this.cobrar)
                       msgSuccess("El pago fue procesado con exito")
                       this.obtenerVentas(this.cobrar.idcliente)
                   })

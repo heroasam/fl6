@@ -13,6 +13,7 @@ from con import get_con, log, check_roles
 from formularios import ficha
 
 
+
 cobrador = Blueprint('cobrador', __name__)
 
 
@@ -74,13 +75,17 @@ def cobrador_fecharficha(idcliente,pmovto):
     """Proceso para fechar fichas por el cobrador.
 
     Hay un campo fechada en clientes que permite filtrarle al cobrador las
-    fichas fechadas."""
+    fichas fechadas. Tambien registro en visitascobr."""
     con = get_con()
     upd = f"update clientes set pmovto='{pmovto}',fechado=1 where id=\
     {idcliente}"
+    cobr = var_sistema[current_user.email]
+    insvisita = f"insert into visitascobr(fecha,hora,cobr,idcliente,result)\
+        values(curdate(),curtime(),{cobr},{idcliente},2)"
     cur = con.cursor()
     try:
         cur.execute(upd)
+        cur.execute(insvisita)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
@@ -146,7 +151,7 @@ def cobrador_mudoficha(idcliente):
     con = get_con()
     cobr = var_sistema[current_user.email]
     ins = f"insert into visitascobr(fecha,hora,cobr,idcliente,result) \
-    values(curdate(),curtime(),{cobr},{idcliente},5)"
+    values(curdate(),curtime(),{cobr},{idcliente},4)"
     upd = f"update clientes set mudo=1,mudofallecio_proceso=1,asignada=0 where \
     id={idcliente}"
     inscomentario = f"insert into comentarios(idcliente, ingreso, comentario) \
@@ -176,7 +181,7 @@ def cobrador_fallecioficha(idcliente):
     con = get_con()
     cobr = var_sistema[current_user.email]
     ins = f"insert into visitascobr(fecha,hora,cobr,idcliente,result) \
-    values(curdate(),curtime(),{cobr},{idcliente},6)"
+    values(curdate(),curtime(),{cobr},{idcliente},5)"
     upd = f"update clientes set zona='-FALLECIDOS',mudofallecio_proceso=1, \
     asignada=0 where id={idcliente}"
     inscomentario = f"insert into comentarios(idcliente, ingreso, comentario) \
@@ -221,3 +226,30 @@ def cobrador_imprimirfichapantalla():
     ficha(con, [dni])
     con.close()
     return send_file('/home/hero/ficha.pdf')
+
+
+@cobrador.route('/cobrador/pasarpagos' , methods=['POST'])
+@login_required
+@check_roles(['dev','gerente','cobrador'])
+def cobrador_pasarpagos():
+    """Sobre un pago exitosamente pagado registro la visita."""
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    idcliente = d['idcliente']
+    monto = d['imp']
+    cobr = var_sistema[current_user.email]
+    ins = f"insert into visitascobr(fecha,hora,idcliente,result,cobr, \
+        monto_cobrado) values(curdate(),curtime(),{idcliente},1,{cobr},\
+            {monto})"
+    print(ins)
+    try:
+        pgexec(con, ins)
+    except mysql.connector.Error as _error:
+            con.rollback()
+            error = _error.msg
+            return make_response(error, 400)
+    else:
+            con.commit()
+            return 'ok' 
+    finally:
+            con.close()
