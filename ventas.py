@@ -925,7 +925,7 @@ def ventas_condonar(id):
 @login_required
 @check_roles(['dev','gerente','admin'])
 def ventas_pordia():
-    """Pivot-table de ventas por dia para controlar entradas."""
+    """Pandas ventas por dia para controlar entradas."""
     pd.options.display.float_format = '{:.0f}'.format
     sql = "select fecha,comprado,idvdor from ventas where devuelta=0 and pp=0 \
     and fecha>date_sub(curdate(),interval 1 month) and idvdor>15 \
@@ -946,7 +946,7 @@ def ventas_pordia():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def ventas_pormes():
-    """Pivot-table de ventas por mes, presente año."""
+    """Pandas de ventas por mes, presente año."""
     pd.options.display.float_format = '${:.0f}'.format
     sql = "select date_format(fecha,'%Y-%m') as mes,comprado,idvdor from \
     ventas where devuelta=0 and pp=0 and year(fecha)=year(curdate()) and \
@@ -967,7 +967,7 @@ def ventas_pormes():
 @login_required
 @check_roles(['dev','gerente'])
 def ventas_artyear():
-    """Pivot-table de venta articulos por año."""
+    """Pandas de venta articulos por año."""
     pd.options.display.float_format = '{:.0f}'.format
     sql = "select year(fecha) as año,detvta.cnt as cnt,detvta.art as art \
     from ventas,detvta where ventas.devuelta=0 and fecha>'2017-12-31' \
@@ -986,6 +986,7 @@ def ventas_artyear():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def ventas_pivotdevoluciones():
+    """Pandas de devoluciones."""
     pd.options.display.float_format = '${:.0f}'.format
     sql = "select montodev,vdor,mesvta from devoluciones where \
     fechadev>date_sub(curdate(),interval 1 year)"
@@ -1175,6 +1176,7 @@ def ventas_comisionesprom():
 @login_required
 @check_roles(['dev', 'gerente'])
 def ventas_yearcompra():
+    """Pandas de ventas por año."""
     pd.options.display.float_format = '${:.0f}'.format
     sql="select id,EXTRACT(YEAR_MONTH FROM fechacompra) as ym, yultcompra from prospectos where compro=1"
     dat = pd.read_sql_query(sql, engine)
@@ -1189,6 +1191,7 @@ def ventas_yearcompra():
 @login_required
 @check_roles(['dev', 'gerente'])
 def ventas_vtalistadozonas():
+    """Pandas de ventas de listado por zonas."""
     pd.options.display.float_format = '${:.0f}'.format
     sql="select date_format(fecha,'%Y-%m') as fp,ventas.comprado as venta, zona from ventas,clientes where clientes.id=ventas.idcliente and fecha >date_sub(curdate(),interval 365 day) and idvdor=835"
     dat = pd.read_sql_query(sql, engine)

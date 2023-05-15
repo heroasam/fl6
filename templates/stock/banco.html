@@ -10,7 +10,7 @@
 
 <div class="container" x-data="main()" x-init="getGrafico">
 
-  <p class="title is-1">Movimientos Bancos</p>
+  <p class="title is-1">Movimientos Banco Frances</p>
   <div class="columns">
     <div class="column is-8">
       {{tbl|safe}}
@@ -19,6 +19,8 @@
       </div>
       <h2 class="title is-3">Movimiento por cobrador</h2>
       {{tbl1|safe}}
+      <!-- <h2 class="title is-3">Porcentajes sobre su cobranza por cobrador</h2>
+      {{tbl2|safe}} -->
     </div>
   </div>
 
@@ -27,6 +29,7 @@
 
 {% block script %}
 <script>
+
  function main(){
      return{
 	     mes:[],

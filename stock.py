@@ -186,7 +186,7 @@ def stock_getmayor(cuenta):
 @login_required
 @check_roles(['dev','gerente'])
 def stock_pivotcuentas():
-    """Pivot Cuentas."""
+    """Pandas sobre cuentas y asientos."""
     pd.options.display.float_format = '{:20.0f}'.format
     sql="select grupo,tipo,caja.cuenta as cuenta,date_format(fecha,'%Y-%m') as \
     fecha,imp from caja,ctas where ctas.cuenta=caja.cuenta and \
@@ -939,26 +939,39 @@ def stock_conciliarpago(idpago):
 @login_required
 @check_roles(['dev','gerente'])
 def stock_getdatosbancos():
-    """Pivot table sobre ingresos-egresos cuentas Bancos."""
+    """Pandas sobre depositos bancos."""
     pd.options.display.float_format = '${:.0f}'.format
     sql="select date_format(fecha,'%Y-%m') as mes,imp,caja.cuenta as cuenta \
     from caja,ctas where caja.cuenta=ctas.cuenta and tipo=2"
     sql1="select date_format(fecha,'%Y-%m') as mes,imp,codigo from caja where \
-    cuenta='bancos ingreso cobradores'"
+    cuenta like '%ingreso cobradores'"
+    # sql2="select date_format(fecha,'%Y-%m') as mes,sum(imp)/(select sum(imp+rec) \
+    #     from pagos where cobr=codigo and date_format(fecha,'%Y-%m')=mes) as \
+    #         porc,codigo from caja where \
+    #     cuenta like '%ingreso cobradores' group by mes,codigo"
     dat = pd.read_sql_query(sql, engine)
     dat1 = pd.read_sql_query(sql1, engine)
+    # dat2 = pd.read_sql_query(sql2, engine)
     df0 = pd.DataFrame(dat)
     df1 = pd.DataFrame(dat1)
+    # df2 = pd.DataFrame(dat2)
     tbl = pd.pivot_table(df0, values=['imp'],index='cuenta',columns='mes',\
             aggfunc='sum').sort_index(axis=1, level='mes',ascending=False)
     tbl1 = pd.pivot_table(df1, values=['imp'],index='codigo',columns='mes',\
             aggfunc='sum').sort_index(axis=1, level='mes',ascending=False)
+    # tbl2 = pd.pivot_table(df2, values=['porc'],index='codigo',columns='mes',\
+    #         aggfunc='sum').sort_index(axis=1, level='mes',ascending=False)
+    
     tbl = tbl.fillna("")
     tbl1 = tbl1.fillna("")
+    # tbl2 = tbl1.fillna("")
+    # print(tbl1,tbl2)
     index = tbl.columns.tolist()
     tbl = tbl.to_html(table_id="totales",classes="table")
     tbl1 = tbl1.to_html(table_id="totalescobradores",classes="table")
-    return render_template("stock/banco.html", tbl=tbl, tbl1=tbl1, index=index )
+    # tbl2 = tbl2.to_html(table_id="porccobradores",classes="table")
+    return render_template("stock/banco.html", tbl=tbl, tbl1=tbl1,\
+                           index=index)
 
 
 @stock.route('/stock/acreencias')

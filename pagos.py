@@ -485,6 +485,7 @@ def pagos_gettotaleszonas():
 @login_required
 @check_roles(['dev','gerente'])
 def pagos_cobrostotales():
+    """Pandas sobre cobrostotales."""
     pd.options.display.float_format = '${:.0f}'.format
     sql="select date_format(fecha,'%Y-%m') as fp,imp+rec as cuota,cobr from pagos where fecha >date_sub(curdate(),interval 365 day)"
     sql1="select date_format(fecha,'%Y-%m') as fp,imp+rec as cuota,pagos.cobr as cobr,zona,(select asignado from zonas where zona=clientes.zona) as asignado from pagos,clientes where clientes.id=pagos.idcliente and fecha >date_sub(curdate(),interval 365 day) and zona not like '-%'"
@@ -506,6 +507,7 @@ def pagos_cobrostotales():
 @login_required
 @check_roles(['dev','gerente'])
 def pagos_estimados():
+    """Pandas sobre cobros estimados."""
     pd.options.display.float_format = '${:.0f}'.format
     sql="select date_format(pmovto,'%Y-%m') as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%'"
     sql1="select date_format(pmovto,'%Y-%m') as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and pmovto>date_sub(curdate(),interval 180 day)  and zonas.zona not like '-%'"
@@ -528,6 +530,7 @@ def pagos_estimados():
 @login_required
 @check_roles(['dev','gerente'])
 def pagos_estimadosmes():
+    """Pandas sobre pagos estimados por mes."""
     con = get_con()
     pd.options.display.float_format = '${:.0f}'.format
     sql="select date_format(pmovto,'%Y-%m') as pmovto,cuota,asignado,clientes.zona as zona from clientes,zonas where clientes.zona=zonas.zona and date_format(pmovto,'%Y%m')=date_format(curdate(),'%Y%m')  and zonas.zona not like '-%'"
@@ -560,6 +563,7 @@ def pagos_estimadosmes():
 @login_required
 @check_roles(['dev','gerente'])
 def pagos_comisiones():
+    """Pandas sobre comisiones."""
     pd.options.display.float_format = '${:.0f}'.format
     sql="select date_format(fecha,'%Y-%m') as fecha,imp+rec as cobranza,(imp+rec)*0.15 as comision,cobr from pagos where cobr in (750,815,796,800,802) and fecha>date_sub(curdate(), interval 1 year)"
     dat = pd.read_sql_query(sql, engine)
