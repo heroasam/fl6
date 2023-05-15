@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Cobranza{% endblock %}
+{% block style %}
+<style>
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div x-data="main()" x-init="getCobranzaHoy()">
+
+    <div class="columns flex-baseline">
+      <div class="column is-6">
+      <p class="title is-1">Tablero Cobranza</p>
+      </div>
+      <div class="column is-6">
+         <div class="xtags has-addons m-0" x-show="totalCobrado">
+		  <span class="tag is-large is-black m-0">Total Cobrado</span>
+		  <span class="tag is-large is-light m-0" x-text="'$'+totalCobrado"></span>
+	     </div>
+      </div>
+    </div>
+
+    <div class="block" x-show="totalCobrado">
+      <template x-for="[id,value]  in Object.entries(listaCobranzaCobradores)">
+         <div class="xtags has-addons m-0">
+		  <span class="tag is-large is-info m-0" x-text="id"></span>
+		  <span class="tag is-large is-light m-0" x-text="'$'+value"></span>
+	     </div>
+      </template>
+    </div>
+    <div class="columns">
+      <div class="column is-6">
+            <table class="table is-narrow" id="table">
+                <thead>
+                  <tr>
+                    <th></th>
+                        <th>hora</th>
+                        <th>resultado</th>
+                        <th>nombre</th>
+                        <th>direccion</th>
+                        <th>zona</th>
+                        <th>vendedor</th>
+                        <th class="sumar">vendido</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  <template x-for="item in listaCobranzaHoy">
+                    <tr>
+                      <td><a :href="'/buscador/interno/'+item.dni">Ver</a></td>
+                      <td x-text="item.fecha_definido"></td>
+                      <td><span class="tag is-small is-success">Cobro</span></td>
+                          <td x-text="item.nombre"></td>
+                          <td x-text="item.direccion"></td>
+                          <td x-text="item.zona"></td>
+                          <td x-text="item.cobr"></td>
+                          <td x-text="item.imp" class="pesos"></td>
+                    </tr>
+                  </template>
+                 </tbody>
+            </table>
+      </div>
+      <template x-for="cobr in listaCobradores">
+      <div class="column is-2">
+        <button class="button is-info" x-text="cobr"></button>
+        <table class="table is-narrow">
+          <thead>
+            <tr>
+              <th>hora</th>
+              <th>res</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="item in listaVisitasHoy.filter(row=>row.cobr==cobr)">
+              <tr>
+                <td x-text="item.hora"></td>
+                <td><span class="tag is-small" x-text="item.result==1?'cobro':(item.result==2?'fechado':
+                                 (item.result==3?'nadie':(item.result==4?'mudo':'fallecio')))"
+                          :class="item.result==1?'is-success':(item.result==2?'is-info':(item.result==3?'is-warning':
+                                 (item.result==4?'is-danger':'is-black')))"></span></td>
+                <td x-text="item.direccion"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </template>
+     
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+ function main(){
+     return{
+         listaCobranzaHoy:[],
+         listaVisitasHoy:[],
+         audio:new Audio("{{ url_for('static', filename='bell.ogg') }}"),
+         audioAuth:new Audio("{{ url_for('static', filename='auth.mp3') }}"),
+         listaCobranzaCobradores:{},
+         listaCobradores:[],
+         totalCobrado:'',
+         listadoAutorizados:[],
+         getCobranzaHoy(){
+             axios.get('/cobrador/getcobranzahoy')
+                  .then(res=>{
+                      this.listaCobranzaHoy = res.data.cobranzahoy
+                      let largo = this.listaCobranzaHoy.length
+                      if(largo>0){
+                          let ultimarow = this.listaCobranzaHoy[largo-1]
+                          let ultimotime = ultimarow.fecha_definido
+                          let delta = dayjs().diff(dayjs(ultimotime),'s')-10800 //pq ultimotime esta en GMT 3hs de diferencia
+                          if (delta<60){
+                              this.audio.play();
+                          }
+                      }
+                      this.listaCobranzaHoy.map(row=>row.fecha=dayjs.utc(row.fecha).format("YYYY-MM-DD"))
+                      this.listaCobradores = Array.from(new Set(this.listaCobranzaHoy.map(row=>row.cobr)))
+                      for(let cobr of this.listaCobradores){
+                          this.listaCobranzaCobradores[cobr] = this.listaCobranzaHoy.filter(row=>row.cobr==cobr).map(row=>row.imp).reduce((a,b)=>a+b,0)
+                      }
+                      this.totalCobrado = this.listaCobranzaHoy.map(row=>row.imp).reduce((a,b)=>a+b,0)
+                      this.getVisitasHoy()
+
+                  })
+         },
+         getVisitasHoy(){
+             axios.get('/cobrador/getvisitashoy')
+                  .then(res=>{
+                      this.listaVisitasHoy = res.data.visitashoy
+             })
+         },
+     }
+ }
+ 
+</script>
+  {% endblock %}

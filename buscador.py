@@ -976,7 +976,7 @@ def buscar_obtenerwapps(wapp):
     enviados = pglistdict(con, f"select fecha,msg,'env' as  dir, user from wappsenviados \
         where wapp='{wapp}'")
     cntcompartenwapp = pgonecolumn(con, f"select count(*) from clientes where \
-                                   wapp={wapp}")
+                                   wapp='{wapp}'")
     print(recibidos,enviados,cntcompartenwapp)
     con.close()
     return jsonify(recibidos=recibidos, enviados=enviados, cntcompartenwapp=cntcompartenwapp)
@@ -997,7 +997,7 @@ def buscar_obtenertodoswapps():
     enviados = pglistdict(con, "select fecha,msg,'env' as  dir, user,wapp from \
     wappsenviados where wapp in (select wapp from wappsrecibidos where \
                                  respondido=0)")
-    print(recibidos,enviados)
+    # logging.warning(recibidos,enviados)
     con.close()
     return jsonify(recibidos=recibidos, enviados=enviados)
 

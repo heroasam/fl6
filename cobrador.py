@@ -52,6 +52,14 @@ def cobrador_visitas():
     return render_template('/cobrador/visitas.html')
 
 
+@cobrador.route('/cobrador/tablero')
+@login_required
+@check_roles(['dev','gerente','cobrador'])
+def cobrador_tablero():
+    """Muestra pagina tablero de cobranzas."""
+    return render_template('/cobrador/tablerocobranza.html')
+
+
 @cobrador.route('/cobrador/getlistadofichas')
 @login_required
 @check_roles(['dev','gerente','cobrador'])
@@ -278,3 +286,32 @@ def cobrador_getvisitascobrador():
     sum(monto_cobrado) as monto_cobrado from visitascobr group by fecha,\
     cobr order by fecha,cobr desc")
     return jsonify(visitascobrador=visitascobrador, fechasvisitas=fechasvisitas)
+
+
+@cobrador.route('/cobrador/getcobranzahoy')
+@login_required
+@check_roles(['dev','gerente','cobrador'])
+def cobrador_getcobranzahoy():
+    """Funcion que entrega lista de las cobranza del dia para los cobradores."""
+    con = get_con()
+    cobranzahoy = pglistdict(con, "select fecha,imp+rec as imp, cobr, idvta,\
+                             idcliente,rbo,rendido,dni,nombre,\
+                             concat(calle,' ',num) as direccion, zona from \
+                             pagos,clientes where clientes.id=idcliente and \
+                             rendido=0 and fecha=curdate()")
+    return jsonify(cobranzahoy=cobranzahoy)
+
+
+@cobrador.route('/cobrador/getvisitashoy')
+@login_required
+@check_roles(['dev', 'gerente', 'cobrador'])
+def cobrador_getvisitashoy():
+    """Funcion que entrega lista de visitas por todos los cobradores hoy."""
+    con = get_con()
+    visitashoy = pglistdict(con, "select visitascobr.fecha as fecha,\
+    cast(hora as char) as hora, visitascobr.cobr as cobr, result, \
+    visitascobr.monto_cobrado as monto_cobrado, idcliente,\
+    concat(calle,' ',num) as direccion from visitascobr,clientes where \
+    clientes.id=visitascobr.idcliente and visitascobr.fecha=curdate() \
+    order by visitascobr.hora")
+    return jsonify(visitashoy=visitashoy)

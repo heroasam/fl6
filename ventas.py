@@ -1139,11 +1139,11 @@ def ventas_obtenerdatosgarante(dni):
 
 
 
-@ventas.route('/ventas/ingresoventas')
+@ventas.route('/ventas/tableroventas')
 @login_required
 @check_roles(['dev','gerente'])
-def ventas_ingresoventas():
-    return render_template("/ventas/ingresoventas.html")
+def ventas_tableroventas():
+    return render_template("/ventas/tableroventas.html")
 
 
 @ventas.route('/ventas/visitas')
