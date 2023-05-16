@@ -76,11 +76,11 @@
                axios.post('/pEmPj7NAUn0Odsru4aL2BhlOu',this.cliente)
                    .then(res=>{
                        if(res.data.otroasignado==1){
-                           msgError('Error','Este cliente ya tiene un dato hecho y esta asignado a otro vendedor.',10000)
+                           msgErrorSB('Error','Este cliente ya tiene un dato hecho y esta asignado a otro vendedor.',10000)
                            return
                        }
                         this.cliente.idautorizacion = res.data.idautorizacion
-                                                                       msgSuccess('autorizacion enviada. Espere la repuesta.')
+                                                                       msgSuccessSB('autorizacion enviada. Espere la repuesta.')
                                                                        //enviar un whatsapp al Fede informando del pedido de autorizacion
                                                                        let msg = `Solicito autorizacion para ${this.cliente.nombre}
 como CLIENTE NUEVO.
@@ -99,7 +99,7 @@ Quedo a la espera. Gracias.`;
                                                                                        .then(res=>{
                                                                                            atendido = res.data.tomado
                                                                                            if(atendido==1){
-                                                                                               msgDelay('la autorizacion se esta procesando. Puede tardar un poco...',300000)
+                                                                                               msgDelaySB('la autorizacion se esta procesando. Puede tardar un poco...',300000)
                                                                                                clearTimeout(interval)
                                                                                                // setTimeout(()=>{
                                                                                                // window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";
@@ -110,19 +110,19 @@ Quedo a la espera. Gracias.`;
                                                                                                    .then(res=>{
                                                                                                        switch(res.data.respuesta){
                                                                                                        case "autorizado":
-                                                                                                           msgSuccess('Aprobado','El dato fue autorizado',10000)
+                                                                                                           msgSuccessSB('Aprobado','El dato fue autorizado',10000)
                                                                                                            clearTimeout(intervalauth)
                                                                                                            setTimeout(()=>{
                                                                                                                window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
                                                                                                            break;
                                                                                                        case "sigueigual":
-                                                                                                           msgWarning('La cuota fue rechazada','La cuota no fue autorizada. Se puede vender hasta la cuota basica.',10000)
+                                                                                                           msgWarningSB('La cuota fue rechazada','La cuota no fue autorizada. Se puede vender hasta la cuota basica.',10000)
                                                                                                            clearTimeout(intervalauth)
                                                                                                            setTimeout(()=>{
                                                                                                                window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
                                                                                                            break;
                                                                                                        case "rechazado":
-                                                                                                           msgError('Rechazado','El dato ha sido rechazado. No se le puede vender',10000)
+                                                                                                           msgErrorSB('Rechazado','El dato ha sido rechazado. No se le puede vender',10000)
                                                                                                            clearTimeout(intervalauth)
                                                                                                            setTimeout(()=>{
                                                                                                                window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
@@ -487,7 +487,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                                                                  })
                                                                  .catch(error=>{
                                                                      this.dnivalidado = false;
-                                                                     msgError('el DNI ingresado no corresponde al cliente');
+                                                                     msgErrorSB('el DNI ingresado no corresponde al cliente');
                                                                  })
          },
          agregarArticulo(cnt,art){
@@ -546,7 +546,7 @@ Quedo a la espera. Gracias.`;
                                                                                        .then(res=>{
                                                                                            atendido = res.data.tomado
                                                                                            if(atendido==1){
-                                                                                               msgDelay('la autorizacion se esta procesando. Puede tardar un poco... No cierre esta ventana!!',300000)
+                                                                                               msgDelaySB('la autorizacion se esta procesando. Puede tardar un poco... No cierre esta ventana!!',300000)
                                                                                                clearTimeout(interval)
                                                                                                // setTimeout(()=>{
                                                                                                // window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";
@@ -557,19 +557,19 @@ Quedo a la espera. Gracias.`;
                                                                                                    .then(res=>{
                                                                                                        switch(res.data.respuesta){
                                                                                                        case "autorizado":
-                                                                                                           msgSuccess('Aprobado','El dato fue autorizado',10000)
+                                                                                                           msgSuccessSB('Aprobado','El dato fue autorizado',10000)
                                                                                                            clearTimeout(intervalauth)
                                                                                                            setTimeout(()=>{
                                                                                                                window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
                                                                                                            break;
                                                                                                        case "sigueigual":
-                                                                                                           msgWarning('La cuota fue rechazada','La cuota no fue autorizada. Se puede vender hasta la cuota maxima que tenia antes.',10000)
+                                                                                                           msgWarningSB('La cuota fue rechazada','La cuota no fue autorizada. Se puede vender hasta la cuota maxima que tenia antes.',10000)
                                                                                                            clearTimeout(intervalauth)
                                                                                                            setTimeout(()=>{
                                                                                                                window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
                                                                                                            break;
                                                                                                        case "rechazado":
-                                                                                                           msgError('Rechazado','El dato ha sido rechazado. No se le puede vender',10000)
+                                                                                                           msgErrorSB('Rechazado','El dato ha sido rechazado. No se le puede vender',10000)
                                                                                                            clearTimeout(intervalauth)
                                                                                                            setTimeout(()=>{
                                                                                                                window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
@@ -611,7 +611,7 @@ Quedo a la espera. Gracias.`;
              axios.post('/xuNzBi4bvtSugd5KbxSQzD0Ey',this.Dato)
                                                                  .then(res=>{
                                                                      this.getListadoDatosVendedor();
-                                                                     msgSuccess('Venta pasada con exito');
+                                                                     msgSuccessSB('Venta pasada con exito');
                                                                      toggleModal("modal-pasar-venta");
                                                                      axios.get('/pnZWxv9Nicwt6TQ6zxohzvats/'+this.Dato.id)
                                                                          .then(res=>{
@@ -622,7 +622,7 @@ Quedo a la espera. Gracias.`;
                                                                          })
                                                                  })
                                                                  .catch(error=>{
-                                                                     msgError('Hubo un error y la venta no se proceso.');
+                                                                     msgErrorSB('Hubo un error y la venta no se proceso.');
                                                                  })
 
          },
@@ -688,7 +688,7 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
                  })
                  if(text) msg += `. Aclaracion: ${text}.`
                  if(!text){
-                     msgError("El informe no se enviara. Escribalo de nuevo")
+                     msgErrorSB("El informe no se enviara. Escribalo de nuevo")
                      return
                  }
              }
@@ -698,7 +698,7 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
                  .then(res=>{
                      //ruta : /vendedor/visitadevolucion'
                      axios.post('/S0rjYKB35QIcHunPmebg2tmr1',{tipo,idvta,vendedor})
-                           msgSuccess("El informe ya fue enviado")
+                           msgSuccessSB("El informe ya fue enviado")
                        })
          },
          verFichaPantalla(idcliente){
@@ -776,7 +776,7 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 	         axios.post('/3ZbXanrRQalY6JL5eOBi49Nyc',data)
                  .then(res=>{
-                     msgSuccess("Avisado retiro zona.")
+                     msgSuccessSB("Avisado retiro zona.")
                  })
            },
 

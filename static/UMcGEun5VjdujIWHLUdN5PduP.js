@@ -413,7 +413,17 @@ function msgSuccess(title, text, timer = 3000) {
         title: title,
         text: text,
         icon: 'success',
-        timer: timer
+        timer: timer,
+    });
+}
+function msgSuccessSB(title, text, timer = 3000) {
+    Swal.fire({
+        title: title,
+        text: text,
+        icon: 'success',
+        timer: timer,
+        showCancelButton:false,
+        showConfirmButton:false,
     });
 }
 function msgError(title, text, timer = 3000) {
@@ -424,12 +434,32 @@ function msgError(title, text, timer = 3000) {
         timer: timer
     });
 }
+function msgErrorSB(title, text, timer = 3000) {
+    Swal.fire({
+        title: title,
+        text: text,
+        icon: 'error',
+        timer: timer,
+        showCancelButton:false,
+        showConfirmButton:false,
+    });
+}
 function msgWarning(title, text, timer = 3000) {
     Swal.fire({
         title: title,
         text: text,
         icon: 'warning',
         timer: timer
+    });
+}
+function msgWarningSB(title, text, timer = 3000) {
+    Swal.fire({
+        title: title,
+        text: text,
+        icon: 'warning',
+        timer: timer,
+        showCancelButton:false,
+        showConfirmButton:false,
     });
 }
 function msgDelay(text,timer=20000) {
@@ -439,6 +469,17 @@ function msgDelay(text,timer=20000) {
         icon: 'warning',
         timer: timer,
         timerProgressBar: true
+    });
+}
+function msgDelaySB(text,timer=20000) {
+    Swal.fire({
+        title: 'Aguarde...',
+        text: text,
+        icon: 'warning',
+        timer: timer,
+        timerProgressBar: true,
+        showCancelButton:false,
+        showConfirmButton:false,
     });
 }
 // verifica si es desktop o mobile
