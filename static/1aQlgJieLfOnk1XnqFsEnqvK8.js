@@ -76,11 +76,11 @@
                axios.post('/pEmPj7NAUn0Odsru4aL2BhlOu',this.cliente)
                    .then(res=>{
                        if(res.data.otroasignado==1){
-                           msgErrorSB('Error','Este cliente ya tiene un dato hecho y esta asignado a otro vendedor.',10000)
+                           msgErrorSB('Error','Este cliente ya tiene un dato hecho y esta asignado a otro vendedor.',15000)
                            return
                        }
                         this.cliente.idautorizacion = res.data.idautorizacion
-                                                                       msgSuccessSB('autorizacion enviada. Espere la repuesta.')
+                                                                       msgSuccessSB('Enviada','Autorizacion enviada. Espere la repuesta.',200000)
                                                                        //enviar un whatsapp al Fede informando del pedido de autorizacion
                                                                        let msg = `Solicito autorizacion para ${this.cliente.nombre}
 como CLIENTE NUEVO.
@@ -108,6 +108,8 @@ Quedo a la espera. Gracias.`;
                                                                                                    axios.get('/ymIVWKdjgnCeJvo2zcodwRTQM/'+this.cliente.idautorizacion)
                                                                                                    // nueva ruta para /vendedor/isrespondidoauth ymIVWKdjgnCeJvo2zcodwRTQM
                                                                                                    .then(res=>{
+                                                                                                    let motivo = res.data.motivo
+                                                                                                    motivo = motivo.toUpperCase();
                                                                                                        switch(res.data.respuesta){
                                                                                                        case "autorizado":
                                                                                                            msgSuccessSB('Aprobado','El dato fue autorizado',10000)
@@ -116,13 +118,17 @@ Quedo a la espera. Gracias.`;
                                                                                                                window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
                                                                                                            break;
                                                                                                        case "sigueigual":
-                                                                                                           msgWarningSB('La cuota fue rechazada','La cuota no fue autorizada. Se puede vender hasta la cuota basica.',10000)
+                                                                                                           msgWarningSB('La cuota fue rechazada', `La cuota no fue autorizada.
+                                                                                                           Se puede vender hasta la cuota basica.
+                                                                                                           ${motivo?motivo:''}`,15000)
                                                                                                            clearTimeout(intervalauth)
                                                                                                            setTimeout(()=>{
                                                                                                                window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
                                                                                                            break;
                                                                                                        case "rechazado":
-                                                                                                           msgErrorSB('Rechazado','El dato ha sido rechazado. No se le puede vender',10000)
+                                                                                                           msgErrorSB('Rechazado',`El dato ha sido rechazado. 
+                                                                                                           No se le puede vender.
+                                                                                                           ${motivo?motivo:''}`,15000)
                                                                                                            clearTimeout(intervalauth)
                                                                                                            setTimeout(()=>{
                                                                                                                window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
@@ -555,6 +561,8 @@ Quedo a la espera. Gracias.`;
                                                                                                    axios.get('/ymIVWKdjgnCeJvo2zcodwRTQM/'+this.Dato.idautorizacion)
                                                                                                    // nueva ruta para /vendedor/isrespondidoauth ymIVWKdjgnCeJvo2zcodwRTQM
                                                                                                    .then(res=>{
+                                                                                                       let motivo = res.data.motivo
+                                                                                                       motivo = motivo.toUpperCase();
                                                                                                        switch(res.data.respuesta){
                                                                                                        case "autorizado":
                                                                                                            msgSuccessSB('Aprobado','El dato fue autorizado',10000)
@@ -563,13 +571,17 @@ Quedo a la espera. Gracias.`;
                                                                                                                window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
                                                                                                            break;
                                                                                                        case "sigueigual":
-                                                                                                           msgWarningSB('La cuota fue rechazada','La cuota no fue autorizada. Se puede vender hasta la cuota maxima que tenia antes.',10000)
+                                                                                                           msgWarningSB('La cuota fue rechazada',`La cuota no fue autorizada.
+                                                                                                            Se puede vender hasta la cuota maxima que tenia antes.
+                                                                                                            ${motivo?motivo:''}`,15000)
                                                                                                            clearTimeout(intervalauth)
                                                                                                            setTimeout(()=>{
                                                                                                                window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
                                                                                                            break;
                                                                                                        case "rechazado":
-                                                                                                           msgErrorSB('Rechazado','El dato ha sido rechazado. No se le puede vender',10000)
+                                                                                                           msgErrorSB('Rechazado',`El dato ha sido rechazado. 
+                                                                                                           No se le puede vender.
+                                                                                                           ${motivo?motivo:''}`,15000)
                                                                                                            clearTimeout(intervalauth)
                                                                                                            setTimeout(()=>{
                                                                                                                window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)

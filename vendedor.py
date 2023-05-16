@@ -8,7 +8,7 @@ from flask import Blueprint, render_template, jsonify, make_response, request, \
     send_file
 import simplejson as json
 from lib import pgonecolumn, pglistdict, send_msg_whatsapp, \
-    send_file_whatsapp, pglist,  listsql, pgdict, pgexec
+    send_file_whatsapp, pglist,  listsql, pgdict, pgexec, pgtuple
 from con import get_con, log, check_roles
 from formularios import ficha
 
@@ -1806,13 +1806,16 @@ def vendedor_isatendido(auth):
 def vendedor_isrespondidoauth(auth):
     """Funcion que entrega la respuesta que tuvo la autorizacion."""
     con = get_con()
-    respuesta = pgonecolumn(con, f" select \
+    respuesta,motivo = pgtuple(con, f" select \
                             case when autorizado=1 then 'autorizado' \
                                  when rechazado=1 then 'rechazado' \
                                  when sigueigual=1 then 'sigueigual' end \
+                            as respuesta, motivo \
     from autorizacion where id={auth}")
-    logging.warning("respuesta %s", respuesta)
-    return jsonify(respuesta=respuesta)
+    if motivo is None:
+        motivo = ''
+    logging.warning("respuesta %s - %s", (respuesta,motivo))
+    return jsonify(respuesta=respuesta, motivo=motivo)
 
 
 @vendedor.route('/vendedor/motivoautorizacion/<motivo>/<int:idauth>')
