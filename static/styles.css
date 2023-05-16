@@ -528,3 +528,7 @@ thead th {
     background-color: pink !important;
     color: black !important;
 }
+button.copied::before {
+    content: '\2714'; /* Código unicode para el símbolo de tilde */
+    margin-right: 5px;
+  }

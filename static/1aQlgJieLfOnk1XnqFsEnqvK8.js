@@ -23,7 +23,7 @@
                axios.get('/MeHzAqFYsbb78KAVFAGTlZRW9/'+dni)
                     .then(res=>{
                         this.cliente = res.data.cliente;
-                        msgSuccess('Cliente existente');
+                        msgSuccessSB('Cliente existente');
                     })
            },
            buscaGarante(dni){
@@ -351,7 +351,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
              axios.post('/uQ3gisetQ8v0n6tw81ORnpL1s',this.Dato)
                                                                  .then(res=>{
-                                                                     msgSuccess('WhatsApp editado correctamente');
+                                                                     msgSuccessSB('WhatsApp editado correctamente');
                                                                  })
                                                                  .catch(error=>{
                                                                      msgError('Error. No se hizo la edicion');
@@ -386,7 +386,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
              // /UtVc3f6y5hfxu2dPmcrV9Y7mc
              axios.get('/UtVc3f6y5hfxu2dPmcrV9Y7mc/'+iddato)
                   .then(res=>{
-                      msgSuccess('Dato anulado correctamente');
+                      msgSuccessSB('Dato anulado correctamente');
                       this.getListadoDatosVendedor();
                       this.verCard = false;
                   })
@@ -411,7 +411,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                      // /gJUmonE8slTFGZqSKXSVwqPJ1
                      axios.get('/gJUmonE8slTFGZqSKXSVwqPJ1/'+iddato)
                          .then(res=>{
-                             msgSuccess('Dato informado correctamente');
+                             msgSuccessSB('Dato informado correctamente');
                              this.getListadoDatosVendedor();
                              this.verCard = false;
                          })
@@ -437,7 +437,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                       // /sLTFCMArYAdVsrEgwsz7utyRi
                       axios.get('/sLTFCMArYAdVsrEgwsz7utyRi/'+iddato)
                           .then(res=>{
-                              msgSuccess('Dato informado correctamente');
+                              msgSuccessSB('Dato informado correctamente');
                               this.getListadoDatosVendedor();
                               this.verCard = false;
                           })
@@ -459,7 +459,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
              axios.post('/HvjJNtFgF71pRYafzcTC74nUt',this.Dato)
                                                                  .then(res=>{
-                                                                     msgSuccess('Dato fechado con exito');
+                                                                     msgSuccessSB('Dato fechado con exito');
                                                                  })
                                                                  .catch(error=>{
                                                                      msgError('Hubo un error. El dato no se fecho');
@@ -527,7 +527,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                      this.Dato.idautorizacion = res.data.idautorizacion
                  })
              //enviar un whatsapp al Fede informando del pedido de autorizacion
-             msgSuccess("Aguarde...", "Se envio el pedido de autorizacion.",100000)
+             msgSuccessSB("Aguarde...", "Se envio el pedido de autorizacion.",100000)
              let msg = `Solicito autorizacion para ${this.Dato.nombre}
 con una compra de ${this.Dato.arts}
 y una cuota de $${this.sumaCuota}.
