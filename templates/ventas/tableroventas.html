@@ -130,8 +130,7 @@
                           }
                       }
                       this.listaVentasHoy.map(row=>row.fecha_definido=dayjs.utc(row.fecha_definido).format("HH:mm:ss"))
-                      this.listaVendedores = Array.from(new Set(this.listaVentasHoy.map(row=>row.vendedor)))
-                      console.log(this.listaVendedores)
+                      this.listaVendedores = res.data.vendedores
                       for(let vdor of this.listaVendedores){
                           this.listaVtaVdores[vdor] = this.listaVentasHoy.filter(row=>row.vendedor==vdor).map(row=>row.monto_vendido).reduce((a,b)=>a+b,0)
                       }

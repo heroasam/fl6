@@ -1352,7 +1352,8 @@ def vendedor_getventashoy():
     nombre,concat(calle,' ',num) as direccion,clientes.zona as zona, monto_vendido,\
     vendedor,dni from datos,clientes where datos.idcliente = clientes.id and \
     date(fecha_definido)=curdate() and resultado=1 order by fecha_definido")
-    return jsonify(ventashoy=ventashoy)
+    vendedores = pglist(con, "select id from cobr where activo=1 and vdor=1")
+    return jsonify(ventashoy=ventashoy,vendedores=vendedores)
 
 
 @vendedor.route('/vendedor/getvisitashoy')
