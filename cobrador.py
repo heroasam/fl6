@@ -299,19 +299,10 @@ def cobrador_getcobranzahoy():
                              concat(calle,' ',num) as direccion, zona from \
                              pagos,clientes where clientes.id=idcliente and \
                              rendido=0 and fecha=curdate()")
-    return jsonify(cobranzahoy=cobranzahoy)
-
-
-@cobrador.route('/cobrador/getvisitashoy')
-@login_required
-@check_roles(['dev', 'gerente', 'cobrador'])
-def cobrador_getvisitashoy():
-    """Funcion que entrega lista de visitas por todos los cobradores hoy."""
-    con = get_con()
     visitashoy = pglistdict(con, "select visitascobr.fecha as fecha,\
     cast(hora as char) as hora, visitascobr.cobr as cobr, result, \
     visitascobr.monto_cobrado as monto_cobrado, idcliente,\
     concat(calle,' ',num) as direccion from visitascobr,clientes where \
     clientes.id=visitascobr.idcliente and visitascobr.fecha=curdate() \
     order by visitascobr.hora")
-    return jsonify(visitashoy=visitashoy)
+    return jsonify(cobranzahoy=cobranzahoy,visitashoy=visitashoy)

@@ -118,20 +118,15 @@
                           }
                       }
                       this.listaCobranzaHoy.map(row=>row.fecha=dayjs.utc(row.fecha).format("YYYY-MM-DD"))
-                      this.listaCobradores = Array.from(new Set(this.listaCobranzaHoy.map(row=>row.cobr)))
+                      
+                      this.listaVisitasHoy = res.data.visitashoy
+                      this.listaCobradores = Array.from(new Set(this.listaVisitasHoy.map(row=>row.cobr)))
                       for(let cobr of this.listaCobradores){
                           this.listaCobranzaCobradores[cobr] = this.listaCobranzaHoy.filter(row=>row.cobr==cobr).map(row=>row.imp).reduce((a,b)=>a+b,0)
                       }
                       this.totalCobrado = this.listaCobranzaHoy.map(row=>row.imp).reduce((a,b)=>a+b,0)
-                      this.getVisitasHoy()
 
                   })
-         },
-         getVisitasHoy(){
-             axios.get('/cobrador/getvisitashoy')
-                  .then(res=>{
-                      this.listaVisitasHoy = res.data.visitashoy
-             })
          },
      }
  }
