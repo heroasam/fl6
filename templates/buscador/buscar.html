@@ -1295,7 +1295,7 @@
                  axios.get('/buscador/pedirwappcobrador/'+this.cobrEnviar)
                       .then(res=>{
 			              this.wappCobrador = res.data.wapp
-			              data = {dni:this.Cliente.dni, whatsapp:this.wappCobrador, idcliente:this.Cliente.id}
+			              let data = {dni:this.Cliente.dni, whatsapp:this.wappCobrador, idcliente:this.Cliente.id}
 			              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 			              axios.post("/buscador/imprimirficha", data)
 									                                          .then(res=>{
@@ -1314,7 +1314,7 @@
          },
          imprimirFichaPantalla(){
              this.mostrarFichaPorPantalla = true
-             data = {dni:this.Cliente.dni, whatsapp:"", idcliente:this.Cliente.id}
+             let data = {dni:this.Cliente.dni, whatsapp:"", idcliente:this.Cliente.id}
                  axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 		         axios.post("/buscador/imprimirfichanowapp",data, {responseType: "blob"})
 								                                     .then((res)=>{
@@ -1327,7 +1327,7 @@
 								                                     })
          },
          intimarCliente(dni){
-	         data = {dni:dni, idcliente:this.Cliente.id},
+	         let data = {dni:dni, idcliente:this.Cliente.id}
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 	         axios.post("/buscador/intimar",data,{responseType: "blob"})
 								                                 .then((res) => {
@@ -1444,6 +1444,8 @@
 			              switch(res.data){
 			                  case 'success': {
 				                  msgSuccess('Exito!','Mensaje Enviado')
+                          data.msg = "Se envio libredeuda"
+                          axios.post('/buscador/registrarwapp',data)
 				                  break
 			                  }
 			                  case 'invalid': {
@@ -1502,12 +1504,16 @@
 								                                 .then(res=>{
                                                                      this.refreshCliente(this.Cliente.dni)
 								                                     this.Recibo.rbo = res.data.rbo
+                                                     console.log('wapp',this.Cliente.wapp);
 								                                     if(this.Cliente.wapp){
+                                                      console.log('entra al if');
 									                                     axios.post('/buscador/enviarrbotransferencia',this.Recibo)
 									                                          .then(res=>{
 										                                          switch(res.data.response){
 										                                              case 'success': {
 											                                              msgSuccess('Exito!','Recibo Enviado')
+                                                                    let data = {wapp:this.Recibo.wapp, msg:"se envio recibo de transferencia por pdf"}
+                                                                    axios.post('/buscador/registrarwapp',data)
 											                                              break
 										                                              }
 										                                              case 'invalid': {
@@ -1546,7 +1552,7 @@
          },
          sendMsgVenta(wapp){
 	         msgDelay('Espere mientras se envia el Whatsapp')
-	         data = {idcliente:this.Cliente.id,
+	         let data = {idcliente:this.Cliente.id,
 		             wapp:this.Cliente.wapp,
 		             msg:this.ventaWapp,
 	         }
@@ -1556,6 +1562,8 @@
 								                                     switch(res.data){
 									                                     case 'success': {
 									                                         msgSuccess('Exito!','Mensaje Enviado')
+                                                           let data = {wapp, msg:"se envio mensaje de venta"}
+                                                           axios.post('/buscador/registrarwapp',data)
 									                                         break
 									                                     }
 									                                     case 'invalid': {
@@ -1574,7 +1582,7 @@
          sendIntWhatsapp(){
 	         msgDelay('Espere mientras se envia la intimacion')
              this.clipWappIntimacion()
-	         data = {idcliente:this.Cliente.id,
+	         let data = {idcliente:this.Cliente.id,
 		             wapp:this.Cliente.wapp,
 		             msg:this.intimacionWhatsapp,
 	         }
@@ -1585,6 +1593,8 @@
 								                                     switch(res.data){
 									                                     case 'success': {
 									                                         msgSuccess('Exito!','Mensaje Enviado')
+                                                           data.msg = "se envio intimacion por wapp"
+                                                           axios.post('/buscador/registrarwapp',data)
 									                                         break
 									                                     }
 									                                     case 'invalid': {
@@ -1598,7 +1608,9 @@
 									                                     }
 								                                     }
 								                                 })
-								                                 .catch(error=>msgError('Error!','Mensaje NO enviado'))
+								                                 .catch(error=>{
+                                                  msgError('Error!','Mensaje NO enviado')
+                                                 })
          },
          sendIntimacion(dni, wapp){
 	         msgDelay('Espere mientras se envia la intimacion')
@@ -1609,6 +1621,8 @@
 									                                     switch(res.data.response){
 									                                         case 'success': {
 										                                         msgSuccess('Exito!','Mensaje Enviado')
+                                                             let data = {wapp,msg:"se envio intimacion pdf"}
+                                                             axios.post('/buscador/registrarwapp',data)
 										                                         break
 									                                         }
 									                                         case 'invalid': {
@@ -1678,7 +1692,7 @@
          sendMsgRecordatorio(){
 	         msgDelay('Espere mientras se envia el recordatorio')
              msgRecordatorio = (this.Cliente.sex='M'?"Estimado ":"Estimada ")+this.Cliente.nombre.toUpperCase()+": Buenos dias, le escribimos de ROMITEX para recordarle el vencimiento de su cuota. Le pedimos que nos envie por este medio el comprobante de la transferencia, asi le enviamos el recibo correspondiente. Gracias!"
-	         data = {idcliente:this.Cliente.id,
+	         let data = {idcliente:this.Cliente.id,
 		             wapp:this.Cliente.wapp,
 		             msg:msgRecordatorio,
 	         }
@@ -1688,6 +1702,8 @@
 								                                     switch(res.data){
 									                                     case 'success': {
 									                                         msgSuccess('Exito!','Mensaje Enviado')
+                                                           data.msg = "se envio recordatorio hacer transferencia"
+                                                           axios.post('/buscador/registrarwapp',data)
 									                                         break
 									                                     }
 									                                     case 'invalid': {
@@ -1709,7 +1725,7 @@
 Número de CBU: 0170084840000048757878
 Alias de CBU: ROMITEX
 Titular de la cuenta: SALVAY SERGIO FEDERICO`
-		              data = {idcliente:this.Cliente.id,
+		              let data = {idcliente:this.Cliente.id,
 			                  wapp:this.Cliente.wapp,
 			                  msg:msgCbu,
 		              }
@@ -1719,6 +1735,8 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
 								                                     switch(res.data){
 									                                     case 'success': {
 									                                         msgSuccess('Exito!','Mensaje Enviado')
+                                                           data.msg = "se envio CBU"
+                                                           axios.post('/buscador/registrarwapp',data)
 									                                         break
 									                                     }
 									                                     case 'invalid': {
@@ -1758,7 +1776,7 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
 	     },
 	     gestionarBajaSeven(){
 	         msg = `Buen día, te enviamos los siguientes datos para gestionar BAJA POR CANCELACIÓN, gracias!\nNombre ${this.Cliente.nombre}\nDNI ${this.Cliente.dni}\nDirección ${this.Cliente.calle} ${this.Cliente.num}\n\nROMITEX - Sergio Federico Salvay`
-	         data = {idcliente: this.Cliente.id,
+	         let data = {idcliente: this.Cliente.id,
 		             wapp: '3513007412',
 		             msg:msg,
 	         }

@@ -897,9 +897,13 @@ def buscador_enviarrbotransferencia():
     idcliente = d['idcliente']
     con.close()
     pattern = re.compile("\D")
-    not_valid_wapp = pattern.search(wapp)
-    logging.warning(f"/buscador/enviarrbotransferencia wapp:{wapp} idcliente:{idcliente} not_valid_wapp:{not_valid_wapp}")
-    if wapp and not not_valid_wapp:
+    no_contiene_digitos = pattern.search(wapp)
+    if no_contiene_digitos:
+        wapp_valido = False
+    else:
+        wapp_valido = True
+    logging.warning(f"/buscador/wapp wapp:{wapp} idcliente:{idcliente} wapp_valido:{wapp_valido}")
+    if wapp and wapp_valido:
         response = send_file_whatsapp(
             idcliente, f"https://www.fedesal.lol/pdf/recibotransferencia{cuenta}.pdf", wapp)
         return jsonify(response=response)
@@ -929,9 +933,13 @@ def buscador_wapp():
     wapp = d['wapp']
     msg = d['msg']
     pattern = re.compile("\D")
-    not_valid_wapp = pattern.search(wapp)
-    logging.warning(f"/buscador/wapp wapp:{wapp} idcliente:{idcliente} not_valid_wapp:{not_valid_wapp}")
-    if wapp and not not_valid_wapp:
+    no_contiene_digitos = pattern.search(wapp)
+    if no_contiene_digitos:
+        wapp_valido = False
+    else:
+        wapp_valido = True
+    logging.warning(f"/buscador/wapp wapp:{wapp} idcliente:{idcliente} wapp_valido:{wapp_valido}")
+    if wapp and wapp_valido:
         response = send_msg_whatsapp(idcliente, wapp, msg)
         if response == 'success' and ('seven' in msg.lower()):
             con = get_con()
@@ -977,7 +985,6 @@ def buscar_obtenerwapps(wapp):
         where wapp='{wapp}'")
     cntcompartenwapp = pgonecolumn(con, f"select count(*) from clientes where \
                                    wapp='{wapp}'")
-    print(recibidos,enviados,cntcompartenwapp)
     con.close()
     return jsonify(recibidos=recibidos, enviados=enviados, cntcompartenwapp=cntcompartenwapp)
 
@@ -1158,10 +1165,8 @@ def buscador_chequeardato(id):
         con = get_con()
         tiene_dato = pgonecolumn(con, f"select count(*) from datos where \
             idcliente={id} and resultado is null")
-        print('tiene_dato',tiene_dato)
         if tiene_dato is None:
             tiene_dato = 0
-        print('tiene_dato',tiene_dato)
 
         return jsonify(tienedato=tiene_dato)
 
