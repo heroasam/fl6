@@ -108,7 +108,7 @@
 	<div>
       <div :class="!isMobileDevice?'flex-baseline-space':''">
         <p class="title title-table is-2" x-text="Cliente.nombre+'  '+Cliente.dni"></p>
-        <span class="tag is-small is-success is-light pointer" @click="textToClipboard(Cliente.dni)">Copiar</span>
+        <button class="tag is-small is-success is-light pointer" @click="copiarButtonDni()" id="copy-button" x-text="statusCopiar"></button>
       <span class="tag is-warning is-small" x-show="verAvisoDniCopiado">DNI copiado al portapapeles</span>
       </div>
       <div class="flex-between">
@@ -991,6 +991,7 @@
          contestarWapp:0,
          tieneDato:0,
          cntCompartenWapp:1,
+         statusCopiar:'Copiar',
 
          buscarCliente(){
              this.verCard = false
@@ -1027,7 +1028,7 @@
              this.chequearDatos(this.Cliente.id)
              this.verCard = true;
              this.clipWappVentas()
-             textToClipboard(this.Cliente.dni)
+             copiarButtonDni()
 	         this.buscar = this.Cliente.calle+' '+this.Cliente.num
              axios.get('/vendedor/getcuotamaxima/'+this.Cliente.id)
                                .then(res=>{
@@ -1913,6 +1914,20 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
                       this.tieneDato = res.data.tienedato
              })
          },
+         copiarButtonDni(){
+          textToClipboard(this.Cliente.dni)
+          // Agregar clase al botón para mostrar el tilde
+      const copyButton = document.getElementById('copy-button');
+      copyButton.classList.add('copied', 'is-danger');
+      this.statusCopiar = 'Copiado'
+
+      // Eliminar la clase después de un cierto tiempo (por ejemplo, 5 segundos)
+      setTimeout(()=>{
+        copyButton.classList.remove('copied','is-danger');
+        this.statusCopiar = 'Copiar'
+        Alpine.$nextTick(); // Forzar la actualización de la vista
+      }, 5000);
+    },
  }
  }
 </script>
