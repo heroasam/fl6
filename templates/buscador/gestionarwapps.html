@@ -4,15 +4,18 @@
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getWapps();setInterval(()=>{getWapps()},10000)">
+<div class="container" x-data="main()" x-init="getNombresWapps()">
 
-
+  <div class="flex-space-between">
   <p class="title is-1">Gestionar WhatsApps</p>
+  <button class="button is-info" @click="getNombresWapps()">Actualizar</button>
+  </div>
 
   <table class="table noselect is-narrow">
      <thead>
         <tr>
           <th></th>
+          <th>fecha</th>
           <th>whatsapp</th>
           <th>nombre</th>
           <th></th>
@@ -25,10 +28,11 @@
            <tr :id="item.wapp">
              <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
                                                 @click="expandChildren(item.wapp)"></i></span></td>
+             <td x-text="item.fecha"></td>
              <td x-text="item.wapp"></td>
              <td x-text="item.nombre"></td>
-             <td><button class="button is-small is-info" x-show="item.nombre" @click="contestarWapp(item.wapp)">
-              Contestar</button><span class="tag is-small is-warning" x-text="item.cnt" x-show="item.cnt>1"></span></td>
+             <td><button class="button is-small is-info"  @click="contestarWapp(item.wapp)">
+              Contestar</button></td>
               <td><button class="button is-small is-success" @click="marcarRespondidoWappOficial(item.wapp)">Respondido</button></td>
           </tr>
         </template>
@@ -54,8 +58,15 @@
          listaWapps:[],
          listaChats:[],
          listaWapps_:[],
-         hace24horas : dayjs().subtract(24, 'hour'), 
+         nombresWapps:[],
          wapp:'',
+         getNombresWapps(){
+              axios.get('/buscador/obtenernombreswapps')
+              .then(res=>{
+                this.nombresWapps = res.data.nombreswapps
+                this.getWapps()
+              })
+         },
          getWapps(){
               axios.get('/buscador/obtenertodoswapps')
                   .then(res=>{
@@ -69,19 +80,28 @@
                           if(a.fecha<b.fecha) return -1
                           if(a.fecha==b.fecha) return 0
                       })
-                      this.listaWapps.forEach(row=>{
-                          if(!this.listaChats.find(item => item.wapp === row.wapp)){
-                            // vamos a filtrar los chats innominados o sea los que no tienen cliente 
-                            // salvo los del dia de hoy
-                            if(row.nombre || dayjs(row.fecha).isAfter(this.hace24horas) && !row.nombre){
-                              this.listaChats.push({'wapp':row.wapp,'nombre':row.nombre,'cnt':row.cnt})
-                            }
-                          }
+                      let nombre
+                      this.listaChats = []
+                      let listaDiferentesChats = Object.values(this.listaWapps.map(({wapp,fecha})=>({wapp,fecha})).reduce((acc, obj) => {
+                      if (!acc[obj.wapp] || obj.fecha > acc[obj.wapp].fecha) {
+                        acc[obj.wapp] = obj;
+                      }
+                      return acc;
+                    }, {}));
+                    // obtiene los diferentes Chats con la fecha mayor de cada uno. (codigo gentileza de chatGTP.)
+                      listaDiferentesChats.forEach(row=>{
+                          let wappnombre = this.nombresWapps.find(item=>item.wapp==row.wapp.slice(-10))
+                          if (wappnombre) nombre = wappnombre.nombre
+                          this.listaChats.push({'wapp':row.wapp,'nombre':nombre,'fecha':row.fecha })
+                          })
+                      
+                      this.listaChats.sort((a,b)=>{
+                        if(a.fecha>b.fecha){return -1}
+                        if(a.fecha<b.fecha){return 1}
+                        if(a.fecha==b.fecha){return 0}
                       })
-
-             console.log( this.listaWapps, this.listaChats)
-                  })
-         },
+                    })
+        },
          expandChildren(wapp){
              if(this.wapp==wapp && this.listaWapps_.length>0){
                  console.log( "entra aqui")

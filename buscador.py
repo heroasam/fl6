@@ -987,20 +987,26 @@ def buscar_obtenerwapps(wapp):
 @check_roles(['dev','gerente','admin'])
 def buscar_obtenertodoswapps():
     con = get_con()
-    recibidos = pglistdict(con, "select fecha,msg,'rec' as dir,wapp,(select \
-    min(nombre) from clientes where clientes.wapp=\
-    SUBSTRING(wappsrecibidos.wapp, -10) order by deuda desc) as nombre, \
-    (select count(*) from clientes where clientes.wapp=\
-    SUBSTRING(wappsrecibidos.wapp, -10)) as cnt \
-    from wappsrecibidos where wapp in (select wapp from wappsrecibidos where \
-                               respondido=0)")
-    enviados = pglistdict(con, "select fecha,msg,'env' as  dir, user,wapp from \
-    wappsenviados where wapp in (select wapp from wappsrecibidos where \
-                                 respondido=0)")
-    # logging.warning(recibidos,enviados)
+    recibidos = pglistdict(con, "select fecha,msg,wapp from wappsrecibidos \
+                           where wapp in (select wapp from wappsrecibidos \
+                           where respondido=0)")
+    enviados = pglistdict(con, "select fecha,msg,wapp from wappsenviados \
+                           where wapp in (select wapp from wappsrecibidos \
+                           where respondido=0)")
     con.close()
     return jsonify(recibidos=recibidos, enviados=enviados)
 
+
+@buscador.route('/buscador/obtenernombreswapps')
+@login_required
+@check_roles(['dev','gerente','admin'])
+def buscar_obtenernombreswapps():
+    con = get_con()
+    nombreswapps = pglistdict(con, "select wapp,nombre from clientes where \
+                         length(wapp)=10")
+    con.close()
+    return jsonify(nombreswapps=nombreswapps)
+    
 
 @buscador.route('/buscador/callesprueba')
 @login_required
