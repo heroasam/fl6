@@ -1011,8 +1011,10 @@ def buscar_obtenernombreswapps():
     con = get_con()
     nombreswapps = pglistdict(con, "select wapp,nombre from clientes where \
                          length(wapp)=10")
+    cobrwapps = pglistdict(con, "select telefono as wapp,nombre from cobr \
+                           where activo=1")
     con.close()
-    return jsonify(nombreswapps=nombreswapps)
+    return jsonify(nombreswapps=nombreswapps, cobrwapps=cobrwapps)
     
 
 @buscador.route('/buscador/callesprueba')
