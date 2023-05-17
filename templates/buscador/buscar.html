@@ -1016,7 +1016,7 @@
 
 		          })
 		          .catch(error=>{
-		              msgError('Error!',error.response.data)
+		              msgError('Error!',error)
 		          })
          },
          buscaCuentaporDni(dni){
@@ -1028,8 +1028,9 @@
              this.chequearDatos(this.Cliente.id)
              this.verCard = true;
              this.clipWappVentas()
-             copiarButtonDni()
+             this.copiarButtonDni()
 	         this.buscar = this.Cliente.calle+' '+this.Cliente.num
+           console.log('buscar',this.buscar);
              axios.get('/vendedor/getcuotamaxima/'+this.Cliente.id)
                                .then(res=>{
                                    this.cuotaMaxima = res.data.cuotamaxima
