@@ -7,45 +7,47 @@
 <div class="container" x-data="main()" x-init="getNombresWapps()">
 
   <div class="flex-space-between">
-  <p class="title is-1">Gestionar WhatsApps</p>
-  <button class="button is-info" @click="getNombresWapps()">Actualizar</button>
+    <p class="title is-1">Gestionar WhatsApps</p>
+    <button class="button is-info" @click="getNombresWapps()">Actualizar</button>
   </div>
 
   <table class="table noselect is-narrow">
-     <thead>
-        <tr>
-          <th></th>
-          <th>fecha</th>
-          <th>whatsapp</th>
-          <th>nombre</th>
-          <th></th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <template x-for="item in listaChats">
-          //listaChats es un Array de wapps
-           <tr :id="item.wapp">
-             <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
-                                                @click="expandChildren(item.wapp)"></i></span></td>
-             <td x-text="item.fecha"></td>
-             <td x-text="item.wapp"></td>
-             <td x-text="item.nombre"></td>
-             <td><button class="button is-small is-info"  @click="contestarWapp(item.wapp)" x-show="item.nombre">
+    <thead>
+      <tr>
+        <th></th>
+        <th>fecha</th>
+        <th>whatsapp</th>
+        <th>nombre</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="item in listaChats">
+        //listaChats es un Array de wapps
+        <tr :id="item.wapp">
+          <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
+                @click="expandChildren(item.wapp)"></i></span></td>
+          <td x-text="item.fecha"></td>
+          <td x-text="item.wapp"></td>
+          <td x-text="item.nombre"></td>
+          <td><button class="button is-small is-info" @click="contestarWapp(item.wapp)"
+              x-show="item.nombre&&item.cobr==0">
               Contestar</button></td>
-              <td><button class="button is-small is-success" @click="marcarRespondidoWappOficial(item.wapp)">Respondido</button></td>
-          </tr>
-        </template>
-        <template x-for="item in listaWapps_">
-          <tr class="children">
-            <td></td>
-            <td x-text="item.fecha"></td>
-            <td x-text="item.msg"></td>
-            <td x-text="item.user"></td>
-          </tr>
-        </template>
-      </tbody>
-   </table>
+          <td><button class="button is-small is-success"
+              @click="marcarRespondidoWappOficial(item.wapp)">Respondido</button></td>
+        </tr>
+      </template>
+      <template x-for="item in listaWapps_">
+        <tr class="children">
+          <td></td>
+          <td x-text="item.fecha"></td>
+          <td x-text="item.msg"></td>
+          <td x-text="item.user"></td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
 
 
 
@@ -53,86 +55,93 @@
 {% endblock %}
 {% block script %}
 <script>
- function main(){
-     return{
-         listaWapps:[],
-         listaChats:[],
-         listaWapps_:[],
-         nombresWapps:[],
-         wapp:'',
-         getNombresWapps(){
-              axios.get('/buscador/obtenernombreswapps')
-              .then(res=>{
-                this.nombresWapps = res.data.nombreswapps
-                this.getWapps()
-              })
-         },
-         getWapps(){
-              axios.get('/buscador/obtenertodoswapps')
-                  .then(res=>{
-                      let recibidos = res.data.recibidos
-                      let enviados = res.data.enviados
-                      this.listaWapps = [...recibidos, ...enviados]
-                      this.listaWapps = this.listaWapps.filter(row=>row.msg!==null&&row.msg!==undefined&&row.msg!='')
-                      this.listaWapps.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD HH:mm:ss'))
-                      this.listaWapps.sort((a,b)=>{
-                          if(a.fecha>b.fecha) return 1
-                          if(a.fecha<b.fecha) return -1
-                          if(a.fecha==b.fecha) return 0
-                      })
-                      this.listaChats = []
-                      let listaDiferentesChats = Object.values(this.listaWapps.map(({wapp,fecha})=>({wapp,fecha})).reduce((acc, obj) => {
-                      if (!acc[obj.wapp] || obj.fecha > acc[obj.wapp].fecha) {
-                        acc[obj.wapp] = obj;
-                      }
-                      return acc;
-                    }, {}));
-                    // obtiene los diferentes Chats con la fecha mayor de cada uno. (codigo gentileza de chatGTP.)
-                      listaDiferentesChats.forEach(row=>{
-                          let nombre = this.nombresWapps.find(item=>item.wapp==row.wapp.slice(-10))?.nombre || ''
-                          this.listaChats.push({'wapp':row.wapp,'nombre':nombre,'fecha':row.fecha })
-                          })
-                      
-                      this.listaChats.sort((a,b)=>{
-                        if(a.fecha>b.fecha){return -1}
-                        if(a.fecha<b.fecha){return 1}
-                        if(a.fecha==b.fecha){return 0}
-                      })
-                    })
-        },
-         expandChildren(wapp){
-             if(this.wapp==wapp && this.listaWapps_.length>0){
-                 this.listaWapps_=[]
-                 return
-             }
-             this.listaWapps_ = this.listaWapps.filter(row=>row.wapp.includes(wapp.slice(-10)))
-             this.wapp = wapp
-             $tbody = document.querySelector('tbody')
-             $trwapp = document.getElementById(String(wapp))
-             setTimeout(()=>{
-                 let arrayrows = Array.from($tbody.children)
-                 let children = arrayrows.filter(row=>row.classList.contains('children'))
-                 children = children.reverse()
-                 for(el of children){
-                     $tbody.insertBefore(el,$trwapp.nextSibling)
-                 }
-             },1)
-         },
-         contestarWapp(wapp){
-             axios.get('/buscador/obtenerdniporwapp/'+wapp)
-                  .then(res=>{
-                      dni = res.data.dni
-                      window.open('/buscador/interno/'+dni, target='_blank')
-             })
-         },
-         marcarRespondidoWappOficial(wapp){
-          axios.get('/buscador/marcarrespondidoporwappoficial/'+wapp)
-          .then(res=>{
+  function main() {
+    return {
+      listaWapps: [],
+      listaChats: [],
+      listaWapps_: [],
+      listaCobrWapps: [],
+      nombresWapps: [],
+      wapp: '',
+      getNombresWapps() {
+        axios.get('/buscador/obtenernombreswapps')
+          .then(res => {
+            this.nombresWapps = [...res.data.nombreswapps, ...res.data.cobrwapps];
+            this.listaCobrWapps = res.data.cobrwapps
             this.getWapps()
           })
-         },
+      },
+      getWapps() {
+        axios.get('/buscador/obtenertodoswapps')
+          .then(res => {
+            let recibidos = res.data.recibidos
+            let enviados = res.data.enviados
+            this.listaWapps = [...recibidos, ...enviados]
+            this.listaWapps = this.listaWapps.filter(row => row.msg !== null && row.msg !== undefined && row.msg != '')
+            this.listaWapps.map(row => row.fecha = dayjs.utc(row.fecha).format('YYYY-MM-DD HH:mm:ss'))
+            this.listaWapps.sort((a, b) => {
+              if (a.fecha > b.fecha) return 1
+              if (a.fecha < b.fecha) return -1
+              if (a.fecha == b.fecha) return 0
+            })
+            this.listaChats = []
+            let listaDiferentesChats = Object.values(this.listaWapps.map(({ wapp, fecha }) => ({ wapp, fecha })).reduce((acc, obj) => {
+              if (!acc[obj.wapp] || obj.fecha > acc[obj.wapp].fecha) {
+                acc[obj.wapp] = obj;
+              }
+              return acc;
+            }, {}));
+            // obtiene los diferentes Chats con la fecha mayor de cada uno. (codigo gentileza de chatGTP.)
+            listaDiferentesChats.forEach(row => {
+              let cobr = 0
+              let nombre = this.nombresWapps.find(item => item.wapp == row.wapp.slice(-10))?.nombre || ''
+              if (this.listaCobrWapps.some(item => item.wapp == row.wapp.slice(-10))) {
+                cobr = 1
+              }
+              this.listaChats.push({ 'wapp': row.wapp, 'nombre': nombre, 'fecha': row.fecha, 'cobr': cobr })
+              console.log(row.wapp, this.listaCobrWapps.some(item => item.wapp == row.wapp.slice(-10)));
+            })
+            console.log(this.listaChats);
+            this.listaChats.sort((a, b) => {
+              if (a.fecha > b.fecha) { return -1 }
+              if (a.fecha < b.fecha) { return 1 }
+              if (a.fecha == b.fecha) { return 0 }
+            })
+          })
+      },
+      expandChildren(wapp) {
+        if (this.wapp == wapp && this.listaWapps_.length > 0) {
+          this.listaWapps_ = []
+          return
+        }
+        this.listaWapps_ = this.listaWapps.filter(row => row.wapp.includes(wapp.slice(-10)))
+        this.wapp = wapp
+        $tbody = document.querySelector('tbody')
+        $trwapp = document.getElementById(String(wapp))
+        setTimeout(() => {
+          let arrayrows = Array.from($tbody.children)
+          let children = arrayrows.filter(row => row.classList.contains('children'))
+          children = children.reverse()
+          for (el of children) {
+            $tbody.insertBefore(el, $trwapp.nextSibling)
+          }
+        }, 1)
+      },
+      contestarWapp(wapp) {
+        axios.get('/buscador/obtenerdniporwapp/' + wapp)
+          .then(res => {
+            dni = res.data.dni
+            window.open('/buscador/interno/' + dni, target = '_blank')
+          })
+      },
+      marcarRespondidoWappOficial(wapp) {
+        axios.get('/buscador/marcarrespondidoporwappoficial/' + wapp)
+          .then(res => {
+            this.getWapps()
+          })
+      },
 
-     }
- }
+    }
+  }
 </script>
 {% endblock %}
