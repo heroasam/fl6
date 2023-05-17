@@ -41,18 +41,20 @@
     <h1 class="title is-4" x-text="Ficha.nombre"></h1>
     <div class="flex-between">
       <h2 class="title is-5" x-text="Ficha.calle+' '+Ficha.num"></h2>
-                  <a class="button is-black is-small" :href="'https://www.google.com/maps/place/'+Ficha.calle+'+'+Ficha.num+',+C%C3%B3rdoba'">Maps</a>
+      <a class="button is-black is-small"
+        :href="'https://www.google.com/maps/place/'+Ficha.calle+'+'+Ficha.num+',+C%C3%B3rdoba'">Maps</a>
     </div>
     <h4 class="subtitle is-6" x-text="Ficha.acla" x-show="Ficha.acla"></h4>
     <div class="flex-between">
       <h2 class="title is-5 no-mb" x-text="Ficha.wapp?Ficha.wapp:Ficha.tel"></h2>
-            <a x-bind:href=`https://wa.me/549${Ficha.wapp}?text=''` class="tag is-success is-small"
-               target="blank" style="text-decoration: none;" x-show="Ficha.wapp">Whats</a>
-            <span class="tag is-small is-info pointer ml-5" @click="hacerLlamada(Ficha.wapp?Ficha.wapp:Ficha.tel)">Llamar</span>
-            <span class="tag is-small is-primary pointer ml-5" @click="editarWapp">Editar</span>
+      <a x-bind:href=`https://wa.me/549${Ficha.wapp}?text=''` class="tag is-success is-small" target="blank"
+        style="text-decoration: none;" x-show="Ficha.wapp">Whats</a>
+      <span class="tag is-small is-info pointer ml-5"
+        @click="hacerLlamada(Ficha.wapp?Ficha.wapp:Ficha.tel)">Llamar</span>
+      <span class="tag is-small is-primary pointer ml-5" @click="editarWapp">Editar</span>
     </div>
     <h4 class="subtitle is-6" x-text="Ficha.barrio"></h4>
-    <hr/>
+    <hr />
     <h4 class="title is-6 no-mb" x-text="Ficha.horarios" x-show="Ficha.horarios"></h4>
     <h4 class="title is-6 no-mb" x-text="Ficha.comentarios" x-show="Ficha.comentarios"></h4>
     <div class="buttons" x-show="!Ficha.idvta">
@@ -66,19 +68,18 @@
     <div>
       <template x-for="venta in listaVentas">
         <span class="tag is-small" :class="venta.pp?'is-danger':'is-white'" x-text="venta.pp?'PLAN de PAGOS':
-                       `${venta.id}-${venta.art.split(' ')[0]}-${venta.cc} cuotas de $${venta.ic}`"
-        ></span>
+                       `${venta.id}-${venta.art.split(' ')[0]}-${venta.cc} cuotas de $${venta.ic}`"></span>
 
       </template>
 
     </div>
     <!-- tablecuotas -->
     <div class="column is-3">
-	  <div class="flex-center" x-show="verCard">
+      <div class="flex-center" x-show="verCard">
         <!-- <span class="tag is-large">Cuotas a Pagar</span> -->
         <!-- <span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"></i></span> -->
-	  </div>
-      <table class="table is-narrow is-striped"  id="table-cuotas">
+      </div>
+      <table class="table is-narrow is-striped" id="table-cuotas">
         <thead>
           <tr>
             <th>N</th>
@@ -90,18 +91,18 @@
         <tbody>
           <template x-for="cuota in listaCuotas">
             <!-- nc-vto-saldo -->
-			<tr x-show="cuota[2]">
+            <tr x-show="cuota[2]">
               <td x-text="cuota[0]"></td>
               <td x-text="cuota[1]" style="min-width: 100px;"></td>
               <td x-text="cuota[2]" class="pesos"></td>
               <td x-text="cuota[3]" x-show="cntCuentas>1"></td>
-			</tr>
+            </tr>
           </template>
         </tbody>
       </table>
     </div>
     <button class="button is-success" @click="cobrarFicha()">Cobrar</button>
-    <button class="button is-black" @click="cancelarCobrarFicha()">Cancelar</button>
+    <button class="button is-black" @click="cancelarCobrarFicha()">Volver</button>
   </div>
 
 
@@ -142,10 +143,10 @@
         <button class="button" @click="toggleModal('modal-edicion-wapp')">Cancelar</button>
       </footer>
     </div>
-    <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+    <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}" />
   </div>
 
-   <!-- bulma-modal cobrar -->
+  <!-- bulma-modal cobrar -->
   <div class="modal" id="modal-cobrar">
     <div class="modal-background"></div>
     <div class="modal-card">
@@ -158,14 +159,14 @@
         <div x-show="listaCuentas.length==1">
           <h1 class="title is-1 red" x-text="listaCuentas[0]"></h1>
         </div>
-          <div x-show="listaCuentas.length>1">
-        <label for="cuenta" class="label">Cuenta</label>
-        <input list="cuentas" id="cuenta" class="input mb-3" x-model="cobrar.cuenta" autocomplete="off">
-        <datalist id="cuentas">
-          <template x-for="cuenta in listaCuentas">
-            <option :value="cuenta"></option>
-          </template>
-        </datalist>
+        <div x-show="listaCuentas.length>1">
+          <label for="cuenta" class="label">Cuenta</label>
+          <input list="cuentas" id="cuenta" class="input mb-3" x-model="cobrar.cuenta" autocomplete="off">
+          <datalist id="cuentas">
+            <template x-for="cuenta in listaCuentas">
+              <option :value="cuenta"></option>
+            </template>
+          </datalist>
         </div>
         <label for="imp">Importe Pagado</label>
         <input type="number" class="input mb-3" x-model="cobrar.imp" id="imp">
@@ -179,277 +180,285 @@
         <button class="button" @click="toggleModal('modal-cobrar')">Cancelar</button>
       </footer>
     </div>
-    <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+    <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}" />
   </div>
 
 </div>
 {% endblock %}
 {% block script %}
 <script>
- function main(){
-     return{
-         listaZonas:[],
-         listaFichas:[],
-         listaFichas_:[],
-         listaVentas:[],
-         listaCuotas:[],
-         listaCuentas:[],
-         Vtos:[],
-         listaInflacion:[],
-         verCard:false,
-         Ficha:{},
-         verCuenta:false,
-         cobrar:{},
-         cntCuentas:1,
-         cobr:'',
-         idvta:'',
-         zonaactual:'',
-         getListadoFichas(){
-             axios.get('/cobrador/getlistadofichas')
-                  .then(res=>{
-                      this.cobr = res.data.cobr
-                      if(['815','816'].includes(this.cobr)) {
-                        this.listaFichas = [...res.data.fichasvdor,...res.data.fichas];
-                      }else{
-                        this.listaFichas = res.data.fichas;
-                      }
-                      console.log(this.listaFichas);
-                      this.listaZonas = res.data.zonas
-                      this.listaFichas_ = this.listaFichas
-                      this.listaFichas_.sort((a,b)=>{
-                          let s1 = a.zona.toLowerCase()+a.calle.toLowerCase()+a.num.toString().padStart(4,' '),
-                              s2 = b.zona.toLowerCase()+b.calle.toLowerCase()+b.num.toString().padStart(4,' ')
+  function main() {
+    return {
+      listaZonas: [],
+      listaFichas: [],
+      listaFichas_: [],
+      listaVentas: [],
+      listaCuotas: [],
+      listaCuentas: [],
+      Vtos: [],
+      listaInflacion: [],
+      verCard: false,
+      Ficha: {},
+      verCuenta: false,
+      cobrar: {},
+      cntCuentas: 1,
+      cobr: '',
+      idvta: '',
+      zonaactual: 'todas',
+      getListadoFichas() {
+        axios.get('/cobrador/getlistadofichas')
+          .then(res => {
+            this.cobr = res.data.cobr
+            if (['815', '816'].includes(this.cobr)) {
+              this.listaFichas = [...res.data.fichasvdor, ...res.data.fichas];
+            } else {
+              this.listaFichas = res.data.fichas;
+            }
+            console.log(this.listaFichas);
+            this.listaZonas = res.data.zonas
+            this.listaFichas_ = this.listaFichas
+            this.listaFichas_.sort((a, b) => {
+              let s1 = a.zona.toLowerCase() + a.calle.toLowerCase() + a.num.toString().padStart(4, ' '),
+                s2 = b.zona.toLowerCase() + b.calle.toLowerCase() + b.num.toString().padStart(4, ' ')
 
-                          if(s1>s2) return 1
-                          if(s1<s2) return -1
-                          if(s1==s2) return 0
-                      })
-                  })
-         },
-         filtraPorZona(zona){
-             this.zonaactual = zona
-             this.listaFichas_=this.listaFichas.filter(row=>row.zona==zona)
-             this.listaFichas_.sort((a,b)=>{
-                 let s1 = a.calle.toLowerCase()+a.num.toString().padStart(4,' '),
-                     s2 = b.calle.toLowerCase()+b.num.toString().padStart(4,' ')
+              if (s1 > s2) return 1
+              if (s1 < s2) return -1
+              if (s1 == s2) return 0
+            })
+          })
+      },
+      filtraPorZona(zona) {
+        if (zona == 'todas') {
+          this.listaFichas_ = this.listaFichas
+          return
+        }
+        this.zonaactual = zona
+        this.listaFichas_ = this.listaFichas.filter(row => row.zona == zona)
+        this.listaFichas_.sort((a, b) => {
+          let s1 = a.calle.toLowerCase() + a.num.toString().padStart(4, ' '),
+            s2 = b.calle.toLowerCase() + b.num.toString().padStart(4, ' ')
 
-                 if(s1>s2) return 1
-                 if(s1<s2) return -1
-                 if(s1==s2) return 0
-             })
-         },
-         filtraPorCalle(calle){
-             pattern = /[^-]*/gi;
-             calle = pattern.exec(calle);
-             this.listaFichas_=this.listaFichas.filter(row=>row.calle==calle)
-             this.verCard = false;
-             this.listaFichas_.sort((a,b)=>{
-                 let s1 = a.nombre.toLowerCase(),
-                     s2 = b.nombre.toLowerCase()
+          if (s1 > s2) return 1
+          if (s1 < s2) return -1
+          if (s1 == s2) return 0
+        })
+      },
+      filtraPorCalle(calle) {
+        pattern = /[^-]*/gi;
+        calle = pattern.exec(calle);
+        this.listaFichas_ = this.listaFichas.filter(row => row.calle == calle)
+        this.verCard = false;
+        this.listaFichas_.sort((a, b) => {
+          let s1 = a.nombre.toLowerCase(),
+            s2 = b.nombre.toLowerCase()
 
-                 if(s1>s2) return 1
-                 if(s1<s2) return -1
-                 if(s1==s2) return 0
-             })
-         },
-         abrirCliente(id){
-             idButton = document.getElementById('buttonFecharFicha')
-             idButton.disabled=false
-             idButton = document.getElementById('buttonNoestabaFicha')
-             idButton.disabled=false
-             idButton = document.getElementById('buttonMudoFicha')
-             idButton.disabled=false
-             idButton = document.getElementById('buttonFallecioFicha')
-             idButton.disabled=false
-             this.Ficha = this.listaFichas.filter(row=>row.id==id)[0];
-             this.verCard = true;
-             this.obtenerVentas(id)
-         },
-         fecharFicha(idcliente){
-             idButton = document.getElementById('buttonFecharFicha')
-             idButton.disabled=true
-             toggleModal("modal-fechar-ficha");
-             this.verCard = false;
-         },
-         guardarfichaFechado(){
-             toggleModal("modal-fechar-ficha");
-             axios.get('/cobrador/fecharficha/'+this.Ficha.id+'/'+this.Ficha.pmovto)
-                  .then(res=>{
-                      this.getListadoFichas()
-                      msgSuccess("Ficha fechada correctamente")
-             })
-         },
-         editarWapp(){
-             toggleModal("modal-edicion-wapp");
-         },
-         guardarWapp(){
-             // nueva ruta para /vendedor/editarwapp
-             // /uQ3gisetQ8v0n6tw81ORnpL1s
-             this.Ficha.idcliente = this.Ficha.id
-             toggleModal("modal-edicion-wapp");
-             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
-             axios.post('/uQ3gisetQ8v0n6tw81ORnpL1s',this.Ficha)
-                                                                 .then(res=>{
-                                                                     msgSuccess('WhatsApp editado correctamente');
-                                                                 })
-                                                                 .catch(error=>{
-                                                                     msgError('Error. No se hizo la edicion');
-                                                                 })
-         },
-         hacerLlamada(tel){
-             re = /[0-9]*/;
-             tel = re.exec(tel)[0];
-             window.location.href = 'tel:' + tel;
-         },
-         noEstabaFicha(){
-             idButton = document.getElementById('buttonNoestabaFicha')
-             idButton.disabled=true
-             axios.get('/cobrador/noestabaficha/'+this.Ficha.id)
-             this.verCard = false;
-             msgSuccess("Marcado como no estaba")
-         },
-          mudoFicha(){
-             Swal.fire({
-                 title: '¿Esta seguro?',
-                 text: `Se pondra como mudado el cliente`,
-                 icon: 'warning',
-                 showCancelButton: true,
-                 confirmButtonColor: '#3085d6',
-                 cancelButtonColor: '#d33',
-                 confirmButtonText: 'Si, ponerlo!'
-             }).then((result) => {
-                 if (result.isConfirmed) {
-                     idButton = document.getElementById('buttonMudoFicha')
-                     idButton.disabled=true
-                     axios.get('/cobrador/mudoficha/'+this.Ficha.id)
-                         .then(res=>{
-                             msgSuccess('Mudado informado correctamente');
-                             this.getListadoFichas()
-                             this.verCard = false;
-                         })
-                         .catch(error=>{
-                             msgError('Hubo un error. No se pudo procesar');
-                         })
-                 }})
-         },
-         fallecioFicha(){
-              Swal.fire({
-                  title: '¿Esta seguro?',
-                  text: `Se pondra como fallecido el cliente`,
-                  icon: 'warning',
-                  showCancelButton: true,
-                  confirmButtonColor: '#3085d6',
-                  cancelButtonColor: '#d33',
-                  confirmButtonText: 'Si, ponerlo!'
-              }).then((result) => {
-                  if (result.isConfirmed) {
-                      idButton = document.getElementById('buttonFallecioFicha')
-                      idButton.disabled=true
-                      axios.get('/cobrador/fallecioficha/'+this.Ficha.id)
-                          .then(res=>{
-                              msgSuccess('Fallecimiento informado correctamente');
-                              this.getListadoFichas();
-                              this.verCard = false;
-                          })
-                          .catch(error=>{
-                              msgError('Hubo un error. No se pudo procesar');
-                          })
-              }})
-         },
-          hacerCuotas(){
-             /* id,fecha,cc2,ic3,p4,idvdor,saldo6,comprado,pp8,devuelta,condonada,cnt,art,pagado13,primera14, */
-             tblCuota=[]
-              let vto
-              this.cntCuentas = this.listaVentas.length
-              this.listaVentas.forEach(row=>{
-                 this.idvta = row.id
-                 saldo = row.saldo
-                 if(saldo!==0){
-                     pagado = row.pagado
-                     cc = row.cc
-                     ic = row.ic
-                     p = row.p
-                     primera = row.primera
-                     for (let i=1; i<=cc ;i++){
-                         if(p==='MEN') vto = dayjs.utc(primera).add(i-1,'month').format('YYYY-MM-DD')
-                         if(p==='QUI') vto = dayjs.utc(primera).add((i-1)*2,'week').format('YYYY-MM-DD')
-                         if(p==='SEM') vto = dayjs.utc(primera).add(i-1,'week').format('YYYY-MM-DD')
-                         ym = dayjs(vto).format('YYYYM')
-                         index = this.listaInflacion[ym] || null
-                         saldo = pagado>=ic?0:pagado<=0?ic:ic-pagado
-                         /* saldo_actualizado = index ? parseInt(saldo * index) : saldo */
-                         tblCuota.push([i,vto,saldo,row.id])
-                         pagado = pagado - ic
-                     }
-                 }
-             })
-              tblCuota.sort((a,b)=>{
-                  let s1 = a[1]
-                  let s2 = b[1]
-                  if(s1>s2) return 1
-                  if(s1<s2) return -1
-                  if(s1==s2) return 0
+          if (s1 > s2) return 1
+          if (s1 < s2) return -1
+          if (s1 == s2) return 0
+        })
+      },
+      abrirCliente(id) {
+        idButton = document.getElementById('buttonFecharFicha')
+        idButton.disabled = false
+        idButton = document.getElementById('buttonNoestabaFicha')
+        idButton.disabled = false
+        idButton = document.getElementById('buttonMudoFicha')
+        idButton.disabled = false
+        idButton = document.getElementById('buttonFallecioFicha')
+        idButton.disabled = false
+        this.Ficha = this.listaFichas.filter(row => row.id == id)[0];
+        this.verCard = true;
+        this.obtenerVentas(id)
+      },
+      fecharFicha(idcliente) {
+        idButton = document.getElementById('buttonFecharFicha')
+        idButton.disabled = true
+        toggleModal("modal-fechar-ficha");
+        this.verCard = false;
+      },
+      guardarfichaFechado() {
+        toggleModal("modal-fechar-ficha");
+        axios.get('/cobrador/fecharficha/' + this.Ficha.id + '/' + this.Ficha.pmovto)
+          .then(res => {
+            this.getListadoFichas()
+            msgSuccess("Ficha fechada correctamente")
+          })
+      },
+      editarWapp() {
+        toggleModal("modal-edicion-wapp");
+      },
+      guardarWapp() {
+        // nueva ruta para /vendedor/editarwapp
+        // /uQ3gisetQ8v0n6tw81ORnpL1s
+        this.Ficha.idcliente = this.Ficha.id
+        toggleModal("modal-edicion-wapp");
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
+        axios.post('/uQ3gisetQ8v0n6tw81ORnpL1s', this.Ficha)
+          .then(res => {
+            msgSuccess('WhatsApp editado correctamente');
+          })
+          .catch(error => {
+            msgError('Error. No se hizo la edicion');
+          })
+      },
+      hacerLlamada(tel) {
+        re = /[0-9]*/;
+        tel = re.exec(tel)[0];
+        window.location.href = 'tel:' + tel;
+      },
+      noEstabaFicha() {
+        idButton = document.getElementById('buttonNoestabaFicha')
+        idButton.disabled = true
+        axios.get('/cobrador/noestabaficha/' + this.Ficha.id)
+        this.verCard = false;
+        msgSuccess("Marcado como no estaba")
+      },
+      mudoFicha() {
+        Swal.fire({
+          title: '¿Esta seguro?',
+          text: `Se pondra como mudado el cliente`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Si, ponerlo!'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            idButton = document.getElementById('buttonMudoFicha')
+            idButton.disabled = true
+            axios.get('/cobrador/mudoficha/' + this.Ficha.id)
+              .then(res => {
+                msgSuccess('Mudado informado correctamente');
+                this.getListadoFichas()
+                this.verCard = false;
               })
-              return tblCuota
-          },
-         obtenerVentas(idcliente){
-             axios.get('/buscador/obtenerventasporidcliente/'+idcliente)
-                  .then(res=>{
-                      let arrayVentas=res.data.ventas
-                      arrayVentas.map(row=>{
-                          row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD')
-                          if(row.p==1) row.p='MEN'
-                          if(row.p==2) row.p='QUI'
-                          if(row.p==3) row.p='SEM'
-                          this.Vtos[row.id]=row.vto;
-                      })
-                      this.listaVentas = arrayVentas
-                      this.listaCuotas = this.hacerCuotas()
-                      this.listaCuentas = this.listaVentas.map(row=>row.id)
-                  })
-         },
-         imprimirFicha(idcliente){
-             data = {idcliente}
-                 axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-		         axios.post("/cobrador/imprimirfichapantalla",data, {responseType: "blob"})
-								                                     .then((res)=>{
-									                                         let url = window.URL.createObjectURL(res.data);
-									                                         window.open(url);
-								                                     })
-         },
-         cobrarFicha(){
-             toggleModal("modal-cobrar");
-             this.cobrar={rbo:0,rec:'',cobr:this.cobr, idcliente:this.Ficha.id,idvta:this.idvta,
-             fecha:dayjs.utc().format('YYYY-MM-DD'),rendido:0, imp:'',pmovto:''}
-         },
-         validarCobro(){
-          console.log(this.listaVentas);
-               let saldo = this.listaVentas.find(item=>item.id==this.cobrar.cuenta||this.cobrar.idvta).saldo;
-               console.log(saldo);
-              if(this.cobrar.imp=='') {msgError('Faltan datos','Ponga el importe');return}
-              if(this.cobrar.pmovto==''&&(saldo-this.cobrar.imp)>0) {msgError('Faltan datos','Ponga la fecha de proxima visita');return}
-              this.procesarCobro();
-         },
-         procesarCobro(){
-             toggleModal("modal-cobrar");
-             this.cobrar.idvta = this.cobrar.cuenta || this.idvta;
-             if(this.cobrar.pmovto=='') {this.cobrar.pmovto = null;}
-             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
-             axios.post('/pagos/pasarpagos',this.cobrar)
-                  .then(res=>{
-                      axios.post('/cobrador/pasarpagos',this.cobrar)
-                      msgSuccess("El pago fue procesado con exito")
-                      this.obtenerVentas(this.cobrar.idcliente)
-                  })
-                  .catch(error=>{
-                      msgError("Ocurrio un error el pago no se proceso")
-             })
-         },
-         cancelarCobrarFicha(){
-             this.verCard=false
-             this.filtraPorZona(this.zonaactual)
-         },
-     }
- }
+              .catch(error => {
+                msgError('Hubo un error. No se pudo procesar');
+              })
+          }
+        })
+      },
+      fallecioFicha() {
+        Swal.fire({
+          title: '¿Esta seguro?',
+          text: `Se pondra como fallecido el cliente`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Si, ponerlo!'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            idButton = document.getElementById('buttonFallecioFicha')
+            idButton.disabled = true
+            axios.get('/cobrador/fallecioficha/' + this.Ficha.id)
+              .then(res => {
+                msgSuccess('Fallecimiento informado correctamente');
+                this.getListadoFichas();
+                this.verCard = false;
+              })
+              .catch(error => {
+                msgError('Hubo un error. No se pudo procesar');
+              })
+          }
+        })
+      },
+      hacerCuotas() {
+        /* id,fecha,cc2,ic3,p4,idvdor,saldo6,comprado,pp8,devuelta,condonada,cnt,art,pagado13,primera14, */
+        tblCuota = []
+        let vto
+        this.cntCuentas = this.listaVentas.length
+        this.listaVentas.forEach(row => {
+          this.idvta = row.id
+          saldo = row.saldo
+          if (saldo !== 0) {
+            pagado = row.pagado
+            cc = row.cc
+            ic = row.ic
+            p = row.p
+            primera = row.primera
+            for (let i = 1; i <= cc; i++) {
+              if (p === 'MEN') vto = dayjs.utc(primera).add(i - 1, 'month').format('YYYY-MM-DD')
+              if (p === 'QUI') vto = dayjs.utc(primera).add((i - 1) * 2, 'week').format('YYYY-MM-DD')
+              if (p === 'SEM') vto = dayjs.utc(primera).add(i - 1, 'week').format('YYYY-MM-DD')
+              ym = dayjs(vto).format('YYYYM')
+              index = this.listaInflacion[ym] || null
+              saldo = pagado >= ic ? 0 : pagado <= 0 ? ic : ic - pagado
+              /* saldo_actualizado = index ? parseInt(saldo * index) : saldo */
+              tblCuota.push([i, vto, saldo, row.id])
+              pagado = pagado - ic
+            }
+          }
+        })
+        tblCuota.sort((a, b) => {
+          let s1 = a[1]
+          let s2 = b[1]
+          if (s1 > s2) return 1
+          if (s1 < s2) return -1
+          if (s1 == s2) return 0
+        })
+        return tblCuota
+      },
+      obtenerVentas(idcliente) {
+        axios.get('/buscador/obtenerventasporidcliente/' + idcliente)
+          .then(res => {
+            let arrayVentas = res.data.ventas
+            arrayVentas.map(row => {
+              row.fecha = dayjs.utc(row.fecha).format('YYYY-MM-DD')
+              if (row.p == 1) row.p = 'MEN'
+              if (row.p == 2) row.p = 'QUI'
+              if (row.p == 3) row.p = 'SEM'
+              this.Vtos[row.id] = row.vto;
+            })
+            this.listaVentas = arrayVentas
+            this.listaCuotas = this.hacerCuotas()
+            this.listaCuentas = this.listaVentas.map(row => row.id)
+          })
+      },
+      imprimirFicha(idcliente) {
+        data = { idcliente }
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+        axios.post("/cobrador/imprimirfichapantalla", data, { responseType: "blob" })
+          .then((res) => {
+            let url = window.URL.createObjectURL(res.data);
+            window.open(url);
+          })
+      },
+      cobrarFicha() {
+        toggleModal("modal-cobrar");
+        this.cobrar = {
+          rbo: 0, rec: '', cobr: this.cobr, idcliente: this.Ficha.id, idvta: this.idvta,
+          fecha: dayjs.utc().format('YYYY-MM-DD'), rendido: 0, imp: '', pmovto: ''
+        }
+      },
+      validarCobro() {
+        console.log(this.listaVentas);
+        let saldo = this.listaVentas.find(item => item.id == this.cobrar.cuenta || this.cobrar.idvta).saldo;
+        console.log(saldo);
+        if (this.cobrar.imp == '') { msgError('Faltan datos', 'Ponga el importe'); return }
+        if (this.cobrar.pmovto == '' && (saldo - this.cobrar.imp) > 0) { msgError('Faltan datos', 'Ponga la fecha de proxima visita'); return }
+        this.procesarCobro();
+      },
+      procesarCobro() {
+        toggleModal("modal-cobrar");
+        this.cobrar.idvta = this.cobrar.cuenta || this.idvta;
+        if (this.cobrar.pmovto == '') { this.cobrar.pmovto = null; }
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
+        axios.post('/pagos/pasarpagos', this.cobrar)
+          .then(res => {
+            axios.post('/cobrador/pasarpagos', this.cobrar)
+            msgSuccess("El pago fue procesado con exito")
+            this.obtenerVentas(this.cobrar.idcliente)
+          })
+          .catch(error => {
+            msgError("Ocurrio un error el pago no se proceso")
+          })
+      },
+      cancelarCobrarFicha() {
+        this.verCard = false
+        this.filtraPorZona(this.zonaactual)
+      },
+    }
+  }
 </script>
 {% endblock %}
