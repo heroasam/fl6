@@ -38,7 +38,7 @@ def get_cobr():
 
 @cobrador.route('/cobrador/listafichas')
 @login_required
-@check_roles(['dev','gerente','cobrador'])
+@check_roles(['dev','gerente','cobrador','vendedor'])
 def cobrador_listafichas():
     """Muestra pagina lista de fichas."""
     return render_template('/cobrador/listafichas.html')
@@ -62,7 +62,7 @@ def cobrador_tablero():
 
 @cobrador.route('/cobrador/getlistadofichas')
 @login_required
-@check_roles(['dev','gerente','cobrador'])
+@check_roles(['dev','gerente','cobrador','vendedor'])
 def cobrador_getlistadofichas():
     """Funcion que entrega lista fichas, lista zonas.
 
@@ -80,12 +80,16 @@ def cobrador_getlistadofichas():
     mudo=0 and clientes.zona!='-FALLECIDOS' and fechado=0 and ((datediff(now(),\
     ultpago) >6 or datediff(now(), ultpago) is null) or datediff(now(),\
     ultpago)=0) and deuda>0")
-    return jsonify(zonas=zonas, fichas=fichas, cobr=cobr)
+    fichasvdor = pglistdict(con, f"select clientes.* from clientes,ventas \
+                            where ventas.idcliente=clientes.id and \
+                            ventas.idvdor={cobr} and ventas.fecha=curdate()") 
+    return jsonify(zonas=zonas, fichas=fichas, cobr=cobr, \
+                   fichasvdor=fichasvdor)
 
 
 @cobrador.route('/cobrador/fecharficha/<int:idcliente>/<pmovto>')
 @login_required
-@check_roles(['dev','gerente','cobrador'])
+@check_roles(['dev','gerente','cobrador','vendedor'])
 def cobrador_fecharficha(idcliente,pmovto):
     """Proceso para fechar fichas por el cobrador.
 
@@ -134,7 +138,7 @@ def cobrador_asignar():
 
 @cobrador.route('/cobrador/noestabaficha/<int:idcliente>')
 @login_required
-@check_roles(['dev','gerente','cobrador'])
+@check_roles(['dev','gerente','cobrador','vendedor'])
 def cobrador_noestabaficha(idcliente):
     """Proceso para poner 'no estaba' a la ficha por el cobrador.
 
@@ -160,7 +164,7 @@ def cobrador_noestabaficha(idcliente):
 
 @cobrador.route('/cobrador/mudoficha/<int:idcliente>')
 @login_required
-@check_roles(['dev','gerente','cobrador'])
+@check_roles(['dev','gerente','cobrador','vendedor'])
 def cobrador_mudoficha(idcliente):
     """Proceso para poner 'mudado' a la ficha por el cobrador."""
     con = get_con()
@@ -190,7 +194,7 @@ def cobrador_mudoficha(idcliente):
 
 @cobrador.route('/cobrador/fallecioficha/<int:idcliente>')
 @login_required
-@check_roles(['dev','gerente','cobrador'])
+@check_roles(['dev','gerente','cobrador','vendedor'])
 def cobrador_fallecioficha(idcliente):
     """Proceso para poner 'fallecido' a la ficha por el cobrador."""
     con = get_con()
@@ -231,7 +235,7 @@ def cobrador_limpiar(zona):
 
 @cobrador.route('/cobrador/imprimirfichapantalla' , methods=['POST'])
 @login_required
-@check_roles(['dev','gerente','cobrador'])
+@check_roles(['dev','gerente','cobrador','vendedor'])
 def cobrador_imprimirfichapantalla():
     """Funcion para imprimir ficha de cliente en pantalla a cobrador."""
     con = get_con()
@@ -245,7 +249,7 @@ def cobrador_imprimirfichapantalla():
 
 @cobrador.route('/cobrador/pasarpagos' , methods=['POST'])
 @login_required
-@check_roles(['dev','gerente','cobrador'])
+@check_roles(['dev','gerente','cobrador','vendedor'])
 def cobrador_pasarpagos():
     """Sobre un pago exitosamente pagado registro la visita."""
     con = get_con()
@@ -289,7 +293,7 @@ def cobrador_getvisitascobrador():
 
 @cobrador.route('/cobrador/getcobranzahoy')
 @login_required
-@check_roles(['dev','gerente','cobrador'])
+@check_roles(['dev','gerente','cobrador','vendedor'])
 def cobrador_getcobranzahoy():
     """Funcion que entrega lista de las cobranza del dia para los cobradores."""
     con = get_con()

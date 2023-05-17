@@ -208,8 +208,13 @@
              axios.get('/cobrador/getlistadofichas')
                   .then(res=>{
                       this.cobr = res.data.cobr
+                      if(['815','816'].includes(this.cobr)) {
+                        this.listaFichas = [...res.data.fichasvdor,...res.data.fichas];
+                      }else{
+                        this.listaFichas = res.data.fichas;
+                      }
+                      console.log(this.listaFichas);
                       this.listaZonas = res.data.zonas
-                      this.listaFichas = res.data.fichas
                       this.listaFichas_ = this.listaFichas
                       this.listaFichas_.sort((a,b)=>{
                           let s1 = a.zona.toLowerCase()+a.calle.toLowerCase()+a.num.toString().padStart(4,' '),

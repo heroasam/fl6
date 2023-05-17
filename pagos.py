@@ -191,7 +191,7 @@ def pagos_traerficha(idvta):
 
 @pagos.route('/pagos/pasarpagos' , methods = ['POST'])
 @login_required
-@check_roles(['dev','gerente','admin', 'cobrador'])
+@check_roles(['dev','gerente','admin', 'cobrador','vendedor'])
 def pagos_pasarpagos():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))

@@ -216,7 +216,7 @@ def buscar_pedirpagadasporidcliente(idcliente):
 
 @buscador.route('/buscador/obtenerventasporidcliente/<int:idcliente>')
 @login_required
-@check_roles(['dev','gerente','admin','cobrador'])
+@check_roles(['dev','gerente','admin','cobrador','vendedor'])
 def buscar_obtenerventasporidcliente(idcliente):
     """Entrega lista de ventas por idcliente."""
     sql = f"select * from ventas where idcliente={idcliente} and saldo>0 order \
