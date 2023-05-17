@@ -1242,7 +1242,6 @@ def ventas_resendwapp(idvta):
     msg = f"""Estimado cliente: {nombre}, agradecemos su compra de {arts}.
 Le recordamos que el plan de pagos elegido es de {cc} cuotas mensuales de ${ic} y la primer cuota vence el dia {primera:%d-%m-%Y} para cualquier consulta no dude en contactarnos, estamos a su disposición!."""
     response = send_msg_whatsapp(idcliente, wapp, msg)
-    print('response',response)
     if response == 'success':
         pgexec(con, f"update ventas set sendwapp=1 where id={idvta}")
     send_file_whatsapp(

@@ -307,7 +307,6 @@ endblock %} {% block style %}
              }
          },
          limpiar(){
-             console.log( this.ultimazona)
              axios.get('/cobrador/limpiar/'+this.ultimazona)
                   .then(res=>{
                       this.refresh()

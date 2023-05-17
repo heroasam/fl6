@@ -1505,9 +1505,7 @@
 								                                 .then(res=>{
                                                                      this.refreshCliente(this.Cliente.dni)
 								                                     this.Recibo.rbo = res.data.rbo
-                                                     console.log('wapp',this.Cliente.wapp);
 								                                     if(this.Cliente.wapp){
-                                                      console.log('entra al if');
 									                                     axios.post('/buscador/enviarrbotransferencia',this.Recibo)
 									                                          .then(res=>{
 										                                          switch(res.data.response){

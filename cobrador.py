@@ -256,7 +256,6 @@ def cobrador_pasarpagos():
     ins = f"insert into visitascobr(fecha,hora,idcliente,result,cobr, \
         monto_cobrado) values(curdate(),curtime(),{idcliente},1,{cobr},\
             {monto})"
-    print(ins)
     try:
         pgexec(con, ins)
     except mysql.connector.Error as _error:

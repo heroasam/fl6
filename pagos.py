@@ -701,7 +701,6 @@ def pagos_marcarsubidos():
 def pagos_loadbajas():
     con = get_con()
     listbajas = pglistdict(con, f"select dni,nombre,dni, 'Cancelado' as canc, ultpago from clientes where sev=1 and deuda=0")
-    print(listbajas)
     con.close()
     return jsonify(listbajas=listbajas)
 
@@ -712,7 +711,6 @@ def pagos_loadbajas():
 def pagos_sevenbajas():
     con = get_con()
     sevenbajas = pglisttuples(con, f"select dni,nombre,dni,'Cancelado' as canc,ultpago from clientes where sev=1 and deuda=0")
-    print(sevenbajas)
     return jsonify(sevenbajas=sevenbajas)
 
 
@@ -862,7 +860,6 @@ def pagos_getnickcobrador(cobr):
     con = get_con()
 
     nick,wapp = pgtuple(con, f"select nick,telefono from cobr where id={cobr}")
-    print(nick,wapp)
     return jsonify(nick=nick, wapp=wapp)
 
 
