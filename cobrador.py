@@ -68,6 +68,14 @@ def cobrador_planilla():
     return render_template('/cobrador/planillacobr.html')
 
 
+@cobrador.route('/cobrador/planillageneral')
+@login_required
+@check_roles(['dev','gerente'])
+def cobrador_planillageneral():
+    """Muestra planilla de cobranza general para gerencia."""
+    return render_template('/cobrador/planillageneral.html')
+
+
 @cobrador.route('/cobrador/getlistadofichas')
 @login_required
 @check_roles(['dev','gerente','cobrador','vendedor'])
@@ -331,3 +339,72 @@ def cobrador_getcobroscobr():
                              as cobrado from pagos where cobr={cobr} \
                              and rendido = 0 group by fecha")
     return jsonify(listacobros=listacobros, listafechas=listafechas)
+
+
+@cobrador.route('/cobrador/getcobroscobr/<int:cobr>')
+@login_required
+@check_roles(['dev','gerente'])
+def cobrador_getcobroscobrgral(cobr):
+    con = get_con()
+    listacobros = pglistdict(con, f"select * from pagos where cobr={cobr} \
+                             and rendido=0")
+    listafechas = pglistdict(con, f"select fecha,count(*) as cnt, sum(imp) \
+                             as cobrado from pagos where cobr={cobr} \
+                             and rendido = 0 group by fecha")
+    return jsonify(listacobros=listacobros, listafechas=listafechas)
+
+
+@cobrador.route('/cobrador/getcobradores')
+@login_required
+@check_roles(['dev','gerente'])
+def cobrador_getcobradores():
+    con = get_con()
+    cobradores = pglist(con, f"select id from cobr where activo=1 and \
+                             prom=0 and vdor is NULL and id>15")
+    return jsonify(cobradores=cobradores)
+
+
+@cobrador.route('/cobrador/marcarpagadas/<int:cobr>')
+@login_required
+@check_roles(['dev','gerente'])
+def cobrador_marcarpagadas(cobr):
+    con = get_con()
+    upd = f"update pagos set rendido=1 where cobr={cobr} and rendido=0"
+    try:
+        pgexec(con, upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        log(upd)
+        return 'ok'
+    finally:
+        con.close()
+
+
+@cobrador.route('/cobrador/marcarpagadasseleccionados', methods=['POST'])
+@login_required
+@check_roles(['dev','gerente'])
+def cobrador_marcarpagadasseleccionados():
+    """Proceso que marca pagadas las comisiones de un cobr en ciertos dias."""
+    d_data = json.loads(request.data.decode("UTF-8"))
+    cobr = d_data['cobr']
+    fechas = d_data['fechas']
+    lpg ='('
+    for fecha in fechas:
+        lpg+=f"'{str(fecha)}',"
+    lpg = lpg[0:-1]+')'
+    con = get_con()
+    upd = f"update pagos set rendido=1 where cobr={cobr} and fecha in {lpg}"
+    try:
+        pgexec(con, upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        return make_response(error, 400)
+    else:
+        log(upd)
+        return 'ok'
+    finally:
+        con.close()

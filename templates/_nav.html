@@ -99,7 +99,8 @@
   </a>
   <div class="navbar-dropdown" x-show="verDropdownPagos">
     <a class="navbar-item" href="/pagos"> Pasar Pagos </a>
-    <a class="navbar-item" href="/pagos/verplanillas"> Planillas </a>
+    <a class="navbar-item" href="/pagos/verplanillas" x-show="['dev','gerente'].includes(rol)"> Planillas </a>
+    <a class="navbar-item" href="/cobrador/planillageneral" x-show="['dev','gerente'].includes(rol)"> Rendiciones </a>
     <a class="navbar-item" href="/loterbo"> Registrar Lote Recibos </a>
     <a class="navbar-item" href="/pagos/editarrbo"> Editar Recibo </a>
     <a class="navbar-item" href="/pagos/pivotcobros" x-show="['dev','gerente'].includes(rol)"> Por Cobrador </a>
