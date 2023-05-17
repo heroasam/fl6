@@ -60,6 +60,14 @@ def cobrador_tablero():
     return render_template('/cobrador/tablerocobranza.html')
 
 
+@cobrador.route('/cobrador/planilla')
+@login_required
+@check_roles(['dev','gerente','cobrador','vendedor'])
+def cobrador_planilla():
+    """Muestra planilla de cobranza de cobrador para rendir."""
+    return render_template('/cobrador/planillacobr.html')
+
+
 @cobrador.route('/cobrador/getlistadofichas')
 @login_required
 @check_roles(['dev','gerente','cobrador','vendedor'])
@@ -309,3 +317,17 @@ def cobrador_getcobranzahoy():
     clientes.id=visitascobr.idcliente and visitascobr.fecha=curdate() \
     order by visitascobr.hora")
     return jsonify(cobranzahoy=cobranzahoy,visitashoy=visitashoy)
+
+
+@cobrador.route('/cobrador/getcobroscobr')
+@login_required
+@check_roles(['dev','gerente','cobrador','vendedor'])
+def cobrador_getcobroscobr():
+    con = get_con()
+    cobr = get_cobr()
+    listacobros = pglistdict(con, f"select * from pagos where cobr={cobr} \
+                             and rendido=0")
+    listafechas = pglistdict(con, f"select fecha,count(*) as cnt, sum(imp) \
+                             as cobrado from pagos where cobr={cobr} \
+                             and rendido = 0 group by fecha")
+    return jsonify(listacobros=listacobros, listafechas=listafechas)

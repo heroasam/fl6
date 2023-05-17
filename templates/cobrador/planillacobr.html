@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Comisiones{% endblock %}
+{% block style %}
+<style>
+  </style>
+  {% endblock %}
+
+{% block content %}
+
+  <div class="container" x-data="main()" x-init="getCobrosCobr">
+
+    <p class="title is-1">Planilla a rendir</p>
+    <div class="columns">
+      <div class="column is-6">
+      <div class="is-flex-direction-row">
+      <div class="xtags has-addons m-0" x-show="totalRendir">
+		  <span class="tag is-small is-black m-0">Cobrado</span>
+		  <span class="tag is-small is-light m-0" x-text="'$'+totalCobrado"></span>
+      </div>
+      <div class="xtags has-addons m-0" x-show="totalRendir">
+      <span class="tag is-small is-success m-0">Comision</span>
+		  <span class="tag is-small is-light m-0" x-text="'$'+totalComision"></span>
+      </div>
+      <div class="xtags has-addons m-0" x-show="totalRendir">
+      <span class="tag is-small is-danger m-0">Rendir</span>
+		  <span class="tag is-small is-light m-0" x-text="'$'+totalRendir"></span>
+	     </div>
+       </div>
+       <hr>
+         <table class="table is-narrow" id="table">
+                <thead>
+                  <tr>
+                    <th></th>
+                      <th>fecha</th>
+                      <th>cnt</th>
+                      <th class="sumar">cobranza</th>
+                  </tr>
+                </thead>
+                <tbody>
+                   <template x-for="item in listaFechas">
+                    <tr :id="item.fecha">
+                      <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
+                                                         @click="expandChildren(item.fecha)"></td>
+                          <td x-text="item.fecha"></td>
+                          <td x-text="item.cnt"></td>
+                          <td x-text="item.cobrado" class="pesos"></td>
+                    </tr>
+                   </template>
+                   <template x-for="item in listaCobros_">
+                    <tr class="children">
+                      <td x-text="item.idvta"></td>
+                      <td x-text="item.imp" class="pesos"></td>
+                      <td x-text="item.rbo" x-show="item.rbo"></td>
+                    </tr>
+                   </template>
+                </tbody>
+         </table>
+         <button class="button is-danger" @click="avisarRetiroZona()" id="buttonRetiroZona">Retiro Zona</button>
+         <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
+
+    </div>
+
+
+</div>
+{% endblock %}
+{% block script %}
+<script>
+ function main(){
+     return{
+      listaFechas:[],
+      listaCobros:[],
+      listaCobros_:[],
+      totalRendir:0,
+      totalCobrado:0,
+      totalComision:0,
+      getCobrosCobr(){
+        axios.get('/cobrador/getcobroscobr')
+        .then(res=>{
+          this.listaCobros = res.data.listacobros
+          this.listaCobros.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'));
+          this.listaFechas = res.data.listafechas
+          this.listaFechas.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))
+          this.totalCobrado = this.listaFechas.reduce((a,b)=>parseInt(a)+parseInt(b.cobrado),0);
+          this.totalComision = (this.totalCobrado*0.15).toFixed();
+          this.totalRendir = this.totalCobrado - this.totalComision;
+        })
+
+      },
+      expandChildren(fecha){
+              if(this.fecha==fecha && this.listaCobros_.length>0){
+                  this.listaCobros_ = []
+                  return
+              }
+             this.listaCobros_ = this.listaCobros.filter(row=>row.fecha==fecha)
+             console.log(this.listaCobros);
+             this.fecha = fecha
+             setTimeout(()=>{
+             $tbody = document.querySelector('tbody')
+             $trfecha = document.getElementById(fecha)
+             let arrayrows = Array.from($tbody.children)
+             let children = arrayrows.filter(row=>row.classList.contains('children'))
+             children = children.reverse()
+             for(el of children){
+                 $tbody.insertBefore(el,$trfecha.nextSibling)
+             }},10)
+         },
+         avisarRetiroZona(){
+             idButton = document.getElementById('buttonRetiroZona')
+             idButton.disabled=true
+             msgDelay("se estan enviando los mensajes...")
+             let msg = `Retiro zona.`;
+             let tipo = "retiro zona";
+             let data = {msg,tipo};
+             // nueva ruta para /vendedor/wappaut
+             // /3ZbXanrRQalY6JL5eOBi49Nyc
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+	         axios.post('/3ZbXanrRQalY6JL5eOBi49Nyc',data)
+                 .then(res=>{
+                     msgSuccessSB("Avisado retiro zona.")
+                 })
+           },
+
+     }
+    }
+  </script>
+{% endblock %}
