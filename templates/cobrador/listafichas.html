@@ -171,9 +171,11 @@
         <input type="number" class="input mb-3" x-model="cobrar.imp" id="imp">
         <label for="rbo">Nº Recibo fisico (opcional)</label>
         <input type="number" class="input mb-3" x-model="cobrar.rbo" id="rbo">
+        <label for="pmovto">Fecha Proxima Visita</label>
+        <input type="date" class="input mb-3" x-model="cobrar.pmovto" id="pmovto">
       </section>
       <footer class="modal-card-foot">
-        <button class="button is-primary" @click="procesarCobro">Procesar</button>
+        <button class="button is-primary" @click="validarCobro">Procesar</button>
         <button class="button" @click="toggleModal('modal-cobrar')">Cancelar</button>
       </footer>
     </div>
@@ -413,11 +415,20 @@
          cobrarFicha(){
              toggleModal("modal-cobrar");
              this.cobrar={rbo:0,rec:'',cobr:this.cobr, idcliente:this.Ficha.id,idvta:this.idvta,
-             fecha:dayjs.utc().format('YYYY-MM-DD'),rendido:0}
+             fecha:dayjs.utc().format('YYYY-MM-DD'),rendido:0, imp:'',pmovto:''}
+         },
+         validarCobro(){
+          console.log(this.listaVentas);
+               let saldo = this.listaVentas.find(item=>item.id==this.cobrar.cuenta||this.cobrar.idvta).saldo;
+               console.log(saldo);
+              if(this.cobrar.imp=='') {msgError('Faltan datos','Ponga el importe');return}
+              if(this.cobrar.pmovto==''&&(saldo-this.cobrar.imp)>0) {msgError('Faltan datos','Ponga la fecha de proxima visita');return}
+              this.procesarCobro();
          },
          procesarCobro(){
              toggleModal("modal-cobrar");
              this.cobrar.idvta = this.cobrar.cuenta || this.idvta;
+             if(this.cobrar.pmovto=='') {this.cobrar.pmovto = null;}
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
              axios.post('/pagos/pasarpagos',this.cobrar)
                   .then(res=>{

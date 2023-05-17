@@ -227,6 +227,7 @@
          },
          procesarPagos(){
              this.Pagos.idvta = this.Venta.id
+             this.Pagos.pmovto = null
              this.Pagos.rendido = 1 // pq es un pago pasado en oficina
              this.Pagos.idcliente = this.Venta.idcliente
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;

@@ -200,9 +200,13 @@ def pagos_pasarpagos():
     ins = f"insert into pagos(idvta,fecha,imp,rec,rbo,cobr,idcliente,rendido) \
     values({d['idvta']},'{d['fecha']}',{d['imp']},{d['rec']},{d['rbo']},\
     {d['cobr']},{d['idcliente']},{d['rendido']})"
-    cur = con.cursor()
-    cur.execute(ins)
-    con.commit()
+    pgexec(con, ins)
+    # Si el pago proviene del cobrador directamente con pmovto incluido:
+    if(d['pmovto'] is not None):
+        upd = f"update clientes set pmovto='{d['pmovto']}' where id = \
+            {d['idcliente']}"
+        pgexec(con, upd)
+        log(upd)
     con.close()
     log(ins)
     return 'ok'
