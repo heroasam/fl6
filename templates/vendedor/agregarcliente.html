@@ -21,11 +21,11 @@
                required :class="darkTheme?'input-dark':''">
 
 
-        <input type="text" x-model="cliente.tel" placeholder="Telefono" size="20" class="input"
+        <input type="number" x-model="cliente.tel" placeholder="Telefono" size="20" class="input"
                :class="darkTheme?'input-dark':''">
 
 
-        <input type="text" x-model="cliente.wapp" placeholder="WhatApp" size="20" class="input"
+        <input type="number" x-model="cliente.wapp" placeholder="WhatApp" size="20" class="input"
 	           pattern="(\d){10}$" :class="darkTheme?'input-dark':''">
 
         <input type="text" list="listacalles" class="input mb-1" x-model="cliente.calle" required placeholder="Calle"
@@ -36,7 +36,7 @@
           </template>
         </datalist>
 
-        <input type="text" x-model="cliente.num" placeholder="Num" size="10" class="input" required
+        <input type="number" x-model="cliente.num" placeholder="Num" size="10" class="input" required
                pattern="(\d){2,4}$" :class="darkTheme?'input-dark':''">
 
         <input type="text" x-model="cliente.acla" placeholder="Aclaracion" size="60" class="input"

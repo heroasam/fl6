@@ -31,7 +31,7 @@
              <td x-text="item.fecha"></td>
              <td x-text="item.wapp"></td>
              <td x-text="item.nombre"></td>
-             <td><button class="button is-small is-info"  @click="contestarWapp(item.wapp)">
+             <td><button class="button is-small is-info"  @click="contestarWapp(item.wapp)" x-show="item.nombre">
               Contestar</button></td>
               <td><button class="button is-small is-success" @click="marcarRespondidoWappOficial(item.wapp)">Respondido</button></td>
           </tr>
