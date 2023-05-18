@@ -8,11 +8,12 @@
 
   <div class="columns">
     <div class="column is-6">
-      <div class="flex-space-between">
+      <div class="flex-space-between" x-show="!isMobile">
       <p class="title is-1">Lista de Autorizados</p>
       <a class="tag is-danger is-large" style="text-decoration:none;" href="/buscador/reautorizardatos">Autorizar Datos</a>
       <a class="tag is-info is-large" style="text-decoration:none;" href="/ventas/tableroventas">Tablero Ventas</a>
       </div>
+      <p class="title is-3" x-show="isMobile">Lista de Autorizados</p>
     </div>
    </div>
 
@@ -84,6 +85,7 @@
 <script>
  function main(){
      return{
+      isMobile: window.innerWidth < 768,
          listaAutorizados:[],
          idauth:'',
          comentario:'',
