@@ -586,7 +586,16 @@ function closeModal(id) {
         $id.classList.toggle('is-active')
     }
 }
-
+function obtenerListados(){
+    axios.get('/ventas/getcalles')
+    .then(res=>{let listaCalles=res.data.result})
+    
+    axios.get('/ventas/getbarrios')
+    .then(res=>{let listaBarrios=res.data.result})
+    
+    axios.get('/ventas/getzonas')
+    .then(res=>{let listaZonas=res.data.result})
+}
 function dia(day) {
     //formamos el nombre de la clase con la palabra color mas
     //el ultimo digito de los dias para tener solo diez colores

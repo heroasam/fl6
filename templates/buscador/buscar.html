@@ -739,7 +739,7 @@
                :class="darkTheme?'input-dark':''" >
       </section>
       <footer class="modal-card-foot">
-        <button class="button is-primary" @click="guardarEdicion">Guardar</button>
+        <button class="button is-primary" @click="validarEdicion">Guardar</button>
         <button class="button" @click="toggleModal('modal-edicion-cliente')">Cancelar</button>
       </footer>
     </div>
@@ -1374,6 +1374,26 @@
          editarCliente(idcliente){
              toggleModal('modal-edicion-cliente')
          },
+         validarEdicion() {
+         axios.get('/ventas/getcalles')
+           .then(res => {
+             let listaCalles = res.data.result
+             axios.get('/ventas/getbarrios')
+               .then(res => {
+                 let listaBarrios = res.data.result
+                 axios.get('/ventas/getzonas')
+                   .then(res => {
+                     let listaZonas = res.data.result
+                     if (this.Cliente.dni == '') { msgError('Debe poner el DNI.'); return }
+                     if (!listaCalles.includes(this.Cliente.calle)) { msgError('La calle no esta en la base de datos'); return }
+                     if (this.Cliente.num == '') { msgError('Debe poner numero.'); return }
+                     if (!listaBarrios.includes(this.Cliente.barrio)) { msgError('El barrio no esta en la base de datos'); return }
+                     if (!listaZonas.includes(this.Cliente.zona)) { msgError('La zona no esta en la base de datos'); return }
+                     this.guardarEdicion()
+                   })
+               })
+           })
+       },
          guardarEdicion(){
              toggleModal('modal-edicion-cliente')
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
