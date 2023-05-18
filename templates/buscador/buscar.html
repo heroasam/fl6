@@ -1030,7 +1030,6 @@
              this.clipWappVentas()
              this.copiarButtonDni()
 	         this.buscar = this.Cliente.calle+' '+this.Cliente.num
-           console.log('buscar',this.buscar);
              axios.get('/vendedor/getcuotamaxima/'+this.Cliente.id)
                                .then(res=>{
                                    this.cuotaMaxima = res.data.cuotamaxima
@@ -1362,7 +1361,6 @@
          },
          guardarComentario(){
              toggleModal('modal-edicion-comentarios')
-             console.log(this.Comentario.comentario);
              this.Comentario.comentario =  this.Comentario.comentario.replace(/["']/g, '\\$&');
              this.Comentario.ingreso=user
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value

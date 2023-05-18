@@ -520,6 +520,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
              this.verNotificacionAutorizacion = true;
              //registrar pedido autorizacion en tabla autorizacion
              this.Dato.cuota_requerida = this.sumaCuota;
+             this.Dato.dnigarante = this.Venta.dnigarante;
              let arrayArts = [];
              this.listaArtComprados.map(row=>{
                  arrayArts.push(row.cnt+' '+row.art);
@@ -644,7 +645,7 @@ Quedo a la espera. Gracias.`;
              window.location.href = 'tel:' + tel;
          },
          buscaGarante(dni){
-             if(this.Venta.dnigarante!=0 && this.Venta.dnigarante!=''){
+             if(verificarDni(this.Venta.dnigarante)){
                  // nueva ruta para /ventas/obtenerdatosgarante
                  // /3ibzPLLq53RuFgIqkq6G3bSzO
                  axios.get('/3ibzPLLq53RuFgIqkq6G3bSzO/'+this.Venta.dnigarante)

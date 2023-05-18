@@ -36,6 +36,7 @@
         <th>fecha</th>
         <th>nombre</th>
         <th>vendedor</th>
+        <th>garante</th>
         <th>status</th>
         <th>articulos</th>
         <th>basica</th>
@@ -64,6 +65,7 @@
           <td x-text="dato.fecha"></td>
           <td x-text="dato.nombre"></td>
           <td x-text="dato.vendedor"></td>
+          <td><a class="tag is-small is-danger pointer" :href="'/buscador/interno/'+dato.dnigarante" x-show="dato.dnigarante">Garante</a></td>
           <td><span class="tag is-small" x-text="dato.resultado==1?'Vendido':(dato.resultado==0?'Anulado':
                            (dato.resultado==2?'Rechazado':(dato.resultado==5?'Mudo':(dato.resultado==6?'Fallecio':'Pendiente'))))"
                     :class="dato.resultado==1?'is-success':(dato.resultado==0?'is-danger':(dato.resultado==2?'is-warning':

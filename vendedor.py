@@ -997,16 +997,22 @@ def vendedor_registrarautorizacion():
 
     con = get_con()
     d_data = json.loads(request.data.decode("UTF-8"))
-    if current_user.email == var_sistema['816']:
-        vdor = 816
-    if current_user.email == var_sistema['835']:
-        vdor = 835
+    vdor = var_sistema[current_user.email]
+    if 'dnigarante' in d_data:
+        dnigarante_propuesto = d_data['dnigarante']
+    else:
+        dnigarante_propuesto = ''
     ins = f"insert into autorizacion(fecha,vdor,iddato,idcliente,\
-    cuota_requerida,cuota_maxima,arts) values(current_timestamp(),\
+    cuota_requerida,cuota_maxima,arts,dnigarante_propuesto) values\
+        (current_timestamp(),\
     {vdor},{d_data['id']},{d_data['idcliente']},{d_data['cuota_requerida']},\
-    {d_data['cuota_maxima']},'{d_data['arts']}')"
+    {d_data['cuota_maxima']},'{d_data['arts']}','{dnigarante_propuesto}')"
     cur = con.cursor()
     try:
+        if len(dnigarante_propuesto)>0:
+            upddato = f"update datos set dnigarante={dnigarante_propuesto} \
+                where id={d_data['id']}"
+            cur.execute(upddato)
         cur.execute(ins)
         idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
     except mysql.connector.Error as _error:
@@ -1038,7 +1044,8 @@ def vendedor_getlistadoautorizados():
     as fechahora, autorizacion.cuota_requerida as cuota_requerida,\
     autorizacion.tomado as tomado, autorizacion.arts as arts,horarios,\
     comentarios,(select count(*) from autorizacion where \
-    autorizacion.idcliente=clientes.id) as cnt,autorizacion.idcliente from \
+    autorizacion.idcliente=clientes.id) as cnt,autorizacion.idcliente, \
+    autorizacion.dnigarante_propuesto as dnigarante from \
     datos, autorizacion,clientes  where datos.idcliente=clientes.id and \
     autorizacion.iddato=datos.id and autorizacion.autorizado=0 and \
     autorizacion.rechazado=0 and autorizacion.sigueigual=0 and datos.resultado \
@@ -1096,7 +1103,8 @@ def vendedor_autorizardato(idauth):
     iddato = pgonecolumn(con, f"select iddato from autorizacion where \
     id={idauth}")
     upd_dat = f"update datos set cuota_maxima = {cuota_requerida}, \
-    autorizado=1,rechazado=0,sigueigual=0,enviado_vdor=1 where id={iddato}"
+    autorizado=1,rechazado=0,sigueigual=0,enviado_vdor=1, fecha_visitar=\
+         curdate() where id={iddato}"
     con = get_con()
     cur = con.cursor()
     try:

@@ -149,7 +149,6 @@
           .then(res => {
             this.listaVentasHoy = res.data.ventashoy
             this.listaWappsNoEnviados = res.data.wappnoenviados
-            console.log(this.listaWappsNoEnviados);
             let largo = this.listaVentasHoy.length
             if (largo > 0) {
               let ultimarow = this.listaVentasHoy[largo - 1]

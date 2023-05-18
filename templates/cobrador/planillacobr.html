@@ -93,7 +93,6 @@
             return
           }
           this.listaCobros_ = this.listaCobros.filter(row => row.fecha == fecha)
-          console.log(this.listaCobros);
           this.fecha = fecha
           setTimeout(() => {
             $tbody = document.querySelector('tbody')

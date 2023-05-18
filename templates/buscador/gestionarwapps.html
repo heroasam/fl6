@@ -99,9 +99,7 @@
                 cobr = 1
               }
               this.listaChats.push({ 'wapp': row.wapp, 'nombre': nombre, 'fecha': row.fecha, 'cobr': cobr })
-              console.log(row.wapp, this.listaCobrWapps.some(item => item.wapp == row.wapp.slice(-10)));
             })
-            console.log(this.listaChats);
             this.listaChats.sort((a, b) => {
               if (a.fecha > b.fecha) { return -1 }
               if (a.fecha < b.fecha) { return 1 }

@@ -214,7 +214,6 @@
             } else {
               this.listaFichas = res.data.fichas;
             }
-            console.log(this.listaFichas);
             this.listaZonas = res.data.zonas
             this.listaFichas_ = this.listaFichas
             this.listaFichas_.sort((a, b) => {
@@ -432,9 +431,7 @@
         }
       },
       validarCobro() {
-        console.log(this.listaVentas);
         let saldo = this.listaVentas.find(item => item.id == this.cobrar.cuenta || this.cobrar.idvta).saldo;
-        console.log(saldo);
         if (this.cobrar.imp == '') { msgError('Faltan datos', 'Ponga el importe'); return }
         if (this.cobrar.rbo == '') { msgError('Faltan datos', 'Ponga el Nº Recibo'); return }
         if (this.cobrar.pmovto == '' && (saldo - this.cobrar.imp) > 0) { msgError('Faltan datos', 'Ponga la fecha de proxima visita'); return }
