@@ -170,7 +170,7 @@
         </div>
         <label for="imp">Importe Pagado</label>
         <input type="number" class="input mb-3" x-model="cobrar.imp" id="imp">
-        <label for="rbo">Nº Recibo fisico (opcional)</label>
+        <label for="rbo">Nº Recibo</label>
         <input type="number" class="input mb-3" x-model="cobrar.rbo" id="rbo">
         <label for="pmovto">Fecha Proxima Visita</label>
         <input type="date" class="input mb-3" x-model="cobrar.pmovto" id="pmovto">
@@ -427,7 +427,7 @@
       cobrarFicha() {
         toggleModal("modal-cobrar");
         this.cobrar = {
-          rbo: 0, rec: '', cobr: this.cobr, idcliente: this.Ficha.id, idvta: this.idvta,
+          rbo: '', rec: '', cobr: this.cobr, idcliente: this.Ficha.id, idvta: this.idvta,
           fecha: dayjs.utc().format('YYYY-MM-DD'), rendido: 0, imp: '', pmovto: ''
         }
       },
@@ -436,6 +436,7 @@
         let saldo = this.listaVentas.find(item => item.id == this.cobrar.cuenta || this.cobrar.idvta).saldo;
         console.log(saldo);
         if (this.cobrar.imp == '') { msgError('Faltan datos', 'Ponga el importe'); return }
+        if (this.cobrar.rbo == '') { msgError('Faltan datos', 'Ponga el Nº Recibo'); return }
         if (this.cobrar.pmovto == '' && (saldo - this.cobrar.imp) > 0) { msgError('Faltan datos', 'Ponga la fecha de proxima visita'); return }
         this.procesarCobro();
       },
