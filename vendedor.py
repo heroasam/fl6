@@ -982,7 +982,7 @@ def vendedor_validardni():
     d_data = json.loads(request.data.decode("UTF-8"))
     logging.warning(d_data)
     dni = pgonecolumn(con, f"select dni from clientes where id={d_data['id']}")
-    if dni==int(d_data['dni']):
+    if d_data['dni']!='' and dni==int(d_data['dni']):
         return make_response('aprobado', 200)
     return make_response('error', 400)
 
@@ -1823,7 +1823,7 @@ def vendedor_isrespondidoauth(auth):
     from autorizacion where id={auth}")
     if motivo is None:
         motivo = ''
-    logging.warning("respuesta %s - %s", (respuesta,motivo))
+    logging.warning(f"respuesta{respuesta}, motivo:{motivo}")
     return jsonify(respuesta=respuesta, motivo=motivo)
 
 
