@@ -91,9 +91,9 @@
       <button class="button is-small is-info" @click="verFichaPantalla(Dato.idcliente)">Ver Ficha</button>
     </div>
     <div class="buttons" x-show="Dato.quiere_devolver">
-      <button class="button is-small is-danger" @click="informa('Total',Dato.idvta,Dato.vendedor)">Dev. Total</button>
-      <button class="button is-small is-warning" @click="informa('Parcial',Dato.idvta,Dato.vendedor)">Dev. Parcial</button>
-      <button class="button is-small is-success" @click="informa('Cambio',Dato.idvta,Dato.vendedor)">Cambio</button>
+      <button class="button is-small is-danger desactivable" @click="informa('Total',Dato.idvta,Dato.vendedor)">Dev. Total</button>
+      <button class="button is-small is-warning desactivable" @click="informa('Parcial',Dato.idvta,Dato.vendedor)">Dev. Parcial</button>
+      <button class="button is-small is-success desactivable" @click="informa('Cambio',Dato.idvta,Dato.vendedor)">Cambio</button>
     </div>
 
   </div>

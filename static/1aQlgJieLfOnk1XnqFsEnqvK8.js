@@ -687,6 +687,10 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
                  })
          },
          async informa(tipo,idvta,vendedor){
+             const botones = document.getElementsByClassName('desactivable');
+             for (let boton of botones){
+                 boton.disabled = true;
+             }
              let msg = `DEVOLUCION: Informo el retiro ${tipo.toUpperCase()} de la mercaderia correspondiente a la cuenta ${idvta}. Vendedor ${vendedor}`
              if(tipo!='Total') {
                  const { value: text } = await Swal.fire({

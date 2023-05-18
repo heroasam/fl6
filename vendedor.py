@@ -1822,7 +1822,7 @@ def vendedor_isrespondidoauth(auth):
                             as respuesta, motivo \
     from autorizacion where id={auth}")
     if motivo is None:
-        motivo = ''
+        motivo = 'no especificado'
     logging.warning(f"respuesta{respuesta}, motivo:{motivo}")
     return jsonify(respuesta=respuesta, motivo=motivo)
 
