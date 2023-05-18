@@ -9,63 +9,65 @@
 
 {% block content %}
 
-<div x-data="main()" x-init="getVentaHoy();getVisitasHoy();setInterval(()=>{getVentaHoy()},60000);setInterval(()=>{getListadoAutorizados()},10000)">
+<div x-data="main()"
+  x-init="getVentaHoy();getVisitasHoy();setInterval(()=>{getVentaHoy()},60000);setInterval(()=>{getListadoAutorizados()},10000)">
 
-    <div class="columns flex-baseline">
-      <div class="column is-6">
-         <div class="flex-space-between">
-      <p class="title is-1">Tablero Ventas</p>
-      <a class="tag is-danger is-large" style="text-decoration:none;" href="/buscador/reautorizardatos">Autorizar Datos</a>
-         </div>
-      </div>
-      <div class="column is-6">
-         <div class="xtags has-addons m-0" x-show="totalVendido">
-		  <span class="tag is-large is-black m-0">Total Vendido</span>
-		  <span class="tag is-large is-light m-0" x-text="'$'+totalVendido"></span>
-	     </div>
+  <div class="columns flex-baseline">
+    <div class="column is-6">
+      <div class="flex-space-between">
+        <p class="title is-1" x-text="isMobile?'':'Tablero Ventas'"></p>
+        <a class="tag is-danger is-large" style="text-decoration:none;" href="/buscador/reautorizardatos"
+          x-show="!isMobile" x-text="'Autorizar Datos'"></p></a>
       </div>
     </div>
-
-    <div class="block" x-show="totalVendido">
-      <template x-for="[id,value]  in Object.entries(listaVtaVdores)">
-         <div class="xtags has-addons m-0">
-		  <span class="tag is-large is-info m-0" x-text="id"></span>
-		  <span class="tag is-large is-light m-0" x-text="'$'+value"></span>
-	     </div>
-      </template>
-    </div>
-    <div class="columns">
-      <div class="column is-6">
-            <table class="table is-narrow" id="table">
-                <thead>
-                  <tr>
-                    <th></th>
-                        <th>hora</th>
-                        <th>resultado</th>
-                        <th>nombre</th>
-                        <th>direccion</th>
-                        <th>zona</th>
-                        <th>vendedor</th>
-                        <th class="sumar">vendido</th>
-                    </tr>
-                </thead>
-                <tbody>
-                  <template x-for="item in listaVentasHoy">
-                    <tr>
-                      <td><a :href="'/buscador/interno/'+item.dni">Ver</a></td>
-                      <td x-text="item.fecha_definido"></td>
-                      <td><span class="tag is-small is-success">Vendido</span></td>
-                          <td x-text="item.nombre"></td>
-                          <td x-text="item.direccion"></td>
-                          <td x-text="item.zona"></td>
-                          <td x-text="item.vendedor"></td>
-                          <td x-text="item.monto_vendido" class="pesos"></td>
-                    </tr>
-                  </template>
-                 </tbody>
-            </table>
+    <div class="column is-6">
+      <div class="xtags has-addons m-0" x-show="totalVendido">
+        <span class="tag is-large is-black m-0">Total Vendido</span>
+        <span class="tag is-large is-light m-0" x-text="'$'+totalVendido"></span>
       </div>
-      <template x-for="vdor in listaVendedores">
+    </div>
+  </div>
+
+  <div class="block" x-show="totalVendido">
+    <template x-for="[id,value]  in Object.entries(listaVtaVdores)">
+      <div class="xtags has-addons m-0">
+        <span class="tag is-large is-info m-0" x-text="id"></span>
+        <span class="tag is-large is-light m-0" x-text="'$'+value"></span>
+      </div>
+    </template>
+  </div>
+  <div class="columns">
+    <div class="column is-6">
+      <table class="table is-narrow" id="table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>hora</th>
+            <th>resultado</th>
+            <th>nombre</th>
+            <th>direccion</th>
+            <th>zona</th>
+            <th>vendedor</th>
+            <th class="sumar">vendido</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="item in listaVentasHoy">
+            <tr>
+              <td><a :href="'/buscador/interno/'+item.dni">Ver</a></td>
+              <td x-text="item.fecha_definido"></td>
+              <td><span class="tag is-small is-success">Vendido</span></td>
+              <td x-text="item.nombre"></td>
+              <td x-text="item.direccion"></td>
+              <td x-text="item.zona"></td>
+              <td x-text="item.vendedor"></td>
+              <td x-text="item.monto_vendido" class="pesos"></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+    <template x-for="vdor in listaVendedores">
       <div class="column is-2">
         <button class="button is-info" x-text="vdor"></button>
         <table class="table is-narrow">
@@ -79,10 +81,12 @@
             <template x-for="item in listaVisitasHoy.filter(row=>row.vdor==vdor)">
               <tr>
                 <td x-text="dayjs.utc(item.fechahora).format('HH:mm:ss')"></td>
-                <td><span class="tag is-small" x-text="item.result==1?'venta':(item.result==2?'anulado':
+                <td><span class="tag is-small"
+                    x-text="item.result==1?'venta':(item.result==2?'anulado':
                                  (item.result==3?'no estaba':(item.result==5?'mudo':(item.result==6?'fallecio':(item.result==7?'devolucion':'fechado')))))"
-                          :class="item.result==1?'is-success':(item.result==2?'is-danger':(item.result==3?'is-warning':
-                                 (item.result==5?'is-primary':(item.result==6?'if-black':(item.result==7?'is-danger':'is-info')))))"></span></td>
+                    :class="item.result==1?'is-success':(item.result==2?'is-danger':(item.result==3?'is-warning':
+                                 (item.result==5?'is-primary':(item.result==6?'if-black':(item.result==7?'is-danger':'is-info')))))"></span>
+                </td>
                 <td x-text="item.direccion"></td>
               </tr>
             </template>
@@ -90,61 +94,63 @@
         </table>
       </div>
     </template>
-     
 
-    </div>
+
+  </div>
 </div>
 {% endblock %}
 
 {% block script %}
 <script>
- function main(){
-     return{
-         listaVentasHoy:[],
-         listaVisitasHoy:[],
-         audio:new Audio("{{ url_for('static', filename='bell.ogg') }}"),
-         audioAuth:new Audio("{{ url_for('static', filename='auth.mp3') }}"),
-         listaVtaVdores:{},
-         totalVendido:'',
-         listaVendedores:[],
-         listadoAutorizados:[],
-         getListadoAutorizados(){
-             axios.get('/vendedor/getlistadoautorizados')
-                  .then(res=>{
-                      this.listadoAutorizados = res.data.listadoautorizados
-                      let diff = this.listadoAutorizados.filter(row=>row.diff=dayjs.utc().diff(dayjs.utc(row.fechahora),'s')-10800<61&&row.tomado==0) //pq ultimotime esta en GMT 3hs de diferencia
-                      if(diff.length>0) this.audioAuth.play()
-                  })
-         },
-         getVentaHoy(){
-             axios.get('/vendedor/getventashoy')
-                  .then(res=>{
-                      this.listaVentasHoy = res.data.ventashoy
-                      let largo = this.listaVentasHoy.length
-                      if(largo>0){
-                          let ultimarow = this.listaVentasHoy[largo-1]
-                          let ultimotime = ultimarow.fecha_definido
-                          let delta = dayjs().diff(dayjs(ultimotime),'s')-10800 //pq ultimotime esta en GMT 3hs de diferencia
-                          if (delta<60){
-                              this.audio.play();
-                          }
-                      }
-                      this.listaVentasHoy.map(row=>row.fecha_definido=dayjs.utc(row.fecha_definido).format("HH:mm:ss"))
-                      this.listaVendedores = res.data.vendedores
-                      for(let vdor of this.listaVendedores){
-                          this.listaVtaVdores[vdor] = this.listaVentasHoy.filter(row=>row.vendedor==vdor).map(row=>row.monto_vendido).reduce((a,b)=>a+b,0)
-                      }
-                      this.totalVendido = this.listaVentasHoy.map(row=>row.monto_vendido).reduce((a,b)=>a+b,0)
-                  })
-         },
-         getVisitasHoy(){
-             axios.get('/vendedor/getvisitashoy')
-                  .then(res=>{
-                      this.listaVisitasHoy = res.data.visitashoy
-             })
-         },
-     }
- }
- 
+
+  function main() {
+    return {
+      isMobile: window.innerWidth < 768,
+      listaVentasHoy: [],
+      listaVisitasHoy: [],
+      audio: new Audio("{{ url_for('static', filename='bell.ogg') }}"),
+      audioAuth: new Audio("{{ url_for('static', filename='auth.mp3') }}"),
+      listaVtaVdores: {},
+      totalVendido: '',
+      listaVendedores: [],
+      listadoAutorizados: [],
+      getListadoAutorizados() {
+        axios.get('/vendedor/getlistadoautorizados')
+          .then(res => {
+            this.listadoAutorizados = res.data.listadoautorizados
+            let diff = this.listadoAutorizados.filter(row => row.diff = dayjs.utc().diff(dayjs.utc(row.fechahora), 's') - 10800 < 61 && row.tomado == 0) //pq ultimotime esta en GMT 3hs de diferencia
+            if (diff.length > 0) this.audioAuth.play()
+          })
+      },
+      getVentaHoy() {
+        axios.get('/vendedor/getventashoy')
+          .then(res => {
+            this.listaVentasHoy = res.data.ventashoy
+            let largo = this.listaVentasHoy.length
+            if (largo > 0) {
+              let ultimarow = this.listaVentasHoy[largo - 1]
+              let ultimotime = ultimarow.fecha_definido
+              let delta = dayjs().diff(dayjs(ultimotime), 's') - 10800 //pq ultimotime esta en GMT 3hs de diferencia
+              if (delta < 60) {
+                this.audio.play();
+              }
+            }
+            this.listaVentasHoy.map(row => row.fecha_definido = dayjs.utc(row.fecha_definido).format("HH:mm:ss"))
+            this.listaVendedores = res.data.vendedores
+            for (let vdor of this.listaVendedores) {
+              this.listaVtaVdores[vdor] = this.listaVentasHoy.filter(row => row.vendedor == vdor).map(row => row.monto_vendido).reduce((a, b) => a + b, 0)
+            }
+            this.totalVendido = this.listaVentasHoy.map(row => row.monto_vendido).reduce((a, b) => a + b, 0)
+          })
+      },
+      getVisitasHoy() {
+        axios.get('/vendedor/getvisitashoy')
+          .then(res => {
+            this.listaVisitasHoy = res.data.visitashoy
+          })
+      },
+    }
+  }
+
 </script>
-  {% endblock %}
+{% endblock %}
