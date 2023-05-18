@@ -15,6 +15,7 @@
   <div class="flex-space-between" x-show="!isMobile">
     <p class="title is-1">Tablero Ventas</p>
     <a class="tag is-danger is-large" style="text-decoration:none;" href="/buscador/reautorizardatos">Autorizar Datos</a>
+    <a class="tag is-small is-warning pointer" x-show="listaWappsNoEnviados.length" href="#table-wappnoenviados">Hay wapp notificaciones ventas no enviados</a>
   </div>
   <p class="title is-3" x-show="isMobile">Tablero Ventas</p>
 
@@ -94,6 +95,29 @@
 
 
 </div>
+<div>
+  <p class="title is-1">Wapp de Notificacion de Venta no enviados</p>
+  <table class="table" id="table-wappnoenviados">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Direccion</th>
+        <th>idvta</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="item in listaWappsNoEnviados">
+        <tr>
+        <td x-text="item.nombre"></td>
+        <td x-text="item.direccion"></td>
+        <td x-text="item.idvta"></td>
+        <td><button class="button is-small is-danger" @click(sendWapp(item.idvta))>Re-enviar</button></td>
+        </tr>
+        </template>
+    </tbody>
+  </table>
+</div>
 </div>
 {% endblock %}
 
@@ -111,6 +135,7 @@
       totalVendido: '',
       listaVendedores: [],
       listadoAutorizados: [],
+      listaWappsNoEnviados:[],
       getListadoAutorizados() {
         axios.get('/vendedor/getlistadoautorizados')
           .then(res => {
@@ -123,6 +148,8 @@
         axios.get('/vendedor/getventashoy')
           .then(res => {
             this.listaVentasHoy = res.data.ventashoy
+            this.listaWappsNoEnviados = res.data.wappnoenviados
+            console.log(this.listaWappsNoEnviados);
             let largo = this.listaVentasHoy.length
             if (largo > 0) {
               let ultimarow = this.listaVentasHoy[largo - 1]
@@ -146,6 +173,22 @@
             this.listaVisitasHoy = res.data.visitashoy
           })
       },
+      sendWapp(idvta){
+             msgDelay('Se estan enviando los mensajes...')
+             axios.get('/ventas/resendwapp/'+idvta)
+                  .then(res=>{
+                      if(res.data=='success') {
+                          msgSuccess('Success')
+                          setTimeout(()=>{
+                              this.getVentaHoy()
+                          },10000)
+                      } else if (res.data=='failed') {
+                          msgError('Failed')
+                      } else{
+                          msgWarning(res.data)
+                      }
+             })
+         },
     }
   }
 
