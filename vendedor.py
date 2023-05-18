@@ -1353,7 +1353,16 @@ def vendedor_getventashoy():
     vendedor,dni from datos,clientes where datos.idcliente = clientes.id and \
     date(fecha_definido)=curdate() and resultado=1 order by fecha_definido")
     vendedores = pglist(con, "select id from cobr where activo=1 and vdor=1")
-    return jsonify(ventashoy=ventashoy,vendedores=vendedores)
+    wappnoenviados = pglistdict(con, "SELECT DISTINCT clientes.id as id, \
+                                nombre,CONCAT(calle, ' ', num) AS direccion, \
+                                ventas.id as idvta \
+                                FROM clientes \
+                                JOIN ventas ON clientes.id = ventas.idcliente \
+                                WHERE fecha > CURDATE() - INTERVAL 3 DAY \
+                                AND sendwapp = 0 and pp= 0 and devuelta = 0 \
+                                and wapp!= '' and wapp is not null")
+    return jsonify(ventashoy=ventashoy,vendedores=vendedores,\
+                   wappnoenviados=wappnoenviados)
 
 
 @vendedor.route('/vendedor/getvisitashoy')

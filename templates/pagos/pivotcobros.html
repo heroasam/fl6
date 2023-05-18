@@ -197,9 +197,9 @@
              this.getCobrosCobrador(this.cnt)
          },
          enviarInforme(cobr){
-             if(cobr>15) return
              let estimados = this.listaCobros.filter(row=>row.id==cobr)
              let porc = (estimados[0].cobrado/estimados[0].estimado*100).toFixed(1)
+             msgDelay('Espere se esta preparando el informe..')
              axios.get('/pagos/getcobroszonas/'+cobr+'/'+this.cnt)
                                                                         .then(res=>{
                                                                             let estimadosZonas = res.data.listacobroszonas
