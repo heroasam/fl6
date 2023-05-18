@@ -660,3 +660,7 @@ function sleep(milliseconds) {
   }
  }
 }
+function validarFecha(fecha) {
+    const formatoFecha = /^\d{4}-\d{2}-\d{2}$/;
+    return formatoFecha.test(fecha);
+  }
