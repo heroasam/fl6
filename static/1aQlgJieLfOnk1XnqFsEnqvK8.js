@@ -208,7 +208,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
          Datos:{},
          cuota_basica:'',
          verCard:false,
-         Venta:{cnt:'', art:''},
+         Venta:{cnt:'', art:'',dnigarante:''},
          dnivalidado:false,
          dnigarantevalidado:false,
          sumaCuota:'',
@@ -521,6 +521,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
              //registrar pedido autorizacion en tabla autorizacion
              this.Dato.cuota_requerida = this.sumaCuota;
              this.Dato.dnigarante = this.Venta.dnigarante;
+             if(this.Dato.dnigarante&&!this.nombregarante){this.buscaGarante(this.Dato.dnigarante)}
              let arrayArts = [];
              this.listaArtComprados.map(row=>{
                  arrayArts.push(row.cnt+' '+row.art);
@@ -566,7 +567,9 @@ Quedo a la espera. Gracias.`;
                                                                                                        motivo = motivo.toUpperCase();
                                                                                                        switch(res.data.respuesta){
                                                                                                        case "autorizado":
-                                                                                                           msgSuccessSB('Aprobado','El dato fue autorizado',10000)
+                                                                                                           msgSuccessSB('Aprobado',`El dato fue autorizado
+                                                                                                           ${this.nombregarante?' con la garantia de : '+this.nombregarante:''}`
+                                                                                                           ,20000)
                                                                                                            clearTimeout(intervalauth)
                                                                                                            setTimeout(()=>{
                                                                                                                window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
@@ -574,7 +577,9 @@ Quedo a la espera. Gracias.`;
                                                                                                        case "sigueigual":
                                                                                                            msgWarningSB('La cuota fue rechazada',`La cuota no fue autorizada.
                                                                                                             Se puede vender hasta la cuota maxima que tenia antes.
-                                                                                                            ${motivo?motivo:''}`,15000)
+                                                                                                            ${motivo?motivo:''}
+                                                                                                            ${this.nombregarante?' con la garantia de : '+this.nombregarante:''}
+                                                                                                            `,15000)
                                                                                                            clearTimeout(intervalauth)
                                                                                                            setTimeout(()=>{
                                                                                                                window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)

@@ -1009,7 +1009,7 @@ def vendedor_registrarautorizacion():
     {d_data['cuota_maxima']},'{d_data['arts']}','{dnigarante_propuesto}')"
     cur = con.cursor()
     try:
-        if len(dnigarante_propuesto)>0:
+        if len(str(dnigarante_propuesto))>0:
             upddato = f"update datos set dnigarante={dnigarante_propuesto} \
                 where id={d_data['id']}"
             cur.execute(upddato)
@@ -1830,7 +1830,7 @@ def vendedor_isrespondidoauth(auth):
                             as respuesta, motivo \
     from autorizacion where id={auth}")
     if motivo is None:
-        motivo = 'no especificado'
+        motivo = ''
     logging.warning(f"respuesta{respuesta}, motivo:{motivo}")
     return jsonify(respuesta=respuesta, motivo=motivo)
 

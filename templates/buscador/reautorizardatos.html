@@ -75,12 +75,12 @@
           <td x-text="dato.cuota_requerida"></td>
           <td><span class="tag is-small is-black" @click="motivoAutorizacion(dato.id)"
                     x-show="![0,1,2,5,6,8].includes(dato.resultado)">Motivo</span></td>
-          <td><span class="tag is-small is-success" @click="autorizarDato(dato.id)"
-                    x-show="![0,1,2,5,6,8].includes(dato.resultado)">Autorizar</span></td>
-          <td><span class="tag is-small is-warning" @click="noAutorizarDato(dato.id)"
-                    x-show="![0,1,2,5,6,8].includes(dato.resultado)">Rechazar</span></td>
-          <td><span class="tag is-small is-danger" @click="rechazarDato(dato.id)"
-                    x-show="![0,1,2,5,6,8].includes(dato.resultado)">Anular</span></td>
+          <td><span class="tag is-small is-success button atendible" @click="autorizarDato(dato.id)"
+                    x-show="![0,1,2,5,6,8].includes(dato.resultado)" disabled>Autorizar</span></td>
+          <td><span class="tag is-small is-warning button atendible" @click="noAutorizarDato(dato.id)"
+                    x-show="![0,1,2,5,6,8].includes(dato.resultado)" disabled>Rechazar</span></td>
+          <td><span class="tag is-small is-danger button atendible" @click="rechazarDato(dato.id)"
+                    x-show="![0,1,2,5,6,8].includes(dato.resultado)" disabled>Anular</span></td>
           <td x-text="dato.arts"></td>
             <td x-text="dato.fechahora"></td>
             <td><span class="tag is-small is-danger" x-show="dato.sin_extension">Venta Basica</span>
@@ -371,6 +371,10 @@ Motivo: ${this.motivo}`
              })
          },
          toggleAtender(idauth){
+          const botones = document.getElementsByClassName('atendible');
+             for (let boton of botones){
+                 boton.removeAttribute("disabled");
+             }
                  axios.get('/vendedor/tomardato/'+idauth)
                   .then(res=>{
                       this.getListadoAutorizados()
