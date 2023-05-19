@@ -1,4 +1,5 @@
-from flask import Blueprint,render_template,jsonify,make_response, request, send_file
+from flask import Blueprint, render_template, jsonify, make_response, \
+    request, send_file
 from flask_login import login_required, current_user
 from lib import *
 from con import get_con, log, check_roles
@@ -12,24 +13,26 @@ from urllib.parse import urlparse
 from formularios import listadocumentos
 
 
-utilidades = Blueprint('utilidades',__name__)
+utilidades = Blueprint('utilidades', __name__)
+
 
 @utilidades.route('/utilidades/planos')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def utilidades_planos():
     return render_template('/utilidades/planos.html')
 
+
 @utilidades.route('/utilidades/impresos')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def utilidades_impresos():
     return render_template('/utilidades/impresos.html')
 
 
 @utilidades.route('/utilidades/pdfsistema')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def utilidades_pdfimpresos():
     return render_template('/utilidades/pdfsistema.html')
 
@@ -43,7 +46,7 @@ def utilidades_users():
 
 @utilidades.route('/utilidades/getplanos')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def utilidades_getplanos():
     listaplanos = os.listdir('/home/hero/documentos/planos')
     listaplanos.sort()
@@ -52,14 +55,14 @@ def utilidades_getplanos():
 
 @utilidades.route('/utilidades/imprimirplanos/<string:plano>')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def utilidades_imprimirplano(plano):
-    return send_file(os.path.join('/home/hero/documentos/planos',plano))
+    return send_file(os.path.join('/home/hero/documentos/planos', plano))
 
 
 @utilidades.route('/utilidades/getimpresos')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def utilidades_getimpresos():
     listaimpresos = os.listdir('/home/hero/documentos/impresos')
     listaimpresos.sort()
@@ -68,53 +71,53 @@ def utilidades_getimpresos():
 
 @utilidades.route('/utilidades/imprimirimpreso/<string:impreso>')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def utilidades_imprimirimpreso(impreso):
-    return send_file(os.path.join('/home/hero/documentos/impresos',impreso))
+    return send_file(os.path.join('/home/hero/documentos/impresos', impreso))
 
 
 @utilidades.route('/utilidades/getpdfsistema')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def utilidades_pdfsistema():
     listapdfs = os.listdir('/home/hero')
-    pdfs = [os.path.split(pdf)[1] for pdf in listapdfs if pdf[-3:]=='pdf']
+    pdfs = [os.path.split(pdf)[1] for pdf in listapdfs if pdf[-3:] == 'pdf']
     pdfs.sort()
     return jsonify(pdfs=pdfs)
 
 
 @utilidades.route('/utilidades/imprimirpdfsistema/<pdf>')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def utilidades_imprimirpdfsistema(pdf):
-    return send_file(os.path.join('/home/hero',pdf))
+    return send_file(os.path.join('/home/hero', pdf))
 
 
 @utilidades.route('/utilidades/contador')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def utilidades_contador():
     return render_template('/utilidades/contador.html')
 
 
 @utilidades.route('/utilidades/calcprecios')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def utilidades_calcprecios():
     return render_template('/utilidades/calcprecios.html')
 
 
 @utilidades.route('/utilidades/documentos')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def utilidades_documentos():
     return render_template('/utilidades/documentos.html')
 
 
 @utilidades.route('/utilidades/getdocumentos/<int:desde>/<int:hasta>')
 @login_required
-@check_roles(['dev','gerente','admin'])
-def utilidades_getdocumentos(desde,hasta):
+@check_roles(['dev', 'gerente', 'admin'])
+def utilidades_getdocumentos(desde, hasta):
     con = get_con()
     documentos = pglistdict(con, f"select ventas.id as id,nombre,concat\
     (calle,' ',num) as direccion, saldo from ventas,clientes where \
@@ -125,7 +128,7 @@ def utilidades_getdocumentos(desde,hasta):
 
 @utilidades.route('/utilidades/imprimirlistadocumentos',   methods=["POST"])
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def utilidades_imprimirlistadocumentos():
     con = get_con()
     lista_documentos = json.loads(request.data.decode("UTF-8"))
@@ -135,18 +138,19 @@ def utilidades_imprimirlistadocumentos():
 
 @utilidades.route('/utilidades/listawapp')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def utilidades_listawapp():
     """Lista whatsapps."""
     con = get_con()
-    wapps = pglistdict(con, "select wapp,fecha,msg,file,id,idcliente,user,timein,\
-    timeout,enviado,response from logwhatsapp order by id desc")
+    wapps = pglistdict(con, "select wapp,fecha,msg,file,id,idcliente,user,\
+                       timein,timeout,enviado,response from logwhatsapp order \
+                       by id desc")
     return jsonify(wapps=wapps)
 
 
 @utilidades.route('/utilidades/wapp')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def utilidades_wapp():
     """Muestro pagina wapp."""
     return render_template('/utilidades/wapp.html')
@@ -154,22 +158,22 @@ def utilidades_wapp():
 
 @utilidades.route('/utilidades/logthemes/<theme>/<ismobile>/<browser>')
 @login_required
-def utilidades_logtheme(theme, ismobile,browser):
+def utilidades_logtheme(theme, ismobile, browser):
     """Hago el log del theme usado por el usuario."""
     ruta = urlparse(request.referrer).path
     if "@" in str(current_user):
         email = current_user.email
     else:
         email = ""
-    if ismobile =='true':
+    if ismobile == 'true':
         ismobile = 'mobile'
     else:
         ismobile = 'desktop'
     logging.warning(f"debug-themes {email}-{ismobile}-{theme}-{ruta}")
     with open("/home/hero/log/themes.log", "a", encoding="utf-8") as log_file:
         log_file.write('\n')
-        log_file.write(time.strftime('%Y-%m-%d',time.localtime())+', '+\
-                      time.strftime('%H:%M:%S',time.localtime())+', '+\
+        log_file.write(time.strftime('%Y-%m-%d', time.localtime())+', ' +
+                       time.strftime('%H:%M:%S', time.localtime())+', ' +
                        theme+', '+email+', '+ismobile+', '+ruta+', '+browser)
         log_file.close()
     return 'ok'
@@ -178,7 +182,8 @@ def utilidades_logtheme(theme, ismobile,browser):
 def update_dni_garantes():
     con = get_con()
     cur = con.cursor()
-    listadni = pglist(con, "select dnigarante from ventas where garantizado=1 and saldo>0")
+    listadni = pglist(con, "select dnigarante from ventas where garantizado=1 \
+                      and saldo>0")
     for dni in listadni:
         upd = f"update clientes set esgarante=1 where dni={dni}"
         cur.execute(upd)
@@ -253,7 +258,7 @@ def utilidades_getdictvariables():
     return jsonify(variables=variables)
 
 
-@utilidades.route('/utilidades/editarvariable' , methods=['POST'])
+@utilidades.route('/utilidades/editarvariable', methods=['POST'])
 @login_required
 @check_roles(['dev'])
 def utilidades_editarvariable():
@@ -320,21 +325,22 @@ def utilidades_borrarvariable(id):
 @utilidades.route('/KgcigrlPdMMjIFsWucdrEVDzX')
 @utilidades.route('/utilidades/imprimirlistaprecios')
 @login_required
-@check_roles(['dev','gerente','vendedor'])
+@check_roles(['dev', 'gerente', 'vendedor'])
 def utilidades_imprimirlistaprecios():
-    return send_file(os.path.join('/home/hero/documentos/impresos','listaprecios.pdf'))
+    return send_file(os.path.join('/home/hero/documentos/impresos', \
+                                  'listaprecios.pdf'))
 
 
 @utilidades.route('/utilidades/anotador')
 @login_required
-@check_roles(['dev','admin','gerente'])
+@check_roles(['dev', 'admin', 'gerente'])
 def utilidades_anotador():
     return render_template('/utilidades/anotador.html')
 
 
 @utilidades.route('/utilidades/getzonas')
 @login_required
-@check_roles(['dev','admin','gerente'])
+@check_roles(['dev', 'admin', 'gerente'])
 def utilidades_getzonas():
     con = get_con()
     zonas = pglistdict(con, "select * from zonas where asignado is not null \
@@ -344,15 +350,15 @@ def utilidades_getzonas():
 
 @utilidades.route('/utilidades/toggletarea/<int:id>/<int:idzona>')
 @login_required
-@check_roles(['dev','admin','gerente'])
-def utilidades_toggletarea1(id,idzona):
+@check_roles(['dev', 'admin', 'gerente'])
+def utilidades_toggletarea1(id, idzona):
     con = get_con()
     statusactual = pgonecolumn(con, f"select tarea{id} from zonas where \
     id={idzona}")
-    if statusactual==1:
-        status=0
+    if statusactual == 1:
+        status = 0
     else:
-        status=1
+        status = 1
     upd = f"update zonas set tarea{id}={status} where id={idzona}"
     pgexec(con, upd)
     con.close()
@@ -361,7 +367,7 @@ def utilidades_toggletarea1(id,idzona):
 
 @utilidades.route('/utilidades/resetear/<int:id>')
 @login_required
-@check_roles(['dev','admin','gerente'])
+@check_roles(['dev', 'admin', 'gerente'])
 def utilidades_resetear(id):
     con = get_con()
     pgexec(con, f"update zonas set tarea{id}=0")
