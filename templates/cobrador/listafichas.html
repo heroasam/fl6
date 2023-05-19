@@ -5,7 +5,7 @@
 {% block content %}
 
 <div class="container" x-data="main()" x-init="getListadoFichas();setInterval(()=>{getListadoFichas()},600000)">
-  <div>
+  <div x-show="soloCobradores">
     <template x-for="zona in listaZonas">
       <button class="button is-small is-primary" x-text="zona" @click="filtraPorZona(zona);verCard=false"></button>
     </template>
@@ -205,12 +205,14 @@
       cobr: '',
       idvta: '',
       zonaactual: 'todas',
+      soloCobradores:1,
       getListadoFichas() {
         axios.get('/cobrador/getlistadofichas')
           .then(res => {
             this.cobr = res.data.cobr
             if (['835', '816'].includes(this.cobr)) {
               this.listaFichas = [...res.data.fichasvdor, ...res.data.fichas];
+              this.soloCobradores = 0;
             } else {
               this.listaFichas = res.data.fichas;
             }
