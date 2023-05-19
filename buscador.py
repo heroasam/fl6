@@ -245,7 +245,7 @@ def buscar_pedircomentarios(idcliente):
 
 @buscador.route('/buscador/guardarcomentario/<int:idcliente>', methods=['POST'])
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def buscar_guardarcomentario(idcliente):
     """Guarda comentario ingresado."""
     d = json.loads(request.data.decode("UTF-8"))
@@ -282,7 +282,7 @@ def buscador_deletecomentario(id):
 
 @buscador.route('/buscador/pedirlogcambiodireccion/<int:idcliente>')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def buscar_logcambiodireccion(idcliente):
     """Entrega lista de logcambiodireccion."""
     sql = f"select fecha,calle,num,wapp,acla from logcambiodireccion where idcliente={idcliente}"
@@ -296,7 +296,7 @@ def buscar_logcambiodireccion(idcliente):
 
 @buscador.route('/buscador/obtenerventascanceladasporidcliente/<int:idcliente>')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def buscar_obtenerventascanceladasporidcliente(idcliente):
     """Entrega lista de ventas canceladas por idcliente."""
     sql = f"select * from ventas where idcliente={idcliente} and saldo<=0 order by id desc"
