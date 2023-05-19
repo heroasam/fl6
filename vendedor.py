@@ -29,6 +29,7 @@ def leer_variables():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         for row in variables:
@@ -86,6 +87,7 @@ def calculo_cuota_maxima(idcliente):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         return cuota_actualizada
@@ -111,6 +113,7 @@ def calculo_sin_extension(idcliente):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         if atraso and atraso>60:
@@ -184,6 +187,7 @@ def vendedor_guardardato():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         log(ins)
@@ -220,6 +224,7 @@ def vendedor_togglerechazardato(iddato):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -309,6 +314,7 @@ def vendedor_asignardatosvendedor():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -334,6 +340,7 @@ def vendedor_desafectardatos():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -390,6 +397,7 @@ def vendedor_ingresardatoyasignardatosvendedor():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -420,7 +428,7 @@ def vendedor_borrardato(iddato):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(error)
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -443,7 +451,7 @@ def vendedor_borrarvisita(iddato):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(error)
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -483,7 +491,7 @@ def vendedor_editardato():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(error)
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -519,6 +527,7 @@ def vendedor_guardarcuotabasica(cuota):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -650,6 +659,7 @@ def vendedor_envioclientenuevo():
         except mysql.connector.Error as _error:
             con.rollback()
             error = _error.msg
+            logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
             return make_response(error, 400)
         else:
             con.commit()
@@ -708,6 +718,7 @@ def vendedor_envioclientenuevo():
         except mysql.connector.Error as _error:
             con.rollback()
             error = _error.msg
+            logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
             return make_response(error, 400)
         else:
             con.commit()
@@ -811,7 +822,8 @@ def vendedor_editarwapp():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        return make_response(error,400)
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
     else:
         con.commit()
         log(upd)
@@ -845,7 +857,8 @@ def vendedor_guardardatofechado():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        return make_response(error,400)
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
     else:
         con.commit()
         log(upd)
@@ -878,7 +891,8 @@ def vendedor_anulardato(iddato):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        return make_response(error,400)
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
     else:
         con.commit()
         log(upd)
@@ -919,7 +933,8 @@ def vendedor_mudodato(iddato):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        return make_response(error,400)
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
     else:
         con.commit()
         log(upd)
@@ -962,7 +977,8 @@ def vendedor_falleciodato(iddato):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        return make_response(error,400)
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
     else:
         con.commit()
         log(upd)
@@ -1018,7 +1034,8 @@ def vendedor_registrarautorizacion():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        return make_response(error,400)
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
     else:
         con.commit()
         log(ins)
@@ -1113,7 +1130,8 @@ def vendedor_autorizardato(idauth):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        return make_response(error,400)
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
     else:
         con.commit()
         log(upd_dat)
@@ -1143,7 +1161,8 @@ def vendedor_noautorizardato(idauth):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        return make_response(error,400)
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
     else:
         con.commit()
         log(upd_aut)
@@ -1173,7 +1192,8 @@ def vendedor_rechazardato(idauth):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        return make_response(error,400)
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
     else:
         con.commit()
         log(upd_aut)
@@ -1206,7 +1226,7 @@ def vendedor_pasarventa():
         garantizado = 0
     insvta = f"insert into ventas(fecha,idvdor,ant,cc,ic,p,primera,idcliente,\
     garantizado,dnigarante) values(curdate(),{vdor},{ant},{cant_cuotas},{imp_cuota},{per},\
-    '{d_data['primera']}',{d_data['idcliente']},{garantizado},{d_data['dnigarante']})"
+    '{d_data['primera']}',{d_data['idcliente']},{garantizado},'{d_data['dnigarante']}')"
     insvis = f"insert into visitas(fecha,hora,vdor,iddato,result,\
     monto_vendido) values(curdate(),curtime(),{vdor},{d_data['id']},1,{imp_cuota*cant_cuotas})"
     cur = con.cursor()
@@ -1252,7 +1272,8 @@ def vendedor_pasarventa():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        return make_response(error,400)
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
     else:
         con.commit()
         # log(upd)
@@ -1283,7 +1304,8 @@ def vendedor_noestabadato(iddato):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        return make_response(error,400)
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
     else:
         con.commit()
         return 'ok'
@@ -1577,6 +1599,7 @@ def vendedor_marcarcargado(vdor):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -1605,6 +1628,7 @@ def vendedor_marcarpagadas(vdor):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -1643,6 +1667,7 @@ def vendedor_marcarpagadasseleccionados():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -1668,6 +1693,7 @@ def vendedor_marcarpagadascomprom():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -1700,6 +1726,7 @@ def vendedor_marcarpagadascompromseleccionados():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
+        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
