@@ -209,7 +209,7 @@
         axios.get('/cobrador/getlistadofichas')
           .then(res => {
             this.cobr = res.data.cobr
-            if (['815', '816'].includes(this.cobr)) {
+            if (['835', '816'].includes(this.cobr)) {
               this.listaFichas = [...res.data.fichasvdor, ...res.data.fichas];
             } else {
               this.listaFichas = res.data.fichas;
