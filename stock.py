@@ -6,6 +6,7 @@ import simplejson as json
 
 import pandas as pd
 import mysql.connector
+import logging
 from lib import pglistdict, pgonecolumn, pglist, logcaja, pgexec
 from con import get_con, log, engine, check_roles
 from formularios import listaprecios, imprimir_stock
@@ -892,17 +893,20 @@ def stock_getdatosarqueo():
     con = get_con()
     try:
         bancocuotas = pglistdict(con, "select * from caja where cuenta=\
-        'bancos ingreso clientes' and fecha>'2022-09-30' order by id desc")
-        bancocobr =  pglistdict(con, "select * from caja where cuenta=\
-        'bancos ingreso cobradores' or cuenta='naranjax ingreso cobradores' \
-        order by id desc")
+        'bancos ingreso clientes' and fecha>date_sub(now(),interval 1 month) \
+                                 order by id desc")
+        bancocobr =  pglistdict(con, "select * from caja where (cuenta=\
+        'bancos ingreso cobradores' or cuenta='naranjax ingreso cobradores') \
+        and conciliado=0 order by id desc")
         listacuotas = pglistdict(con, "select fecha,imp+rec as imp, nombre,\
         pagos.id as id,conciliado from pagos,clientes where clientes.id = \
-        pagos.idcliente and  cobr in (13,15) and fecha>'2022-09-30' order \
-        by pagos.id desc")
+        pagos.idcliente and  cobr in (10,13,15) and fecha>date_sub(now(),\
+                                 interval 1 month) order by pagos.id desc")
         listatrancobr= pglistdict(con, "select * from caja where cuenta=\
-        'transferencia de cobradores' and id not in (15451,15424,15423) \
+        'transferencia de cobradores' and conciliado=0 \
         order by id desc")
+        saldobanco = pgonecolumn(con, "select sum(imp) from caja where \
+                                 cuenta like 'bancos%'")
         listacuentas = pglist(con, "select cuenta from ctas")
     except mysql.connector.Error as _error:
         con.rollback()
@@ -911,7 +915,7 @@ def stock_getdatosarqueo():
     else:
         return jsonify(bancocuotas=bancocuotas, bancocobr=bancocobr, \
                    listacuotas=listacuotas, listatrancobr=listatrancobr,\
-                   listacuentas=listacuentas)
+                   listacuentas=listacuentas, saldobanco=saldobanco)
     finally:
         con.close()
 
@@ -999,5 +1003,82 @@ def stock_getacreenciassocio(socio):
         return make_response(error,400)
     else:
         return jsonify(acreencias=acreencias)
+    finally:
+        con.close()
+
+
+@stock.route('/stock/procesarlistatransferencias', methods=['POST'])
+@login_required
+@check_roles(['dev', 'gerente','admin'])
+def stock_procesarlistatransferencias():
+    """Proceso la lista de asientos de transferencias de cobradores."""
+    con = get_con()
+    d_data = json.loads(request.data.decode("UTF-8"))
+    try:
+        for item in d_data:
+            ins = f"insert into caja(fecha, cuenta, imp, codigo, comentario,\
+                conciliado) values('{item['fecha']}',\
+                'naranjax ingreso cobradores',{(-1)*item['imp']},\
+                {item['codigo']},'{item['comentario']}',1)"
+            pgexec(con,ins)
+        upd = "update caja set conciliado=1 where cuenta=\
+        'transferencia de cobradores' and conciliado=0"
+        pgexec(con,upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
+    else: 
+        return 'ok'
+    finally:
+        con.close()
+
+
+@stock.route('/stock/procesardeposito', methods=['POST'])
+@login_required
+@check_roles(['dev', 'gerente', 'admin'])
+def stock_procesardeposito():
+    """Proceso deposito de cliente."""
+    con = get_con()
+    d_data = json.loads(request.data.decode("UTF-8"))
+    try:
+        ins = f"insert into caja(fecha, cuenta, imp,conciliado) values(\
+            '{d_data['fecha']}','bancos ingreso clientes',{d_data['imp']},0)"
+        pgexec(con, ins)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
+    else:
+        return 'ok'
+    finally:
+        con.close()
+
+
+@stock.route('/stock/conciliarcuota' ,methods=['POST'])
+@login_required
+@check_roles(['dev', 'gerente', 'admin'])
+def stock_conciliarcuota():
+    """Conciliar cuota automaticamente."""
+    con = get_con()
+    d_data = json.loads(request.data.decode("UTF-8"))
+    _, _,nombre,id = d_data['recibo'].split(',')
+    upd = f"update pagos set conciliado=1 where id={id}"
+    updcaja = f"update caja set conciliado=1, comentario='{nombre}' where id={d_data['id']}"
+    try:
+        pgexec(con, upd)
+        pgexec(con, updcaja)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
+    else:
+        return 'ok', 200
     finally:
         con.close()

@@ -12,27 +12,36 @@
 
 
   <div class="columns">
-    <div class="column is-7">
-      <h1 style="width:70%;" class="title is-size-1">Arqueo Banco</h1>
-    </div>
-    <div class="column is-5">
+    <div class="column is-6">
+      <p class="title is-size-1 inline">Arqueo Banco</p>
+      <p class="title is-3 red inline"  x-text="'    Saldo $'+saldoBanco"></p>
+      </div>
+      <div class="column is-6">
       <button class="button is-primary" @click="verTodos()">Ver Todos</button>
       <button class="button is-primary" @click="verNoConciliados()">Ver No Conciliados</button>
+      </div>
     </div>
-  </div>
-
+  
+    <p class="subtitle is-5">Ingresar Depositos</p>
+<div class="block columns is-7 m-5">
+  <input type="date" name="fecha" id="fecha" x-model= "Deposito.fecha" class="input" style="max-width: 150px;">
+  <input type="text" name="imp" id="imp" x-model="Deposito.imp" class="input" style="max-width: 180px;" placeholder="Importe depositado">
+  <button class="button is-info" @click="guardarDeposito()">Agregar</button>
+</div>
   <!-- table cuotas -->
   <div class="columns">
     <div class="column is-6">
-  <div class="block">
+      <p class="subtitle is-5">Depositos pendientes de conciliacion</p>
+  <div>
     <table id="table" class="table table-sm ">
       <thead>
         <tr>
+          <th></th>
           <th>id</th>
           <th>fecha</th>
-          <th>cuenta</th>
           <th class="sumar importe">imp</th>
-          <th>comentario</th>
+          <th></th>
+          <th></th>
           <th></th>
         </tr>
       </thead>
@@ -40,11 +49,13 @@
         <template x-for="asiento in bancoIngresoCuotas_">
           <tr>
               <td x-text="asiento.id"></td>
+              <td><i class="fa fa-times" aria-hidden="true" @click="borrarAsiento(asiento.id)"></td>
               <td :class="dia(asiento.fecha)" x-text="asiento.fecha"></td>
-              <td x-text="asiento.cuenta" style="min-width:200px;"></td>
               <td x-text="asiento.imp" class="pesos" style="min-width:100px;"></td>
-              <td x-text="asiento.comentario"></td>
-              <td><i class="fa fa-pencil" aria-hidden="true" @click="editarAsiento(asiento.id)"></td>
+              <td><button class="button is-info is-small" @click="conciliarCuota(asiento.id,asiento.imp)"
+                x-show="!asiento.conciliado">Conciliar</button></td>
+                <td><span class="tag is-small is-success" x-show="asiento.conciliado">Conciliada</span></td>
+                <td x-text="asiento.comentario" x-show="asiento.conciliado"></td>
           </tr>
         </template>
       </tbody>
@@ -52,6 +63,7 @@
   </div>
     </div>
     <div class="column is-6">
+      <p class="subtitle is-5">Recibos emitidos no conciliados</p>
       <table class="table">
         <thead>
           <tr>
@@ -68,8 +80,9 @@
               <td x-text="pago.fecha"></td>
               <td x-text="pago.imp"></td>
               <td x-text="pago.nombre"></td>
-              <td><span class="tag is-small is-info" x-show="pago.conciliado">Conciliada</span></td>
-              <td><span class="tag is-small pointer is-primary" @click="conciliarPago(pago.id)">Conciliar</span></td>
+              <td><span class="tag is-small is-success" x-show="pago.conciliado">Conciliada</span></td>
+              <td><span class="tag is-small pointer is-primary" @click="conciliarPago(pago.id)"
+                x-show="!pago.conciliado">Conciliar</span></td>
             </tr>
           </template>
         </tbody>
@@ -77,9 +90,12 @@
     </div>
   </div>
   <!-- table cobradores -->
-  <div class="columns">
+  <div class="columns" x-show="listaTransferencias.length">
     <div class="column is-6">
+      <div class="flex-space-between">
       <p class="title is-3" x-text="'Diferencia cobradores $'+(sumTransferenciasCobradores + sumBancoCobradores)"></p>
+      <button class="button is-danger" @click="conciliarTransferenciasCobradores" x-show="listaTransferencias.length">Conciliar Transferencias Cobradores</button>
+      </div>
       <table class="table">
          <thead>
         <tr>
@@ -106,7 +122,7 @@
       </table>
     </div>
     <div class="column is-6">
-      <p class="title is-3">-</p>
+      <hr>
       <table class="table">
          <thead>
         <tr>
@@ -171,6 +187,33 @@
       <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}"/>
     </div>
   </div>
+  <!-- modal Bulma -->
+  <div class="modal" id="modal-conciliar">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title" x-text="'Asiento Nº '+Conciliacion.id"></p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-conciliar')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <p class="title is-3" x-text="'Importe $'+Conciliacion.imp"></p>
+
+        <input type="text" list="listarecibos" class="input mb-1" x-model="Conciliacion.recibo"
+          :class="darkTheme?'input-dark':''" autocomplete="off"/>
+        <datalist id="listarecibos">
+          <template x-for="item in listaRecibos">
+            <option :value="item"></option>
+          </template>
+        </datalist>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-success" @click="guardarConciliacion()">Conciliar</button>
+        <button class="button" @click="toggleModal('modal-conciliar')">Cancelar</button>
+      </footer>
+      <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}" />
+    </div>
+  </div>
 </div>
 {% endblock %}
 {% block script %}
@@ -185,6 +228,10 @@
          cuentas:[],
          sumTransferenciasCobradores:'',
          sumBancoCobradores:'',
+         Deposito:{fecha:dayjs.utc().format('YYYY-MM-DD'), imp:''},
+         Conciliacion:{id:'',recibo:'',imp:''},
+         listaRecibos:[],
+         saldoBanco:'',
          getDatos(cuenta){
              axios.get('/stock/getdatosarqueo')
                   .then(res=>{
@@ -200,8 +247,11 @@
                       this.sumBancoCobradores = this.bancoIngresoCobradores.map(row=>row.imp).reduce((a,b)=>a+b,0)
                       let a = this.listaTransferencias.map(row=>row.imp)
                       this.sumTransferenciasCobradores = this.listaTransferencias.map(row=>row.imp).reduce((a,b)=>a+b,0)
-                      this.bancoIngresoCuotas_ = this.bancoIngresoCuotas.filter(row=>row.comentario=='')
+                      this.bancoIngresoCuotas_ = this.bancoIngresoCuotas.filter(row=>row.conciliado==0)
                       this.listaCuotas_ = this.listaCuotas.filter(row=>row.conciliado==0)
+                      this.saldoBanco = res.data.saldobanco
+                      this.listaRecibos = this.listaCuotas.filter(row => row.conciliado == 0)
+                      .map(row=>`${row.fecha}, $${row.imp}, ${row.nombre}, ${row.id}`)
                   })
          },
          editarAsiento(id){
@@ -236,10 +286,58 @@
              this.listaCuotas_=this.listaCuotas
          },
          verNoConciliados(){
-             this.bancoIngresoCuotas_ = this.bancoIngresoCuotas.filter(row=>row.comentario=='')
+             this.bancoIngresoCuotas_ = this.bancoIngresoCuotas.filter(row=>row.conciliado==0)
              this.listaCuotas_ = this.listaCuotas.filter(row=>row.conciliado==0)
          },
-
+         conciliarTransferenciasCobradores(){
+          axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+          axios.post('/stock/procesarlistatransferencias', this.listaTransferencias)   
+          .then(res=>{
+            msgSuccess('Lista de transferencias procesadas')
+            this.getDatos()
+          })
+         },
+         guardarDeposito(){
+          axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+          axios.post('/stock/procesardeposito', this.Deposito)
+          .then(res=>{
+            this.getDatos()
+          })
+         },
+         borrarAsiento(id) {
+         Swal.fire({
+           title: '¿Esta seguro?',
+           text: `Afecta al asiento ${id}`,
+           icon: 'warning',
+           showCancelButton: true,
+           confirmButtonColor: '#3085d6',
+           cancelButtonColor: '#d33',
+           confirmButtonText: 'Si, borrarlo!'
+         }).then((result) => {
+           if (result.isConfirmed) {
+             axios.get('/stock/deleteasiento/' + id)
+               .then(res => {
+                 msgSuccess('Borrado!', 'El registro ha sido borrado')
+                 this.getDatos()
+               })
+           }
+         })
+       },
+      conciliarCuota(id,imp){
+        this.Conciliacion.id = id
+        this.Conciliacion.imp = imp
+         toggleModal('modal-conciliar')
+        },
+        guardarConciliacion(){
+          axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+          axios.post('/stock/conciliarcuota',this.Conciliacion)
+          .then(res=>{
+          toggleModal('modal-conciliar')
+          msgSuccess('Cuota conciliada correctamente')
+          this.getDatos()
+        })
+        .error(error=>msgError('Hubo error'))
+       },
 
      }
  }

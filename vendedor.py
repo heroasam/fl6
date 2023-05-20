@@ -1209,13 +1209,9 @@ def vendedor_rechazardato(idauth):
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_pasarventa():
     """Proceso para pasar una venta por el vendedor."""
-    logging.warning("pasarventa, %s", current_user.email)
     con = get_con()
     d_data = json.loads(request.data.decode("UTF-8"))
-    if current_user.email == var_sistema['816']:
-        vdor = 816
-    elif current_user.email == var_sistema['835']:
-        vdor = 835
+    vdor = var_sistema[current_user.email]
     ant = 0
     cant_cuotas = 6
     imp_cuota = d_data['cuota']
@@ -1229,7 +1225,6 @@ def vendedor_pasarventa():
     '{d_data['primera']}',{d_data['idcliente']},{garantizado},'{d_data['dnigarante']}')"
     insvis = f"insert into visitas(fecha,hora,vdor,iddato,result,\
     monto_vendido) values(curdate(),curtime(),{vdor},{d_data['id']},1,{imp_cuota*cant_cuotas})"
-    cur = con.cursor()
     try:
         ultinsvta = pgonecolumn(con, "select valor from variables where id=13")
         listart = ''
@@ -1238,9 +1233,8 @@ def vendedor_pasarventa():
             listart += item['art']
         if str(ultinsvta)!=f"{cant_cuotas}{imp_cuota}{per}{d_data['primera']}{d_data['idcliente']}\
         {d_data['id']}{listart}":
-            cur.execute(insvis)
-            cur.execute(insvta)
-            con.commit()
+            pgexec(con, insvis)
+            pgexec(con, insvta)
 
             idvta = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
             # lo siguiente ha sido trasladado al trigger ventas_ins_clientes
@@ -1259,11 +1253,11 @@ def vendedor_pasarventa():
                 art='{art}'")
                 ins = f"insert into detvta(idvta,cnt,art,cc,ic,costo,devuelta) \
                 values({idvta},{cnt},'{art}',6,{imp_cuota},{costo},0)"
-                cur.execute(ins)
+                pgexec(con, ins)
                 log(ins)
             inslog = f"update variables set valor='{cant_cuotas}{imp_cuota}{per}{d_data['primera']}\
             {d_data['idcliente']}{d_data['id']}{listart}' where id=13"
-            cur.execute(inslog)
+            pgexec(con, inslog)
             con.commit() # pruebo con hacer commit instantaneo de la variable
             # que quizas no sea leida pq no se hizo el commit.
         else:
@@ -1273,10 +1267,9 @@ def vendedor_pasarventa():
         con.rollback()
         error = _error.msg
         logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(inslog, insvta, insvis)
         return make_response(error, 400)
     else:
-        con.commit()
-        # log(upd)
         log(insvta)
         return 'ok'
     finally:
