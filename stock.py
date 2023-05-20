@@ -32,7 +32,7 @@ def stock_proveedores():
 
 @stock.route('/stock/arqueo')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev','gerente','admin'])
 def stock_arqueo():
     """Muestra pagina arqueo-bancos."""
     return render_template('stock/arqueo.html')
@@ -62,7 +62,7 @@ def stock_getasientos():
 
 @stock.route('/stock/deleteasiento/<int:id_asiento>')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev','gerente','admin'])
 def stock_deleteasiento(id_asiento):
     """Borrado de asiento."""
     con = get_con()
@@ -132,7 +132,7 @@ def stock_guardarasiento():
 
 @stock.route('/stock/editarasiento', methods=['POST'])
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev','gerente','admin'])
 def stock_editarasiento():
     """Editar asientos."""
     con = get_con()
@@ -887,7 +887,7 @@ def stock_imprimirstock():
 
 @stock.route('/stock/getdatosarqueo')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev','gerente', 'admin'])
 def stock_getdatosarqueo():
     """Resume todos los datos necesarios para el arqueo de bancos."""
     con = get_con()
