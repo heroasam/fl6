@@ -597,6 +597,8 @@ def vendedor_envioclientenuevo():
             monto_garantizado = 0
         if deuda_en_la_casa is None:
             deuda_en_la_casa = 0
+        # consulta para ver si el dato ha sido asignado a otro vendedor 
+        # aca primero buscamos un dato cargado no definido.
         iddato = pgonecolumn(con, f"select id from datos where idcliente =\
         {d_data['id']} and resultado is null")
         if iddato: # o sea hay ya un dato sin definir de ese cliente
@@ -638,8 +640,10 @@ def vendedor_envioclientenuevo():
                 idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
                 vdorasignado = vdor
             else: # dato repetido inserto auth con iddato que ya tenia de antes
+                # busco el vdorasignado al dato si es que existe.
                 vdorasignado = pgonecolumn(con, f"select vendedor from datos \
                 where id={iddato}")
+                # si el dato era del vdor inserto la autorizacion.
                 if vdorasignado == vdor:
                     insaut = f"insert into autorizacion(fecha,vdor,iddato,\
                     idcliente,cuota_requerida,cuota_maxima,arts) \
@@ -648,10 +652,18 @@ def vendedor_envioclientenuevo():
                     '{d_data['arts']}')"
                     cur.execute(insaut)
                     idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
+                # si no hay vdorasignado- Se asigna dato y crea la auth.
                 else:
-                    idautorizacion = pgonecolumn(con,f"select id from \
-                    autorizacion where iddato={iddato}")
-
+                    upddato = f"update datos set vendedor={vdor} where id=\
+                        {iddato}"
+                    insauth = f"insert into autorizacion(fecha,vdor,iddato,\
+                    idcliente,cuota_requerida,cuota_maxima,arts) \
+                    values(current_timestamp(),{vdor},{iddato},{d_data['id']},\
+                    {d_data['cuota_requerida']},{cuota_maxima},\
+                    '{d_data['arts']}')"
+            
+                    cur.execute(upddato)
+                    cur.execute(insauth)
             if upd:
                 cur.execute(upd)
             if inslog:
@@ -671,7 +683,10 @@ def vendedor_envioclientenuevo():
             if inslog:
                 log(inslog)
             if vdor!=vdorasignado:
-                return jsonify(idautorizacion=idautorizacion, otroasignado=1)
+                otroasignado = 1
+                if vdorasignado is None:
+                    otroasignado = 0
+                return jsonify(idautorizacion=idautorizacion, otroasignado=otroasignado)
             return jsonify(idautorizacion=idautorizacion, otroasignado=0)
         finally:
             con.close()
