@@ -10,7 +10,7 @@ from lib import pgonecolumn, pglistdict, send_msg_whatsapp, send_file_whatsapp, 
     pglist, log_busqueda, listsql, actualizar, send_img_whatsapp, pgexec
 from formularios import intimacion, libredeuda, ficha, recibotransferencia
 from con import get_con, log, check_roles
-
+from vendedor import editar_cntwapp
 
 buscador = Blueprint('buscador', __name__)
 
@@ -538,6 +538,7 @@ def busca_guardaredicioncliente(idcliente):
     """Funcion para guardar edicion cliente."""
     con = get_con()
     d_data = json.loads(request.data.decode("UTF-8"))
+    updcntwapp = None
     cliente_viejo = pglistdict(con, f"select * from clientes where id=\
     {d_data['id']}")[0]
     upd = f"update clientes set sex='{d_data['sex']}', dni='{d_data['dni']}',\
@@ -546,16 +547,23 @@ def busca_guardaredicioncliente(idcliente):
     '{d_data['tel']}', wapp='{d_data['wapp']}',acla='{d_data['acla']}', \
     mjecobr='{d_data['mjecobr']}', horario='{d_data['horario']}',\
     infoseven='{d_data['infoseven']}' where id={idcliente}"
+    
     cur = con.cursor()
     try:
         cur.execute(upd)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error,400)
     else:
         log(upd)
         con.commit()
+        # update cnt_wapp
+        if cliente_viejo['wapp'] != d_data['wapp']:
+            editar_cntwapp(d_data['wapp'])
+            editar_cntwapp(cliente_viejo['wapp'])
         ins = f"insert into logcambiodireccion(idcliente,calle,num,barrio,\
         tel,acla,fecha,nombre,dni,wapp) values({cliente_viejo['id']},\
         '{cliente_viejo['calle']}','{cliente_viejo['num']}',\
@@ -1009,8 +1017,8 @@ def buscar_obtenertodoswapps():
 @check_roles(['dev','gerente','admin'])
 def buscar_obtenernombreswapps():
     con = get_con()
-    nombreswapps = pglistdict(con, "select wapp,nombre from clientes where \
-                         length(wapp)=10")
+    nombreswapps = pglistdict(con, "select wapp,nombre,cnt_wapp from clientes \
+                              where length(wapp)=10")
     cobrwapps = pglistdict(con, "select telefono as wapp,nombre from cobr \
                            where activo=1")
     con.close()

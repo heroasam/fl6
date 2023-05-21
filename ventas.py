@@ -7,6 +7,8 @@ import mysql.connector
 import logging
 from con import get_con, log, engine, check_roles
 from lib import *
+from vendedor import editar_cntwapp
+
 
 ventas = Blueprint('ventas',__name__)
 
@@ -81,13 +83,14 @@ def ventas_getcuentaspordni(dni):
 def ventas_guardarcliente():
     con = get_con()
     cur = con.cursor()
-    d = json.loads(request.data.decode("UTF-8"))
-    if d['id']: # o sea existe el id, es decir es un update
-        cliente_viejo = pglistdict(con, f"select * from clientes where id={d['id']}")[0]
-    if d['id']=="":
-        stm = f"insert into clientes(sex,dni,nombre,calle,num,barrio,zona,tel,wapp,acla,horario,mjecobr,infoseven) values('{d['sex']}','{d['dni']}','{d['nombre']}','{d['calle']}','{d['num']}','{d['barrio']}','{d['zona']}','{d['tel']}','{d['wapp']}','{d['acla']}','{d['horario']}','{d['mjecobr']}','{d['infoseven']}')"
+    cliente_viejo = {}
+    d_data = json.loads(request.data.decode("UTF-8"))
+    if d_data['id']: # o sea existe el id, es decir es un update
+        cliente_viejo = pglistdict(con, f"select * from clientes where id={d_data['id']}")[0]
+    if d_data['id']=="":
+        stm = f"insert into clientes(sex,dni,nombre,calle,num,barrio,zona,tel,wapp,acla,horario,mjecobr,infoseven) values('{d_data['sex']}','{d_data['dni']}','{d_data['nombre']}','{d_data['calle']}','{d_data['num']}','{d_data['barrio']}','{d_data['zona']}','{d_data['tel']}','{d_data['wapp']}','{d_data['acla']}','{d_data['horario']}','{d_data['mjecobr']}','{d_data['infoseven']}')"
     else:
-        stm = f"update clientes set sex='{d['sex']}', dni='{d['dni']}', nombre='{d['nombre']}',calle='{d['calle']}',num='{d['num']}',barrio='{d['barrio']}', zona='{d['zona']}',tel='{d['tel']}', wapp='{d['wapp']}', acla='{d['acla']}', horario='{d['horario']}', mjecobr='{d['mjecobr']}', infoseven='{d['infoseven']}' where id={d['id']}"
+        stm = f"update clientes set sex='{d_data['sex']}', dni='{d_data['dni']}', nombre='{d_data['nombre']}',calle='{d_data['calle']}',num='{d_data['num']}',barrio='{d_data['barrio']}', zona='{d_data['zona']}',tel='{d_data['tel']}', wapp='{d_data['wapp']}', acla='{d_data['acla']}', horario='{d_data['horario']}', mjecobr='{d_data['mjecobr']}', infoseven='{d_data['infoseven']}' where id={d_data['id']}"
     try:
         cur.execute(stm)
     except mysql.connector.Error as e:
@@ -96,15 +99,19 @@ def ventas_guardarcliente():
         return make_response(error,400)
     else:
         con.commit()
+        if 'wapp' in d_data:
+            editar_cntwapp(d_data['wapp'])
+        if 'wapp' in cliente_viejo:
+            editar_cntwapp(cliente_viejo['wapp'])
         log(stm)
         cur.close()
-        if d['id']=="":
+        if d_data['id']=="":
             id = pgonecolumn(con,f"select id from clientes order by id desc limit 1")
         else:
-            id = d['id']
+            id = d_data['id']
             ins = f"insert into logcambiodireccion(idcliente,calle,num,barrio,tel,acla,fecha,nombre,dni,wapp) values({cliente_viejo['id']},'{cliente_viejo['calle']}','{cliente_viejo['num']}','{cliente_viejo['barrio']}','{cliente_viejo['tel']}','{cliente_viejo['acla']}',curdate(),'{cliente_viejo['nombre']}','{cliente_viejo['dni']}','{cliente_viejo['wapp']}')"
             cur = con.cursor()
-            if cliente_viejo['calle']!=d['calle'] or cliente_viejo['num']!=d['num'] or cliente_viejo['acla']!=d['acla'] or cliente_viejo['wapp']!=d['wapp']:
+            if cliente_viejo['calle']!=d_data['calle'] or cliente_viejo['num']!=d_data['num'] or cliente_viejo['acla']!=d_data['acla'] or cliente_viejo['wapp']!=d_data['wapp']:
                 cur.execute(ins)
                 con.commit()
                 log(ins)

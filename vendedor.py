@@ -123,6 +123,32 @@ def calculo_sin_extension(idcliente):
         con.close()
 
 
+def editar_cntwapp(wapp):
+    """Funcion que edita el campo cnt_wapp de tabla clientes cuando se edita
+    el wapp de un cliente."""
+    con = get_con()
+    print("editando wapp",wapp)
+    if wapp != 'INVALIDO' and wapp != '' and wapp is not None:
+        updcntwapp = f"update clientes set cnt_wapp=(select count(*) from \
+            clientes as a where a.wapp='{wapp}') where wapp=\
+                '{wapp}'"
+        cnt_wapp = pgonecolumn(con, f"select count(*) from \
+            clientes as a where a.wapp='{wapp}'")
+        print(cnt_wapp)
+        print(updcntwapp)
+        try:
+            cur = con.cursor()
+            cur.execute(updcntwapp)
+            con.commit()
+            print('cantidad de filas afectadas',cur.rowcount)
+        except mysql.connector.Error as _error:
+            con.rollback()
+            logging.warning(
+                f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        finally:
+            con.close()
+
+
 @vendedor.route('/vendedor/getcuotamaxima/<int:idcliente>')
 @login_required
 @check_roles(['dev','gerente','admin'])
@@ -566,6 +592,7 @@ def vendedor_envioclientenuevo():
 
     con = get_con()
     d_data = json.loads(request.data.decode("UTF-8"))
+    cliente_viejo = {}
     if current_user.email == var_sistema['816']:
         vdor = 816
     elif current_user.email == var_sistema['835']:
@@ -676,6 +703,10 @@ def vendedor_envioclientenuevo():
         else:
             con.commit()
             log(ins)
+            if 'wapp' in d_data:
+                editar_cntwapp(d_data['wapp'])
+            if 'wapp' in cliente_viejo:
+                editar_cntwapp(cliente_viejo['wapp'])
             if ins:
                 log(insaut)
             if upd:
@@ -737,6 +768,10 @@ def vendedor_envioclientenuevo():
             return make_response(error, 400)
         else:
             con.commit()
+            if 'wapp' in d_data:
+                editar_cntwapp(d_data['wapp'])
+            if 'wapp' in cliente_viejo:
+                editar_cntwapp(cliente_viejo['wapp'])
             log(ins)
             log(insaut)
             return jsonify(idautorizacion=idautorizacion)
@@ -841,7 +876,10 @@ def vendedor_editarwapp():
         return make_response(error, 400)
     else:
         con.commit()
+        editar_cntwapp(d_data['wapp'])
+        editar_cntwapp(wapp_viejo)
         log(upd)
+        editar_cntwapp(d_data['wapp'])
         return 'ok'
     finally:
         con.close()
