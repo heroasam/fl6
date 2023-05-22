@@ -322,14 +322,16 @@ def process_queue():
         _, item = queue_wapps.blpop('wapp')
 
         # Procesar el elemento
-        if len(json.loads(item)) == 3:
+        # si tiene cuatro elementos es wapp de texto 
+        # si tiene cinco elementos es wapp de file
+        if len(json.loads(item)) == 4:
             procesar_msg_whatsapp(item)
         else:
             procesar_file_whatsapp(item)
 
         # Simular un tiempo de procesamiento
         time.sleep(10)
-    
+
     
 # Iniciar la función de vigilancia de la cola en segundo plano
 queue_thread = threading.Thread(target=process_queue)

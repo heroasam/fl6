@@ -1514,7 +1514,6 @@ def vendedor_wappaut():
     #     send_msg_whatsapp(0, wapp0, msg)
     wapp1 = var_sistema['wapp_auth']
     wapp2 = var_sistema['wapp_auth2']
-    print(wapp1, wapp2)
     try:
         if wapp1:
             response = send_msg_whatsapp(0, wapp1, msg)

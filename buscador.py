@@ -967,6 +967,7 @@ def buscador_wapp():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def buscar_registrarwapp():
+    """Esta funcion quedo deprecada."""
     d = json.loads(request.data.decode("UTF-8"))
     wapp = d['wapp']
     msg = d['msg']
