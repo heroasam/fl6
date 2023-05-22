@@ -7,7 +7,7 @@ import mysql.connector
 import logging
 from con import get_con, log, engine, check_roles
 from lib import *
-from vendedor import editar_cntwapp
+# from vendedor import editar_cntwapp
 
 
 ventas = Blueprint('ventas',__name__)
@@ -99,10 +99,10 @@ def ventas_guardarcliente():
         return make_response(error,400)
     else:
         con.commit()
-        if 'wapp' in d_data:
-            editar_cntwapp(d_data['wapp'])
-        if 'wapp' in cliente_viejo:
-            editar_cntwapp(cliente_viejo['wapp'])
+        # if 'wapp' in d_data:
+        #     editar_cntwapp(d_data['wapp'])
+        # if 'wapp' in cliente_viejo:
+        #     editar_cntwapp(cliente_viejo['wapp'])
         log(stm)
         cur.close()
         if d_data['id']=="":

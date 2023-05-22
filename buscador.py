@@ -10,7 +10,7 @@ from lib import pgonecolumn, pglistdict, send_msg_whatsapp, send_file_whatsapp, 
     pglist, log_busqueda, listsql, actualizar, send_img_whatsapp, pgexec
 from formularios import intimacion, libredeuda, ficha, recibotransferencia
 from con import get_con, log, check_roles
-from vendedor import editar_cntwapp
+# from vendedor import editar_cntwapp
 
 buscador = Blueprint('buscador', __name__)
 
@@ -561,9 +561,9 @@ def busca_guardaredicioncliente(idcliente):
         log(upd)
         con.commit()
         # update cnt_wapp
-        if cliente_viejo['wapp'] != d_data['wapp']:
-            editar_cntwapp(d_data['wapp'])
-            editar_cntwapp(cliente_viejo['wapp'])
+        # if cliente_viejo['wapp'] != d_data['wapp']:
+        #     editar_cntwapp(d_data['wapp'])
+        #     editar_cntwapp(cliente_viejo['wapp'])
         ins = f"insert into logcambiodireccion(idcliente,calle,num,barrio,\
         tel,acla,fecha,nombre,dni,wapp) values({cliente_viejo['id']},\
         '{cliente_viejo['calle']}','{cliente_viejo['num']}',\
@@ -1181,14 +1181,16 @@ def buscador_chequeardato(id):
         return jsonify(tienedato=tiene_dato)
 
 
-@buscador.route('/buscador/obtenerdniporwapp/<wapp>')
+@buscador.route('/buscador/obtenerdniporwappnombre/<wapp>/<nombre>')
 @login_required
 @check_roles(['dev','gerente','admin'])
-def buscador_obtenerdniporwapp(wapp):
-       """Busca el mejor cliente posible que tenga ese wapp."""
+def buscador_obtenerdniporwapp(wapp,nombre):
+       """Busca el cliente que tenga ese wapp."""
        con = get_con()
-       list_dni_deuda = pglistdict(con, f"select dni,deuda from clientes \
-           where wapp=SUBSTRING({wapp},-10)")
+       sel = f"select dni,deuda from clientes \
+           where wapp=SUBSTRING({wapp},-10) and nombre='{nombre}'"
+       print(sel)
+       list_dni_deuda = pglistdict(con, sel)
        if len(list_dni_deuda) > 1:
            list_dni_deuda_ordenada = sorted(list_dni_deuda, key=lambda x: x['deuda'], reverse=True)
            dni = list_dni_deuda_ordenada[0]['dni']

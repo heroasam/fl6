@@ -30,13 +30,12 @@
                 @click="expandChildren(item.wapp)"></i></span></td>
           <td x-text="item.fecha"></td>
           <td x-text="item.wapp"></td>
-          <td x-text="item.nombre"></td>
-          <td><button class="button is-small is-info" @click="contestarWapp(item.wapp)"
-              x-show="item.nombre&&item.cobr==0">
-              Contestar <span class="tag is-rounded is-small is-primary" x-text="item.cnt_wapp"
-                x-show="item.cnt_wapp>1"></span></button></td>
-          <td><button class="button is-small is-success"
-              @click="marcarRespondidoWappOficial(item.wapp)">Respondido</button></td>
+          <td><template x-for="but in item.nombre">
+            <span class="tag is-small is-primary pointer is-rounded" x-text="but" 
+            @click="contestarWapp(item.wapp,but)"></span>
+          </template></td>
+          <td><span class="has-tooltip-top" data-tooltip="Respondido por Web-WhatsApp"><i class="fa fa-check-square-o" 
+            aria-hidden="true" @click="marcarRespondidoWappOficial(item.wapp)"></i></span></td>
         </tr>
       </template>
       <template x-for="item in listaWapps_">
@@ -122,8 +121,6 @@
               }
               this.listaChats.push({ 'wapp': row[0], 'nombre': row[1].nombres, 'fecha': row[1].fecha, 'cobr': cobr, 'cnt_wapp': cnt_wapp })
             })
-            console.log("file: gestionarwapps.html:115 ~ getWapps ~ listaDiferentesChats:", listaDiferentesChats)
-            console.log("file: gestionarwapps.html:125 ~ getWapps ~ this.listaChats:", this.listaChats)
             
               
 
@@ -139,7 +136,6 @@
             // })
             // this.listaChats.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
-            // console.log("file: gestionarwapps.html:102 ~ getWapps ~ this.listaChats:", this.listaChats)
           })
       },
       expandChildren(wapp) {
@@ -160,12 +156,14 @@
           }
         }, 1)
       },
-      contestarWapp(wapp) {
-        axios.get('/buscador/obtenerdniporwapp/' + wapp)
+      contestarWapp(wapp,nombre){
+        if(!this.listaCobrWapps.map(row => row.wapp).includes(wapp.slice(-10))) {
+        axios.get('/buscador/obtenerdniporwappnombre/' + wapp+'/' + nombre)
           .then(res => {
             dni = res.data.dni
             window.open('/buscador/interno/' + dni, target = '_blank')
           })
+        }
       },
       marcarRespondidoWappOficial(wapp) {
         axios.get('/buscador/marcarrespondidoporwappoficial/' + wapp)

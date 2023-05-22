@@ -703,10 +703,10 @@ def vendedor_envioclientenuevo():
         else:
             con.commit()
             log(ins)
-            if 'wapp' in d_data:
-                editar_cntwapp(d_data['wapp'])
-            if 'wapp' in cliente_viejo:
-                editar_cntwapp(cliente_viejo['wapp'])
+            # if 'wapp' in d_data:
+            #     editar_cntwapp(d_data['wapp'])
+            # if 'wapp' in cliente_viejo:
+            #     editar_cntwapp(cliente_viejo['wapp'])
             if ins:
                 log(insaut)
             if upd:
@@ -768,10 +768,10 @@ def vendedor_envioclientenuevo():
             return make_response(error, 400)
         else:
             con.commit()
-            if 'wapp' in d_data:
-                editar_cntwapp(d_data['wapp'])
-            if 'wapp' in cliente_viejo:
-                editar_cntwapp(cliente_viejo['wapp'])
+            # if 'wapp' in d_data:
+            #     editar_cntwapp(d_data['wapp'])
+            # if 'wapp' in cliente_viejo:
+            #     editar_cntwapp(cliente_viejo['wapp'])
             log(ins)
             log(insaut)
             return jsonify(idautorizacion=idautorizacion)
@@ -876,10 +876,10 @@ def vendedor_editarwapp():
         return make_response(error, 400)
     else:
         con.commit()
-        editar_cntwapp(d_data['wapp'])
-        editar_cntwapp(wapp_viejo)
+        # editar_cntwapp(d_data['wapp'])
+        # editar_cntwapp(wapp_viejo)
         log(upd)
-        editar_cntwapp(d_data['wapp'])
+        # editar_cntwapp(d_data['wapp'])
         return 'ok'
     finally:
         con.close()
