@@ -33,7 +33,8 @@
           <td x-text="item.nombre"></td>
           <td><button class="button is-small is-info" @click="contestarWapp(item.wapp)"
               x-show="item.nombre&&item.cobr==0">
-              Contestar <span class="tag is-rounded is-small is-primary" x-text="item.cnt_wapp" x-show="item.cnt_wapp>1"></span></button></td>
+              Contestar <span class="tag is-rounded is-small is-primary" x-text="item.cnt_wapp"
+                x-show="item.cnt_wapp>1"></span></button></td>
           <td><button class="button is-small is-success"
               @click="marcarRespondidoWappOficial(item.wapp)">Respondido</button></td>
         </tr>
@@ -62,13 +63,24 @@
       listaWapps_: [],
       listaCobrWapps: [],
       nombresWapps: [],
+      listaDiferentesNombres:[],
       wapp: '',
       getNombresWapps() {
         axios.get('/buscador/obtenernombreswapps')
           .then(res => {
             this.nombresWapps = [...res.data.nombreswapps, ...res.data.cobrwapps];
-            console.log("file: gestionarwapps.html:70 ~ getNombresWapps ~ this.nombresWapps:", this.nombresWapps)
             this.listaCobrWapps = res.data.cobrwapps
+            this.listaDiferentesNombres = new Map();
+            this.nombresWapps.forEach(row => {
+              let nombre = row.nombre;
+              if(this.listaDiferentesNombres.has(row.wapp)){
+                let elemento = this.listaDiferentesNombres.get(row.wapp);
+                elemento.push(nombre);
+                this.listaDiferentesNombres.set(row.wapp, elemento);
+              }else{
+                this.listaDiferentesNombres.set(row.wapp,[nombre])
+              }
+            })
             this.getWapps()
           })
       },
@@ -80,36 +92,54 @@
             this.listaWapps = [...recibidos, ...enviados]
             this.listaWapps = this.listaWapps.filter(row => row.msg !== null && row.msg !== undefined && row.msg != '')
             this.listaWapps.map(row => row.fecha = dayjs.utc(row.fecha).format('YYYY-MM-DD HH:mm:ss'))
-            this.listaWapps.sort((a, b) => {
-              if (a.fecha > b.fecha) return 1
-              if (a.fecha < b.fecha) return -1
-              if (a.fecha == b.fecha) return 0
-            })
-            console.log("file: gestionarwapps.html:87 ~ this.listaWapps.sort ~ this.listaWapps:", this.listaWapps)
+            // this.listaWapps.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)) ; // no hace falta pq ya estan ordenados.
             this.listaChats = []
-            let listaDiferentesChats = Object.values(this.listaWapps.map(({ wapp, fecha }) => ({ wapp, fecha })).reduce((acc, obj) => {
-              if (!acc[obj.wapp] || obj.fecha > acc[obj.wapp].fecha) {
-                acc[obj.wapp] = obj;
+            // let listaDiferentesChats = Object.values(this.listaWapps.map(({ wapp, fecha }) => ({ wapp, fecha })).reduce((acc, obj) => {
+            //   if (!acc[obj.wapp] || obj.fecha > acc[obj.wapp].fecha) {
+            //     acc[obj.wapp] = obj;
+            //   }
+            //   return acc;
+            // }, {}));
+            let listaDiferentesChats = new Map();
+            this.listaWapps.forEach(row => {
+              
+              if (listaDiferentesChats.has(row.wapp)) {
+                let value = listaDiferentesChats.get(row.wapp);
+                if (new Date(row.fecha)>new Date(listaDiferentesChats.get(row.wapp).fecha)){
+                  listaDiferentesChats.set(row.wapp, {fecha:row.fecha,nombres:value.nombres});
+                }
+              }else{
+                let nombres = this.listaDiferentesNombres.get(row.wapp.slice(-10))
+                listaDiferentesChats.set(row.wapp, {fecha:row.fecha, nombres:nombres});
               }
-              return acc;
-            }, {}));
-            console.log("file: gestionarwapps.html:94 ~ listaDiferentesChats ~ listaDiferentesChats:", listaDiferentesChats)
-            // obtiene los diferentes Chats con la fecha mayor de cada uno. (codigo gentileza de chatGTP.)
+            })
+            listaDiferentesChats = [...listaDiferentesChats];
             listaDiferentesChats.forEach(row => {
-              let cobr = 0
-              let nombre = this.nombresWapps.find(item => item.wapp == row.wapp.slice(-10))?.nombre || ''
-              let cnt_wapp = this.nombresWapps.find(item => item.wapp == row.wapp.slice(-10))?.cnt_wapp || 1
-              if (this.listaCobrWapps.some(item => item.wapp == row.wapp.slice(-10))) {
+              let cobr = 0;
+              let cnt_wapp = row[1].nombres?.length ||1;
+              if (this.listaCobrWapps.some(item => item.wapp == row[0].slice(-10))) {
                 cobr = 1
               }
-              this.listaChats.push({ 'wapp': row.wapp, 'nombre': nombre, 'fecha': row.fecha, 'cobr': cobr , 'cnt_wapp': cnt_wapp})
+              this.listaChats.push({ 'wapp': row[0], 'nombre': row[1].nombres, 'fecha': row[1].fecha, 'cobr': cobr, 'cnt_wapp': cnt_wapp })
             })
-            console.log("file: gestionarwapps.html:102 ~ getWapps ~ this.listaChats:", this.listaChats)
-            this.listaChats.sort((a, b) => {
-              if (a.fecha > b.fecha) { return -1 }
-              if (a.fecha < b.fecha) { return 1 }
-              if (a.fecha == b.fecha) { return 0 }
-            })
+            console.log("file: gestionarwapps.html:115 ~ getWapps ~ listaDiferentesChats:", listaDiferentesChats)
+            console.log("file: gestionarwapps.html:125 ~ getWapps ~ this.listaChats:", this.listaChats)
+            
+              
+
+            // obtiene los diferentes Chats con la fecha mayor de cada uno. (codigo gentileza de chatGTP.)
+            // listaDiferentesChats.forEach(row => {
+            //   let cobr = 0
+            //   let nombre = this.nombresWapps.find(item => item.wapp == row.wapp.slice(-10))?.nombre || ''
+            //   let cnt_wapp = this.nombresWapps.find(item => item.wapp == row.wapp.slice(-10))?.cnt_wapp || 1
+            //   if (this.listaCobrWapps.some(item => item.wapp == row.wapp.slice(-10))) {
+            //     cobr = 1
+            //   }
+            //   this.listaChats.push({ 'wapp': row.wapp, 'nombre': nombre, 'fecha': row.fecha, 'cobr': cobr, 'cnt_wapp': cnt_wapp })
+            // })
+            // this.listaChats.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+            // console.log("file: gestionarwapps.html:102 ~ getWapps ~ this.listaChats:", this.listaChats)
           })
       },
       expandChildren(wapp) {
