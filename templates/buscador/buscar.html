@@ -42,6 +42,7 @@
 		<th>dni</th>
 		<th>nombre</th>
 		<th>direccion</th>
+    <th>wapp</th>
 		<th>zona</th>
 		<th>deuda</th>
 		<th>pmovto</th>
@@ -55,6 +56,7 @@
 		  <td x-text="cliente.dni"></td>
 		  <td x-text="cliente.nombre"></td>
 		  <td x-text="cliente.calle+' '+cliente.num"></td>
+      <td x-text="cliente.wapp"></td>
 		  <td x-text="cliente.zona"></td>
 		  <td x-text="cliente.deuda"></td>
 		  <td x-text="cliente.pmovto"></td>
@@ -1016,7 +1018,7 @@
 
 		          })
 		          .catch(error=>{
-		              msgError('Error!',error)
+		              msgError('Error!',error.response.data)
 		          })
          },
          buscaCuentaporDni(dni){

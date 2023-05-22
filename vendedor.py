@@ -16,6 +16,8 @@ vendedor = Blueprint('vendedor', __name__)
 
 
 var_sistema = {}
+
+
 def leer_variables():
     """Funcion para leer variables de sistema.
 
@@ -29,7 +31,8 @@ def leer_variables():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         for row in variables:
@@ -71,7 +74,7 @@ def calculo_cuota_maxima(idcliente):
                 fecha = venta['fecha']
                 indice = pgonecolumn(con, f"select indice from inflacion \
                 where concat(year,month)='{fecha}'")
-                if not indice: # esto sucede si es un mes sin indice cargado aun
+                if not indice:  # esto sucede si es un mes sin indice cargado aun
                     indice = ultimo_valor
                 actualizada = ultimo_valor/indice * cuota
                 cuotas_actualizadas.append(actualizada)
@@ -81,13 +84,14 @@ def calculo_cuota_maxima(idcliente):
             id={idcliente}")
             if atraso is None:
                 atraso = 0
-            if atraso>0:
+            if atraso > 0:
                 cuota_actualizada = cuota_actualizada * (1-(atraso/30)*0.05)
-                cuota_actualizada = max(cuota_actualizada,0)
+                cuota_actualizada = max(cuota_actualizada, 0)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         return cuota_actualizada
@@ -106,17 +110,18 @@ def calculo_sin_extension(idcliente):
     try:
         cnt_vtas = pgonecolumn(con, f"select count(*) from ventas where \
         saldo=0 and idcliente = {idcliente}")
-        if cnt_vtas==1:
+        if cnt_vtas == 1:
             return 1
         atraso = pgonecolumn(con, f"select atraso from clientes where \
         id={idcliente}")
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
-        if atraso and atraso>60:
+        if atraso and atraso > 60:
             return 1
         return 0
     finally:
@@ -127,20 +132,16 @@ def editar_cntwapp(wapp):
     """Funcion que edita el campo cnt_wapp de tabla clientes cuando se edita
     el wapp de un cliente."""
     con = get_con()
-    print("editando wapp",wapp)
     if wapp != 'INVALIDO' and wapp != '' and wapp is not None:
         updcntwapp = f"update clientes set cnt_wapp=(select count(*) from \
             clientes as a where a.wapp='{wapp}') where wapp=\
                 '{wapp}'"
         cnt_wapp = pgonecolumn(con, f"select count(*) from \
             clientes as a where a.wapp='{wapp}'")
-        print(cnt_wapp)
-        print(updcntwapp)
         try:
             cur = con.cursor()
             cur.execute(updcntwapp)
             con.commit()
-            print('cantidad de filas afectadas',cur.rowcount)
         except mysql.connector.Error as _error:
             con.rollback()
             logging.warning(
@@ -151,20 +152,20 @@ def editar_cntwapp(wapp):
 
 @vendedor.route('/vendedor/getcuotamaxima/<int:idcliente>')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def vendedor_getcuotamaxima(idcliente):
     """Funcion que pide la cuota maxima del cliente.
 
     Si es menor a la cuota basica del sistema, pone esta ultima."""
     cuotamaxima = int(calculo_cuota_maxima(idcliente))
-    if int(cuotamaxima) <int(var_sistema['cuota_basica']):
+    if int(cuotamaxima) < int(var_sistema['cuota_basica']):
         cuotamaxima = int(var_sistema['cuota_basica'])
     return jsonify(cuotamaxima=cuotamaxima)
 
 
 @vendedor.route('/vendedor/guardardato', methods=['POST'])
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def vendedor_guardardato():
     """Funcion que procesa el guardado de un dato del cliente.
 
@@ -213,7 +214,8 @@ def vendedor_guardardato():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         log(ins)
@@ -222,10 +224,9 @@ def vendedor_guardardato():
         con.close()
 
 
-
 @vendedor.route('/vendedor/togglerechazardato/<int:iddato>')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def vendedor_togglerechazardato(iddato):
     """Funcion que hace un toggle en el campo rechazado.
 
@@ -233,11 +234,11 @@ def vendedor_togglerechazardato(iddato):
     con = get_con()
     resultado = pgonecolumn(con, f"select resultado from datos where \
     id={iddato}")
-    if resultado == 8: # o sea ya esta rechazado
+    if resultado == 8:  # o sea ya esta rechazado
         upd = f"update datos set resultado=NULL, rechazado=0 where id={iddato}"
         updaut = f"update autorizacion set rechazado=0,autorizado=0 where \
         iddato={iddato}"
-    elif resultado is None: # o sea se puede rechazar
+    elif resultado is None:  # o sea se puede rechazar
         upd = f"update datos set resultado=8,rechazado=1 where id={iddato}"
         updaut = f"update autorizacion set rechazado=1,autorizado=0 where \
         iddato={iddato}"
@@ -250,7 +251,8 @@ def vendedor_togglerechazardato(iddato):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -263,31 +265,33 @@ def vendedor_togglerechazardato(iddato):
 
 @vendedor.route('/vendedor/getlistadodatos')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def vendedor_getlistadodatos():
     """Entrega lista de datos, cuota basica y lista de vendedores."""
     con = get_con()
-    listadodatos = pglistdict(con, "select datos.id, fecha, user,fecha_visitar,\
+    listadodatos = pglistdict(
+        con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
     sin_extension,nosabana, autorizado, datos.zona as zona from datos, \
     clientes where clientes.id =datos.idcliente order by id desc")
     cuotabasica = var_sistema['cuota_basica']
     vdores = pglist(con, "select id from cobr where vdor=1 and activo=1")
-    return jsonify(listadodatos=listadodatos, cuotabasica=cuotabasica, \
+    return jsonify(listadodatos=listadodatos, cuotabasica=cuotabasica,
                    vdores=vdores)
 
 
 @vendedor.route('/vendedor/getlistadodatosenviar')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def vendedor_getlistadodatosenviar():
     """Funcion que entrega lista de datos a enviar.
 
     enviado_vdor=0, rechazado=0."""
     #
     con = get_con()
-    listadodatos = pglistdict(con, "select datos.id, fecha, user,fecha_visitar,\
+    listadodatos = pglistdict(
+        con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido, \
     cuota_maxima, novendermas, incobrable, sev, baja, deuda_en_la_casa, \
     sin_extension,nosabana, autorizado, monto_garantizado,datos.zona as zona \
@@ -296,20 +300,21 @@ def vendedor_getlistadodatosenviar():
     # enviado_vdor=0 filtra los datos no enviados aun.
     cuotabasica = var_sistema['cuota_basica']
     vdores = pglist(con, "select id from cobr where vdor=1 and activo=1")
-    return jsonify(listadodatos=listadodatos, cuotabasica=cuotabasica, \
+    return jsonify(listadodatos=listadodatos, cuotabasica=cuotabasica,
                    vdores=vdores)
 
 
 @vendedor.route('/vendedor/getlistadodatosenviados')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def vendedor_getlistadodatosenviados():
     """Funcion que entrega una lista de los datos ya enviados.
 
     campo enviado_vdor=1."""
 
     con = get_con()
-    listadodatos = pglistdict(con, "select datos.id, fecha, user,fecha_visitar,\
+    listadodatos = pglistdict(
+        con, "select datos.id, fecha, user,fecha_visitar,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido,\
     autorizado, cuota_maxima, novendermas, incobrable, sev, baja,\
     deuda_en_la_casa, vendedor, autorizado,datos.zona as zona,nosabana,\
@@ -318,13 +323,13 @@ def vendedor_getlistadodatosenviados():
     # enviado_vdor=1 filtra los datos enviados
     cuotabasica = var_sistema['cuota_basica']
     vdores = pglist(con, "select id from cobr where vdor=1 and activo=1")
-    return jsonify(listadodatos=listadodatos, cuotabasica=cuotabasica, \
+    return jsonify(listadodatos=listadodatos, cuotabasica=cuotabasica,
                    vdores=vdores)
 
 
 @vendedor.route('/vendedor/asignardatosvendedor', methods=['POST'])
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev', 'gerente'])
 def vendedor_asignardatosvendedor():
     """Funcion que asigna datos a un vendedor dado.
 
@@ -340,7 +345,8 @@ def vendedor_asignardatosvendedor():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -351,7 +357,7 @@ def vendedor_asignardatosvendedor():
 
 @vendedor.route('/vendedor/desafectardatos', methods=['POST'])
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev', 'gerente'])
 def vendedor_desafectardatos():
     """Funcion que desafecta datos asignados a un vendedor.
 
@@ -366,7 +372,8 @@ def vendedor_desafectardatos():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -375,9 +382,10 @@ def vendedor_desafectardatos():
         con.close()
 
 
-@vendedor.route('/vendedor/ingresardatoyasignardatosvendedor', methods=['POST'])
+@vendedor.route('/vendedor/ingresardatoyasignardatosvendedor',
+                methods=['POST'])
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev', 'gerente'])
 def vendedor_ingresardatoyasignardatosvendedor():
     """Funcion que ingresa el dato y automaticamente asigna el vendedor.
 
@@ -394,7 +402,7 @@ def vendedor_ingresardatoyasignardatosvendedor():
             cuota_maxima = calculo_cuota_maxima(idcliente)
             sin_extension = calculo_sin_extension(idcliente)
             cuotabasica = var_sistema['cuota_basica']
-            if cuota_maxima==0 or int(cuota_maxima)<int(cuotabasica):
+            if cuota_maxima == 0 or int(cuota_maxima) < int(cuotabasica):
                 cuota_maxima = cuotabasica
             direccion_cliente = pgonecolumn(con, f"select concat(calle,num) \
             from clientes where id={idcliente}")
@@ -406,7 +414,7 @@ def vendedor_ingresardatoyasignardatosvendedor():
             {idcliente}")
             if deuda_en_la_casa is None:
                 deuda_en_la_casa = 0
-            existe_dato_ya = pgonecolumn(con,f"select id from datos where \
+            existe_dato_ya = pgonecolumn(con, f"select id from datos where \
             resultado is null and idcliente={idcliente}")
             if not existe_dato_ya:
                 ins = f"insert into datos(fecha, user, idcliente, \
@@ -423,7 +431,8 @@ def vendedor_ingresardatoyasignardatosvendedor():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -434,7 +443,7 @@ def vendedor_ingresardatoyasignardatosvendedor():
 
 @vendedor.route('/vendedor/getcuotabasica')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev', 'gerente'])
 def vendedor_getcuotabasica():
     """Simple funcion para leer la cuota basica desde la variable."""
     cuotabasica = var_sistema['cuota_basica']
@@ -443,7 +452,7 @@ def vendedor_getcuotabasica():
 
 @vendedor.route('/vendedor/borrardato/<int:iddato>')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def vendedor_borrardato(iddato):
     """Simple proceso para borrar un dato dado su iddato."""
     con = get_con()
@@ -454,7 +463,8 @@ def vendedor_borrardato(iddato):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -466,7 +476,7 @@ def vendedor_borrardato(iddato):
 
 @vendedor.route('/vendedor/borrarvisita/<int:iddato>')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def vendedor_borrarvisita(iddato):
     """Simple proceso para borrar visita de un dato restaurado."""
     con = get_con()
@@ -477,7 +487,8 @@ def vendedor_borrarvisita(iddato):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -489,7 +500,7 @@ def vendedor_borrarvisita(iddato):
 
 @vendedor.route('/vendedor/editardato', methods=['POST'])
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def vendedor_editardato():
     """Funcion para editar dato."""
     con = get_con()
@@ -502,7 +513,7 @@ def vendedor_editardato():
         sin_extension = 1
     else:
         sin_extension = 0
-    if d_data['resultado']==None:
+    if d_data['resultado'] == None:
         resultado = 'NULL'
     else:
         resultado = d_data['resultado']
@@ -517,7 +528,8 @@ def vendedor_editardato():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -529,7 +541,7 @@ def vendedor_editardato():
 
 @vendedor.route('/vendedor/verificarqueyaesdato/<int:idcliente>')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def vendedor_verificarqueyaesdato(idcliente):
     """Simple funcion para verificar que un cliente tiene un dato pendiente."""
     con = get_con()
@@ -542,7 +554,7 @@ def vendedor_verificarqueyaesdato(idcliente):
 
 @vendedor.route('/vendedor/guardarcuotabasica/<int:cuota>')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def vendedor_guardarcuotabasica(cuota):
     """Simple funcion para actualizar la cuota basica."""
     con = get_con()
@@ -553,7 +565,8 @@ def vendedor_guardarcuotabasica(cuota):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -600,12 +613,12 @@ def vendedor_envioclientenuevo():
     dni = d_data['dni']
     cur = con.cursor()
     cliente = pglistdict(con, f"select * from clientes where dni={dni}")
-    if cliente: # o sea esta en la base de Romitex
+    if cliente:  # o sea esta en la base de Romitex
         cliente = cliente[0]
         sin_extension = calculo_sin_extension(d_data['id'])
         cuota_maxima = calculo_cuota_maxima(d_data['id'])
         cuota_basica = var_sistema['cuota_basica']
-        if cuota_maxima==0 or cuota_maxima<float(cuota_basica):
+        if cuota_maxima == 0 or cuota_maxima < float(cuota_basica):
             cuota_maxima = cuota_basica
         direccion_cliente = pgonecolumn(con, f"select concat(calle,num) from \
         clientes where id={d_data['id']}")
@@ -624,11 +637,11 @@ def vendedor_envioclientenuevo():
             monto_garantizado = 0
         if deuda_en_la_casa is None:
             deuda_en_la_casa = 0
-        # consulta para ver si el dato ha sido asignado a otro vendedor 
+        # consulta para ver si el dato ha sido asignado a otro vendedor
         # aca primero buscamos un dato cargado no definido.
         iddato = pgonecolumn(con, f"select id from datos where idcliente =\
         {d_data['id']} and resultado is null")
-        if iddato: # o sea hay ya un dato sin definir de ese cliente
+        if iddato:  # o sea hay ya un dato sin definir de ese cliente
             ins = None
         else:
             ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, \
@@ -641,9 +654,9 @@ def vendedor_envioclientenuevo():
         # Testeo si hay cambios en los datos del cliente que envia el vendedor
         upd = None
         inslog = None
-        cliente_nuevo = [cliente['calle'], cliente['num'], cliente['barrio'], \
+        cliente_nuevo = [cliente['calle'], cliente['num'], cliente['barrio'],
                          cliente['wapp'], cliente['tel'], cliente['acla']]
-        cliente_viejo = [d_data['calle'], d_data['num'], d_data['barrio'], \
+        cliente_viejo = [d_data['calle'], d_data['num'], d_data['barrio'],
                          d_data['wapp'], d_data['tel'], d_data['acla']]
         if cliente_nuevo != cliente_viejo:
             upd = f"update clientes set calle='{d_data['calle']}', \
@@ -666,7 +679,7 @@ def vendedor_envioclientenuevo():
                 cur.execute(insaut)
                 idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
                 vdorasignado = vdor
-            else: # dato repetido inserto auth con iddato que ya tenia de antes
+            else:  # dato repetido inserto auth con iddato que ya tenia de antes
                 # busco el vdorasignado al dato si es que existe.
                 vdorasignado = pgonecolumn(con, f"select vendedor from datos \
                 where id={iddato}")
@@ -678,7 +691,8 @@ def vendedor_envioclientenuevo():
                     {d_data['cuota_requerida']},{cuota_maxima},\
                     '{d_data['arts']}')"
                     cur.execute(insaut)
-                    idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
+                    idautorizacion = pgonecolumn(
+                        con, "SELECT LAST_INSERT_ID()")
                 # si no hay vdorasignado- Se asigna dato y crea la auth.
                 else:
                     upddato = f"update datos set vendedor={vdor} where id=\
@@ -688,7 +702,7 @@ def vendedor_envioclientenuevo():
                     values(current_timestamp(),{vdor},{iddato},{d_data['id']},\
                     {d_data['cuota_requerida']},{cuota_maxima},\
                     '{d_data['arts']}')"
-            
+
                     cur.execute(upddato)
                     cur.execute(insauth)
             if upd:
@@ -698,7 +712,8 @@ def vendedor_envioclientenuevo():
         except mysql.connector.Error as _error:
             con.rollback()
             error = _error.msg
-            logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+            logging.warning(
+                f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
             return make_response(error, 400)
         else:
             con.commit()
@@ -713,16 +728,17 @@ def vendedor_envioclientenuevo():
                 log(upd)
             if inslog:
                 log(inslog)
-            if vdor!=vdorasignado:
+            if vdor != vdorasignado:
                 otroasignado = 1
                 if vdorasignado is None:
                     otroasignado = 0
-                return jsonify(idautorizacion=idautorizacion, otroasignado=otroasignado)
+                return jsonify(idautorizacion=idautorizacion,
+                               otroasignado=otroasignado)
             return jsonify(idautorizacion=idautorizacion, otroasignado=0)
         finally:
             con.close()
 
-    else: # o sea es un cliente nuevo
+    else:  # o sea es un cliente nuevo
         sin_extension = 1
         cuota_maxima = var_sistema['cuota_basica']
         direccion_cliente = d_data['calle']+d_data['num']
@@ -734,7 +750,7 @@ def vendedor_envioclientenuevo():
         zona = ''
         if deuda_en_la_casa is None:
             deuda_en_la_casa = 0
-        if d_data['dnigarante']=='':
+        if d_data['dnigarante'] == '':
             dnigarante = 0
         else:
             dnigarante = d_data['dnigarante']
@@ -764,7 +780,8 @@ def vendedor_envioclientenuevo():
         except mysql.connector.Error as _error:
             con.rollback()
             error = _error.msg
-            logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+            logging.warning(
+                f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
             return make_response(error, 400)
         else:
             con.commit()
@@ -782,7 +799,7 @@ def vendedor_envioclientenuevo():
 @vendedor.route('/4mY6khlmZKUzDRZDJkakr75iH')
 @vendedor.route('/vendedor/listavisitasvdor')
 @login_required
-@check_roles(['dev', 'gerente','vendedor'])
+@check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_visitasvdor():
     """Ruta que render pagina listavisitasvdor."""
     return render_template('/vendedor/listavisitasvdor.html')
@@ -794,7 +811,7 @@ def vendedor_visitasvdor():
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_getlistadodatosvendedor():
     """Funcion que obtiene la lista de datos de un vendedor en particular."""
-    logging.warning("GETLISTADODATOSVENDEDOR, %s",current_user.email)
+    logging.warning("GETLISTADODATOSVENDEDOR, %s", current_user.email)
 
     con = get_con()
     if current_user.email == var_sistema['816']:
@@ -842,15 +859,17 @@ def vendedor_getdato(iddato):
 def vendedor_getlistadoarticulos():
     """Simple funcion que levanta la lista de articulos activos."""
     con = get_con()
-    articulos = pglistdict(con, "select art,cuota from articulos where activo=1 \
+    articulos = pglistdict(
+        con,
+        "select art,cuota from articulos where activo=1 \
     order by art")
     return jsonify(articulos=articulos)
 
 
-@vendedor.route('/uQ3gisetQ8v0n6tw81ORnpL1s' , methods=['POST'])
-@vendedor.route('/vendedor/editarwapp' , methods=['POST'])
+@vendedor.route('/uQ3gisetQ8v0n6tw81ORnpL1s', methods=['POST'])
+@vendedor.route('/vendedor/editarwapp', methods=['POST'])
 @login_required
-@check_roles(['dev', 'gerente', 'vendedor','cobrador'])
+@check_roles(['dev', 'gerente', 'vendedor', 'cobrador'])
 def vendedor_editarwapp():
     """Proceso para editar el wapp del cliente."""
     con = get_con()
@@ -872,7 +891,8 @@ def vendedor_editarwapp():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -885,8 +905,8 @@ def vendedor_editarwapp():
         con.close()
 
 
-@vendedor.route('/HvjJNtFgF71pRYafzcTC74nUt' , methods=['POST'])
-@vendedor.route('/vendedor/guardardatofechado' , methods=['POST'])
+@vendedor.route('/HvjJNtFgF71pRYafzcTC74nUt', methods=['POST'])
+@vendedor.route('/vendedor/guardardatofechado', methods=['POST'])
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_guardardatofechado():
@@ -910,7 +930,8 @@ def vendedor_guardardatofechado():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -944,7 +965,8 @@ def vendedor_anulardato(iddato):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -986,7 +1008,8 @@ def vendedor_mudodato(iddato):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -1030,7 +1053,8 @@ def vendedor_falleciodato(iddato):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -1041,8 +1065,8 @@ def vendedor_falleciodato(iddato):
         con.close()
 
 
-@vendedor.route('/fc3vpQG6SzEH95Ya7kTJPZ48M' , methods=['POST'])
-@vendedor.route('/vendedor/validardni' , methods=['POST'])
+@vendedor.route('/fc3vpQG6SzEH95Ya7kTJPZ48M', methods=['POST'])
+@vendedor.route('/vendedor/validardni', methods=['POST'])
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_validardni():
@@ -1051,7 +1075,7 @@ def vendedor_validardni():
     d_data = json.loads(request.data.decode("UTF-8"))
     logging.warning(d_data)
     dni = pgonecolumn(con, f"select dni from clientes where id={d_data['id']}")
-    if d_data['dni']!='' and dni==int(d_data['dni']):
+    if d_data['dni'] != '' and dni == int(d_data['dni']):
         return make_response('aprobado', 200)
     return make_response('error', 400)
 
@@ -1076,18 +1100,21 @@ def vendedor_registrarautorizacion():
         (current_timestamp(),\
     {vdor},{d_data['id']},{d_data['idcliente']},{d_data['cuota_requerida']},\
     {d_data['cuota_maxima']},'{d_data['arts']}','{dnigarante_propuesto}')"
+    logging.warning(ins)
     cur = con.cursor()
     try:
-        if len(str(dnigarante_propuesto))>0:
-            upddato = f"update datos set dnigarante={dnigarante_propuesto} \
+        if len(str(dnigarante_propuesto)) > 0:
+            upddato = f"update datos set dnigarante='{dnigarante_propuesto}' \
                 where id={d_data['id']}"
+            logging.warning(upddato)
             cur.execute(upddato)
         cur.execute(ins)
         idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -1121,7 +1148,7 @@ def vendedor_getlistadoautorizados():
     autorizacion.rechazado=0 and autorizacion.sigueigual=0 and datos.resultado \
     is null")
     cuotabasica = var_sistema['cuota_basica']
-    return jsonify(listadoautorizados=listadoautorizados, \
+    return jsonify(listadoautorizados=listadoautorizados,
                    cuotabasica=cuotabasica)
 
 
@@ -1183,7 +1210,8 @@ def vendedor_autorizardato(idauth):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -1214,7 +1242,8 @@ def vendedor_noautorizardato(idauth):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -1245,7 +1274,8 @@ def vendedor_rechazardato(idauth):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -1256,8 +1286,8 @@ def vendedor_rechazardato(idauth):
         con.close()
 
 
-@vendedor.route('/xuNzBi4bvtSugd5KbxSQzD0Ey' , methods=['POST'])
-@vendedor.route('/vendedor/pasarventa' , methods=['POST'])
+@vendedor.route('/xuNzBi4bvtSugd5KbxSQzD0Ey', methods=['POST'])
+@vendedor.route('/vendedor/pasarventa', methods=['POST'])
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_pasarventa():
@@ -1284,7 +1314,7 @@ def vendedor_pasarventa():
         for item in d_data['arts']:
             listart += item['cnt']
             listart += item['art']
-        if str(ultinsvta)!=f"{cant_cuotas}{imp_cuota}{per}{d_data['primera']}{d_data['idcliente']}\
+        if str(ultinsvta) != f"{cant_cuotas}{imp_cuota}{per}{d_data['primera']}{d_data['idcliente']}\
         {d_data['id']}{listart}":
             pgexec(con, insvis)
             pgexec(con, insvta)
@@ -1292,8 +1322,8 @@ def vendedor_pasarventa():
             idvta = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
             # lo siguiente ha sido trasladado al trigger ventas_ins_clientes
             # upd = f"update datos set resultado=1, monto_vendido={imp_cuota*6}, \
-                # fecha_definido=# current_timestamp(), idvta={idvta} where \
-                #     id={d_data['id']}"
+            # fecha_definido=# current_timestamp(), idvta={idvta} where \
+            #     id={d_data['id']}"
             # cur.execute(upd)
             listart = ''
             for item in d_data['arts']:
@@ -1311,15 +1341,16 @@ def vendedor_pasarventa():
             inslog = f"update variables set valor='{cant_cuotas}{imp_cuota}{per}{d_data['primera']}\
             {d_data['idcliente']}{d_data['id']}{listart}' where id=13"
             pgexec(con, inslog)
-            con.commit() # pruebo con hacer commit instantaneo de la variable
+            con.commit()  # pruebo con hacer commit instantaneo de la variable
             # que quizas no sea leida pq no se hizo el commit.
         else:
             logging.warning("duplicacion de venta %s Dara cod 401", ultinsvta)
-            return make_response('error de duplicacion de venta',401)
+            return make_response('error de duplicacion de venta', 401)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         logging.warning(inslog, insvta, insvis)
         return make_response(error, 400)
     else:
@@ -1350,7 +1381,8 @@ def vendedor_noestabadato(iddato):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -1371,11 +1403,13 @@ def vendedor_getvisitasvendedor():
     clientes.zona as zona from visitas,datos,clientes where visitas.iddato=\
     datos.id and clientes.id=datos.idcliente order by visitas.fecha desc,hora")
 
-    fechasvisitas = pglistdict(con, "select visitas.fecha as fecha, visitas.vdor \
+    fechasvisitas = pglistdict(
+        con, "select visitas.fecha as fecha, visitas.vdor \
     as vdor, count(*) as cnt, sum(visitas.monto_vendido) as monto_vendido \
     from visitas,datos where visitas.iddato=datos.id group by visitas.fecha,\
     visitas.vdor order by visitas.fecha,visitas.vdor desc")
-    return jsonify(visitasvendedor=visitasvendedor, fechasvisitas=fechasvisitas)
+    return jsonify(visitasvendedor=visitasvendedor,
+                   fechasvisitas=fechasvisitas)
 
 
 @vendedor.route('/F8cq9GzHJIG9hENBo0Xq7hdH7')
@@ -1399,18 +1433,20 @@ def vendedor_getvisitasvdor():
     visitas.fecha>date_sub(curdate(),interval 6 day) order by \
     visitas.fecha desc,hora")
 
-    fechasvisitas = pglistdict(con,f"select visitas.fecha as fecha, visitas.vdor \
+    fechasvisitas = pglistdict(
+        con, f"select visitas.fecha as fecha, visitas.vdor \
     as vdor, count(*) as cnt, sum(visitas.monto_vendido) as monto_vendido \
     from visitas,datos where visitas.iddato=datos.id and visitas.vdor={vdor} \
     and visitas.fecha>date_sub(curdate(),interval 6 day) \
     group by visitas.fecha,visitas.vdor order by visitas.fecha,visitas.vdor \
     desc")
-    return jsonify(visitasvendedor=visitasvendedor, fechasvisitas=fechasvisitas)
+    return jsonify(visitasvendedor=visitasvendedor,
+                   fechasvisitas=fechasvisitas)
 
 
 @vendedor.route('/vendedor/getclientesingresadosporvdor')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev', 'gerente'])
 def vendedor_getclientesingresadosporvdor():
     """Funcion entrega lista de clientes ingresados o alterados por el vdor."""
     con = get_con()
@@ -1420,7 +1456,7 @@ def vendedor_getclientesingresadosporvdor():
 
 @vendedor.route('/vendedor/getventashoy')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev', 'gerente'])
 def vendedor_getventashoy():
     """Funcion que entrega lista de las ventas del dia para el vendedor."""
     con = get_con()
@@ -1437,13 +1473,13 @@ def vendedor_getventashoy():
                                 WHERE fecha > CURDATE() - INTERVAL 3 DAY \
                                 AND sendwapp = 0 and pp= 0 and devuelta = 0 \
                                 and wapp!= '' and wapp is not null")
-    return jsonify(ventashoy=ventashoy,vendedores=vendedores,\
+    return jsonify(ventashoy=ventashoy, vendedores=vendedores,
                    wappnoenviados=wappnoenviados)
 
 
 @vendedor.route('/vendedor/getvisitashoy')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev', 'gerente'])
 def vendedor_getvisitashoy():
     """Funcion que entrega lista de las visitas del dia para el vendedor."""
     con = get_con()
@@ -1457,7 +1493,7 @@ def vendedor_getvisitashoy():
 @vendedor.route('/3ZbXanrRQalY6JL5eOBi49Nyc', methods=["POST"])
 @vendedor.route('/vendedor/wappaut', methods=["POST"])
 @login_required
-@check_roles(['dev','gerente','admin','vendedor'])
+@check_roles(['dev', 'gerente', 'admin', 'vendedor'])
 def vendedor_wappaut():
     """Funcion que procesa el wapp de autorizacion.
 
@@ -1465,31 +1501,37 @@ def vendedor_wappaut():
     segundo wapp a mi."""
 
     logging.warning("wappaut, %s", current_user.email)
-    # if current_user.email == var_sistema['816']:
-    #     vdor = 816
-    # elif current_user.email == var_sistema['835']:
-    #     vdor = 835
     vdor = var_sistema[current_user.email]
     d_data = json.loads(request.data.decode("UTF-8"))
     # msg = d_data['msg']
     msg = f"Autorizacion para el vdor {vdor}"
-    tipo = d_data['tipo'] # a discriminar en el futuro
-    if tipo=='retiro zona':
-        msg = f"Retiro zona vendedor {vdor}"
-        wapp0 = '3515297472'
-        wapp1 = '3512411963'
-        send_msg_whatsapp(0, wapp1, msg)
-        send_msg_whatsapp(0, wapp0, msg)
-    wapp = var_sistema['wapp_auth']
-    if wapp and tipo !='retiro zona':
-        response = send_msg_whatsapp(0, wapp, msg)
+    tipo = d_data['tipo']  # a discriminar en el futuro
+    # if tipo=='retiro zona':
+    #     msg = f"Retiro zona vendedor {vdor}"
+    #     wapp0 = '3515297472'
+    #     wapp1 = '3512411963'
+    #     send_msg_whatsapp(0, wapp1, msg)
+    #     send_msg_whatsapp(0, wapp0, msg)
+    wapp1 = var_sistema['wapp_auth']
+    wapp2 = var_sistema['wapp_auth2']
+    print(wapp1, wapp2)
+    try:
+        if wapp1:
+            response = send_msg_whatsapp(0, wapp1, msg)
+        if wapp2:
+            response += send_msg_whatsapp(0, wapp2, msg)
+    except mysql.connector.Error as _error:
+        error = _error.msg
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
+    else:
         return response
-    return 'error', 400
 
 
 @vendedor.route('/vendedor/wapprespauth', methods=["POST"])
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def vendedor_wapprespaut():
     """Funcion que procesa la respuesta a la autorizacion."""
 
@@ -1507,7 +1549,7 @@ def vendedor_wapprespaut():
 @vendedor.route('/hX53695XAOpaLY9itLgmghkhH', methods=["POST"])
 @vendedor.route('/vendedor/wapp', methods=["POST"])
 @login_required
-@check_roles(['dev','gerente','admin','vendedor'])
+@check_roles(['dev', 'gerente', 'admin', 'vendedor'])
 def vendedor_wapp():
     """Funcion que procesa wapp enviados por el vendedor."""
     d_data = json.loads(request.data.decode("UTF-8"))
@@ -1530,7 +1572,7 @@ def vendedor_wapp():
 @vendedor.route('/4qUK6eNZnCYjIiGTt3HSj2YDp', methods=['POST'])
 @vendedor.route('/vendedor/filewapp', methods=['POST'])
 @login_required
-@check_roles(['dev','gerente','admin','vendedor'])
+@check_roles(['dev', 'gerente', 'admin', 'vendedor'])
 def vendedor_filewapp():
     """Funcion que procesa el envio de pdf por el vendedor."""
 
@@ -1545,14 +1587,14 @@ def vendedor_filewapp():
     #     prod=1
     if wapp:
         response = send_file_whatsapp(
-            idcliente,f"https://www.fedesal.lol/pdf/{file}.pdf", wapp)
+            idcliente, f"https://www.fedesal.lol/pdf/{file}.pdf", wapp)
         return jsonify(response=response)
-    return 'error',400
+    return 'error', 400
 
 
 @vendedor.route('/vendedor/getcomisionesvendedor/<int:vdor>')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev', 'gerente'])
 def vendedor_getcomisionesvendedor(vdor):
     """Funcion que entrega lista de comisiones por vendedor."""
 
@@ -1566,7 +1608,8 @@ def vendedor_getcomisionesvendedor(vdor):
     monto_devuelto*{comision}*(-1) as com, idvta as id from datos where \
     vendedor={vdor} and com_pagada_dev=0 and monto_devuelto!=0 order by \
     date(fecha_definido)")
-    fechascomisiones = pglistdict(con, f"select date(fecha_definido) as fecha,  \
+    fechascomisiones = pglistdict(
+        con, f"select date(fecha_definido) as fecha,  \
     count(*) as cnt,sum(case when com_pagada=0 then monto_vendido*{comision} \
     when com_pagada=1 then 0 end)+sum(monto_devuelto*{comision}*(-1)) as \
     comision from datos where ((resultado=1 and com_pagada=0) or \
@@ -1579,7 +1622,7 @@ def vendedor_getcomisionesvendedor(vdor):
 
 @vendedor.route('/vendedor/getcomisionesprom')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def vendedor_getcomisionesprom():
     """Funcion que entrega la lista de comisiones de las administrativas."""
     con = get_con()
@@ -1587,7 +1630,8 @@ def vendedor_getcomisionesprom():
     monto_vendido*0.04 as com,idvta as id from datos where user in \
     ('isabelheredie@gmail.com','n.dryon@gmail.com') and com_pagada_prom=0 \
     and monto_vendido>0 order by date(fecha_definido)")
-    fechascomisiones = pglistdict(con, "select date(fecha_definido) as fecha,  \
+    fechascomisiones = pglistdict(
+        con, "select date(fecha_definido) as fecha,  \
     count(*) as cnt,sum(monto_vendido*0.04) as comision from datos where \
     resultado=1 and com_pagada_prom=0 and user in ('isabelheredie@gmail.com',\
     'n.dryon@gmail.com') group by date(fecha_definido) order by \
@@ -1598,7 +1642,7 @@ def vendedor_getcomisionesprom():
 @vendedor.route('/MeHzAqFYsbb78KAVFAGTlZRW9/<dni>')
 @vendedor.route('/vendedor/buscaclientepordni/<dni>')
 @login_required
-@check_roles(['dev','gerente','admin','vendedor'])
+@check_roles(['dev', 'gerente', 'admin', 'vendedor'])
 def vendedor_buscaclientepordni(dni):
     """Simple funcion que levanta datos del cliente por dni."""
     con = get_con()
@@ -1610,7 +1654,7 @@ def vendedor_buscaclientepordni(dni):
 
 @vendedor.route('/vendedor/getartvendedor/<int:vdor>')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def vendedor_getartvendedor(vdor):
     """Funcion que entrega lista de articulos a cargar por vendedor."""
     con = get_con()
@@ -1623,7 +1667,7 @@ def vendedor_getartvendedor(vdor):
 
 @vendedor.route('/vendedor/getvendedores')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def vendedor_getvendedores():
     """Simple funcion que entrega lista de vendedores."""
     con = get_con()
@@ -1633,7 +1677,7 @@ def vendedor_getvendedores():
 
 @vendedor.route('/vendedor/marcarcargado/<int:vdor>')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def vendedor_marcarcargado(vdor):
     """Proceso que marca que los articulos pendientes fueron cargados."""
     con = get_con()
@@ -1645,7 +1689,8 @@ def vendedor_marcarcargado(vdor):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -1657,7 +1702,7 @@ def vendedor_marcarcargado(vdor):
 
 @vendedor.route('/vendedor/marcarpagadas/<int:vdor>')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev', 'gerente'])
 def vendedor_marcarpagadas(vdor):
     """Proceso que marca como pagadas las comisiones pendientes de un vdor."""
     con = get_con()
@@ -1674,7 +1719,8 @@ def vendedor_marcarpagadas(vdor):
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -1685,18 +1731,17 @@ def vendedor_marcarpagadas(vdor):
         con.close()
 
 
-
 @vendedor.route('/vendedor/marcarpagadasseleccionados', methods=['POST'])
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev', 'gerente'])
 def vendedor_marcarpagadasseleccionados():
     """Proceso que marca pagadas las comisiones de un vdor en ciertos dias."""
     d_data = json.loads(request.data.decode("UTF-8"))
     vdor = d_data['vdor']
     fechas = d_data['fechas']
-    lpg ='('
+    lpg = '('
     for fecha in fechas:
-        lpg+=f"'{str(fecha)}',"
+        lpg += f"'{str(fecha)}',"
     lpg = lpg[0:-1]+')'
     con = get_con()
     upd = f"update datos set com_pagada=1, fechapagocom=current_date() where \
@@ -1713,7 +1758,8 @@ def vendedor_marcarpagadasseleccionados():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -1725,7 +1771,7 @@ def vendedor_marcarpagadasseleccionados():
 
 @vendedor.route('/vendedor/marcarpagadascomprom')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev', 'gerente'])
 def vendedor_marcarpagadascomprom():
     """Proceso que marca pagadas comisiones promotoras pendientes."""
     con = get_con()
@@ -1739,7 +1785,8 @@ def vendedor_marcarpagadascomprom():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -1749,17 +1796,17 @@ def vendedor_marcarpagadascomprom():
         con.close()
 
 
-
-@vendedor.route('/vendedor/marcarpagadascompromseleccionados', methods=['POST'])
+@vendedor.route('/vendedor/marcarpagadascompromseleccionados',
+                methods=['POST'])
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev', 'gerente'])
 def vendedor_marcarpagadascompromseleccionados():
     """Proceso que marca pagadas comisiones promotoras en ciertos dias."""
     d_data = json.loads(request.data.decode("UTF-8"))
     fechas = d_data['fechas']
-    lpg ='('
+    lpg = '('
     for fecha in fechas:
-        lpg+=f"'{str(fecha)}',"
+        lpg += f"'{str(fecha)}',"
     lpg = lpg[0:-1]+')'
     con = get_con()
     upd = f"update datos set com_pagada_prom=1, fechapagocom_prom=\
@@ -1772,7 +1819,8 @@ def vendedor_marcarpagadascompromseleccionados():
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
-        logging.warning(f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
         con.commit()
@@ -1785,10 +1833,10 @@ def vendedor_marcarpagadascompromseleccionados():
 @vendedor.route('/k8E5hsVs4be3jsJJaob6OQmAX')
 @vendedor.route('/vendedor/getcargavendedor')
 @login_required
-@check_roles(['dev','gerente','vendedor'])
+@check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_getcargavendedor():
     """Funcion entrega lista de articulos a cargar para el vendedor."""
-    logging.warning("getcargavendedor, %s",current_user.email)
+    logging.warning("getcargavendedor, %s", current_user.email)
 
     con = get_con()
     if current_user.email == var_sistema['816']:
@@ -1805,7 +1853,7 @@ def vendedor_getcargavendedor():
 @vendedor.route('/TWGQV0TM0p7Oa9tMPvrNWIHyd')
 @vendedor.route('/vendedor/cargararticulos')
 @login_required
-@check_roles(['dev','gerente','vendedor'])
+@check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_cargararticulos():
     """Ruta que renderiza la pagina cargarart."""
     return render_template('/vendedor/cargarart.html')
@@ -1814,7 +1862,7 @@ def vendedor_cargararticulos():
 @vendedor.route('/DDFEwfGEDYv5UHTVgcDPFUWm1')
 @vendedor.route('/vendedor/comisionesvdor')
 @login_required
-@check_roles(['dev','gerente','vendedor'])
+@check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_comisionesvdor():
     """Ruta que renderiza la pagina comisionesvdor."""
     return render_template('/vendedor/comisionesvdor.html')
@@ -1823,10 +1871,10 @@ def vendedor_comisionesvdor():
 @vendedor.route('/IrV7gmqz4Wu8Q8rwmXMftphaB')
 @vendedor.route('/vendedor/getcomisionesparavendedor')
 @login_required
-@check_roles(['dev','gerente','vendedor'])
+@check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_getcomisionesparavendedor():
     """Funcion que entrega lista de comisiones pendiente para el vendedor."""
-    logging.warning("getcomisionesparavendedor, %s",current_user.email)
+    logging.warning("getcomisionesparavendedor, %s", current_user.email)
 
     if current_user.email == var_sistema['816']:
         vdor = 816
@@ -1839,10 +1887,12 @@ def vendedor_getcomisionesparavendedor():
     monto_vendido*{comision} as com, idvta as id from datos where \
     vendedor={vdor} and com_pagada=0 and monto_vendido>0 order by \
     date(fecha_definido)")
-    devoluciones = pglistdict(con, f"select fecha,monto_devuelto*{comision}*(-1) \
+    devoluciones = pglistdict(
+        con, f"select fecha,monto_devuelto*{comision}*(-1) \
     as com, idvta as id from datos where vendedor={vdor} and com_pagada_dev=0 \
     and monto_devuelto!=0 order by fecha")
-    fechascomisiones = pglistdict(con, f"select date(fecha_definido) as fecha,  \
+    fechascomisiones = pglistdict(
+        con, f"select date(fecha_definido) as fecha,  \
     count(*) as cnt,sum(case when com_pagada=0 then monto_vendido*{comision} \
     when com_pagada=1 then 0 end)+sum(monto_devuelto*{comision}*(-1)) as \
     comision from datos where ((resultado=1 and com_pagada=0) or \
@@ -1855,7 +1905,7 @@ def vendedor_getcomisionesparavendedor():
 
 @vendedor.route('/vendedor/obtenerdni/<int:idcliente>')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def vendedor_obtenerdni(idcliente):
     """Simple funcion que busca el dni de un cliente dado su idcliente."""
     con = get_con()
@@ -1865,7 +1915,7 @@ def vendedor_obtenerdni(idcliente):
 
 @vendedor.route('/vendedor/tomardato/<int:idauth>')
 @login_required
-@check_roles(['dev','gerente','admin'])
+@check_roles(['dev', 'gerente', 'admin'])
 def vendedor_tomardato(idauth):
     """Simple proceso que marca que una autorizacion fue atendida."""
     con = get_con()
@@ -1880,7 +1930,7 @@ def vendedor_tomardato(idauth):
 @vendedor.route('/u0IEJT3i1INZpKoNKbyezlfRy/<int:auth>')
 @vendedor.route('/vendedor/isatendido/<int:auth>')
 @login_required
-@check_roles(['dev','gerente','vendedor'])
+@check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_isatendido(auth):
     """Simple funcion que marca si una autorizacion ya esta atendida."""
     con = get_con()
@@ -1892,11 +1942,11 @@ def vendedor_isatendido(auth):
 @vendedor.route('/ymIVWKdjgnCeJvo2zcodwRTQM/<int:auth>')
 @vendedor.route('/vendedor/isrespondidoauth/<int:auth>')
 @login_required
-@check_roles(['dev','gerente','vendedor'])
+@check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_isrespondidoauth(auth):
     """Funcion que entrega la respuesta que tuvo la autorizacion."""
     con = get_con()
-    respuesta,motivo = pgtuple(con, f" select \
+    respuesta, motivo = pgtuple(con, f" select \
                             case when autorizado=1 then 'autorizado' \
                                  when rechazado=1 then 'rechazado' \
                                  when sigueigual=1 then 'sigueigual' end \
@@ -1910,8 +1960,8 @@ def vendedor_isrespondidoauth(auth):
 
 @vendedor.route('/vendedor/motivoautorizacion/<motivo>/<int:idauth>')
 @login_required
-@check_roles(['dev','gerente'])
-def vendedor_motivoautorizacion(motivo,idauth):
+@check_roles(['dev', 'gerente'])
+def vendedor_motivoautorizacion(motivo, idauth):
     """Proceso para registrar el motivo del rechazo de una autorizacion."""
     con = get_con()
     upd = f"update autorizacion set motivo='{motivo}' where id={idauth}"
@@ -1924,8 +1974,8 @@ def vendedor_motivoautorizacion(motivo,idauth):
 
 @vendedor.route('/vendedor/comentarioautorizacion/<comentario>/<int:idauth>')
 @login_required
-@check_roles(['dev','gerente'])
-def vendedor_comentarioautorizacion(comentario,idauth):
+@check_roles(['dev', 'gerente'])
+def vendedor_comentarioautorizacion(comentario, idauth):
     """Proceso para registrar el comentario del rechazo de una autorizacion."""
     con = get_con()
     upd = f"update autorizacion set comentario='{comentario}' where id={idauth}"
@@ -1936,10 +1986,10 @@ def vendedor_comentarioautorizacion(comentario,idauth):
     return 'ok'
 
 
-@vendedor.route('/quBXVVWkNijghkJ4JpwSgluJQ' , methods=['POST'])
-@vendedor.route('/vendedor/imprimirfichapantalla' , methods=['POST'])
+@vendedor.route('/quBXVVWkNijghkJ4JpwSgluJQ', methods=['POST'])
+@vendedor.route('/vendedor/imprimirfichapantalla', methods=['POST'])
 @login_required
-@check_roles(['dev','gerente','vendedor'])
+@check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_imprimirfichapantalla():
     """Funcion para imprimir ficha de cliente en pantalla a vendedor."""
     con = get_con()
@@ -1951,8 +2001,8 @@ def vendedor_imprimirfichapantalla():
     return send_file('/home/hero/ficha.pdf')
 
 
-@vendedor.route('/S0rjYKB35QIcHunPmebg2tmr1' , methods=['POST'])
-@vendedor.route('/vendedor/visitadevolucion' , methods=['POST'])
+@vendedor.route('/S0rjYKB35QIcHunPmebg2tmr1', methods=['POST'])
+@vendedor.route('/vendedor/visitadevolucion', methods=['POST'])
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_visitadevolucion():

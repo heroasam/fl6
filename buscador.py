@@ -1189,7 +1189,6 @@ def buscador_obtenerdniporwapp(wapp,nombre):
        con = get_con()
        sel = f"select dni,deuda from clientes \
            where wapp=SUBSTRING({wapp},-10) and nombre='{nombre}'"
-       print(sel)
        list_dni_deuda = pglistdict(con, sel)
        if len(list_dni_deuda) > 1:
            list_dni_deuda_ordenada = sorted(list_dni_deuda, key=lambda x: x['deuda'], reverse=True)

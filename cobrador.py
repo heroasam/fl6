@@ -360,7 +360,7 @@ def cobrador_getcobroscobrgral(cobr):
 def cobrador_getcobradores():
     con = get_con()
     cobradores = pglist(con, f"select id from cobr where activo=1 and \
-                             prom=0 and vdor is NULL and id>15")
+                             prom=0 and id>15")
     return jsonify(cobradores=cobradores)
 
 

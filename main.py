@@ -19,6 +19,7 @@ from utilidades import utilidades
 from conta import conta
 from vendedor import vendedor
 from cobrador import cobrador
+import threading
 import mysql.connector
 import simplejson as json
 from con import get_con, log, check_roles
@@ -35,6 +36,7 @@ csrf = CSRFProtect(app)
 login = LoginManager(app)
 login.login_view = "login"
 bcrypt = Bcrypt(app)
+
 
 app.register_blueprint(ventas)
 app.register_blueprint(stock)
@@ -312,3 +314,24 @@ def cur(monto):
         return None
     else:
         return f"${int(monto)}"
+
+
+def process_queue():
+    while True:
+        # Esperar a que haya elementos en la cola
+        _, item = queue_wapps.blpop('wapp')
+
+        # Procesar el elemento
+        if len(json.loads(item)) == 3:
+            procesar_msg_whatsapp(item)
+        else:
+            procesar_file_whatsapp(item)
+
+        # Simular un tiempo de procesamiento
+        time.sleep(10)
+    
+    
+# Iniciar la función de vigilancia de la cola en segundo plano
+queue_thread = threading.Thread(target=process_queue)
+queue_thread.daemon = True
+queue_thread.start()
