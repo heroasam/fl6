@@ -321,6 +321,7 @@ def send_msg_whatsapp(idcliente, wapp, msg):
 
 def procesar_msg_whatsapp(wapp):
     """Funcion envia wapp de texto."""
+    # print('llamada a funcion', id(procesar_msg_whatsapp), time.time())
     idcliente, wapp, msg, email, hora_despacho, _ = json.loads(wapp)
     con = get_con()
     wapp_original = wapp
@@ -339,7 +340,7 @@ def procesar_msg_whatsapp(wapp):
     # logging.warning(f"antes del while'{str(time.time())} hora_despacho {hora_despacho}")
     while True:
         if time.time() > hora_despacho:
-            # print('dentro de msgwapp',str(time.time()),'hora_despacho',hora_despacho)
+            # print('dentro de while msgwapp',time.time(),id(procesar_msg_whatsapp))
             response = requests.request("GET", payload)
             break
         time.sleep(0.5)
@@ -348,7 +349,7 @@ def procesar_msg_whatsapp(wapp):
     if match:
         resultado = match.group(1)
     logging.warning(
-        f"mensaje {wapp} enviado a las:{str(time.ctime(time.time()))} {resultado}")
+        f"mensaje {wapp} enviado a las:{str(time.ctime(time.time()))} {resultado} {time.time()}")
     wapp_log(response.status_code, resultado, wapp,
              str(time.ctime(time.time())), idcliente)
     wapp_logenviados(wapp_original, msg, email)

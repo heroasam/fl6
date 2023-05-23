@@ -351,17 +351,21 @@ def revisa_redis():
 # Esperar a que haya elementos en la cola
     _, item = queue_wapps.brpop('wapp')
     _, _, _, _, hora_despacho, tipo = json.loads(item)
-    # print('resultado del redis', hora_despacho)
+    # print('resultado del redis', hora_despacho, time.time())
     # print(time.time())
     # print(json.loads(item))
     if tipo == 'texto':
         # logging.warning(f"hora de despacho {hora_despacho} y time.time es {time.time()}")
         procesar_msg_whatsapp(item)
+        # print('hora en que regresa el control desde wapp_send', time.time())
     else:
         # logging.warning(f"hora de despacho {hora_despacho}")
         procesar_file_whatsapp(item)
+
+
 def process_queue():
     while True:
+        # print('revisando process_queue', time.time())
         revisa_redis()
     
 # Iniciar la función de vigilancia de la cola en segundo plano
