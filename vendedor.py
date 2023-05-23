@@ -11,6 +11,7 @@ from lib import pgonecolumn, pglistdict, send_msg_whatsapp, \
     send_file_whatsapp, pglist,  listsql, pgdict, pgexec, pgtuple
 from con import get_con, log, check_roles
 from formularios import ficha
+import re
 
 vendedor = Blueprint('vendedor', __name__)
 
@@ -148,6 +149,17 @@ def editar_cntwapp(wapp):
                 f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         finally:
             con.close()
+
+
+def es_dni_valido(dni):
+    patron = r'^\d{7,8}$'
+    if dni is None:
+        return False
+    dni = str(dni)
+    if re.match(patron, dni):
+        return True
+    else:
+        return False
 
 
 @vendedor.route('/vendedor/getcuotamaxima/<int:idcliente>')
@@ -1303,9 +1315,14 @@ def vendedor_pasarventa():
         garantizado = 1
     else:
         garantizado = 0
+    if es_dni_valido(d_data['dnigarante']):
+        dnigarante = d_data['dnigarante']
+    else:
+        dnigarante = 0
+
     insvta = f"insert into ventas(fecha,idvdor,ant,cc,ic,p,primera,idcliente,\
     garantizado,dnigarante) values(curdate(),{vdor},{ant},{cant_cuotas},{imp_cuota},{per},\
-    '{d_data['primera']}',{d_data['idcliente']},{garantizado},'{d_data['dnigarante']}')"
+    '{d_data['primera']}',{d_data['idcliente']},{garantizado},{dnigarante})"
     insvis = f"insert into visitas(fecha,hora,vdor,iddato,result,\
     monto_vendido) values(curdate(),curtime(),{vdor},{d_data['id']},1,{imp_cuota*cant_cuotas})"
     try:
@@ -1351,7 +1368,7 @@ def vendedor_pasarventa():
         error = _error.msg
         logging.warning(
             f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
-        logging.warning(inslog, insvta, insvis)
+        logging.warning(insvta, insvis)
         return make_response(error, 400)
     else:
         log(insvta)
@@ -1518,14 +1535,14 @@ def vendedor_wappaut():
         if wapp1:
             response = send_msg_whatsapp(0, wapp1, msg)
         if wapp2:
-            response += send_msg_whatsapp(0, wapp2, msg)
+            response = send_msg_whatsapp(0, wapp2, msg)
     except mysql.connector.Error as _error:
         error = _error.msg
         logging.warning(
             f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
-        return response
+        return 'ok'
 
 
 @vendedor.route('/vendedor/wapprespauth', methods=["POST"])

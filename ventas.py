@@ -284,7 +284,7 @@ def ventas_datosventa(id):
 def ventas_guardaredicionvta():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
-    if d['dnigarante']:
+    if  'dnigarante' in d:
         garantizado = 1
         dnigarante = d['dnigarante']
     else:

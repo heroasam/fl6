@@ -313,14 +313,15 @@ def send_msg_whatsapp(idcliente, wapp, msg):
             hora_despacho = hora_despacho + 15
     # print('hora despacho establecida',hora_despacho)
     # logging.warning(f"hora despacho establecida {hora_despacho}")
-    wapp_json = json.dumps([idcliente, wapp, msg, current_user.email,hora_despacho,tipo])
+    wapp_json = json.dumps(
+        [idcliente, wapp, msg, current_user.email, hora_despacho, tipo])
     queue_wapps.lpush('wapp', wapp_json)
-    queue_wapps.rpush('hora',hora_despacho)
+    queue_wapps.rpush('hora', hora_despacho)
 
 
 def procesar_msg_whatsapp(wapp):
     """Funcion envia wapp de texto."""
-    idcliente, wapp, msg, email,hora_despacho,_ = json.loads(wapp)
+    idcliente, wapp, msg, email, hora_despacho, _ = json.loads(wapp)
     con = get_con()
     wapp_original = wapp
     pattern = r'^[0-9]+$'
@@ -499,7 +500,8 @@ def send_file_whatsapp(idcliente, file, wapp, msg=''):
         else:
             hora_despacho = hora_despacho + 15
     # logging.warning(f"hora despacho establecida {hora_despacho}")
-    wapp_json = json.dumps([idcliente, file, wapp, current_user.email, hora_despacho,tipo])
+    wapp_json = json.dumps(
+        [idcliente, file, wapp, current_user.email, hora_despacho, tipo])
     queue_wapps.lpush('wapp', wapp_json)
     queue_wapps.rpush('hora', hora_despacho)
 
@@ -507,7 +509,7 @@ def send_file_whatsapp(idcliente, file, wapp, msg=''):
 def procesar_file_whatsapp(wapp):
     """Funcion que envia wapp de file."""
     con = get_con()
-    idcliente, file, wapp, email,hora_despacho ,_ = json.loads(wapp)
+    idcliente, file, wapp, email, hora_despacho, _ = json.loads(wapp)
     wapp_original = wapp
     pattern = r'^[0-9]+$'
     if re.match(pattern, wapp_original) == None:
@@ -750,6 +752,7 @@ def wapp_logenviados(wapp, msg, user):
     """Funcion que registra el wapp en la tabla wappsenviados."""
     con = get_con()
     msg = msg.replace("%20", " ")
+    msg = msg.replace("'", " ")
     ins = f"insert into wappsenviados(wapp,msg,user) values('{wapp}',\
         '{msg}','{user}')"
     pgexec(con, ins)
