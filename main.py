@@ -19,12 +19,13 @@ from utilidades import utilidades
 from conta import conta
 from vendedor import vendedor
 from cobrador import cobrador
-import threading
 import mysql.connector
 import simplejson as json
 from con import get_con, log, check_roles
 from datetime import datetime
 import logging
+import time
+import threading
 
 
 app = Flask(__name__)
@@ -316,21 +317,67 @@ def cur(monto):
         return f"${int(monto)}"
 
 
+@app.route('/enviarwapppendientes')
+def revisar_redis():
+    # Esperar a que haya elementos en la cola
+    _, item = queue_wapps.blpop('wapp')
+
+    # Procesar el elemento
+    # si tiene cuatro elementos es wapp de texto
+    # si tiene cinco elementos es wapp de file
+    if len(json.loads(item)) == 4:
+        procesar_msg_whatsapp(item)
+    else:
+        procesar_file_whatsapp(item)
+    return 'ok'
+
+
 def process_queue():
     while True:
         # Esperar a que haya elementos en la cola
-        _, item = queue_wapps.blpop('wapp')
-
-        # Procesar el elemento
-        # si tiene cuatro elementos es wapp de texto 
-        # si tiene cinco elementos es wapp de file
-        if len(json.loads(item)) == 4:
+        _, item = queue_wapps.brpop('wapp')
+        _, _, _, _, hora_despacho, tipo = json.loads(item)
+        # print('resultado del redis', hora_despacho)
+        # print(time.time())
+        # print(json.loads(item))
+        if tipo == 'texto':
+            # logging.warning(f"hora de despacho {hora_despacho} y time.time es {time.time()}")
             procesar_msg_whatsapp(item)
         else:
+            # logging.warning(f"hora de despacho {hora_despacho}")
             procesar_file_whatsapp(item)
 
-        # Simular un tiempo de procesamiento
-        time.sleep(10)
+
+# def watch_redis_queue():
+#     execute_function = False
+#     last_execution_time = time.time()
+
+#     while True:
+#         # Verificar si hay datos en la cola de Redis
+#         if queue_wapps.llen('wapp') > 0:
+#             # Establecer variable de control en True
+#             execute_function = True
+#             _, item = queue_wapps.blpop('wapp')
+
+#         # Verificar si es hora de ejecutar la función
+#         if execute_function and time.time() - last_execution_time >= 10:
+#             # Ejecutar la función correspondiente
+#             logging.warning(
+#                 f"last execution time{last_execution_time},time.time(){time.time()},{time.time()-last_execution_time}")
+#             if len(json.loads(item)) == 4:
+#                 logging.warning(f"procesa con ,{json.loads(item)}")
+#                 procesar_msg_whatsapp(item)
+#             else:
+#                 procesar_file_whatsapp(item)
+#                 logging.warning(f"procesa con ,{json.loads(item)}")
+
+#             # Establecer variable de control en False y actualizar el tiempo de última ejecución
+#             execute_function = False
+#             time.sleep(10)
+#             last_execution_time = time.time()
+
+#         # Esperar 1 segundo antes de volver a verificar la cola
+#         time.sleep(1)
 
     
 # Iniciar la función de vigilancia de la cola en segundo plano
