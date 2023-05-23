@@ -312,6 +312,7 @@ def send_msg_whatsapp(idcliente, wapp, msg):
         else:
             hora_despacho = hora_despacho + 15
     # print('hora despacho establecida',hora_despacho)
+    # logging.warning(f"hora despacho establecida {hora_despacho}")
     wapp_json = json.dumps([idcliente, wapp, msg, current_user.email,hora_despacho,tipo])
     queue_wapps.lpush('wapp', wapp_json)
     queue_wapps.rpush('hora',hora_despacho)
@@ -334,7 +335,7 @@ def procesar_msg_whatsapp(wapp):
     ,0,'',0,curdate())"
     pgexec(con, ins)
     idlog = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
-    # print('antes del while',str(time.time()),'hora_despacho',hora_despacho)
+    # logging.warning(f"antes del while'{str(time.time())} hora_despacho {hora_despacho}")
     while True:
         if time.time() > hora_despacho:
             # print('dentro de msgwapp',str(time.time()),'hora_despacho',hora_despacho)
@@ -497,7 +498,7 @@ def send_file_whatsapp(idcliente, file, wapp, msg=''):
             hora_despacho = time.time() + 5
         else:
             hora_despacho = hora_despacho + 15
-    # print('hora despacho establecida',hora_despacho)
+    # logging.warning(f"hora despacho establecida {hora_despacho}")
     wapp_json = json.dumps([idcliente, file, wapp, current_user.email, hora_despacho,tipo])
     queue_wapps.lpush('wapp', wapp_json)
     queue_wapps.rpush('hora', hora_despacho)
