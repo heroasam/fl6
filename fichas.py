@@ -416,6 +416,13 @@ def fichas_listado():
     return render_template('fichas/listado.html')
 
 
+@fichas.route('/fichas/morosospormes')
+@login_required
+@check_roles(['dev', 'gerente', 'admin'])
+def fichas_morosospormes():
+    return render_template('fichas/fichajepormes.html')
+
+
 @fichas.route('/fichas/getzonas')
 @login_required
 @check_roles(['dev','gerente','admin'])
@@ -777,3 +784,26 @@ def fichas_aceptaraccioncobrador():
     pgexec(con, upd)
     con.close()
     return 'ok'
+
+
+@fichas.route('/fichas/getyears')
+@login_required
+@check_roles(['dev', 'gerente', 'admin'])
+def fichas_getyears():
+    con = get_con()
+    years = pglist(con, f"select distinct YEAR(ultcompra) from clientes where \
+                   deuda>0 and ultcompra>date_sub(NOW(), interval 6 year) \
+                   order by YEAR(ultcompra) desc")
+    return jsonify(years=years)
+
+
+@fichas.route('/fichas/muestrayear/<string:year>')
+@login_required
+@check_roles(['dev', 'gerente', 'admin'])
+def fichas_muestrayear(year):
+    con = get_con()
+    clientes = pglistdict(
+            con,
+            f"select * from clientes where YEAR(ultcompra)={year} and (pmovto<=date_sub(curdate(),interval 60 day) or pmovto is null) and deuda>0  order by pmovto")
+    con.close()
+    return jsonify(clientes=clientes)

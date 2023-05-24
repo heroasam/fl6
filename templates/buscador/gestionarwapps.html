@@ -31,11 +31,11 @@
           <td x-text="item.fecha"></td>
           <td x-text="item.wapp"></td>
           <td><template x-for="but in item.nombre">
-            <span class="tag is-small is-primary pointer is-rounded" x-text="but" 
-            @click="contestarWapp(item.wapp,but)"></span>
-          </template></td>
-          <td><span class="has-tooltip-top" data-tooltip="Respondido por Web-WhatsApp"><i class="fa fa-check-square-o" 
-            aria-hidden="true" @click="marcarRespondidoWappOficial(item.wapp)"></i></span></td>
+              <span class="tag is-small is-primary pointer is-rounded" :class="item.cobr?'is-info':'is-primary'"
+                x-text="but" @click="contestarWapp(item.wapp,but)"></span>
+            </template></td>
+          <td><span class="has-tooltip-top" data-tooltip="Respondido por Web-WhatsApp"><i class="fa fa-check-square-o"
+                aria-hidden="true" @click="marcarRespondidoWappOficial(item.wapp)"></i></span></td>
         </tr>
       </template>
       <template x-for="item in listaWapps_">
@@ -62,7 +62,7 @@
       listaWapps_: [],
       listaCobrWapps: [],
       nombresWapps: [],
-      listaDiferentesNombres:[],
+      listaDiferentesNombres: [],
       wapp: '',
       getNombresWapps() {
         axios.get('/buscador/obtenernombreswapps')
@@ -72,12 +72,12 @@
             this.listaDiferentesNombres = new Map();
             this.nombresWapps.forEach(row => {
               let nombre = row.nombre;
-              if(this.listaDiferentesNombres.has(row.wapp)){
+              if (this.listaDiferentesNombres.has(row.wapp)) {
                 let elemento = this.listaDiferentesNombres.get(row.wapp);
                 elemento.push(nombre);
                 this.listaDiferentesNombres.set(row.wapp, elemento);
-              }else{
-                this.listaDiferentesNombres.set(row.wapp,[nombre])
+              } else {
+                this.listaDiferentesNombres.set(row.wapp, [nombre])
               }
             })
             this.getWapps()
@@ -101,28 +101,28 @@
             // }, {}));
             let listaDiferentesChats = new Map();
             this.listaWapps.forEach(row => {
-              
+
               if (listaDiferentesChats.has(row.wapp)) {
                 let value = listaDiferentesChats.get(row.wapp);
-                if (new Date(row.fecha)>new Date(listaDiferentesChats.get(row.wapp).fecha)){
-                  listaDiferentesChats.set(row.wapp, {fecha:row.fecha,nombres:value.nombres});
+                if (new Date(row.fecha) > new Date(listaDiferentesChats.get(row.wapp).fecha)) {
+                  listaDiferentesChats.set(row.wapp, { fecha: row.fecha, nombres: value.nombres });
                 }
-              }else{
+              } else {
                 let nombres = this.listaDiferentesNombres.get(row.wapp.slice(-10))
-                listaDiferentesChats.set(row.wapp, {fecha:row.fecha, nombres:nombres});
+                listaDiferentesChats.set(row.wapp, { fecha: row.fecha, nombres: nombres });
               }
             })
             listaDiferentesChats = [...listaDiferentesChats];
             listaDiferentesChats.forEach(row => {
               let cobr = 0;
-              let cnt_wapp = row[1].nombres?.length ||1;
+              let cnt_wapp = row[1].nombres?.length || 1;
               if (this.listaCobrWapps.some(item => item.wapp == row[0].slice(-10))) {
                 cobr = 1
               }
               this.listaChats.push({ 'wapp': row[0], 'nombre': row[1].nombres, 'fecha': row[1].fecha, 'cobr': cobr, 'cnt_wapp': cnt_wapp })
             })
-            
-              
+
+
 
             // obtiene los diferentes Chats con la fecha mayor de cada uno. (codigo gentileza de chatGTP.)
             // listaDiferentesChats.forEach(row => {
@@ -156,13 +156,13 @@
           }
         }, 1)
       },
-      contestarWapp(wapp,nombre){
-        if(!this.listaCobrWapps.map(row => row.wapp).includes(wapp.slice(-10))) {
-        axios.get('/buscador/obtenerdniporwappnombre/' + wapp+'/' + nombre)
-          .then(res => {
-            dni = res.data.dni
-            window.open('/buscador/interno/' + dni, target = '_blank')
-          })
+      contestarWapp(wapp, nombre) {
+        if (!this.listaCobrWapps.map(row => row.wapp).includes(wapp.slice(-10))) {
+          axios.get('/buscador/obtenerdniporwappnombre/' + wapp + '/' + nombre)
+            .then(res => {
+              dni = res.data.dni
+              window.open('/buscador/interno/' + dni, target = '_blank')
+            })
         }
       },
       marcarRespondidoWappOficial(wapp) {
