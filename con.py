@@ -10,10 +10,19 @@ from functools import wraps
 engine = create_engine('mysql+mysqlconnector://hero:ataH2132**/@localhost/hero')
 
 #con = pymysql.connect(host='localhost',database='hero',user='hero',password='ata')
-con = mysql.connector.connect(host='localhost',database='hero',user='hero',password='ataH2132**/')
+con = mysql.connector.connect(
+    host='localhost', database='hero', user='hero', password='ataH2132**/',
+    buffered=True)
 def get_con():
     #con = pymysql.connect(host='localhost',database='hero',user='hero',password='ata')
     con = mysql.connector.connect(host='localhost',database='hero',user='hero',password='ataH2132**/')
+    return con
+
+
+def get_conbuf():
+    # con = pymysql.connect(host='localhost',database='hero',user='hero',password='ata')
+    con = mysql.connector.connect(
+        host='localhost', database='hero', user='hero', password='ataH2132**/', buffered=True)
     return con
 
 
