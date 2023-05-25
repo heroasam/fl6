@@ -1025,7 +1025,7 @@
 
 		          })
 		          .catch(error=>{
-		              msgError('Error!',error.response.data)
+		              msgError('Error!',error)
 		          })
          },
          buscaCuentaporDni(dni){
@@ -1085,6 +1085,12 @@
 
              let fecha = ultvta.fecha || '';
              let articulos = ultvta.art || '';
+             if (articulos=='None') articulos = '';
+             if (articulos=='Plan de Pagos') articulos = '';
+             if (articulos!='') articulos = 'de '+articulos
+             const regex = /\|/g; 
+             
+             articulos = articulos.replace(regex, '');
              if (this.Cliente.sev){
                  text=
                      `Nos comunicamos de la empresa ROMITEX por una deuda que usted tiene con la firma. Usted fue subido al SEVEN hasta regularizar su cuenta. Puede hacer un plan de pagos. Consulte por Wapp. Una vez cancelado en 48hs se lo elimina del SEVEN. De no desmostrar interes nos vemos obligados a cobrar su pagare por via JUDICIAL. Atte. *Departamento de cobranzas de ROMITEX*`
@@ -1092,9 +1098,8 @@
                  text=
                      `Nos comunicamos de la empresa ROMITEX por una deuda que usted tiene con la firma. En los proximos dias deberemos informar al SEVEN el atraso de su cuenta. Le proponemos un plan de pagos que podemos realizar por este medio.`
              }
-             messaje = this.Cliente.nombre.concat(': ',text,' ',`(Por compra de ${articulos} realizada en '${direccion}' el dia ${dayjs.utc(fecha).format('DD-MM-YYYY')})`)
+             messaje = this.Cliente.nombre.concat(': ',text,' ',`(Por compra ${articulos} realizada en '${direccion}' el dia ${dayjs.utc(fecha).format('DD-MM-YYYY')})`)
              this.intimacionWhatsapp = messaje.replaceAll(' ','%20')
-
          },
          clipWappVentas(){
              let messajeVenta;
