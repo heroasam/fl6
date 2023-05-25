@@ -1,1 +1,1 @@
-select id from planillas where fecha =                             '2023-05-20' and idcobr=796
+select DISTINCT respondido from wappsrecibidos where wapp=5493512006883 and respondido=0
