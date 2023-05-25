@@ -1,1 +1,1 @@
-select DISTINCT respondido from wappsrecibidos where wapp=5493512006883 and respondido=0
+

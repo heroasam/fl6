@@ -525,8 +525,8 @@ thead th {
     color: orange !important;
 }
 .wapp_respuesta{
-    background-color: pink !important;
-    color: black !important;
+    background-color: rgb(31, 29, 29) !important;
+    color: whitesmoke !important;
 }
 button.copied::before {
     content: '\2714'; /* Código unicode para el símbolo de tilde */

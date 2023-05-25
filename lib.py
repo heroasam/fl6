@@ -13,7 +13,7 @@ from con import get_con, log
 # import base64, urllib
 import redis
 import simplejson as json
-
+import emoji
 
 queue_wapps = redis.Redis()
 FORMAT = '%(asctime)s  %(message)s'
@@ -239,7 +239,8 @@ def procesar_msg_whatsapp(wapp):
     idlog = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
     while True:
         if time.time() > hora_despacho:
-            logging.warning(f"hora_despacho {hora_despacho} time {time.time()}")
+            logging.warning(
+                f"hora_despacho {hora_despacho} time {time.time()}")
             try:
                 # Establece un tiempo máximo de 5 segundos para la respuesta
                 response = requests.request("GET", payload, timeout=8)
@@ -260,7 +261,7 @@ def procesar_msg_whatsapp(wapp):
                 logging.warning(
                     f"mensaje {wapp} enviado a las:{str(time.ctime(time.time()))} {resultado} {time.time()}")
                 wapp_log(response.status_code, resultado, wapp,
-                        str(time.ctime(time.time())), idcliente)
+                         str(time.ctime(time.time())), idcliente)
                 if "Success" in response.text:
                     upd = f"update logwhatsapp set response='success',\
                     enviado={int(time.time())} where id = {idlog}"
@@ -349,7 +350,7 @@ def procesar_file_whatsapp(wapp):
                 response = requests.request("GET", payload, timeout=8)
             except requests.Timeout:
                 # Manejo del error de tiempo de espera
-                send_file_whatsapp(idcliente,file, wapp_original)
+                send_file_whatsapp(idcliente, file, wapp_original)
                 logging.warning(f"Tiempo de espera agotado para {wapp}")
                 return "Tiempo de espera de la solicitud agotado"
             except requests.RequestException as e:
@@ -376,7 +377,8 @@ def procesar_file_whatsapp(wapp):
                             where id={idcliente}"
                     upd = f"update logwhatsapp set response='invalid', enviado=\
                             {int(time.time())} where id = {idlog}"
-                    logging.warning(f"ante envio Invalid Destination WhatsApp: {response.text}")
+                    logging.warning(
+                        f"ante envio Invalid Destination WhatsApp: {response.text}")
                     pgexec(con, updinv)
                     pgexec(con, upd)
                     return 'invalid'
@@ -399,14 +401,41 @@ def procesar_file_whatsapp(wapp):
                 break
 
 
-
 def wapp_logenviados(wapp, msg, user):
     """Funcion que registra el wapp en la tabla wappsenviados."""
+    emojis = {
+        'f09f9880': '\U0001F600',
+        'f09f9885': '\U0001F602',
+        'f09f9882': '\U0001F602',
+        'f09f98b1': '\U0001F631',
+        'f09f998c': '\U0001F64C',
+        'f09f988e': '\U0001F60E',
+        'f09f998f': '\U0001F64F',
+        'F09FA49D': '\U0001f91d',
+        'F09F918D': '\U0001f44d'}
     con = get_con()
+    hubo_coincidencia = 0
     msg = msg.replace("%20", " ")
     msg = msg.replace("'", " ")
+    cmd = ''
+    patron = r'%\w\w%\w\w%\w\w%\w\w'
+    while re.search(patron, msg):
+        coincidencia = re.search(patron,msg)
+        indice = coincidencia.start()
+        cadena = coincidencia.group()
+        if indice > 0:
+            cmd += msg[:indice]
+        cadena = cadena.replace('%', '')
+        cmd += emojis[cadena]
+        print('cmd',cmd)
+        msg = msg[indice+13:]
+        print('msg',msg)
+        hubo_coincidencia = 1
+    if hubo_coincidencia == 0:
+        cmd = msg
+
     ins = f"insert into wappsenviados(wapp,msg,user) values('{wapp}',\
-        '{msg}','{user}')"
+        '{cmd}','{user}')"
     pgexec(con, ins)
     con.close()
 

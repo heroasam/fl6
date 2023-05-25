@@ -4,7 +4,7 @@
 {% block content %}
 <div x-data="main()"  class="container" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores();
              getInflacion();autoLoad();cargarMsgs();setInterval(()=>{verificarWapps()},10000);obtenerHistorialBusquedas();
-             getListaBtnWapp()">
+             getListaBtnWapp();remapeaEmojis();">
 
   <div>
 	<div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
@@ -640,8 +640,9 @@
         </template>
         </div>
         <div class="flex">
-          <template x-for="emoji in listaEmojis">
-            <span class="is-black is-rounded pointer emoji" x-html="emoji.but.replace(/'/g,'')" @click="addEmoji(emoji.emoji)"></span>
+          <template x-for="emoji  in listaEmojis">
+            <span class="is-black is-rounded pointer emoji" x-html="decodeURIComponent(emoji)" 
+            @click="addEmoji(emoji)"></span>
           </template>
         </div>
       </div>
@@ -980,7 +981,7 @@
          listaPlanes:[],
          listaWapps:[],
          listaBtnWapp:[],
-         listaEmojis:[{but: '&#128512;',emoji:'%F0%9F%98%80'},],
+         listaEmojis:['f0 9f 98 80','f0 9f 98 85','f0 9f 98 82','f0 9f 98 b1','f0 9f 99 8c','f0 9f 98 8e','f0 9f 99 8f', 'F0 9F A4 9D','F0 9F 91 8D'],
          Vtos:{},
          buscar:'',
 	     buscar1:'',
@@ -1010,7 +1011,11 @@
          cntCompartenWapp:1,
          statusCopiar:'Copiar',
          idButtonEnviar:'',
-
+         remapeaEmojis(){
+           console.log("file: buscar.html:1016 ~ remapeaEmojis ~ this.listaEmojis:", this.listaEmojis)
+          this.listaEmojis = this.listaEmojis.map(row=>row = '%'+row.replaceAll(' ', '%'))
+          console.log("file: buscar.html:1016 ~ remapeaEmojis ~ this.listaEmojis:", this.listaEmojis)
+         },
          buscarCliente(){
           console.log("&#" +  parseInt('1F600', 16).toString() + ";")
              this.verCard = false
