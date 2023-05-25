@@ -13,7 +13,6 @@ from con import get_con, log
 # import base64, urllib
 import redis
 import simplejson as json
-import emoji
 
 queue_wapps = redis.Redis()
 FORMAT = '%(asctime)s  %(message)s'
@@ -420,16 +419,16 @@ def wapp_logenviados(wapp, msg, user):
     cmd = ''
     patron = r'%\w\w%\w\w%\w\w%\w\w'
     while re.search(patron, msg):
-        coincidencia = re.search(patron,msg)
+        coincidencia = re.search(patron, msg)
         indice = coincidencia.start()
         cadena = coincidencia.group()
         if indice > 0:
             cmd += msg[:indice]
         cadena = cadena.replace('%', '')
         cmd += emojis[cadena]
-        print('cmd',cmd)
+        print('cmd', cmd)
         msg = msg[indice+13:]
-        print('msg',msg)
+        print('msg', msg)
         hubo_coincidencia = 1
     if hubo_coincidencia == 0:
         cmd = msg
