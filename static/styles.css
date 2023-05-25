@@ -535,3 +535,7 @@ button.copied::before {
 .inline{
     display: inline;
 }
+.emoji{
+    font-size: 30px;
+    display: inline-block;
+}

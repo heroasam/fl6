@@ -639,6 +639,11 @@
           <span class="tag is-medium is-success is-rounded pointer" x-text="b.nombre" @click="sendMsg(b.msg)"></span>
         </template>
         </div>
+        <div class="flex">
+          <template x-for="emoji in listaEmojis">
+            <span class="is-black is-rounded pointer emoji" x-html="emoji.but.replace(/'/g,'')" @click="addEmoji(emoji.emoji)"></span>
+          </template>
+        </div>
       </div>
     </div>
    </div>
@@ -975,6 +980,7 @@
          listaPlanes:[],
          listaWapps:[],
          listaBtnWapp:[],
+         listaEmojis:[{but: '&#128512;',emoji:'%F0%9F%98%80'},],
          Vtos:{},
          buscar:'',
 	     buscar1:'',
@@ -1006,6 +1012,7 @@
          idButtonEnviar:'',
 
          buscarCliente(){
+          console.log("&#" +  parseInt('1F600', 16).toString() + ";")
              this.verCard = false
              this.resetBuscar()
 	         this.buscar = this.buscar1.length>0?this.buscar1:this.buscar
@@ -1877,6 +1884,9 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
          .then(res=>{
           msgSuccess('Se marco como no respondido y se libera para que otro usuario lo responda');
          })
+       },
+       addEmoji(emoji){
+        this.msgWhatsapp += emoji
        },
          autoLoad(){
              {% if dnilistado %}

@@ -261,10 +261,10 @@ def procesar_msg_whatsapp(wapp):
                     f"mensaje {wapp} enviado a las:{str(time.ctime(time.time()))} {resultado} {time.time()}")
                 wapp_log(response.status_code, resultado, wapp,
                         str(time.ctime(time.time())), idcliente)
-                wapp_logenviados(wapp_original, msg, email)
                 if "Success" in response.text:
                     upd = f"update logwhatsapp set response='success',\
                     enviado={int(time.time())} where id = {idlog}"
+                    wapp_logenviados(wapp_original, msg, email)
                     pgexec(con, upd)
                     return 'success'
                 elif "Invalid Destination WhatsApp" in response.text:
@@ -272,17 +272,23 @@ def procesar_msg_whatsapp(wapp):
                             where id={idcliente}"
                     upd = f"update logwhatsapp set response='invalid', enviado=\
                             {int(time.time())} where id = {idlog}"
+                    logging.warning(
+                        f"ante envio Invalid Destination WhatsApp: {response.text}")
                     pgexec(con, updinv)
                     pgexec(con, upd)
                     return 'invalid'
                 elif "Failed" in response.text:
                     upd = f"update logwhatsapp set response='failed', enviado=\
                             {int(time.time())} where id = {idlog}"
+                    logging.warning(
+                        f"ante envio Failed: {response.text}")
                     pgexec(con, upd)
                     return 'failed'
                 elif "limit" in response.text:
                     upd = f"update logwhatsapp set response='limit', enviado=\
                             {int(time.time())} where id = {idlog}"
+                    logging.warning(
+                        f"ante envio Limit: {response.text}")
                     pgexec(con, upd)
                     return 'limit'
                 else:
@@ -359,10 +365,10 @@ def procesar_file_whatsapp(wapp):
                     f"mensaje {wapp} enviado a las:{str(time.ctime(time.time()))} {resultado} {time.time()}")
                 wapp_log(response.status_code, resultado, wapp,
                          str(time.ctime(time.time())), idcliente)
-                wapp_logenviados(wapp_original, file_log, email)
                 if "Success" in response.text:
                     upd = f"update logwhatsapp set response='success',\
                     enviado={int(time.time())} where id = {idlog}"
+                    wapp_logenviados(wapp_original, file_log, email)
                     pgexec(con, upd)
                     return 'success'
                 elif "Invalid Destination WhatsApp" in response.text:
@@ -370,17 +376,20 @@ def procesar_file_whatsapp(wapp):
                             where id={idcliente}"
                     upd = f"update logwhatsapp set response='invalid', enviado=\
                             {int(time.time())} where id = {idlog}"
+                    logging.warning(f"ante envio Invalid Destination WhatsApp: {response.text}")
                     pgexec(con, updinv)
                     pgexec(con, upd)
                     return 'invalid'
                 elif "Failed" in response.text:
                     upd = f"update logwhatsapp set response='failed', enviado=\
                             {int(time.time())} where id = {idlog}"
+                    logging.warning(f"ante envio Failed: {response.text}")
                     pgexec(con, upd)
                     return 'failed'
                 elif "limit" in response.text:
                     upd = f"update logwhatsapp set response='limit', enviado=\
                             {int(time.time())} where id = {idlog}"
+                    logging.warning(f"ante envio Limit: {response.text}")
                     pgexec(con, upd)
                     return 'limit'
                 else:
