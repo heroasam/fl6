@@ -602,8 +602,11 @@
     <div class="column is-10">
       <div x-show="verCard && listaWapps.length">
         <span class="tag is-large">Lista de WhatsApp</span> 
-        <span class="tag is-small is-success pointer" @click="contestarWapp=1, setTimeout(()=>{idButtonEnviar.scrollIntoView()},10)" id="buttonContestar">Contestar</span>
+        <span class="tag is-small is-success pointer" 
+        @click="contestarWapp=1; setTimeout(()=>{idButtonEnviar.scrollIntoView()},10);
+        marcarRespondido()" id="buttonContestar">Contestar</span>
         <span class="tag is-small is-warning" x-text="cntCompartenWapp" x-show="cntCompartenWapp>1"></span>
+        <span class="tag is-small is-danger"><i class="fa fa-repeat" aria-hidden="true" @click="marcarNoRespondido()"></i></span>
       </div>
       <table class="table noselect is-narrow is-striped" x-show="verCard && listaWapps.length" id="table-wapps">
         <thead>
@@ -1866,6 +1869,15 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
           this.msgWhatsapp = "" 
           this.msgWhatsapp = msg  
         },
+        marcarRespondido(){
+          axios.get('/buscador/marcarrespondido/'+this.Cliente.wapp)
+        },
+        marcarNoRespondido() {
+         axios.get('/buscador/marcarnorespondido/' + this.Cliente.wapp)
+         .then(res=>{
+          msgSuccess('Se marco como no respondido y se libera para que otro usuario lo responda');
+         })
+       },
          autoLoad(){
              {% if dnilistado %}
              if(this.buscar=='') this.buscar = {{dnilistado|tojson}}

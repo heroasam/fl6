@@ -1224,3 +1224,71 @@ def buscador_getlitabtnwapp():
     listabtnwapp = pglistdict(con, "select * from msgs where wapp = 1 and \
                               LENGTH(TRIM(msg)) > 0")
     return jsonify(listabtnwapp=listabtnwapp)
+
+
+@buscador.route('/buscador/marcarrespondido/<string:wapp>')
+@login_required
+@check_roles(['dev', 'gerente', 'admin'])
+def buscador_marcarrespondido(wapp):
+    """Funcion que marca campo respondido=1 en tabla wappsrecibidos."""
+    con = get_con()
+    upd = f"update wappsrecibidos set respondido=1 where wapp='549{wapp}'"
+    try:
+        pgexec(con, upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
+    else:
+        return 'ok'
+    finally:
+        con.close()
+
+
+@buscador.route('/buscador/marcarnorespondido/<string:wapp>')
+@login_required
+@check_roles(['dev', 'gerente', 'admin'])
+def buscador_marcarnorespondido(wapp):
+    """Funcion que marca campo respondido=0 en tabla wappsrecibidos."""
+    con = get_con()
+    upd = f"update wappsrecibidos set respondido=0 where wapp='549{wapp}'"
+    try:
+        pgexec(con, upd)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
+    else:
+        return 'ok'
+    finally:
+        con.close()
+
+
+@buscador.route('/buscador/averiguarsiestasiendorespondido/<string:wapp>')
+@login_required
+@check_roles(['dev', 'gerente', 'admin'])
+def buscador_averiguarsiestasiendorespondido(wapp):
+    """Funcion que pregunta si el campo respondido de tabla wappsrecibidos
+    
+    es = 0 y responde 0 sino responde 1."""
+    con = get_con()
+    try:
+        respuesta = pgonecolumn(con,
+            f"select DISTINCT respondido from wappsrecibidos where \
+            wapp='{wapp}' and respondido=0")
+        if respuesta != 0:
+            respuesta = 1
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
+    else:
+        return jsonify(respuesta=respuesta)
+    finally:
+        con.close()

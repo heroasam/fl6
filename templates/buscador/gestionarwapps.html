@@ -157,12 +157,22 @@
         }, 1)
       },
       contestarWapp(wapp, nombre) {
+        // primero averiguo si no es cobrador
         if (!this.listaCobrWapps.map(row => row.wapp).includes(wapp.slice(-10))) {
-          axios.get('/buscador/obtenerdniporwappnombre/' + wapp + '/' + nombre)
-            .then(res => {
-              dni = res.data.dni
-              window.open('/buscador/interno/' + dni, target = '_blank')
-            })
+          axios.get('/buscador/averiguarsiestasiendorespondido/'+wapp)
+          .then(res=>{
+            if(res.data.respuesta==0){ // o sea no esta siendo respondido
+              console.log("file: gestionarwapps.html:165 ~ contestarWapp ~ res.data.respuesta:", res.data.respuesta)
+              axios.get('/buscador/obtenerdniporwappnombre/' + wapp + '/' + nombre)
+                .then(res => {
+                  dni = res.data.dni
+                  window.open('/buscador/interno/' + dni, target = '_blank')
+                })
+            }else{
+              msgError('Este wapp ya esta siendo respondido por otro usuario')
+            }
+          })
+          .catch(err=>msgError(err))
         }
       },
       marcarRespondidoWappOficial(wapp) {
