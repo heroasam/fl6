@@ -27,7 +27,7 @@ def obtenerdni(idcliente):
 @check_roles(['dev','gerente','admin'])
 def buscador_():
     """Muestra pagina buscador."""
-    return render_template("buscador/buscar.html")
+    return render_template("buscador/buscar.html", cliente='Clientes')
 
 
 @buscador.route('/buscador/gestionarwapps', methods=['GET', 'POST'])
@@ -125,7 +125,9 @@ def buscar_interno_buscar(dni):
     """Anexo buscador para ver-cuenta desde otra pagina."""
     if len(str(dni))<7:
         dni = obtenerdni(dni)
-    return render_template('/buscador/buscar.html', dnilistado=dni)
+    con = get_con()
+    nombre = pgonecolumn(con, f"select nombre from clientes where dni={dni}")
+    return render_template('/buscador/buscar.html', dnilistado=dni, cliente=nombre)
 
 
 @buscador.route('/buscador/<string:buscar>')
