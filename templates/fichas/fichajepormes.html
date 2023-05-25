@@ -20,7 +20,6 @@ endblock %} {% block style %}
         <span class="tag is-small is-black" x-show="listaClientes.length" x-text="listaClientes.length"></span>
         <span class="tag is-small is-warning" x-show="cntSeleccionados" x-text="cntSeleccionados"></span>
         
-        <button class="button is-small is-danger" @click="imprimir()">Imprimir</button>
         <button class="button is-small is-danger" @click="intimar()">Intimar</button>
         
         <button class="button is-small is-warning" @click="verZonas==true?verZonas=false:verZonas=true">Cambiar

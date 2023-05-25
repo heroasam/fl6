@@ -9,7 +9,7 @@
 
 {% block content %}
 <div x-data="main()" x-init="cargarMsg()">
-  <a href="/fichas" class="button is-primary">Volver a Fichas</a>
+  
   <h1 class="title is-1">Programacion de botones</h1>
 
   <table class="table">
@@ -18,7 +18,6 @@
         <th>Editar</th>
         <th>boton</th>
         <th>mensaje</th>
-        <th>file</th>
       </tr>
     </thead>
     <tbody>
@@ -28,7 +27,6 @@
           <td><i class="fa fa-pencil" aria-hidden="true" @click="editarMsg(item.id)"></td>
             <td x-text="item.nombre"></td>
             <td x-text="item.msg"></td>
-            <td x-text="item.file"></td>
         </tr>
       </template>
     </tbody>
@@ -50,8 +48,6 @@
         <input name="boton" class="input" type="text" x-model="Msg.nombre" />
         <label for="msg" class="label">Mensaje</label>
         <textarea x-model="Msg.msg" id="msg" autocomplete="off" rows="10" cols="62"></textarea>
-        <label for="file">File</label>
-        <input name="file" class="input" type="text" x-model="Msg.file" />
       </section>
       <footer class="modal-card-foot">
         <button class="button is-success" @click="enviarMsg()">Editar</button>
@@ -86,6 +82,7 @@
              axios.get('/fichas/getmsgs')
                   .then(res=>{
                       this.listamsgs = res.data.msgs
+                      this.listamsgs = this.listamsgs.filter(row=>row.wapp!=1)
                   })
          },
      }

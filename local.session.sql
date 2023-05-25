@@ -1,4 +1,1 @@
-UPDATE caja
-set conciliado = 0
-WHERE cuenta = "bancos ingreso clientes"
-    and conciliado = 2
+select id from planillas where fecha =                             '2023-05-20' and idcobr=796

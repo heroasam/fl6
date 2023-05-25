@@ -3,7 +3,8 @@
 {% block title %}Clientes{% endblock %}
 {% block content %}
 <div x-data="main()"  class="container" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores();
-             getInflacion();autoLoad();cargarMsgs();setInterval(()=>{verificarWapps()},10000);obtenerHistorialBusquedas();">
+             getInflacion();autoLoad();cargarMsgs();setInterval(()=>{verificarWapps()},10000);obtenerHistorialBusquedas();
+             getListaBtnWapp()">
 
   <div>
 	<div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
@@ -193,8 +194,7 @@
       <div>
       <a href="#table-comentarios" class="tag is-small is-warning"
 	     x-show="listaComentarios.length">Hay comentarios</a>
-      <a href="#table-wapps" class="tag is-small is-success"
-	     x-show="listaWapps.length">Hay whatsapps</a>
+       <span class="tag is-small is-success" x-show="listaWapps.length" @click="idButtonContestar.scrollIntoView()">Hay whatsapp</span>
       <span class="tag is-small is-info" x-show="tieneDato">Tiene Dato</span>
       </div>
   </div>
@@ -597,12 +597,12 @@
       </table>
     </div>
    </div>
-    <!-- tabla wapps -->
+    <!-- tablewapps -->
    <div class="columns">
     <div class="column is-10">
       <div x-show="verCard && listaWapps.length">
         <span class="tag is-large">Lista de WhatsApp</span> 
-        <span class="tag is-small is-success pointer" @click="contestarWapp=1">Contestar</span>
+        <span class="tag is-small is-success pointer" @click="contestarWapp=1, setTimeout(()=>{idButtonEnviar.scrollIntoView()},10)" id="buttonContestar">Contestar</span>
         <span class="tag is-small is-warning" x-text="cntCompartenWapp" x-show="cntCompartenWapp>1"></span>
       </div>
       <table class="table noselect is-narrow is-striped" x-show="verCard && listaWapps.length" id="table-wapps">
@@ -616,20 +616,25 @@
         <tbody>
           <template x-for="item in listaWapps">
           <tr :class="item.user?'wapp_respuesta':''">
-            <td x-text="item.fecha"></td>
+            <td x-text="item.fecha" style="min-width: 200px;"></td>
             <td x-text="item.msg"></td>
             <td x-text="item.user||''"></td>
           </tr>
           </template>
         </tbody>
       </table>
-      <div x-show="contestarWapp">
+      <div x-show="contestarWapp && verCard">
         <div>
         <label for="msg" class="label">Mensaje</label>    
-        <textarea x-model="msgWhatsapp" id="msg" autocomplete="off" rows="5" cols="32"></textarea>
+        <textarea x-model="msgWhatsapp" id="msg" autocomplete="off" rows="5" cols="62"></textarea>
         </div>
+        <div class="flex">
         <div x-ref="button-wapps">
-        <button class="button is-small is-info" @click="responderWapp()">Enviar</button>
+        <span class="tag is-medium is-info is-rounded pointer" @click="responderWapp()" id="buttonEnviar">Enviar</span>
+        </div>
+        <template x-for="b in listaBtnWapp">
+          <span class="tag is-medium is-success is-rounded pointer" x-text="b.nombre" @click="sendMsg(b.msg)"></span>
+        </template>
         </div>
       </div>
     </div>
@@ -966,6 +971,7 @@
          listaVisitas:[],
          listaPlanes:[],
          listaWapps:[],
+         listaBtnWapp:[],
          Vtos:{},
          buscar:'',
 	     buscar1:'',
@@ -994,6 +1000,7 @@
          tieneDato:0,
          cntCompartenWapp:1,
          statusCopiar:'Copiar',
+         idButtonEnviar:'',
 
          buscarCliente(){
              this.verCard = false
@@ -1031,6 +1038,8 @@
              this.verCard = true;
              this.clipWappVentas()
              this.copiarButtonDni()
+             this.idButtonEnviar = document.getElementById('buttonEnviar')
+             this.idButtonContestar = document.getElementById('buttonContestar')
 	         this.buscar = this.Cliente.calle+' '+this.Cliente.num
              axios.get('/vendedor/getcuotamaxima/'+this.Cliente.id)
                                .then(res=>{
@@ -1823,6 +1832,12 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
                   .then(res=>{
                       this.listaInflacion = res.data.inflacion
          })},
+         getListaBtnWapp(){
+            axios.get('/buscador/getlistabtnwapp')
+            .then(res=>{
+              this.listaBtnWapp = res.data.listabtnwapp 
+            })
+         },
           sendMsgProgramado(nombre){
               msg = this.listamsgs.filter(row=>row.nombre==nombre)[0].msg
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
@@ -1842,6 +1857,10 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
                       this.listamsgs = res.data.msgs
 	              })
          },
+         sendMsg(msg){
+          this.msgWhatsapp = "" 
+          this.msgWhatsapp = msg  
+        },
          autoLoad(){
              {% if dnilistado %}
              if(this.buscar=='') this.buscar = {{dnilistado|tojson}}

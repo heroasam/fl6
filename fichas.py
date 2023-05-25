@@ -31,6 +31,7 @@ def fichas_getcobradores():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def fichas_muestrazona(cobr):
+    """Funcion que otorga la lista de zonas."""
     con = get_con()
     zonas = pglistdict(con,f"select zona from zonas where asignado={cobr}")
     con.close()
@@ -220,6 +221,13 @@ def fichas_cobradores():
 @check_roles(['dev','gerente','admin'])
 def fichas_programar():
     return render_template('fichas/programar.html')
+
+
+@fichas.route('/fichas/programarbtnwapp')
+@login_required
+@check_roles(['dev', 'gerente', 'admin'])
+def fichas_programarbtnwapp():
+    return render_template('fichas/programarbtnwapp.html')
 
 
 @fichas.route('/fichas/getfullcobradores')

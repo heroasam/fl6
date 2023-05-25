@@ -7,7 +7,7 @@ from flask import Blueprint, render_template, jsonify, make_response, request,\
     send_file
 from flask_login import login_required, current_user
 from lib import pgonecolumn, pglistdict, send_msg_whatsapp, send_file_whatsapp, \
-    pglist, log_busqueda, listsql, actualizar, send_img_whatsapp, pgexec
+    pglist, log_busqueda, listsql, actualizar, pgexec
 from formularios import intimacion, libredeuda, ficha, recibotransferencia
 from con import get_con, log, check_roles
 # from vendedor import editar_cntwapp
@@ -1178,7 +1178,6 @@ def buscador_chequeardato(id):
             idcliente={id} and resultado is null")
         if tiene_dato is None:
             tiene_dato = 0
-
         return jsonify(tienedato=tiene_dato)
 
 
@@ -1215,3 +1214,13 @@ def buscador_marcarrespondidoporwappoficial(wapp):
     else:
         con.close()
         return 'ok'
+    
+
+@buscador.route('/buscador/getlistabtnwapp')
+@login_required
+@check_roles(['dev', 'gerente', 'admin'])
+def buscador_getlitabtnwapp():
+    con = get_con()
+    listabtnwapp = pglistdict(con, "select * from msgs where wapp = 1 and \
+                              LENGTH(TRIM(msg)) > 0")
+    return jsonify(listabtnwapp=listabtnwapp)

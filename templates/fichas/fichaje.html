@@ -365,6 +365,7 @@ endblock %} {% block style %}
              axios.get('/fichas/getmsgs')
                   .then(res=>{
                       this.listamsgs = res.data.msgs
+                      this.listamsgs = this.listamsgs.filter(row=>row.wapp!=1)
 	              })
          },
          cambiarZona(zona){
