@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Modulo que maneja la contabilidad personal aparte."""
 from flask import Blueprint, render_template, jsonify, request, make_response
 from flask_login import login_required

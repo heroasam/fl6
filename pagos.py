@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Modulo que responde a todo lo relativo a pagos."""
 import re
 from flask import Blueprint, render_template, jsonify, make_response,\

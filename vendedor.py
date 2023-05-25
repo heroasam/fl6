@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Modulo que concentra la mayoria de las funciones del sistema vendedor."""
 
 import logging

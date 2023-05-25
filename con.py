@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import mysql.connector
 from flask import session, redirect

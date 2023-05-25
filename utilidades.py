@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from flask import Blueprint, render_template, jsonify, make_response, \
     request, send_file
 from flask_login import login_required, current_user

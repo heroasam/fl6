@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Modulo que dirige todo lo relativo a la busqueda de clientes."""
 import re
 import logging

@@ -402,6 +402,7 @@ def procesar_file_whatsapp(wapp):
 
 def wapp_logenviados(wapp, msg, user):
     """Funcion que registra el wapp en la tabla wappsenviados."""
+    logging.warning(f"entrando a la funcion logenviados {time.time()}")
     emojis = {
         'f09f9880': '\U0001F600',
         'f09f9885': '\U0001F602',
@@ -418,24 +419,41 @@ def wapp_logenviados(wapp, msg, user):
     msg = msg.replace("'", " ")
     cmd = ''
     patron = r'%\w\w%\w\w%\w\w%\w\w'
+    logging.warning(f"match {re.search(patron,msg)}")
     while re.search(patron, msg):
         coincidencia = re.search(patron, msg)
         indice = coincidencia.start()
         cadena = coincidencia.group()
+        logging.warning(f"indice {indice}, cadena {cadena}")
         if indice > 0:
             cmd += msg[:indice]
         cadena = cadena.replace('%', '')
-        cmd += emojis[cadena]
-        print('cmd', cmd)
-        msg = msg[indice+13:]
+        logging.warning(f"cadena {cadena} {type(cadena)} {emojis[cadena]} {type(emojis[cadena])}")
+        try:
+            cmd += emojis[cadena]
+            print('cmd', cmd)
+        except Exception as e:
+            logging.warning("hubo una excepcion")
+            logging.warning(e)
+
+        msg = msg[indice+12:]
+        logging.warning(f"cmd {cmd},msg {msg}")
         print('msg', msg)
         hubo_coincidencia = 1
     if hubo_coincidencia == 0:
         cmd = msg
-
+    logging.warning(f"cmd final {cmd}")
     ins = f"insert into wappsenviados(wapp,msg,user) values('{wapp}',\
         '{cmd}','{user}')"
-    pgexec(con, ins)
+    logging.warning(f"insert {ins}")
+    try:
+        pgexec(con, ins)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
     con.close()
 
 

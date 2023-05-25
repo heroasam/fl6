@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Modulo unificado para manejar lo relativo a stock."""
 from flask import Blueprint,render_template,jsonify,make_response, request,\
            send_file
