@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Clientes{% endblock %}
+{% block title %}{{cliente}}{% endblock %}
 {% block content %}
 <div x-data="main()"  class="container" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores();
              getInflacion();autoLoad();cargarMsgs();setInterval(()=>{verificarWapps()},10000);obtenerHistorialBusquedas();
