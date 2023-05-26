@@ -430,7 +430,7 @@ def wapp_logenviados(wapp, msg, user):
         cadena = cadena.replace('%', '')
         logging.warning(f"cadena {cadena} {type(cadena)} {emojis[cadena]} {type(emojis[cadena])}")
         try:
-            cmd += emojis[cadena].encode("UTF-8")
+            cmd += emojis[cadena]
             print('cmd', cmd)
         except UnicodeEncodeError as e:
             logging.warning(f"hubo un unicode error {e}")
