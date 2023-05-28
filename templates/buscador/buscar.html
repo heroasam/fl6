@@ -194,7 +194,10 @@
       <div>
       <a href="#table-comentarios" class="tag is-small is-warning"
 	     x-show="listaComentarios.length">Hay comentarios</a>
-       <span class="tag is-small is-success" x-show="listaWapps.length" @click="idButtonContestar.scrollIntoView()">Hay whatsapp</span>
+       <a href="#table-wapps" x-show="listaWapps.length" 
+       :class="isMobileDevice?'btn-whatsapp-mobile':'btn-whatsapp'"">
+       <img src="{{url_for('static', filename='/icon-whatsapp.svg')}}"></a>
+       <!-- <span class="tag is-small is-success" x-show="listaWapps.length" @click="idButtonContestar.scrollIntoView()">Hay whatsapp</span> -->
       <span class="tag is-small is-info" x-show="tieneDato">Tiene Dato</span>
       </div>
   </div>
@@ -601,14 +604,14 @@
    <div class="columns">
     <div class="column is-10">
       <div x-show="verCard && listaWapps.length">
-        <span class="tag is-large">Lista de WhatsApp</span> 
+        <span class="tag is-large" id="table-wapps">Lista de WhatsApp</span> 
         <span class="tag is-small is-success pointer" 
         @click="contestarWapp=1; setTimeout(()=>{idButtonEnviar.scrollIntoView()},10);
         marcarRespondido()" id="buttonContestar">Contestar</span>
         <span class="tag is-small is-warning" x-text="cntCompartenWapp" x-show="cntCompartenWapp>1"></span>
         <span class="tag is-small is-danger"><i class="fa fa-repeat" aria-hidden="true" @click="marcarNoRespondido()"></i></span>
       </div>
-      <table class="table noselect is-narrow is-striped" x-show="verCard && listaWapps.length" id="table-wapps">
+      <table class="table noselect is-narrow is-striped" x-show="verCard && listaWapps.length" >
         <thead>
           <tr>
             <th>fecha</th>
@@ -642,7 +645,7 @@
         <div class="flex">
           <template x-for="emoji  in listaEmojis">
             <span class="is-black is-rounded pointer emoji" x-html="decodeURIComponent(emoji)" 
-            @click="addEmoji(emoji)"></span>
+            @click="addEmoji(decodeURIComponent(emoji))"></span>
           </template>
         </div>
       </div>
@@ -1012,9 +1015,7 @@
          statusCopiar:'Copiar',
          idButtonEnviar:'',
          remapeaEmojis(){
-           console.log("file: buscar.html:1016 ~ remapeaEmojis ~ this.listaEmojis:", this.listaEmojis)
           this.listaEmojis = this.listaEmojis.map(row=>row = '%'+row.replaceAll(' ', '%'))
-          console.log("file: buscar.html:1016 ~ remapeaEmojis ~ this.listaEmojis:", this.listaEmojis)
          },
          buscarCliente(){
           console.log("&#" +  parseInt('1F600', 16).toString() + ";")

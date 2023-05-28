@@ -14,6 +14,7 @@ from con import get_con, log
 import redis
 import simplejson as json
 
+
 queue_wapps = redis.Redis()
 FORMAT = '%(asctime)s  %(message)s'
 logging.basicConfig(format=FORMAT)
@@ -195,7 +196,7 @@ def letras(num):
         num = millares[millar]+' '+centenas[centena]+' '+sueltos[dosdigitos]
     return (num.lstrip().rstrip().upper())
 
-
+# http://api.textmebot.com/send.php?recipient=+905352615934&apikey=g8SX2Cz4nhWa&text==This%20is%20a%20dummy%20question&footer=Footer%20Text&button1=Yes&button2=No
 def send_msg_whatsapp(idcliente, wapp, msg):
     """Funcion que encola wapp de texto."""
     tipo = 'texto'
@@ -402,52 +403,11 @@ def procesar_file_whatsapp(wapp):
 
 def wapp_logenviados(wapp, msg, user):
     """Funcion que registra el wapp en la tabla wappsenviados."""
-    logging.warning(f"entrando a la funcion logenviados {time.time()}")
-    emojis = {
-        'f09f9880': '\U0001F600',
-        'f09f9885': '\U0001F602',
-        'f09f9882': '\U0001F602',
-        'f09f98b1': '\U0001F631',
-        'f09f998c': '\U0001F64C',
-        'f09f988e': '\U0001F60E',
-        'f09f998f': '\U0001F64F',
-        'F09FA49D': '\U0001f91d',
-        'F09F918D': '\U0001f44d'}
     con = get_con()
-    hubo_coincidencia = 0
     msg = msg.replace("%20", " ")
     msg = msg.replace("'", " ")
-    cmd = ''
-    patron = r'%\w\w%\w\w%\w\w%\w\w'
-    logging.warning(f"match {re.search(patron,msg)}")
-    while re.search(patron, msg):
-        coincidencia = re.search(patron, msg)
-        indice = coincidencia.start()
-        cadena = coincidencia.group()
-        logging.warning(f"indice {indice}, cadena {cadena}")
-        if indice > 0:
-            cmd += msg[:indice]
-        cadena = cadena.replace('%', '')
-        logging.warning(f"cadena {cadena} {type(cadena)} {emojis[cadena]} {type(emojis[cadena])}")
-        try:
-            cmd += emojis[cadena]
-            print('cmd', cmd)
-        except UnicodeEncodeError as e:
-            logging.warning(f"hubo un unicode error {e}")
-        except Exception as e:
-            logging.warning("hubo una excepcion")
-            logging.warning(e)
-
-        msg = msg[indice+12:]
-        logging.warning(f"cmd {cmd},msg {msg}")
-        print('msg', msg)
-        hubo_coincidencia = 1
-    if hubo_coincidencia == 0:
-        cmd = msg
-    logging.warning(f"cmd final {cmd}")
     ins = f"insert into wappsenviados(wapp,msg,user) values('{wapp}',\
-        '{cmd}','{user}')"
-    logging.warning(f"insert {ins}")
+        '{msg}','{user}')"
     try:
         pgexec(con, ins)
     except mysql.connector.Error as _error:
