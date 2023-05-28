@@ -1581,7 +1581,7 @@ def vendedor_wapp():
     if wapp:
         response = send_msg_whatsapp(idcliente, wapp, msg)
         if response is None:
-            response = 'Rejected'
+            response = 'Encolado'
         return response
     return 'error', 400
 
@@ -2031,3 +2031,36 @@ def vendedor_visitadevolucion():
     pgexec(con, ins)
     con.close()
     return 'ok'
+
+
+@vendedor.route('/vendedor/asignawappacliente/<string:wapp>/<int:idcliente>')
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_asignawappacliente(wapp,idcliente):
+    con = get_con()
+    clientes_con_ese_wapp = pglist(con, f"select id from clientes where \
+                                   wapp='{wapp}'")
+    if clientes_con_ese_wapp!='':
+        clientes_con_ese_wapp = listsql(clientes_con_ese_wapp)
+        updborrar = f"update clientes set wapp='' where id in \
+            {clientes_con_ese_wapp}"
+        updasignar = f"update clientes set wapp='{wapp}' where id={idcliente}"
+        insverificables = f"insert into verificables(wapp,idcliente) values(\
+            '{wapp}',{idcliente})"
+        try:
+            pgexec(con, updborrar)
+            pgexec(con, updasignar)
+            pgexec(con, insverificables)
+        except mysql.connector.Error as _error:
+            con.rollback()
+            error = _error.msg
+            logging.warning(
+                f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+            return make_response(error, 400)
+        else:
+            con.commit()
+            return 'ok'
+        finally:
+            con.close()
+    else:
+        return make_response('ese idcliente no existe',400)

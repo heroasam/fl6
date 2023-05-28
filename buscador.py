@@ -1202,12 +1202,19 @@ def buscador_obtenerdniporwapp(wapp,nombre):
 
 
 
-@buscador.route('/buscador/marcarrespondidoporwappoficial/<wapp>')
+@buscador.route('/buscador/marcarrespondidoporwappoficial/<wapp>/<nombres>')
 @login_required
 @check_roles(['dev','gerente','admin'])
-def buscador_marcarrespondidoporwappoficial(wapp):
+def buscador_marcarrespondidoporwappoficial(wapp,nombres):
     con = get_con()
-    upd = f"update wappsrecibidos set respondido=1 where wapp like '%{wapp}'"
+    if len(nombres.split(','))==1:
+        nombre=nombres
+        idcliente = pgonecolumn(con, f"select id from clientes where nombre=\
+                            '{nombre}' and wapp='{wapp[3:]}'")
+    else:
+        idcliente = 0
+    upd = f"update wappsrecibidos set respondido=1,idcliente={idcliente} \
+        where wapp ='{wapp}'"
     try:
         pgexec(con, upd)
     except mysql.connector.Error as _error:
@@ -1229,13 +1236,14 @@ def buscador_getlitabtnwapp():
     return jsonify(listabtnwapp=listabtnwapp)
 
 
-@buscador.route('/buscador/marcarrespondido/<string:wapp>')
+@buscador.route('/buscador/marcarrespondido/<string:wapp>/<int:idcliente>')
 @login_required
 @check_roles(['dev', 'gerente', 'admin'])
-def buscador_marcarrespondido(wapp):
+def buscador_marcarrespondido(wapp,idcliente):
     """Funcion que marca campo respondido=1 en tabla wappsrecibidos."""
     con = get_con()
-    upd = f"update wappsrecibidos set respondido=1 where wapp='549{wapp}'"
+    upd = f"update wappsrecibidos set respondido=1,idcliente={idcliente} \
+          where wapp='549{wapp}'"
     try:
         pgexec(con, upd)
     except mysql.connector.Error as _error:

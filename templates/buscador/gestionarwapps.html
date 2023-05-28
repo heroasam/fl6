@@ -35,7 +35,7 @@
                 x-text="but" @click="contestarWapp(item.wapp,but)"></span>
             </template></td>
           <td><span class="has-tooltip-top" data-tooltip="Respondido por Web-WhatsApp"><i class="fa fa-check-square-o"
-                aria-hidden="true" @click="marcarRespondidoWappOficial(item.wapp)"></i></span></td>
+                aria-hidden="true" @click="marcarRespondidoWappOficial(item.wapp,item.nombre)"></i></span></td>
         </tr>
       </template>
       <template x-for="item in listaWapps_">
@@ -175,8 +175,8 @@
           .catch(err=>msgError(err))
         }
       },
-      marcarRespondidoWappOficial(wapp) {
-        axios.get('/buscador/marcarrespondidoporwappoficial/' + wapp)
+      marcarRespondidoWappOficial(wapp,nombre) {
+        axios.get('/buscador/marcarrespondidoporwappoficial/' + wapp+'/'+nombre)
           .then(res => {
             this.getWapps()
           })

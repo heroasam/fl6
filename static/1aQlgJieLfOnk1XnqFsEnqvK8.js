@@ -734,6 +734,22 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
 									                                 })
 
          },
+         verificarWapp(wapp, idcliente) {
+             axios.get('/vendedor/asignawappacliente/' + wapp + '/' + idcliente)
+                 .then(res => {
+                     msg = `Estimado cliente: ${this.Dato.nombre}, agéndenos por favor para que tengamos una via facil de comunicación.
+                     Por favor conteste este mensaje con ok o si para verificar que es su numero.`;
+                     let data = {msg,wapp,idcliente}
+                     axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
+                     // nueva ruta para /vendedor/wapp
+                     // /hX53695XAOpaLY9itLgmghkhH
+                     axios.post('/hX53695XAOpaLY9itLgmghkhH', data)
+                         .then(res => {
+                             msgSuccessSB('Enviado')
+                         })
+                 })
+             
+         },
      }
  }
  function GnIVzsHTcsg1sQFsVD7xfw7Dc(){
