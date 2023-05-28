@@ -22,7 +22,7 @@
 
 
         <input type="number" x-model="cliente.wapp" placeholder="WhatApp" size="20" class="input"
-	           pattern="(\d){10}$" :class="darkTheme?'input-dark':''">
+	           pattern="(\d){10}$" :class="darkTheme?'input-dark':''" @blur="buscarSiExisteWapp(cliente.wapp)">
 
         <input type="text" list="listacalles" class="input mb-1" x-model="cliente.calle" required placeholder="Calle"
                :class="darkTheme?'input-dark':''"/>

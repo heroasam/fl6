@@ -101,7 +101,7 @@
                :class="darkTheme?'input-dark':''" >
         <label for="idwapp">Whatsapp</label>
         <input type="text" class="input mb-1" x-model="Cliente.wapp" id="idwapp"
-               :class="darkTheme?'input-dark':''" >
+               :class="darkTheme?'input-dark':''" @blur="buscarSiExisteWapp(Cliente.wapp)">
         <label for="idacla">Aclaracion</label>
         <input type="text" class="input mb-1" x-model="Cliente.acla" id="idacla"
                :class="darkTheme?'input-dark':''" >
@@ -196,6 +196,14 @@
                       msgSuccess("DNI copiado al portapapeles")
                   })
          },
+         buscarSiExisteWapp(wapp) {
+         axios.get('/vendedor/buscarsiexistewapp/' + wapp)
+           .then(res => {
+             if (res.data.existe == 1) {
+               msgErrorSB('Ese wapp ya existe no se podra verificar. Cambielo!');
+             }
+           })
+       },
 
  }}
 </script>

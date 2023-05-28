@@ -1041,7 +1041,8 @@
 
 		          })
 		          .catch(error=>{
-		              msgError('Error!',error)
+                console.log(error)
+		              msgError('Error!',error.response.data.error)
 		          })
          },
          buscaCuentaporDni(dni){
@@ -1436,6 +1437,7 @@
 								                                 })
 								                                 .catch(error=>{
 								                                     msgError('Error',error.request.response)
+                                                     this.refreshCliente(this.Cliente.dni)
 								                                 })
          },
          obtenerCalles(){

@@ -44,7 +44,7 @@
       </div>
       <div class="column is-2">
         <input type="text" x-model="cliente.wapp" placeholder="WhatApp" size="20" class="input"
-	           pattern="(\d){10}$" :class="darkTheme?'input-dark':''">
+	           pattern="(\d){10}$" :class="darkTheme?'input-dark':''" @blur="buscarSiExisteWapp(cliente.wapp)">
       </div>
     </div>
     <div class="columns">
@@ -166,6 +166,7 @@
          calles:[],
          barrios:[],
          zonas:[],
+         existeWapp:'',
          cliente:{id:'',sex:'',dni:'',calle:'', barrio:'', zona:'',acla:'', tel:'',wapp:'',mjecobr:'',horario:'',infoseven:''},
          periodicidad:['mensual','quincenal','semanal'],
          Datos:{fecha:dayjs.utc().format('YYYY-MM-DD'),fecha_visitar:dayjs.utc().format('YYYY-MM-DD'), art:'', horarios:'', comentarios:''},
@@ -213,6 +214,7 @@
              if(!this.barrios.includes(this.cliente.barrio)) {msgError('Corrija los datos:','El barrio no se encuentra en la base de datos');return}
              if(this.cliente.zona=='') {msgError('Complete los datos:','Falta poner zona');return}
              if(!this.zonas.includes(this.cliente.zona)) {msgError('Corrija los datos:','La zona no se encuentra en la base de datos');return}
+             if(this.existeWapp==1) {msgError('Cambie el wapp porque ya esta en uso');return}
              this.guardarCliente()
          },
          guardarCliente(){
@@ -280,6 +282,15 @@
              })
 
          },
+         buscarSiExisteWapp(wapp) {
+         axios.get('/vendedor/buscarsiexistewapp/' + wapp)
+           .then(res => {
+             this.existeWapp = res.data.existe
+             if (res.data.existe == 1) {
+               msgErrorSB('Ese wapp ya existe no se podra verificar. Cambielo!');
+             }
+           })
+       },
      }}
 </script>
 {% endblock %}

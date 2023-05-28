@@ -6,7 +6,7 @@
            barrios:[],
            articulos:[],
            nombregarante:'',
-           direcciongarante:'',
+           direcciongarante: '',
            obtenerCalles(){
                //nueva ruta para /ventas/getcalles CZI6X7BC6wNtseAN22HiXsmqc
 	           axios.get('/CZI6X7BC6wNtseAN22HiXsmqc')
@@ -26,6 +26,14 @@
                         msgSuccessSB('Cliente existente');
                     })
            },
+           buscarSiExisteWapp(wapp) {
+               axios.get('/vendedor/buscarsiexistewapp/' + wapp)
+                   .then(res => {
+                       if (res.data.existe == 1) {
+                           msgErrorSB('Ese wapp ya existe no se podra verificar. Cambielo!');
+                   }
+               })
+           },
            buscaGarante(dni){
                if(this.cliente.dnigarante!=''){
                    //nueva ruta para /ventas/obtenerdatosgarante 3ibzPLLq53RuFgIqkq6G3bSzO
@@ -37,36 +45,44 @@
                         .catch(error=>msgError('El DNI no existe'))
                }
            },
-           validarClienteNuevo(){
-               if(this.cliente.dni==''){
-                   msgError("Debe ingresar el DNI")
-                   return;
-               }
-               if(this.cliente.nombre==''){
-                   msgError("Debe ingresar el Nombre");
-                   return;
-               }
-               if(this.cliente.calle==''||!this.calles.includes(this.cliente.calle)){
-                   msgError("Verifique que ingreso una calle correcta");
-                   return;
-               }
-               if(this.cliente.num==''){
-                   msgError("Debe ingresar el numero de la casa");
-                   return;
-               }
-               if(this.cliente.barrio==''||!this.barrios.includes(this.cliente.barrio)){
-                   msgError("Verifique que ingreso un barrio correcto");
-                   return;
-               }
-               if(this.cliente.cuota_requerida==''){
-                   msgError("Debe ingresar la cuota que va a vender");
-                   return;
-               }
-               if(this.cliente.arts==''){
-                   msgError("Debe ingresar los articulos que va a vender");
-                   return;
-               }
-               this.pedirAutorizacion();
+           validarClienteNuevo() {
+               axios.get('/vendedor/buscarsiexistewapp/' + this.cliente.wapp)
+                   .then(res => {
+                       if (res.data.existe == 1) {
+                           msgError('El wapp ya existe. Cambielo!');
+                           return;
+                       }
+                       if (this.cliente.dni == '') {
+                           msgError("Debe ingresar el DNI")
+                           return;
+                       }
+                       if (this.cliente.nombre == '') {
+                           msgError("Debe ingresar el Nombre");
+                           return;
+                       }
+                       if (this.cliente.calle == '' || !this.calles.includes(this.cliente.calle)) {
+                           msgError("Verifique que ingreso una calle correcta");
+                           return;
+                       }
+                       if (this.cliente.num == '') {
+                           msgError("Debe ingresar el numero de la casa");
+                           return;
+                       }
+                       if (this.cliente.barrio == '' || !this.barrios.includes(this.cliente.barrio)) {
+                           msgError("Verifique que ingreso un barrio correcto");
+                           return;
+                       }
+                       if (this.cliente.cuota_requerida == '') {
+                           msgError("Debe ingresar la cuota que va a vender");
+                           return;
+                       }
+                       if (this.cliente.arts == '') {
+                           msgError("Debe ingresar los articulos que va a vender");
+                           return;
+                       }
+                       this.pedirAutorizacion();
+               })
+               
            },
            pedirAutorizacion(){
                idButton = document.getElementById('buttonPedirAutorizacion')
@@ -360,7 +376,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
                                                                      msgSuccessSB('WhatsApp editado correctamente');
                                                                  })
                                                                  .catch(error=>{
-                                                                     msgError('Error. No se hizo la edicion');
+                                                                     msgError('No se puede editar porque el wapp propuesto ya esta en uso');
                                                                  })
          },
          venderDato(iddato){
@@ -741,15 +757,14 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
          verificarWapp(wapp, idcliente) {
              axios.get('/vendedor/asignawappacliente/' + wapp + '/' + idcliente)
                  .then(res => {
-                     msg = `Estimado cliente: ${this.Dato.nombre}, agéndenos por favor para que tengamos una via facil de comunicación.
-                     Por favor conteste este mensaje con ok o si para verificar que es su numero.`;
+                     msg = `Estimado cliente: ${this.Dato.nombre}, agéndenos por favor para que tengamos una via facil de comunicación.Por favor conteste este mensaje con ok o si para verificar que es su numero.`;
                      let data = {msg,wapp,idcliente}
                      axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
                      // nueva ruta para /vendedor/wapp
                      // /hX53695XAOpaLY9itLgmghkhH
                      axios.post('/hX53695XAOpaLY9itLgmghkhH', data)
                          .then(res => {
-                             msgSuccessSB('Enviado')
+                             msgSuccessSB('Enviado. Cuando el cliente conteste, recargar la pagina.')
                          })
                  })
              

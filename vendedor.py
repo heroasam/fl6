@@ -882,6 +882,18 @@ def vendedor_editarwapp():
     """Proceso para editar el wapp del cliente."""
     con = get_con()
     d_data = json.loads(request.data.decode("UTF-8"))
+    wapp = d_data['wapp']
+    try:
+        comprueba_si_wapp_en_uso = pglist(con, f"select id from clientes \
+                                           where wapp={wapp}")
+        if len(comprueba_si_wapp_en_uso)>0:
+            return make_response("ese wapp ya esta en uso",400)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
     wapp_viejo = pgonecolumn(con, f"select wapp from clientes where id= \
     {d_data['idcliente']}")
     upd = f"update clientes set wapp='{d_data['wapp']}' where \
@@ -2059,3 +2071,17 @@ def vendedor_asignawappacliente(wapp,idcliente):
             con.close()
     else:
         return make_response('ese idcliente no existe',400)
+    
+
+@vendedor.route('/vendedor/buscarsiexistewapp/<string:wapp>')
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_buscarsiexistewapp(wapp):
+    con = get_con()
+    existe = len(pglist(con,f"select id from clientes where wapp={wapp} and \
+                    wapp_verificado=1"))
+    if existe == 0:
+        existe = len(pglist(con, f"select id from clientes where wapp={wapp}"))
+        if existe>1:
+            existe = 0
+    return jsonify(existe=existe)
