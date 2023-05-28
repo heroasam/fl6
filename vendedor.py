@@ -832,21 +832,15 @@ def vendedor_getlistadodatosvendedor():
     if current_user.email == var_sistema['835']:
         vdor = 835
     agrupar = var_sistema["agrupar"+str(vdor)]
-    # listadodatos = pglistdict(con, f"select datos.id, fecha, fecha_visitar,\
-    # art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
-    # clientes.zona as zona, cuota_maxima,idcliente, sin_extension,idvta,\
-    # resultado,datos.dnigarante as dnigarante from datos, clientes where \
-    # clientes.id = datos.idcliente and vendedor={vdor} and (resultado is null \
-    # or (resultado in (1,7) and date(fecha_definido)=curdate())) and \
-    # fecha_visitar <=curdate() and enviado_vdor=1 order by id desc")
     listadodatos = pglistdict(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
     clientes.zona as zona, cuota_maxima,idcliente, sin_extension,idvta,\
-    resultado,datos.dnigarante as dnigarante,quiere_devolver,vendedor from \
-    datos,clientes where clientes.id = datos.idcliente and vendedor={vdor} and \
-    (resultado is null or resultado=7 or (resultado=1 and quiere_devolver=1) \
-    or (resultado=1 and date(fecha_definido)=curdate())) and \
-    fecha_visitar <=curdate() and enviado_vdor=1 order by id desc")
+    resultado,datos.dnigarante as dnigarante,quiere_devolver,vendedor,\
+    wapp_verificado from  datos,clientes where clientes.id = datos.idcliente \
+    and vendedor={vdor} and (resultado is null or resultado=7 or (resultado=1 \
+    and quiere_devolver=1) or (resultado=1 and date(fecha_definido)=\
+    curdate())) and fecha_visitar <=curdate() and enviado_vdor=1 order by id \
+                              desc")
     return jsonify(listadodatos=listadodatos, agrupar=agrupar)
 
 
@@ -860,8 +854,9 @@ def vendedor_getdato(iddato):
     dato = pgdict(con, f"select datos.id, fecha, fecha_visitar,\
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
     clientes.zona as zona, cuota_maxima,idcliente, sin_extension,vendedor, \
-    datos.dnigarante as dnigarante,idvta,monto_vendido,nosabana from datos, \
-    clientes where clientes.id = datos.idcliente and datos.id={iddato}")
+    datos.dnigarante as dnigarante,idvta,monto_vendido,nosabana,\
+    wapp_verificado from datos, clientes where clientes.id = datos.idcliente \
+                  and datos.id={iddato}")
     return jsonify(dato=dato)
 
 

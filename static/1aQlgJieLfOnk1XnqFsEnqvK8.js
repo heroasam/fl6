@@ -600,9 +600,13 @@ Quedo a la espera. Gracias.`;
 
                                                                            }) // cierro el then de los datos enviados
          }, //cierro la function
-         pasarVenta(){
+         pasarVenta() {
              if(this.dnivalidado==false){
                  msgError('El DNI del cliente debe coincidir con nuestros registros');
+                 return;
+             }
+             if (this.Dato.wapp_verificado != 1) {
+                 msgError('El whatsapp del cliente no esta verificado');
                  return;
              }
              if(this.listaArtComprados.length==0){
