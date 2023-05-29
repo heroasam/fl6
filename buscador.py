@@ -546,7 +546,7 @@ def busca_guardaredicioncliente(idcliente):
     if wapp!='' and wapp is not None and wapp != 'INVALIDO':
         try:
             comprueba_si_wapp_en_uso = pglist(con, f"select id from clientes \
-                                            where wapp='{wapp}'")
+                                     where wapp='{wapp}' and id!={idcliente}")
             if len(comprueba_si_wapp_en_uso)>0:
                 return make_response("ese wapp ya esta en uso",400)
         except mysql.connector.Error as _error:

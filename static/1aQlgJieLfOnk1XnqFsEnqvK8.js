@@ -26,8 +26,10 @@
                         msgSuccessSB('Cliente existente');
                     })
            },
-           buscarSiExisteWapp(wapp) {
-               axios.get('/vendedor/buscarsiexistewapp/' + wapp)
+           buscarSiExisteWapp(wapp, idcliente) {
+               if (this.cliente.id === undefined) { this.cliente.id = 0 }
+               console.log(this.cliente, this.cliente.id)
+               axios.get('/vendedor/buscarsiexistewapp/' + wapp+'/'+ this.cliente.id)
                    .then(res => {
                        if (res.data.existe == 1) {
                            msgErrorSB('Ese wapp ya existe no se podra verificar. Cambielo!');
@@ -46,7 +48,7 @@
                }
            },
            validarClienteNuevo() {
-               axios.get('/vendedor/buscarsiexistewapp/' + this.cliente.wapp)
+               axios.get('/vendedor/buscarsiexistewapp/' + this.cliente.wapp +'/' + this.cliente.id||0)
                    .then(res => {
                        if (res.data.existe == 1) {
                            msgError('El wapp ya existe. Cambielo!');

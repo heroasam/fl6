@@ -886,7 +886,7 @@ def vendedor_editarwapp():
     if wapp!='' and wapp is not None and wapp != 'INVALIDO':
         try:
             comprueba_si_wapp_en_uso = pglist(con, f"select id from clientes \
-                                            where wapp={wapp}")
+                        where wapp={wapp} and id!={d_data['idcliente']}")
             if len(comprueba_si_wapp_en_uso)>0:
                 return make_response("ese wapp ya esta en uso",400)
         except mysql.connector.Error as _error:
@@ -2074,17 +2074,20 @@ def vendedor_asignawappacliente(wapp,idcliente):
         return make_response('ese idcliente no existe',400)
     
 
-@vendedor.route('/vendedor/buscarsiexistewapp/<string:wapp>')
+@vendedor.route('/vendedor/buscarsiexistewapp/<string:wapp>/<int:idcliente>')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
-def vendedor_buscarsiexistewapp(wapp):
+def vendedor_buscarsiexistewapp(wapp,idcliente):
     con = get_con()
+    print('idcliente',idcliente)
     existe = len(pglist(con,f"select id from clientes where wapp={wapp} and \
-                    wapp_verificado=1"))
-    if existe == 0:
-        existe = len(pglist(con, f"select id from clientes where wapp={wapp}"))
-        if existe>1:
-            existe = 0
+                    wapp_verificado=1 and id != {idcliente}"))
+    print('existe',existe)
+    # if existe == 0:
+    #     existe = len(pglist(con, f"select id from clientes where wapp={wapp}"))
+    #     print('existe no se porque lo busco')
+    #     if existe>1:
+    #         existe = 0
     return jsonify(existe=existe)
 
 
