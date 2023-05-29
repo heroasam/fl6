@@ -1227,8 +1227,11 @@ def buscador_marcarrespondidoporwappoficial(wapp,nombres):
                             '{nombre}' and wapp='{wapp[3:]}'")
     else:
         idcliente = 0
+    if idcliente=='' or idcliente is None:
+        idcliente = 0
     upd = f"update wappsrecibidos set respondido=1,idcliente={idcliente} \
         where wapp ='{wapp}'"
+    logging.warning(f"update marcar no respondido {upd}")
     try:
         pgexec(con, upd)
     except mysql.connector.Error as _error:

@@ -135,7 +135,7 @@
       <span class="tag is-warning is-small" x-show="Cliente.gestion">GESTION</span>
       <span class="tag is-danger is-small" x-show="Cliente.incobrable">INC</span>
       <span class="tag is-info is-small" x-show="Cliente.seguir">SEGUIR</span>
-      <span class="tag is-small is-danger pointer"  x-show="Cliente.garantizado"
+      <span class="tag is-small is-danger pointer"  x-show="Cliente.garantizado==1"
             @click="open('/buscador/interno/'+Cliente.dnigarante,'_blank')">GARANTE</span>
       <span class="tag is-small is-info pointer"  x-show="Cliente.esgarante"
             @click="document.getElementById('table-garantizados').scrollIntoView({behavior: 'smooth'});">ES GARANTE</span>
@@ -1018,7 +1018,6 @@
           this.listaEmojis = this.listaEmojis.map(row=>row = '%'+row.replaceAll(' ', '%'))
          },
          buscarCliente(){
-          console.log("&#" +  parseInt('1F600', 16).toString() + ";")
              this.verCard = false
              this.resetBuscar()
 	         this.buscar = this.buscar1.length>0?this.buscar1:this.buscar
@@ -1048,6 +1047,8 @@
          buscaCuentaporDni(dni){
 	         this.resetBuscar()
 	         this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
+           console.log("file: buscar.html:1050 ~ buscaCuentaporDni ~ this.Cliente:", this.Cliente)
+           
              this.Cliente.direccion = this.Cliente.calle+' '+this.Cliente.num
              this.obtenerVentas(this.Cliente.id)
              this.obtenerWapps(this.Cliente.wapp)

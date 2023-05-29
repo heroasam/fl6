@@ -25,6 +25,7 @@
         <th class="sumar numeric">cobrado</th>
         <th class="sumar numeric">comision</th>
         <th class="sumar numeric">viatico</th>
+        <th class="sumar numeric">transferencia</th>
         <th class="sumar numeric">neto</th>
         <th class="sumar numeric">cntrbos</th>
         <th></th>
@@ -39,7 +40,8 @@
             <td x-text="planilla.cobrado" class="pesos"></td>
             <td x-text="planilla.comision" class="pesos"></td>
             <td x-text="planilla.viatico" class="pesos"></td>
-            <td x-text="planilla.cobrado-planilla.comision-planilla.viatico"
+            <td x-text="planilla.transferencia" class="pesos"></td>
+            <td x-text="planilla.cobrado-planilla.comision-planilla.viatico-planilla.transferencia" class="pesos"></td>
                 class="pesos" style="font-weight:bold;"></td>
             <td x-text="planilla.cntrbos"></td>
             <td><button class="button is-primary is-small" @click="procesarPlanilla(planilla.fecha)">Procesar</button></td>
@@ -53,7 +55,8 @@
           <td x-text="item.cobrado" class="pesos"></td>
           <td x-text="item.comision" class="pesos"></td>
           <td x-text="item.viatico" class="pesos"></td>
-          <td x-text="item.cobrado-item.comision-item.viatico"
+          <td x-text="item.transferencia" class="pesos"></td>
+          <td x-text="item.cobrado-item.comision-item.viatico-item.transferencia" class="pesos"></td>
               class="pesos" style="font-weight:bold;"></td>
           <td x-text="item.cntrbos"></td>
           <td></td>

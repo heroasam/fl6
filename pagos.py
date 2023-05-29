@@ -397,7 +397,18 @@ def pagos_verplanillas():
 @check_roles(['dev', 'gerente', 'admin'])
 def pagos_getplanillas():
     con = get_con()
-    planillas = pglistdict(con, f"select planillas.fecha as fecha,sum(cobrado) as cobrado,sum(comision) as comision,sum(viatico) as viatico,sum(cntrbos) as cntrbos,(select imp from caja where comentario='global' and cuenta='cobranza' and fecha=planillas.fecha) as cobradocaja, (-1)*(select imp from caja where comentario='via' and cuenta='cobranza' and fecha=planillas.fecha) as viaticocaja from planillas  where planillas.fecha>date_sub(curdate(), interval 60 day) group by planillas.fecha order by planillas.fecha desc")
+    sel = f"select planillas.fecha as fecha,sum(cobrado) as cobrado,\
+    sum(comision) as comision,sum(viatico) as viatico,sum(cntrbos) \
+    as cntrbos,(select imp from caja where comentario='global' and cuenta=\
+    'cobranza' and fecha=planillas.fecha) as cobradocaja, (-1)*(select imp \
+    from caja where comentario='via' and cuenta='cobranza' and fecha=\
+    planillas.fecha) as viaticocaja, (-1)*(select sum(imp) from caja where cuenta=\
+    'transferencia de cobradores' and fecha=planillas.fecha) as transferencia \
+    from planillas  where planillas.fecha>\
+                                    date_sub(curdate(), interval 60 day) \
+                                        group by planillas.fecha order \
+                                            by planillas.fecha desc"
+    planillas = pglistdict(con, sel)
     con.close()
     return jsonify(planillas=planillas)
 
@@ -409,7 +420,8 @@ def pagos_getplanillashoy(fecha):
     con = get_con()
     planillas = pglistdict(
         con,
-        f"select fecha,idcobr,cobrado,comision,viatico,cntrbos,idlote from planillas where fecha='{fecha}'")
+        f"select fecha,idcobr,cobrado,comision,viatico,cntrbos,idlote,(-1)*(select imp from caja where cuenta=\
+    'transferencia de cobradores' and fecha=planillas.fecha and codigo=planillas.idcobr) as transferencia from planillas where fecha='{fecha}'")
     con.close()
     return jsonify(planillas=planillas)
 
