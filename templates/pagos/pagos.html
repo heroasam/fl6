@@ -183,7 +183,7 @@
 
             this.Planilla.cobrado = imppagos.reduce((a, b) => Number(a) + Number(b), 0);
             this.Planilla.comision = Math.round(this.Planilla.cobrado * 0.15);
-            this.Planilla.transferencia = res.data.transferencia * (-1);
+            this.Planilla.transferencia = res.data.transferencia * (-1)||0;
             if (this.planilla.length) this.Planilla.viatico = this.planilla[0].viatico
           })
       },
@@ -270,6 +270,7 @@
       pasarPlanilla() {
         this.Planilla.fecha = this.Pagos.fecha
         this.Planilla.idcobr = this.Pagos.cobr
+        console.log(this.Planilla)
         axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
         axios.post('/pagos/pasarplanilla', this.Planilla)
           .then(res => {

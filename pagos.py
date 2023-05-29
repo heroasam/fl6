@@ -260,7 +260,7 @@ def pagos_pasarplanilla():
     solo_digitos = r"^\d+$"
     con = get_conbuf()
     d_dato = json.loads(request.data.decode("UTF-8"))
-    if re.match(solo_digitos, d_dato['transferencia']):
+    if re.match(solo_digitos, str(d_dato['transferencia'])):
         transferencia = int(d_dato['transferencia'])
     else:
         transferencia = 0
