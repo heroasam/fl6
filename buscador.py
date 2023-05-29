@@ -543,17 +543,18 @@ def busca_guardaredicioncliente(idcliente):
     con = get_con()
     d_data = json.loads(request.data.decode("UTF-8"))
     wapp = d_data['wapp']
-    try:
-        comprueba_si_wapp_en_uso = pglist(con, f"select id from clientes \
-                                           where wapp={wapp}")
-        if len(comprueba_si_wapp_en_uso)>0:
-            return make_response("ese wapp ya esta en uso",400)
-    except mysql.connector.Error as _error:
-        con.rollback()
-        error = _error.msg
-        logging.warning(
-            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
-        return make_response(error, 400)
+    if wapp!='' and wapp is not None and wapp != 'INVALIDO':
+        try:
+            comprueba_si_wapp_en_uso = pglist(con, f"select id from clientes \
+                                            where wapp='{wapp}'")
+            if len(comprueba_si_wapp_en_uso)>0:
+                return make_response("ese wapp ya esta en uso",400)
+        except mysql.connector.Error as _error:
+            con.rollback()
+            error = _error.msg
+            logging.warning(
+                f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+            return make_response(error, 400)
     updcntwapp = None
     cliente_viejo = pglistdict(con, f"select * from clientes where id=\
     {d_data['id']}")[0]

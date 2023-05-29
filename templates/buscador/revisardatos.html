@@ -145,6 +145,7 @@
               :class="Datos.resultado==1?'is-success':(Datos.resultado==0?'is-danger':(Datos.resultado==2?'is-danger':
                      (Datos.resultado==5?'is-primary':(Datos.resultado==6?'is-black':(Datos.resultado==8?'is-black':'is-info')))))"></span>
         <button class="button is-black" @click="restaurarDato(Datos.id)">Restaurar Dato</button>
+        <img src="{{url_for('static', filename='/auth_sinwapp.png')}}" @click="marcaAuthSinWapp(Datos.idcliente)">
       </section>
       <footer class="modal-card-foot">
         <button class="button is-primary" @click="guardarDato">Editar</button>
@@ -335,6 +336,24 @@
              this.guardarDato()
              axios.get('/vendedor/borrarvisita/'+idDato)
          },
+         marcaAuthSinWapp(idcliente) {
+          Swal.fire({
+             title: '¿Esta seguro que quiere autorizar la venta sin wapp verificado?',
+             text: `Afecta al cliente ${this.Datos.nombre}`,
+             icon: 'warning',
+             showCancelButton: true,
+             confirmButtonColor: '#3085d6',
+             cancelButtonColor: '#d33',
+             confirmButtonText: 'Si, autorizarlo!'
+           }).then((result) => {
+             if (result.isConfirmed) {
+               axios.get('/vendedor/marcaauthsinwapp/' + idcliente)
+                 .then(res => {
+                   msgSuccess('Marcado para que se pueda vender sin tener wapp verificado o sin tener wapp.')
+                 })
+             }
+           })
+       },
      }
  }
 </script>

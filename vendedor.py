@@ -327,7 +327,7 @@ def vendedor_getlistadodatosenviados():
 
     con = get_con()
     listadodatos = pglistdict(
-        con, "select datos.id, fecha, user,fecha_visitar,\
+        con, "select datos.id, fecha, user,fecha_visitar,idcliente,\
     art, horarios, comentarios,  dni, nombre, resultado,monto_vendido,\
     autorizado, cuota_maxima, novendermas, incobrable, sev, baja,\
     deuda_en_la_casa, vendedor, autorizado,datos.zona as zona,nosabana,\
@@ -855,8 +855,8 @@ def vendedor_getdato(iddato):
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
     clientes.zona as zona, cuota_maxima,idcliente, sin_extension,vendedor, \
     datos.dnigarante as dnigarante,idvta,monto_vendido,nosabana,\
-    wapp_verificado from datos, clientes where clientes.id = datos.idcliente \
-                  and datos.id={iddato}")
+    wapp_verificado, auth_sinwapp_verificado from datos, clientes where \
+                  clientes.id = datos.idcliente and datos.id={iddato}")
     return jsonify(dato=dato)
 
 
@@ -883,17 +883,18 @@ def vendedor_editarwapp():
     con = get_con()
     d_data = json.loads(request.data.decode("UTF-8"))
     wapp = d_data['wapp']
-    try:
-        comprueba_si_wapp_en_uso = pglist(con, f"select id from clientes \
-                                           where wapp={wapp}")
-        if len(comprueba_si_wapp_en_uso)>0:
-            return make_response("ese wapp ya esta en uso",400)
-    except mysql.connector.Error as _error:
-        con.rollback()
-        error = _error.msg
-        logging.warning(
-            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
-        return make_response(error, 400)
+    if wapp!='' and wapp is not None and wapp != 'INVALIDO':
+        try:
+            comprueba_si_wapp_en_uso = pglist(con, f"select id from clientes \
+                                            where wapp={wapp}")
+            if len(comprueba_si_wapp_en_uso)>0:
+                return make_response("ese wapp ya esta en uso",400)
+        except mysql.connector.Error as _error:
+            con.rollback()
+            error = _error.msg
+            logging.warning(
+                f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+            return make_response(error, 400)
     wapp_viejo = pgonecolumn(con, f"select wapp from clientes where id= \
     {d_data['idcliente']}")
     upd = f"update clientes set wapp='{d_data['wapp']}' where \
@@ -2085,3 +2086,23 @@ def vendedor_buscarsiexistewapp(wapp):
         if existe>1:
             existe = 0
     return jsonify(existe=existe)
+
+
+@vendedor.route('/vendedor/marcaauthsinwapp/<int:idcliente>')
+@login_required
+@check_roles(['dev', 'gerente'])
+def vendedor_marcaauthsinwapp(idcliente):
+    con = get_con()
+    upd = f"update clientes set auth_sinwapp_verificado=1 where id={idcliente}"
+    try:
+        pgexec(con, upd)
+    except mysql.connector.Error as _error:
+            con.rollback()
+            error = _error.msg
+            logging.warning(
+                f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+            return make_response(error, 400)
+    else:
+        return 'ok'
+    finally:
+        con.close()

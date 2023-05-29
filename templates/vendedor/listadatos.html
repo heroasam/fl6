@@ -65,7 +65,7 @@
       <h2 class="title is-5 no-mb" x-text="Dato.wapp?Dato.wapp:Dato.tel"></h2><img src="{{url_for('static', filename='/check.png')}}"
       x-show="Dato.wapp_verificado">
       <span class="tag is-small is-danger pointer ml-5 rounded" @click="verificarWapp(Dato.wapp, Dato.idcliente)"
-      x-show="!Dato.wapp_verificado">Verificar</span>
+      x-show="!Dato.wapp_verificado && Dato.wapp">Verificar</span>
       <span class="tag is-small is-primary pointer ml-5 rounded" @click="editarWapp">Editar</span>
       <a x-bind:href=`https://wa.me/549${Dato.wapp}?text=""` x-show="Dato.wapp">
         <img src="{{url_for('static', filename='/icon-whatsapp-small.svg')}}"></a>

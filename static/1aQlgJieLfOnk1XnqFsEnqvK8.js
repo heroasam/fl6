@@ -621,9 +621,11 @@ Quedo a la espera. Gracias.`;
                  msgError('El DNI del cliente debe coincidir con nuestros registros');
                  return;
              }
-             if (this.Dato.wapp_verificado != 1) {
-                 msgError('El whatsapp del cliente no esta verificado');
-                 return;
+             if (this.Dato.auth_sinwapp_verificado == 0) {
+                 if (this.Dato.wapp_verificado != 1) {
+                     msgError('El whatsapp del cliente no esta verificado');
+                     return;
+                 }
              }
              if(this.listaArtComprados.length==0){
                  msgError('Debe agregar articulos comprados');
