@@ -45,6 +45,7 @@
           <th>nombre</th>
           <th>direccion</th>
           <th>zona</th>
+          <th></th>
           <th>vendedor</th>
           <th class="sumar">vendido</th>
         </tr>
@@ -58,6 +59,7 @@
             <td x-text="item.nombre"></td>
             <td x-text="item.direccion"></td>
             <td x-text="item.zona"></td>
+            <td><img src="{{url_for('static', filename='/check.png')}}" x-show="item.wapp_verificado"></td>
             <td x-text="item.vendedor"></td>
             <td x-text="item.monto_vendido" class="pesos"></td>
           </tr>

@@ -119,8 +119,9 @@
         <a class="button is-black is-small" :href="'https://www.google.com/maps/place/'+Cliente.calle+'+'+Cliente.num+',+C%C3%B3rdoba'">Maps</a>
       </div>
       <p  x-show="Cliente.deuda>0" x-text="'Cobrador asignado: '+Cliente.asignado"></p>
-      <p class="subtitle subtitle-table is-4"x-text="'tel:'+Cliente.tel+' wapp:'+Cliente.wapp"></p>
-
+      <div class="flex">
+      <p class="subtitle subtitle-table is-4"x-text="'tel:'+Cliente.tel+' wapp:'+Cliente.wapp"></p><img src="{{url_for('static', filename='/check.png')}}" x-show="Cliente.wapp_verificado">
+      </div>
       <p  x-show="Cliente.acla" x-text="Cliente.acla"></p>
       <p  x-show="Cliente.mjecobr" x-text="Cliente.mjecobr"></p>
       <p  x-show="Cliente.horario" x-text="Cliente.horario"></p>
@@ -951,8 +952,6 @@
       </template>
     </tbody>
   </table>
-
-
 </div>
 {% endblock %}
 

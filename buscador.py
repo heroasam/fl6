@@ -73,7 +73,7 @@ def buscador_autorizardatos():
 
 @buscador.route('/buscador/reautorizardatos')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev','gerente','admin'])
 def buscador_reautorizardatos():
     """Pantalla generar vista de reautorizar datos."""
     return render_template("buscador/reautorizardatos.html")
@@ -81,7 +81,7 @@ def buscador_reautorizardatos():
 
 @buscador.route('/buscador/listaautorizados')
 @login_required
-@check_roles(['dev','gerente'])
+@check_roles(['dev','gerente','admin'])
 def buscador_listaautorizados():
     """Pantalla generar vista de reautorizar datos."""
     return render_template("buscador/listaautorizados.html")
@@ -174,12 +174,17 @@ def buscar_cuenta(buscar):
     cur = con.cursor(dictionary=True)
     cur.execute(sql)
     clientes = cur.fetchall()
-    if len(clientes) == 0:
+    if len(clientes) > 1:
+        cliente = 'varios'
+    elif len(clientes) == 1:
+        id = clientes[0]['id']
+        cliente = pgonecolumn(con, f"select nombre from clientes where id={id}")
+    elif len(clientes) == 0:
         error_response = jsonify({'error': error_msg})
         return make_response(error_response, 400)
     con.close()
     log_busqueda(buscar)
-    return jsonify(clientes=clientes)
+    return jsonify(clientes=clientes, cliente=cliente)
 
 
 @buscador.route('/buscador/getasignado/<zona>')

@@ -342,7 +342,7 @@ def vendedor_getlistadodatosenviados():
 
 @vendedor.route('/vendedor/asignardatosvendedor', methods=['POST'])
 @login_required
-@check_roles(['dev', 'gerente'])
+@check_roles(['dev', 'gerente','admin'])
 def vendedor_asignardatosvendedor():
     """Funcion que asigna datos a un vendedor dado.
 
@@ -370,7 +370,7 @@ def vendedor_asignardatosvendedor():
 
 @vendedor.route('/vendedor/desafectardatos', methods=['POST'])
 @login_required
-@check_roles(['dev', 'gerente'])
+@check_roles(['dev', 'gerente','admin'])
 def vendedor_desafectardatos():
     """Funcion que desafecta datos asignados a un vendedor.
 
@@ -398,7 +398,7 @@ def vendedor_desafectardatos():
 @vendedor.route('/vendedor/ingresardatoyasignardatosvendedor',
                 methods=['POST'])
 @login_required
-@check_roles(['dev', 'gerente'])
+@check_roles(['dev', 'gerente','admin'])
 def vendedor_ingresardatoyasignardatosvendedor():
     """Funcion que ingresa el dato y automaticamente asigna el vendedor.
 
@@ -456,7 +456,7 @@ def vendedor_ingresardatoyasignardatosvendedor():
 
 @vendedor.route('/vendedor/getcuotabasica')
 @login_required
-@check_roles(['dev', 'gerente'])
+@check_roles(['dev', 'gerente','admin'])
 def vendedor_getcuotabasica():
     """Simple funcion para leer la cuota basica desde la variable."""
     cuotabasica = var_sistema['cuota_basica']
@@ -1196,7 +1196,7 @@ def vendedor_getlistadoautorizadosporid(idcliente):
 
 @vendedor.route('/vendedor/getlistaautorizados')
 @login_required
-@check_roles(['dev', 'gerente'])
+@check_roles(['dev', 'gerente','admin'])
 def vendedor_getlistaautorizados():
     """Funcion que entrega lista de autorizaciones."""
 
@@ -1419,7 +1419,7 @@ def vendedor_noestabadato(iddato):
 
 @vendedor.route('/vendedor/getvisitasvendedor')
 @login_required
-@check_roles(['dev', 'gerente'])
+@check_roles(['dev', 'gerente','admin'])
 def vendedor_getvisitasvendedor():
     """Funcion que entrega lista de visitas hechas por el vendedor."""
     con = get_con()
@@ -1472,7 +1472,7 @@ def vendedor_getvisitasvdor():
 
 @vendedor.route('/vendedor/getclientesingresadosporvdor')
 @login_required
-@check_roles(['dev', 'gerente'])
+@check_roles(['dev', 'gerente','admin'])
 def vendedor_getclientesingresadosporvdor():
     """Funcion entrega lista de clientes ingresados o alterados por el vdor."""
     con = get_con()
@@ -1482,13 +1482,13 @@ def vendedor_getclientesingresadosporvdor():
 
 @vendedor.route('/vendedor/getventashoy')
 @login_required
-@check_roles(['dev', 'gerente'])
+@check_roles(['dev', 'gerente','admin'])
 def vendedor_getventashoy():
     """Funcion que entrega lista de las ventas del dia para el vendedor."""
     con = get_con()
     ventashoy = pglistdict(con, "select fecha_definido,\
     nombre,concat(calle,' ',num) as direccion,clientes.zona as zona, monto_vendido,\
-    vendedor,dni from datos,clientes where datos.idcliente = clientes.id and \
+    vendedor,dni,wapp_verificado from datos,clientes where datos.idcliente = clientes.id and \
     date(fecha_definido)=curdate() and resultado=1 order by fecha_definido")
     vendedores = pglist(con, "select id from cobr where activo=1 and vdor=1")
     wappnoenviados = pglistdict(con, "SELECT DISTINCT clientes.id as id, \
@@ -1505,7 +1505,7 @@ def vendedor_getventashoy():
 
 @vendedor.route('/vendedor/getvisitashoy')
 @login_required
-@check_roles(['dev', 'gerente'])
+@check_roles(['dev', 'gerente','admin'])
 def vendedor_getvisitashoy():
     """Funcion que entrega lista de las visitas del dia para el vendedor."""
     con = get_con()
@@ -1619,7 +1619,7 @@ def vendedor_filewapp():
 
 @vendedor.route('/vendedor/getcomisionesvendedor/<int:vdor>')
 @login_required
-@check_roles(['dev', 'gerente'])
+@check_roles(['dev', 'gerente','admin'])
 def vendedor_getcomisionesvendedor(vdor):
     """Funcion que entrega lista de comisiones por vendedor."""
 
@@ -1985,7 +1985,7 @@ def vendedor_isrespondidoauth(auth):
 
 @vendedor.route('/vendedor/motivoautorizacion/<motivo>/<int:idauth>')
 @login_required
-@check_roles(['dev', 'gerente'])
+@check_roles(['dev', 'gerente','admin'])
 def vendedor_motivoautorizacion(motivo, idauth):
     """Proceso para registrar el motivo del rechazo de una autorizacion."""
     con = get_con()
@@ -1999,7 +1999,7 @@ def vendedor_motivoautorizacion(motivo, idauth):
 
 @vendedor.route('/vendedor/comentarioautorizacion/<comentario>/<int:idauth>')
 @login_required
-@check_roles(['dev', 'gerente'])
+@check_roles(['dev', 'gerente','admin'])
 def vendedor_comentarioautorizacion(comentario, idauth):
     """Proceso para registrar el comentario del rechazo de una autorizacion."""
     con = get_con()
@@ -2093,7 +2093,7 @@ def vendedor_buscarsiexistewapp(wapp,idcliente):
 
 @vendedor.route('/vendedor/marcaauthsinwapp/<int:idcliente>')
 @login_required
-@check_roles(['dev', 'gerente'])
+@check_roles(['dev', 'gerente','admin'])
 def vendedor_marcaauthsinwapp(idcliente):
     con = get_con()
     upd = f"update clientes set auth_sinwapp_verificado=1 where id={idcliente}"
