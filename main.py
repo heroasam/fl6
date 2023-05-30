@@ -297,14 +297,22 @@ def webhook():
         data = json.loads(request.data.decode('utf-8'))
         message = data["message"]
         sender = data["from"]
-        guardar_msg(sender,message)
+        if 'time' in data:
+            time = data["time"]
+        if 'api' in data:
+            api = data["api"]
+            guardar_msg(sender,message,api,time)        
+        else:
+            guardar_msg(sender,message)
     return 'ok'
 
 
-def guardar_msg(wapp,msg):
+def guardar_msg(wapp,msg,api='5493513882892',time=None):
     """Guarda el msg recibido por el webhook en la tabla correspondiente."""
     con = get_con()
-    ins = f"insert into wappsrecibidos(wapp,msg,fecha) values('{wapp}','{msg}',NOW())"
+    if time is None:
+        time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    ins = f"insert into wappsrecibidos(wapp,msg,fecha,api) values('{wapp}','{msg}','{time}','{api}')"
     pgexec(con, ins)
     con.close()
     return

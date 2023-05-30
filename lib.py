@@ -222,6 +222,7 @@ def send_msg_whatsapp(idcliente, wapp, msg):
 
 def procesar_msg_whatsapp(wapp):
     """Funcion envia wapp de texto."""
+    api = '5493513882892'
     idcliente, wapp, msg, email, hora_despacho, _ = json.loads(wapp)
     con = get_con()
     wapp_original = wapp
@@ -261,11 +262,11 @@ def procesar_msg_whatsapp(wapp):
                 logging.warning(
                     f"mensaje {wapp} enviado a las:{str(time.ctime(time.time()))} {resultado} {time.time()}")
                 wapp_log(response.status_code, resultado, wapp,
-                         str(time.ctime(time.time())), idcliente)
+                         str(time.ctime(time.time())), idcliente,api)
                 if "Success" in response.text:
                     upd = f"update logwhatsapp set response='success',\
                     enviado={int(time.time())} where id = {idlog}"
-                    wapp_logenviados(wapp_original, msg, email)
+                    wapp_logenviados(wapp_original, msg, email,api)
                     pgexec(con, upd)
                     return 'success'
                 elif "Invalid Destination WhatsApp" in response.text:
@@ -325,6 +326,7 @@ def send_file_whatsapp(idcliente, file, wapp, msg=''):
 
 def procesar_file_whatsapp(wapp):
     """Funcion que envia wapp de file."""
+    api = '5493513882892'
     con = get_con()
     idcliente, file, wapp, email, hora_despacho, _ = json.loads(wapp)
     wapp_original = wapp
@@ -365,11 +367,11 @@ def procesar_file_whatsapp(wapp):
                 logging.warning(
                     f"mensaje {wapp} enviado a las:{str(time.ctime(time.time()))} {resultado} {time.time()}")
                 wapp_log(response.status_code, resultado, wapp,
-                         str(time.ctime(time.time())), idcliente)
+                         str(time.ctime(time.time())), idcliente,api)
                 if "Success" in response.text:
                     upd = f"update logwhatsapp set response='success',\
                     enviado={int(time.time())} where id = {idlog}"
-                    wapp_logenviados(wapp_original, file_log, email)
+                    wapp_logenviados(wapp_original, file_log, email,api)
                     pgexec(con, upd)
                     return 'success'
                 elif "Invalid Destination WhatsApp" in response.text:
@@ -401,13 +403,13 @@ def procesar_file_whatsapp(wapp):
                 break
 
 
-def wapp_logenviados(wapp, msg, user):
+def wapp_logenviados(wapp, msg, user,api):
     """Funcion que registra el wapp en la tabla wappsenviados."""
     con = get_con()
     msg = msg.replace("%20", " ")
     msg = msg.replace("'", " ")
-    ins = f"insert into wappsenviados(wapp,msg,user) values('{wapp}',\
-        '{msg}','{user}')"
+    ins = f"insert into wappsenviados(wapp,msg,user,api) values('{wapp}',\
+        '{msg}','{user}','{api}')"
     try:
         pgexec(con, ins)
     except mysql.connector.Error as _error:
@@ -419,13 +421,13 @@ def wapp_logenviados(wapp, msg, user):
     con.close()
 
 
-def wapp_log(log1, log2, wapp, tiempo, idcliente):
+def wapp_log(log1, log2, wapp, tiempo, idcliente,api):
     """Funcion que hace un log en txt de las responses de la api."""
     with open("/home/hero/log/wapp.log", "a", encoding="utf-8") as log_file:
         log_file.write('\n')
         log_file.write(str(wapp)+' '+str(log1)+' '+tiempo+' ' +
                        str(time.time())+' Idcliente:'+str(idcliente)+' '
-                       + str(log2))
+                       + str(log2) + str(api))
         log_file.close()
 
 

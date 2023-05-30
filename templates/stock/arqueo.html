@@ -71,7 +71,7 @@
             <th>imp</th>
             <th>nombre</th>
             <th></th>
-            <!-- <th></th> -->
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -81,8 +81,8 @@
               <td x-text="pago.imp"></td>
               <td x-text="pago.nombre"></td>
               <td><span class="tag is-small is-success" x-show="pago.conciliado">Conciliada</span></td>
-              <!-- <td><span class="tag is-small pointer is-primary" @click="conciliarPago(pago.id)"
-                x-show="!pago.conciliado">Conciliar</span></td> -->
+              <td><span class="tag is-small pointer is-primary" @click="conciliarPago(pago.id)"
+                x-show="!pago.conciliado">Conciliar</span></td>
             </tr>
           </template>
         </tbody>
