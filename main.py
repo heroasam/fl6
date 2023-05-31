@@ -299,20 +299,24 @@ def webhook():
         sender = data["from"]
         if 'time' in data:
             time = data["time"]
+            idtime = str(sender)+str(time)
+        else:
+            idtime = str(sender)+str(int(time.time()/1000))
         if 'api' in data:
             api = data["api"]
-            guardar_msg(sender,message,api,time)        
+            guardar_msg(sender,message,idtime,api,time)        
         else:
-            guardar_msg(sender,message)
+            guardar_msg(sender,message,idtime)
     return 'ok'
 
 
-def guardar_msg(wapp,msg,api='5493513882892',time=None):
+def guardar_msg(wapp,msg,idtime,api='5493513882892',time=None):
     """Guarda el msg recibido por el webhook en la tabla correspondiente."""
     con = get_con()
     if time is None:
         time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    ins = f"insert into wappsrecibidos(wapp,msg,fecha,api) values('{wapp}','{msg}','{time}','{api}')"
+    ins = f"insert into wappsrecibidos(wapp,msg,fecha,api,idtime) values\
+        ('{wapp}','{msg}','{time}','{api}','{idtime}')"
     pgexec(con, ins)
     con.close()
     return
@@ -374,9 +378,9 @@ def revisa_redis():
 
 def process_queue():
     while True:
-        # print('revisando process_queue', time.time())
         revisa_redis()
     
+
 # Iniciar la función de vigilancia de la cola en segundo plano
 queue_thread = threading.Thread(target=process_queue)
 queue_thread.daemon = True

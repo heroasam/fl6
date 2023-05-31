@@ -196,7 +196,7 @@ def letras(num):
         num = millares[millar]+' '+centenas[centena]+' '+sueltos[dosdigitos]
     return (num.lstrip().rstrip().upper())
 
-# http://api.textmebot.com/send.php?recipient=+905352615934&apikey=g8SX2Cz4nhWa&text==This%20is%20a%20dummy%20question&footer=Footer%20Text&button1=Yes&button2=No
+
 def send_msg_whatsapp(idcliente, wapp, msg):
     """Funcion que encola wapp de texto."""
     tipo = 'texto'
@@ -220,20 +220,42 @@ def send_msg_whatsapp(idcliente, wapp, msg):
     queue_wapps.rpush('hora', hora_despacho)
 
 
-def procesar_msg_whatsapp(wapp):
+def get_msgs(api='5493515919883'):
+    payload = f"https://heroasam.xyz/readAllMsgs"
+    try:
+        response = requests.request("GET", payload)
+    except requests.Timeout:
+        # Manejo del error de tiempo de espera
+        return "Tiempo de espera de la solicitud agotado"
+    except requests.RequestException as e:
+        # Manejo de otros errores de solicitud
+        logging.warning(f"errores de RequestException {str(e)}")
+        return str(e)
+    else:
+        print(response.text)
+        return response
+    
+
+def procesar_msg_whatsapp(wapp, api = '5493513882892'):
     """Funcion envia wapp de texto."""
-    api = '5493513882892'
     idcliente, wapp, msg, email, hora_despacho, _ = json.loads(wapp)
     con = get_con()
-    wapp_original = wapp
+    api = pgonecolumn(con, f"select api from wappsrecibidos where wapp=\
+                      '549{wapp}' and id = (select max(id) from \
+                      wappsrecibidos where wapp='549{wapp}')")
+    if api == '':
+        api = '54935919883'
     pattern = r'^[0-9]+$'
-    if re.match(pattern, wapp_original) == None:
+    if re.match(pattern, wapp) == None:
         return 'error', 402
-    wapp = "+549"+wapp
-    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&\
-            apikey=kGdEFC1HvHVJ&text={msg}"
+    if api == '5493513882892':
+        wapp = "+549"+wapp
+        payload = f"https://api.textmebot.com/send.php?recipient={wapp}&\
+                apikey=kGdEFC1HvHVJ&text={msg}"
+    elif api == '5493515919883':
+        payload = f"https://heroasam.xyz/sendMsg/{wapp}/{msg}"
     ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,\
-    timeout,response,enviado,fecha) values({idcliente},'{wapp_original}',\
+    timeout,response,enviado,fecha) values({idcliente},'{wapp}',\
     '{msg.replace('%20',' ')[:100]}','','{email}',{int(time.time())}\
     ,0,'',0,curdate())"
     pgexec(con, ins)
@@ -244,10 +266,10 @@ def procesar_msg_whatsapp(wapp):
                 f"hora_despacho {hora_despacho} time {time.time()}")
             try:
                 # Establece un tiempo máximo de 5 segundos para la respuesta
-                response = requests.request("GET", payload, timeout=8)
+                response = requests.request("GET", payload)
             except requests.Timeout:
                 # Manejo del error de tiempo de espera
-                send_msg_whatsapp(idcliente, wapp_original, msg)
+                send_msg_whatsapp(idcliente, wapp, msg)
                 logging.warning(f"Tiempo de espera agotado para {wapp}")
                 return "Tiempo de espera de la solicitud agotado"
             except requests.RequestException as e:
@@ -256,41 +278,44 @@ def procesar_msg_whatsapp(wapp):
                 return str(e)
             else:
                 resultado = 'ninguno'
-                match = re.search(r"Result: <b>(.*?)</b>", response.text)
-                if match:
-                    resultado = match.group(1)
+                if api == "5493513882892":
+                    match = re.search(r"Result: <b>(.*?)</b>", response.text)
+                    if match:
+                        resultado = match.group(1)
+                else:
+                    resultado = response.text
                 logging.warning(
                     f"mensaje {wapp} enviado a las:{str(time.ctime(time.time()))} {resultado} {time.time()}")
                 wapp_log(response.status_code, resultado, wapp,
                          str(time.ctime(time.time())), idcliente,api)
-                if "Success" in response.text:
+                if "Success" in resultado or "success" in resultado:
                     upd = f"update logwhatsapp set response='success',\
                     enviado={int(time.time())} where id = {idlog}"
-                    wapp_logenviados(wapp_original, msg, email,api)
+                    wapp_logenviados(wapp, msg, email,api)
                     pgexec(con, upd)
                     return 'success'
-                elif "Invalid Destination WhatsApp" in response.text:
+                elif "Invalid Destination WhatsApp" in resultado:
                     updinv = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' \
                             where id={idcliente}"
                     upd = f"update logwhatsapp set response='invalid', enviado=\
                             {int(time.time())} where id = {idlog}"
                     logging.warning(
-                        f"ante envio Invalid Destination WhatsApp: {response.text}")
+                        f"ante envio Invalid Destination WhatsApp: {resultado}")
                     pgexec(con, updinv)
                     pgexec(con, upd)
                     return 'invalid'
-                elif "Failed" in response.text:
+                elif "Failed" in resultado:
                     upd = f"update logwhatsapp set response='failed', enviado=\
                             {int(time.time())} where id = {idlog}"
                     logging.warning(
-                        f"ante envio Failed: {response.text}")
+                        f"ante envio Failed: {resultado}")
                     pgexec(con, upd)
                     return 'failed'
-                elif "limit" in response.text:
+                elif "limit" in resultado:
                     upd = f"update logwhatsapp set response='limit', enviado=\
                             {int(time.time())} where id = {idlog}"
                     logging.warning(
-                        f"ante envio Limit: {response.text}")
+                        f"ante envio Limit: {resultado}")
                     pgexec(con, upd)
                     return 'limit'
                 else:

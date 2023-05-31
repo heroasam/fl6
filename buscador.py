@@ -8,7 +8,7 @@ from flask import Blueprint, render_template, jsonify, make_response, request,\
     send_file
 from flask_login import login_required, current_user
 from lib import pgonecolumn, pglistdict, send_msg_whatsapp, send_file_whatsapp, \
-    pglist, log_busqueda, listsql, actualizar, pgexec
+    pglist, log_busqueda, listsql, actualizar, pgexec, get_msgs
 from formularios import intimacion, libredeuda, ficha, recibotransferencia
 from con import get_con, log, check_roles
 # from vendedor import editar_cntwapp
@@ -1005,6 +1005,7 @@ def buscar_registrarwapp():
 @login_required
 @check_roles(['dev','gerente','admin'])
 def buscar_obtenerwapps(wapp):
+    get_msgs()
     con = get_con()
     if len(wapp) > 10:
         wapp = wapp[:10]
@@ -1024,6 +1025,7 @@ def buscar_obtenerwapps(wapp):
 @login_required
 @check_roles(['dev','gerente','admin'])
 def buscar_obtenertodoswapps():
+    get_msgs()
     con = get_con()
     recibidos = pglistdict(con, "select fecha,msg,wapp from wappsrecibidos \
                            where wapp in (select wapp from wappsrecibidos \
