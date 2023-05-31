@@ -298,13 +298,13 @@ def webhook():
         message = data["message"]
         sender = data["from"]
         if 'time' in data:
-            time = data["time"]
-            idtime = str(sender)+str(time)
+            hora = data["time"]
+            idtime = str(sender)+str(hora)
         else:
-            idtime = str(sender)+str(int(time.time()/1000))
+            idtime = str(sender)+str(int(time.time()*1000))
         if 'api' in data:
             api = data["api"]
-            guardar_msg(sender,message,idtime,api,time)        
+            guardar_msg(sender,message,idtime,api,hora)        
         else:
             guardar_msg(sender,message,idtime)
     return 'ok'

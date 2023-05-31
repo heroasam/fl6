@@ -350,7 +350,7 @@ def send_file_whatsapp(idcliente, file, wapp, msg=''):
 
 
 def procesar_file_whatsapp(wapp):
-    """Funcion que envia wapp de file."""
+    """Funcion que envia wapp de file  ."""
     api = '5493513882892'
     con = get_con()
     idcliente, file, wapp, email, hora_despacho, _ = json.loads(wapp)
@@ -433,6 +433,7 @@ def wapp_logenviados(wapp, msg, user,api):
     con = get_con()
     msg = msg.replace("%20", " ")
     msg = msg.replace("'", " ")
+    wapp = wapp[-10:]
     ins = f"insert into wappsenviados(wapp,msg,user,api) values('{wapp}',\
         '{msg}','{user}','{api}')"
     try:
