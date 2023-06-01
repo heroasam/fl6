@@ -233,6 +233,7 @@ def get_msgs(api='5493515919883'):
         return str(e)
     else:
         print(response.text)
+        logging.info(f"request allmsg api2 {time.time()} {response.text}")
         return response
     
 
@@ -240,11 +241,13 @@ def procesar_msg_whatsapp(wapp, api = '5493513882892'):
     """Funcion envia wapp de texto."""
     idcliente, wapp, msg, email, hora_despacho, _ = json.loads(wapp)
     con = get_con()
-    api = pgonecolumn(con, f"select api from wappsrecibidos where wapp=\
-                      '549{wapp}' and id = (select max(id) from \
-                      wappsrecibidos where wapp='549{wapp}')")
-    if api == '':
-        api = '54935919883'
+    # api = pgonecolumn(con, f"select api from wappsrecibidos where wapp=\
+    #                   '549{wapp}' and id = (select max(id) from \
+    #                   wappsrecibidos where wapp='549{wapp}')")
+    # if api == '':
+    #     api = '54935919883'
+    if wapp == '5493512411963' or wapp == '3512411963':
+        api = '5493515919883'
     pattern = r'^[0-9]+$'
     if re.match(pattern, wapp) == None:
         return 'error', 402

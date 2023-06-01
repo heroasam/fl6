@@ -716,12 +716,12 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
                      axios.post('/4qUK6eNZnCYjIiGTt3HSj2YDp',data)
                  })
          },
-         async informa(tipo,idvta,vendedor){
+         async informa(tipo,idvta,vendedor,nombre){
              const botones = document.getElementsByClassName('desactivable');
              for (let boton of botones){
                  boton.disabled = true;
              }
-             let msg = `DEVOLUCION: Informo el retiro ${tipo.toUpperCase()} de la mercaderia correspondiente a la cuenta ${idvta}. Vendedor ${vendedor}`
+             let msg = `DEVOLUCION: Informo el retiro ${tipo.toUpperCase()} de la mercaderia correspondiente a la cuenta ${idvta} de ${nombre}. Vendedor ${vendedor}`
              if(tipo!='Total') {
                  const { value: text } = await Swal.fire({
                      input: 'textarea',
@@ -739,11 +739,12 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
                  }
              }
               let data = {idcliente:0, wapp:'3512411963', msg}
-              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
+             // ruta para /vendedor/wapp
                    axios.post('/hX53695XAOpaLY9itLgmghkhH',data)
                  .then(res=>{
                      //ruta : /vendedor/visitadevolucion'
-                     axios.post('/S0rjYKB35QIcHunPmebg2tmr1',{tipo,idvta,vendedor})
+                     axios.post('/S0rjYKB35QIcHunPmebg2tmr1',{tipo,idvta,vendedor,msg:data.msg})
                            msgSuccessSB("El informe ya fue enviado")
                        })
          },

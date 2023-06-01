@@ -293,21 +293,30 @@ def log6_log():
 def webhook():
     """api wapp webhook"""
     # read and parse input data
+    logging.error('funcion webhook llamada')
+    con = get_con()
     if request.method == 'POST':
         data = json.loads(request.data.decode('utf-8'))
+        logging.error(f"webhook {data}")
         message = data["message"]
         sender = data["from"]
         if 'time' in data:
-            hora = data["time"]
-            idtime = str(sender)+str(hora)
+            hora = str(data["time"])
+            hora = datetime.strptime(hora, '%Y-%m-%d %H:%M:%S')
+            timestamp = str(int(hora.timestamp()))+str(int(time.time()*1000000))[-6:-3]
+            idtime = str(sender)+timestamp
+            logging.error(f"hora {hora} wapp {sender}")
+            existe_msg = pgonecolumn(con,f"select id from wappsrecibidos where \
+                                     fecha='{hora}' and wapp={sender}")
+            logging.error(f"existe_msg{existe_msg}")
+            if existe_msg == '' or existe_msg is None:
+                api = data["api"]
+                guardar_msg(sender,message,idtime,api,hora)  
+                logging.error('se procede a guardar message')      
         else:
             idtime = str(sender)+str(int(time.time()*1000))
-        if 'api' in data:
-            api = data["api"]
-            guardar_msg(sender,message,idtime,api,hora)        
-        else:
             guardar_msg(sender,message,idtime)
-    return 'ok'
+        return 'ok'
 
 
 def guardar_msg(wapp,msg,idtime,api='5493513882892',time=None):

@@ -62,6 +62,8 @@ class MyFPDF(FPDF):
 
 
 def ficha(con,ldni, total_cobrable=None, total_cobrado=None):
+    if total_cobrado=='' or total_cobrado is None:
+        total_cobrado = 0
     pdf=MyFPDF()
     pdf.set_margins(30,15)
     pdf.add_page()
@@ -352,6 +354,8 @@ def intimacion(con,ldni):
 
 
 def loterbo(con, lrbo, fecha, cobr, idlote, estimado, cobrado):
+    if cobrado == '' or cobrado is None:
+        cobrado = 0
     pdf=FPDF()
     pdf.set_margins(10,10)
     pdf.add_page()

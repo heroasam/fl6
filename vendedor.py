@@ -2034,11 +2034,21 @@ def vendedor_visitadevolucion():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     iddato = pgonecolumn(con, f"select id from datos where idvta={d['idvta']}")
+    updvta = f"update ventas set retirado=1,com_retirado='{d['msg']}' where id={d['idvta']}"
     ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
     values(curdate(),curtime(),{d['vendedor']},{iddato},7,0)"
-    pgexec(con, ins)
-    con.close()
-    return 'ok'
+    try:
+        pgexec(con, ins)
+        pgexec(con, updvta)
+    except mysql.connector.Error as _error:
+            con.rollback()
+            error = _error.msg
+            logging.warning(
+                f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+            return make_response(error, 400)
+    else:
+        con.close()
+        return 'ok'
 
 
 @vendedor.route('/vendedor/asignawappacliente/<string:wapp>/<int:idcliente>')
