@@ -1486,6 +1486,11 @@ def vendedor_getclientesingresadosporvdor():
 def vendedor_getventashoy():
     """Funcion que entrega lista de las ventas del dia para el vendedor."""
     con = get_con()
+    devol_pend_registrar = pglistdict(con, "select ventas.id as id,\
+                                      comentario_retirado,\
+                                      dni from ventas,clientes where \
+                                      clientes.id = ventas.idcliente and \
+                                      retirado=1 and devol_procesada=0")
     ventashoy = pglistdict(con, "select fecha_definido,\
     nombre,concat(calle,' ',num) as direccion,clientes.zona as zona, monto_vendido,\
     vendedor,dni,wapp_verificado from datos,clientes where datos.idcliente = clientes.id and \
@@ -1500,7 +1505,8 @@ def vendedor_getventashoy():
                                 AND sendwapp = 0 and pp= 0 and devuelta = 0 \
                                 and wapp!= '' and wapp is not null")
     return jsonify(ventashoy=ventashoy, vendedores=vendedores,
-                   wappnoenviados=wappnoenviados)
+                   wappnoenviados=wappnoenviados,devolpendregistrar=\
+                    devol_pend_registrar)
 
 
 @vendedor.route('/vendedor/getvisitashoy')
@@ -2034,7 +2040,7 @@ def vendedor_visitadevolucion():
     con = get_con()
     d = json.loads(request.data.decode("UTF-8"))
     iddato = pgonecolumn(con, f"select id from datos where idvta={d['idvta']}")
-    updvta = f"update ventas set retirado=1,com_retirado='{d['msg']}' where id={d['idvta']}"
+    updvta = f"update ventas set retirado=1,comentario_retirado='{d['msg']}' where id={d['idvta']}"
     ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
     values(curdate(),curtime(),{d['vendedor']},{iddato},7,0)"
     try:

@@ -903,6 +903,9 @@ def ventas_devolucion_procesar():
     upd_dato = f"update datos set quiere_devolver=0 where idcliente={idcliente}"
     cur.execute(upd_proceso)
     cur.execute(upd_dato)
+    # update devol_procesada en ventas
+    upd_ventas = f"update ventas set devol_procesada=1 where id={idvta}"
+    cur.execute(upd_ventas)
     con.commit()
     log(upd)
     con.close()

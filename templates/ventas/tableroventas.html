@@ -16,6 +16,7 @@
     <p class="title is-1">Tablero Ventas</p>
     <a class="tag is-danger is-large" style="text-decoration:none;" href="/buscador/reautorizardatos">Autorizar Datos</a>
     <a class="tag is-small is-warning pointer" x-show="listaWappsNoEnviados.length" href="#table-wappnoenviados">Hay wapp notificaciones ventas no enviados</a>
+    <a class="tag is-small is-warning pointer" x-show="listaDevoluciones.length" href="#table-devoluciones">Hay devoluciones no procesadas</a>
   </div>
   <p class="title is-3" x-show="isMobile">Tablero Ventas</p>
 
@@ -120,6 +121,27 @@
     </tbody>
   </table>
 </div>
+<div x-show="listaDevoluciones.length">
+  <p class="title is-1">Devoluciones pendientes de Procesar</p>
+  <table class="table" id="table-devoluciones">
+    <thead>
+      <tr>
+        <th></th>
+        <th>idvta</th>
+        <th>comentario</th>
+      </tr>
+    </thead>
+    <tbody>
+      <template x-for="item in listaDevoluciones">
+        <tr>
+          <td><a href="/ventas/devolucion", target="_blank" @click="textToClipboard(item.id)">Ver</a></td>
+          <td x-text="item.id"></td>
+          <td x-text="item.comentario_retirado"></td>
+        </tr>
+      </template>
+    </tbody>
+  </table>
+</div>
 </div>
 {% endblock %}
 
@@ -138,6 +160,7 @@
       listaVendedores: [],
       listadoAutorizados: [],
       listaWappsNoEnviados:[],
+      listaDevoluciones:[],
       getListadoAutorizados() {
         axios.get('/vendedor/getlistadoautorizados')
           .then(res => {
@@ -151,6 +174,7 @@
           .then(res => {
             this.listaVentasHoy = res.data.ventashoy
             this.listaWappsNoEnviados = res.data.wappnoenviados
+            this.listaDevoluciones = res.data.devolpendregistrar
             let largo = this.listaVentasHoy.length
             if (largo > 0) {
               let ultimarow = this.listaVentasHoy[largo - 1]

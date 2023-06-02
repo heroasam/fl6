@@ -738,7 +738,8 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
                      return
                  }
              }
-              let data = {idcliente:0, wapp:'3512411963', msg}
+             //let data = { idcliente: 0, wapp:'3512554646', msg}
+             let data = { idcliente: 0, wapp:'3512411963', msg}
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
              // ruta para /vendedor/wapp
                    axios.post('/hX53695XAOpaLY9itLgmghkhH',data)
