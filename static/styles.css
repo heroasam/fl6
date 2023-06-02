@@ -553,8 +553,8 @@ button.copied::before {
 .btn-whatsapp {
     position: fixed;
     z-index: 999;
-    top: 22%;
-    left: 50%;
+    bottom: 50px;
+    right: 50px;
 }
 .btn-whatsapp:before,
 .btn-whatsapp:after {

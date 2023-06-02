@@ -195,8 +195,8 @@
       <div>
       <a href="#table-comentarios" class="tag is-small is-warning"
 	     x-show="listaComentarios.length">Hay comentarios</a>
-       <a href="#table-wapps" x-show="listaWapps.length" 
-       :class="isMobileDevice?'btn-whatsapp-mobile':'btn-whatsapp'"">
+       <a href="#lista-emojis" x-show="listaWapps.length" 
+       class="btn-whatsapp" @contextmenu="idbuscar.scrollIntoView()">
        <img src="{{url_for('static', filename='/icon-whatsapp.svg')}}"></a>
        <!-- <span class="tag is-small is-success" x-show="listaWapps.length" @click="idButtonContestar.scrollIntoView()">Hay whatsapp</span> -->
       <span class="tag is-small is-info" x-show="tieneDato">Tiene Dato</span>
@@ -630,7 +630,7 @@
           </template>
         </tbody>
       </table>
-      <div x-show="contestarWapp && verCard">
+      <div x-show="listaWapps.length && verCard">
         <div>
         <label for="msg" class="label">Mensaje</label>    
         <textarea x-model="msgWhatsapp" id="msg" autocomplete="off" rows="5" cols="62"></textarea>
@@ -643,7 +643,7 @@
           <span class="tag is-medium is-success is-rounded pointer" x-text="b.nombre" @click="sendMsg(b.msg)"></span>
         </template>
         </div>
-        <div class="flex">
+        <div class="flex" id="lista-emojis">
           <template x-for="emoji  in listaEmojis">
             <span class="is-black is-rounded pointer emoji" x-html="decodeURIComponent(emoji)" 
             @click="addEmoji(decodeURIComponent(emoji))"></span>
