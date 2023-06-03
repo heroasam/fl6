@@ -112,7 +112,7 @@ def fichas_intimarpdf():
         if wapp:
             idcliente = pgonecolumn(con, f"select id from clientes where dni={dni}")
             intimacion(con, [dni])
-            response = send_file_whatsapp(idcliente,f'https://www.fedesal.lol/pdf/intimacion{dni}.pdf', wapp)
+            response = send_file_whatsapp(idcliente,f'https://fedesal.lol/pdf/intimacion{dni}.pdf', wapp)
             if response == 'success':
                 upd = f"update clientes set fechaintimacion=curdate() where dni={dni}"
                 cur = con.cursor()

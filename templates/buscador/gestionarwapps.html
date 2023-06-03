@@ -11,7 +11,7 @@
     <button class="button is-info" @click="getNombresWapps()">Actualizar</button>
   </div>
 
-  <table class="table noselect is-narrow">
+  <table class="table noselect is-narrow" id="table-wapps">
     <thead>
       <tr>
         <th></th>
@@ -144,6 +144,9 @@
           return
         }
         this.listaWapps_ = this.listaWapps.filter(row => row.wapp.includes(wapp.slice(-10)))
+        // se reduce esta lista a un maximo de 5 mensajes y se la ordena por fecha inverso
+        this.listaWapps_.sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+        this.listaWapps_ = this.listaWapps_.slice(0,5)
         this.wapp = wapp
         $tbody = document.querySelector('tbody')
         $trwapp = document.getElementById(String(wapp))
@@ -178,6 +181,13 @@
       marcarRespondidoWappOficial(wapp,nombre) {
         axios.get('/buscador/marcarrespondidoporwappoficial/' + wapp+'/'+nombre)
           .then(res => {
+            $tbody = document.querySelector('tbody')
+            $trwapp = document.getElementById(String(wapp))
+            let arrayrows = Array.from($tbody.children)
+            let children = arrayrows.filter(row => row.classList.contains('children'))
+            for (el of children) {
+              el.remove()
+            }
             this.getWapps()
           })
           .catch(err=>console.log(err))

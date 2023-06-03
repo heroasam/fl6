@@ -1618,7 +1618,7 @@ def vendedor_filewapp():
     #     prod=1
     if wapp:
         response = send_file_whatsapp(
-            idcliente, f"https://www.fedesal.lol/pdf/{file}.pdf", wapp)
+            idcliente, f"https://fedesal.lol/pdf/{file}.pdf", wapp)
         return jsonify(response=response)
     return 'error', 400
 

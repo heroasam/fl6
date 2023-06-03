@@ -10,9 +10,10 @@ from flask_login import current_user
 from flask import make_response
 import mysql.connector
 from con import get_con, log
-# import base64, urllib
+from urllib.parse import quote
 import redis
 import simplejson as json
+import base64
 
 
 queue_wapps = redis.Redis()
@@ -20,6 +21,14 @@ FORMAT = '%(asctime)s  %(message)s'
 logging.basicConfig(format=FORMAT)
 
 
+
+def convert_file_to_base64(file_path):
+    with open(file_path, "rb") as file:
+        pdf_bytes = file.read()
+        base64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
+        return base64_pdf
+
+    
 def pgtuple(con, sel):
     """Funcion que entrega una tupla de valores listo para desempacar.
 
@@ -233,12 +242,13 @@ def get_msgs(api='5493515919883'):
         return str(e)
     else:
         print(response.text)
-        logging.info(f"request allmsg api2 {time.time()} {response.text}")
+        logging.warning(f"request allmsg api2 {time.time()} {response.text}")
         return response
     
 
 def procesar_msg_whatsapp(wapp, api = '5493513882892'):
     """Funcion envia wapp de texto."""
+    logging.warning("ejecutandose msg_whatsapp")
     idcliente, wapp, msg, email, hora_despacho, _ = json.loads(wapp)
     con = get_con()
     # api = pgonecolumn(con, f"select api from wappsrecibidos where wapp=\
@@ -352,22 +362,27 @@ def send_file_whatsapp(idcliente, file, wapp, msg=''):
     time.sleep(1)
 
 
-def procesar_file_whatsapp(wapp):
+def procesar_file_whatsapp(wapp, api = '5493513882892'):
     """Funcion que envia wapp de file  ."""
+    logging.warning("procesar_file_whatsapp")
     api = '5493513882892'
     con = get_con()
     idcliente, file, wapp, email, hora_despacho, _ = json.loads(wapp)
-    wapp_original = wapp
+    # api = pgonecolumn(con, f"select api from wappsrecibidos where wapp=\
+    #                   '549{wapp}' and id = (select max(id) from \
+    #                   wappsrecibidos where wapp='549{wapp}')")
+    # if api == '':
+    #     api = '54935919883'
+    if wapp == '5493512411963' or wapp == '3512411963':
+        api = '5493515919883'
+    logging.warning(f"api {api}")
     pattern = r'^[0-9]+$'
-    if re.match(pattern, wapp_original) == None:
+    if re.match(pattern, wapp) == None:
         return 'error', 402
     file_log = os.path.split(file)[1]
-    wapp = "+549"+wapp
-    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&\
-            apikey=kGdEFC1HvHVJ&document={file}"
     ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,\
             timeout,response,enviado,fecha) values({idcliente},\
-            '{wapp_original}','','{file_log}'\
+            '{wapp}','','{file_log}'\
             ,'{email}',{int(time.time())},0,'',0,curdate())"
     pgexec(con, ins)
     idlog = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
@@ -376,11 +391,22 @@ def procesar_file_whatsapp(wapp):
             logging.warning(
                 f"hora_despacho {hora_despacho} time {time.time()}")
             try:
+                # logging.warning(f"api{api}")
                 # Establece un tiempo máximo de 5 segundos para la respuesta
-                response = requests.request("GET", payload, timeout=8)
+                if api=='5493513882892':
+                    wapp = "+549"+wapp
+                    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&\
+                                apikey=kGdEFC1HvHVJ&document={file}"
+                    response = requests.request("GET", payload, timeout=8)
+                else:
+                    data = {'wapp':wapp,'file':file}
+                    # logging.warning(f"data={data}")
+                    payload = "https://heroasam.xyz/sendFile"
+                    response =requests.post(payload, data=data)
+                    # logging.warning(f"response del POST --> {response.text}")
             except requests.Timeout:
                 # Manejo del error de tiempo de espera
-                send_file_whatsapp(idcliente, file, wapp_original)
+                send_file_whatsapp(idcliente, file, wapp)
                 logging.warning(f"Tiempo de espera agotado para {wapp}")
                 return "Tiempo de espera de la solicitud agotado"
             except requests.RequestException as e:
@@ -389,39 +415,42 @@ def procesar_file_whatsapp(wapp):
                 return str(e)
             else:
                 resultado = 'ninguno'
-                match = re.search(r"Result: <b>(.*?)</b>", response.text)
-                if match:
-                    resultado = match.group(1)
+                if api == "5493513882892":
+                    match = re.search(r"Result: <b>(.*?)</b>", response.text)
+                    if match:
+                        resultado = match.group(1)
+                else:
+                    resultado = response.text
                 logging.warning(
                     f"mensaje {wapp} enviado a las:{str(time.ctime(time.time()))} {resultado} {time.time()}")
                 wapp_log(response.status_code, resultado, wapp,
                          str(time.ctime(time.time())), idcliente,api)
-                if "Success" in response.text:
+                if "Success" in resultado:
                     upd = f"update logwhatsapp set response='success',\
                     enviado={int(time.time())} where id = {idlog}"
-                    wapp_logenviados(wapp_original, file_log, email,api)
+                    wapp_logenviados(wapp, file_log, email,api)
                     pgexec(con, upd)
                     return 'success'
-                elif "Invalid Destination WhatsApp" in response.text:
+                elif "Invalid Destination WhatsApp" in resultado:
                     updinv = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' \
                             where id={idcliente}"
                     upd = f"update logwhatsapp set response='invalid', enviado=\
                             {int(time.time())} where id = {idlog}"
                     logging.warning(
-                        f"ante envio Invalid Destination WhatsApp: {response.text}")
+                        f"ante envio Invalid Destination WhatsApp: {resultado}")
                     pgexec(con, updinv)
                     pgexec(con, upd)
                     return 'invalid'
-                elif "Failed" in response.text:
+                elif "Failed" in resultado:
                     upd = f"update logwhatsapp set response='failed', enviado=\
                             {int(time.time())} where id = {idlog}"
-                    logging.warning(f"ante envio Failed: {response.text}")
+                    logging.warning(f"ante envio Failed: {resultado}")
                     pgexec(con, upd)
                     return 'failed'
-                elif "limit" in response.text:
+                elif "limit" in resultado:
                     upd = f"update logwhatsapp set response='limit', enviado=\
                             {int(time.time())} where id = {idlog}"
-                    logging.warning(f"ante envio Limit: {response.text}")
+                    logging.warning(f"ante envio Limit: {resultado}")
                     pgexec(con, upd)
                     return 'limit'
                 else:

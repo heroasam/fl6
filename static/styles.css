@@ -543,12 +543,7 @@ button.copied::before {
     display: inline-block;
 }
 
-/**
- *
- * @author      Jeison Sánchez <jeison@nigma.co>
- * @website     https://www.nigma.co
- *
- */
+
 
 .btn-whatsapp {
     position: fixed;

@@ -27,6 +27,7 @@ from datetime import datetime
 import logging
 import time
 import threading
+import base64
 
 
 app = Flask(__name__)
@@ -293,11 +294,11 @@ def log6_log():
 def webhook():
     """api wapp webhook"""
     # read and parse input data
-    logging.error('funcion webhook llamada')
+    # logging.error('funcion webhook llamada')
     con = get_con()
     if request.method == 'POST':
         data = json.loads(request.data.decode('utf-8'))
-        logging.error(f"webhook {data}")
+        # logging.error(f"webhook {data}")
         message = data["message"]
         sender = data["from"]
         if 'time' in data:
@@ -305,13 +306,23 @@ def webhook():
             hora = datetime.strptime(hora, '%Y-%m-%d %H:%M:%S')
             timestamp = str(int(hora.timestamp()))+str(int(time.time()*1000000))[-6:-3]
             idtime = str(sender)+timestamp
-            logging.error(f"hora {hora} wapp {sender}")
+            # logging.error(f"hora {hora} wapp {sender}")
             existe_msg = pgonecolumn(con,f"select id from wappsrecibidos where \
                                      fecha='{hora}' and wapp={sender}")
-            logging.error(f"existe_msg{existe_msg}")
+            # logging.error(f"existe_msg{existe_msg}")
             if existe_msg == '' or existe_msg is None:
+                if 'media' in data:
+                    # media = base64.b64encode(bytes(data["media"]["base64"], 'utf-8'))   
+                    media = base64.b64decode(data["media"]["base64"])
+                    # logging.info(media)
+                    if data["tipo"]=='document' and message=='':
+                        message = 'pdf'
+                    elif data["tipo"]=='document' and message!='' and 'pdf' not in message:
+                        message = message + ' ' + 'pdf'
+                else:
+                    media = ""
                 api = data["api"]
-                guardar_msg(sender,message,idtime,api,hora)  
+                guardar_msg(sender,message,idtime,api,hora,media)  
                 logging.error('se procede a guardar message')      
         else:
             idtime = str(sender)+str(int(time.time()*1000))
@@ -319,16 +330,30 @@ def webhook():
         return 'ok'
 
 
-def guardar_msg(wapp,msg,idtime,api='5493513882892',time=None):
+def guardar_msg(wapp,msg,idtime,api='5493513882892',time=None, media=None):
     """Guarda el msg recibido por el webhook en la tabla correspondiente."""
     con = get_con()
     if time is None:
         time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     ins = f"insert into wappsrecibidos(wapp,msg,fecha,api,idtime) values\
         ('{wapp}','{msg}','{time}','{api}','{idtime}')"
-    pgexec(con, ins)
-    con.close()
-    return
+    try:
+        pgexec(con, ins)
+        if media is not None:
+            id = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
+            filename = os.path.join('/home/hero/',str(id)+'.pdf')
+            with open(filename, 'wb') as f:
+            # escribir el contenido de la respuesta en el archivo
+                f.write(media)
+    except mysql.connector.Error as _error:
+            con.rollback()
+            error = _error.msg
+            logging.warning(
+                f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+            return make_response(error, 400)
+    else:
+        con.close()
+        return
 
 
 @app.template_filter()

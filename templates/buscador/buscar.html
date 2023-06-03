@@ -618,41 +618,47 @@
             <th>fecha</th>
             <th>msg</th>
             <th>user</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           <template x-for="item in listaWapps">
-          <tr :class="item.user?'wapp_respuesta':''">
-            <td x-text="item.fecha" style="min-width: 200px;"></td>
-            <td x-text="item.msg"></td>
-            <td x-text="item.user||''"></td>
-          </tr>
-          </template>
-        </tbody>
-      </table>
-      <div x-show="listaWapps.length && verCard">
-        <div>
-        <label for="msg" class="label">Mensaje</label>    
-        <textarea x-model="msgWhatsapp" id="msg" autocomplete="off" rows="5" cols="62"></textarea>
+            <tr :class="item.user?'wapp_respuesta':''">
+              <td x-text="item.fecha" style="min-width: 200px;"></td>
+              <td><span class="tag is-small pointer" x-show="item.msg.includes('pdf')" 
+                @click="verPdf(item.id)">Ver</span></td>
+                <td x-text="item.msg" style="max-width: 400px;"></td>
+                <td x-text="item.user||''"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+        <div x-show="listaWapps.length && verCard">
+          <div>
+            <label for="msg" class="label">Mensaje</label>    
+            <textarea x-model="msgWhatsapp" id="msg" autocomplete="off" rows="5" cols="62"></textarea>
+          </div>
+          <div class="flex">
+            <div x-ref="button-wapps">
+              <span class="tag is-medium is-info is-rounded pointer" @click="responderWapp()" id="buttonEnviar">Enviar</span>
+            </div>
+            <template x-for="b in listaBtnWapp">
+              <span class="tag is-medium is-success is-rounded pointer" x-text="b.nombre" @click="sendMsg(b.msg)"></span>
+            </template>
+          </div>
+          <div class="flex" id="lista-emojis">
+            <template x-for="emoji  in listaEmojis">
+              <span class="is-black is-rounded pointer emoji" x-html="decodeURIComponent(emoji)" 
+              @click="addEmoji(decodeURIComponent(emoji))"></span>
+            </template>
+          </div>
         </div>
-        <div class="flex">
-        <div x-ref="button-wapps">
-        <span class="tag is-medium is-info is-rounded pointer" @click="responderWapp()" id="buttonEnviar">Enviar</span>
-        </div>
-        <template x-for="b in listaBtnWapp">
-          <span class="tag is-medium is-success is-rounded pointer" x-text="b.nombre" @click="sendMsg(b.msg)"></span>
-        </template>
-        </div>
-        <div class="flex" id="lista-emojis">
-          <template x-for="emoji  in listaEmojis">
-            <span class="is-black is-rounded pointer emoji" x-html="decodeURIComponent(emoji)" 
-            @click="addEmoji(decodeURIComponent(emoji))"></span>
-          </template>
+        <div style="width: 600px; height: 600px; overflow: auto;" x-show="verCard && listaWapps.length&&verCanvas">
+          <canvas id="visorPdf"  width="1200" height="1200"></canvas>
         </div>
       </div>
     </div>
-   </div>
-   <!-- MODALES -->
+    <!-- MODALES -->
   <!-- bulma-modal edicion-pmo-vto -->
   <div class="modal" id="modal-edicion-pmovto">
     <div class="modal-background"></div>
@@ -1013,6 +1019,7 @@
          cntCompartenWapp:1,
          statusCopiar:'Copiar',
          idButtonEnviar:'',
+         verCanvas:false,
          remapeaEmojis(){
           this.listaEmojis = this.listaEmojis.map(row=>row = '%'+row.replaceAll(' ', '%'))
          },
@@ -1083,6 +1090,10 @@
                   })
          },
 	     resetBuscar(){
+           var canvas = document.getElementById('visorPdf');
+           var context = canvas.getContext('2d');
+           this.verCanvas = false;
+           context.clearRect(0, 0, canvas.width, canvas.height);
 	         this.Cliente={}
 	         this.listaClientes_=[]
 	         this.listaVentas=[]
@@ -1896,6 +1907,38 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
        addEmoji(emoji){
         this.msgWhatsapp += emoji
        },
+       verPdf(id){
+          this.verCanvas = true;
+           url = `https://fedesal.lol/pdf/${String(id)}.pdf`
+           console.log(url)
+           pdfjsLib.getDocument(url).promise.then(function (pdf) {
+             console.log('PDF cargado correctamente.');
+              var canvas = document.getElementById('visorPdf');
+             var context = canvas.getContext('2d');
+             pdf.getPage(1).then(function (page) {
+               // you can now use *page* here
+               // Render PDF page into canvas context
+               var desiredWidth = 300;
+               var viewport = page.getViewport({ scale: 1, });
+               var scale = desiredWidth / viewport.width;
+               var scaledViewport = page.getViewport({ scale: scale, });
+               var renderContext = {
+                 canvasContext: context,
+                 viewport: viewport
+               };
+               var renderTask = page.render(renderContext);
+               renderTask.promise.then(function () {
+                 console.log('Page rendered');
+               });
+             });
+             
+             // Aquí puedes realizar las operaciones necesarias con el PDF
+           }).catch(function (error) {
+             console.error('Error al cargar el PDF:', error);
+           });
+         
+      
+    },
          autoLoad(){
              {% if dnilistado %}
              if(this.buscar=='') this.buscar = {{dnilistado|tojson}}

@@ -16,6 +16,8 @@ from con import get_con, log, check_roles
 buscador = Blueprint('buscador', __name__)
 
 
+
+
 def obtenerdni(idcliente):
     """Simple funcion que retorn el dni dado el idcliente."""
     con = get_con()
@@ -349,7 +351,7 @@ def buscar_imprimirficha():
     logging.warning(f"/buscador/imprimirficha wapp:{wapp} idcliente:{idcliente} not_valid_wapp:{not_valid_wapp}")
     if wapp and not not_valid_wapp:
         response = send_file_whatsapp(
-            idcliente, "https://www.fedesal.lol/pdf/ficha.pdf", wapp)
+            idcliente, "https://fedesal.lol/pdf/ficha.pdf", wapp)
         return jsonify(response=response)
     else:
         return 'error',400
@@ -758,7 +760,7 @@ def buscador_imagenes():
         not_valid_wapp:{not_valid_wapp}")
     if wapp and not not_valid_wapp:
         response = send_img_whatsapp(
-            idcliente, f"https://www.fedesal.lol/img/cortinas.jpeg", wapp)
+            idcliente, f"https://fedesal.lol/img/cortinas.jpeg", wapp)
         if response == 'success':
             upd = f"update clientes set fechaintimacion=curdate() where \
                 dni={dni}"
@@ -788,7 +790,7 @@ def buscador_intimar():
         not_valid_wapp:{not_valid_wapp}")
     if wapp and not not_valid_wapp:
         response = send_file_whatsapp(
-            idcliente, f"https://www.fedesal.lol/pdf/intimacion{dni}.pdf", wapp)
+            idcliente, f"https://fedesal.lol/pdf/intimacion{dni}.pdf", wapp)
         if response == 'success':
             upd = f"update clientes set fechaintimacion=curdate() where \
                 dni={dni}"
@@ -829,7 +831,7 @@ def buscador_libredeuda():
         not_valid_wapp:{not_valid_wapp}")
     if wapp and not not_valid_wapp and deuda<=0:
         response = send_file_whatsapp(
-            idcliente, f"https://www.fedesal.lol/pdf/libredeuda{dni}.pdf", wapp)
+            idcliente, f"https://fedesal.lol/pdf/libredeuda{dni}.pdf", wapp)
         return jsonify(response)
     return 'invalid',400
 
@@ -935,7 +937,7 @@ def buscador_enviarrbotransferencia():
     logging.warning(f"/buscador/wapp wapp:{wapp} idcliente:{idcliente} wapp_valido:{wapp_valido}")
     if wapp and wapp_valido:
         response = send_file_whatsapp(
-            idcliente, f"https://www.fedesal.lol/pdf/recibotransferencia{cuenta}.pdf", wapp)
+            idcliente, f"https://fedesal.lol/pdf/recibotransferencia{cuenta}.pdf", wapp)
         return jsonify(response=response)
     else:
         return 'error',400
@@ -1011,12 +1013,15 @@ def buscar_obtenerwapps(wapp):
         wapp = wapp[:10]
     if wapp is None:
         wapp = 'sin wapp'
-    recibidos = pglistdict(con, f"select fecha,msg,'rec' as dir from wappsrecibidos \
+    recibidos = pglistdict(con, f"select fecha,msg,'rec' as dir,idtime,id from wappsrecibidos \
         where wapp like '%{wapp}'")
     enviados = pglistdict(con, f"select fecha,msg,'env' as  dir, user from wappsenviados \
         where wapp='{wapp}'")
     cntcompartenwapp = pgonecolumn(con, f"select count(*) from clientes where \
                                    wapp='{wapp}'")
+    # for wapp in recibidos:
+    #     if wapp['data'] is not None:
+    #         wapp['data'] = wapp['data'].decode('utf-8')
     con.close()
     return jsonify(recibidos=recibidos, enviados=enviados, cntcompartenwapp=cntcompartenwapp)
 
@@ -1327,3 +1332,13 @@ def buscador_averiguarsiestasiendorespondido(wapp):
         return jsonify(respuesta=respuesta)
     finally:
         con.close()
+
+
+@buscador.route('/buscador/obtenerdatawapp/<int:idtime>')
+@login_required
+@check_roles(['dev', 'gerente', 'admin'])
+def buscador_obtenerdatawapp(idtime):
+    con = get_con()
+    documento = pgonecolumn(con, f"select data from wappsrecibidos where \
+                            idtime={idtime}")
+    return jsonify(documento=documento)

@@ -1258,6 +1258,6 @@ Le recordamos que el plan de pagos elegido es de {cc} cuotas mensuales de ${ic} 
     if response == 'success':
         pgexec(con, f"update ventas set sendwapp=1 where id={idvta}")
     send_file_whatsapp(
-            idcliente,f"https://www.fedesal.lol/pdf/informacion-importante.pdf", wapp)
+            idcliente,f"https://fedesal.lol/pdf/informacion-importante.pdf", wapp)
     con.close()
     return response
