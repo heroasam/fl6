@@ -625,8 +625,9 @@
           <template x-for="item in listaWapps">
             <tr :class="item.user?'wapp_respuesta':''">
               <td x-text="item.fecha" style="min-width: 200px;"></td>
-              <td><span class="tag is-small pointer" x-show="item.msg.includes('pdf')" 
-                @click="verPdf(item.id)">Ver</span></td>
+              <td><span class="tag is-small is-info pointer" x-show="item.msg.includes('pdf')" 
+                @click="verPdf(item.id)">Ver</span>
+                <span class="tag is-small is-warning pointer" x-show="item.msg=='audio'" @click="escucharOgg(item.id)">Escuchar</span></td>
                 <td x-text="item.msg" style="max-width: 400px;"></td>
                 <td x-text="item.user||''"></td>
               </tr>
@@ -1938,6 +1939,34 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
            });
          
       
+    },
+    escucharOgg(id){
+      file = `https://fedesal.lol/pdf/${id}.ogg`;
+      console.log('file',file);
+      // var xhr = new XMLHttpRequest();
+      // console.log('xhr',xhr);
+      // xhr.open('GET', file, true);
+      // xhr.responseType = 'blob';
+      // xhr.onload = function () {
+      //   console.log('onload')
+      //   if (this.status == 200) {
+      //     console.log(this.status)
+      //     var blob = this.response;
+      //     var ogg = document.createElement('ogg');
+      //     ogg.onload = function () {
+      //       window.URL.revokeObjectURL(ogg.src);
+      //     };
+      //     ogg.src = window.URL.createObjectURL(blob);
+      //     document.body.appendChild(ogg);
+      //     console.log('blob', blob)
+          var audioElement = new Audio();
+          audioElement.src = file;
+          audioElement.type = 'audio/ogg; codecs=opus';
+          audioElement.play();
+        // };
+      // }
+      //   xhr.send();
+        
     },
          autoLoad(){
              {% if dnilistado %}

@@ -299,9 +299,13 @@ def webhook():
     if request.method == 'POST':
         data = json.loads(request.data.decode('utf-8'))
         # logging.error(f"webhook {data}")
-        message = data["message"]
+        if "message" in data:
+            message = data["message"]
+        else:
+            message = ""
         sender = data["from"]
         if 'time' in data:
+            tipo = data["tipo"]
             hora = str(data["time"])
             hora = datetime.strptime(hora, '%Y-%m-%d %H:%M:%S')
             timestamp = str(int(hora.timestamp()))+str(int(time.time()*1000000))[-6:-3]
@@ -315,14 +319,16 @@ def webhook():
                     # media = base64.b64encode(bytes(data["media"]["base64"], 'utf-8'))   
                     media = base64.b64decode(data["media"]["base64"])
                     # logging.info(media)
-                    if data["tipo"]=='document' and message=='':
+                    if tipo=='document' and message=='':
                         message = 'pdf'
-                    elif data["tipo"]=='document' and message!='' and 'pdf' not in message:
+                    elif tipo=='document' and message!='' and 'pdf' not in message:
                         message = message + ' ' + 'pdf'
+                    elif tipo=='ptt':
+                        message = 'audio'
                 else:
                     media = ""
                 api = data["api"]
-                guardar_msg(sender,message,idtime,api,hora,media)  
+                guardar_msg(sender,message,idtime,api,hora,media,tipo)  
                 logging.error('se procede a guardar message')      
         else:
             idtime = str(sender)+str(int(time.time()*1000))
@@ -330,7 +336,7 @@ def webhook():
         return 'ok'
 
 
-def guardar_msg(wapp,msg,idtime,api='5493513882892',time=None, media=None):
+def guardar_msg(wapp,msg,idtime,api='5493513882892',time=None, media=None, tipo=None):
     """Guarda el msg recibido por el webhook en la tabla correspondiente."""
     con = get_con()
     if time is None:
@@ -339,12 +345,19 @@ def guardar_msg(wapp,msg,idtime,api='5493513882892',time=None, media=None):
         ('{wapp}','{msg}','{time}','{api}','{idtime}')"
     try:
         pgexec(con, ins)
+        logging.warning(f"existe media? {media is not None} tipo {tipo}")
         if media is not None:
             id = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
-            filename = os.path.join('/home/hero/',str(id)+'.pdf')
+            if tipo=='document':
+                filename = os.path.join('/home/hero/',str(id)+'.pdf')
+            elif tipo=='ptt':
+                filename = os.path.join('/home/hero/',str(id)+'.ogg')
             with open(filename, 'wb') as f:
             # escribir el contenido de la respuesta en el archivo
-                f.write(media)
+                if isinstance(media, (bytes, bytearray, memoryview)):
+                    # La variable media contiene datos de tipo "bytes-like"
+                    # Puedes usarla para escribir en un archivo
+                    f.write(media)
     except mysql.connector.Error as _error:
             con.rollback()
             error = _error.msg

@@ -399,6 +399,7 @@ def procesar_file_whatsapp(wapp, api = '5493513882892'):
                                 apikey=kGdEFC1HvHVJ&document={file}"
                     response = requests.request("GET", payload, timeout=8)
                 else:
+                    file = "https://fedesal.lol/pdf/image.jpeg"
                     data = {'wapp':wapp,'file':file}
                     # logging.warning(f"data={data}")
                     payload = "https://heroasam.xyz/sendFile"
@@ -425,7 +426,7 @@ def procesar_file_whatsapp(wapp, api = '5493513882892'):
                     f"mensaje {wapp} enviado a las:{str(time.ctime(time.time()))} {resultado} {time.time()}")
                 wapp_log(response.status_code, resultado, wapp,
                          str(time.ctime(time.time())), idcliente,api)
-                if "Success" in resultado:
+                if "Success" in resultado or "success" in resultado:
                     upd = f"update logwhatsapp set response='success',\
                     enviado={int(time.time())} where id = {idlog}"
                     wapp_logenviados(wapp, file_log, email,api)
@@ -465,6 +466,9 @@ def wapp_logenviados(wapp, msg, user,api):
     con = get_con()
     msg = msg.replace("%20", " ")
     msg = msg.replace("'", " ")
+    if '.pdf' in msg:
+        msg = msg.replace('.pdf', '')
+        msg = 'enviado '+msg
     wapp = wapp[-10:]
     ins = f"insert into wappsenviados(wapp,msg,user,api) values('{wapp}',\
         '{msg}','{user}','{api}')"
