@@ -625,9 +625,10 @@
           <template x-for="item in listaWapps">
             <tr :class="item.user?'wapp_respuesta':''">
               <td x-text="item.fecha" style="min-width: 200px;"></td>
-              <td><span class="tag is-small is-info pointer" x-show="item.msg.includes('pdf')" 
-                @click="verPdf(item.id)">Ver</span>
-                <span class="tag is-small is-warning pointer" x-show="item.msg=='audio'" @click="escucharOgg(item.id)">Escuchar</span></td>
+              <td><i class='fa fa-file-pdf-o' style='color:#c92023' x-show="item.msg.includes('pdf')" 
+                @click="verPdf(item.id)"></i>                 
+                  <i class="fa fa-play" style='color:hwb(134 13% 20%)' aria-hidden="true" 
+                  x-show="item.msg=='audio'" @click="escucharOgg(item.id)"></i></td>
                 <td x-text="item.msg" style="max-width: 400px;"></td>
                 <td x-text="item.user||''"></td>
               </tr>
