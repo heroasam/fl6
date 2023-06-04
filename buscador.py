@@ -1032,10 +1032,10 @@ def buscar_obtenerwapps(wapp):
 def buscar_obtenertodoswapps():
     get_msgs()
     con = get_con()
-    recibidos = pglistdict(con, "select fecha,msg,wapp from wappsrecibidos \
+    recibidos = pglistdict(con, "select id,fecha,msg,wapp from wappsrecibidos \
                            where wapp in (select wapp from wappsrecibidos \
                            where respondido=0)")
-    enviados = pglistdict(con, "select fecha,msg,wapp from wappsenviados \
+    enviados = pglistdict(con, "select id,fecha,msg,wapp from wappsenviados \
                            where wapp in (select wapp from wappsrecibidos \
                            where respondido=0)")
     con.close()

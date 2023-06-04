@@ -4,50 +4,106 @@
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getNombresWapps()">
+<div class="container" x-data="main()" x-init="getNombresWapps();setInterval(()=>{getWapps()},10000);remapeaEmojis()">
 
   <div class="flex-space-between">
     <p class="title is-1">Gestionar WhatsApps</p>
-    <button class="button is-info" @click="getNombresWapps()">Actualizar</button>
   </div>
-
-  <table class="table noselect is-narrow" id="table-wapps">
-    <thead>
-      <tr>
-        <th></th>
-        <th>fecha</th>
-        <th>whatsapp</th>
-        <th>nombre</th>
-        <th></th>
-        <th></th>
+  <div class="columns">
+    <div class="column is-7">
+<table class="table noselect is-narrow" id="table-wapps">
+  <thead>
+    <tr>
+      <th></th>
+      <th>fecha</th>
+      <th>whatsapp</th>
+      <th>nombre</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <template x-for="item in listaChats">
+      //listaChats es un Array de wapps.
+      <tr :id="item.wapp">
+        <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
+              @click="expandChildren(item.wapp)"></i></span></td>
+        <td x-text="item.fecha"></td>
+        <td x-text="item.wapp"></td>
+        <td><template x-for="but in item.nombre">
+            <span class="tag is-small is-primary pointer is-rounded" :class="item.cobr?'is-info':'is-primary'"
+              x-text="but" @click="contestarWapp(item.wapp,but)"></span>
+          </template></td>
+        <td><span class="has-tooltip-top" data-tooltip="Respondido por Web-WhatsApp"><i class="fa fa-check-square-o"
+              aria-hidden="true" @click="marcarRespondidoWappOficial(item.wapp,item.nombre)"></i></span></td>
       </tr>
-    </thead>
-    <tbody>
-      <template x-for="item in listaChats">
-        //listaChats es un Array de wapps. 
-        <tr :id="item.wapp">
-          <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
-                @click="expandChildren(item.wapp)"></i></span></td>
-          <td x-text="item.fecha"></td>
-          <td x-text="item.wapp"></td>
-          <td><template x-for="but in item.nombre">
-              <span class="tag is-small is-primary pointer is-rounded" :class="item.cobr?'is-info':'is-primary'"
-                x-text="but" @click="contestarWapp(item.wapp,but)"></span>
-            </template></td>
-          <td><span class="has-tooltip-top" data-tooltip="Respondido por Web-WhatsApp"><i class="fa fa-check-square-o"
-                aria-hidden="true" @click="marcarRespondidoWappOficial(item.wapp,item.nombre)"></i></span></td>
-        </tr>
-      </template>
-      <template x-for="item in listaWapps_">
-        <tr class="children">
-          <td></td>
-          <td x-text="item.fecha"></td>
+    </template>
+    <template x-for="item in listaWapps_">
+      <tr class="children">
+        <td></td>
+        <td x-text="item.fecha"></td>
+        <td x-text="item.msg"></td>
+        <td x-text="item.user"></td>
+      </tr>
+    </template>
+  </tbody>
+</table>
+    </div>
+     <!-- Sector chat individualizado con cobradores y usuarios no identificados -->
+    <div class="column is-5" x-show="listaWappsUsuario.length">
+      <h1 class="title is-3" x-text="nombre"></h1>
+      <div x-show="listaWappsUsuario.length">
+        <div>
+          <label for="msg" class="label">Mensaje</label>
+          <textarea x-model="msgWhatsapp" id="msg" autocomplete="off" rows="5" cols="62"></textarea>
+        </div>
+        <div class="flex">
+          <div x-ref="button-wapps">
+            <span class="tag is-medium is-info is-rounded pointer" @click="responderWapp()" id="buttonEnviar">Enviar</span>
+          </div>
+          <template x-for="b in listaBtnWapp">
+            <span class="tag is-medium is-success is-rounded pointer" x-text="b.nombre" @click="sendMsg(b.msg)"></span>
+          </template>
+        </div>
+        <div class="flex" id="lista-emojis">
+          <template x-for="emoji  in listaEmojis">
+            <span class="is-black is-rounded pointer emoji" x-html="decodeURIComponent(emoji)"
+              @click="addEmoji(decodeURIComponent(emoji))"></span>
+          </template>
+        </div>
+      </div>
+      <div style="width: 600px; height: 600px; overflow: auto;" x-show="listaWappsUsuario.length&&verCanvas">
+        <canvas id="visorPdf" width="1200" height="1200"></canvas>
+        <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}" />
+      </div>
+      
+      
+      <table class="table">
+        <thead>
+          <tr>
+            <th>fecha</th>
+            <th></th>
+            <th>msg</th>
+            <th>user</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="item in listaWappsUsuario">
+          <tr>
+          <td x-text="item.fecha" style="min-width: 100px;"></td>
+          <td><i class='fa fa-file-pdf-o' style='color:#c92023' x-show="item.msg.includes('pdf')" @click="verPdf(item.id)"></i>
+            <i class="fa fa-play" style='color:hwb(134 13% 20%)' aria-hidden="true" x-show="item.msg=='audio'"
+              @click="escucharOgg(item.id)"></i>
+          </td>
           <td x-text="item.msg"></td>
           <td x-text="item.user"></td>
-        </tr>
-      </template>
-    </tbody>
-  </table>
+          </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
 
 
 
@@ -60,10 +116,19 @@
       listaWapps: [],
       listaChats: [],
       listaWapps_: [],
+      listaWappsUsuario:[],
       listaCobrWapps: [],
       nombresWapps: [],
       listaDiferentesNombres: [],
       wapp: '',
+      nombre:'',
+      verCanvas:false,
+      msgWhatsapp:'',
+      listaBtnWapp: [],
+      listaEmojis: ['f0 9f 98 80', 'f0 9f 98 85', 'f0 9f 98 82', 'f0 9f 98 b1', 'f0 9f 99 8c', 'f0 9f 98 8e', 'f0 9f 99 8f', 'F0 9F A4 9D', 'F0 9F 91 8D'],
+      remapeaEmojis() {
+        this.listaEmojis = this.listaEmojis.map(row => row = '%' + row.replaceAll(' ', '%'))
+      },
       getNombresWapps() {
         axios.get('/buscador/obtenernombreswapps')
           .then(res => {
@@ -93,12 +158,6 @@
             this.listaWapps.map(row => row.fecha = dayjs.utc(row.fecha).format('YYYY-MM-DD HH:mm:ss'))
             // this.listaWapps.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)) ; // no hace falta pq ya estan ordenados.
             this.listaChats = []
-            // let listaDiferentesChats = Object.values(this.listaWapps.map(({ wapp, fecha }) => ({ wapp, fecha })).reduce((acc, obj) => {
-            //   if (!acc[obj.wapp] || obj.fecha > acc[obj.wapp].fecha) {
-            //     acc[obj.wapp] = obj;
-            //   }
-            //   return acc;
-            // }, {}));
             let listaDiferentesChats = new Map();
             this.listaWapps.forEach(row => {
 
@@ -121,22 +180,11 @@
               }
               this.listaChats.push({ 'wapp': row[0], 'nombre': row[1].nombres, 'fecha': row[1].fecha, 'cobr': cobr, 'cnt_wapp': cnt_wapp })
             })
-
-
-
-            // obtiene los diferentes Chats con la fecha mayor de cada uno. (codigo gentileza de chatGTP.)
-            // listaDiferentesChats.forEach(row => {
-            //   let cobr = 0
-            //   let nombre = this.nombresWapps.find(item => item.wapp == row.wapp.slice(-10))?.nombre || ''
-            //   let cnt_wapp = this.nombresWapps.find(item => item.wapp == row.wapp.slice(-10))?.cnt_wapp || 1
-            //   if (this.listaCobrWapps.some(item => item.wapp == row.wapp.slice(-10))) {
-            //     cobr = 1
-            //   }
-            //   this.listaChats.push({ 'wapp': row.wapp, 'nombre': nombre, 'fecha': row.fecha, 'cobr': cobr, 'cnt_wapp': cnt_wapp })
-            // })
-            // this.listaChats.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-
           })
+        // this.listaWappsUsuario = this.listaWapps.filter(row => row.wapp == this.wapp)
+        // this.listaWappsUsuario.sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+        // console.log('listaWappsUsuario generada por this.getWapps()',this.listaWappsUsuario)
+        console.log(this.listaWapps)
       },
       expandChildren(wapp) {
         if (this.wapp == wapp && this.listaWapps_.length > 0) {
@@ -176,6 +224,13 @@
             }
           })
           .catch(err=>msgError(err))
+        }else{// o sea es un cobrador 
+          this.verCanvas = false
+          this.listaWappsUsuario = this.listaWapps.filter(row=>row.wapp==wapp)
+          this.listaWappsUsuario.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)) 
+          this.nombre = this.nombresWapps.filter(row=>row.wapp==wapp.slice(-10)).map(row=>row.nombre)[0]
+          this.wapp = wapp.slice(-10)
+          console.log(this.listaWappsUsuario)
         }
       },
       marcarRespondidoWappOficial(wapp,nombre) {
@@ -191,6 +246,68 @@
             this.getWapps()
           })
           .catch(err=>console.log(err))
+      },
+      addEmoji(emoji) {
+        this.msgWhatsapp += emoji
+      },
+      responderWapp() {
+        msgSuccess('enviando')
+        data = {
+          idcliente: 0,
+          wapp: this.wapp,
+          msg: this.msgWhatsapp,
+        }
+        console.log(data)
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+        axios.post('/buscador/wapp', data)
+          .then(res => {
+            console.log('resultado',res, res.status, res.status==200)
+            if (res.status==200) {
+                msgSuccess('Exito!', 'Mensaje Enviado')
+                this.msgWhatsapp = ''
+              }else{
+                msgError('Error!', 'Mensaje no enviado - Failed')
+              }
+            })
+           .catch(error => msgError('Error!', 'Mensaje no enviado'))
+      },
+      verPdf(id) {
+        this.verCanvas = true;
+        url = `https://fedesal.lol/pdf/${String(id)}.pdf`
+        console.log(url)
+        pdfjsLib.getDocument(url).promise.then(function (pdf) {
+          console.log('PDF cargado correctamente.');
+          var canvas = document.getElementById('visorPdf');
+          var context = canvas.getContext('2d');
+          pdf.getPage(1).then(function (page) {
+            // you can now use *page* here
+            // Render PDF page into canvas context
+            var desiredWidth = 300;
+            var viewport = page.getViewport({ scale: 1, });
+            var scale = desiredWidth / viewport.width;
+            var scaledViewport = page.getViewport({ scale: scale, });
+            var renderContext = {
+              canvasContext: context,
+              viewport: viewport
+            };
+            var renderTask = page.render(renderContext);
+            renderTask.promise.then(function () {
+              console.log('Page rendered');
+            });
+          });
+
+          // Aquí puedes realizar las operaciones necesarias con el PDF
+        }).catch(function (error) {
+          console.error('Error al cargar el PDF:', error);
+        });
+      },
+      escucharOgg(id) {
+        file = `https://fedesal.lol/pdf/${id}.ogg`;
+        console.log('file', file);
+        var audioElement = new Audio();
+        audioElement.src = file;
+        audioElement.type = 'audio/ogg; codecs=opus';
+        audioElement.play();
       },
 
     }
