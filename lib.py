@@ -241,10 +241,79 @@ def get_msgs(api='5493515919883'):
         logging.warning(f"errores de RequestException {str(e)}")
         return str(e)
     else:
-        print(response.text)
-        logging.warning(f"request allmsg api2 {time.time()} {response.text}")
-        return response
-    
+        con = get_con()
+        if response.status_code==200:
+            mensajes_recibidos = response.json()
+            # logging.error(f"mensajes_recibidos {mensajes_recibidos}")
+            if len(mensajes_recibidos)>0:
+                for data in mensajes_recibidos:
+                    if "message" in data:
+                        message = data["message"]
+                    else:
+                        message = ""
+                    sender = data["from"]
+                    media = None
+                    tipo = data["tipo"]
+                    hora = str(data["time"])
+                    hora = datetime.strptime(hora, '%Y-%m-%d %H:%M:%S')
+                    timestamp = str(int(hora.timestamp()))+str(int(time.time()*1000000))[-6:-3]
+                    idtime = str(sender)+timestamp
+                    existe_msg = pgonecolumn(con,f"select id from wappsrecibidos where \
+                                                fecha='{hora}' and wapp={sender}")
+                    if existe_msg == '' or existe_msg is None:
+                        if tipo=='document' or tipo=='ptt':
+                            media = data["media"]
+                            media = base64.b64decode(data["media"]["base64"])
+                            # logging.warning(media)
+                        if tipo=='document' and message=='':
+                            message = 'pdf'
+                        elif tipo=='document' and message!='' and 'pdf' not in message:
+                            message = message + ' ' + 'pdf'
+                        elif tipo=='ptt':
+                            message = 'audio'
+                        api = data["api"]
+                        guardar_msg(sender,message,idtime,api,hora,media,tipo)  
+                        logging.error(f'se procede a guardar message {message}')
+    finally:
+        con.close()
+
+
+def guardar_msg(wapp,msg,idtime,api='5493513882892',time=None, media=None, tipo=None):
+    """Guarda el msg recibido por el webhook en la tabla correspondiente."""
+    con = get_con()
+    logging.warning("entrando en guardar_msg")
+    if time is None:
+        time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    ins = f"insert into wappsrecibidos(wapp,msg,fecha,api,idtime) values\
+        ('{wapp}','{msg}','{time}','{api}','{idtime}')"
+    try:
+        pgexec(con, ins)
+        logging.warning(f"media is None? {media is None} tipo {tipo}")
+        if media is not None:
+            logging.warning("media is not None")
+            id = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
+            if tipo=='document':
+                logging.warning("es documento")
+                filename = os.path.join('/home/hero/',str(id)+'.pdf')
+            elif tipo=='ptt':
+                filename = os.path.join('/home/hero/',str(id)+'.ogg')
+            logging.warning(f"filename: {filename}")
+            with open(filename, 'wb') as f:
+            # escribir el contenido de la respuesta en el archivo
+                if isinstance(media, (bytes, bytearray, memoryview)):
+                    # La variable media contiene datos de tipo "bytes-like"
+                    # Puedes usarla para escribir en un archivo
+                    f.write(media)
+    except mysql.connector.Error as _error:
+            con.rollback()
+            error = _error.msg
+            logging.warning(
+                f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+            return make_response(error, 400)
+    else:
+        con.close()
+        return
+
 
 def procesar_msg_whatsapp(wapp, api = '5493513882892'):
     """Funcion envia wapp de texto."""
@@ -266,7 +335,7 @@ def procesar_msg_whatsapp(wapp, api = '5493513882892'):
         payload = f"https://api.textmebot.com/send.php?recipient={wapp}&\
                 apikey=kGdEFC1HvHVJ&text={msg}"
     elif api == '5493515919883':
-        payload = f"https://heroasam.xyz/sendMsg/{wapp}/{msg}"
+        payload = f"https://heroasam.xyz/sendMsg/3/{wapp}/{msg}"
     ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,\
     timeout,response,enviado,fecha) values({idcliente},'{wapp}',\
     '{msg.replace('%20',' ')[:100]}','','{email}',{int(time.time())}\
@@ -400,7 +469,7 @@ def procesar_file_whatsapp(wapp, api = '5493513882892'):
                     response = requests.request("GET", payload, timeout=8)
                 else:
                     file = "https://fedesal.lol/pdf/image.jpeg"
-                    data = {'wapp':wapp,'file':file}
+                    data = {'wapp':wapp,'file':file, 'api':3}
                     # logging.warning(f"data={data}")
                     payload = "https://heroasam.xyz/sendFile"
                     response =requests.post(payload, data=data)
