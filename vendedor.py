@@ -1534,23 +1534,15 @@ def vendedor_wappaut():
 
     logging.warning("wappaut, %s", current_user.email)
     vdor = var_sistema[current_user.email]
-    d_data = json.loads(request.data.decode("UTF-8"))
-    # msg = d_data['msg']
+    _ = json.loads(request.data.decode("UTF-8"))
     msg = f"Autorizacion para el vdor {vdor}"
-    tipo = d_data['tipo']  # a discriminar en el futuro
-    # if tipo=='retiro zona':
-    #     msg = f"Retiro zona vendedor {vdor}"
-    #     wapp0 = '3515297472'
-    #     wapp1 = '3512411963'
-    #     send_msg_whatsapp(0, wapp1, msg)
-    #     send_msg_whatsapp(0, wapp0, msg)
     wapp1 = var_sistema['wapp_auth']
     wapp2 = var_sistema['wapp_auth2']
     try:
         if wapp1:
-            response = send_msg_whatsapp(0, wapp1, msg)
+            send_msg_whatsapp(0, wapp1, msg)
         if wapp2:
-            response = send_msg_whatsapp(0, wapp2, msg)
+            send_msg_whatsapp(0, wapp2, msg)
     except mysql.connector.Error as _error:
         error = _error.msg
         logging.warning(

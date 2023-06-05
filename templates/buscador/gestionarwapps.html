@@ -8,7 +8,10 @@
 
   <div class="flex-space-between">
     <p class="title is-1">Gestionar WhatsApps</p>
-    <button class="button is-black is-small" @click="getWapps()">Refrescar</button>
+    <a href="#lista-emojis" x-show="listaWapps.length" class="btn-whatsapp" @contextmenu="idbuscar.scrollIntoView()"
+      @click="getWapps()">
+      <img src="{{url_for('static', filename='/icon-whatsapp.svg')}}"></a>
+    <!-- <button class="button is-black is-small" @click="getWapps()">Refrescar</button> -->
   </div>
   <div class="columns">
     <div class="column is-7">
@@ -32,9 +35,9 @@
         <td x-text="dayjs(item.fecha).fromNow(true)"></td>
         <td x-text="item.wapp"></td>
         <td><template x-for="but in item.nombre">
-            <span class="tag is-small is-primary pointer is-rounded" :class="item.cobr?'is-info':'is-primary'"
+            <span class="tag is-small pointer is-rounded" :class="item.cobr?'is-primary':(but=='chat'?'is-success':'is-info')"
               x-text="but" @click="contestarWapp(item.wapp,but)"></span>
-          </template></td>
+              </template></td>
         <td><span class="has-tooltip-top" data-tooltip="Respondido por Web-WhatsApp"><i class="fa fa-check-square-o"
               aria-hidden="true" @click="marcarRespondidoWappOficial(item.wapp,item.nombre)"></i></span></td>
       </tr>
@@ -165,7 +168,7 @@
             this.listaWapps__ = this.listaWapps__.filter(row => row.msg !== null && row.msg !== undefined && row.msg != '')
             this.listaWapps__.map(row => row.fecha = dayjs.utc(row.fecha).format('YYYY-MM-DD HH:mm:ss'))
             this.listaChats_ = []
-            console.log(this.listaWapps__)
+            // console.log(this.listaWapps__)
             let listaDiferentesChats = new Map();
             this.listaWapps__.forEach(row => {
 
@@ -186,10 +189,10 @@
               if (this.listaCobrWapps.some(item => item.wapp == row[0].slice(-10))) {
                 cobr = 1
               }
-              this.listaChats_.push({ 'wapp': row[0], 'nombre': row[1].nombres, 'fecha': row[1].fecha, 'cobr': cobr, 'cnt_wapp': cnt_wapp })
+              this.listaChats_.push({ 'wapp': row[0], 'nombre': row[1].nombres||['chat'], 'fecha': row[1].fecha, 'cobr': cobr, 'cnt_wapp': cnt_wapp })
             })
      
-          console.log(this.listaChats_)
+          // console.log(this.listaChats_)
           this.listaChats = this.listaChats_.sort((a, b) => {
           let s1 = a.fecha
           let s2 = b.fecha
@@ -204,7 +207,7 @@
           if (s1 < s2) return 1
           if (s1 == s2) return 0
           })
-          console.log(this.listaWapps)
+          // console.log(this.listaChats)
           this.filtrarWappsUsuario()
         })
       },
@@ -230,8 +233,8 @@
         }, 1)
       },
       contestarWapp(wapp, nombre) {
-        // primero averiguo si no es cobrador
-        if (!this.listaCobrWapps.map(row => row.wapp).includes(wapp.slice(-10))) {
+        // primero averiguo si no es cobrador, ni no cliente
+        if (!this.listaCobrWapps.map(row => row.wapp).includes(wapp.slice(-10)) && nombre!='chat') {
           axios.get('/buscador/averiguarsiestasiendorespondido/'+wapp)
           .then(res=>{
             if(res.data.respuesta==0){ // o sea no esta siendo respondido
@@ -245,7 +248,7 @@
             }
           })
           .catch(err=>msgError(err))
-        }else{// o sea es un cobrador 
+        }else{// o sea es un cobrador o un no cliente
           this.verCanvas = false
           this.verChat = true
           this.wapp = wapp.slice(-10)
@@ -253,13 +256,13 @@
         }
       },
       filtrarWappsUsuario(){
-        console.log('wapp',this.wapp,'verChat',this.verChat)
+        // console.log('wapp',this.wapp,'verChat',this.verChat)
         if (this.verChat){
-          console.log('entro')
+          // console.log('entro')
         this.listaWappsUsuario = this.listaWapps.filter(row => row.wapp == '549'+this.wapp)
         this.listaWappsUsuario.sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
         this.nombre = this.nombresWapps.filter(row => row.wapp == this.wapp).map(row => row.nombre)[0]
-        console.log('listaWappsUsuario', this.listaWappsUsuario)
+        // console.log('listaWappsUsuario', this.listaWappsUsuario)
         }
       },
       marcarRespondidoWappOficial(wapp,nombre) {

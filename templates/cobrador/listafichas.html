@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getListadoFichas();setInterval(()=>{getListadoFichas()},600000)">
+<div class="container" x-data="main()" x-init="getListadoFichas()">
   <div x-show="soloCobradores">
     <template x-for="zona in listaZonas">
       <button class="button is-small is-primary" x-text="zona" @click="filtraPorZona(zona);verCard=false"></button>

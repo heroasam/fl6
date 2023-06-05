@@ -10,7 +10,7 @@
 {% block content %}
 
 <div x-data="main()"
-  x-init="getVentaHoy();getVisitasHoy();setInterval(()=>{getVentaHoy()},60000);setInterval(()=>{getListadoAutorizados()},10000)">
+  x-init="getVentaHoy();getVisitasHoy();setInterval(()=>{getVentaHoy()},120000);setInterval(()=>{getListadoAutorizados()},10000)">
 
   <div class="flex-space-between" x-show="!isMobile">
     <p class="title is-1">Tablero Ventas</p>
