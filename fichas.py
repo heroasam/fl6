@@ -44,6 +44,8 @@ def fichas_muestrazona(cobr):
 @check_roles(['dev','gerente','admin'])
 def fichas_muestraclientes(tipo,zona):
     con = get_con()
+    if zona == 'todas':
+        zona = '%'
     if tipo=='normales':
         clientes = pglistdict(con,f"select * from clientes where zona='{zona}' and pmovto>date_sub(curdate(),interval 210 day) and deuda>0  and gestion=0 and incobrable=0 and mudo=0 order by pmovto")
     elif tipo=='gestion':

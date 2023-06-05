@@ -1034,10 +1034,24 @@ def buscar_obtenertodoswapps():
     con = get_con()
     recibidos = pglistdict(con, "select id,fecha,msg,wapp from wappsrecibidos \
                            where wapp in (select wapp from wappsrecibidos \
-                           where respondido=0)")
-    enviados = pglistdict(con, "select id,fecha,msg,wapp from wappsenviados \
+                           where respondido=0) and substring(wapp,-10) not \
+                           in (select telefono from cobr where activo=1)")
+    recibidoscobr = pglistdict(con, "select id,fecha,msg,wapp from \
+                               wappsrecibidos where substring(wapp,-10) \
+                               in (select telefono \
+                               from cobr where activo=1) and \
+                               fecha>date_sub(curdate(),interval 1 day)")
+    recibidos = recibidos + recibidoscobr
+    enviados = pglistdict(con, "select id,fecha,msg,wapp,user from wappsenviados \
                            where wapp in (select wapp from wappsrecibidos \
-                           where respondido=0)")
+                           where respondido=0) and wapp not in \
+                          (select telefono from cobr where activo=1)")
+    enviadoscobr = pglistdict(con, "select id,fecha,msg,concat('549',wapp) as wapp,user from \
+                               wappsenviados where substring(wapp,-10) \
+                               in (select telefono \
+                               from cobr where activo=1) and \
+                               fecha>date_sub(curdate(),interval 1 day)")
+    enviados = enviados + enviadoscobr
     con.close()
     return jsonify(recibidos=recibidos, enviados=enviados)
 

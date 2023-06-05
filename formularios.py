@@ -230,12 +230,15 @@ def ficha(con,ldni, total_cobrable=None, total_cobrado=None):
 
 def libredeuda(con,dni):
     libre = """
-    Por la presente certificamos que el cliente de referencia no adeuda nada en ningun concepto a nuestra Empresa. Que al dia de la fecha ha sido CANCELADA su cuenta."""
+    Por la presente certificamos que el cliente de referencia no adeuda nada
+    en ningun concepto a nuestra Empresa.
+    Que al dia de la fecha ha sido CANCELADA su cuenta."""
     seven = """
-    La baja del SEVEN se producira en forma automatica dentro de los proximos CINCO DIAS HABILES"""
+    La baja del SEVEN se producira en forma automatica dentro de los proximos
+    CINCO DIAS HABILES"""
     today = datetime.today().strftime('%Y-%m-%d')
     pdf=FPDF()
-    pdf.set_margins(30,30)
+    pdf.set_margins(10,10,10)
     pdf.add_page()
     pdf.set_font("Helvetica","",10)
     cliente = pgtuple(con, f"select nombre, calle,num,barrio,sev from clientes where dni='{dni}'")
@@ -249,8 +252,10 @@ def libredeuda(con,dni):
     pdf.cell(100,6,cliente[0][0:38],0,1)
     pdf.cell(100,6,f"{cliente[1]} {cliente[2]} {cliente[3]}",0,1)
     pdf.ln(5)
+    print(libre,seven)
     pdf.multi_cell(0, 8, libre , border = 0,
                 align = 'J', fill = False)
+    pdf.ln(1)
     if cliente[4]:
         pdf.multi_cell(0, 8, seven , border = 0,
                 align = 'J', fill = False)

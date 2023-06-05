@@ -468,7 +468,6 @@ def procesar_file_whatsapp(wapp, api = '5493513882892'):
                                 apikey=kGdEFC1HvHVJ&document={file}"
                     response = requests.request("GET", payload, timeout=8)
                 else:
-                    file = "https://fedesal.lol/pdf/image.jpeg"
                     data = {'wapp':wapp,'file':file, 'api':3}
                     # logging.warning(f"data={data}")
                     payload = "https://heroasam.xyz/sendFile"

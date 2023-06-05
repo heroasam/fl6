@@ -45,10 +45,16 @@
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.5/dayjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.5/plugin/utc.min.js"></script>
     <script>dayjs.extend(window.dayjs_plugin_utc)</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.5/plugin/relativeTime.min.js"></script>
+    <script>dayjs.extend(window.dayjs_plugin_relativeTime)</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.5/locale/es.min.js"></script>
+    <script>dayjs.locale('es')</script>
+
+    
+    
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11.4.38"></script>
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@3.2.2/dist/umd/simple-datatables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.7.107/build/pdf.min.js"></script>
     {% block script %}{% endblock %}
   </body>
