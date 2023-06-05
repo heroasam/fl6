@@ -4,10 +4,11 @@
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getNombresWapps();setInterval(()=>{getWapps()},10000);remapeaEmojis();getListaBtnWapp()">
+<div class="container" x-data="main()" x-init="getNombresWapps();remapeaEmojis();getListaBtnWapp()">
 
   <div class="flex-space-between">
     <p class="title is-1">Gestionar WhatsApps</p>
+    <button class="button is-black is-small" @click="getWapps()">Refrescar</button>
   </div>
   <div class="columns">
     <div class="column is-7">
@@ -28,7 +29,7 @@
       <tr :id="item.wapp">
         <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
               @click="expandChildren(item.wapp)"></i></span></td>
-        <td x-text="dayjs.utc(item.fecha).fromNow(true)"></td>
+        <td x-text="dayjs(item.fecha).fromNow(true)"></td>
         <td x-text="item.wapp"></td>
         <td><template x-for="but in item.nombre">
             <span class="tag is-small is-primary pointer is-rounded" :class="item.cobr?'is-info':'is-primary'"
@@ -41,7 +42,7 @@
     <template x-for="item in listaWapps_">
       <tr class="children">
         <td></td>
-        <td x-text="dayjs.utc(item.fecha).fromNow(true)"></td>
+        <td x-text="dayjs(item.fecha).fromNow(true)"></td>
         <td x-text="item.msg"></td>
         <td x-text="item.user"></td>
       </tr>
@@ -93,7 +94,7 @@
         <tbody>
           <template x-for="item in listaWappsUsuario">
           <tr  :class="item.user?'wapp_respuesta':''">
-          <td x-text="dayjs.utc(item.fecha).fromNow(true)" style="min-width: 120px;"></td>
+          <td x-text="dayjs(item.fecha).fromNow(true)" style="min-width: 120px;"></td>
           <td><i class='fa fa-file-pdf-o' style='color:#c92023' x-show="item.msg.includes('pdf')" @click="verPdf(item.id)"></i>
             <i class="fa fa-play" style='color:hwb(134 13% 20%)' aria-hidden="true" x-show="item.msg=='audio'"
               @click="escucharOgg(item.id)"></i>
@@ -118,7 +119,9 @@
     return {
       listaWapps: [],
       listaChats: [],
+      listaChats_:[],
       listaWapps_: [],
+      listaWapps__:[],
       listaWappsUsuario:[],
       listaCobrWapps: [],
       nombresWapps: [],
@@ -153,17 +156,18 @@
           })
       },
       getWapps() {
+        console.log('llamado getwapps',dayjs())
         axios.get('/buscador/obtenertodoswapps')
           .then(res => {
             let recibidos = res.data.recibidos
             let enviados = res.data.enviados
-            this.listaWapps = [...recibidos, ...enviados]
-            this.listaWapps = this.listaWapps.filter(row => row.msg !== null && row.msg !== undefined && row.msg != '')
-            this.listaWapps.map(row => row.fecha = dayjs.utc(row.fecha).format('YYYY-MM-DD HH:mm:ss'))
-            // this.listaWapps.sort((a, b) => new Date(a.fecha) - new Date(b.fecha)) ; // no hace falta pq ya estan ordenados.
-            this.listaChats = []
+            this.listaWapps__ = [...recibidos, ...enviados]
+            this.listaWapps__ = this.listaWapps__.filter(row => row.msg !== null && row.msg !== undefined && row.msg != '')
+            this.listaWapps__.map(row => row.fecha = dayjs.utc(row.fecha).format('YYYY-MM-DD HH:mm:ss'))
+            this.listaChats_ = []
+            console.log(this.listaWapps__)
             let listaDiferentesChats = new Map();
-            this.listaWapps.forEach(row => {
+            this.listaWapps__.forEach(row => {
 
               if (listaDiferentesChats.has(row.wapp)) {
                 let value = listaDiferentesChats.get(row.wapp);
@@ -182,10 +186,27 @@
               if (this.listaCobrWapps.some(item => item.wapp == row[0].slice(-10))) {
                 cobr = 1
               }
-              this.listaChats.push({ 'wapp': row[0], 'nombre': row[1].nombres, 'fecha': row[1].fecha, 'cobr': cobr, 'cnt_wapp': cnt_wapp })
+              this.listaChats_.push({ 'wapp': row[0], 'nombre': row[1].nombres, 'fecha': row[1].fecha, 'cobr': cobr, 'cnt_wapp': cnt_wapp })
             })
+     
+          console.log(this.listaChats_)
+          this.listaChats = this.listaChats_.sort((a, b) => {
+          let s1 = a.fecha
+          let s2 = b.fecha
+          if (s1 > s2) return -1
+          if (s1 < s2) return 1
+          if (s1 == s2) return 0
           })
+          this.listaWapps = this.listaWapps__.sort((a, b) => {
+            let s1 = a.fecha
+            let s2 = b.fecha
+          if (s1 > s2) return -1
+          if (s1 < s2) return 1
+          if (s1 == s2) return 0
+          })
+          console.log(this.listaWapps)
           this.filtrarWappsUsuario()
+        })
       },
       expandChildren(wapp) {
         if (this.wapp == wapp && this.listaWapps_.length > 0) {

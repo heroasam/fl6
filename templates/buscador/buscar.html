@@ -3,7 +3,7 @@
 {% block title %}{{cliente}}{% endblock %}
 {% block content %}
 <div x-data="main()"  class="container" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores();
-             getInflacion();autoLoad();cargarMsgs();setInterval(()=>{verificarWapps()},10000);obtenerHistorialBusquedas();
+             getInflacion();autoLoad();cargarMsgs();obtenerHistorialBusquedas();
              getListaBtnWapp();remapeaEmojis();">
 
   <div>
@@ -196,7 +196,8 @@
       <a href="#table-comentarios" class="tag is-small is-warning"
 	     x-show="listaComentarios.length">Hay comentarios</a>
        <a href="#lista-emojis" x-show="listaWapps.length" 
-       class="btn-whatsapp" @contextmenu="idbuscar.scrollIntoView()">
+       class="btn-whatsapp" @contextmenu="idbuscar.scrollIntoView()"
+       @click="verificarWapps()">
        <img src="{{url_for('static', filename='/icon-whatsapp.svg')}}"></a>
        <!-- <span class="tag is-small is-success" x-show="listaWapps.length" @click="idButtonContestar.scrollIntoView()">Hay whatsapp</span> -->
       <span class="tag is-small is-info" x-show="tieneDato">Tiene Dato</span>
@@ -1196,6 +1197,7 @@
                           if(a.fecha<b.fecha) return -1
                           if(a.fecha==b.fecha) return 0
                       })
+                      console.log(this.listaWapps)
              })
             //  console.log('listaWapps', this.listaWapps)
          },
@@ -1722,8 +1724,9 @@
              this.enviarWhatsapp()
              this.msgWhatsapp = ''
              this.contestarWapp = 0
-             const element = document.querySelector(`[x-ref='button-wapps']`);
-             element.scrollIntoView({behavior: 'smooth'});
+            //  const element = document.querySelector(`[x-ref='button-wapps']`);
+            //  element.scrollIntoView({behavior: 'smooth'});
+            //  setTimeout(()=>{verificarWapps();},10000)
          },
          sendMsgGeneral(){
              toggleModal('modal-edicion-msg-wapp')
