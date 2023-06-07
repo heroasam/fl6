@@ -321,12 +321,14 @@ def ventas_getclientes(tipo):
     con = get_con()
     if tipo=='idvta':
         clientes = pglistdict(con, "select ventas.id as idvta,dni, nombre, \
-        calle,num,zona, gestion, mudo, incobrable,acla,wapp,sendwapp from \
+        calle,num,zona, gestion, mudo, incobrable,acla,wapp,sendwapp,\
+                              wapp_verificado,auth_sinwapp_verificado from \
         ventas, clientes where ventas.idcliente=clientes.id and pp=0 and \
         devuelta=0 order by ventas.id desc limit 500")
     else:
         clientes = pglistdict(con, "select id,dni, nombre, calle,num, zona, \
-        gestion,mudo, incobrable,acla from  clientes  order by id desc \
+        gestion,mudo, incobrable,acla,wapp_verificado,auth_sinwapp_verificado \
+                               from  clientes  order by id desc \
         limit 500")
 
     con.close()
@@ -1260,4 +1262,4 @@ Le recordamos que el plan de pagos elegido es de {cc} cuotas mensuales de ${ic} 
     send_file_whatsapp(
             idcliente,f"https://fedesal.lol/pdf/informacion-importante.pdf", wapp)
     con.close()
-    return response
+    return 'ok'

@@ -1526,7 +1526,7 @@
 				                  break
 			                  }
 			                  case 'failed': {
-				                  msgError('Error!','Mensaje no enviado - Failed')
+				                  msgError('Error!','El numero no existe o no puede recibir wapp')
                                   this.emitirLibredeudaNoWapp()
 				                  break
 			                  }
@@ -1592,7 +1592,7 @@
 											                                              break
 										                                              }
 										                                              case 'failed': {
-											                                              msgError('Error!','Recibo no enviado - Failed')
+											                                              msgError('Error!','El numero no existe o no puede recibir wapp')
                                                                                           this.enviarRboTransferenciaNoWapp()
 											                                              break
 										                                              }
@@ -1641,7 +1641,7 @@
 									                                         break
 									                                     }
 									                                     case 'failed': {
-									                                         msgError('Error!','Mensaje no enviado - Failed')
+									                                         msgError('Error!','El numero no existe o no puede recibir wapp')
 									                                         break
 									                                     }
 								                                     }
@@ -1672,7 +1672,7 @@
 									                                         break
 									                                     }
 									                                     case 'failed': {
-									                                         msgError('Error!','Mensaje no enviado - Failed')
+									                                         msgError('Error!','El numero no existe o no puede recibir wapp')
 									                                         break
 									                                     }
 								                                     }
@@ -1687,6 +1687,7 @@
              axios.post("/buscador/intimar",this.Cliente)
 								                                 .then(res=>{
 								                                     if(wapp){
+                                                      console.log(res,res.data)
 									                                     switch(res.data.response){
 									                                         case 'success': {
 										                                         msgSuccess('Exito!','Mensaje Enviado')
@@ -1701,8 +1702,8 @@
 										                                         break
 									                                         }
 									                                         case 'failed': {
-										                                         msgError('Error!','Mensaje no enviado - Failed')
-                                                                                 this.intimarClienteNoWapp()
+										                                         msgError('Error!','El numero no existe o no puede recibir wapp.')
+                                                                                 //this.intimarClienteNoWapp()
 										                                         break
 									                                         }
 									                                     }
@@ -1752,7 +1753,7 @@
 									                                         break
 									                                     }
 									                                     case 'failed': {
-									                                         msgError('Error!','Mensaje no enviado - Failed')
+									                                         msgError('Error!','El numero no existe o no puede recibir wapp')
 									                                         break
 									                                     }
 								                                     }
@@ -1782,7 +1783,7 @@
 									                                         break
 									                                     }
 									                                     case 'failed': {
-									                                         msgError('Error!','Mensaje no enviado - Failed')
+									                                         msgError('Error!','El numero no existe o no puede recibir wapp')
 									                                         break
 									                                     }
 								                                     }
@@ -1815,7 +1816,7 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
 									                                         break
 									                                     }
 									                                     case 'failed': {
-									                                         msgError('Error!','Mensaje no enviado - Failed')
+									                                         msgError('Error!','El numero no existe o no puede recibir wapp')
 									                                         break
 									                                     }
 								                                     }

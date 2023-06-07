@@ -103,8 +103,11 @@
   <table class="table" id="table-wappnoenviados">
     <thead>
       <tr>
+        <th></th>
         <th>Nombre</th>
         <th>Direccion</th>
+        <th>wapp</th>
+        <th></th>
         <th>idvta</th>
         <th></th>
       </tr>
@@ -112,8 +115,12 @@
     <tbody>
       <template x-for="item in listaWappsNoEnviados">
         <tr>
+        <td><a :href="'/buscador/interno/'+item.dni">Ver</a></td>
         <td x-text="item.nombre"></td>
         <td x-text="item.direccion"></td>
+        <td x-text="item.wapp"></td>
+        <td><img src="{{url_for('static', filename='/check.png')}}" x-show="item.wapp_verificado">
+        <img src="{{url_for('static', filename='/nocheck.png')}}" x-show="item.auth_sinwapp_verificado"></td>
         <td x-text="item.idvta"></td>
         <td><button class="button is-small is-danger" @click="sendWapp(item.idvta)">Re-enviar</button></td>
         </tr>

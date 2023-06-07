@@ -1498,7 +1498,8 @@ def vendedor_getventashoy():
     vendedores = pglist(con, "select id from cobr where activo=1 and vdor=1")
     wappnoenviados = pglistdict(con, "SELECT DISTINCT clientes.id as id, \
                                 nombre,CONCAT(calle, ' ', num) AS direccion, \
-                                ventas.id as idvta \
+                                ventas.id as idvta,wapp,wapp_verificado,dni, \
+                                auth_sinwapp_verificado \
                                 FROM clientes \
                                 JOIN ventas ON clientes.id = ventas.idcliente \
                                 WHERE fecha > CURDATE() - INTERVAL 3 DAY \
@@ -1538,11 +1539,13 @@ def vendedor_wappaut():
     msg = f"Autorizacion para el vdor {vdor}"
     wapp1 = var_sistema['wapp_auth']
     wapp2 = var_sistema['wapp_auth2']
+    wapp3 = '3512411963'
     try:
         if wapp1:
             send_msg_whatsapp(0, wapp1, msg)
         if wapp2:
             send_msg_whatsapp(0, wapp2, msg)
+        send_msg_whatsapp(0,wapp3,msg)
     except mysql.connector.Error as _error:
         error = _error.msg
         logging.warning(

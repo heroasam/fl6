@@ -30,6 +30,7 @@
         <th>situacion</th>
         <th>wapp</th>
         <th></th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -46,6 +47,8 @@
          <span class="tag is-small is-info" x-show="cliente.mudo==1">Mudado</span>
           <span class="tag is-small is-danger" x-show="cliente.incobrable==1">Incobrable</span></td>
           <td x-text="cliente.wapp"></td>
+          <td><img src="{{url_for('static', filename='/check.png')}}" x-show="cliente.wapp_verificado">
+          <img src="{{url_for('static', filename='/nocheck.png')}}" x-show="cliente.auth_sinwapp_verificado"></td>
           <td><span class="tag is-small is-danger pointer" x-show="cliente.sendwapp==0" @click="sendWapp(cliente.idvta)">Re-enviar</span></td>
         </tr>
       </template>

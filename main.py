@@ -353,35 +353,30 @@ def webhookapis():
             else:
                 message = ""
             sender = data["from"]
-            if 'time' in data:
-                tipo = data["tipo"]
-                hora = str(data["time"])
-                hora = datetime.strptime(hora, '%Y-%m-%d %H:%M:%S')
-                timestamp = str(int(hora.timestamp()))+str(int(time.time()*1000000))[-6:-3]
-                idtime = str(sender)+timestamp
-                # logging.error(f"hora {hora} wapp {sender}")
-                existe_msg = pgonecolumn(con,f"select id from wappsrecibidos where \
-                                        fecha='{hora}' and wapp={sender}")
-                # logging.error(f"existe_msg{existe_msg}")
-                if existe_msg == '' or existe_msg is None:
-                    if 'media' in data:
-                        # media = base64.b64encode(bytes(data["media"]["base64"], 'utf-8'))   
-                        media = base64.b64decode(data["media"]["base64"])
-                        # logging.info(media)
-                        if tipo=='document' and message=='':
-                            message = 'pdf'
-                        elif tipo=='document' and message!='' and 'pdf' not in message:
-                            message = message + ' ' + 'pdf'
-                        elif tipo=='ptt':
-                            message = 'audio'
-                    else:
-                        media = None
-                    api = data["api"]
-                    guardar_msg(sender,message,idtime,api,hora,media,tipo)  
-                    logging.error('se procede a guardar message')      
-            else:
-                idtime = str(sender)+str(int(time.time()*1000))
-                guardar_msg(sender,message,idtime)
+            tipo = data["tipo"]
+            hora = str(data["time"])
+            hora = datetime.strptime(hora, '%Y-%m-%d %H:%M:%S')
+            timestamp = str(int(hora.timestamp()))+str(int(time.time()*1000000))[-6:-3]
+            idtime = str(sender)+timestamp
+            # logging.error(f"hora {hora} wapp {sender}")
+            existe_msg = pgonecolumn(con,f"select id from wappsrecibidos where \
+                                    fecha='{hora}' and wapp={sender}")
+            # logging.error(f"existe_msg{existe_msg}")
+            if existe_msg == '' or existe_msg is None:
+                if 'media' in data:
+                    media = base64.b64decode(data["media"]["base64"])
+                    # logging.info(media)
+                    if tipo=='document' and message=='':
+                        message = 'pdf'
+                    elif tipo=='document' and message!='' and 'pdf' not in message:
+                        message = message + ' ' + 'pdf'
+                    elif tipo=='ptt':
+                        message = 'audio'
+                else:
+                    media = None
+                api = data["api"]
+                guardar_msg(sender,message,idtime,api,hora,media,tipo)  
+                logging.error('se procede a guardar message')      
             return 'ok'
         
 
