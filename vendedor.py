@@ -1504,7 +1504,10 @@ def vendedor_getventashoy():
                                 JOIN ventas ON clientes.id = ventas.idcliente \
                                 WHERE fecha > CURDATE() - INTERVAL 3 DAY \
                                 AND sendwapp = 0 and pp= 0 and devuelta = 0 \
-                                and wapp!= '' and wapp is not null")
+                                and wapp!= '' and wapp is not null and \
+                                      idcliente not in (select id from \
+                                      clientes where auth_sinwapp_verificado=\
+                                      1)")
     return jsonify(ventashoy=ventashoy, vendedores=vendedores,
                    wappnoenviados=wappnoenviados,devolpendregistrar=\
                     devol_pend_registrar)
