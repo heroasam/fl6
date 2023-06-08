@@ -497,37 +497,37 @@ let isFirefox = firefox.test(details)||0;
 
 
 // themes dark
-const darkly = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/darkly/bulmaswatch.min.css";
-const cyborg = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/cyborg/bulmaswatch.min.css";
-const nuclear = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/nuclear/bulmaswatch.min.css";
-const slate = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/slate/bulmaswatch.min.css";
-const solar = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/solar/bulmaswatch.min.css";
-const superhero  = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/superhero/bulmaswatch.min.css";
+const darkly = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/darkly/bulmaswatch.min.css"
+const cyborg = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/cyborg/bulmaswatch.min.css"
+const nuclear = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/nuclear/bulmaswatch.min.css"
+const slate = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/slate/bulmaswatch.min.css"
+const solar = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/solar/bulmaswatch.min.css"
+const superhero = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/superhero/bulmaswatch.min.css";
 let darkThemes =['darkly','cyborg','nuclear','slate','solar','superhero'];
 // themes light;
-const defaultbulma = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/default/bulmaswatch.min.css";
-const cerulean = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/cerulean/bulmaswatch.min.css";
-const cosmo = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/cosmo/bulmaswatch.min.css";
-const journal = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/journal/bulmaswatch.min.css";
-const flatly = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/flatly/bulmaswatch.min.css";
-const litera = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/litera/bulmaswatch.min.css";
-const lumen = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/lumen/bulmaswatch.min.css";
-const lux = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/lux/bulmaswatch.min.css";
-const materia = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/materia/bulmaswatch.min.css";
-const minty = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/minty/bulmaswatch.min.css";
-const pulse = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/pulse/bulmaswatch.min.css";
-const sandstone = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/sandstone/bulmaswatch.min.css";
-const simplex = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/simplex/bulmaswatch.min.css";
-const spacelab = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/spacelab/bulmaswatch.min.css";
-const united = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/united/bulmaswatch.min.css";
-const yeti = "https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/yeti/bulmaswatch.min.css";
+const defaultbulma = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/default/bulmaswatch.min.css"
+const cerulean = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/cerulean/bulmaswatch.min.css"
+const cosmo = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/cosmo/bulmaswatch.min.css"
+const journal = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/journal/bulmaswatch.min.css"
+const flatly = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/flatly/bulmaswatch.min.css"
+const litera = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/litera/bulmaswatch.min.css"
+const lumen = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/litera/bulmaswatch.min.css"
+const lux = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/lux/bulmaswatch.min.css"
+const materia = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/lux/bulmaswatch.min.css"
+const minty = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/minty/bulmaswatch.min.css"
+const pulse = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/pulse/bulmaswatch.min.css"
+const sandstone = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/sandstone/bulmaswatch.min.css"
+const simplex = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/simplex/bulmaswatch.min.css"
+const spacelab = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/spacelab/bulmaswatch.min.css"
+const united = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/united/bulmaswatch.min.css"
+const yeti = "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/yeti/bulmaswatch.min.css"
 let lightThemes = ['defaultbulma', 'cerulean', 'cosmo', 'journal','flatly','litera','lumen','lux','materia','minty','pulse','sandstone','simplex','spacelab','united','yeti'];
 
 
 // bulma change theme dark-light
 let logoRomitex;
 let darkTheme;
-let cdnTheme = localStorage.getItem('cdn-theme')||"https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/darkly/bulmaswatch.min.css";
+let cdnTheme = localStorage.getItem('cdn-theme') || "https://cdnjs.cloudflare.com/ajax/libs/bulmaswatch/0.8.1/darkly/bulmaswatch.min.css"
 let pattern = /0.8.1\/(\w+)\//g
 const match=  cdnTheme.matchAll(pattern)
 let nameTheme;

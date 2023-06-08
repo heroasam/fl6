@@ -261,7 +261,7 @@ def guardar_msg(wapp,msg,idtime,api=1,time=None, media=None, tipo=None):
     if time is None:
         time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     ins = f"insert into wappsrecibidos(wapp,msg,fecha,api,idtime) values\
-        ('{wapp}','{msg}','{time}','{apis[api]}','{idtime}')"
+        ('{wapp}','{msg}','{time}','{api}','{idtime}')"
     try:
         pgexec(con, ins)
         if media is not None:
@@ -287,6 +287,7 @@ def guardar_msg(wapp,msg,idtime,api=1,time=None, media=None, tipo=None):
         return
 
 apis = {1:"5493513882892", 2:"5493515919883", 3:"5493515920539"}
+wapp_cobr = ["3547611702","3512491224","3515916367","3516503558","3512916800","3512761985","3516366532","3512154913","3515297472"]
 def send_msg_whatsapp(idcliente, wapp, msg, api=1):
     """Funcion que encola wapp de texto."""
     # api = pgonecolumn(con, f"select api from wappsrecibidos where wapp=\
@@ -297,6 +298,8 @@ def send_msg_whatsapp(idcliente, wapp, msg, api=1):
     # else:
     # TODO: buscar la api que corresponda en el dict apis segun el wapp guardado en variable api
     if wapp == '5493512411963' or wapp == '3512411963':
+        api = 2
+    if wapp in wapp_cobr:
         api = 2
     if api == 2 or api == 3:
         logging.warning(f'entro a api {api}')

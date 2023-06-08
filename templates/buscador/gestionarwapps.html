@@ -4,15 +4,11 @@
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getNombresWapps();remapeaEmojis();getListaBtnWapp()">
+<div class="container" x-data="main()" x-init="getNombresWapps();remapeaEmojis();getListaBtnWapp();init()">
 
-  <div class="flex-space-between">
+  
     <p class="title is-1">Gestionar WhatsApps</p>
-    <a href="#lista-emojis" x-show="listaWapps.length" class="btn-whatsapp" @contextmenu="idbuscar.scrollIntoView()"
-      @click="getWapps()">
-      <img src="{{url_for('static', filename='/icon-whatsapp.svg')}}"></a>
-    <!-- <button class="button is-black is-small" @click="getWapps()">Refrescar</button> -->
-  </div>
+  
   <div class="columns">
     <div class="column is-7">
 <table class="table noselect is-narrow" id="table-wapps">
@@ -138,6 +134,15 @@
       listaEmojis: ['f0 9f 98 80', 'f0 9f 98 85', 'f0 9f 98 82', 'f0 9f 98 b1', 'f0 9f 99 8c', 'f0 9f 98 8e', 'f0 9f 99 8f', 'F0 9F A4 9D', 'F0 9F 91 8D'],
       remapeaEmojis() {
         this.listaEmojis = this.listaEmojis.map(row => row = '%' + row.replaceAll(' ', '%'))
+      },
+      init() {
+        const socket = io.connect('https://' + document.domain + ':' + location.port);
+        socket.on('update_wapps', (msg) => {
+          // Actualiza el array 'data' con los cambios recibidos
+          this.data = msg.data;
+          console.log('los datos se actualizaron', this.data)
+          this.getWapps()
+        });
       },
       getNombresWapps() {
         axios.get('/buscador/obtenernombreswapps')

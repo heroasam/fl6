@@ -4,7 +4,7 @@
 {% block content %}
 <div x-data="main()"  class="container" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores();
              getInflacion();autoLoad();cargarMsgs();obtenerHistorialBusquedas();
-             getListaBtnWapp();remapeaEmojis();">
+             getListaBtnWapp();remapeaEmojis();init()">
 
   <div>
 	<div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
@@ -121,7 +121,7 @@
       <p  x-show="Cliente.deuda>0" x-text="'Cobrador asignado: '+Cliente.asignado"></p>
       <div class="flex">
       <p class="subtitle subtitle-table is-4"x-text="'tel:'+Cliente.tel+' wapp:'+Cliente.wapp"></p><img src="{{url_for('static', filename='/check.png')}}" x-show="Cliente.wapp_verificado">
-      </div>
+      <img src="{{url_for('static', filename='/nocheck.png')}}" x-show="Cliente.auth_sinwapp_verificado"></div>
       <p  x-show="Cliente.acla" x-text="Cliente.acla"></p>
       <p  x-show="Cliente.mjecobr" x-text="Cliente.mjecobr"></p>
       <p  x-show="Cliente.horario" x-text="Cliente.horario"></p>
@@ -196,8 +196,7 @@
       <a href="#table-comentarios" class="tag is-small is-warning"
 	     x-show="listaComentarios.length">Hay comentarios</a>
        <a href="#lista-emojis" x-show="listaWapps.length" 
-       class="btn-whatsapp" @contextmenu="idbuscar.scrollIntoView()"
-       @click="verificarWapps()">
+       class="btn-whatsapp" @contextmenu="idbuscar.scrollIntoView()">
        <img src="{{url_for('static', filename='/icon-whatsapp.svg')}}"></a>
       <span class="tag is-small is-info" x-show="tieneDato">Tiene Dato</span>
       </div>
@@ -1025,6 +1024,15 @@
          remapeaEmojis(){
           this.listaEmojis = this.listaEmojis.map(row=>row = '%'+row.replaceAll(' ', '%'))
          },
+         init() {
+         const socket = io.connect('https://' + document.domain + ':' + location.port);
+         socket.on('update_wapps', (msg) => {
+           // Actualiza el array 'data' con los cambios recibidos
+           this.data = msg.data;
+           console.log('los datos se actualizaron', this.data)
+           this.verificarWapps()
+         });
+       },
          buscarCliente(){
              this.verCard = false
              this.resetBuscar()
@@ -1071,7 +1079,7 @@
                                .then(res=>{
                                    this.cuotaMaxima = res.data.cuotamaxima
                                })
-                               this.agregarBusquedaReciente(this.buscar)  
+                               this.agregarBusquedaReciente(this.buscar) 
              
          },
          refreshCliente(dni){

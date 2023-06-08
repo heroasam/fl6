@@ -1032,25 +1032,45 @@ def buscar_obtenerwapps(wapp):
 def buscar_obtenertodoswapps():
     get_msgs()
     con = get_con()
+    chats_no_respondidos = pglist(con, "select r.wapp from wappsrecibidos \
+                                  as r where r.fecha>(select max(fecha) from \
+                                  wappsenviados where wapp=substring(r.wapp,-10)) \
+                                  and substring(r.wapp,-10) not \
+                            in (select telefono from cobr where activo=1)")
+    no_respondidos = listsql(chats_no_respondidos)
+    chats_no_respondidos_cobr = pglist(con, "select r.wapp from wappsrecibidos \
+                                  as r where r.fecha>(select max(fecha) from \
+                                  wappsenviados where wapp=substring(r.wapp,-10)) \
+                                  and substring(r.wapp,-10)  \
+                           in (select telefono from cobr where activo=1)")
+    no_respondidos_cobr = listsql(chats_no_respondidos_cobr)
     recibidos = pglistdict(con, "select id,fecha,msg,wapp from wappsrecibidos \
                            where wapp in (select wapp from wappsrecibidos \
                            where respondido=0) and substring(wapp,-10) not \
                            in (select telefono from cobr where activo=1)")
-    recibidoscobr = pglistdict(con, "select id,fecha,msg,wapp from \
-                               wappsrecibidos where substring(wapp,-10) \
-                               in (select telefono \
-                               from cobr where activo=1) and \
-                               fecha>date_sub(curdate(),interval 1 day)")
+    # recibidos = pglistdict(con, f"select id,fecha,msg,wapp from wappsrecibidos \
+    #                        where wapp in {no_respondidos}")
+    # recibidoscobr = pglistdict(con, "select id,fecha,msg,wapp from \
+    #                            wappsrecibidos where substring(wapp,-10) \
+    #                            in (select telefono \
+    #                            from cobr where activo=1) and \
+    #                            fecha>date_sub(curdate(),interval 1 day)")
+    recibidoscobr = pglistdict(con, f"select id,fecha,msg,wapp from wappsrecibidos \
+                           where wapp in {no_respondidos_cobr}")
     recibidos = recibidos + recibidoscobr
     enviados = pglistdict(con, "select id,fecha,msg,wapp,user from wappsenviados \
                            where wapp in (select wapp from wappsrecibidos \
                            where respondido=0) and wapp not in \
                           (select telefono from cobr where activo=1)")
-    enviadoscobr = pglistdict(con, "select id,fecha,msg,concat('549',wapp) as wapp,user from \
-                               wappsenviados where substring(wapp,-10) \
-                               in (select telefono \
-                               from cobr where activo=1) and \
-                               fecha>date_sub(curdate(),interval 1 day)")
+    # enviados = pglistdict(con, f"select id,fecha,msg,wapp,user from wappsenviados \
+    #                             where wapp in {no_respondidos}")
+    # enviadoscobr = pglistdict(con, "select id,fecha,msg,concat('549',wapp) as wapp,user from \
+    #                            wappsenviados where substring(wapp,-10) \
+    #                            in (select telefono \
+    #                            from cobr where activo=1) and \
+    #                            fecha>date_sub(curdate(),interval 1 day)")
+    enviadoscobr = pglistdict(con, f"select id,fecha,msg,wapp,user from wappsenviados \
+                                where wapp in {no_respondidos_cobr}")
     enviados = enviados + enviadoscobr
     con.close()
     return jsonify(recibidos=recibidos, enviados=enviados)
