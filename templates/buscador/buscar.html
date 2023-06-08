@@ -1024,33 +1024,25 @@
          remapeaEmojis(){
           this.listaEmojis = this.listaEmojis.map(row=>row = '%'+row.replaceAll(' ', '%'))
          },
-<<<<<<< Updated upstream
-      //    init() {
-      //    const socket = io.connect('https://' + document.domain + ':' + location.port);
-      //    socket.on('update_wapps', (msg) => {
-      //      // Actualiza el array 'data' con los cambios recibidos
-      //      this.data = msg.data;
-      //      console.log('los datos se actualizaron', this.data)
-      //      this.verificarWapps()
-      //    });
-      //  },
-=======
-         init() {
-        //  const socket = io.connect('https://' + document.domain + ':' + location.port);
-        //  socket.on('update_wapps', (msg) => {
-        //    // Actualiza el array 'data' con los cambios recibidos
-        //    this.data = msg.data;
-        //    console.log('los datos se actualizaron', this.data)
-        //    this.verificarWapps()
-        //  });
-         var ws = new WebSocket("ws://localhost:9999/");
-           ws.onmessage = function (evt) {
-             this.data = evt.data;
-             console.log('los datos se actualizaron', this.data)
-             his.getWapps()
+
+         init(){
+          //  ws.onmessage = function (evt) {
+          //    console.log('evento', evt, evt.data);
+          //    this.data = evt.data;
+          //    console.log('los datos se actualizaron', this.data)
+          //    this.verificarWapps()
+          //  }
+            function onMessage(evt, verificarWapps) {
+
+             console.log('los datos se actualizaron', dayjs().format('%DD%HH%mm%ss'))
+
+             this.verificarWapps();
+
            }
-       },
->>>>>>> Stashed changes
+
+           ws.onmessage = onMessage.bind(this, this.verificarWapps);
+         },
+
          buscarCliente(){
              this.verCard = false
              this.resetBuscar()

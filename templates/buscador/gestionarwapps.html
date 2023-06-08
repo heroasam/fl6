@@ -135,33 +135,27 @@
       remapeaEmojis() {
         this.listaEmojis = this.listaEmojis.map(row => row = '%' + row.replaceAll(' ', '%'))
       },
-<<<<<<< Updated upstream
-      // init() {
-      //   const socket = io.connect('https://' + document.domain + ':' + location.port);
-      //   socket.on('update_wapps', (msg) => {
-      //     // Actualiza el array 'data' con los cambios recibidos
-      //     this.data = msg.data;
-      //     console.log('los datos se actualizaron', this.data)
-      //     this.getWapps()
-      //   });
-      // },
-=======
+
       init() {
-        // const socket = io.connect('https://' + document.domain + ':' + location.port);
-        // socket.on('update_wapps', (msg) => {
-        //   // Actualiza el array 'data' con los cambios recibidos
-        //   this.data = msg.data;
-        //   console.log('los datos se actualizaron', this.data)
-        //   this.getWapps()
-        // });
-        var ws = new WebSocket("ws://localhost:9999/");
-        ws.onmessage = function (evt) {
-          this.data = evt.data;
-          console.log('los datos se actualizaron', this.data)
-          his.getWapps()
-      }
+      //   ws.onmessage = function (evt) {
+      //     this.data = evt.data;
+      //     console.log('los datos se actualizaron', this.data)
+      //     if (this.data>0){
+      //     this.getWapps()
+      //     }
+      // }
+      function onMessage(evt, getWapps) {
+          
+          console.log('los datos se actualizaron', dayjs().format('DD-HH:mm:ss'))
+         
+            setTimeout(()=>{this.getWapps();},10)
+         
+        }
+
+        ws.onmessage = onMessage.bind(this, this.getWapps);
+
     },
->>>>>>> Stashed changes
+
       getNombresWapps() {
         axios.get('/buscador/obtenernombreswapps')
           .then(res => {
@@ -182,7 +176,7 @@
           })
       },
       getWapps() {
-        console.log('llamado getwapps',dayjs())
+        console.log('llamado getwapps',dayjs().format("DD-HH:mm:ss"))
         axios.get('/buscador/obtenertodoswapps')
           .then(res => {
             let recibidos = res.data.recibidos
@@ -215,7 +209,7 @@
               this.listaChats_.push({ 'wapp': row[0], 'nombre': row[1].nombres||['chat'], 'fecha': row[1].fecha, 'cobr': cobr, 'cnt_wapp': cnt_wapp })
             })
      
-          // console.log(this.listaChats_)
+          console.log('listaChats',this.listaChats_)
           this.listaChats = this.listaChats_.sort((a, b) => {
           let s1 = a.fecha
           let s2 = b.fecha
@@ -230,7 +224,7 @@
           if (s1 < s2) return 1
           if (s1 == s2) return 0
           })
-          // console.log(this.listaChats)
+          console.log(this.listaChats,this.listaWapps)
           this.filtrarWappsUsuario()
         })
       },

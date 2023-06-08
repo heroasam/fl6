@@ -58,5 +58,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.7.107/build/pdf.min.js"></script>
     {% block script %}{% endblock %}
+    <script>
+          var ws = new WebSocket("ws://localhost:9998");
+          console.log('ws', ws);
+         
+    </script>
   </body>
 </html>
