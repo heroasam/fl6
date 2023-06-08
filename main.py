@@ -8,7 +8,14 @@ from flask_login import UserMixin
 from flask_cors import CORS
 from flask_cors import cross_origin
 from flask_wtf import csrf
+<<<<<<< Updated upstream
 #from flask_socketio import SocketIO, emit
+=======
+# from flask_socketio import SocketIO, emit
+import gevent
+from gevent.pywsgi import WSGIServer
+from geventwebsocket.handler import WebSocketHandler
+>>>>>>> Stashed changes
 from werkzeug.urls import url_parse
 from lib import *
 from formularios import *
@@ -40,7 +47,11 @@ csrf = CSRFProtect(app)
 login = LoginManager(app)
 login.login_view = "login"
 bcrypt = Bcrypt(app)
+<<<<<<< Updated upstream
 #socketio = SocketIO(app)
+=======
+# socketio = SocketIO(app)
+>>>>>>> Stashed changes
 
 
 app.register_blueprint(ventas)
@@ -491,10 +502,51 @@ def process_queue():
 #     con.close()
 #     time.sleep(10)   
 
+class WebSocketApp(object):
+    """Stream sine values"""
+    def __call__(self, environ, start_response):
+        ws = environ['wsgi.websocket']
+        while True:
+            con = get_con()
+            changes = None
+            with gevent.Timeout(10, False):
+                changes = pgonecolumn(con, f"select count(*) from wappsrecibidos \
+                            where fecha>date_sub(now(), interval 40 \
+                            second)")
+            if changes is None:
+                ...  # 5 seconds passed without reading a line
+            else:
+                logging.warning(f"changes a {str(time.ctime(time.time()))} {changes}")
+                # Envía los cambios a los clientes conectados
+                ws.send(json.dumps(changes))
+            con.close()
+
+
+http_server = WSGIServer(('', 5000), app)
+
+    # setup server to handle websocket requests
+ws_server = WSGIServer(
+        ('', 9999), WebSocketApp(),
+        handler_class=WebSocketHandler
+    )
+
+gevent.joinall([
+        gevent.spawn(http_server.serve_forever),
+        gevent.spawn(ws_server.serve_forever)
+    ])
+
 # Iniciar la función de vigilancia de la cola en segundo plano
 queue_thread = threading.Thread(target=process_queue)
+<<<<<<< Updated upstream
 #wapp_thread = threading.Thread(target=check_wapps)
 queue_thread.daemon = True
 #wapp_thread.daemon = True
 queue_thread.start()
 #wapp_thread.start()
+=======
+# wapp_thread = threading.Thread(target=check_wapps)
+queue_thread.daemon = True
+# wapp_thread.daemon = True
+queue_thread.start()
+# wapp_thread.start()
+>>>>>>> Stashed changes
