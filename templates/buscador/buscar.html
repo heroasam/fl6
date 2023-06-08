@@ -4,7 +4,7 @@
 {% block content %}
 <div x-data="main()"  class="container" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores();
              getInflacion();autoLoad();cargarMsgs();obtenerHistorialBusquedas();
-             getListaBtnWapp();remapeaEmojis();init()">
+             getListaBtnWapp();remapeaEmojis()">
 
   <div>
 	<div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
@@ -1024,15 +1024,15 @@
          remapeaEmojis(){
           this.listaEmojis = this.listaEmojis.map(row=>row = '%'+row.replaceAll(' ', '%'))
          },
-         init() {
-         const socket = io.connect('https://' + document.domain + ':' + location.port);
-         socket.on('update_wapps', (msg) => {
-           // Actualiza el array 'data' con los cambios recibidos
-           this.data = msg.data;
-           console.log('los datos se actualizaron', this.data)
-           this.verificarWapps()
-         });
-       },
+      //    init() {
+      //    const socket = io.connect('https://' + document.domain + ':' + location.port);
+      //    socket.on('update_wapps', (msg) => {
+      //      // Actualiza el array 'data' con los cambios recibidos
+      //      this.data = msg.data;
+      //      console.log('los datos se actualizaron', this.data)
+      //      this.verificarWapps()
+      //    });
+      //  },
          buscarCliente(){
              this.verCard = false
              this.resetBuscar()

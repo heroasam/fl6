@@ -8,7 +8,7 @@ from flask_login import UserMixin
 from flask_cors import CORS
 from flask_cors import cross_origin
 from flask_wtf import csrf
-from flask_socketio import SocketIO, emit
+#from flask_socketio import SocketIO, emit
 from werkzeug.urls import url_parse
 from lib import *
 from formularios import *
@@ -40,7 +40,7 @@ csrf = CSRFProtect(app)
 login = LoginManager(app)
 login.login_view = "login"
 bcrypt = Bcrypt(app)
-socketio = SocketIO(app)
+#socketio = SocketIO(app)
 
 
 app.register_blueprint(ventas)
@@ -473,28 +473,28 @@ def process_queue():
     while True:
         revisa_redis()
 
-def check_wapps():
-    while True:
-        revisa_wapps()
+# def check_wapps():
+#     while True:
+#         revisa_wapps()
 
-def revisa_wapps():
-    con = get_con()
-    changes = pgonecolumn(con, f"select count(*) from wappsrecibidos \
-                            where fecha>date_sub(now(), interval 40 \
-                            second)")
-    logging.warning(f"changes a {str(time.ctime(time.time()))} {changes}")
+# def revisa_wapps():
+#     con = get_con()
+#     changes = pgonecolumn(con, f"select count(*) from wappsrecibidos \
+#                             where fecha>date_sub(now(), interval 40 \
+#                             second)")
+#     logging.warning(f"changes a {str(time.ctime(time.time()))} {changes}")
 
-    if changes!='' and changes is not None and changes > 0:
-        # Envía los cambios a los clientes conectados
-        socketio.emit('update_wapps', {'data': changes})
+#     if changes!='' and changes is not None and changes > 0:
+#         # Envía los cambios a los clientes conectados
+#         socketio.emit('update_wapps', {'data': changes})
 
-    con.close()
-    time.sleep(10)   
+#     con.close()
+#     time.sleep(10)   
 
 # Iniciar la función de vigilancia de la cola en segundo plano
 queue_thread = threading.Thread(target=process_queue)
-wapp_thread = threading.Thread(target=check_wapps)
+#wapp_thread = threading.Thread(target=check_wapps)
 queue_thread.daemon = True
-wapp_thread.daemon = True
+#wapp_thread.daemon = True
 queue_thread.start()
-wapp_thread.start()
+#wapp_thread.start()

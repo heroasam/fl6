@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getNombresWapps();remapeaEmojis();getListaBtnWapp();init()">
+<div class="container" x-data="main()" x-init="getNombresWapps();remapeaEmojis();getListaBtnWapp()">
 
   
     <p class="title is-1">Gestionar WhatsApps</p>
@@ -135,15 +135,15 @@
       remapeaEmojis() {
         this.listaEmojis = this.listaEmojis.map(row => row = '%' + row.replaceAll(' ', '%'))
       },
-      init() {
-        const socket = io.connect('https://' + document.domain + ':' + location.port);
-        socket.on('update_wapps', (msg) => {
-          // Actualiza el array 'data' con los cambios recibidos
-          this.data = msg.data;
-          console.log('los datos se actualizaron', this.data)
-          this.getWapps()
-        });
-      },
+      // init() {
+      //   const socket = io.connect('https://' + document.domain + ':' + location.port);
+      //   socket.on('update_wapps', (msg) => {
+      //     // Actualiza el array 'data' con los cambios recibidos
+      //     this.data = msg.data;
+      //     console.log('los datos se actualizaron', this.data)
+      //     this.getWapps()
+      //   });
+      // },
       getNombresWapps() {
         axios.get('/buscador/obtenernombreswapps')
           .then(res => {
