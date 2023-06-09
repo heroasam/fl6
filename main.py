@@ -495,6 +495,7 @@ class WebSocketApp(object):
     """Stream sine values"""
     def __call__(self, environ, start_response):
         ws = environ['wsgi.websocket']
+        # self.allow_reuse_address=True
         while True:
             con = get_con()
             # changes = None
@@ -520,8 +521,8 @@ http_server = WSGIServer(('', 5001), app)
 
     # setup server to handle websocket requests
 ws_server = WSGIServer(
-        ('', 9998), WebSocketApp(),
-        handler_class=WebSocketHandler
+        ('', 9999), WebSocketApp(),
+        handler_class=WebSocketHandler,
     )
 
 gevent.joinall([
