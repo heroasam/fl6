@@ -8,9 +8,9 @@ from flask_login import UserMixin
 from flask_cors import CORS
 from flask_cors import cross_origin
 from flask_wtf import csrf
-import gevent
-from gevent.pywsgi import WSGIServer
-from geventwebsocket.handler import WebSocketHandler
+# import gevent
+# from gevent.pywsgi import WSGIServer
+# from geventwebsocket.handler import WebSocketHandler
 # from flask_sock import Sock
 from werkzeug.urls import url_parse
 from lib import *
@@ -494,39 +494,39 @@ def process_queue():
 #     con.close()
 #     time.sleep(10)   
 
-class WebSocketApp(object):
-    """Stream sine values"""
-    def __call__(self, environ, start_response):
-        ws = environ['wsgi.websocket']
-        # self.allow_reuse_address=True
-        while True:
-            con = get_con()
-            # changes = None
-            # changes,now = pgtuple(con, f"select count(*),now() from wappsrecibidos \
-            #             where fecha>date_sub(now(), interval 10 \
-            #             second)")
-            # logging.warning(f"now {now} {time.ctime(time.time())}")
-            recibidos = pglist(con, "select id from evt_wapp_recibido")
-            if (len(recibidos)>0):
-                logging.warning(f"changes a {str(time.ctime(time.time()))} {len(recibidos)}")
-                ws.send(json.dumps(len(recibidos)))
-                pgexec(con, "delete from evt_wapp_recibido")
-            con.close()
-            gevent.sleep(10)
+# class WebSocketApp(object):
+#     """Stream sine values"""
+#     def __call__(self, environ, start_response):
+#         ws = environ['wsgi.websocket']
+#         # self.allow_reuse_address=True
+#         while True:
+#             con = get_con()
+#             # changes = None
+#             # changes,now = pgtuple(con, f"select count(*),now() from wappsrecibidos \
+#             #             where fecha>date_sub(now(), interval 10 \
+#             #             second)")
+#             # logging.warning(f"now {now} {time.ctime(time.time())}")
+#             recibidos = pglist(con, "select id from evt_wapp_recibido")
+#             if (len(recibidos)>0):
+#                 logging.warning(f"changes a {str(time.ctime(time.time()))} {len(recibidos)}")
+#                 ws.send(json.dumps(len(recibidos)))
+#                 pgexec(con, "delete from evt_wapp_recibido")
+#             con.close()
+#             gevent.sleep(10)
 
-            # if changes is None or changes==0:
-            # else:
-                # logging.warning(f"changes a {str(time.ctime(time.time()))} {changes}")
-                # Envía los cambios a los clientes conectados
+#             # if changes is None or changes==0:
+#             # else:
+#                 # logging.warning(f"changes a {str(time.ctime(time.time()))} {changes}")
+#                 # Envía los cambios a los clientes conectados
 
 
-http_server = WSGIServer(('', 5002), app)
+# http_server = WSGIServer(('', 5002), app)
 
-    # setup server to handle websocket requests
-ws_server = WSGIServer(
-        ('', 9999), WebSocketApp(),
-        handler_class=WebSocketHandler,
-    )
+#     # setup server to handle websocket requests
+# ws_server = WSGIServer(
+#         ('', 9999), WebSocketApp(),
+#         handler_class=WebSocketHandler,
+#     )
 
 # gevent.joinall([
 #         gevent.spawn(http_server.serve_forever),

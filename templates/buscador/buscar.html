@@ -1024,25 +1024,6 @@
          remapeaEmojis(){
           this.listaEmojis = this.listaEmojis.map(row=>row = '%'+row.replaceAll(' ', '%'))
          },
-
-         init(){
-          //  ws.onmessage = function (evt) {
-          //    console.log('evento', evt, evt.data);
-          //    this.data = evt.data;
-          //    console.log('los datos se actualizaron', this.data)
-          //    this.verificarWapps()
-          //  }
-            function onMessage(evt, verificarWapps) {
-
-             console.log('los datos se actualizaron', dayjs().format('%DD%HH%mm%ss'))
-
-             this.verificarWapps();
-
-           }
-
-           ws.onmessage = onMessage.bind(this, this.verificarWapps);
-         },
-
          buscarCliente(){
              this.verCard = false
              this.resetBuscar()
@@ -1062,8 +1043,6 @@
 			              if(row.ultcompra>row.ultpago) row.ultpago=row.ultcompra
 		              })
 		              if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
-                      
-
 		          })
 		          .catch(error=>{
                 console.log(error)

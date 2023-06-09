@@ -135,27 +135,6 @@
       remapeaEmojis() {
         this.listaEmojis = this.listaEmojis.map(row => row = '%' + row.replaceAll(' ', '%'))
       },
-
-      init() {
-      //   ws.onmessage = function (evt) {
-      //     this.data = evt.data;
-      //     console.log('los datos se actualizaron', this.data)
-      //     if (this.data>0){
-      //     this.getWapps()
-      //     }
-      // }
-      function onMessage(evt, getWapps) {
-          
-          console.log('los datos se actualizaron', dayjs().format('DD-HH:mm:ss'))
-         
-            setTimeout(()=>{this.getWapps();},10)
-         
-        }
-
-        ws.onmessage = onMessage.bind(this, this.getWapps);
-
-    },
-
       getNombresWapps() {
         axios.get('/buscador/obtenernombreswapps')
           .then(res => {
