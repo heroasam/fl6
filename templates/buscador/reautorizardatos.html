@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div  x-data="main()" x-init="getListadoAutorizados()"></div>
+<div  x-data="main()" x-init="getListadoAutorizados()">
 <!-- ;setInterval(()=>{getListadoAutorizados()},10000)"> -->
   <div class="columns">
     <div class="column is-6">
@@ -208,6 +208,7 @@
     </div>
   </div>
 </div>
+
 {% endblock %}
 {% block script %}
 <script>
@@ -240,11 +241,12 @@
                       this.cuota_basica = res.data.cuotabasica
                       this.listadoAutorizados_ = this.listadoAutorizados
                       /* this.largo = this.listadoAutorizados.length
-                       * if (this.largo>this.ultlargo){
-                       *     this.audio.play();
-                       *     this.ultlargo=this.largo
-                       * } */
-                      if(diff.length>0) this.audio.play()
+                      * if (this.largo>this.ultlargo){
+                        *     this.audio.play();
+                        *     this.ultlargo=this.largo
+                        * } */
+                       if(diff.length>0) this.audio.play()
+                       console.log(this.listadoAutorizados, this.listadoAutorizados_, this.cuota_basica, diff );
                   })
          },
          mostrarAutorizados(idcliente){

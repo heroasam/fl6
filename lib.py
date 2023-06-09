@@ -287,7 +287,8 @@ def guardar_msg(wapp,msg,idtime,api=1,time=None, media=None, tipo=None):
         return
 
 apis = {1:"5493513882892", 2:"5493515919883", 3:"5493515920539"}
-wapp_cobr = ["3547611702","3512491224","3515916367","3516503558","3512916800","3512761985","3516366532","3512154913","3515297472"]
+#wapp_cobr = ["3547611702","3512491224","3515916367","3516503558","3512916800","3512761985","3516366532","3512154913","3515297472"]
+wapp_cobr = []
 def send_msg_whatsapp(idcliente, wapp, msg, api=1):
     """Funcion que encola wapp de texto."""
     # api = pgonecolumn(con, f"select api from wappsrecibidos where wapp=\
