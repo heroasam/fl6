@@ -11,6 +11,7 @@ from flask_wtf import csrf
 import gevent
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
+# from flask_sock import Sock
 from werkzeug.urls import url_parse
 from lib import *
 from formularios import *
@@ -36,7 +37,9 @@ import base64
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+# app.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 25}
 CORS(app)
+# sock = Sock(app)
 
 csrf = CSRFProtect(app)
 login = LoginManager(app)
@@ -517,7 +520,7 @@ class WebSocketApp(object):
                 # Envía los cambios a los clientes conectados
 
 
-http_server = WSGIServer(('', 5001), app)
+http_server = WSGIServer(('', 5002), app)
 
     # setup server to handle websocket requests
 ws_server = WSGIServer(
@@ -525,11 +528,19 @@ ws_server = WSGIServer(
         handler_class=WebSocketHandler,
     )
 
-gevent.joinall([
-        gevent.spawn(http_server.serve_forever),
-        gevent.spawn(ws_server.serve_forever)
-    ])
+# gevent.joinall([
+#         gevent.spawn(http_server.serve_forever),
+#         gevent.spawn(ws_server.serve_forever)
+#     ])
 
+
+# @sock.route('/echo')
+# def echo(ws):
+#     while not ws.closed:
+#         message = ws.receive()
+#         ws.send(message)
+
+# WSGIServer(('127.0.0.1', 5001), app).serve_forever()        
 # Iniciar la función de vigilancia de la cola en segundo plano
 queue_thread = threading.Thread(target=process_queue)
 queue_thread.daemon = True
