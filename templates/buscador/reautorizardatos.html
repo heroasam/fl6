@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div  x-data="main()" x-init="getListadoAutorizados()">
+<div  x-data="main()" x-init="getListadoAutorizados();init()">
 <!-- ;setInterval(()=>{getListadoAutorizados()},10000)"> -->
   <div class="columns">
     <div class="column is-6">
@@ -96,7 +96,7 @@
             <span class="tag is-small is-success" x-show="dato.baja">ex-SEVEN</span></td>
             <td><span class="tag is-small is-danger" x-show="dato.cnt>1" @click="mostrarAutorizados(dato.idcliente)"
                 >Mostrar otras autorizaciones</span></td>
-                
+
         </tr>
       </template>
     </tbody>
@@ -230,6 +230,13 @@
          sin_extension:0,
          motivo:'',
          idauth:'',
+         init(){
+             function onMessage(evt, getListadoAutorizados){
+                     console.log('los datos se actualizaron', dayjs().format('%DD%HH%mm%ss'));
+                     this.getListadoAutorizados()
+             };
+             eventSource1.onmessage = onMessage.bind(this, this.getListadoAutorizados);
+         },
          getListadoAutorizados(){
              axios.get('/vendedor/getlistadoautorizados')
                   .then(res=>{
@@ -398,7 +405,7 @@ Motivo: ${this.motivo}`
                   })
              }
          },
-         
+
 
  }}
 

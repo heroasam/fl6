@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import Flask, json
+from flask import Flask, json, Response
 from flask import render_template, url_for, request, redirect, make_response, session, flash, g, send_file
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
@@ -9,7 +9,7 @@ from flask_cors import CORS
 from flask_cors import cross_origin
 from flask_wtf import csrf
 import gevent
-from flask_sse import sse
+# from flask_sse import sse
 from werkzeug.urls import url_parse
 from lib import *
 from formularios import *
@@ -35,15 +35,14 @@ import base64
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-# app.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 25}
+# app.config["REDIS_URL"] = "http://127.0.0.1:6379"
 CORS(app)
-# sock = Sock(app)
-
 csrf = CSRFProtect(app)
 login = LoginManager(app)
 login.login_view = "login"
 bcrypt = Bcrypt(app)
 
+# app.register_blueprint(sse, url_prefix='/stream')
 app.register_blueprint(ventas)
 app.register_blueprint(stock)
 app.register_blueprint(pagos)
@@ -422,6 +421,73 @@ def cur(monto):
         return None
     else:
         return f"${int(monto)}"
+
+
+# @app.route('/wapp')
+# def wapp():
+#     sse.publish({"message": "Hello!"}, type='greeting')
+#     return "Message sent!"
+def get_message():
+    '''Chequeamos si ha llegado un wapp viendo la tabla evt_wapp_recibido'''
+    con = get_con()
+    time.sleep(5.0)
+    s = time.ctime(time.time())
+    cnt = pgtuple(con,"select count(*) from evt_wapp_recibido")
+    if cnt[0] is not None and cnt[0]!='' and cnt[0]>0:
+        pgexec(con, "delete from evt_wapp_recibido")
+        con.close()
+        return f'wapp {s}'
+
+
+@app.route('/stream')
+def stream():
+    def eventStream():
+        while get_message():
+            # wait for source data to be available, then push it
+            yield 'data: {}\n\n'.format(get_message())
+    return Response(eventStream(), mimetype="text/event-stream")
+
+
+def get_message1():
+    '''Chequeamos si ha entrado una autorizacion'''
+    con = get_con()
+    time.sleep(5.0)
+    s = time.ctime(time.time())
+    cnt = pgtuple(con,"select count(*) from evt_auth_ingresada")
+    if cnt[0] is not None and cnt[0]!='' and cnt[0]>0:
+        pgexec(con, "delete from evt_auth_ingresada")
+        con.close()
+        return f'auth {s}'
+
+
+@app.route('/stream1')
+def stream1():
+    def eventStream1():
+        while get_message1():
+            # wait for source data to be available, then push it
+            yield 'data: {}\n\n'.format(get_message1())
+    return Response(eventStream1(), mimetype="text/event-stream")
+
+
+def get_message2():
+    '''Chequeamos si ha entrado una venta'''
+    con = get_con()
+    time.sleep(5.0)
+    s = time.ctime(time.time())
+    cnt = pgtuple(con,"select count(*) from evt_vta_ingresada")
+    if cnt[0] is not None and cnt[0]!='' and cnt[0]>0:
+        pgexec(con, "delete from evt_vta_ingresada")
+        con.close()
+        return f'auth {s}'
+
+
+@app.route('/stream2')
+def stream2():
+    def eventStream2():
+        while get_message2():
+            # wait for source data to be available, then push it
+            yield 'data: {}\n\n'.format(get_message2())
+    return Response(eventStream2(), mimetype="text/event-stream")
 
 
 def revisa_redis():

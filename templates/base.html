@@ -52,18 +52,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.5/locale/es.min.js"></script>
     <script>dayjs.locale('es')</script>
 
-    
-    
+
+
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11.4.38"></script>
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@3.2.2/dist/umd/simple-datatables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.7.107/build/pdf.min.js"></script>
     {% block script %}{% endblock %}
-    <script>
-          // var ws = new EventSource("https://romulana.xyz/wapp");
-          // console.log(ws);
-          </script>
-          
-         
   </body>
+  <script>
+   let eventSource = new EventSource("/stream")
+   let eventSource1 = new EventSource("/stream1")
+   let eventSource2 = new EventSource("/stream2")
+   console.log(eventSource)
+   console.log(eventSource1)
+   console.log(eventSource2)
+  </script>
 </html>

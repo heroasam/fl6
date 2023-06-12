@@ -6,9 +6,9 @@
 
 <div class="container" x-data="main()" x-init="getNombresWapps();remapeaEmojis();getListaBtnWapp();init()">
 
-  
+
     <p class="title is-1">Gestionar WhatsApps</p>
-  
+
   <div class="columns">
     <div class="column is-7">
 <table class="table noselect is-narrow" id="table-wapps">
@@ -79,8 +79,8 @@
         <canvas id="visorPdf" width="1200" height="1200"></canvas>
         <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}" />
       </div>
-      
-      
+
+
       <table class="table">
         <thead>
           <tr>
@@ -106,7 +106,7 @@
       </table>
     </div>
   </div>
-  
+
 
 
 
@@ -137,29 +137,15 @@
       },
 
       init() {
-      //   ws.onmessage = function (evt) {
-      //     this.data = evt.data;
-      //     console.log('los datos se actualizaron', this.data)
-      //     if (this.data>0){
-      //     this.getWapps()
-      //     }
-      // }
-      var ws = new EventSource("https://romulana.xyz/wapp");
-           console.log(ws);
-      function onMessage(evt, getWapps) {
-          
-          console.log('los datos se actualizaron', dayjs().format('DD-HH:mm:ss'))
-         
-            setTimeout(()=>{this.getWapps();},10)
-         
-        }
+          function onMessage(evt, getWapps){
+                     console.log('los datos se actualizaron', dayjs().format('%DD%HH%mm%ss'));
+                     this.getWapps()
+             };
+          eventSource.onmessage = onMessage.bind(this, this.getWapps);
+      },
 
-        ws.onmessage = onMessage.bind(this, this.getWapps);
-
-    },
-
-      getNombresWapps() {
-        axios.get('/buscador/obtenernombreswapps')
+        getNombresWapps() {
+            axios.get('/buscador/obtenernombreswapps')
           .then(res => {
             this.nombresWapps = [...res.data.nombreswapps, ...res.data.cobrwapps];
             this.listaCobrWapps = res.data.cobrwapps
@@ -210,7 +196,7 @@
               }
               this.listaChats_.push({ 'wapp': row[0], 'nombre': row[1].nombres||['chat'], 'fecha': row[1].fecha, 'cobr': cobr, 'cnt_wapp': cnt_wapp })
             })
-     
+
           console.log('listaChats',this.listaChats_)
           this.listaChats = this.listaChats_.sort((a, b) => {
           let s1 = a.fecha

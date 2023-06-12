@@ -195,7 +195,7 @@
       <div>
       <a href="#table-comentarios" class="tag is-small is-warning"
 	     x-show="listaComentarios.length">Hay comentarios</a>
-       <a href="#lista-emojis" x-show="listaWapps.length" 
+       <a href="#lista-emojis" x-show="listaWapps.length"
        class="btn-whatsapp" @contextmenu="idbuscar.scrollIntoView()">
        <img src="{{url_for('static', filename='/icon-whatsapp.svg')}}"></a>
       <span class="tag is-small is-info" x-show="tieneDato">Tiene Dato</span>
@@ -604,8 +604,8 @@
    <div class="columns">
     <div class="column is-10">
       <div x-show="verCard && listaWapps.length">
-        <span class="tag is-large" id="table-wapps">Lista de WhatsApp</span> 
-        <span class="tag is-small is-success pointer" 
+        <span class="tag is-large" id="table-wapps">Lista de WhatsApp</span>
+        <span class="tag is-small is-success pointer"
         @click="contestarWapp=1; setTimeout(()=>{idButtonEnviar.scrollIntoView()},10);
         marcarRespondido()" id="buttonContestar">Contestar</span>
         <span class="tag is-small is-warning" x-text="cntCompartenWapp" x-show="cntCompartenWapp>1"></span>
@@ -624,9 +624,9 @@
           <template x-for="item in listaWapps">
             <tr :class="item.user?'wapp_respuesta':''">
               <td x-text="item.fecha" style="min-width: 200px;"></td>
-              <td><i class='fa fa-file-pdf-o' style='color:#c92023' x-show="item.msg.includes('pdf')" 
-                @click="verPdf(item.id)"></i>                 
-                  <i class="fa fa-play" style='color:hwb(134 13% 20%)' aria-hidden="true" 
+              <td><i class='fa fa-file-pdf-o' style='color:#c92023' x-show="item.msg.includes('pdf')"
+                @click="verPdf(item.id)"></i>
+                  <i class="fa fa-play" style='color:hwb(134 13% 20%)' aria-hidden="true"
                   x-show="item.msg=='audio'" @click="escucharOgg(item.id)"></i></td>
                 <td x-text="item.msg" style="max-width: 400px;"></td>
                 <td x-text="item.user||''"></td>
@@ -636,7 +636,7 @@
         </table>
         <div x-show="listaWapps.length && verCard">
           <div>
-            <label for="msg" class="label">Mensaje</label>    
+            <label for="msg" class="label">Mensaje</label>
             <textarea x-model="msgWhatsapp" id="msg" autocomplete="off" rows="5" cols="62"></textarea>
           </div>
           <div class="flex">
@@ -649,7 +649,7 @@
           </div>
           <div class="flex" id="lista-emojis">
             <template x-for="emoji  in listaEmojis">
-              <span class="is-black is-rounded pointer emoji" x-html="decodeURIComponent(emoji)" 
+              <span class="is-black is-rounded pointer emoji" x-html="decodeURIComponent(emoji)"
               @click="addEmoji(decodeURIComponent(emoji))"></span>
             </template>
           </div>
@@ -965,6 +965,8 @@
 {% block script %}
 <script>
  user = {{current_user.email|tojson}}
+</script>
+<script>
  function main(){
      return{
          calle:'',
@@ -1024,28 +1026,13 @@
          remapeaEmojis(){
           this.listaEmojis = this.listaEmojis.map(row=>row = '%'+row.replaceAll(' ', '%'))
          },
-
          init(){
-          //  ws.onmessage = function (evt) {
-          //    console.log('evento', evt, evt.data);
-          //    this.data = evt.data;
-          //    console.log('los datos se actualizaron', this.data)
-          //    this.verificarWapps()
-          //  }
-          var ws = new EventSource("https://romulana.xyz/wapp");
-          console.log("ws",ws)
-          // console.log(ws);
-            function onMessage(evt, verificarWapps) {
-
-             console.log('los datos se actualizaron', dayjs().format('%DD%HH%mm%ss'))
-
-             this.verificarWapps();
-
-           }
-
-           ws.onmessage = onMessage.bind(this, this.verificarWapps);
+             function onMessage(evt, verificarWapps){
+                     console.log('los datos se actualizaron', dayjs().format('%DD%HH%mm%ss'));
+                     this.verificarWapps()
+             };
+             eventSource.onmessage = onMessage.bind(this, this.verificarWapps);
          },
-
          buscarCliente(){
              this.verCard = false
              this.resetBuscar()
@@ -1065,8 +1052,6 @@
 			              if(row.ultcompra>row.ultpago) row.ultpago=row.ultcompra
 		              })
 		              if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
-                      
-
 		          })
 		          .catch(error=>{
                 console.log(error)
@@ -1077,7 +1062,7 @@
 	         this.resetBuscar()
 	         this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
            console.log("file: buscar.html:1050 ~ buscaCuentaporDni ~ this.Cliente:", this.Cliente)
-           
+
              this.Cliente.direccion = this.Cliente.calle+' '+this.Cliente.num
              this.obtenerVentas(this.Cliente.id)
              this.obtenerWapps(this.Cliente.wapp)
@@ -1092,8 +1077,8 @@
                                .then(res=>{
                                    this.cuotaMaxima = res.data.cuotamaxima
                                })
-                               this.agregarBusquedaReciente(this.buscar) 
-             
+                               this.agregarBusquedaReciente(this.buscar)
+
          },
          refreshCliente(dni){
              axios.get('/buscador/'+dni)
@@ -1139,8 +1124,8 @@
              if (articulos=='None') articulos = '';
              if (articulos=='Plan de Pagos') articulos = '';
              if (articulos!='') articulos = 'de '+articulos
-             const regex = /\|/g; 
-             
+             const regex = /\|/g;
+
              articulos = articulos.replace(regex, '');
              if (this.Cliente.sev){
                  text=
@@ -1896,7 +1881,7 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
          getListaBtnWapp(){
             axios.get('/buscador/getlistabtnwapp')
             .then(res=>{
-              this.listaBtnWapp = res.data.listabtnwapp 
+              this.listaBtnWapp = res.data.listabtnwapp
             })
          },
           sendMsgProgramado(nombre){
@@ -1919,8 +1904,8 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
 	              })
          },
          sendMsg(msg){
-          this.msgWhatsapp = "" 
-          this.msgWhatsapp = msg  
+          this.msgWhatsapp = ""
+          this.msgWhatsapp = msg
         },
         marcarRespondido(){
           axios.get('/buscador/marcarrespondido/'+this.Cliente.wapp+'/'+this.Cliente.id)
@@ -1958,13 +1943,13 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
                  console.log('Page rendered');
                });
              });
-             
+
              // Aquí puedes realizar las operaciones necesarias con el PDF
            }).catch(function (error) {
              console.error('Error al cargar el PDF:', error);
            });
-         
-      
+
+
     },
     escucharOgg(id){
       file = `https://fedesal.lol/pdf/${id}.ogg`;
@@ -1992,7 +1977,7 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
         // };
       // }
       //   xhr.send();
-        
+
     },
          autoLoad(){
              {% if dnilistado %}

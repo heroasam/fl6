@@ -10,7 +10,7 @@
 {% block content %}
 
 <div x-data="main()"
-  x-init="getVentaHoy();getVisitasHoy();setInterval(()=>{getVentaHoy()},120000);setInterval(()=>{getListadoAutorizados()},10000)">
+  x-init="getVentaHoy();getVisitasHoy();init()">
 
   <div class="flex-space-between" x-show="!isMobile">
     <p class="title is-1">Tablero Ventas</p>
@@ -21,7 +21,7 @@
   <p class="title is-3" x-show="isMobile">Tablero Ventas</p>
 
 
-  
+
 
 <div class="block" x-show="totalVendido">
   <div class="xtags has-addons m-0" x-show="totalVendido">
@@ -167,9 +167,16 @@
       listaVendedores: [],
       listadoAutorizados: [],
       listaWappsNoEnviados:[],
-      listaDevoluciones:[],
-      getListadoAutorizados() {
-        axios.get('/vendedor/getlistadoautorizados')
+        listaDevoluciones:[],
+        init() {
+          function onMessage(evt, getVentasHoy){
+                     console.log('los datos se actualizaron', dayjs().format('%DD%HH%mm%ss'));
+              this.getVentaHoy()
+             };
+            eventSource.onmessage = onMessage.bind(this, this.getVentaHoy);
+        },
+        getListadoAutorizados() {
+            axios.get('/vendedor/getlistadoautorizados')
           .then(res => {
             this.listadoAutorizados = res.data.listadoautorizados
             let diff = this.listadoAutorizados.filter(row => row.diff = dayjs.utc().diff(dayjs.utc(row.fechahora), 's') - 10800 < 61 && row.tomado == 0) //pq ultimotime esta en GMT 3hs de diferencia
