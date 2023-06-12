@@ -52,7 +52,7 @@ app.register_blueprint(utilidades)
 app.register_blueprint(conta)
 app.register_blueprint(vendedor)
 app.register_blueprint(cobrador)
-
+hay_wapp = 0
 
 def verifica_login(email):
     con = get_con()
@@ -295,6 +295,8 @@ def log6_log():
 @csrf.exempt
 def webhook():
     """api wapp webhook"""
+    global hay_wapp
+    hay_wapp = 1
     # read and parse input data
     # logging.error('funcion webhook llamada')
     con = get_con()
@@ -343,6 +345,8 @@ def webhook():
 @csrf.exempt
 def webhookapis():
     """api wapp webhook para apis."""
+    global hay_wapp
+    hay_wapp = 1
     # read and parse input data
     # logging.error('funcion webhook llamada')
     con = get_con()
@@ -423,19 +427,20 @@ def cur(monto):
         return f"${int(monto)}"
 
 
-# @app.route('/wapp')
-# def wapp():
-#     sse.publish({"message": "Hello!"}, type='greeting')
-#     return "Message sent!"
+@app.route('/whget')
+def whget():
+    global hay_wapp
+    hay_wapp = 1
+    print('en whget', hay_wapp)
+    return 'ok'
+
 def get_message():
     '''Chequeamos si ha llegado un wapp viendo la tabla evt_wapp_recibido'''
-    con = get_con()
-    time.sleep(5.0)
+    global hay_wapp
+    time.sleep(10.0)
     s = time.ctime(time.time())
-    cnt = pgtuple(con,"select count(*) from evt_wapp_recibido")
-    if cnt[0] is not None and cnt[0]!='' and cnt[0]>0:
-        pgexec(con, "delete from evt_wapp_recibido")
-        con.close()
+    if hay_wapp==1:
+        hay_wapp=0
         return f'wapp {s}'
 
 
@@ -446,48 +451,6 @@ def stream():
             # wait for source data to be available, then push it
             yield 'data: {}\n\n'.format(get_message())
     return Response(eventStream(), mimetype="text/event-stream")
-
-
-def get_message1():
-    '''Chequeamos si ha entrado una autorizacion'''
-    con = get_con()
-    time.sleep(5.0)
-    s = time.ctime(time.time())
-    cnt = pgtuple(con,"select count(*) from evt_auth_ingresada")
-    if cnt[0] is not None and cnt[0]!='' and cnt[0]>0:
-        pgexec(con, "delete from evt_auth_ingresada")
-        con.close()
-        return f'auth {s}'
-
-
-@app.route('/stream1')
-def stream1():
-    def eventStream1():
-        while get_message1():
-            # wait for source data to be available, then push it
-            yield 'data: {}\n\n'.format(get_message1())
-    return Response(eventStream1(), mimetype="text/event-stream")
-
-
-def get_message2():
-    '''Chequeamos si ha entrado una venta'''
-    con = get_con()
-    time.sleep(5.0)
-    s = time.ctime(time.time())
-    cnt = pgtuple(con,"select count(*) from evt_vta_ingresada")
-    if cnt[0] is not None and cnt[0]!='' and cnt[0]>0:
-        pgexec(con, "delete from evt_vta_ingresada")
-        con.close()
-        return f'auth {s}'
-
-
-@app.route('/stream2')
-def stream2():
-    def eventStream2():
-        while get_message2():
-            # wait for source data to be available, then push it
-            yield 'data: {}\n\n'.format(get_message2())
-    return Response(eventStream2(), mimetype="text/event-stream")
 
 
 def revisa_redis():

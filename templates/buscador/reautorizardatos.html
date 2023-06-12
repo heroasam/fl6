@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div  x-data="main()" x-init="getListadoAutorizados();init()">
+<div  x-data="main()" x-init="getListadoAutorizados()">
 <!-- ;setInterval(()=>{getListadoAutorizados()},10000)"> -->
   <div class="columns">
     <div class="column is-6">
@@ -230,13 +230,6 @@
          sin_extension:0,
          motivo:'',
          idauth:'',
-         init(){
-             function onMessage(evt, getListadoAutorizados){
-                     console.log('los datos se actualizaron', dayjs().format('%DD%HH%mm%ss'));
-                     this.getListadoAutorizados()
-             };
-             eventSource1.onmessage = onMessage.bind(this, this.getListadoAutorizados);
-         },
          getListadoAutorizados(){
              axios.get('/vendedor/getlistadoautorizados')
                   .then(res=>{

@@ -10,7 +10,7 @@
 {% block content %}
 
 <div x-data="main()"
-  x-init="getVentaHoy();getVisitasHoy();init()">
+  x-init="getVentaHoy();getVisitasHoy()">
 
   <div class="flex-space-between" x-show="!isMobile">
     <p class="title is-1">Tablero Ventas</p>
@@ -60,7 +60,7 @@
             <td x-text="item.nombre"></td>
             <td x-text="item.direccion"></td>
             <td x-text="item.zona"></td>
-            <td><img src="{{url_for('static', filename='/check.png')}}" x-show="item.wapp_verificado"></td>
+            <td><img src="{{url_for('static', filename='check.png')}}" x-show="item.wapp_verificado"></td>
             <td x-text="item.vendedor"></td>
             <td x-text="item.monto_vendido" class="pesos"></td>
           </tr>
@@ -119,8 +119,8 @@
         <td x-text="item.nombre"></td>
         <td x-text="item.direccion"></td>
         <td x-text="item.wapp"></td>
-        <td><img src="{{url_for('static', filename='/check.png')}}" x-show="item.wapp_verificado">
-        <img src="{{url_for('static', filename='/nocheck.png')}}" x-show="item.auth_sinwapp_verificado"></td>
+        <td><img src="{{url_for('static', filename='check.png')}}" x-show="item.wapp_verificado">
+        <img src="{{url_for('static', filename='nocheck.png')}}" x-show="item.auth_sinwapp_verificado"></td>
         <td x-text="item.idvta"></td>
         <td><button class="button is-small is-danger" @click="sendWapp(item.idvta)">Re-enviar</button></td>
         </tr>
@@ -168,13 +168,6 @@
       listadoAutorizados: [],
       listaWappsNoEnviados:[],
         listaDevoluciones:[],
-        init() {
-          function onMessage(evt, getVentasHoy){
-                     console.log('los datos se actualizaron', dayjs().format('%DD%HH%mm%ss'));
-              this.getVentaHoy()
-             };
-            eventSource.onmessage = onMessage.bind(this, this.getVentaHoy);
-        },
         getListadoAutorizados() {
             axios.get('/vendedor/getlistadoautorizados')
           .then(res => {
