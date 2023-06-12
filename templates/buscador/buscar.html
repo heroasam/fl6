@@ -4,7 +4,7 @@
 {% block content %}
 <div x-data="main()"  class="container" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores();
              getInflacion();autoLoad();cargarMsgs();obtenerHistorialBusquedas();
-             getListaBtnWapp();remapeaEmojis()">
+             getListaBtnWapp();remapeaEmojis();init()">
 
   <div>
 	<div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
@@ -1032,6 +1032,9 @@
           //    console.log('los datos se actualizaron', this.data)
           //    this.verificarWapps()
           //  }
+          var ws = new EventSource("https://romulana.xyz/wapp");
+          console.log("ws",ws)
+          // console.log(ws);
             function onMessage(evt, verificarWapps) {
 
              console.log('los datos se actualizaron', dayjs().format('%DD%HH%mm%ss'))

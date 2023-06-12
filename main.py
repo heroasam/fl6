@@ -9,9 +9,10 @@ from flask_cors import CORS
 from flask_cors import cross_origin
 from flask_wtf import csrf
 import gevent
-from gevent.pywsgi import WSGIServer
-from geventwebsocket.handler import WebSocketHandler
+# from gevent.pywsgi import WSGIServer
+# from geventwebsocket.handler import WebSocketHandler
 # from flask_sock import Sock
+from flask_sse import sse
 from werkzeug.urls import url_parse
 from lib import *
 from formularios import *
@@ -321,7 +322,7 @@ def webhook():
             # logging.error(f"existe_msg{existe_msg}")
             if existe_msg == '' or existe_msg is None:
                 if 'media' in data:
-                    # media = base64.b64encode(bytes(data["media"]["base64"], 'utf-8'))   
+                    # media = base64.b64encode(bytes(data["media"]["base64"], 'utf-8'))
                     media = base64.b64decode(data["media"]["base64"])
                     # logging.info(media)
                     if tipo=='document' and message=='':
@@ -333,8 +334,8 @@ def webhook():
                 else:
                     media = ""
                 api = data["api"]
-                guardar_msg(sender,message,idtime,api,hora,media,tipo)  
-                logging.error('se procede a guardar message')      
+                guardar_msg(sender,message,idtime,api,hora,media,tipo)
+                logging.error('se procede a guardar message')
         else:
             idtime = str(sender)+str(int(time.time()*1000))
             guardar_msg(sender,message,idtime)
@@ -380,10 +381,10 @@ def webhookapis():
                 else:
                     media = None
                 api = data["api"]
-                guardar_msg(sender,message,idtime,api,hora,media,tipo)  
-                logging.error('se procede a guardar message')      
+                guardar_msg(sender,message,idtime,api,hora,media,tipo)
+                logging.error('se procede a guardar message')
             return 'ok'
-        
+
 
 def guardar_msg(wapp,msg,idtime,api='5493513882892',time=None, media=None, tipo=None):
     """Guarda el msg recibido por el webhook en la tabla correspondiente."""
@@ -492,7 +493,7 @@ def process_queue():
 #         socketio.emit('update_wapps', {'data': changes})
 
 #     con.close()
-#     time.sleep(10)   
+#     time.sleep(10)
 
 class WebSocketApp(object):
     """Stream sine values"""
@@ -540,7 +541,7 @@ ws_server = WSGIServer(
 #         message = ws.receive()
 #         ws.send(message)
 
-# WSGIServer(('127.0.0.1', 5001), app).serve_forever()        
+# WSGIServer(('127.0.0.1', 5001), app).serve_forever()
 # Iniciar la función de vigilancia de la cola en segundo plano
 queue_thread = threading.Thread(target=process_queue)
 queue_thread.daemon = True
