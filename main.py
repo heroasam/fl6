@@ -9,9 +9,6 @@ from flask_cors import CORS
 from flask_cors import cross_origin
 from flask_wtf import csrf
 import gevent
-# from gevent.pywsgi import WSGIServer
-# from geventwebsocket.handler import WebSocketHandler
-# from flask_sock import Sock
 from flask_sse import sse
 from werkzeug.urls import url_parse
 from lib import *
@@ -427,36 +424,6 @@ def cur(monto):
         return f"${int(monto)}"
 
 
-@app.route('/enviarwapppendientes')
-def revisar_redis():
-    # Esperar a que haya elementos en la cola
-    _, item = queue_wapps.blpop('wapp')
-
-    # Procesar el elemento
-    # si tiene cuatro elementos es wapp de texto
-    # si tiene cinco elementos es wapp de file
-    if len(json.loads(item)) == 4:
-        procesar_msg_whatsapp(item)
-    else:
-        procesar_file_whatsapp(item)
-    return 'ok'
-
-
-# def process_queue():
-#     while True:
-#         # Esperar a que haya elementos en la cola
-#         _, item = queue_wapps.brpop('wapp')
-#         _, _, _, _, hora_despacho, tipo = json.loads(item)
-#         # print('resultado del redis', hora_despacho)
-#         # print(time.time())
-#         # print(json.loads(item))
-#         if tipo == 'texto':
-#             # logging.warning(f"hora de despacho {hora_despacho} y time.time es {time.time()}")
-#             procesar_msg_whatsapp(item)
-#         else:
-#             # logging.warning(f"hora de despacho {hora_despacho}")
-#             procesar_file_whatsapp(item)
-
 def revisa_redis():
 # Esperar a que haya elementos en la cola
     _, item = queue_wapps.brpop('wapp')
@@ -477,72 +444,7 @@ def process_queue():
     while True:
         revisa_redis()
 
-# def check_wapps():
-#     while True:
-#         revisa_wapps()
 
-# def revisa_wapps():
-#     con = get_con()
-#     changes = pgonecolumn(con, f"select count(*) from wappsrecibidos \
-#                             where fecha>date_sub(now(), interval 40 \
-#                             second)")
-#     logging.warning(f"changes a {str(time.ctime(time.time()))} {changes}")
-
-#     if changes!='' and changes is not None and changes > 0:
-#         # Envía los cambios a los clientes conectados
-#         socketio.emit('update_wapps', {'data': changes})
-
-#     con.close()
-#     time.sleep(10)
-
-class WebSocketApp(object):
-    """Stream sine values"""
-    def __call__(self, environ, start_response):
-        ws = environ['wsgi.websocket']
-        # self.allow_reuse_address=True
-        while True:
-            con = get_con()
-            # changes = None
-            # changes,now = pgtuple(con, f"select count(*),now() from wappsrecibidos \
-            #             where fecha>date_sub(now(), interval 10 \
-            #             second)")
-            # logging.warning(f"now {now} {time.ctime(time.time())}")
-            recibidos = pglist(con, "select id from evt_wapp_recibido")
-            if (len(recibidos)>0):
-                logging.warning(f"changes a {str(time.ctime(time.time()))} {len(recibidos)}")
-                ws.send(json.dumps(len(recibidos)))
-                pgexec(con, "delete from evt_wapp_recibido")
-            con.close()
-            gevent.sleep(10)
-
-            # if changes is None or changes==0:
-            # else:
-                # logging.warning(f"changes a {str(time.ctime(time.time()))} {changes}")
-                # Envía los cambios a los clientes conectados
-
-
-http_server = WSGIServer(('', 5002), app)
-
-    # setup server to handle websocket requests
-ws_server = WSGIServer(
-        ('', 9999), WebSocketApp(),
-        handler_class=WebSocketHandler,
-    )
-
-# gevent.joinall([
-#         gevent.spawn(http_server.serve_forever),
-#         gevent.spawn(ws_server.serve_forever)
-#     ])
-
-
-# @sock.route('/echo')
-# def echo(ws):
-#     while not ws.closed:
-#         message = ws.receive()
-#         ws.send(message)
-
-# WSGIServer(('127.0.0.1', 5001), app).serve_forever()
-# Iniciar la función de vigilancia de la cola en segundo plano
 queue_thread = threading.Thread(target=process_queue)
 queue_thread.daemon = True
 queue_thread.start()
