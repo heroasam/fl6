@@ -82,6 +82,11 @@
     <h4 class="title is-6 no-mb" x-text="Dato.horarios" x-show="Dato.horarios && !Dato.quiere_devolver"></h4>
     <h4 class="title is-6 no-mb" x-text="Dato.art" x-show="Dato.art  && !Dato.quiere_devolver"></h4>
     <h4 class="title is-6 no-mb" x-text="Dato.comentarios" x-show="Dato.comentarios && !Dato.quiere_devolver"></h4>
+    <div class="flex-space-between">
+    <h4 class="title is-4 no-mb" x-show="Dato.quiere_devolver">Tipo Devolucion:</h4>
+    <span class="tag is-large is-info" x-text="Dato.tipo_devolucion" x-show="Dato.quiere_devolver"></span>
+    </div>
+    <h4 class="title is-4 no-mb" x-text="'Comentario Devolucion: '+Dato.comentario_devolucion" x-show="Dato.quiere_devolver&&Dato.comentario_devolucion"></h4>
     <h2 class="title is-4" x-text="'Cuota Maxima $'+Dato.cuota_maxima" x-show="!Dato.quiere_devolver"></h2>
     <div class="buttons" x-show="!Dato.idvta">
       <button class="button is-small is-success" @click="venderDato(Dato.id)">Vender</button>

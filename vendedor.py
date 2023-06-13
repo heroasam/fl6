@@ -838,7 +838,8 @@ def vendedor_getlistadodatosvendedor():
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
     clientes.zona as zona, cuota_maxima,idcliente, sin_extension,idvta,\
     resultado,datos.dnigarante as dnigarante,quiere_devolver,vendedor,\
-    wapp_verificado from  datos,clientes where clientes.id = datos.idcliente \
+    wapp_verificado,tipo_devolucion,comentario_devolucion from  datos,clientes \
+    where clientes.id = datos.idcliente \
     and vendedor={vdor} and (resultado is null or resultado=7 or (resultado=1 \
     and quiere_devolver=1) or (resultado=1 and date(fecha_definido)=\
     curdate())) and fecha_visitar <=curdate() and enviado_vdor=1 order by id \
@@ -857,7 +858,8 @@ def vendedor_getdato(iddato):
     art, horarios, comentarios,  dni, nombre,calle,num,acla,wapp,tel,barrio, \
     clientes.zona as zona, cuota_maxima,idcliente, sin_extension,vendedor, \
     datos.dnigarante as dnigarante,idvta,monto_vendido,nosabana,\
-    wapp_verificado, auth_sinwapp_verificado from datos, clientes where \
+    wapp_verificado, auth_sinwapp_verificado, quiere_devolver, tipo_devolucion,\
+    comentario_devolucion from datos, clientes where \
                   clientes.id = datos.idcliente and datos.id={iddato}")
     return jsonify(dato=dato)
 
@@ -1549,13 +1551,13 @@ def vendedor_wappaut():
     msg = f"Autorizacion para el vdor {vdor}"
     wapp1 = var_sistema['wapp_auth']
     wapp2 = var_sistema['wapp_auth2']
-    wapp3 = '3512411963'
+    # wapp3 = '3512411963'
     try:
         if wapp1:
             send_msg_whatsapp(0, wapp1, msg)
         if wapp2:
             send_msg_whatsapp(0, wapp2, msg)
-        send_msg_whatsapp(0,wapp3,msg)
+        # send_msg_whatsapp(0,wapp3,msg)
     except mysql.connector.Error as _error:
         error = _error.msg
         logging.warning(

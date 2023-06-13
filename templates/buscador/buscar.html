@@ -309,7 +309,8 @@
           <td x-text="venta.cnt+'/'+venta.art" x-show="venta.cnt"></td>
           <td x-text="'PLAN DE PAGOS'" x-show="venta.pp" class="tag-danger"></td>
 		  <td><button class="button is-primary is-small" @click="condonarVenta(venta.id)" x-show="venta.pp==0">Condonar</button>
-            <button class="button is-small is-danger" @click="quiereDevolver(venta.id)" x-show="venta.pp==0">Devolver</button></td>
+            <button class="button is-small is-danger" @click="quiereDevolver(venta.id,venta.idvdor,venta.art)" x-show="venta.pp==0">Devolver</button>
+          </td>
 		</tr>
       </template>
     </tbody>
@@ -906,6 +907,37 @@
     </div>
   </div>
 
+   <!-- bulma-modal devolucion  -->
+  <div class="modal" id="modal-edicion-devolucion">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Proceso Devolucion</p>
+        <button class="delete" aria-label="close" @click="toggleModal('modal-edicion-devolucion')"></button>
+      </header>
+      <section class="modal-card-body">
+        <!-- Content ... -->
+        <p class="title is-5 red" x-text="'IdVta: '+Devolucion.idvta"></p>
+        <p x-text="'Vendedor asignado: '+Devolucion.vdor"></p>
+        <p x-text="'Articulos: '+Devolucion.art"></p>
+        <div class="flex-space-between">
+        <div class="buttons">
+		  <template x-for="tipo in ['Total','Parcial','Cambio','Anular proceso']">
+            <button class="button" x-text="tipo" @click="Devolucion.tipo=tipo"></button>
+		  </template>
+        </div>
+          <p class="title is-3 red" x-text="Devolucion.tipo"></p>
+        </div>
+          <label for="comentario" class="label">Comentario</label>
+          <textarea x-model="Devolucion.comentario" id="comentario" autocomplete="off" rows="5" cols="62"></textarea>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-info" @click="guardarQuiereDevolver()">Enviar</button>
+        <button class="button" @click="toggleModal('modal-edicion-devolucion')">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+
   <!-- bulma-modal crear-dato  -->
   <div class="modal" id="modal-crear-dato">
     <div class="modal-background"></div>
@@ -1002,6 +1034,7 @@
          ventaWapp:'',
          Cliente:{},
          Datos:{fecha:dayjs.utc().format('YYYY-MM-DD'),fecha_visitar:dayjs.utc().format('YYYY-MM-DD'), art:'', horarios:'', comentarios:''},
+         Devolucion:{},
          cuota_basica:0,
          PlanPagos:{fecha:dayjs.utc().format('YYYY-MM-DD'),p:'Mensual'},
          Comentario:{fechahora:dayjs.utc().format('YYYY-MM-DD')},
@@ -1026,15 +1059,6 @@
          remapeaEmojis(){
           this.listaEmojis = this.listaEmojis.map(row=>row = '%'+row.replaceAll(' ', '%'))
          },
-         /* init(){
-          *     let eventSourceBuscar = new EventSource("/stream")
-          *     console.log(eventSourceBuscar)
-          *     function onMessage(evt, verificarWapps){
-          *         console.log('los datos se actualizaron', dayjs().format('%DD%HH%mm%ss'));
-          *         this.verificarWapps()
-          *     };
-          *     eventSourceBuscar.onmessage = onMessage.bind(this, this.verificarWapps);
-          * }, */
          buscarCliente(){
              this.verCard = false
              this.resetBuscar()
@@ -1056,15 +1080,12 @@
 		              if(this.listaClientes.length==1) this.buscaCuentaporDni(res.data.clientes[0].dni)
 		          })
 		          .catch(error=>{
-                console.log(error)
 		              msgError('Error!',error.response.data.error)
 		          })
          },
          buscaCuentaporDni(dni){
 	         this.resetBuscar()
 	         this.Cliente = this.listaClientes.filter(row=>row.dni==dni)[0]
-           console.log("file: buscar.html:1050 ~ buscaCuentaporDni ~ this.Cliente:", this.Cliente)
-
              this.Cliente.direccion = this.Cliente.calle+' '+this.Cliente.num
              this.obtenerVentas(this.Cliente.id)
              this.obtenerWapps(this.Cliente.wapp)
@@ -1204,9 +1225,7 @@
                           if(a.fecha<b.fecha) return -1
                           if(a.fecha==b.fecha) return 0
                       })
-                      console.log(this.listaWapps)
              })
-            //  console.log('listaWapps', this.listaWapps)
          },
          pedirComentarios(idcliente){
              axios.get('/buscador/pedircomentarios/'+idcliente)
@@ -1344,7 +1363,7 @@
                   })
          },
          dialogoImprimirFicha(){
-             toggleModal('modal-edicion-impr-ficha')
+             toggleModal('modal-edicion-devolucion')
          },
          imprimirFicha(){
              if (this.cobrEnviar) {
@@ -1356,7 +1375,7 @@
 			              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 			              axios.post("/buscador/imprimirficha", data)
 									                                          .then(res=>{
-                                                                                  toggleModal('modal-edicion-impr-ficha')
+                                                                                  toggleModal('modal-edicion-devolucion')
 										                                          if(res.data.response=='success') msgSuccess('WhatsApp!','Ficha enviada al cobrador');
 										                                          this.cobrEnviar = ''
 									                                          })
@@ -1375,7 +1394,7 @@
                  axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
 		         axios.post("/buscador/imprimirfichanowapp",data, {responseType: "blob"})
 								                                     .then((res)=>{
-                                                                         toggleModal('modal-edicion-impr-ficha')
+                                                                         toggleModal('modal-edicion-devolucion')
 									                                     if (this.mostrarFichaPorPantalla) {
 									                                         let url = window.URL.createObjectURL(res.data);
 									                                         window.open(url);
@@ -1695,7 +1714,6 @@
              axios.post("/buscador/intimar",this.Cliente)
 								                                 .then(res=>{
 								                                     if(wapp){
-                                                      console.log(res,res.data)
 									                                     switch(res.data.response){
 									                                         case 'success': {
 										                                         msgSuccess('Exito!','Mensaje Enviado')
@@ -1924,9 +1942,7 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
        verPdf(id){
           this.verCanvas = true;
            url = `https://fedesal.lol/pdf/${String(id)}.pdf`
-           console.log(url)
            pdfjsLib.getDocument(url).promise.then(function (pdf) {
-             console.log('PDF cargado correctamente.');
               var canvas = document.getElementById('visorPdf');
              var context = canvas.getContext('2d');
              pdf.getPage(1).then(function (page) {
@@ -1942,7 +1958,6 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
                };
                var renderTask = page.render(renderContext);
                renderTask.promise.then(function () {
-                 console.log('Page rendered');
                });
              });
 
@@ -1955,31 +1970,10 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
     },
     escucharOgg(id){
       file = `https://fedesal.lol/pdf/${id}.ogg`;
-      console.log('file',file);
-      // var xhr = new XMLHttpRequest();
-      // console.log('xhr',xhr);
-      // xhr.open('GET', file, true);
-      // xhr.responseType = 'blob';
-      // xhr.onload = function () {
-      //   console.log('onload')
-      //   if (this.status == 200) {
-      //     console.log(this.status)
-      //     var blob = this.response;
-      //     var ogg = document.createElement('ogg');
-      //     ogg.onload = function () {
-      //       window.URL.revokeObjectURL(ogg.src);
-      //     };
-      //     ogg.src = window.URL.createObjectURL(blob);
-      //     document.body.appendChild(ogg);
-      //     console.log('blob', blob)
           var audioElement = new Audio();
           audioElement.src = file;
           audioElement.type = 'audio/ogg; codecs=opus';
           audioElement.play();
-        // };
-      // }
-      //   xhr.send();
-
     },
          autoLoad(){
              {% if dnilistado %}
@@ -2047,12 +2041,17 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
                           })
              }})
          },
-         quiereDevolver(idvta){
-             axios.get('/buscador/markquieredevolver/'+idvta)
-                  .then(res=>{
-                      this.refreshCliente(this.Cliente.dni)
-             })
-
+         quiereDevolver(idvta,vdor,art){
+             this.Devolucion={idvta,vdor,art}
+             toggleModal('modal-edicion-devolucion')
+         },
+         guardarQuiereDevolver(){
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/buscador/markquieredevolver',this.Devolucion)
+                                                                 .then(res=>{
+                                                                     toggleModal('modal-edicion-devolucion')
+                                                                     this.refreshCliente(this.Cliente.dni)
+                                                                 })
          },
          verificarWapps(){
              if(this.listaWapps.length){
