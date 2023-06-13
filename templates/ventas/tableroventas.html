@@ -10,7 +10,7 @@
 {% block content %}
 
 <div x-data="main()"
-  x-init="getVentaHoy();getVisitasHoy();setInterval(()=>{getVentaHoy()},120000);setInterval(()=>{getListadoAutorizados()},10000)">
+  x-init="getVentaHoy();getVisitasHoy();setInterval(()=>{chequeaSiHayVenta()},10000)">
 
   <div class="flex-space-between" x-show="!isMobile">
     <p class="title is-1">Tablero Ventas</p>
@@ -21,7 +21,7 @@
   <p class="title is-3" x-show="isMobile">Tablero Ventas</p>
 
 
-  
+
 
 <div class="block" x-show="totalVendido">
   <div class="xtags has-addons m-0" x-show="totalVendido">
@@ -60,7 +60,7 @@
             <td x-text="item.nombre"></td>
             <td x-text="item.direccion"></td>
             <td x-text="item.zona"></td>
-            <td><img src="{{url_for('static', filename='/check.png')}}" x-show="item.wapp_verificado"></td>
+            <td><img src="{{url_for('static', filename='check.png')}}" x-show="item.wapp_verificado"></td>
             <td x-text="item.vendedor"></td>
             <td x-text="item.monto_vendido" class="pesos"></td>
           </tr>
@@ -119,8 +119,8 @@
         <td x-text="item.nombre"></td>
         <td x-text="item.direccion"></td>
         <td x-text="item.wapp"></td>
-        <td><img src="{{url_for('static', filename='/check.png')}}" x-show="item.wapp_verificado">
-        <img src="{{url_for('static', filename='/nocheck.png')}}" x-show="item.auth_sinwapp_verificado"></td>
+        <td><img src="{{url_for('static', filename='check.png')}}" x-show="item.wapp_verificado">
+        <img src="{{url_for('static', filename='nocheck.png')}}" x-show="item.auth_sinwapp_verificado"></td>
         <td x-text="item.idvta"></td>
         <td><button class="button is-small is-danger" @click="sendWapp(item.idvta)">Re-enviar</button></td>
         </tr>
@@ -167,9 +167,9 @@
       listaVendedores: [],
       listadoAutorizados: [],
       listaWappsNoEnviados:[],
-      listaDevoluciones:[],
-      getListadoAutorizados() {
-        axios.get('/vendedor/getlistadoautorizados')
+        listaDevoluciones:[],
+        getListadoAutorizados() {
+            axios.get('/vendedor/getlistadoautorizados')
           .then(res => {
             this.listadoAutorizados = res.data.listadoautorizados
             let diff = this.listadoAutorizados.filter(row => row.diff = dayjs.utc().diff(dayjs.utc(row.fechahora), 's') - 10800 < 61 && row.tomado == 0) //pq ultimotime esta en GMT 3hs de diferencia
@@ -220,8 +220,17 @@
                           msgWarning(res.data)
                       }
              })
+      },
+        chequeaSiHayVenta(){
+             axios.get('/hayventa')
+                  .then(res=>{
+                      if(res.data.hay_venta==1){
+                          this.getVentaHoy()
+                          this.getVisitasHoy()
+                      }
+                  })
          },
-    }
+        }
   }
 
 </script>

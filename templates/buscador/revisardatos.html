@@ -145,7 +145,7 @@
               :class="Datos.resultado==1?'is-success':(Datos.resultado==0?'is-danger':(Datos.resultado==2?'is-danger':
                      (Datos.resultado==5?'is-primary':(Datos.resultado==6?'is-black':(Datos.resultado==8?'is-black':'is-info')))))"></span>
         <button class="button is-black" @click="restaurarDato(Datos.id)">Restaurar Dato</button>
-        <img src="{{url_for('static', filename='/auth_sinwapp.png')}}" @click="marcaAuthSinWapp(Datos.idcliente)">
+        <img src="{{url_for('static', filename='auth_sinwapp.png')}}" @click="marcaAuthSinWapp(Datos.idcliente)">
       </section>
       <footer class="modal-card-foot">
         <button class="button is-primary" @click="guardarDato">Editar</button>

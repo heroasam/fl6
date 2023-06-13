@@ -4,52 +4,52 @@
 
 {% block content %}
 
-<div class="container" x-data="main()" x-init="getNombresWapps();remapeaEmojis();getListaBtnWapp()">
+<div class="container" x-data="main()" x-init="getNombresWapps();remapeaEmojis();getListaBtnWapp();setInterval(()=>{chequeaSiHayWapp()},10000)">
 
-  
-    <p class="title is-1">Gestionar WhatsApps</p>
-  
+
+  <p class="title is-1">Gestionar WhatsApps</p>
+
   <div class="columns">
     <div class="column is-7">
-<table class="table noselect is-narrow" id="table-wapps">
-  <thead>
-    <tr>
-      <th></th>
-      <th>fecha</th>
-      <th>whatsapp</th>
-      <th>nombre</th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <template x-for="item in listaChats">
-      //listaChats es un Array de wapps.
-      <tr :id="item.wapp">
-        <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
-              @click="expandChildren(item.wapp)"></i></span></td>
-        <td x-text="dayjs(item.fecha).fromNow(true)"></td>
-        <td x-text="item.wapp"></td>
-        <td><template x-for="but in item.nombre">
-            <span class="tag is-small pointer is-rounded" :class="item.cobr?'is-primary':(but=='chat'?'is-success':'is-info')"
-              x-text="but" @click="contestarWapp(item.wapp,but)"></span>
+      <table class="table noselect is-narrow" id="table-wapps">
+        <thead>
+          <tr>
+            <th></th>
+            <th>fecha</th>
+            <th>whatsapp</th>
+            <th>nombre</th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="item in listaChats">
+            //listaChats es un Array de wapps.
+            <tr :id="item.wapp">
+              <td><span class="icon is-small"><i class="fa fa-plus-square-o" aria-hidden="true"
+                                                 @click="expandChildren(item.wapp)"></i></span></td>
+              <td x-text="dayjs(item.fecha).fromNow(true)"></td>
+              <td x-text="item.wapp"></td>
+              <td><template x-for="but in item.nombre">
+                <span class="tag is-small pointer is-rounded" :class="item.cobr?'is-primary':(but=='chat'?'is-success':'is-info')"
+                      x-text="but" @click="contestarWapp(item.wapp,but)"></span>
               </template></td>
-        <td><span class="has-tooltip-top" data-tooltip="Respondido por Web-WhatsApp"><i class="fa fa-check-square-o"
-              aria-hidden="true" @click="marcarRespondidoWappOficial(item.wapp,item.nombre)"></i></span></td>
-      </tr>
-    </template>
-    <template x-for="item in listaWapps_">
-      <tr class="children">
-        <td></td>
-        <td x-text="dayjs(item.fecha).fromNow(true)"></td>
-        <td x-text="item.msg"></td>
-        <td x-text="item.user"></td>
-      </tr>
-    </template>
-  </tbody>
-</table>
+              <td><span class="has-tooltip-top" data-tooltip="Respondido por Web-WhatsApp"><i class="fa fa-check-square-o"
+                                                                                              aria-hidden="true" @click="marcarRespondidoWappOficial(item.wapp,item.nombre)"></i></span></td>
+            </tr>
+          </template>
+          <template x-for="item in listaWapps_">
+            <tr class="children">
+              <td></td>
+              <td x-text="dayjs(item.fecha).fromNow(true)"></td>
+              <td x-text="item.msg"></td>
+              <td x-text="item.user"></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
     </div>
-     <!-- Sector chat individualizado con cobradores y usuarios no identificados -->
+    <!-- Sector chat individualizado con cobradores y usuarios no identificados -->
     <div class="column is-5" x-show="verChat&&listaWappsUsuario.length">
       <div class="flex is-justify-content-space-between">
         <h1 class="title is-3" x-text="nombre"></h1>
@@ -71,7 +71,7 @@
         <div class="flex" id="lista-emojis">
           <template x-for="emoji  in listaEmojis">
             <span class="is-black is-rounded pointer emoji" x-html="decodeURIComponent(emoji)"
-              @click="addEmoji(decodeURIComponent(emoji))"></span>
+                  @click="addEmoji(decodeURIComponent(emoji))"></span>
           </template>
         </div>
       </div>
@@ -79,8 +79,8 @@
         <canvas id="visorPdf" width="1200" height="1200"></canvas>
         <input type="hidden" name="csrf_token" x-ref="token" value="{{ csrf_token() }}" />
       </div>
-      
-      
+
+
       <table class="table">
         <thead>
           <tr>
@@ -92,21 +92,21 @@
         </thead>
         <tbody>
           <template x-for="item in listaWappsUsuario">
-          <tr  :class="item.user?'wapp_respuesta':''">
-          <td x-text="dayjs(item.fecha).fromNow(true)" style="min-width: 120px;"></td>
-          <td><i class='fa fa-file-pdf-o' style='color:#c92023' x-show="item.msg.includes('pdf')" @click="verPdf(item.id)"></i>
-            <i class="fa fa-play" style='color:hwb(134 13% 20%)' aria-hidden="true" x-show="item.msg=='audio'"
-              @click="escucharOgg(item.id)"></i>
-          </td>
-          <td x-text="item.msg"></td>
-          <td x-text="item.user"></td>
-          </tr>
+            <tr  :class="item.user?'wapp_respuesta':''">
+              <td x-text="dayjs(item.fecha).fromNow(true)" style="min-width: 120px;"></td>
+              <td><i class='fa fa-file-pdf-o' style='color:#c92023' x-show="item.msg.includes('pdf')" @click="verPdf(item.id)"></i>
+                <i class="fa fa-play" style='color:hwb(134 13% 20%)' aria-hidden="true" x-show="item.msg=='audio'"
+                   @click="escucharOgg(item.id)"></i>
+              </td>
+              <td x-text="item.msg"></td>
+              <td x-text="item.user"></td>
+            </tr>
           </template>
         </tbody>
       </table>
     </div>
   </div>
-  
+
 
 
 
@@ -114,231 +114,237 @@
 {% endblock %}
 {% block script %}
 <script>
-  function main() {
-    return {
-      listaWapps: [],
-      listaChats: [],
-      listaChats_:[],
-      listaWapps_: [],
-      listaWapps__:[],
-      listaWappsUsuario:[],
-      listaCobrWapps: [],
-      nombresWapps: [],
-      listaDiferentesNombres: [],
-      wapp: '',
-      nombre:'',
-      verCanvas:false,
-      verChat:false,
-      msgWhatsapp:'',
-      listaBtnWapp: [],
-      listaEmojis: ['f0 9f 98 80', 'f0 9f 98 85', 'f0 9f 98 82', 'f0 9f 98 b1', 'f0 9f 99 8c', 'f0 9f 98 8e', 'f0 9f 99 8f', 'F0 9F A4 9D', 'F0 9F 91 8D'],
-      remapeaEmojis() {
-        this.listaEmojis = this.listaEmojis.map(row => row = '%' + row.replaceAll(' ', '%'))
-      },
-      getNombresWapps() {
-        axios.get('/buscador/obtenernombreswapps')
-          .then(res => {
-            this.nombresWapps = [...res.data.nombreswapps, ...res.data.cobrwapps];
-            this.listaCobrWapps = res.data.cobrwapps
-            this.listaDiferentesNombres = new Map();
-            this.nombresWapps.forEach(row => {
-              let nombre = row.nombre;
-              if (this.listaDiferentesNombres.has(row.wapp)) {
-                let elemento = this.listaDiferentesNombres.get(row.wapp);
-                elemento.push(nombre);
-                this.listaDiferentesNombres.set(row.wapp, elemento);
-              } else {
-                this.listaDiferentesNombres.set(row.wapp, [nombre])
-              }
-            })
-            this.getWapps()
-          })
-      },
-      getWapps() {
-        console.log('llamado getwapps',dayjs().format("DD-HH:mm:ss"))
-        axios.get('/buscador/obtenertodoswapps')
-          .then(res => {
-            let recibidos = res.data.recibidos
-            let enviados = res.data.enviados
-            this.listaWapps__ = [...recibidos, ...enviados]
-            this.listaWapps__ = this.listaWapps__.filter(row => row.msg !== null && row.msg !== undefined && row.msg != '')
-            this.listaWapps__.map(row => row.fecha = dayjs.utc(row.fecha).format('YYYY-MM-DD HH:mm:ss'))
-            this.listaChats_ = []
-            // console.log(this.listaWapps__)
-            let listaDiferentesChats = new Map();
-            this.listaWapps__.forEach(row => {
+ function main() {
+     return {
+         listaWapps: [],
+         listaChats: [],
+         listaChats_:[],
+         listaWapps_: [],
+         listaWapps__:[],
+         listaWappsUsuario:[],
+         listaCobrWapps: [],
+         nombresWapps: [],
+         listaDiferentesNombres: [],
+         wapp: '',
+         nombre:'',
+         verCanvas:false,
+         verChat:false,
+         msgWhatsapp:'',
+         listaBtnWapp: [],
+         listaEmojis: ['f0 9f 98 80', 'f0 9f 98 85', 'f0 9f 98 82', 'f0 9f 98 b1', 'f0 9f 99 8c', 'f0 9f 98 8e', 'f0 9f 99 8f', 'F0 9F A4 9D', 'F0 9F 91 8D'],
+         remapeaEmojis() {
+             this.listaEmojis = this.listaEmojis.map(row => row = '%' + row.replaceAll(' ', '%'))
+         },
+         getNombresWapps() {
+             axios.get('/buscador/obtenernombreswapps')
+                  .then(res => {
+                      this.nombresWapps = [...res.data.nombreswapps, ...res.data.cobrwapps];
+                      this.listaCobrWapps = res.data.cobrwapps
+                      this.listaDiferentesNombres = new Map();
+                      this.nombresWapps.forEach(row => {
+                          let nombre = row.nombre;
+                          if (this.listaDiferentesNombres.has(row.wapp)) {
+                              let elemento = this.listaDiferentesNombres.get(row.wapp);
+                              elemento.push(nombre);
+                              this.listaDiferentesNombres.set(row.wapp, elemento);
+                          } else {
+                              this.listaDiferentesNombres.set(row.wapp, [nombre])
+                          }
+                      })
+                      this.getWapps()
+                  })
+         },
+         getWapps() {
+             console.log('llamado getwapps',dayjs().format("DD-HH:mm:ss"))
+             axios.get('/buscador/obtenertodoswapps')
+                    .then(res => {
+                        let recibidos = res.data.recibidos
+                        let enviados = res.data.enviados
+                        this.listaWapps__ = [...recibidos, ...enviados]
+                        this.listaWapps__ = this.listaWapps__.filter(row => row.msg !== null && row.msg !== undefined && row.msg != '')
+                        this.listaWapps__.map(row => row.fecha = dayjs.utc(row.fecha).format('YYYY-MM-DD HH:mm:ss'))
+                        this.listaChats_ = []
+                        // console.log(this.listaWapps__)
+                        let listaDiferentesChats = new Map();
+                        this.listaWapps__.forEach(row => {
 
-              if (listaDiferentesChats.has(row.wapp)) {
-                let value = listaDiferentesChats.get(row.wapp);
-                if (new Date(row.fecha) > new Date(listaDiferentesChats.get(row.wapp).fecha)) {
-                  listaDiferentesChats.set(row.wapp, { fecha: row.fecha, nombres: value.nombres });
-                }
-              } else {
-                let nombres = this.listaDiferentesNombres.get(row.wapp.slice(-10))
-                listaDiferentesChats.set(row.wapp, { fecha: row.fecha, nombres: nombres });
-              }
-            })
-            listaDiferentesChats = [...listaDiferentesChats];
-            listaDiferentesChats.forEach(row => {
-              let cobr = 0;
-              let cnt_wapp = row[1].nombres?.length || 1;
-              if (this.listaCobrWapps.some(item => item.wapp == row[0].slice(-10))) {
-                cobr = 1
-              }
-              this.listaChats_.push({ 'wapp': row[0], 'nombre': row[1].nombres||['chat'], 'fecha': row[1].fecha, 'cobr': cobr, 'cnt_wapp': cnt_wapp })
-            })
-     
-          console.log('listaChats',this.listaChats_)
-          this.listaChats = this.listaChats_.sort((a, b) => {
-          let s1 = a.fecha
-          let s2 = b.fecha
-          if (s1 > s2) return -1
-          if (s1 < s2) return 1
-          if (s1 == s2) return 0
-          })
-          this.listaWapps = this.listaWapps__.sort((a, b) => {
-            let s1 = a.fecha
-            let s2 = b.fecha
-          if (s1 > s2) return -1
-          if (s1 < s2) return 1
-          if (s1 == s2) return 0
-          })
-          console.log(this.listaChats,this.listaWapps)
-          this.filtrarWappsUsuario()
-        })
-      },
-      expandChildren(wapp) {
-        if (this.wapp == wapp && this.listaWapps_.length > 0) {
-          this.listaWapps_ = []
-          return
-        }
-        this.listaWapps_ = this.listaWapps.filter(row => row.wapp.includes(wapp.slice(-10)))
-        // se reduce esta lista a un maximo de 5 mensajes y se la ordena por fecha inverso
-        this.listaWapps_.sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
-        this.listaWapps_ = this.listaWapps_.slice(0,5)
-        this.wapp = wapp
-        $tbody = document.querySelector('tbody')
-        $trwapp = document.getElementById(String(wapp))
-        setTimeout(() => {
-          let arrayrows = Array.from($tbody.children)
-          let children = arrayrows.filter(row => row.classList.contains('children'))
-          children = children.reverse()
-          for (el of children) {
-            $tbody.insertBefore(el, $trwapp.nextSibling)
-          }
-        }, 1)
-      },
-      contestarWapp(wapp, nombre) {
-        // primero averiguo si no es cobrador, ni no cliente
-        if (!this.listaCobrWapps.map(row => row.wapp).includes(wapp.slice(-10)) && nombre!='chat') {
-          axios.get('/buscador/averiguarsiestasiendorespondido/'+wapp)
-          .then(res=>{
-            if(res.data.respuesta==0){ // o sea no esta siendo respondido
-              axios.get('/buscador/obtenerdniporwappnombre/' + wapp + '/' + nombre)
-                .then(res => {
-                  dni = res.data.dni
-                  window.open('/buscador/interno/' + dni, target = '_blank')
-                })
-            }else{
-              msgError('Este wapp ya esta siendo respondido por otro usuario')
-            }
-          })
-          .catch(err=>msgError(err))
-        }else{// o sea es un cobrador o un no cliente
-          this.verCanvas = false
-          this.verChat = true
-          this.wapp = wapp.slice(-10)
-          this.filtrarWappsUsuario()
-        }
-      },
-      filtrarWappsUsuario(){
-        // console.log('wapp',this.wapp,'verChat',this.verChat)
-        if (this.verChat){
-          // console.log('entro')
-        this.listaWappsUsuario = this.listaWapps.filter(row => row.wapp == '549'+this.wapp)
-        this.listaWappsUsuario.sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
-        this.nombre = this.nombresWapps.filter(row => row.wapp == this.wapp).map(row => row.nombre)[0]
-        // console.log('listaWappsUsuario', this.listaWappsUsuario)
-        }
-      },
-      marcarRespondidoWappOficial(wapp,nombre) {
-        axios.get('/buscador/marcarrespondidoporwappoficial/' + wapp+'/'+nombre)
-          .then(res => {
-            $tbody = document.querySelector('tbody')
-            $trwapp = document.getElementById(String(wapp))
-            let arrayrows = Array.from($tbody.children)
-            let children = arrayrows.filter(row => row.classList.contains('children'))
-            for (el of children) {
-              el.remove()
-            }
-            this.getWapps()
-          })
-          .catch(err=>console.log(err))
-      },
-      addEmoji(emoji) {
-        this.msgWhatsapp += emoji
-      },
-      responderWapp() {
-        msgSuccess('enviando')
-        data = {
-          idcliente: 0,
-          wapp: this.wapp,
-          msg: this.msgWhatsapp,
-        }
-        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-        axios.post('/buscador/wapp', data)
-          .then(res => {
-            if (res.status==200) {
-                msgSuccess('Exito!', 'Mensaje Enviado')
-                this.msgWhatsapp = ''
-              }else{
-                msgError('Error!', 'Mensaje no enviado - Failed')
-              }
-            })
-           .catch(error => msgError('Error!', 'Mensaje no enviado'))
-      },
-      verPdf(id) {
-        this.verCanvas = true;
-        url = `https://fedesal.lol/pdf/${String(id)}.pdf`
-        pdfjsLib.getDocument(url).promise.then(function (pdf) {
-          var canvas = document.getElementById('visorPdf');
-          var context = canvas.getContext('2d');
-          pdf.getPage(1).then(function (page) {
-            // you can now use *page* here
-            // Render PDF page into canvas context
-            var desiredWidth = 300;
-            var viewport = page.getViewport({ scale: 1, });
-            var scale = desiredWidth / viewport.width;
-            var scaledViewport = page.getViewport({ scale: scale, });
-            var renderContext = {
-              canvasContext: context,
-              viewport: viewport
-            };
-            var renderTask = page.render(renderContext);
-            renderTask.promise.then(function () {
-            });
-          });
+                            if (listaDiferentesChats.has(row.wapp)) {
+                                let value = listaDiferentesChats.get(row.wapp);
+                                if (new Date(row.fecha) > new Date(listaDiferentesChats.get(row.wapp).fecha)) {
+                                    listaDiferentesChats.set(row.wapp, { fecha: row.fecha, nombres: value.nombres });
+                                }
+                            } else {
+                                let nombres = this.listaDiferentesNombres.get(row.wapp.slice(-10))
+                                listaDiferentesChats.set(row.wapp, { fecha: row.fecha, nombres: nombres });
+                            }
+                        })
+                        listaDiferentesChats = [...listaDiferentesChats];
+                        listaDiferentesChats.forEach(row => {
+                            let cobr = 0;
+                            let cnt_wapp = row[1].nombres?.length || 1;
+                            if (this.listaCobrWapps.some(item => item.wapp == row[0].slice(-10))) {
+                                cobr = 1
+                            }
+                            this.listaChats_.push({ 'wapp': row[0], 'nombre': row[1].nombres||['chat'], 'fecha': row[1].fecha, 'cobr': cobr, 'cnt_wapp': cnt_wapp })
+                        })
 
-          // Aquí puedes realizar las operaciones necesarias con el PDF
-        }).catch(function (error) {
-          console.error('Error al cargar el PDF:', error);
-        });
-      },
-      escucharOgg(id) {
-        file = `https://fedesal.lol/pdf/${id}.ogg`;
-        var audioElement = new Audio();
-        audioElement.src = file;
-        audioElement.type = 'audio/ogg; codecs=opus';
-        audioElement.play();
-      },
-      getListaBtnWapp() {
-        axios.get('/buscador/getlistabtnwapp')
-          .then(res => {
-            this.listaBtnWapp = res.data.listabtnwapp
-          })
-      },
-
-    }
-  }
+                        console.log('listaChats',this.listaChats_)
+                        this.listaChats = this.listaChats_.sort((a, b) => {
+                            let s1 = a.fecha
+                            let s2 = b.fecha
+                            if (s1 > s2) return -1
+                            if (s1 < s2) return 1
+                            if (s1 == s2) return 0
+                        })
+                        this.listaWapps = this.listaWapps__.sort((a, b) => {
+                            let s1 = a.fecha
+                            let s2 = b.fecha
+                            if (s1 > s2) return -1
+                            if (s1 < s2) return 1
+                            if (s1 == s2) return 0
+                        })
+                        console.log(this.listaChats,this.listaWapps)
+                        this.filtrarWappsUsuario()
+                    })
+         },
+         expandChildren(wapp) {
+             if (this.wapp == wapp && this.listaWapps_.length > 0) {
+                 this.listaWapps_ = []
+                 return
+             }
+             this.listaWapps_ = this.listaWapps.filter(row => row.wapp.includes(wapp.slice(-10)))
+             // se reduce esta lista a un maximo de 5 mensajes y se la ordena por fecha inverso
+             this.listaWapps_.sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+             this.listaWapps_ = this.listaWapps_.slice(0,5)
+             this.wapp = wapp
+             $tbody = document.querySelector('tbody')
+             $trwapp = document.getElementById(String(wapp))
+             setTimeout(() => {
+                 let arrayrows = Array.from($tbody.children)
+                 let children = arrayrows.filter(row => row.classList.contains('children'))
+                 children = children.reverse()
+                 for (el of children) {
+                     $tbody.insertBefore(el, $trwapp.nextSibling)
+                 }
+             }, 1)
+         },
+         contestarWapp(wapp, nombre) {
+             // primero averiguo si no es cobrador, ni no cliente
+             if (!this.listaCobrWapps.map(row => row.wapp).includes(wapp.slice(-10)) && nombre!='chat') {
+                 axios.get('/buscador/averiguarsiestasiendorespondido/'+wapp)
+                      .then(res=>{
+                          if(res.data.respuesta==0){ // o sea no esta siendo respondido
+                              axios.get('/buscador/obtenerdniporwappnombre/' + wapp + '/' + nombre)
+                                   .then(res => {
+                                       dni = res.data.dni
+                                       window.open('/buscador/interno/' + dni, target = '_blank')
+                                   })
+                          }else{
+                              msgError('Este wapp ya esta siendo respondido por otro usuario')
+                          }
+                      })
+                      .catch(err=>msgError(err))
+             }else{// o sea es un cobrador o un no cliente
+                 this.verCanvas = false
+                 this.verChat = true
+                 this.wapp = wapp.slice(-10)
+                 this.filtrarWappsUsuario()
+             }
+         },
+         filtrarWappsUsuario(){
+             // console.log('wapp',this.wapp,'verChat',this.verChat)
+             if (this.verChat){
+                 // console.log('entro')
+                 this.listaWappsUsuario = this.listaWapps.filter(row => row.wapp == '549'+this.wapp)
+                 this.listaWappsUsuario.sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+                 this.nombre = this.nombresWapps.filter(row => row.wapp == this.wapp).map(row => row.nombre)[0]
+                 // console.log('listaWappsUsuario', this.listaWappsUsuario)
+             }
+         },
+         marcarRespondidoWappOficial(wapp,nombre) {
+             axios.get('/buscador/marcarrespondidoporwappoficial/' + wapp+'/'+nombre)
+                  .then(res => {
+                      $tbody = document.querySelector('tbody')
+                      $trwapp = document.getElementById(String(wapp))
+                      let arrayrows = Array.from($tbody.children)
+                      let children = arrayrows.filter(row => row.classList.contains('children'))
+                      for (el of children) {
+                          el.remove()
+                      }
+                      this.getWapps()
+                  })
+                  .catch(err=>console.log(err))
+         },
+         addEmoji(emoji) {
+             this.msgWhatsapp += emoji
+         },
+         responderWapp() {
+             msgSuccess('enviando')
+             data = {
+                 idcliente: 0,
+                 wapp: this.wapp,
+                 msg: this.msgWhatsapp,
+             }
+             axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+             axios.post('/buscador/wapp', data)
+                                                                 .then(res => {
+                                                                     if (res.status==200) {
+                                                                         msgSuccess('Exito!', 'Mensaje Enviado')
+                                                                         this.msgWhatsapp = ''
+                                                                     }else{
+                                                                         msgError('Error!', 'Mensaje no enviado - Failed')
+                                                                     }
+                                                                 })
+                                                                 .catch(error => msgError('Error!', 'Mensaje no enviado'))
+         },
+         verPdf(id) {
+             this.verCanvas = true;
+             url = `https://fedesal.lol/pdf/${String(id)}.pdf`
+             pdfjsLib.getDocument(url).promise.then(function (pdf) {
+                 var canvas = document.getElementById('visorPdf');
+                 var context = canvas.getContext('2d');
+                 pdf.getPage(1).then(function (page) {
+                     // you can now use *page* here
+                     // Render PDF page into canvas context
+                     var desiredWidth = 300;
+                     var viewport = page.getViewport({ scale: 1, });
+                     var scale = desiredWidth / viewport.width;
+                     var scaledViewport = page.getViewport({ scale: scale, });
+                     var renderContext = {
+                         canvasContext: context,
+                         viewport: viewport
+                     };
+                     var renderTask = page.render(renderContext);
+                     renderTask.promise.then(function () {
+                     });
+                 });
+                 // Aquí puedes realizar las operaciones necesarias con el PDF
+             }).catch(function (error) {
+                 console.error('Error al cargar el PDF:', error);
+             });
+         },
+         escucharOgg(id) {
+             file = `https://fedesal.lol/pdf/${id}.ogg`;
+             var audioElement = new Audio();
+             audioElement.src = file;
+             audioElement.type = 'audio/ogg; codecs=opus';
+             audioElement.play();
+         },
+         getListaBtnWapp() {
+             axios.get('/buscador/getlistabtnwapp')
+                  .then(res => {
+                      this.listaBtnWapp = res.data.listabtnwapp
+                  })
+         },
+         chequeaSiHayWapp(){
+             axios.get('/haywapp')
+                  .then(res=>{
+                      if(res.data.hay_wapp==1){
+                          this.getWapps()
+                      }
+                  })
+         },
+     }
+ }
 </script>
 {% endblock %}

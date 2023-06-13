@@ -84,7 +84,7 @@
                        }
                        this.pedirAutorizacion();
                })
-               
+
            },
            pedirAutorizacion(){
                idButton = document.getElementById('buttonPedirAutorizacion')
@@ -144,7 +144,7 @@ Quedo a la espera. Gracias.`;
                                                                                                                window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
                                                                                                            break;
                                                                                                        case "rechazado":
-                                                                                                           msgErrorSB('Rechazado',`El dato ha sido rechazado. 
+                                                                                                           msgErrorSB('Rechazado',`El dato ha sido rechazado.
                                                                                                            No se le puede vender.
                                                                                                            ${motivo?motivo:''}`,15000)
                                                                                                            clearTimeout(intervalauth)
@@ -390,6 +390,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
              axios.get('/pnZWxv9Nicwt6TQ6zxohzvats/'+iddato)
                   .then(res=>{
                       this.Dato=res.data.dato;
+                      console.log( 'Dato',this.Dato)
                       this.Dato.fecha=dayjs.utc(this.Dato.fecha).format('YYYY-MM-DD');
                       this.Dato.fecha_visitar=dayjs.utc(this.Dato.fecha_visitar).format('YYYY-MM-DD');
                       this.listaArtComprados = [];
@@ -603,7 +604,7 @@ Quedo a la espera. Gracias.`;
                                                                                                                window.location = "/2xxXix5cnz7IKcYegqs6qf0R6";},10100)
                                                                                                            break;
                                                                                                        case "rechazado":
-                                                                                                           msgErrorSB('Rechazado',`El dato ha sido rechazado. 
+                                                                                                           msgErrorSB('Rechazado',`El dato ha sido rechazado.
                                                                                                            No se le puede vender.
                                                                                                            ${motivo?motivo:''}`,15000)
                                                                                                            clearTimeout(intervalauth)
@@ -773,7 +774,7 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
                              msgSuccessSB('Enviado. Cuando el cliente conteste, recargar la pagina.')
                          })
                  })
-             
+
          },
      }
  }

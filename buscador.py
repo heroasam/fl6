@@ -230,12 +230,12 @@ def buscar_pedirpagadasporidcliente(idcliente):
 @check_roles(['dev','gerente','admin','cobrador','vendedor'])
 def buscar_obtenerventasporidcliente(idcliente):
     """Entrega lista de ventas por idcliente."""
-    sql = f"select * from ventas where idcliente={idcliente} and saldo>0 order \
+    print('idcliente',idcliente)
+    sql = f"select * from ventas where idcliente=31446 and saldo>0 order \
     by id desc"
     con = get_con()
-    cur = con.cursor(dictionary=True)
-    cur.execute(sql)
-    ventas = cur.fetchall()
+    ventas = pglistdict(con, sql)
+    print(ventas)
     con.close()
     return jsonify(ventas=ventas)
 
@@ -571,7 +571,7 @@ def busca_guardaredicioncliente(idcliente):
     '{d_data['tel']}', wapp='{d_data['wapp']}',acla='{d_data['acla']}', \
     mjecobr='{d_data['mjecobr']}', horario='{d_data['horario']}',\
     infoseven='{d_data['infoseven']}' where id={idcliente}"
-    
+
     cur = con.cursor()
     try:
         cur.execute(upd)
@@ -1087,7 +1087,7 @@ def buscar_obtenernombreswapps():
                            where activo=1")
     con.close()
     return jsonify(nombreswapps=nombreswapps, cobrwapps=cobrwapps)
-    
+
 
 @buscador.route('/buscador/callesprueba')
 @login_required
@@ -1207,23 +1207,30 @@ def buscador_toggleeditado(id):
         return 'ok'
 
 
-@buscador.route('/buscador/markquieredevolver/<int:idvta>')
+@buscador.route('/buscador/markquieredevolver', methods=['POST'])
 @login_required
 @check_roles(['dev','gerente','admin'])
-def buscador_quieredevolver(idvta):
+def buscador_quieredevolver():
     con = get_con()
+    d_data = json.loads(request.data.decode("UTF-8"))
+    idvta = d_data['idvta']
+    tipo = d_data['tipo']
+    if 'comentario' in d_data:
+        comentario = d_data['comentario']
+    else:
+        comentario = ''
     idcliente = pgonecolumn(con, f"select idcliente from ventas where id=\
         {idvta}")
-    status_devolucion = pgonecolumn(con, f"select proceso_devolucion from \
-        clientes where id={idcliente}")
-    if status_devolucion:
+    if tipo == 'Anular proceso':
         upd = f"update clientes set proceso_devolucion=0, pmovto=COALESCE((\
                 select max(pmovto) from ventas where idcliente={idcliente} and \
-                devuelta=0),NULL) where id={idcliente}"
+                devuelta=0),NULL), tipo_devolucion='', \
+                comentario_devolucion='' where id={idcliente}"
         upddato = f"update datos set quiere_devolver=0 where idvta={idvta}"
     else:
         upd = f"update clientes set proceso_devolucion=1 , pmovto=date_add(\
-                curdate(),interval 1 month) where id={idcliente}"
+                curdate(),interval 1 month),tipo_devolucion='{tipo}',\
+                comentario_devolucion='{comentario}' where id={idcliente}"
         upddato = f"update datos set quiere_devolver=1 where idvta={idvta}"
     pgexec(con, upd)
     pgexec(con, upddato)
@@ -1287,7 +1294,7 @@ def buscador_marcarrespondidoporwappoficial(wapp,nombres):
     else:
         con.close()
         return 'ok'
-    
+
 
 @buscador.route('/buscador/getlistabtnwapp')
 @login_required
@@ -1347,7 +1354,7 @@ def buscador_marcarnorespondido(wapp):
 @check_roles(['dev', 'gerente', 'admin'])
 def buscador_averiguarsiestasiendorespondido(wapp):
     """Funcion que pregunta si el campo respondido de tabla wappsrecibidos
-    
+
     es = 0 y responde 0 sino responde 1."""
     con = get_con()
     try:

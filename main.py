@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import Flask, json
+from flask import Flask, json, Response, jsonify
 from flask import render_template, url_for, request, redirect, make_response, session, flash, g, send_file
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
@@ -8,10 +8,7 @@ from flask_login import UserMixin
 from flask_cors import CORS
 from flask_cors import cross_origin
 from flask_wtf import csrf
-# import gevent
-# from gevent.pywsgi import WSGIServer
-# from geventwebsocket.handler import WebSocketHandler
-# from flask_sock import Sock
+import gevent
 from werkzeug.urls import url_parse
 from lib import *
 from formularios import *
@@ -37,10 +34,7 @@ import base64
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-# app.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 25}
 CORS(app)
-# sock = Sock(app)
-
 csrf = CSRFProtect(app)
 login = LoginManager(app)
 login.login_view = "login"
@@ -55,7 +49,7 @@ app.register_blueprint(utilidades)
 app.register_blueprint(conta)
 app.register_blueprint(vendedor)
 app.register_blueprint(cobrador)
-
+hay_wapp = 0
 
 def verifica_login(email):
     con = get_con()
@@ -298,6 +292,8 @@ def log6_log():
 @csrf.exempt
 def webhook():
     """api wapp webhook"""
+    global hay_wapp
+    hay_wapp = 1
     # read and parse input data
     # logging.error('funcion webhook llamada')
     con = get_con()
@@ -321,7 +317,7 @@ def webhook():
             # logging.error(f"existe_msg{existe_msg}")
             if existe_msg == '' or existe_msg is None:
                 if 'media' in data:
-                    # media = base64.b64encode(bytes(data["media"]["base64"], 'utf-8'))   
+                    # media = base64.b64encode(bytes(data["media"]["base64"], 'utf-8'))
                     media = base64.b64decode(data["media"]["base64"])
                     # logging.info(media)
                     if tipo=='document' and message=='':
@@ -333,8 +329,8 @@ def webhook():
                 else:
                     media = ""
                 api = data["api"]
-                guardar_msg(sender,message,idtime,api,hora,media,tipo)  
-                logging.error('se procede a guardar message')      
+                guardar_msg(sender,message,idtime,api,hora,media,tipo)
+                logging.error('se procede a guardar message')
         else:
             idtime = str(sender)+str(int(time.time()*1000))
             guardar_msg(sender,message,idtime)
@@ -346,6 +342,8 @@ def webhook():
 @csrf.exempt
 def webhookapis():
     """api wapp webhook para apis."""
+    global hay_wapp
+    hay_wapp = 1
     # read and parse input data
     # logging.error('funcion webhook llamada')
     con = get_con()
@@ -380,10 +378,10 @@ def webhookapis():
                 else:
                     media = None
                 api = data["api"]
-                guardar_msg(sender,message,idtime,api,hora,media,tipo)  
-                logging.error('se procede a guardar message')      
+                guardar_msg(sender,message,idtime,api,hora,media,tipo)
+                logging.error('se procede a guardar message')
             return 'ok'
-        
+
 
 def guardar_msg(wapp,msg,idtime,api='5493513882892',time=None, media=None, tipo=None):
     """Guarda el msg recibido por el webhook en la tabla correspondiente."""
@@ -418,6 +416,17 @@ def guardar_msg(wapp,msg,idtime,api='5493513882892',time=None, media=None, tipo=
         return
 
 
+
+@app.route('/haywapp')
+def haywapp():
+    global hay_wapp
+    hay_wapp_ = hay_wapp
+    if hay_wapp == 1:
+        hay_wapp = 0
+    return jsonify(hay_wapp=hay_wapp_)
+
+
+
 @app.template_filter()
 def cur(monto):
     if monto == None:
@@ -425,36 +434,6 @@ def cur(monto):
     else:
         return f"${int(monto)}"
 
-
-@app.route('/enviarwapppendientes')
-def revisar_redis():
-    # Esperar a que haya elementos en la cola
-    _, item = queue_wapps.blpop('wapp')
-
-    # Procesar el elemento
-    # si tiene cuatro elementos es wapp de texto
-    # si tiene cinco elementos es wapp de file
-    if len(json.loads(item)) == 4:
-        procesar_msg_whatsapp(item)
-    else:
-        procesar_file_whatsapp(item)
-    return 'ok'
-
-
-# def process_queue():
-#     while True:
-#         # Esperar a que haya elementos en la cola
-#         _, item = queue_wapps.brpop('wapp')
-#         _, _, _, _, hora_despacho, tipo = json.loads(item)
-#         # print('resultado del redis', hora_despacho)
-#         # print(time.time())
-#         # print(json.loads(item))
-#         if tipo == 'texto':
-#             # logging.warning(f"hora de despacho {hora_despacho} y time.time es {time.time()}")
-#             procesar_msg_whatsapp(item)
-#         else:
-#             # logging.warning(f"hora de despacho {hora_despacho}")
-#             procesar_file_whatsapp(item)
 
 def revisa_redis():
 # Esperar a que haya elementos en la cola
@@ -476,72 +455,6 @@ def process_queue():
     while True:
         revisa_redis()
 
-# def check_wapps():
-#     while True:
-#         revisa_wapps()
-
-# def revisa_wapps():
-#     con = get_con()
-#     changes = pgonecolumn(con, f"select count(*) from wappsrecibidos \
-#                             where fecha>date_sub(now(), interval 40 \
-#                             second)")
-#     logging.warning(f"changes a {str(time.ctime(time.time()))} {changes}")
-
-#     if changes!='' and changes is not None and changes > 0:
-#         # Envía los cambios a los clientes conectados
-#         socketio.emit('update_wapps', {'data': changes})
-
-#     con.close()
-#     time.sleep(10)   
-
-# class WebSocketApp(object):
-#     """Stream sine values"""
-#     def __call__(self, environ, start_response):
-#         ws = environ['wsgi.websocket']
-#         # self.allow_reuse_address=True
-#         while True:
-#             con = get_con()
-#             # changes = None
-#             # changes,now = pgtuple(con, f"select count(*),now() from wappsrecibidos \
-#             #             where fecha>date_sub(now(), interval 10 \
-#             #             second)")
-#             # logging.warning(f"now {now} {time.ctime(time.time())}")
-#             recibidos = pglist(con, "select id from evt_wapp_recibido")
-#             if (len(recibidos)>0):
-#                 logging.warning(f"changes a {str(time.ctime(time.time()))} {len(recibidos)}")
-#                 ws.send(json.dumps(len(recibidos)))
-#                 pgexec(con, "delete from evt_wapp_recibido")
-#             con.close()
-#             gevent.sleep(10)
-
-#             # if changes is None or changes==0:
-#             # else:
-#                 # logging.warning(f"changes a {str(time.ctime(time.time()))} {changes}")
-#                 # Envía los cambios a los clientes conectados
-
-
-# http_server = WSGIServer(('', 5002), app)
-
-#     # setup server to handle websocket requests
-# ws_server = WSGIServer(
-#         ('', 9999), WebSocketApp(),
-#         handler_class=WebSocketHandler,
-#     )
-
-# gevent.joinall([
-#         gevent.spawn(http_server.serve_forever),
-#         gevent.spawn(ws_server.serve_forever)
-#     ])
-
-
-# @sock.route('/echo')
-# def echo(ws):
-#     while not ws.closed:
-#         message = ws.receive()
-#         ws.send(message)
-
-# WSGIServer(('127.0.0.1', 5001), app).serve_forever()        
-# Iniciar la función de vigilancia de la cola en segundo plano
 queue_thread = threading.Thread(target=process_queue)
 queue_thread.daemon = True
 queue_thread.start()

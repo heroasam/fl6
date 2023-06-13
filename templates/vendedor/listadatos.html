@@ -62,15 +62,15 @@
     </div>
     <h4 class="subtitle is-6" x-text="Dato.acla" x-show="Dato.acla"></h4>
     <div class="flex-between">
-      <h2 class="title is-5 no-mb" x-text="Dato.wapp?Dato.wapp:Dato.tel"></h2><img src="{{url_for('static', filename='/check.png')}}"
+      <h2 class="title is-5 no-mb" x-text="Dato.wapp?Dato.wapp:Dato.tel"></h2><img src="{{url_for('static', filename='check.png')}}"
       x-show="Dato.wapp_verificado">
       <span class="tag is-small is-danger pointer ml-5 rounded" @click="verificarWapp(Dato.wapp, Dato.idcliente)"
       x-show="!Dato.wapp_verificado && Dato.wapp">Verificar</span>
       <span class="tag is-small is-primary pointer ml-5 rounded" @click="editarWapp">Editar</span>
       <a x-bind:href=`https://wa.me/549${Dato.wapp}?text=""` x-show="Dato.wapp">
-        <img src="{{url_for('static', filename='/icon-whatsapp-small.svg')}}"></a>
+        <img src="{{url_for('static', filename='icon-whatsapp-small.svg')}}"></a>
       <a x-ref="#" @click="hacerLlamada(Dato.wapp?Dato.wapp:Dato.tel)">
-        <img src="{{url_for('static', filename='/llamada.png')}}"></a>
+        <img src="{{url_for('static', filename='llamada.png')}}"></a>
     </div>
     <h4 class="subtitle is-6" x-text="Dato.barrio"></h4>
     <hr/>
@@ -82,6 +82,11 @@
     <h4 class="title is-6 no-mb" x-text="Dato.horarios" x-show="Dato.horarios && !Dato.quiere_devolver"></h4>
     <h4 class="title is-6 no-mb" x-text="Dato.art" x-show="Dato.art  && !Dato.quiere_devolver"></h4>
     <h4 class="title is-6 no-mb" x-text="Dato.comentarios" x-show="Dato.comentarios && !Dato.quiere_devolver"></h4>
+    <div class="flex-space-between">
+    <h4 class="title is-4 no-mb" x-show="Dato.quiere_devolver">Tipo Devolucion:</h4>
+    <span class="tag is-large is-info" x-text="Dato.tipo_devolucion" x-show="Dato.quiere_devolver"></span>
+    </div>
+    <h4 class="title is-4 no-mb" x-text="'Comentario Devolucion: '+Dato.comentario_devolucion" x-show="Dato.quiere_devolver&&Dato.comentario_devolucion"></h4>
     <h2 class="title is-4" x-text="'Cuota Maxima $'+Dato.cuota_maxima" x-show="!Dato.quiere_devolver"></h2>
     <div class="buttons" x-show="!Dato.idvta">
       <button class="button is-small is-success" @click="venderDato(Dato.id)">Vender</button>
