@@ -18,7 +18,8 @@ vendedor = Blueprint('vendedor', __name__)
 
 
 var_sistema = {}
-
+hay_venta = 0
+hay_auth = 0
 
 def leer_variables():
     """Funcion para leer variables de sistema.
@@ -615,7 +616,8 @@ def vendedor_agregarcliente():
 def vendedor_envioclientenuevo():
     """Proceso para agregar cliente nuevo por el vendedor."""
     logging.warning("envioclientenuevo %s", current_user.email)
-
+    global hay_auth
+    hay_auth = 1
     con = get_con()
     d_data = json.loads(request.data.decode("UTF-8"))
     cliente_viejo = {}
@@ -968,6 +970,8 @@ def vendedor_guardardatofechado():
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_anulardato(iddato):
     """Proceso para anular un dato."""
+    global hay_venta
+    hay_venta = 1
     logging.warning("anulardato, %s", current_user.email)
 
     if current_user.email == var_sistema['816']:
@@ -1108,7 +1112,8 @@ def vendedor_validardni():
 def vendedor_registrarautorizacion():
     """Proceso para registrar un pedido de autorizacion."""
     logging.warning("registrarautorizacion, %s", current_user.email)
-
+    global hay_auth
+    hay_auth = 1
     con = get_con()
     d_data = json.loads(request.data.decode("UTF-8"))
     vdor = var_sistema[current_user.email]
@@ -1313,6 +1318,8 @@ def vendedor_rechazardato(idauth):
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_pasarventa():
     """Proceso para pasar una venta por el vendedor."""
+    global hay_venta
+    hay_venta = 1
     con = get_con()
     d_data = json.loads(request.data.decode("UTF-8"))
     vdor = var_sistema[current_user.email]
@@ -2086,7 +2093,7 @@ def vendedor_asignawappacliente(wapp,idcliente):
             con.close()
     else:
         return make_response('ese idcliente no existe',400)
-    
+
 
 @vendedor.route('/vendedor/buscarsiexistewapp/<string:wapp>/<int:idcliente>')
 @login_required
@@ -2123,3 +2130,21 @@ def vendedor_marcaauthsinwapp(idcliente):
         return 'ok'
     finally:
         con.close()
+
+
+@vendedor.route('/hayventa')
+def hayventa():
+    global hay_venta
+    hay_venta_ = hay_venta
+    if hay_venta == 1:
+        hay_venta = 0
+    return jsonify(hay_venta=hay_venta_)
+
+
+@vendedor.route('/hayauth')
+def hayauth():
+    global hay_auth
+    hay_auth_ = hay_auth
+    if hay_auth == 1:
+        hay_auth = 0
+    return jsonify(hay_auth=hay_auth_)

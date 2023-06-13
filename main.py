@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import Flask, json, Response
+from flask import Flask, json, Response, jsonify
 from flask import render_template, url_for, request, redirect, make_response, session, flash, g, send_file
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
@@ -9,7 +9,6 @@ from flask_cors import CORS
 from flask_cors import cross_origin
 from flask_wtf import csrf
 import gevent
-# from flask_sse import sse
 from werkzeug.urls import url_parse
 from lib import *
 from formularios import *
@@ -35,14 +34,12 @@ import base64
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-# app.config["REDIS_URL"] = "http://127.0.0.1:6379"
 CORS(app)
 csrf = CSRFProtect(app)
 login = LoginManager(app)
 login.login_view = "login"
 bcrypt = Bcrypt(app)
 
-# app.register_blueprint(sse, url_prefix='/stream')
 app.register_blueprint(ventas)
 app.register_blueprint(stock)
 app.register_blueprint(pagos)
@@ -419,6 +416,17 @@ def guardar_msg(wapp,msg,idtime,api='5493513882892',time=None, media=None, tipo=
         return
 
 
+
+@app.route('/haywapp')
+def haywapp():
+    global hay_wapp
+    hay_wapp_ = hay_wapp
+    if hay_wapp == 1:
+        hay_wapp = 0
+    return jsonify(hay_wapp=hay_wapp_)
+
+
+
 @app.template_filter()
 def cur(monto):
     if monto == None:
@@ -427,15 +435,8 @@ def cur(monto):
         return f"${int(monto)}"
 
 
-@app.route('/whget')
-def whget():
-    global hay_wapp
-    hay_wapp = 1
-    print('en whget', hay_wapp)
-    return 'ok'
 
 def get_message():
-    '''Chequeamos si ha llegado un wapp viendo la tabla evt_wapp_recibido'''
     global hay_wapp
     time.sleep(10.0)
     s = time.ctime(time.time())
@@ -444,13 +445,14 @@ def get_message():
         return f'wapp {s}'
 
 
-@app.route('/stream')
-def stream():
-    def eventStream():
-        while get_message():
-            # wait for source data to be available, then push it
-            yield 'data: {}\n\n'.format(get_message())
-    return Response(eventStream(), mimetype="text/event-stream")
+
+# @app.route('/stream')
+# def stream():
+#     def eventStream():
+#         while get_message():
+#             # wait for source data to be available, then push it
+#             yield 'data: {}\n\n'.format(get_message())
+#     return Response(eventStream(), mimetype="text/event-stream")
 
 
 def revisa_redis():

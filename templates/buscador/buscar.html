@@ -4,7 +4,7 @@
 {% block content %}
 <div x-data="main()"  class="container" x-init="obtenerCalles();obtenerBarrios();obtenerZonas();obtenerCobradores();
              getInflacion();autoLoad();cargarMsgs();obtenerHistorialBusquedas();
-             getListaBtnWapp();remapeaEmojis();init()">
+             getListaBtnWapp();remapeaEmojis();setInterval(()=>{chequeaSiHayWapp()},10000)">
 
   <div>
 	<div class="grid-buscar ml-3 mr-3 mt-2" x-show="isMobileDevice">
@@ -1026,13 +1026,15 @@
          remapeaEmojis(){
           this.listaEmojis = this.listaEmojis.map(row=>row = '%'+row.replaceAll(' ', '%'))
          },
-         init(){
-             function onMessage(evt, verificarWapps){
-                     console.log('los datos se actualizaron', dayjs().format('%DD%HH%mm%ss'));
-                     this.verificarWapps()
-             };
-             eventSource.onmessage = onMessage.bind(this, this.verificarWapps);
-         },
+         /* init(){
+          *     let eventSourceBuscar = new EventSource("/stream")
+          *     console.log(eventSourceBuscar)
+          *     function onMessage(evt, verificarWapps){
+          *         console.log('los datos se actualizaron', dayjs().format('%DD%HH%mm%ss'));
+          *         this.verificarWapps()
+          *     };
+          *     eventSourceBuscar.onmessage = onMessage.bind(this, this.verificarWapps);
+          * }, */
          buscarCliente(){
              this.verCard = false
              this.resetBuscar()
@@ -2085,7 +2087,15 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
         this.statusCopiar = 'Copiar'
         Alpine.$nextTick(); // Forzar la actualización de la vista
       }, 5000);
-    },
+         },
+         chequeaSiHayWapp(){
+             axios.get('/haywapp')
+                  .then(res=>{
+                      if(res.data.hay_wapp==1){
+                          this.verificarWapps()
+                      }
+                  })
+         },
  }
  }
 </script>

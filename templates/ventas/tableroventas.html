@@ -10,7 +10,7 @@
 {% block content %}
 
 <div x-data="main()"
-  x-init="getVentaHoy();getVisitasHoy()">
+  x-init="getVentaHoy();getVisitasHoy();setInterval(()=>{chequeaSiHayVenta()},10000)">
 
   <div class="flex-space-between" x-show="!isMobile">
     <p class="title is-1">Tablero Ventas</p>
@@ -220,8 +220,17 @@
                           msgWarning(res.data)
                       }
              })
+      },
+        chequeaSiHayVenta(){
+             axios.get('/hayventa')
+                  .then(res=>{
+                      if(res.data.hay_venta==1){
+                          this.getVentaHoy()
+                          this.getVisitasHoy()
+                      }
+                  })
          },
-    }
+        }
   }
 
 </script>
