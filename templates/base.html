@@ -16,20 +16,7 @@
   <body>
 
 	<header>
-      {% if session["user"]!='' and session["roles"] %}
-      {% if session["roles"]=='vendedor' %}
       {% include "_nav_vdor.html" %}
-      {% endif %}
-      {% if session["roles"]=='cobrador' %}
-      {% include "_nav_cobr.html" %}
-      {% endif %}
-      {% if session["user"]!='' and session["roles"] not in  ['vendedor','cobrador'] %}
-             {% include "_nav.html" %}
-          {% endif %}
-      {% endif %}
-      {% if not session["user"]  %}
-      {% include "_nav_login.html" %}
-      {% endif %}
 	</header>
     {% block content %}{% endblock %}
     <script src="https://cdn.jsdelivr.net/npm/axios@0.27.2/dist/axios.min.js"></script>

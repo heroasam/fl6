@@ -49,22 +49,22 @@ def check_roles(roles):
 def verifica_login(email):
     con = get_con()
     ins = f"insert into falsologin(email,time) values('{email}',{int(time.time())})"
-    cur = con.cursor()
+
     try:
-        cur.execute(ins)
+        pgexec(con,ins)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
         return make_response(error, 400)
     else:
-        con.commit()
+
         log(ins)
         cnt = pgonecolumn(con, f"select count(*) from falsologin where email=\
         '{email}' and time>{int(time.time())-3600}")
         if cnt>4:
             upd = f"update users set auth=0 where email='{email}'"
-            cur.execute(upd)
-            con.commit()
+            pgexec(con,upd)
+
             log(upd)
         con.close()
 
@@ -101,6 +101,20 @@ def log_login(email, status, password=None):
         else:
             log_file.write(str(date_time)+' '+str(email)+' '+str(status))
         log_file.close()
+
+
+def log(stmt):
+    if not current_user.is_anonymous:
+        current = current_user.email
+    else:
+        current = "no user yet"
+    con = get_con()
+
+    ins = f'insert into log(fecha, user, stmt) \
+    values(CURRENT_TIMESTAMP,"{current}","{stmt}")'
+    pgexec(con,ins)
+
+    con.close()
 
 
 @login.user_loader
@@ -192,16 +206,16 @@ def signup():
         if error is None:
             password = bcrypt.generate_password_hash(password).decode('utf-8')
             ins = f"insert into users(name, email, password) values('{name}', '{email}', '{password}')"
-            cur = con.cursor()
+
             try:
-                cur.execute(ins)
+                pgexec(con,ins)
             except mysql.connector.Error as e:
                 con.rollback()
                 error = e.msg
                 return make_response(error, 400)
             else:
                 log(ins)
-                con.commit()
+
                 cur.close()
                 flash("Registro correctamente ingresado")
                 return redirect(url_for('login'))
@@ -237,6 +251,89 @@ def leer_variables():
 leer_variables()
 
 
+def calculo_sin_extension(idcliente):
+    """Determina si a un cliente se le puede ofrecer automaticamente extension.
+
+    de la cuota_maxima. Toma los parametros: cantidad de ventas: 1 venta no,
+    atrasos>60 en ultimos 3 años no.
+    Return 1 negativo sin_extension. 0 positivo se puede ofrecer extension."""
+
+    con = get_con()
+    try:
+        cnt_vtas = pgonecolumn(con, f"select count(*) from ventas where \
+        saldo=0 and idcliente = {idcliente}")
+        if cnt_vtas == 1:
+            return 1
+        atraso = pgonecolumn(con, f"select atraso from clientes where \
+        id={idcliente}")
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
+    else:
+        if atraso and atraso > 60:
+            return 1
+        return 0
+    finally:
+        con.close()
+
+
+def calculo_cuota_maxima(idcliente):
+    """Funcion que calcula la cuota maxima vendible del cliente.
+
+    Busca la cuota maxima de los ultimos tres años y la actualiza por inflacion
+    le disminuye 5% por cada mes de atraso que haya tenido
+    le aumenta 5% por cada compra que haya tenido en los ultimos tres años.
+    Esto ultimo se suspende pq aumenta mucho la cuota por la gran inflacion que
+    hay.
+    Cambios: se saco el incremento por cantidad de ventas.
+    Se toman las ventas de los ultimos tres años canceladas o no, y se
+    actualizan luego se pone la cuota actualizada mas alta.
+    Tambien se tiene en cuenta el monto total de la venta/6 para el calculo de
+    la cuota para evitar distorsion si el plan fue en 4 o 5 cuotas.
+    """
+    con = get_con()
+    cuotas = pglistdict(con, f"select comprado as monto,\
+    date_format(fecha,'%Y%c') as fecha from ventas where idcliente={idcliente} \
+    and fecha>date_sub(curdate(),interval 3 year) and devuelta=0 and pp=0")
+    cuota_actualizada = 0
+    try:
+        if cuotas:
+            ultimo_valor = pgonecolumn(con, "select indice from inflacion \
+            order by id desc limit 1")
+            cuotas_actualizadas = []
+            for venta in cuotas:
+                cuota = venta['monto']/6
+                fecha = venta['fecha']
+                indice = pgonecolumn(con, f"select indice from inflacion \
+                where concat(year,month)='{fecha}'")
+                if not indice:  # esto sucede si es un mes sin indice cargado aun
+                    indice = ultimo_valor
+                actualizada = ultimo_valor/indice * cuota
+                cuotas_actualizadas.append(actualizada)
+            cuota_actualizada = max(cuotas_actualizadas)
+
+            atraso = pgonecolumn(con, f"select atraso from clientes where \
+            id={idcliente}")
+            if atraso is None:
+                atraso = 0
+            if atraso > 0:
+                cuota_actualizada = cuota_actualizada * (1-(atraso/30)*0.05)
+                cuota_actualizada = max(cuota_actualizada, 0)
+    except mysql.connector.Error as _error:
+        con.rollback()
+        error = _error.msg
+        logging.warning(
+            f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
+        return make_response(error, 400)
+    else:
+        return cuota_actualizada
+    finally:
+        con.close()
+
+
 @app.route('/2xxXix5cnz7IKcYegqs6qf0R6')
 # @vendedor.route('/vendedor/listadatos')
 @login_required
@@ -267,7 +364,7 @@ def vendedor_envioclientenuevo():
     cliente_viejo = {}
     vdor = var_sistema[current_user.email]
     dni = d_data['dni']
-    cur = con.cursor()
+
     cliente = pglistdict(con, f"select * from clientes where dni={dni}")
     if cliente:  # o sea esta en la base de Romitex
         cliente = cliente[0]
@@ -326,29 +423,26 @@ def vendedor_envioclientenuevo():
             '{cliente['nombre']}','{cliente['dni']}','{cliente['wapp']}')"
         try:
             if ins:
-                cur.execute(ins)
+                pgexec(con,ins)
                 iddato = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
                 insaut = f"insert into autorizacion(fecha,vdor,iddato,\
                 idcliente,cuota_requerida,cuota_maxima,arts) \
                 values(current_timestamp(),{vdor},{iddato},{d_data['id']},\
                 {d_data['cuota_requerida']},{cuota_maxima},'{d_data['arts']}')"
-                cur.execute(insaut)
+                pgexec(con,insaut)
                 idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
                 vdorasignado = vdor
             else:  # dato repetido inserto auth con iddato que ya tenia de antes
                 # busco el vdorasignado al dato si es que existe.
-                vdorasignado = pgonecolumn(con, f"select vendedor from datos \
-                where id={iddato}")
+                vdorasignado = str(pgonecolumn(con, f"select vendedor from datos \
+                where id={iddato}"))
                 # si el dato era del vdor inserto la autorizacion.
                 if vdorasignado == vdor:
-                    insaut = f"insert into autorizacion(fecha,vdor,iddato,\
+                    insauth = f"insert into autorizacion(fecha,vdor,iddato,\
                     idcliente,cuota_requerida,cuota_maxima,arts) \
                     values(current_timestamp(),{vdor},{iddato},{d_data['id']},\
                     {d_data['cuota_requerida']},{cuota_maxima},\
                     '{d_data['arts']}')"
-                    cur.execute(insaut)
-                    idautorizacion = pgonecolumn(
-                        con, "SELECT LAST_INSERT_ID()")
                 # si no hay vdorasignado- Se asigna dato y crea la auth.
                 else:
                     upddato = f"update datos set vendedor={vdor} where id=\
@@ -358,13 +452,13 @@ def vendedor_envioclientenuevo():
                     values(current_timestamp(),{vdor},{iddato},{d_data['id']},\
                     {d_data['cuota_requerida']},{cuota_maxima},\
                     '{d_data['arts']}')"
-
-                    cur.execute(upddato)
-                    cur.execute(insauth)
+                    pgexec(con,upddato)
+                pgexec(con,insauth)
+                idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
             if upd:
-                cur.execute(upd)
+                pgexec(con,upd)
             if inslog:
-                cur.execute(inslog)
+                pgexec(con,inslog)
         except mysql.connector.Error as _error:
             con.rollback()
             error = _error.msg
@@ -372,7 +466,7 @@ def vendedor_envioclientenuevo():
                 f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
             return make_response(error, 400)
         else:
-            con.commit()
+
             log(ins)
             if ins:
                 log(insaut)
@@ -412,7 +506,7 @@ def vendedor_envioclientenuevo():
         {d_data['num']},'{d_data['barrio']}','{d_data['tel']}',\
         '{d_data['wapp']}','-CAMBIAR',1,'{d_data['acla']}','','','')"
         try:
-            cur.execute(inscliente)
+            pgexec(con,inscliente)
             idcliente = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
             ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, \
             art,horarios, comentarios, cuota_maxima,deuda_en_la_casa,\
@@ -421,13 +515,13 @@ def vendedor_envioclientenuevo():
             'cliente enviado por vendedor', {cuota_maxima}, \
             '{deuda_en_la_casa}',{sin_extension}, {monto_garantizado},{vdor},\
             {dnigarante},'{zona}')"
-            cur.execute(ins)
+            pgexec(con,ins)
             iddato = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
             insaut = f"insert into autorizacion(fecha,vdor,iddato,idcliente,\
             cuota_requerida,cuota_maxima,arts) values(current_timestamp(),\
             {vdor},{iddato},{idcliente},{d_data['cuota_requerida']},\
             {cuota_maxima},'{d_data['arts']}')"
-            cur.execute(insaut)
+            pgexec(con,insaut)
             idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
         except mysql.connector.Error as _error:
             con.rollback()
@@ -436,7 +530,7 @@ def vendedor_envioclientenuevo():
                 f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
             return make_response(error, 400)
         else:
-            con.commit()
+
             log(ins)
             log(insaut)
             return jsonify(idautorizacion=idautorizacion)
@@ -537,11 +631,11 @@ def vendedor_editarwapp():
         values ({d_data['idcliente']},'{wapp_viejo}', current_date())"
     else:
         inslogcambio = None
-    cur = con.cursor()
+
     try:
-        cur.execute(upd)
+        pgexec(con,upd)
         if inslogcambio is not None:
-            cur.execute(inslogcambio)
+            pgexec(con,inslogcambio)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
@@ -549,7 +643,7 @@ def vendedor_editarwapp():
             f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
-        con.commit()
+
         log(upd)
         return 'ok'
     finally:
@@ -570,10 +664,10 @@ def vendedor_guardardatofechado():
     id = {d_data['id']}"
     ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
     values(curdate(),curtime(),{vdor},{d_data['id']},4,0)"
-    cur = con.cursor()
+
     try:
-        cur.execute(upd)
-        cur.execute(ins)
+        pgexec(con,upd)
+        pgexec(con,ins)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
@@ -581,7 +675,7 @@ def vendedor_guardardatofechado():
             f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
-        con.commit()
+
         log(upd)
         return 'ok'
     finally:
@@ -601,10 +695,10 @@ def vendedor_anulardato(iddato):
     where id = {iddato}"
     ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
     values(curdate(),curtime(),{vdor},{iddato},2,0)"
-    cur = con.cursor()
+
     try:
-        cur.execute(upd)
-        cur.execute(ins)
+        pgexec(con,upd)
+        pgexec(con,ins)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
@@ -612,7 +706,7 @@ def vendedor_anulardato(iddato):
             f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
-        con.commit()
+
         log(upd)
         return 'ok'
     finally:
@@ -638,12 +732,12 @@ def vendedor_mudodato(iddato):
     inscomentario = f"insert into comentarios(idcliente, ingreso, comentario) \
     values({idcliente},'{current_user.email}','puesto como mudado por \
     vendedor {vdor}')"
-    cur = con.cursor()
+
     try:
-        cur.execute(upd)
-        cur.execute(ins)
-        cur.execute(updcliente)
-        cur.execute(inscomentario)
+        pgexec(con,upd)
+        pgexec(con,ins)
+        pgexec(con,updcliente)
+        pgexec(con,inscomentario)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
@@ -651,7 +745,7 @@ def vendedor_mudodato(iddato):
             f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
-        con.commit()
+
         log(upd)
         log(updcliente)
         return 'ok'
@@ -679,12 +773,12 @@ def vendedor_falleciodato(iddato):
     inscomentario = f"insert into comentarios(idcliente, ingreso, comentario) \
     values({idcliente},'{current_user.email}','puesto como fallecido por \
     vendedor {vdor}')"
-    cur = con.cursor()
+
     try:
-        cur.execute(upd)
-        cur.execute(ins)
-        cur.execute(updcli)
-        cur.execute(inscomentario)
+        pgexec(con,upd)
+        pgexec(con,ins)
+        pgexec(con,updcli)
+        pgexec(con,inscomentario)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
@@ -692,7 +786,7 @@ def vendedor_falleciodato(iddato):
             f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
-        con.commit()
+
         log(upd)
         log(updcli)
         return 'ok'
@@ -735,14 +829,14 @@ def vendedor_registrarautorizacion():
     {vdor},{d_data['id']},{d_data['idcliente']},{d_data['cuota_requerida']},\
     {d_data['cuota_maxima']},'{d_data['arts']}','{dnigarante_propuesto}')"
     logging.warning(ins)
-    cur = con.cursor()
+
     try:
         if len(str(dnigarante_propuesto)) > 0:
             upddato = f"update datos set dnigarante='{dnigarante_propuesto}' \
                 where id={d_data['id']}"
             logging.warning(upddato)
-            cur.execute(upddato)
-        cur.execute(ins)
+            pgexec(con,upddato)
+        pgexec(con,ins)
         idautorizacion = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
     except mysql.connector.Error as _error:
         con.rollback()
@@ -751,7 +845,7 @@ def vendedor_registrarautorizacion():
             f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
-        con.commit()
+
         log(ins)
         return jsonify(idautorizacion=idautorizacion)
     finally:
@@ -822,10 +916,10 @@ def vendedor_autorizardato(idauth):
     autorizado=1,rechazado=0,sigueigual=0,enviado_vdor=1, fecha_visitar=\
          curdate() where id={iddato}"
     con = get_con()
-    cur = con.cursor()
+
     try:
-        cur.execute(upd_aut)
-        cur.execute(upd_dat)
+        pgexec(con,upd_aut)
+        pgexec(con,upd_dat)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
@@ -833,7 +927,7 @@ def vendedor_autorizardato(idauth):
             f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
-        con.commit()
+
         log(upd_dat)
         log(upd_aut)
         return 'ok'
@@ -854,10 +948,10 @@ def vendedor_noautorizardato(idauth):
     upddato = f"update datos set rechazado=0, autorizado=0,sigueigual=1, \
     resultado=null, enviado_vdor=1 where id={iddato}"
     con = get_con()
-    cur = con.cursor()
+
     try:
-        cur.execute(upd_aut)
-        cur.execute(upddato)
+        pgexec(con,upd_aut)
+        pgexec(con,upddato)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
@@ -865,7 +959,7 @@ def vendedor_noautorizardato(idauth):
             f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
-        con.commit()
+
         log(upd_aut)
         log(upddato)
         return 'ok'
@@ -886,10 +980,10 @@ def vendedor_rechazardato(idauth):
     upddato = f"update datos set rechazado=1, autorizado=0, sigueigual=0, \
     resultado=8 where id={iddato}"
     con = get_con()
-    cur = con.cursor()
+
     try:
-        cur.execute(upd_aut)
-        cur.execute(upddato)
+        pgexec(con,upd_aut)
+        pgexec(con,upddato)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
@@ -897,7 +991,7 @@ def vendedor_rechazardato(idauth):
             f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
-        con.commit()
+
         log(upd_aut)
         log(upddato)
         return 'ok'
@@ -948,7 +1042,7 @@ def vendedor_pasarventa():
             # upd = f"update datos set resultado=1, monto_vendido={imp_cuota*6}, \
             # fecha_definido=# current_timestamp(), idvta={idvta} where \
             #     id={d_data['id']}"
-            # cur.execute(upd)
+            # pgexec(con,upd)
             listart = ''
             for item in d_data['arts']:
                 listart += item['cnt']
@@ -965,7 +1059,7 @@ def vendedor_pasarventa():
             inslog = f"update variables set valor='{cant_cuotas}{imp_cuota}{per}{d_data['primera']}\
             {d_data['idcliente']}{d_data['id']}{listart}' where id=13"
             pgexec(con, inslog)
-            con.commit()  # pruebo con hacer commit instantaneo de la variable
+              # pruebo con hacer commit instantaneo de la variable
             # que quizas no sea leida pq no se hizo el commit.
         else:
             logging.warning("duplicacion de venta %s Dara cod 401", ultinsvta)
@@ -995,9 +1089,9 @@ def vendedor_noestabadato(iddato):
     vdor = var_sistema[current_user.email]
     ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
     values(curdate(),curtime(),{vdor},{iddato},3,0)"
-    cur = con.cursor()
+
     try:
-        cur.execute(ins)
+        pgexec(con,ins)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
@@ -1005,7 +1099,7 @@ def vendedor_noestabadato(iddato):
             f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
-        con.commit()
+
         return 'ok'
     finally:
         con.close()
@@ -1052,15 +1146,16 @@ def vendedor_wappaut():
     vdor = var_sistema[current_user.email]
     _ = json.loads(request.data.decode("UTF-8"))
     msg = f"Autorizacion para el vdor {vdor}"
-    wapp1 = var_sistema['wapp_auth']
-    wapp2 = var_sistema['wapp_auth2']
-    # wapp3 = '3512411963'
+    # wapp1 = var_sistema['wapp_auth']
+    wapp1 = '3512411963'
+
+    # wapp2 = var_sistema['wapp_auth2']
+    wapp2 = '3512411963'
     try:
         if wapp1:
             send_msg_whatsapp(0, wapp1, msg)
         if wapp2:
             send_msg_whatsapp(0, wapp2, msg)
-        # send_msg_whatsapp(0,wapp3,msg)
     except mysql.connector.Error as _error:
         error = _error.msg
         logging.warning(
@@ -1280,7 +1375,7 @@ def vendedor_asignawappacliente(wapp,idcliente):
                 f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
             return make_response(error, 400)
         else:
-            con.commit()
+
             return 'ok'
         finally:
             con.close()
@@ -1293,7 +1388,6 @@ def vendedor_asignawappacliente(wapp,idcliente):
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_buscarsiexistewapp(wapp,idcliente):
     con = get_con()
-    print('idcliente',idcliente)
     existe = len(pglist(con,f"select id from clientes where wapp={wapp} and \
                     wapp_verificado=1 and id != {idcliente}"))
     return jsonify(existe=existe)
@@ -1356,16 +1450,16 @@ def cobrador_fecharficha(idcliente,pmovto):
     cobr = var_sistema[current_user.email]
     insvisita = f"insert into visitascobr(fecha,hora,cobr,idcliente,result)\
         values(curdate(),curtime(),{cobr},{idcliente},2)"
-    cur = con.cursor()
+
     try:
-        cur.execute(upd)
-        cur.execute(insvisita)
+        pgexec(con,upd)
+        pgexec(con,insvisita)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
         return make_response(error, 400)
     else:
-        con.commit()
+
         return 'ok'
     finally:
         con.close()
@@ -1383,15 +1477,15 @@ def cobrador_noestabaficha(idcliente):
     cobr = var_sistema[current_user.email]
     ins = f"insert into visitascobr(fecha,hora,cobr,idcliente,result) \
     values(curdate(),curtime(),{cobr},{idcliente},3)"
-    cur = con.cursor()
+
     try:
-        cur.execute(ins)
+        pgexec(con,ins)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
         return make_response(error, 400)
     else:
-        con.commit()
+
         return 'ok'
     finally:
         con.close()
@@ -1411,17 +1505,17 @@ def cobrador_mudoficha(idcliente):
     inscomentario = f"insert into comentarios(idcliente, ingreso, comentario) \
     values({idcliente},'{current_user.email}','puesto como mudado por \
     cobrador {cobr}')"
-    cur = con.cursor()
+
     try:
-        cur.execute(ins)
-        cur.execute(upd)
-        cur.execute(inscomentario)
+        pgexec(con,ins)
+        pgexec(con,upd)
+        pgexec(con,inscomentario)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
         return make_response(error, 400)
     else:
-        con.commit()
+
         return 'ok'
     finally:
         con.close()
@@ -1441,17 +1535,17 @@ def cobrador_fallecioficha(idcliente):
     inscomentario = f"insert into comentarios(idcliente, ingreso, comentario) \
     values({idcliente},'{current_user.email}','puesto como fallecido por \
     cobrador {cobr}')"
-    cur = con.cursor()
+
     try:
-        cur.execute(ins)
-        cur.execute(upd)
-        cur.execute(inscomentario)
+        pgexec(con,ins)
+        pgexec(con,upd)
+        pgexec(con,inscomentario)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
         return make_response(error, 400)
     else:
-        con.commit()
+
         return 'ok'
     finally:
         con.close()
@@ -1491,7 +1585,7 @@ def cobrador_pasarpagos():
             error = _error.msg
             return make_response(error, 400)
     else:
-            con.commit()
+
             return 'ok'
     finally:
             con.close()
@@ -1547,3 +1641,25 @@ def cobrador_getcobroscobr():
                              as cobrado from pagos where cobr={cobr} \
                              and rendido = 0 group by fecha")
     return jsonify(listacobros=listacobros, listafechas=listafechas)
+
+
+@app.route('/CZI6X7BC6wNtseAN22HiXsmqc')
+@app.route('/ventas/getcalles')
+@login_required
+@check_roles(['dev','gerente','admin','vendedor'])
+def ventas_getcalles():
+    con = get_con()
+    calles = pglist(con, f"select calle from calles order by calle")
+    con.close()
+    return jsonify(result=calles)
+
+
+@app.route('/w98LuAaWBax9c6rENQ2TjO3PR')
+@app.route('/ventas/getbarrios')
+@login_required
+@check_roles(['dev','gerente','admin','vendedor'])
+def ventas_getbarrios():
+    con = get_con()
+    barrios = pglist(con, f"select barrio from barrios order by barrio")
+    con.close()
+    return jsonify(result=barrios)
