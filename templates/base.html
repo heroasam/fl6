@@ -7,15 +7,10 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css-dist/styles.min.css') }}">
-    <!-- <link id="bulma" rel="stylesheet" href="https://unpkg.com/bulmaswatch/darkly/bulmaswatch.min.css"> -->
     <link id="bulma" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulmaswatch@0.8.1/darkly/bulmaswatch.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@3.2.2/dist/style.css">
-    <!-- <script defer src="https://unpkg.com/@alpinejs/focus@3.10.3/dist/cdn.min.js"></script> -->
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.10.3/dist/cdn.min.js"></script>
-	<!-- <script defer src="https://unpkg.com/alpinejs@3.10.3/dist/cdn.min.js"></script> -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.10.3/dist/cdn.min.js"></script>
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js" referrerpolicy="no-referrer"></script> -->
     {% block style %} {% endblock %}
   </head>
   <body>
@@ -36,11 +31,7 @@
       {% include "_nav_login.html" %}
       {% endif %}
 	</header>
-
-
     {% block content %}{% endblock %}
-
-
     <script src="https://cdn.jsdelivr.net/npm/axios@0.27.2/dist/axios.min.js"></script>
     <script src="{{ url_for('static', filename='UMcGEun5VjdujIWHLUdN5PduP-of.js') }}" ></script>
     <script src="{{ url_for('static', filename='1aQlgJieLfOnk1XnqFsEnqvK8-of.js') }}" ></script>
@@ -51,16 +42,9 @@
     <script>dayjs.extend(window.dayjs_plugin_relativeTime)</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.5/locale/es.min.js"></script>
     <script>dayjs.locale('es')</script>
-
-
-
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11.4.38"></script>
-    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@3.2.2/dist/umd/simple-datatables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.7.107/build/pdf.min.js"></script>
     {% block script %}{% endblock %}
   </body>
   <script>
-
   </script>
 </html>
