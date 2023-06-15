@@ -126,7 +126,8 @@
         <input type="number" class="input mb-3" x-model="Venta.dni" id="iddni" autocomplete="off"
                :class="darkTheme?'input-dark':''" @blur="validarDni(Venta.dni)">
         <label for="iddnigarante" class="label">DNI del garante</label>
-        <span class="tag is-small is-danger" x-show="!dnigarantevalidado && Venta.dnigarante">DNI garante no valido</span>
+        <span class="tag is-small is-danger" x-show="!dnigarantevalidado && Venta.dnigarante && Venta.dnigarante!=0 &&
+                     Venta.dnigarante!=''">DNI garante no valido</span>
         <input type="number" class="input mb-3" x-model="Venta.dnigarante" id="iddnigarante" autocomplete="off"
                :class="darkTheme?'input-dark':''" @blur="buscaGarante(Venta.dnigarante)">
         <span class="tag is-small" x-text="nombregarante" x-show="nombregarante"></span>

@@ -557,10 +557,10 @@ function toggleTheme(themeName) {
 document.addEventListener("DOMContentLoaded", () => {
     const theme = document.getElementById('bulma');
     theme.setAttribute('href', cdnTheme);
-    let browser = 'chrome'
-    if(isFirefox){
-        browser = 'firefox'}
-    axios.get('/utilidades/logthemes/'+nameTheme+'/'+isMobileDevice+'/'+browser)
+    // let browser = 'chrome'
+    // if(isFirefox){
+    //     browser = 'firefox'}
+    // axios.get('/utilidades/logthemes/'+nameTheme+'/'+isMobileDevice+'/'+browser)
 });
 // if(document.readyState === 'loading') {
 //     document.addEventListener('DOMContentLoaded',afterDOMLoaded);
@@ -589,10 +589,10 @@ function closeModal(id) {
 function obtenerListados(){
     axios.get('/ventas/getcalles')
     .then(res=>{let listaCalles=res.data.result})
-    
+
     axios.get('/ventas/getbarrios')
     .then(res=>{let listaBarrios=res.data.result})
-    
+
     axios.get('/ventas/getzonas')
     .then(res=>{let listaZonas=res.data.result})
 }

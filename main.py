@@ -18,6 +18,7 @@ import logging
 import time
 import threading
 import base64
+import re
 from functools import wraps
 from lib import *
 
@@ -332,6 +333,21 @@ def calculo_cuota_maxima(idcliente):
         return cuota_actualizada
     finally:
         con.close()
+
+
+def es_dni_valido(dni):
+    patron = r'^\d{7,8}$'
+    if dni is None:
+        return False
+    dni = str(dni)
+    if re.match(patron, dni):
+        return True
+    else:
+        return False
+
+
+def get_cobr():
+    return var_sistema[current_user.email]
 
 
 @app.route('/2xxXix5cnz7IKcYegqs6qf0R6')
@@ -1388,6 +1404,7 @@ def vendedor_asignawappacliente(wapp,idcliente):
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_buscarsiexistewapp(wapp,idcliente):
     con = get_con()
+    print('llamado buscar si existe wapp', wapp,idcliente)
     existe = len(pglist(con,f"select id from clientes where wapp={wapp} and \
                     wapp_verificado=1 and id != {idcliente}"))
     return jsonify(existe=existe)
@@ -1663,3 +1680,49 @@ def ventas_getbarrios():
     barrios = pglist(con, f"select barrio from barrios order by barrio")
     con.close()
     return jsonify(result=barrios)
+
+
+@app.route('/buscador/obtenerventasporidcliente/<int:idcliente>')
+@login_required
+@check_roles(['dev','gerente','admin','cobrador','vendedor'])
+def buscar_obtenerventasporidcliente(idcliente):
+    """Entrega lista de ventas por idcliente."""
+    sql = f"select * from ventas where idcliente={idcliente} and saldo>0 order \
+    by id desc"
+    con = get_con()
+    ventas = pglistdict(con, sql)
+    print(ventas)
+    con.close()
+    return jsonify(ventas=ventas)
+
+
+@app.route('/pagos/pasarpagos', methods=['POST'])
+@login_required
+@check_roles(['dev', 'gerente', 'admin', 'cobrador', 'vendedor'])
+def pagos_pasarpagos():
+    con = get_con()
+    d = json.loads(request.data.decode("UTF-8"))
+    if (d['rec'] == ''):
+        d['rec'] = 0
+    ins = f"insert into pagos(idvta,fecha,imp,rec,rbo,cobr,idcliente,rendido) \
+    values({d['idvta']},'{d['fecha']}',{d['imp']},{d['rec']},{d['rbo']},\
+    {d['cobr']},{d['idcliente']},{d['rendido']})"
+    pgexec(con, ins)
+    # Si el pago proviene del cobrador directamente con pmovto incluido:
+    if (d['pmovto'] is not None):
+        upd = f"update clientes set pmovto='{d['pmovto']}' where id = \
+            {d['idcliente']}"
+        pgexec(con, upd)
+        log(upd)
+    con.close()
+    log(ins)
+    return 'ok'
+
+
+@app.route('/KgcigrlPdMMjIFsWucdrEVDzX')
+@app.route('/utilidades/imprimirlistaprecios')
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def utilidades_imprimirlistaprecios():
+    return send_file(os.path.join('/home/hero/documentos/impresos', \
+                                  'listaprecios.pdf'))

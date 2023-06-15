@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Librerias generales."""
+import os
 from flask_login import current_user
 import requests
 import time
@@ -197,46 +198,12 @@ def letras(num):
         num = millares[millar]+' '+centenas[centena]+' '+sueltos[dosdigitos]
     return (num.lstrip().rstrip().upper())
 
-
 apis = {1:"5493513882892", 2:"5493515919883", 3:"5493515920539"}
-wapp_cobr = ["3547611702","3512491224","3515916367","3516503558","3512916800","3512761985","3516366532","3512154913","3515297472"]
-#wapp_cobr = []
 def send_msg_whatsapp(idcliente, wapp, msg, api=1):
     """Funcion que encola wapp de texto."""
-    # api = pgonecolumn(con, f"select api from wappsrecibidos where wapp=\
-    #                   '549{wapp}' and id = (select max(id) from \
-    #                   wappsrecibidos where wapp='549{wapp}')")
-    # if api == '':
-    #     api = 3
-    # else:
-    # TODO: buscar la api que corresponda en el dict apis segun el wapp guardado en variable api
-    if wapp == '5493512411963' or wapp == '3512411963':
-        api = 2
-    if wapp in wapp_cobr:
-        api = 2
-    if api == 2 or api == 3:
-        logging.warning(f'entro a api {api}')
-        return procesar_msg_whatsapp_apis(idcliente, wapp, msg, api)
-    else:
-        tipo = 'texto'
-        hora_despacho = None
-        ultimo_encolado = queue_wapps.rpop('hora')
-        if ultimo_encolado is not None:
-            hora_despacho = json.loads(ultimo_encolado)
-            logging.warning(f"ultimo_encolado {hora_despacho}")
-            queue_wapps.rpush('hora', hora_despacho)
-        if hora_despacho is None:
-            hora_despacho = time.time()
-        else:
-            if hora_despacho < time.time():
-                hora_despacho = time.time() + 5
-            else:
-                hora_despacho = hora_despacho + 15
-        logging.warning(f"'hora_depacho establecida'{hora_despacho}")
-        wapp_json = json.dumps(
-            [idcliente, wapp, msg, current_user.email, hora_despacho, tipo])
-        queue_wapps.lpush('wapp', wapp_json)
-        queue_wapps.rpush('hora', hora_despacho)
+    api = 2
+    logging.warning(f'entro a api {api}')
+    procesar_msg_whatsapp_apis(idcliente, wapp, msg, api)
 
 
 def procesar_msg_whatsapp_apis(idcliente,wapp, msg, api):
@@ -278,124 +245,11 @@ def procesar_msg_whatsapp_apis(idcliente,wapp, msg, api):
         return resultado
 
 
-def procesar_msg_whatsapp(wapp, api=1,idcliente = None,msg = None, email = None):
-    """Funcion envia wapp de texto."""
-    con = get_con()
-    idcliente, wapp, msg, email, hora_despacho, _ = json.loads(wapp)
-    pattern = r'^[0-9]+$'
-    if re.match(pattern, wapp) == None:
-        return 'error', 402
-    wapp = "+549"+wapp
-    payload = f"https://api.textmebot.com/send.php?recipient={wapp}&\
-            apikey=kGdEFC1HvHVJ&text={msg}"
-    ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,\
-    timeout,response,enviado,fecha,api) values({idcliente},'{wapp[4:]}',\
-    '{msg.replace('%20',' ')[:100]}','','{email}',{int(time.time())}\
-    ,0,'',0,curdate(),{apis[api]})"
-    pgexec(con, ins)
-    idlog = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
-    logging.warning("se ejecuta la api1")
-    while True:
-        if time.time() > hora_despacho:
-            logging.warning(
-                f"hora_despacho {hora_despacho} time {time.time()}")
-            try:
-                # Establece un tiempo máximo de 5 segundos para la respuesta
-                response = requests.request("GET", payload)
-            except requests.Timeout:
-                # Manejo del error de tiempo de espera
-                send_msg_whatsapp(idcliente, wapp, msg)
-                logging.warning(f"Tiempo de espera agotado para {wapp}")
-                return "Tiempo de espera de la solicitud agotado"
-            except requests.RequestException as e:
-                # Manejo de otros errores de solicitud
-                logging.warning(f"errores de RequestException {str(e)}")
-                return str(e)
-            else:
-                resultado = 'ninguno'
-                if api == 1:
-                    match = re.search(r"Result: <b>(.*?)</b>", response.text)
-                    if match:
-                        resultado = match.group(1)
-                else:
-                    resultado = response.text
-                logging.warning(
-                    f"mensaje {wapp} enviado a las:{str(time.ctime(time.time()))} {resultado} {time.time()}")
-                wapp_log(response.status_code, resultado, wapp,
-                        str(time.ctime(time.time())), idcliente,api)
-                if resultado == "Success!":
-                    logging.warning(f"entra en el if {resultado}")
-                    upd = f"update logwhatsapp set response='success',\
-                    enviado={int(time.time())} where id = {idlog}"
-                    wapp_logenviados(wapp, msg, email,api)
-                    pgexec(con, upd)
-                    return 'success'
-                elif "Invalid Destination WhatsApp" in resultado:
-                    updinv = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' \
-                            where id={idcliente}"
-                    upd = f"update logwhatsapp set response='invalid', enviado=\
-                            {int(time.time())} where id = {idlog}"
-                    logging.warning(
-                        f"ante envio Invalid Destination WhatsApp: {resultado}")
-                    pgexec(con, updinv)
-                    pgexec(con, upd)
-                    return 'invalid'
-                elif "Failed" in resultado:
-                    upd = f"update logwhatsapp set response='failed', enviado=\
-                            {int(time.time())} where id = {idlog}"
-                    logging.warning(
-                        f"ante envio Failed: {resultado}")
-                    pgexec(con, upd)
-                    return 'failed'
-                elif "limit" in resultado:
-                    upd = f"update logwhatsapp set response='limit', enviado=\
-                            {int(time.time())} where id = {idlog}"
-                    logging.warning(
-                        f"ante envio Limit: {resultado}")
-                    pgexec(con, upd)
-                    return 'limit'
-                else:
-                    return 'error', 401
-            finally:
-                time.sleep(0.5)
-                break
-
-
 def send_file_whatsapp(idcliente, file, wapp, msg='', api=1):
     """Funcion que encola wapp de file."""
-    # api = pgonecolumn(con, f"select api from wappsrecibidos where wapp=\
-    #                   '549{wapp}' and id = (select max(id) from \
-    #                   wappsrecibidos where wapp='549{wapp}')")
-    # if api == '':
-    #     api = 3
-    # else:
-    # TODO: buscar la api que corresponda en el dict apis segun el wapp guardado en variable api
-    if wapp == '5493512411963' or wapp == '3512411963' or wapp == '3513944023':
-        api = 2
-    if api == 2 or api == 3:
-        logging.warning(f'entro a api {api}')
-        return procesar_file_whatsapp_apis(idcliente, file, wapp,api)
-    else:
-        tipo = 'file'
-        hora_despacho = None
-        ultimo_encolado = queue_wapps.rpop('hora')
-        if ultimo_encolado is not None:
-            hora_despacho = json.loads(ultimo_encolado)
-            logging.warning(f"ultimo_encolado {hora_despacho}")
-            queue_wapps.rpush('hora', hora_despacho)
-        if hora_despacho is None:
-            hora_despacho = time.time()
-        else:
-            if hora_despacho < time.time():
-                hora_despacho = time.time() + 5
-            else:
-                hora_despacho = hora_despacho + 15
-        logging.warning(f"'hora_depacho establecida'{hora_despacho}")
-        wapp_json = json.dumps(
-            [idcliente, file, wapp, current_user.email, hora_despacho, tipo])
-        queue_wapps.lpush('wapp', wapp_json)
-        queue_wapps.rpush('hora', hora_despacho)
-        time.sleep(1)
+    api = 2
+    logging.warning(f'entro a api {api}')
+    procesar_file_whatsapp_apis(idcliente, file, wapp,api)
 
 
 def procesar_file_whatsapp_apis(idcliente, file, wapp,api):
@@ -437,86 +291,6 @@ def procesar_file_whatsapp_apis(idcliente, file, wapp,api):
             return 'success'
         else:
             return resultado
-
-
-def procesar_file_whatsapp(wapp, api = 1):
-    """Funcion que envia wapp de file  ."""
-    logging.warning("procesar_file_whatsapp")
-    con = get_con()
-    idcliente, file, wapp, email, hora_despacho, _ = json.loads(wapp)
-    logging.warning(f"api {api}")
-    pattern = r'^[0-9]+$'
-    if re.match(pattern, wapp) == None:
-        return 'error', 402
-    file_log = os.path.split(file)[1]
-    ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,\
-            timeout,response,enviado,fecha) values({idcliente},\
-            '{wapp}','','{file_log}'\
-            ,'{email}',{int(time.time())},0,'',0,curdate())"
-    pgexec(con, ins)
-    idlog = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
-    while True:
-        if time.time() > hora_despacho:
-            logging.warning(
-                f"hora_despacho {hora_despacho} time {time.time()}")
-            try:
-                # logging.warning(f"api{api}")
-                # Establece un tiempo máximo de 5 segundos para la respuesta
-                wapp = "+549"+wapp
-                payload = f"https://api.textmebot.com/send.php?recipient={wapp}&\
-                                apikey=kGdEFC1HvHVJ&document={file}"
-                response = requests.request("GET", payload, timeout=8)
-            except requests.Timeout:
-                # Manejo del error de tiempo de espera
-                send_file_whatsapp(idcliente, file, wapp)
-                logging.warning(f"Tiempo de espera agotado para {wapp}")
-                return "Tiempo de espera de la solicitud agotado"
-            except requests.RequestException as e:
-                # Manejo de otros errores de solicitud
-                logging.warning(f"errores de RequestException {str(e)}")
-                return str(e)
-            else:
-                resultado = 'ninguno'
-                match = re.search(r"Result: <b>(.*?)</b>", response.text)
-                if match:
-                    resultado = match.group(1)
-                logging.warning(
-                    f"mensaje {wapp} enviado a las:{str(time.ctime(time.time()))} {resultado} {time.time()} api{api}")
-                wapp_log(response.status_code, resultado, wapp,
-                         str(time.ctime(time.time())), idcliente,apis[api])
-                if "Success" in resultado or "success" in resultado:
-                    upd = f"update logwhatsapp set response='success',\
-                    enviado={int(time.time())} where id = {idlog}"
-                    wapp_logenviados(wapp, file_log, email,api)
-                    pgexec(con, upd)
-                    return 'success'
-                elif "Invalid Destination WhatsApp" in resultado:
-                    updinv = f"update clientes set wapp_invalido='{wapp}',wapp='INVALIDO' \
-                            where id={idcliente}"
-                    upd = f"update logwhatsapp set response='invalid', enviado=\
-                            {int(time.time())} where id = {idlog}"
-                    logging.warning(
-                        f"ante envio Invalid Destination WhatsApp: {resultado}")
-                    pgexec(con, updinv)
-                    pgexec(con, upd)
-                    return 'invalid'
-                elif "Failed" in resultado:
-                    upd = f"update logwhatsapp set response='failed', enviado=\
-                            {int(time.time())} where id = {idlog}"
-                    logging.warning(f"ante envio Failed: {resultado}")
-                    pgexec(con, upd)
-                    return 'failed'
-                elif "limit" in resultado:
-                    upd = f"update logwhatsapp set response='limit', enviado=\
-                            {int(time.time())} where id = {idlog}"
-                    logging.warning(f"ante envio Limit: {resultado}")
-                    pgexec(con, upd)
-                    return 'limit'
-                else:
-                    return 'error', 401
-            finally:
-                time.sleep(0.5)
-                break
 
 
 def wapp_logenviados(wapp, msg, user,api):

@@ -37,7 +37,7 @@
                })
            },
            buscaGarante(dni){
-               if(this.cliente.dnigarante!=''){
+               if(this.cliente.dnigarante!=''&&this.cliente.dnigarante!=0){
                    //nueva ruta para /ventas/obtenerdatosgarante 3ibzPLLq53RuFgIqkq6G3bSzO
                    axios.get('/3ibzPLLq53RuFgIqkq6G3bSzO/'+this.cliente.dnigarante)
                         .then(res=>{
@@ -540,7 +540,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
              //registrar pedido autorizacion en tabla autorizacion
              this.Dato.cuota_requerida = this.sumaCuota;
              this.Dato.dnigarante = this.Venta.dnigarante;
-             if(this.Dato.dnigarante&&!this.nombregarante){this.buscaGarante(this.Dato.dnigarante)}
+             if(this.Dato.dnigarante&&!this.nombregarante&&this.Dato.dnigarante!=0){this.buscaGarante(this.Dato.dnigarante)}
              let arrayArts = [];
              this.listaArtComprados.map(row=>{
                  arrayArts.push(row.cnt+' '+row.art);
