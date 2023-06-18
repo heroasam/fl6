@@ -28,7 +28,6 @@
            },
            buscarSiExisteWapp(wapp, idcliente) {
                if (this.cliente.id === undefined) { this.cliente.id = 0 }
-               console.log(this.cliente, this.cliente.id)
                axios.get('/vendedor/buscarsiexistewapp/' + wapp+'/'+ this.cliente.id)
                    .then(res => {
                        if (res.data.existe == 1) {
@@ -233,7 +232,17 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
          verNotificacionAutorizacion:false,
          nombregarante:'',
          direcciongarante:'',
-         listaSector:['Norte','Sur','Este','Local'],
+         listaSector:[],
+         listaRecomendaciones:[],
+         getSectores(){
+             axios.get('/vendedor/getzonasporsectores')
+                 .then(res=>{
+                     this.listaZonas = res.data.zonas
+                     let sectores = this.listaZonas.map(row=>row.sector)
+                     this.listaSector = [... new Set(sectores)]
+                     this.listaRecomendaciones = res.data.recomendaciones
+                 })
+         },
          getListadoDatosVendedor(){
              // nueva ruta: /VGIdj7tUnI1hWCX3N7W7WAXgU
              // para /vendedor/getlistadodatosvendedor
@@ -340,13 +349,14 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
          },
          filtraPorSector(item){
              // sectores Norte, Sur, Este, Local
-             listaZonas = {
-                 'Local': ['PAGO_LOCAL'],
-                 'Norte': ['Marques','Sargento','Fragueiro','Panamericano','Liceo','Remedios','Patricios','Mosconi','Bustos','America','MT','Italia','YofreSur'],
-                 'Sur': ['Vicor','SI3','Congreso','SI2','Cabildo','Rosedal','Adela','EstacionFlores','SanRoque','Republica','Union'],
-                 'Este': ['Hernandez','Olmedo','Carcano','JID45','JID23','JID1','Ferreyra','Ituizango','Mayo','Coops']
-             }
-             this._listadoDatos = this.listadoDatos.filter(row=>listaZonas[item].includes(row.zona))
+             // listaZonas = {
+             //     'Local': ['PAGO_LOCAL'],
+             //     'Norte': ['Marques','Sargento','Fragueiro','Panamericano','Liceo','Remedios','Patricios','Mosconi','Bustos','America','MT','Italia','YofreSur','Arenales'],
+             //     'Sur': ['Vicor','SI3','Congreso','SI2','Cabildo','Rosedal','Adela','EstacionFlores','SanRoque','Republica','Union'],
+             //     'Este': ['Hernandez','Olmedo','Carcano','JID45','JID23','JID1','Ferreyra','Ituizango','Mayo','Coops']
+             // }
+             let zonas_por_sector = this.listaZonas.filter(row=>row.sector==item).map(row=>row.zona)
+             this._listadoDatos = this.listadoDatos.filter(row=>zonas_por_sector.includes(row.zona))
              this.getListaItems()
          },
          abrirCliente(id){
@@ -390,7 +400,6 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
              axios.get('/pnZWxv9Nicwt6TQ6zxohzvats/'+iddato)
                   .then(res=>{
                       this.Dato=res.data.dato;
-                      console.log( 'Dato',this.Dato)
                       this.Dato.fecha=dayjs.utc(this.Dato.fecha).format('YYYY-MM-DD');
                       this.Dato.fecha_visitar=dayjs.utc(this.Dato.fecha_visitar).format('YYYY-MM-DD');
                       this.listaArtComprados = [];
@@ -692,17 +701,31 @@ Quedo a la espera. Gracias.`;
              }
          },
          enviarWappCliente(datos){
+             let recom = '';
+             let recom1 = '';
              let arts = '';
+             let listaarts = [];
              let cuotas;
              for (let item of this.listaArtComprados){
                  arts += ` ${item.cnt} ${item.art} `;
                  cuotas = item.cc;
+                 listaarts.push(item.art)
+             }
+             if(this.listaRecomendaciones.some(obj => listaarts.includes(obj.art))) {
+                 recom1 = `
+Le recomendamos tener en cuenta lo siguiente para una mejor conservacion de los articulos comprados:
+`
+             }
+              for(let art of listaarts){
+                 recom += this.listaRecomendaciones.filter(row=>row.art==art)[0].recomendacion
              }
              let msg = `Estimado cliente: ${datos.nombre}, agradecemos su compra de ${arts}.
-Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $${datos.monto_vendido/cuotas} y la primer cuota vence el dia ${this.Venta.primera} para cualquier consulta no dude en contactarnos, estamos a su disposición!.`;
+Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $${datos.monto_vendido/cuotas} y la primer cuota vence el dia ${this.Venta.primera} para cualquier consulta no dude en contactarnos, estamos a su disposicion!.${recom1} ${recom}`;
+
+             console.log( msg)
              let wapp = datos.wapp;
              let idcliente = datos.idcliente;
-             let file = 'informacion-importante';
+             let file = 'info';
              let data = {msg,wapp,idcliente,file};
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
              // nueva ruta para /vendedor/wapp
@@ -714,7 +737,7 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
                      axios.get('/pDfkNKQMQvgp8Zbqa0C6ETYAh/'+this.Dato.idvta)
                      //nueva ruta para /vendedor/filewapp
                      // /4qUK6eNZnCYjIiGTt3HSj2YDp
-                     axios.post('/4qUK6eNZnCYjIiGTt3HSj2YDp',data)
+                     // axios.post('/4qUK6eNZnCYjIiGTt3HSj2YDp',data) // no va mas pq van recomendaciones individuales
                  })
          },
          async informa(tipo,idvta,vendedor,nombre){

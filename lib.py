@@ -202,7 +202,6 @@ apis = {1:"5493513882892", 2:"5493515919883", 3:"5493515920539"}
 def send_msg_whatsapp(idcliente, wapp, msg, api=1):
     """Funcion que encola wapp de texto."""
     api = 2
-    logging.warning(f'entro a api {api}')
     procesar_msg_whatsapp_apis(idcliente, wapp, msg, api)
 
 
@@ -210,16 +209,16 @@ def procesar_msg_whatsapp_apis(idcliente,wapp, msg, api):
     """procesar msg para nuevas apis."""
     con = get_con()
     email = current_user.email
-    payload = f"https://heroasam.xyz/sendMsg/{api}/{wapp}/{msg}"
+    payload = f"https://heroasam.xyz/sendMsg"
     ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,\
     timeout,response,enviado,fecha,api) values({idcliente},'{wapp}',\
     '{msg.replace('%20',' ')[:100]}','','{email}',{int(time.time())}\
     ,0,'',0,curdate(),{apis[api]})"
     pgexec(con, ins)
     idlog = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
-    logging.warning("se ejecuta la api2 o la api3")
     try:
-        response = requests.request("GET", payload)
+        data = {'phone':wapp,'api':api,'message':msg}
+        response = requests.post(payload,data)
     except requests.Timeout:
         # Manejo del error de tiempo de espera
         send_msg_whatsapp(idcliente, wapp, msg)
@@ -248,7 +247,6 @@ def procesar_msg_whatsapp_apis(idcliente,wapp, msg, api):
 def send_file_whatsapp(idcliente, file, wapp, msg='', api=1):
     """Funcion que encola wapp de file."""
     api = 2
-    logging.warning(f'entro a api {api}')
     procesar_file_whatsapp_apis(idcliente, file, wapp,api)
 
 

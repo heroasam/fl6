@@ -744,7 +744,7 @@ def vendedor_mudodato(iddato):
     where id = {iddato}"
     ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
     values(curdate(),curtime(),{vdor},{iddato},5,0)"
-    updcliente = f"update clientes set mudo=1 where id={idcliente}"
+    updcliente = f"update clientes set mudo=1,mudofallecio_proceso=1 where id={idcliente}"
     inscomentario = f"insert into comentarios(idcliente, ingreso, comentario) \
     values({idcliente},'{current_user.email}','puesto como mudado por \
     vendedor {vdor}')"
@@ -784,7 +784,7 @@ def vendedor_falleciodato(iddato):
     where id = {iddato}"
     ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
     values(curdate(),curtime(),{vdor},{iddato},6,0)"
-    updcli = f"update clientes set zona='-FALLECIDOS', modif_vdor=1 where id=\
+    updcli = f"update clientes set zona='-FALLECIDOS', modif_vdor=1,mudofallecio_proceso=1 where id=\
     {idcliente}"
     inscomentario = f"insert into comentarios(idcliente, ingreso, comentario) \
     values({idcliente},'{current_user.email}','puesto como fallecido por \
@@ -1105,9 +1105,17 @@ def vendedor_noestabadato(iddato):
     vdor = var_sistema[current_user.email]
     ins = f"insert into visitas(fecha,hora,vdor,iddato,result,monto_vendido) \
     values(curdate(),curtime(),{vdor},{iddato},3,0)"
+    id = pgonecolumn(con,f"select idcliente from datos where id={iddato}")
+    sexo,nombre,wapp = pgtuple(con,f"select sex,nombre,wapp from clientes where id={id}")
+    if sexo=='F':
+        sufijo = 'a'
+    else:
+        sufijo = 'o'
+    msg_noestaba = f"""Estimad{sufijo} {nombre}: hoy l{sufijo} hemos visitado de Romitex, Ud supo ser cliente nuestr{sufijo} y veniamos a mostrarle los nuevos articulos que han llegado. Tenemos acolchados, sabanas, cortinas, manteles, toallones todo en 6 cuotas mensuales fijas y con entrega inmediata. No dude en avisarnos en que horario podemos encontrarl{sufijo}, sin compromiso le mostraremos y explicaremos el plan 🤗."""
 
     try:
         pgexec(con,ins)
+        send_msg_whatsapp(id,wapp,msg_noestaba)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
@@ -1162,10 +1170,10 @@ def vendedor_wappaut():
     vdor = var_sistema[current_user.email]
     _ = json.loads(request.data.decode("UTF-8"))
     msg = f"Autorizacion para el vdor {vdor}"
-    # wapp1 = var_sistema['wapp_auth']
-    wapp1 = '3512411963'
+    wapp1 = var_sistema['wapp_auth']
+    # wapp1 = '3512411963'
 
-    # wapp2 = var_sistema['wapp_auth2']
+    wapp2 = var_sistema['wapp_auth2']
     wapp2 = '3512411963'
     try:
         if wapp1:
@@ -1404,7 +1412,6 @@ def vendedor_asignawappacliente(wapp,idcliente):
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_buscarsiexistewapp(wapp,idcliente):
     con = get_con()
-    print('llamado buscar si existe wapp', wapp,idcliente)
     existe = len(pglist(con,f"select id from clientes where wapp={wapp} and \
                     wapp_verificado=1 and id != {idcliente}"))
     return jsonify(existe=existe)
@@ -1691,7 +1698,6 @@ def buscar_obtenerventasporidcliente(idcliente):
     by id desc"
     con = get_con()
     ventas = pglistdict(con, sql)
-    print(ventas)
     con.close()
     return jsonify(ventas=ventas)
 
@@ -1726,3 +1732,15 @@ def pagos_pasarpagos():
 def utilidades_imprimirlistaprecios():
     return send_file(os.path.join('/home/hero/documentos/impresos', \
                                   'listaprecios.pdf'))
+
+
+@app.route('/vendedor/getzonasporsectores')
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_getzonasporsectores():
+    con = get_con()
+    zonas = pglistdict(con, "select zona,sector from zonas where sector is \
+    not null")
+    recomendaciones = pglistdict(con, "select art,recomendacion from articulos \
+    where recomendacion is not null")
+    return jsonify(zonas=zonas, recomendaciones=recomendaciones)
