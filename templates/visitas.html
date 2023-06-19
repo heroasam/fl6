@@ -77,7 +77,8 @@
          Cobrador:'',
          listaCobradores:[],
          getVisitasCobrador(){
-             axios.get('/cobrador/getvisitascobrador')
+             //axios.get('/cobrador/getvisitascobrador')
+             axios.get('/yGaGGogxb0ss1wGJMzS08eTvj')
                   .then(res=>{
                       this.listaVisitasCobrador = res.data.visitascobrador
                       this.listaVisitasCobrador.map(row=>row.fecha=dayjs.utc(row.fecha).format('YYYY-MM-DD'))

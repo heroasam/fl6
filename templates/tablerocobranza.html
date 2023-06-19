@@ -87,7 +87,7 @@
         </table>
       </div>
     </template>
-     
+
     </div>
 </div>
 {% endblock %}
@@ -105,7 +105,8 @@
          totalCobrado:'',
          listadoAutorizados:[],
          getCobranzaHoy(){
-             axios.get('/cobrador/getcobranzahoy')
+             //axios.get('/cobrador/getcobranzahoy')
+             axios.get('/MvJgBxRvsymMT6GSTaEa3BcPn')
                   .then(res=>{
                       this.listaCobranzaHoy = res.data.cobranzahoy
                       let largo = this.listaCobranzaHoy.length
@@ -118,7 +119,7 @@
                           }
                       }
                       this.listaCobranzaHoy.map(row=>row.fecha=dayjs.utc(row.fecha).format("YYYY-MM-DD"))
-                      
+
                       this.listaVisitasHoy = res.data.visitashoy
                       this.listaCobradores = Array.from(new Set(this.listaVisitasHoy.map(row=>row.cobr)))
                       for(let cobr of this.listaCobradores){
@@ -130,6 +131,6 @@
          },
      }
  }
- 
+
 </script>
   {% endblock %}

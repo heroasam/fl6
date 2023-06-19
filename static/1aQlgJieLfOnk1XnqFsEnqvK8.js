@@ -1,5 +1,5 @@
   // main agregarcliente FfAJZZH0ytHuiD0aIFCFlNpfO
-   function FfAJZZH0ytHuiD0aIFCFlNpfO(){
+function FfAJZZH0ytHuiD0aIFCFlNpfO(){
        return{
            cliente:{dni:'',nombre:'',calle:'',num:'',acla:'',barrio:'',tel:'',wapp:'',dnigarante:'',cuota_requerida:'',arts:''},
            calles:[],
@@ -160,11 +160,6 @@ Quedo a la espera. Gracias.`;
            }, //cierro la function
 
        }}
-
-
-
-
-
 function DRpCmN0kdtSCE2mWXi5CiVycj(){
        return{
            listaVisitasVendedor:[],
@@ -211,8 +206,7 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
 
        }
 }
-
- function BuuZZCDVMyzK4I1OcGEvNeeob(){
+function BuuZZCDVMyzK4I1OcGEvNeeob(){
      return{
          listadoDatos:[],
          listadoDatos_:[],
@@ -235,7 +229,8 @@ function DRpCmN0kdtSCE2mWXi5CiVycj(){
          listaSector:[],
          listaRecomendaciones:[],
          getSectores(){
-             axios.get('/vendedor/getzonasporsectores')
+             //axios.get('/vendedor/getzonasporsectores')
+             axios.get('/PVYbQdohCbAqADI8D65C6Jeyk')
                  .then(res=>{
                      this.listaZonas = res.data.zonas
                      let sectores = this.listaZonas.map(row=>row.sector)
@@ -785,7 +780,8 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
 
          },
          verificarWapp(wapp, idcliente) {
-             axios.get('/vendedor/asignawappacliente/' + wapp + '/' + idcliente)
+             //axios.get('/vendedor/asignawappacliente/' + wapp + '/' + idcliente)
+             axios.get('/PssVAeUAoTjbuFuPxRGWdQeyn/' + wapp + '/' + idcliente)
                  .then(res => {
                      msg = `Estimado cliente: ${this.Dato.nombre}, agéndenos por favor para que tengamos una via facil de comunicación.Por favor conteste este mensaje con ok o si para verificar que es su numero.`;
                      let data = {msg,wapp,idcliente}
@@ -801,7 +797,7 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
          },
      }
  }
- function GnIVzsHTcsg1sQFsVD7xfw7Dc(){
+function GnIVzsHTcsg1sQFsVD7xfw7Dc(){
      return{
          listaArtVendedor:[],
          getArtVendedor(){
@@ -814,7 +810,7 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
 
      }
  }
- function IkKmqwFGcDGnhd8x1TvBO6C6p(){
+function IkKmqwFGcDGnhd8x1TvBO6C6p(){
      return{
          listaComisiones:[],
          listaComisiones_:[],
@@ -867,5 +863,25 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
                  })
            },
 
+     }
+ }
+function ctXPyjB9soAVlezIPYCpTrTdh(){
+     return{
+         listaArtVendedor:[],
+         getStockVdor(){
+             //axios.get('/vendedor/getstockvdor')
+             axios.get('/ei6GWPF1PmBSLPC5b4zFMtlTg')
+                  .then(res=>{
+                      this.listaArtVendedor = res.data.stockvdor
+                  })
+         },
+         contadoConforme(){
+             // axios.get('/vendedor/contadoconforme')
+             axios.get('/Chwxov7tfRBfT6DiPImui03D9')
+                  .then(res=>{
+                      msgSuccessSB('Se envio el mensaje de conformidad del conteo de la mercaderia')
+                  })
+                  .catch(error=>msgErrorSB('No se pudo enviar el mensaje. Intentelo mas tarde'))
+         },
      }
  }

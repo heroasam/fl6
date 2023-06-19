@@ -1374,6 +1374,7 @@ def vendedor_visitadevolucion():
         return 'ok'
 
 
+@app.route('/PssVAeUAoTjbuFuPxRGWdQeyn/<string:wapp>/<int:idcliente>')
 @app.route('/vendedor/asignawappacliente/<string:wapp>/<int:idcliente>')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -1433,6 +1434,15 @@ def cobrador_planilla():
     return render_template('planillacobr.html')
 
 
+@app.route('/vendedor/verstock')
+@login_required
+@check_roles(['dev','gerente','cobrador','vendedor'])
+def vendedor_verstock():
+    """Muestra stock personal del vendedor para contar y dar conformidad."""
+    return render_template('verstock.html')
+
+
+@app.route('/plzdCxZQMZVcHAYTitEcN1Ugi')
 @app.route('/cobrador/getlistadofichas')
 @login_required
 @check_roles(['dev','gerente','cobrador','vendedor'])
@@ -1460,6 +1470,7 @@ def cobrador_getlistadofichas():
                    fichasvdor=fichasvdor)
 
 
+@app.route('/XD8y31yQk8o1wm9Xx5y7psDfq')
 @app.route('/cobrador/fecharficha/<int:idcliente>/<pmovto>')
 @login_required
 @check_roles(['dev','gerente','cobrador','vendedor'])
@@ -1489,6 +1500,7 @@ def cobrador_fecharficha(idcliente,pmovto):
         con.close()
 
 
+@app.route('/lfM7683w0nFC8Fvl9YCrqIgu8')
 @app.route('/cobrador/noestabaficha/<int:idcliente>')
 @login_required
 @check_roles(['dev','gerente','cobrador','vendedor'])
@@ -1515,6 +1527,7 @@ def cobrador_noestabaficha(idcliente):
         con.close()
 
 
+@app.route('/W6BbKGuF9P62bEwUd9iG45nSj')
 @app.route('/cobrador/mudoficha/<int:idcliente>')
 @login_required
 @check_roles(['dev','gerente','cobrador','vendedor'])
@@ -1545,6 +1558,7 @@ def cobrador_mudoficha(idcliente):
         con.close()
 
 
+@app.route('/2WEhYdAcDYH6D3xUlgrZnMLlS')
 @app.route('/cobrador/fallecioficha/<int:idcliente>')
 @login_required
 @check_roles(['dev','gerente','cobrador','vendedor'])
@@ -1575,6 +1589,7 @@ def cobrador_fallecioficha(idcliente):
         con.close()
 
 
+@app.route('/Rd76eHrCKpkPRpt2NOjiov0q2')
 @app.route('/cobrador/imprimirfichapantalla' , methods=['POST'])
 @login_required
 @check_roles(['dev','gerente','cobrador','vendedor'])
@@ -1589,6 +1604,7 @@ def cobrador_imprimirfichapantalla():
     return send_file('/home/hero/ficha.pdf')
 
 
+@app.route('/lFgengVKS37IFtKfPi7Qzchgz')
 @app.route('/cobrador/pasarpagos' , methods=['POST'])
 @login_required
 @check_roles(['dev','gerente','cobrador','vendedor'])
@@ -1615,6 +1631,7 @@ def cobrador_pasarpagos():
             con.close()
 
 
+@app.route('/yGaGGogxb0ss1wGJMzS08eTvj')
 @app.route('/cobrador/getvisitascobrador')
 @login_required
 @check_roles(['dev', 'gerente', 'cobrador'])
@@ -1633,6 +1650,7 @@ def cobrador_getvisitascobrador():
     return jsonify(visitascobrador=visitascobrador, fechasvisitas=fechasvisitas)
 
 
+@app.route('/MvJgBxRvsymMT6GSTaEa3BcPn')
 @app.route('/cobrador/getcobranzahoy')
 @login_required
 @check_roles(['dev','gerente','cobrador','vendedor'])
@@ -1653,6 +1671,7 @@ def cobrador_getcobranzahoy():
     return jsonify(cobranzahoy=cobranzahoy,visitashoy=visitashoy)
 
 
+@app.route('/lRHtjv5m60nvavfwRUQYpPjXC')
 @app.route('/cobrador/getcobroscobr')
 @login_required
 @check_roles(['dev','gerente','cobrador','vendedor'])
@@ -1702,6 +1721,7 @@ def buscar_obtenerventasporidcliente(idcliente):
     return jsonify(ventas=ventas)
 
 
+@app.route('/gUHjeS2q49o5CoZRzKL5mpSF6')
 @app.route('/pagos/pasarpagos', methods=['POST'])
 @login_required
 @check_roles(['dev', 'gerente', 'admin', 'cobrador', 'vendedor'])
@@ -1734,6 +1754,7 @@ def utilidades_imprimirlistaprecios():
                                   'listaprecios.pdf'))
 
 
+@app.route('/PVYbQdohCbAqADI8D65C6Jeyk')
 @app.route('/vendedor/getzonasporsectores')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
@@ -1744,3 +1765,36 @@ def vendedor_getzonasporsectores():
     recomendaciones = pglistdict(con, "select art,recomendacion from articulos \
     where recomendacion is not null")
     return jsonify(zonas=zonas, recomendaciones=recomendaciones)
+
+
+@app.route('/ei6GWPF1PmBSLPC5b4zFMtlTg')
+@app.route('/vendedor/getstockvdor')
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_getstockvdor():
+    con = get_con()
+    vdor = var_sistema[current_user.email]
+    stockvdor = pglistdict(con, f"select sum(cnt) as cnt, art from stockvdor \
+    where vdor={vdor} group by art order by art")
+    return jsonify(stockvdor=stockvdor)
+
+
+@app.route('/Chwxov7tfRBfT6DiPImui03D9')
+@app.route('/vendedor/contadoconforme')
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_contadoconforme():
+    con = get_con()
+    vdor = var_sistema[current_user.email]
+    fecha = str(time.ctime(time.time()))
+    # wapp = var_sistema['wapp_auth']
+    wapp = '3512411963'
+    msg = f"Mercaderia contada conforme vendedor:{vdor} fecha:{fecha} |"
+    stockvdor = pglistdict(con, f"select sum(cnt) as cnt, art from stockvdor \
+    where vdor={vdor} group by art order by art")
+    for item in stockvdor:
+        if int(item['cnt'])>0:
+            msg += f" {item['cnt']} {item['art']} - "
+    send_msg_whatsapp(0,wapp,msg)
+    con.close()
+    return 'ok'

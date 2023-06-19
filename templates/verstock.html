@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Ver Stock{% endblock %}
+{% block style %}
+<style>
+  </style>
+  {% endblock %}
+
+{% block content %}
+
+  <div class="container" x-data="ctXPyjB9soAVlezIPYCpTrTdh()" x-init="getStockVdor()">
+
+    <p class="title is-1">Ver Stock</p>
+    <div class="columns">
+      <div class="column is-6">
+
+            <table class="table is-narrow" id="table">
+              <thead>
+                <tr>
+                  <th class="sumar numeric">cnt</th>
+                  <th>art</th>
+                </tr>
+                </thead>
+                <tbody>
+                  <template x-for="item in listaArtVendedor">
+                    <tr x-show="item.cnt!=0">
+                      <td x-text="item.cnt"></td>
+                      <td x-text="item.art"></td>
+                    </tr>
+                    </template>
+                 </tbody>
+            </table>
+            <button class="button is-info" @click="contadoConforme()">Contado-Conforme</button>
+      </div>
+
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+
+</script>
+  {% endblock %}

@@ -75,7 +75,8 @@
         totalCobrado: 0,
         totalComision: 0,
         getCobrosCobr() {
-          axios.get('/cobrador/getcobroscobr')
+          //axios.get('/cobrador/getcobroscobr')
+          axios.get('/lRHtjv5m60nvavfwRUQYpPjXC')
             .then(res => {
               this.listaCobros = res.data.listacobros
               this.listaCobros.map(row => row.fecha = dayjs.utc(row.fecha).format('YYYY-MM-DD'));

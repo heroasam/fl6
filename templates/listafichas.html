@@ -207,8 +207,9 @@
       zonaactual: 'todas',
       soloCobradores:1,
       getListadoFichas() {
-        axios.get('/cobrador/getlistadofichas')
-          .then(res => {
+          //axios.get('/cobrador/getlistadofichas')
+          axios.get('/plzdCxZQMZVcHAYTitEcN1Ugi')
+               .then(res => {
             this.cobr = res.data.cobr
             if (['835', '816'].includes(this.cobr)) {
               this.listaFichas = [...res.data.fichasvdor, ...res.data.fichas];
@@ -279,8 +280,9 @@
       },
       guardarfichaFechado() {
         toggleModal("modal-fechar-ficha");
-        axios.get('/cobrador/fecharficha/' + this.Ficha.id + '/' + this.Ficha.pmovto)
-          .then(res => {
+          //axios.get('/cobrador/fecharficha/' + this.Ficha.id + '/' + this.Ficha.pmovto)
+          axios.get('/XD8y31yQk8o1wm9Xx5y7psDfq/' + this.Ficha.id + '/' + this.Ficha.pmovto)
+               .then(res => {
             this.getListadoFichas()
             msgSuccess("Ficha fechada correctamente")
           })
@@ -308,10 +310,11 @@
         window.location.href = 'tel:' + tel;
       },
       noEstabaFicha() {
-        idButton = document.getElementById('buttonNoestabaFicha')
-        idButton.disabled = true
-        axios.get('/cobrador/noestabaficha/' + this.Ficha.id)
-        this.verCard = false;
+          idButton = document.getElementById('buttonNoestabaFicha')
+          idButton.disabled = true
+          //axios.get('/cobrador/noestabaficha/' + this.Ficha.id)
+          axios.get('/lfM7683w0nFC8Fvl9YCrqIgu8/' + this.Ficha.id)
+          this.verCard = false;
         msgSuccess("Marcado como no estaba")
       },
       mudoFicha() {
@@ -325,10 +328,11 @@
           confirmButtonText: 'Si, ponerlo!'
         }).then((result) => {
           if (result.isConfirmed) {
-            idButton = document.getElementById('buttonMudoFicha')
-            idButton.disabled = true
-            axios.get('/cobrador/mudoficha/' + this.Ficha.id)
-              .then(res => {
+              idButton = document.getElementById('buttonMudoFicha')
+              idButton.disabled = true
+              //axios.get('/cobrador/mudoficha/' + this.Ficha.id)
+              axios.get('/W6BbKGuF9P62bEwUd9iG45nSj/' + this.Ficha.id)
+                   .then(res => {
                 msgSuccess('Mudado informado correctamente');
                 this.getListadoFichas()
                 this.verCard = false;
@@ -350,10 +354,11 @@
           confirmButtonText: 'Si, ponerlo!'
         }).then((result) => {
           if (result.isConfirmed) {
-            idButton = document.getElementById('buttonFallecioFicha')
-            idButton.disabled = true
-            axios.get('/cobrador/fallecioficha/' + this.Ficha.id)
-              .then(res => {
+              idButton = document.getElementById('buttonFallecioFicha')
+              idButton.disabled = true
+              //axios.get('/cobrador/fallecioficha/' + this.Ficha.id)
+              axios.get('/2WEhYdAcDYH6D3xUlgrZnMLlS/' + this.Ficha.id)
+                   .then(res => {
                 msgSuccess('Fallecimiento informado correctamente');
                 this.getListadoFichas();
                 this.verCard = false;
@@ -418,9 +423,10 @@
       },
       imprimirFicha(idcliente) {
         data = { idcliente }
-        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
-        axios.post("/cobrador/imprimirfichapantalla", data, { responseType: "blob" })
-          .then((res) => {
+          axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value
+          //axios.post("/cobrador/imprimirfichapantalla", data, { responseType: "blob" })
+          axios.post("/Rd76eHrCKpkPRpt2NOjiov0q2", data, { responseType: "blob" })
+                                                              .then((res) => {
             let url = window.URL.createObjectURL(res.data);
             window.open(url);
           })
@@ -443,11 +449,13 @@
         toggleModal("modal-cobrar");
         this.cobrar.idvta = this.cobrar.cuenta || this.idvta;
         if (this.cobrar.pmovto == '') { this.cobrar.pmovto = null; }
-        axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
-        axios.post('/pagos/pasarpagos', this.cobrar)
+          axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
+          // axios.post('/pagos/pasarpagos', this.cobrar)
+          axios.post('/gUHjeS2q49o5CoZRzKL5mpSF6',this.cobrar)
           .then(res => {
-            axios.post('/cobrador/pasarpagos', this.cobrar)
-            msgSuccess("El pago fue procesado con exito")
+          //axios.post('/cobrador/pasarpagos', this.cobrar)
+            axios.post('/lFgengVKS37IFtKfPi7Qzchgz', this.cobrar)
+          msgSuccess("El pago fue procesado con exito")
             this.obtenerVentas(this.cobrar.idcliente)
           })
           .catch(error => {
