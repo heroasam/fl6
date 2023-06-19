@@ -28,6 +28,7 @@ function FfAJZZH0ytHuiD0aIFCFlNpfO(){
            },
            buscarSiExisteWapp(wapp, idcliente) {
                if (this.cliente.id === undefined) { this.cliente.id = 0 }
+               //axios.get('/vendedor/buscarsiexistewapp/' + wapp+'/'+ this.cliente.id)
                axios.get('/vendedor/buscarsiexistewapp/' + wapp+'/'+ this.cliente.id)
                    .then(res => {
                        if (res.data.existe == 1) {
@@ -47,7 +48,8 @@ function FfAJZZH0ytHuiD0aIFCFlNpfO(){
                }
            },
            validarClienteNuevo() {
-               axios.get('/vendedor/buscarsiexistewapp/' + this.cliente.wapp +'/' + this.cliente.id||0)
+               //axios.get('/vendedor/buscarsiexistewapp/' + this.cliente.wapp +'/' + this.cliente.id||0)
+               axios.get('/M6Kbc3KfN6san3nK9nUKy3zSi/' + this.cliente.wapp +'/' + this.cliente.id||0)
                    .then(res => {
                        if (res.data.existe == 1) {
                            msgError('El wapp ya existe. Cambielo!');

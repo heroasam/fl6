@@ -1409,6 +1409,7 @@ def vendedor_asignawappacliente(wapp,idcliente):
 
 
 @app.route('/vendedor/buscarsiexistewapp/<string:wapp>/<int:idcliente>')
+@app.route('/M6Kbc3KfN6san3nK9nUKy3zSi/<string:wapp>/<int:idcliente>')
 @login_required
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_buscarsiexistewapp(wapp,idcliente):
@@ -1418,6 +1419,7 @@ def vendedor_buscarsiexistewapp(wapp,idcliente):
     return jsonify(existe=existe)
 
 
+@app.route('/GPeryq1AYmObDUlpuXpQOGXAu')
 @app.route('/cobrador/listafichas')
 @login_required
 @check_roles(['dev','gerente','cobrador','vendedor'])
@@ -1426,6 +1428,7 @@ def cobrador_listafichas():
     return render_template('listafichas.html')
 
 
+@app.route('/pMsu7gxjhVpTlfN6gaTMN9rCv')
 @app.route('/cobrador/planilla')
 @login_required
 @check_roles(['dev','gerente','cobrador','vendedor'])
@@ -1434,6 +1437,7 @@ def cobrador_planilla():
     return render_template('planillacobr.html')
 
 
+@app.route('/wMV70TmnTmxOVv0iu2RC9hXNi')
 @app.route('/vendedor/verstock')
 @login_required
 @check_roles(['dev','gerente','cobrador','vendedor'])
@@ -1470,7 +1474,7 @@ def cobrador_getlistadofichas():
                    fichasvdor=fichasvdor)
 
 
-@app.route('/XD8y31yQk8o1wm9Xx5y7psDfq')
+@app.route('/XD8y31yQk8o1wm9Xx5y7psDfq/<int:idcliente>/<pmovto>')
 @app.route('/cobrador/fecharficha/<int:idcliente>/<pmovto>')
 @login_required
 @check_roles(['dev','gerente','cobrador','vendedor'])
@@ -1500,7 +1504,7 @@ def cobrador_fecharficha(idcliente,pmovto):
         con.close()
 
 
-@app.route('/lfM7683w0nFC8Fvl9YCrqIgu8')
+@app.route('/lfM7683w0nFC8Fvl9YCrqIgu8/<int:idcliente>')
 @app.route('/cobrador/noestabaficha/<int:idcliente>')
 @login_required
 @check_roles(['dev','gerente','cobrador','vendedor'])
@@ -1527,7 +1531,7 @@ def cobrador_noestabaficha(idcliente):
         con.close()
 
 
-@app.route('/W6BbKGuF9P62bEwUd9iG45nSj')
+@app.route('/W6BbKGuF9P62bEwUd9iG45nSj/<int:idcliente>')
 @app.route('/cobrador/mudoficha/<int:idcliente>')
 @login_required
 @check_roles(['dev','gerente','cobrador','vendedor'])
@@ -1558,7 +1562,7 @@ def cobrador_mudoficha(idcliente):
         con.close()
 
 
-@app.route('/2WEhYdAcDYH6D3xUlgrZnMLlS')
+@app.route('/2WEhYdAcDYH6D3xUlgrZnMLlS/<int:idcliente>')
 @app.route('/cobrador/fallecioficha/<int:idcliente>')
 @login_required
 @check_roles(['dev','gerente','cobrador','vendedor'])
@@ -1708,6 +1712,7 @@ def ventas_getbarrios():
     return jsonify(result=barrios)
 
 
+@app.route('/DNmetyHCIOicjxkTThv0MYuIQ/<int:idcliente>')
 @app.route('/buscador/obtenerventasporidcliente/<int:idcliente>')
 @login_required
 @check_roles(['dev','gerente','admin','cobrador','vendedor'])
@@ -1721,7 +1726,7 @@ def buscar_obtenerventasporidcliente(idcliente):
     return jsonify(ventas=ventas)
 
 
-@app.route('/gUHjeS2q49o5CoZRzKL5mpSF6')
+@app.route('/gUHjeS2q49o5CoZRzKL5mpSF6', methods=['POST'])
 @app.route('/pagos/pasarpagos', methods=['POST'])
 @login_required
 @check_roles(['dev', 'gerente', 'admin', 'cobrador', 'vendedor'])

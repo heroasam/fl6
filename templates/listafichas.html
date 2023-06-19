@@ -406,8 +406,9 @@
         return tblCuota
       },
       obtenerVentas(idcliente) {
-        axios.get('/buscador/obtenerventasporidcliente/' + idcliente)
-          .then(res => {
+          //axios.get('/buscador/obtenerventasporidcliente/' + idcliente)
+          axios.get('/DNmetyHCIOicjxkTThv0MYuIQ/' + idcliente)
+               .then(res => {
             let arrayVentas = res.data.ventas
             arrayVentas.map(row => {
               row.fecha = dayjs.utc(row.fecha).format('YYYY-MM-DD')
