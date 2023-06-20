@@ -230,6 +230,7 @@ function BuuZZCDVMyzK4I1OcGEvNeeob(){
          direcciongarante:'',
          listaSector:[],
          listaRecomendaciones:[],
+         metodoPago:'',
          getSectores(){
              //axios.get('/vendedor/getzonasporsectores')
              axios.get('/PVYbQdohCbAqADI8D65C6Jeyk')
@@ -648,6 +649,10 @@ Quedo a la espera. Gracias.`;
                  msgError('La venta excede la cuota maxima aprobada');
                  return;
              }
+             if(this.metodoPago==''){
+                 msgError('Debe elegir un metodo de pago');
+                 return;
+             }
              idButton = document.getElementById('buttonPasarVenta')
              idButton.disabled=true
              this.Dato.arts = this.listaArtComprados;
@@ -718,8 +723,6 @@ Le recomendamos tener en cuenta lo siguiente para una mejor conservacion de los 
              }
              let msg = `Estimado cliente: ${datos.nombre}, agradecemos su compra de ${arts}.
 Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $${datos.monto_vendido/cuotas} y la primer cuota vence el dia ${this.Venta.primera} para cualquier consulta no dude en contactarnos, estamos a su disposicion!.${recom1} ${recom}`;
-
-             console.log( msg)
              let wapp = datos.wapp;
              let idcliente = datos.idcliente;
              let file = 'info';
@@ -736,6 +739,15 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
                      // /4qUK6eNZnCYjIiGTt3HSj2YDp
                      // axios.post('/4qUK6eNZnCYjIiGTt3HSj2YDp',data) // no va mas pq van recomendaciones individuales
                  })
+             if(this.metodoPago=='transferencia'){
+                 msg=`Estimado Cliente: le enviamos los datos de la cuenta para que pueda efectuar sus transferencias:
+DATOS DE LA CUENTA:
+Número de CBU: 0170084840000048757878
+Alias de CBU: ROMITEX
+Titular de la cuenta: SALVAY SERGIO FEDERICO`
+                 data = {idcliente, wapp, msg}
+                 axios.post('/hX53695XAOpaLY9itLgmghkhH',data)
+             }
          },
          async informa(tipo,idvta,vendedor,nombre){
              const botones = document.getElementsByClassName('desactivable');
@@ -759,8 +771,7 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
                      return
                  }
              }
-             //let data = { idcliente: 0, wapp:'3512554646', msg}
-             let data = { idcliente: 0, wapp:'3512411963', msg}
+             let data = { idcliente: 0, wapp:'3512554646', msg}
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
              // ruta para /vendedor/wapp
                    axios.post('/hX53695XAOpaLY9itLgmghkhH',data)
@@ -797,6 +808,13 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
                  })
 
          },
+         pagaCon(metodo,idcliente){
+             this.metodoPago = metodo
+             if(metodo=='transferencia')  {
+                 //axios.get('/vendedor/metodopagotransferencia/'+idcliente)
+                 axios.get('/uAiiulEHyn5KoZ3JRcafe9a8k/'+idcliente)
+             }
+         },
      }
  }
 function GnIVzsHTcsg1sQFsVD7xfw7Dc(){
@@ -809,7 +827,6 @@ function GnIVzsHTcsg1sQFsVD7xfw7Dc(){
                       this.listaArtVendedor = res.data.artvendedor
                   })
          },
-
      }
  }
 function IkKmqwFGcDGnhd8x1TvBO6C6p(){

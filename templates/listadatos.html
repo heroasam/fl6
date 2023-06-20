@@ -179,6 +179,11 @@
         <span class="tag is-small is-danger" x-show="sumaCuota>Dato.cuota_maxima">Cuota supera Cuota-Maxima</span>
         <button class="button is-primary"  x-show="sumaCuota>Dato.cuota_maxima"
                 @click="pedirAutorizacion" id="buttonPedirAutorizacion">Pedir Autorizacion</button>
+        <div>
+          <button class="button is-info" @click="pagaCon('cobrador',Dato.idcliente)">Cobrador</button>
+          <button class="button is-success" @click="pagaCon('transferencia',Dato.idcliente)">Transferencia</button>
+          <p class="subtitle is-4" x-text="metodoPago"></p>
+        </div>
       </section>
       <footer class="modal-card-foot">
         <button class="button is-primary" @click="pasarVenta" id="buttonPasarVenta">Pasar Venta</button>

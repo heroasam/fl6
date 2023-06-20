@@ -1171,10 +1171,7 @@ def vendedor_wappaut():
     _ = json.loads(request.data.decode("UTF-8"))
     msg = f"Autorizacion para el vdor {vdor}"
     wapp1 = var_sistema['wapp_auth']
-    # wapp1 = '3512411963'
-
     wapp2 = var_sistema['wapp_auth2']
-    wapp2 = '3512411963'
     try:
         if wapp1:
             send_msg_whatsapp(0, wapp1, msg)
@@ -1792,8 +1789,7 @@ def vendedor_contadoconforme():
     con = get_con()
     vdor = var_sistema[current_user.email]
     fecha = str(time.ctime(time.time()))
-    # wapp = var_sistema['wapp_auth']
-    wapp = '3512411963'
+    wapp = var_sistema['wapp_auth']
     msg = f"Mercaderia contada conforme vendedor:{vdor} fecha:{fecha} |"
     stockvdor = pglistdict(con, f"select sum(cnt) as cnt, art from stockvdor \
     where vdor={vdor} group by art order by art")
@@ -1802,4 +1798,16 @@ def vendedor_contadoconforme():
             msg += f" {item['cnt']} {item['art']} - "
     send_msg_whatsapp(0,wapp,msg)
     con.close()
+    return 'ok'
+
+
+
+@app.route('/uAiiulEHyn5KoZ3JRcafe9a8k/<idcliente>')
+@app.route('/vendedor/metodopagotransferencia/<idcliente>')
+@login_required
+@check_roles(['dev', 'gerente', 'vendedor'])
+def vendedor_metodopagotransferencia(idcliente):
+    con = get_con()
+    upd = f"update clientes set zona='PAGO_LOCAL' where id={idcliente}"
+    pgexec(con, upd)
     return 'ok'
