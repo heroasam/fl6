@@ -739,6 +739,7 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
                      // /4qUK6eNZnCYjIiGTt3HSj2YDp
                      // axios.post('/4qUK6eNZnCYjIiGTt3HSj2YDp',data) // no va mas pq van recomendaciones individuales
                  })
+                 .catch(error=>{console.log('error en sendwapp',error)})
              if(this.metodoPago=='transferencia'){
                  msg=`Estimado Cliente: le enviamos los datos de la cuenta para que pueda efectuar sus transferencias:
 DATOS DE LA CUENTA:
