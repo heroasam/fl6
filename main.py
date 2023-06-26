@@ -1790,12 +1790,16 @@ def vendedor_contadoconforme():
     vdor = var_sistema[current_user.email]
     fecha = str(time.ctime(time.time()))
     wapp = var_sistema['wapp_auth']
-    msg = f"Mercaderia contada conforme vendedor:{vdor} fecha:{fecha} |"
+    msg = f"Mercaderia contada conforme vendedor:{vdor} fecha:{fecha} -"
     stockvdor = pglistdict(con, f"select sum(cnt) as cnt, art from stockvdor \
     where vdor={vdor} group by art order by art")
     for item in stockvdor:
         if int(item['cnt'])>0:
             msg += f" {item['cnt']} {item['art']} - "
+    logging.warning(msg)
+    msg = msg.replace('1/2','y media')
+    msg = msg.replace('/','-')
+    logging.warning(msg)
     send_msg_whatsapp(0,wapp,msg)
     con.close()
     return 'ok'

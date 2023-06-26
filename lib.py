@@ -198,7 +198,6 @@ def letras(num):
         num = millares[millar]+' '+centenas[centena]+' '+sueltos[dosdigitos]
     return (num.lstrip().rstrip().upper())
 
-apis = {1:"5493513882892", 2:"5493515919883", 3:"5493515920539"}
 def send_msg_whatsapp(idcliente, wapp, msg, api=1):
     """Funcion que encola wapp de texto."""
     api = 2
@@ -208,17 +207,25 @@ def send_msg_whatsapp(idcliente, wapp, msg, api=1):
 def procesar_msg_whatsapp_apis(idcliente,wapp, msg, api):
     """procesar msg para nuevas apis."""
     con = get_con()
-    email = current_user.email
-    payload = f"https://heroasam.xyz/sendMsg"
+    if hasattr(current_user, 'email'):
+        email = current_user.email
+    else:
+        email = 'sistema'
+    if api==1:
+        servidor = "heroasam.xyz"
+    elif api==2:
+        servidor = "romulana.xyz"
+    elif api==3:
+        servidor = "catalina.lol"
+    payload = f"https://{servidor}/sendMsg/{wapp}/{msg}"
     ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,\
     timeout,response,enviado,fecha,api) values({idcliente},'{wapp}',\
     '{msg.replace('%20',' ')[:100]}','','{email}',{int(time.time())}\
-    ,0,'',0,curdate(),{apis[api]})"
+    ,0,'',0,curdate(),{api})"
     pgexec(con, ins)
     idlog = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
     try:
-        data = {'phone':wapp,'api':api,'message':msg}
-        response = requests.post(payload,data)
+        response = requests.get(payload)
     except requests.Timeout:
         # Manejo del error de tiempo de espera
         send_msg_whatsapp(idcliente, wapp, msg)
@@ -253,7 +260,16 @@ def send_file_whatsapp(idcliente, file, wapp, msg='', api=1):
 def procesar_file_whatsapp_apis(idcliente, file, wapp,api):
     logging.warning(f"procesar_file_whatsapp en api:{api}")
     con = get_con()
-    email = current_user.email
+    if hasattr(current_user, 'email'):
+        email = current_user.email
+    else:
+        email = 'sistema'
+    if api==1:
+        servidor = "heroasam.xyz"
+    elif api==2:
+        servidor = "romulana.xyz"
+    elif api==3:
+        servidor = "catalina.lol"
     file_log = os.path.split(file)[1]
     ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,\
             timeout,response,enviado,fecha) values({idcliente},\
@@ -262,10 +278,8 @@ def procesar_file_whatsapp_apis(idcliente, file, wapp,api):
     pgexec(con, ins)
     idlog = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
     try:
-        data = {'wapp':wapp,'file':file, 'api':api}
-        # logging.warning(f"data={data}")
-        payload = "https://heroasam.xyz/sendFile"
-        response =requests.post(payload, data=data)
+        payload =f"https://{servidor}/sendFile/{wapp}/{file_log}"
+        response =requests.get(payload)
     except requests.Timeout:
         # Manejo del error de tiempo de espera
         send_file_whatsapp(idcliente, file, wapp)
@@ -301,7 +315,7 @@ def wapp_logenviados(wapp, msg, user,api):
         msg = 'enviado '+msg
     wapp = wapp[-10:]
     ins = f"insert into wappsenviados(wapp,msg,user,api) values('{wapp}',\
-        '{msg}','{user}','{apis[api]}')"
+        '{msg}','{user}','{api}')"
     try:
         pgexec(con, ins)
     except mysql.connector.Error as _error:
@@ -319,5 +333,5 @@ def wapp_log(log1, log2, wapp, tiempo, idcliente,api):
         log_file.write('\n')
         log_file.write(str(wapp)+' '+str(log1)+' '+tiempo+' ' +
                        str(time.time())+' Idcliente:'+str(idcliente)+' '
-                       + str(log2) + str(apis[api]))
+                       + str(log2) + str(api))
         log_file.close()
