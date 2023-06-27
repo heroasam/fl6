@@ -7,6 +7,7 @@ import time
 from datetime import datetime
 import logging
 import mysql.connector
+import urllib.parse
 
 
 
@@ -204,7 +205,7 @@ def send_msg_whatsapp(idcliente, wapp, msg, api=1):
     procesar_msg_whatsapp_apis(idcliente, wapp, msg, api)
 
 
-def procesar_msg_whatsapp_apis(idcliente,wapp, msg, api):
+def procesar_msg_whatsapp_apis(idcliente,wapp, msg_uri, api):
     """procesar msg para nuevas apis."""
     con = get_con()
     if hasattr(current_user, 'email'):
@@ -217,7 +218,8 @@ def procesar_msg_whatsapp_apis(idcliente,wapp, msg, api):
         servidor = "romulana.xyz"
     elif api==3:
         servidor = "catalina.lol"
-    payload = f"https://{servidor}/sendMsg/{wapp}/{msg}"
+    msg = urllib.parse.unquote(msg_uri)
+    payload = f"https://{servidor}/sendMsg/{wapp}/{msg_uri}"
     ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,\
     timeout,response,enviado,fecha,api) values({idcliente},'{wapp}',\
     '{msg.replace('%20',' ')[:100]}','','{email}',{int(time.time())}\
@@ -238,10 +240,10 @@ def procesar_msg_whatsapp_apis(idcliente,wapp, msg, api):
     else:
         resultado = response.text
     logging.warning(
-        f"mensaje {wapp} enviado a las:{str(time.ctime(time.time()))} {resultado} {time.time()} por api {api}")
+        f"mensaje {wapp} enviado a las:{str(time.ctime(time.time()))} {resultado} por api {api} msg {msg}")
     wapp_log(response.status_code, resultado, wapp,
             str(time.ctime(time.time())), idcliente,api)
-    if "success" in resultado:
+    if "ok" in resultado:
         upd = f"update logwhatsapp set response='success',\
         enviado={int(time.time())} where id = {idlog}"
         wapp_logenviados(wapp, msg, email,api)
@@ -295,7 +297,7 @@ def procesar_file_whatsapp_apis(idcliente, file, wapp,api):
             f"mensaje {wapp} enviado a las:{str(time.ctime(time.time()))} {resultado} {time.time()} api{api}")
         wapp_log(response.status_code, resultado, wapp,
                     str(time.ctime(time.time())), idcliente,api)
-        if "success" in resultado:
+        if "ok" in resultado:
             upd = f"update logwhatsapp set response='success',\
             enviado={int(time.time())} where id = {idlog}"
             wapp_logenviados(wapp, file_log, email,api)

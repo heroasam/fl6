@@ -21,6 +21,7 @@ import base64
 import re
 from functools import wraps
 from lib import *
+import urllib.parse
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
@@ -1115,6 +1116,7 @@ def vendedor_noestabadato(iddato):
 
     try:
         pgexec(con,ins)
+        msg_noestaba = urllib.parse.quote(msg_noestaba)
         send_msg_whatsapp(id,wapp,msg_noestaba)
     except mysql.connector.Error as _error:
         con.rollback()
@@ -1796,10 +1798,8 @@ def vendedor_contadoconforme():
     for item in stockvdor:
         if int(item['cnt'])>0:
             msg += f" {item['cnt']} {item['art']} - "
-    logging.warning(msg)
     msg = msg.replace('1/2','y media')
     msg = msg.replace('/','-')
-    logging.warning(msg)
     send_msg_whatsapp(0,wapp,msg)
     con.close()
     return 'ok'
