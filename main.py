@@ -1168,10 +1168,14 @@ def vendedor_wappaut():
     Si el tipo = 'retiro de zona' aparte de enviar wapp al wapp_auth envia un
     segundo wapp a mi."""
 
+    d_data = json.loads(request.data.decode("UTF-8"))
     logging.warning("wappaut, %s", current_user.email)
     vdor = var_sistema[current_user.email]
-    _ = json.loads(request.data.decode("UTF-8"))
-    msg = f"Autorizacion para el vdor {vdor}"
+    msg = d_data['msg']
+    if "tipo" in d_data and d_data['tipo']== "retiro zona":
+        msg = f"Retiro zona vdor {vdor}"
+    else:
+        msg = f"Autorizacion para el vdor {vdor}"
     wapp1 = var_sistema['wapp_auth']
     wapp2 = var_sistema['wapp_auth2']
     try:
@@ -1814,4 +1818,18 @@ def vendedor_metodopagotransferencia(idcliente):
     con = get_con()
     upd = f"update clientes set zona='PAGO_LOCAL' where id={idcliente}"
     pgexec(con, upd)
+    return 'ok'
+
+
+
+@app.route('/pDfkNKQMQvgp8Zbqa0C6ETYAh/<int:idvta>')
+@app.route('/ventas/marksendwapp/<int:idvta>')
+@login_required
+@check_roles(['dev','gerente','vendedor'])
+def ventas_marksendwapp(idvta):
+    con = get_con()
+    upd = f"update ventas set sendwapp=1 where id={idvta} and pp=0"
+    # pp=0 asegura que no se marcaran los planes de pago
+    pgexec(con, upd)
+    con.close()
     return 'ok'

@@ -798,6 +798,7 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
          },
          verificarWapp(wapp, idcliente) {
              //axios.get('/vendedor/asignawappacliente/' + wapp + '/' + idcliente)
+             msgDelaySB('Espere mientras se envia el mensaje')
              axios.get('/PssVAeUAoTjbuFuPxRGWdQeyn/' + wapp + '/' + idcliente)
                  .then(res => {
                      msg = `Estimado cliente: ${this.Dato.nombre}, agéndenos por favor para que tengamos una via facil de comunicación.Por favor conteste este mensaje con ok o si para verificar que es su numero.`;
