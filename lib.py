@@ -199,27 +199,26 @@ def letras(num):
         num = millares[millar]+' '+centenas[centena]+' '+sueltos[dosdigitos]
     return (num.lstrip().rstrip().upper())
 
+
 def send_msg_whatsapp(idcliente, wapp, msg, api=1):
     """Funcion que encola wapp de texto."""
+    # comprobacion de si es un numero valido
+    if not wapp.isdigit():
+        return make_response('error',400)
     api = 2
-    procesar_msg_whatsapp_apis(idcliente, wapp, msg, api)
-
-
-def procesar_msg_whatsapp_apis(idcliente,wapp, msg_uri, api):
-    """procesar msg para nuevas apis."""
     con = get_con()
     if hasattr(current_user, 'email'):
         email = current_user.email
     else:
         email = 'sistema'
-    # if api==1:
-    #     servidor = "heroasam.xyz"
-    # elif api==2:
-    #     servidor = "romulana.xyz"
-    # elif api==3:
-    #     servidor = "catalina.lol"
-    servidor = "heroasam.xyz"
-    msg = urllib.parse.unquote(msg_uri)
+    if api==1:
+        servidor = "heroasam.xyz"
+    elif api==2:
+        servidor = "romulana.xyz"
+    elif api==3:
+        servidor = "catalina.lol"
+    msg = msg.replace('/','-')
+    msg_uri = urllib.parse.quote(msg)
     payload = f"https://{servidor}/sendMsg/{api}/{wapp}/{msg_uri}"
     ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,\
     timeout,response,enviado,fecha,api) values({idcliente},'{wapp}',\
@@ -251,29 +250,27 @@ def procesar_msg_whatsapp_apis(idcliente,wapp, msg_uri, api):
         pgexec(con, upd)
         return 'success'
     else:
-        return resultado
+        return make_response(error, 400)
 
 
 def send_file_whatsapp(idcliente, file, wapp, msg='', api=1):
     """Funcion que encola wapp de file."""
+    # comprobacion de si es un numero valido
+    if not wapp.isdigit():
+        return make_response('error',400)
     api = 2
-    procesar_file_whatsapp_apis(idcliente, file, wapp,api)
-
-
-def procesar_file_whatsapp_apis(idcliente, file, wapp,api):
     logging.warning(f"procesar_file_whatsapp en api:{api}")
     con = get_con()
     if hasattr(current_user, 'email'):
         email = current_user.email
     else:
         email = 'sistema'
-    # if api==1:
-    #     servidor = "heroasam.xyz"
-    # elif api==2:
-    #     servidor = "romulana.xyz"
-    # elif api==3:
-    #     servidor = "catalina.lol"
-    servidor = "heroasam.xyz"
+    if api==1:
+        servidor = "heroasam.xyz"
+    elif api==2:
+        servidor = "romulana.xyz"
+    elif api==3:
+        servidor = "catalina.lol"
     file_log = os.path.split(file)[1]
     ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,\
             timeout,response,enviado,fecha) values({idcliente},\
@@ -306,7 +303,7 @@ def procesar_file_whatsapp_apis(idcliente, file, wapp,api):
             pgexec(con, upd)
             return 'success'
         else:
-            return resultado
+            return make_response(error, 400)
 
 
 def wapp_logenviados(wapp, msg, user,api):

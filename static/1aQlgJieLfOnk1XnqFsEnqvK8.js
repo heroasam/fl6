@@ -724,8 +724,8 @@ Le recomendamos tener en cuenta lo siguiente para una mejor conservacion de los 
              let msg = `Estimado cliente: ${datos.nombre}, agradecemos su compra de ${arts}.
 Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $${datos.monto_vendido/cuotas} y la primer cuota vence el dia ${this.Venta.primera} para cualquier consulta no dude en contactarnos, estamos a su disposicion!.${recom1} ${recom}`;
              console.log( msg)
-             msg = encodeURIComponent(msg)
-             console.log(msg)
+             // msg = encodeURIComponent(msg)
+             // console.log(msg)
              let wapp = datos.wapp;
              let idcliente = datos.idcliente;
              let file = 'info';
