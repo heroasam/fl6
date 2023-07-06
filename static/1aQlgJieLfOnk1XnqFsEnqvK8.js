@@ -503,7 +503,13 @@ function BuuZZCDVMyzK4I1OcGEvNeeob(){
              // nueva ruta para /vendedor/noestabadato
              // /G9S85pbqWVEX17nNQuOOnpxvn
              axios.get('/G9S85pbqWVEX17nNQuOOnpxvn/'+iddato)
-             this.verCard = false;
+                 .then(res=>{
+                     msgSuccess('Mensaje enviado al cliente')
+                     this.verCard = false;
+                 })
+                 .catch(error=>{
+                     msgError('Error.Mensaje no enviado.')
+                 })
          },
          validarDni(dni){
              //nueva ruta para /vendedor/validardni
@@ -809,6 +815,9 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
                      axios.post('/hX53695XAOpaLY9itLgmghkhH', data)
                          .then(res => {
                              msgSuccessSB('Enviado. Cuando el cliente conteste, recargar la pagina.')
+                         })
+                         .catch(error=>{
+                             msgErrorSB('Error. El mensaje no se envio')
                          })
                  })
 

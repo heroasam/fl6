@@ -1117,7 +1117,7 @@ def vendedor_noestabadato(iddato):
     try:
         pgexec(con,ins)
         # msg_noestaba = urllib.parse.quote(msg_noestaba)
-        send_msg_whatsapp(id,wapp,msg_noestaba)
+        response = send_msg_whatsapp(id,wapp,msg_noestaba)
     except mysql.connector.Error as _error:
         con.rollback()
         error = _error.msg
@@ -1126,7 +1126,7 @@ def vendedor_noestabadato(iddato):
         return make_response(error, 400)
     else:
 
-        return 'ok'
+        return response
     finally:
         con.close()
 
