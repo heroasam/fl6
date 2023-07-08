@@ -48,43 +48,46 @@ function FfAJZZH0ytHuiD0aIFCFlNpfO(){
                }
            },
            validarClienteNuevo() {
-               //axios.get('/vendedor/buscarsiexistewapp/' + this.cliente.wapp +'/' + this.cliente.id||0)
-               axios.get('/M6Kbc3KfN6san3nK9nUKy3zSi/' + this.cliente.wapp +'/' + this.cliente.id||0)
-                   .then(res => {
-                       if (res.data.existe == 1) {
-                           msgError('El wapp ya existe. Cambielo!');
-                           return;
-                       }
-                       if (this.cliente.dni == '') {
-                           msgError("Debe ingresar el DNI")
-                           return;
-                       }
-                       if (this.cliente.nombre == '') {
-                           msgError("Debe ingresar el Nombre");
-                           return;
-                       }
-                       if (this.cliente.calle == '' || !this.calles.includes(this.cliente.calle)) {
-                           msgError("Verifique que ingreso una calle correcta");
-                           return;
-                       }
-                       if (this.cliente.num == '') {
-                           msgError("Debe ingresar el numero de la casa");
-                           return;
-                       }
-                       if (this.cliente.barrio == '' || !this.barrios.includes(this.cliente.barrio)) {
-                           msgError("Verifique que ingreso un barrio correcto");
-                           return;
-                       }
-                       if (this.cliente.cuota_requerida == '') {
-                           msgError("Debe ingresar la cuota que va a vender");
-                           return;
-                       }
-                       if (this.cliente.arts == '') {
-                           msgError("Debe ingresar los articulos que va a vender");
-                           return;
-                       }
-                       this.pedirAutorizacion();
-               })
+               console.log( this.cliente, this.cliente.wapp)
+               if (this.cliente.dni == '') {
+                   msgError("Debe ingresar el DNI")
+                   return;
+               }
+               if (this.cliente.nombre == '') {
+                   msgError("Debe ingresar el Nombre");
+                   return;
+               }
+               if (this.cliente.wapp !== undefined) {
+                   //axios.get('/vendedor/buscarsiexistewapp/' + this.cliente.wapp +'/' + this.cliente.id||0)
+                   axios.get('/M6Kbc3KfN6san3nK9nUKy3zSi/' + this.cliente.wapp +'/' + this.cliente.id||0)
+                       .then(res => {
+                           if (res.data.existe == 1) {
+                               msgError('El wapp ya existe. Cambielo!');
+                               return;
+                           }})
+               }
+
+               if (this.cliente.calle == '' || !this.calles.includes(this.cliente.calle)) {
+                   msgError("Verifique que ingreso una calle correcta");
+                   return;
+               }
+               if (this.cliente.num == '') {
+                   msgError("Debe ingresar el numero de la casa");
+                   return;
+               }
+               if (this.cliente.barrio == '' || !this.barrios.includes(this.cliente.barrio)) {
+                   msgError("Verifique que ingreso un barrio correcto");
+                   return;
+               }
+               if (this.cliente.cuota_requerida == '') {
+                   msgError("Debe ingresar la cuota que va a vender");
+                   return;
+               }
+               if (this.cliente.arts == '') {
+                   msgError("Debe ingresar los articulos que va a vender");
+                   return;
+               }
+               this.pedirAutorizacion();
 
            },
            pedirAutorizacion(){
