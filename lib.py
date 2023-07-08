@@ -213,14 +213,17 @@ def send_msg_whatsapp(idcliente, wapp, msg, api=1):
     else:
         email = 'sistema'
     if api==1:
-        servidor = "heroasam.xyz"
+        # servidor = "heroasam.xyz"
+        servidor = "localhost:3001"
     elif api==2:
-        servidor = "romulana.xyz"
+        # servidor = "romulana.xyz"
+        servidor = "localhost:3002"
     elif api==3:
-        servidor = "catalina.lol"
+        # servidor = "catalina.lol"
+        servidor = "localhost:3003"
     msg = msg.replace('/','-')
     msg_uri = urllib.parse.quote(msg)
-    payload = f"https://{servidor}/sendMsg/{api}/{wapp}/{msg_uri}"
+    payload = f"http://{servidor}/sendMsg/{api}/{wapp}/{msg_uri}"
     ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,\
     timeout,response,enviado,fecha,api) values({idcliente},'{wapp}',\
     '{msg.replace('%20',' ')[:100]}','','{email}',{int(time.time())}\
@@ -267,11 +270,14 @@ def send_file_whatsapp(idcliente, file, wapp, msg='', api=1):
     else:
         email = 'sistema'
     if api==1:
-        servidor = "heroasam.xyz"
+        # servidor = "heroasam.xyz"
+        servidor = "localhost:3001"
     elif api==2:
-        servidor = "romulana.xyz"
+        # servidor = "romulana.xyz"
+        servidor = "localhost:3002"
     elif api==3:
-        servidor = "catalina.lol"
+        # servidor = "catalina.lol"
+        servidor = "localhost:3003"
     file_log = os.path.split(file)[1]
     ins = f"insert into logwhatsapp(idcliente,wapp,msg,file,user,timein,\
             timeout,response,enviado,fecha) values({idcliente},\
@@ -280,7 +286,7 @@ def send_file_whatsapp(idcliente, file, wapp, msg='', api=1):
     pgexec(con, ins)
     idlog = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
     try:
-        payload =f"https://{servidor}/sendFile/{api}/{wapp}/{file_log}"
+        payload =f"http://{servidor}/sendFile/{api}/{wapp}/{file_log}"
         response =requests.get(payload)
     except requests.Timeout:
         # Manejo del error de tiempo de espera

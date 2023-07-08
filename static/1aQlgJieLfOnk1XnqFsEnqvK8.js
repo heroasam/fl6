@@ -490,12 +490,20 @@ function BuuZZCDVMyzK4I1OcGEvNeeob(){
              toggleModal("modal-fechar-dato");
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
              axios.post('/HvjJNtFgF71pRYafzcTC74nUt',this.Dato)
-                                                                 .then(res=>{
-                                                                     msgSuccessSB('Dato fechado con exito');
-                                                                 })
-                                                                 .catch(error=>{
-                                                                     msgError('Hubo un error. El dato no se fecho');
-                                                                 })
+              .then(res=>{
+								                                     switch(res.data){
+									                                     case 'ok': {
+									                                         msgSuccess('Exito!','Mensaje Enviado')
+									                                         break
+									                                     }
+									                                     case 'error':{
+                                                                             msgError('Error','Mensaje NO Enviado')
+                                                                             break
+                                                                        }
+								                                     }
+								                                 })
+								                                 .catch(error=>msgError('Error','Mensaje no enviado'))
+
          },
          noEstabaDato(iddato){
              idButton = document.getElementById('buttonNoestabaDato')
@@ -503,13 +511,21 @@ function BuuZZCDVMyzK4I1OcGEvNeeob(){
              // nueva ruta para /vendedor/noestabadato
              // /G9S85pbqWVEX17nNQuOOnpxvn
              axios.get('/G9S85pbqWVEX17nNQuOOnpxvn/'+iddato)
+             let data = {wapp, msg:"se envio mensaje de venta"}
                  .then(res=>{
-                     msgSuccess('Mensaje enviado al cliente')
-                     this.verCard = false;
-                 })
-                 .catch(error=>{
-                     msgError('Error.Mensaje no enviado.')
-                 })
+					 switch(res.data){
+					 case 'ok': {
+						 msgSuccess('Exito!','Mensaje Enviado')
+						 break
+					 }
+					 case 'error':{
+                         msgError('Error','Mensaje NO Enviado')
+                         break
+                     }
+					 }
+				 })
+				 .catch(error=>msgError('Error','Mensaje no enviado'))
+
          },
          validarDni(dni){
              //nueva ruta para /vendedor/validardni
@@ -520,13 +536,21 @@ function BuuZZCDVMyzK4I1OcGEvNeeob(){
              }
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
              axios.post('/fc3vpQG6SzEH95Ya7kTJPZ48M',datos)
-                                                                 .then(res=>{
-                                                                     this.dnivalidado = true;
-                                                                 })
-                                                                 .catch(error=>{
-                                                                     this.dnivalidado = false;
-                                                                     msgErrorSB('el DNI ingresado no corresponde al cliente');
-                                                                 })
+                 .then(res=>{
+					 switch(res.data){
+					 case 'ok': {
+						 msgSuccess('Exito!','Mensaje Enviado')
+                         let data = {wapp, msg:"se envio mensaje de venta"}
+                         //  axios.post('/buscador/registrarwapp',data)
+						 break
+					 }
+					 case 'error':{
+                         msgError('Error','Mensaje NO Enviado')
+                         break
+                     }
+					 }
+				 })
+				 .catch(error=>msgError('Error','Mensaje no enviado'))
          },
          agregarArticulo(cnt,art){
              if(cnt!=''&&art!=''){
@@ -813,12 +837,18 @@ Titular de la cuenta: SALVAY SERGIO FEDERICO`
                      // nueva ruta para /vendedor/wapp
                      // /hX53695XAOpaLY9itLgmghkhH
                      axios.post('/hX53695XAOpaLY9itLgmghkhH', data)
-                         .then(res => {
-                             msgSuccessSB('Enviado. Cuando el cliente conteste, recargar la pagina.')
-                         })
-                         .catch(error=>{
-                             msgErrorSB('Error. El mensaje no se envio')
-                         })
+                      .then(res=>{
+								                                     switch(res.data){
+									                                     case 'ok': {
+									                                         msgSuccessSB('Mensaje Enviado','Espere un rato y refresque la pagina.')
+									                                         break
+									                                     }
+									                                     case 'error':{
+                                                                             msgErrorSB('Error','Mensaje NO Enviado')
+                                                                             break
+                                                                        }
+								                                     }
+								                                 })
                  })
 
          },
