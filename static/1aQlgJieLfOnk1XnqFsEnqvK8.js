@@ -534,26 +534,19 @@ function BuuZZCDVMyzK4I1OcGEvNeeob(){
              //nueva ruta para /vendedor/validardni
              // /fc3vpQG6SzEH95Ya7kTJPZ48M
              datos = {dni:dni, id: this.Dato.idcliente};
+             console.log( 'datos',datos)
              if(dni==undefined) {
                  return
              }
              axios.defaults.headers.common['X-CSRF-TOKEN'] = this.$refs.token.value;
              axios.post('/fc3vpQG6SzEH95Ya7kTJPZ48M',datos)
                  .then(res=>{
-					 switch(res.data){
-					 case 'ok': {
-						 msgSuccess('Exito!','Mensaje Enviado')
-                         let data = {wapp, msg:"se envio mensaje de venta"}
-                         //  axios.post('/buscador/registrarwapp',data)
-						 break
-					 }
-					 case 'error':{
-                         msgError('Error','Mensaje NO Enviado')
-                         break
-                     }
-					 }
-				 })
-				 .catch(error=>msgError('Error','Mensaje no enviado'))
+                     this.dnivalidado = true;
+                 })
+                 .catch(error=>{
+                     this.dnivalidado = false;
+                     msgErrorSB('el DNI ingresado no corresponde al cliente');
+                 })
          },
          agregarArticulo(cnt,art){
              if(cnt!=''&&art!=''){
