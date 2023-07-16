@@ -1178,6 +1178,7 @@ def vendedor_wappaut():
         msg = f"Autorizacion para el vdor {vdor}"
     wapp1 = var_sistema['wapp_auth']
     wapp2 = var_sistema['wapp_auth2']
+    logging.warning(f"wapp1 {wapp1} wapp2 {wapp2}")
     try:
         if wapp1:
             send_msg_whatsapp(0, wapp1, msg)
