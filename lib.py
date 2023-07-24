@@ -322,8 +322,8 @@ def wapp_logenviados(wapp, msg, user,api):
         msg = msg.replace('.pdf', '')
         msg = 'enviado '+msg
     wapp = wapp[-10:]
-    ins = f"insert into wappsenviados(wapp,msg,user,api) values('{wapp}',\
-        '{msg}','{user}','{api}')"
+    ins = f"insert into wappsenviados(wapp,msg,user,api,fecha) values('{wapp}',\
+    '{msg}','{user}','{api}',current_timestamp())"
     try:
         pgexec(con, ins)
     except mysql.connector.Error as _error:
