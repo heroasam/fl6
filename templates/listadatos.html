@@ -43,8 +43,14 @@
           <td x-text="dato.calle"></td>
           <td x-text="dato.num"></td>
           <td><span class="tag is-small is-danger" @click="abrirCliente(dato.idcliente)">Ir</span></td>
-          <td><span class="tag is-small" x-text="dato.resultado==1&&dato.quiere_devolver==0?'Vendido':(dato.resultado==0?'Anulado':(dato.resultado==2?'Rechazado':(dato.resultado==7?'Devuelta':(dato.quiere_devolver==1?'Devolucion':'Pendiente'))))"
-                    :class="dato.resultado==1&&dato.quiere_devolver==0?'is-success':(dato.resultado==0?'is-danger':(dato.resultado==2?'is-warning':(dato.resultado==7?'is-danger':(dato.quiere_devolver==1?'is-black':'is-info'))))"></span></td>
+          <td><span class="tag is-small" x-text="dato.resultado==1&&dato.quiere_devolver==0?'Vendido':
+                           (dato.resultado==2?'Anulado':
+                           (dato.resultado==7?'Devuelta':
+                           (dato.quiere_devolver==1?'Devolucion':'Pendiente')))"
+                    :class="dato.resultado==1&&dato.quiere_devolver==0?'is-success':
+                           (dato.resultado==2?'is-danger':
+                           (dato.resultado==7?'is-danger':
+                           (dato.quiere_devolver==1?'is-black':'is-info')))"></span></td>
           <td><span class="tag is-small is-success" x-text="dato.idvta" x-show="dato.idvta"></span></td>
           <td x-text="dato.horarios"></td>
           <td x-text="dato.comentarios"></td>

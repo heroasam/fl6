@@ -410,7 +410,7 @@ def vendedor_envioclientenuevo():
         # consulta para ver si el dato ha sido asignado a otro vendedor
         # aca primero buscamos un dato cargado no definido.
         iddato = pgonecolumn(con, f"select id from datos where idcliente =\
-        {d_data['id']} and resultado is null")
+        {d_data['id']} and resultado = 0")
         if iddato:  # o sea hay ya un dato sin definir de ese cliente
             ins = None
         else:
@@ -580,7 +580,7 @@ def vendedor_getlistadodatosvendedor():
     resultado,datos.dnigarante as dnigarante,quiere_devolver,vendedor,\
     wapp_verificado,tipo_devolucion,comentario_devolucion from  datos,clientes \
     where clientes.id = datos.idcliente \
-    and vendedor={vdor} and (resultado is null or resultado=7 or (resultado=1 \
+    and vendedor={vdor} and (resultado = 0 or resultado=7 or (resultado=1 \
     and quiere_devolver=1) or (resultado=1 and date(fecha_definido)=\
     curdate())) and fecha_visitar <=curdate() and enviado_vdor=1 order by id \
                               desc")

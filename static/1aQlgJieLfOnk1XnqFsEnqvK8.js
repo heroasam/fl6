@@ -275,9 +275,9 @@ function BuuZZCDVMyzK4I1OcGEvNeeob(){
          getListaItems(){
              let arrayItems = []
              if(this.agrupar=='zonas'){
-                 arrayItems = this._listadoDatos.filter(row=>row.resultado==null || row.resultado==1&&row.quiere_devolver==1).map(row=>row.zona);
+                 arrayItems = this._listadoDatos.filter(row=>row.resultado==0 || row.resultado==1&&row.quiere_devolver==1).map(row=>row.zona);
              }else{
-                 arrayItems = this.listadoDatos.filter(row=>row.resultado==null || row.resultado==1&&row.quiere_devolver==1).map(row=>row.calle.trim());
+                 arrayItems = this.listadoDatos.filter(row=>row.resultado==0 || row.resultado==1&&row.quiere_devolver==1).map(row=>row.calle.trim());
              }
              let itemDatos = {};
              this.listaItemsDatos = [];
@@ -312,10 +312,10 @@ function BuuZZCDVMyzK4I1OcGEvNeeob(){
                  this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==1);
                  break;
                  case 'anulados':
-                 this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==0);
+                 this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==2);
                  break;
                  case 'pendientes':
-                 this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==null);
+                 this.listadoDatos_ = this.listadoDatos.filter(row=>row.resultado==0);
                  break;
                  case 'todos':
                  this.listadoDatos_ = this.listadoDatos;
