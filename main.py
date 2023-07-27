@@ -417,10 +417,10 @@ def vendedor_envioclientenuevo():
             ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, \
             art,horarios, comentarios, cuota_maxima,deuda_en_la_casa,\
             sin_extension,monto_garantizado,vendedor,dnigarante,enviado_vdor,\
-            zona) values (curdate(),'{current_user.email}',{d_data['id']},\
+            zona,resultado) values (curdate(),'{current_user.email}',{d_data['id']},\
             curdate(),'','','cliente enviado por vendedor', {cuota_maxima}, \
             '{deuda_en_la_casa}', {sin_extension}, {monto_garantizado},\
-            {vdor},{d_data['dnigarante']},0,'{zona}')"
+            {vdor},{d_data['dnigarante']},0,'{zona}',0)"
         # Testeo si hay cambios en los datos del cliente que envia el vendedor
         upd = None
         inslog = None
@@ -527,11 +527,11 @@ def vendedor_envioclientenuevo():
             idcliente = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
             ins = f"insert into datos(fecha, user, idcliente, fecha_visitar, \
             art,horarios, comentarios, cuota_maxima,deuda_en_la_casa,\
-            sin_extension,monto_garantizado,vendedor,dnigarante,zona) values \
+            sin_extension,monto_garantizado,vendedor,dnigarante,zona,resultado) values \
             (curdate(), '{current_user.email}',{idcliente},curdate(),'','',\
             'cliente enviado por vendedor', {cuota_maxima}, \
             '{deuda_en_la_casa}',{sin_extension}, {monto_garantizado},{vdor},\
-            {dnigarante},'{zona}')"
+            {dnigarante},'{zona}',0)"
             pgexec(con,ins)
             iddato = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
             insaut = f"insert into autorizacion(fecha,vdor,iddato,idcliente,\
