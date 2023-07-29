@@ -532,7 +532,7 @@ def vendedor_envioclientenuevo():
             'cliente enviado por vendedor', {cuota_maxima}, \
             '{deuda_en_la_casa}',{sin_extension}, {monto_garantizado},{vdor},\
             {dnigarante},'{zona}',0)"
-            pgexec(con,ins)
+            pgexec(con, ins)
             iddato = pgonecolumn(con, "SELECT LAST_INSERT_ID()")
             insaut = f"insert into autorizacion(fecha,vdor,iddato,idcliente,\
             cuota_requerida,cuota_maxima,arts) values(current_timestamp(),\
@@ -1067,10 +1067,15 @@ def vendedor_pasarventa():
                 cnt = item['cnt']
                 art = item['art']
                 imp_cuota = item['cuota']
+                if 'color' in item:
+                    color = item['color']
+                else:
+                    color = ''
                 costo = pgonecolumn(con, f"select costo from articulos where \
                 art='{art}'")
-                ins = f"insert into detvta(idvta,cnt,art,cc,ic,costo,devuelta) \
-                values({idvta},{cnt},'{art}',6,{imp_cuota},{costo},0)"
+                ins = f"insert into detvta(idvta,cnt,art,cc,ic,costo,\
+                devuelta,color) values({idvta},{cnt},'{art}',6,{imp_cuota},\
+                {costo},0,'{color}')"
                 pgexec(con, ins)
                 log(ins)
             inslog = f"update variables set valor='{cant_cuotas}{imp_cuota}{per}{d_data['primera']}\
@@ -1176,14 +1181,17 @@ def vendedor_wappaut():
         msg = f"Retiro zona vdor {vdor}"
     else:
         msg = f"Autorizacion para el vdor {vdor}"
-    wapp1 = var_sistema['wapp_auth']
-    wapp2 = var_sistema['wapp_auth2']
-    logging.warning(f"wapp1 {wapp1} wapp2 {wapp2}")
+    # wapp1 = var_sistema['wapp_auth']
+    # wapp2 = var_sistema['wapp_auth2']
+    wapp = '3512411963'
+    # logging.warning(f"wapp1 {wapp1} wapp2 {wapp2}")
+    logging.warning(f"wapp autorizacion a {wapp}")
     try:
-        if wapp1:
-            send_msg_whatsapp(0, wapp1, msg)
-        if wapp2:
-            send_msg_whatsapp(0, wapp2, msg)
+        # if wapp1:
+        #     send_msg_whatsapp(0, wapp1, msg)
+        # if wapp2:
+        #     send_msg_whatsapp(0, wapp2, msg)
+        send_msg_whatsapp(0, wapp, msg)
     except mysql.connector.Error as _error:
         error = _error.msg
         logging.warning(
@@ -1252,8 +1260,9 @@ def vendedor_getcargavendedor():
     con = get_con()
     vdor = var_sistema[current_user.email]
     artvendedor = pglistdict(con, f"select sum(detvta.cnt) as cnt,\
-    detvta.art as art from detvta,ventas where detvta.idvta=ventas.id and \
-    cargado=0 and idvdor={vdor} group by detvta.art")
+    detvta.art as art, group_concat(color) as colores from detvta,ventas \
+    where detvta.idvta=ventas.id and cargado=0 and idvdor={vdor} group by \
+    detvta.art")
     # no se filtra mas por devuelta=0, solo por cargado=0
     return jsonify(artvendedor=artvendedor)
 

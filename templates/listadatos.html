@@ -147,6 +147,8 @@
             <option :value="item"></option>
           </template>
         </datalist>
+        <input type="text" class="input mb-3" x-model="Venta.color" id="idcolor" autocomplete="off"
+               :class="darkTheme?'input-dark':''" placeholder="Color (opcional)">
         <button class="button is-primary" @click="agregarArticulo(Venta.cnt,Venta.art)">Agregar Articulo</button>
         <table class="no-total table">
           <thead>

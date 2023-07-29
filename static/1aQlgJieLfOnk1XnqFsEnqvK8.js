@@ -554,9 +554,11 @@ function BuuZZCDVMyzK4I1OcGEvNeeob(){
                  let cc = 6;
                  let total = cnt * cuota * cc;
                  let id = this.listaArtComprados.length;
-                 this.listaArtComprados.push({id,cnt,art,cc,cuota,total});
+                 let color = this.Venta.color
+                 this.listaArtComprados.push({id,cnt,art,cc,cuota,total,color});
                  this.Venta.cnt = '';
                  this.Venta.art = '';
+                 this.Venta.color = '';
                  this.sumaCuota = this.listaArtComprados.map(row=>row.total).reduce((a,b)=>a+b,0)/6;
              }
          },
