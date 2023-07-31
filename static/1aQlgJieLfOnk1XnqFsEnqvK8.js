@@ -749,6 +749,9 @@ Le recomendamos tener en cuenta lo siguiente para una mejor conservacion de los 
               for(let art of listaarts){
                   recom += `${this.listaRecomendaciones.filter(row=>row.art==art)[0].recomendacion}`
               }
+             if(recom==''){
+                 recom1 = ''
+             }
              let msg = `Estimado cliente: ${datos.nombre}, agradecemos su compra de ${arts}.
 Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $${datos.monto_vendido/cuotas} y la primer cuota vence el dia ${this.Venta.primera} para cualquier consulta no dude en contactarnos, estamos a su disposicion!.${recom1} ${recom}`;
              console.log( msg)
