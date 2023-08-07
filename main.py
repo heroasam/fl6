@@ -1826,7 +1826,7 @@ def vendedor_contadoconforme():
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_metodopagotransferencia(idcliente):
     con = get_con()
-    upd = f"update clientes set zona='PAGO_LOCAL' where id={idcliente}"
+    upd = f"update clientes set zona='TRANS_SANTANDER' where id={idcliente}"
     pgexec(con, upd)
     return 'ok'
 

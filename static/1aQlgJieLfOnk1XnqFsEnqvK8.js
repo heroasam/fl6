@@ -351,7 +351,7 @@ function BuuZZCDVMyzK4I1OcGEvNeeob(){
          filtraPorSector(item){
              // sectores Norte, Sur, Este, Local
              // listaZonas = {
-             //     'Local': ['PAGO_LOCAL'],
+             //     'Local': ['TRANS_SANTANDER','TRANS_FRANCES'],
              //     'Norte': ['Marques','Sargento','Fragueiro','Panamericano','Liceo','Remedios','Patricios','Mosconi','Bustos','America','MT','Italia','YofreSur','Arenales'],
              //     'Sur': ['Vicor','SI3','Congreso','SI2','Cabildo','Rosedal','Adela','EstacionFlores','SanRoque','Republica','Union'],
              //     'Este': ['Hernandez','Olmedo','Carcano','JID45','JID23','JID1','Ferreyra','Ituizango','Mayo','Coops']
@@ -777,9 +777,9 @@ Le recordamos que el plan de pagos elegido es de ${cuotas} cuotas mensuales de $
              if(this.metodoPago=='transferencia'){
                  msg=`Estimado Cliente: le enviamos los datos de la cuenta para que pueda efectuar sus transferencias:
 DATOS DE LA CUENTA:
-Número de CBU: 0170084840000048757878
-Alias de CBU: ROMITEX
-Titular de la cuenta: SALVAY SERGIO FEDERICO`
+Número de CBU: 0720556988000035614454
+Alias: ROMITEX.GESTION
+Titular de la cuenta: Heredie Maria Isabel`
                  data = {idcliente, wapp, msg}
                  axios.post('/hX53695XAOpaLY9itLgmghkhH',data)
              }
