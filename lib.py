@@ -201,7 +201,7 @@ def letras(num):
     return (num.lstrip().rstrip().upper())
 
 
-def send_msg_whatsapp(idcliente, wapp, msg, api=1):
+def send_msg_whatsapp(idcliente, wapp, msg, api=3):
     """Funcion que encola wapp de texto."""
     # comprobacion de si es un numero valido
     if not wapp.isdigit():
@@ -214,7 +214,7 @@ def send_msg_whatsapp(idcliente, wapp, msg, api=1):
         email = 'sistema'
     if api==1:
         # servidor = "heroasam.xyz"
-        servidor = "localhost:3001"
+        servidor = "localhost:3003"
     elif api==2:
         # servidor = "romulana.xyz"
         servidor = "localhost:3002"
@@ -257,7 +257,7 @@ def send_msg_whatsapp(idcliente, wapp, msg, api=1):
         return make_response(error, 400)
 
 
-def send_file_whatsapp(idcliente, file, wapp, msg='', api=1):
+def send_file_whatsapp(idcliente, file, wapp, msg='', api=3):
     """Funcion que encola wapp de file."""
     # comprobacion de si es un numero valido
     if not wapp.isdigit():
@@ -271,7 +271,7 @@ def send_file_whatsapp(idcliente, file, wapp, msg='', api=1):
         email = 'sistema'
     if api==1:
         # servidor = "heroasam.xyz"
-        servidor = "localhost:3001"
+        servidor = "localhost:3003"
     elif api==2:
         # servidor = "romulana.xyz"
         servidor = "localhost:3002"
