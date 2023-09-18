@@ -331,6 +331,8 @@ def calculo_cuota_maxima(idcliente):
             f"error mysql Nº {_error.errno},{ _error.msg},codigo sql-state Nº {_error.sqlstate}")
         return make_response(error, 400)
     else:
+        if cuota_actualizada>10000:
+            cuota_actualizada = 10000
         return cuota_actualizada
     finally:
         con.close()
