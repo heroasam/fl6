@@ -582,7 +582,7 @@ def vendedor_getlistadodatosvendedor():
     resultado,datos.dnigarante as dnigarante,quiere_devolver,vendedor,\
     wapp_verificado,tipo_devolucion,comentario_devolucion from  datos,clientes \
     where clientes.id = datos.idcliente \
-    and vendedor={vdor} and (resultado = 0 or resultado=7 or (resultado=1 \
+    and vendedor={vdor} and (resultado = 0  or (resultado=1 \
     and quiere_devolver=1) or (resultado=1 and date(fecha_definido)=\
     curdate())) and fecha_visitar <=curdate() and enviado_vdor=1 order by id \
                               desc")
