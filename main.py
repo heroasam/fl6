@@ -823,7 +823,7 @@ def vendedor_validardni():
     d_data = json.loads(request.data.decode("UTF-8"))
     logging.warning(d_data)
     dni = pgonecolumn(con, f"select dni from clientes where id={d_data['id']}")
-    if d_data['dni'] != '' and dni == int(d_data['dni']):
+    if d_data['dni'] != '' and dni == d_data['dni']:
         return make_response('aprobado', 200)
     return make_response('error', 400)
 
@@ -1828,7 +1828,7 @@ def vendedor_contadoconforme():
 @check_roles(['dev', 'gerente', 'vendedor'])
 def vendedor_metodopagotransferencia(idcliente):
     con = get_con()
-    upd = f"update clientes set zona='TRANS_SANTANDER' where id={idcliente}"
+    upd = f"update clientes set zona='-TRANS_SANTANDER' where id={idcliente}"
     pgexec(con, upd)
     return 'ok'
 
